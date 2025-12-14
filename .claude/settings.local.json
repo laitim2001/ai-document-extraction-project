@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "SlashCommand(/bmad:bmm:workflows:workflow-init)",
+      "Bash(dir /b \"C:\\Users\\rci.ChrisLai\\Documents\\GitHub\\ai-document-extraction-project\")",
+      "Bash(dir \"C:\\Users\\rci.ChrisLai\\Documents\\GitHub\\ai-document-extraction-project\")",
+      "SlashCommand(/bmad:bmm:workflows:create-product-brief)",
+      "SlashCommand(/bmad:bmm:workflows:create-prd)",
+      "Bash(dir /s /b \"C:\\Users\\rci.ChrisLai\\Documents\\GitHub\\ai-document-extraction-project\\docs\")",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(dir:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
