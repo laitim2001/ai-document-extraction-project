@@ -23,4 +23,9 @@ workflows:
       - docs/01-planning/ux/ux-color-themes.html
       - docs/01-planning/ux/ux-design-directions.html
 
+  create-architecture:
+    status: completed
+    output: docs/02-architecture/architecture.md
+    completedAt: '2025-12-15'
+
 lastUpdated: '2025-12-15'
