@@ -10,7 +10,20 @@
       "Bash(git init:*)",
       "Bash(git remote add:*)",
       "Bash(dir:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "SlashCommand(/bmad:bmm:workflows:create-ux-design)",
+      "WebSearch",
+      "Bash(npx @kayvan/markdown-tree-parser:*)",
+      "Bash(wc:*)",
+      "Bash(git mv:*)",
+      "SlashCommand(/bmad:bmm:workflows:check-implementation-readiness)",
+      "SlashCommand(/bmad:bmm:workflows:sprint-planning)",
+      "SlashCommand(/bmad:bmm:workflows:create-story)",
+      "Bash(move \"C:\\Users\\rci.ChrisLai\\Documents\\GitHub\\ai-document-extraction-project\\docs\\sprint-artifacts\\sprint-status.yaml\" \"C:\\Users\\rci.ChrisLai\\Documents\\GitHub\\ai-document-extraction-project\\docs\\04-implementation\\sprint-status.yaml\")",
+      "SlashCommand(/bmad:bmm:workflows:create-tech-spec)"
     ]
   }
 }
