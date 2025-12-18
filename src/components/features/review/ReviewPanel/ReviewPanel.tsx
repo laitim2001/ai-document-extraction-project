@@ -1,27 +1,34 @@
 /**
  * @fileoverview 審核面板主組件
  * @description
- *   顯示文件提取結果的審核面板：
+ *   顯示文件提取結果的審核面板（已整合 Story 3.3 功能）：
  *   - 文件基本資訊（標題、Forwarder、信心度）
+ *   - 低信心度篩選開關 (AC3)
  *   - 分組顯示提取欄位
  *   - 審核操作按鈕
  *
  * @module src/components/features/review/ReviewPanel
  * @since Epic 3 - Story 3.2 (並排 PDF 審核介面)
  * @lastModified 2025-12-18
+ *
+ * @dependencies
+ *   - @/lib/confidence - 信心度工具函數
+ *   - ../LowConfidenceFilter - 低信心度篩選組件
  */
 
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { ExtractedField, FieldGroupData, ReviewDetailData } from '@/types/review'
 import { useReviewStore } from '@/stores/reviewStore'
 import { FieldGroup } from './FieldGroup'
 import { ReviewActions } from './ReviewActions'
 import { ConfidenceBadge } from '../ConfidenceBadge'
 import { ProcessingPathBadge } from '../ProcessingPathBadge'
+import { LowConfidenceFilter } from '../LowConfidenceFilter'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { getConfidenceLevel } from '@/lib/confidence'
 
 // ============================================================
 // Constants
@@ -64,6 +71,11 @@ interface ReviewPanelProps {
 /**
  * 審核面板組件
  *
+ * @description
+ *   整合 Story 3.3 的信心度篩選功能：
+ *   - 可切換只顯示低信心度欄位
+ *   - 顯示低信心度欄位數量統計
+ *
  * @example
  * ```tsx
  * <ReviewPanel
@@ -83,13 +95,34 @@ export function ReviewPanel({
 }: ReviewPanelProps) {
   const { selectedFieldId, setSelectedField, hasPendingChanges } = useReviewStore()
 
+  // --- 低信心度篩選狀態 (AC3) ---
+  const [showLowConfidenceOnly, setShowLowConfidenceOnly] = useState(false)
+
+  // --- 計算低信心度欄位數量 ---
+  const lowConfidenceCount = useMemo(
+    () =>
+      data.extraction.fields.filter(
+        (f) => getConfidenceLevel(f.confidence) === 'low'
+      ).length,
+    [data.extraction.fields]
+  )
+
+  // --- 篩選後的欄位 ---
+  const filteredFields = useMemo(() => {
+    if (!showLowConfidenceOnly) return data.extraction.fields
+
+    return data.extraction.fields.filter(
+      (f) => getConfidenceLevel(f.confidence) === 'low'
+    )
+  }, [data.extraction.fields, showLowConfidenceOnly])
+
   // --- 將欄位按組分類 ---
   const groupedFields = useMemo(() => {
     const groups: FieldGroupData[] = []
     const fieldsByGroup = new Map<string, ExtractedField[]>()
 
     // 分組
-    data.extraction.fields.forEach((field) => {
+    filteredFields.forEach((field) => {
       const group = field.fieldGroup || 'other'
       if (!fieldsByGroup.has(group)) {
         fieldsByGroup.set(group, [])
@@ -111,7 +144,7 @@ export function ReviewPanel({
     })
 
     return groups
-  }, [data.extraction.fields])
+  }, [filteredFields])
 
   // --- 處理欄位選擇 ---
   const handleFieldSelect = (field: ExtractedField) => {
@@ -146,19 +179,35 @@ export function ReviewPanel({
             <ConfidenceBadge score={data.extraction.overallConfidence} />
           </div>
         </div>
+
+        {/* 低信心度篩選 (AC3) - 只有當存在低信心度欄位時顯示 */}
+        {lowConfidenceCount > 0 && (
+          <LowConfidenceFilter
+            enabled={showLowConfidenceOnly}
+            onToggle={setShowLowConfidenceOnly}
+            lowConfidenceCount={lowConfidenceCount}
+            totalCount={data.extraction.fields.length}
+          />
+        )}
       </div>
 
       {/* 欄位列表 */}
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4">
-          {groupedFields.map((group) => (
-            <FieldGroup
-              key={group.groupName}
-              group={group}
-              selectedFieldId={selectedFieldId}
-              onFieldSelect={handleFieldSelect}
-            />
-          ))}
+          {groupedFields.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              {showLowConfidenceOnly ? '沒有低信心度欄位' : '沒有提取欄位'}
+            </p>
+          ) : (
+            groupedFields.map((group) => (
+              <FieldGroup
+                key={group.groupName}
+                group={group}
+                selectedFieldId={selectedFieldId}
+                onFieldSelect={handleFieldSelect}
+              />
+            ))
+          )}
         </div>
       </ScrollArea>
 

@@ -30,10 +30,20 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-    /* Confidence level colors */
+    /* Confidence level colors - High (green) */
     --confidence-high: 142 76% 36%;
+    --confidence-high-bg: 142 76% 95%;
+    --confidence-high-text: 142 76% 25%;
+
+    /* Confidence level colors - Medium (yellow) */
     --confidence-medium: 45 93% 47%;
+    --confidence-medium-bg: 45 93% 95%;
+    --confidence-medium-text: 45 93% 30%;
+
+    /* Confidence level colors - Low (red) */
     --confidence-low: 0 84% 60%;
+    --confidence-low-bg: 0 84% 95%;
+    --confidence-low-text: 0 84% 35%;
   }
 
   .dark {
@@ -61,7 +71,31 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Confidence level colors - Dark mode */
+    --confidence-high-bg: 142 76% 15%;
+    --confidence-high-text: 142 76% 75%;
+
+    --confidence-medium-bg: 45 93% 15%;
+    --confidence-medium-text: 45 93% 75%;
+
+    --confidence-low-bg: 0 84% 15%;
+    --confidence-low-text: 0 84% 75%;
   }
+}
+
+/* Confidence Animations */
+@keyframes confidence-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.confidence-low-attention {
+  animation: confidence-pulse 2s ease-in-out infinite;
 }
 
 @layer base {

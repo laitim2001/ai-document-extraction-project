@@ -1,22 +1,31 @@
 /**
  * @fileoverview 單個欄位列組件
  * @description
- *   顯示單個提取欄位：
+ *   顯示單個提取欄位（已整合 Story 3.3 信心度顏色編碼）：
  *   - 欄位名稱（中文對照）
  *   - 提取值
- *   - 信心度徽章
+ *   - 信心度徽章（帶 Tooltip 顯示詳情）
+ *   - 左側邊框顏色指示
  *   - 來源位置指示器
- *   - 選中狀態高亮
+ *   - 低信心度脈動動畫
  *
  * @module src/components/features/review/ReviewPanel
  * @since Epic 3 - Story 3.2 (並排 PDF 審核介面)
  * @lastModified 2025-12-18
+ *
+ * @dependencies
+ *   - @/lib/confidence - 信心度閾值和工具函數
+ *   - ../ConfidenceBadge - 信心度徽章組件
+ *   - ../ConfidenceTooltip - 信心度詳情 Tooltip
  */
 
 'use client'
 
 import type { ExtractedField } from '@/types/review'
+import type { ConfidenceFactors } from '@/types/confidence'
 import { ConfidenceBadge } from '../ConfidenceBadge'
+import { ConfidenceTooltip } from '../ConfidenceTooltip'
+import { getConfidenceLevel } from '@/lib/confidence'
 import { cn } from '@/lib/utils'
 import { MapPin } from 'lucide-react'
 import {
@@ -74,6 +83,24 @@ const FIELD_LABELS: Record<string, string> = {
   netAmount: '淨額',
 }
 
+/**
+ * 背景色樣式
+ */
+const BG_STYLES = {
+  high: 'hover:bg-[hsl(var(--confidence-high-bg))]',
+  medium: 'hover:bg-[hsl(var(--confidence-medium-bg))]',
+  low: 'bg-[hsl(var(--confidence-low-bg))] hover:bg-[hsl(var(--confidence-low-bg)/80%)]',
+} as const
+
+/**
+ * 左側邊框顏色
+ */
+const BORDER_STYLES = {
+  high: 'border-l-[hsl(var(--confidence-high))]',
+  medium: 'border-l-[hsl(var(--confidence-medium))]',
+  low: 'border-l-[hsl(var(--confidence-low))]',
+} as const
+
 // ============================================================
 // Types
 // ============================================================
@@ -85,6 +112,8 @@ interface FieldRowProps {
   isSelected: boolean
   /** 選擇回調 */
   onSelect: () => void
+  /** 信心度計算因素（用於 Tooltip 顯示） */
+  confidenceFactors?: ConfidenceFactors
 }
 
 // ============================================================
@@ -94,32 +123,44 @@ interface FieldRowProps {
 /**
  * 單個欄位列組件
  *
+ * @description
+ *   整合 Story 3.3 的信心度顏色編碼：
+ *   - 左側邊框顯示信心度顏色
+ *   - 背景色根據信心度等級變化
+ *   - ConfidenceTooltip 顯示詳情
+ *   - 低信心度時有脈動動畫
+ *
  * @example
  * ```tsx
  * <FieldRow
  *   field={field}
  *   isSelected={true}
  *   onSelect={handleSelect}
+ *   confidenceFactors={factors}
  * />
  * ```
  */
-export function FieldRow({ field, isSelected, onSelect }: FieldRowProps) {
-  const confidenceLevel =
-    field.confidence >= 90 ? 'high' : field.confidence >= 70 ? 'medium' : 'low'
-
-  const bgColor = {
-    high: 'hover:bg-green-50 dark:hover:bg-green-950/20',
-    medium: 'hover:bg-yellow-50 dark:hover:bg-yellow-950/20',
-    low: 'bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/30',
-  }[confidenceLevel]
+export function FieldRow({
+  field,
+  isSelected,
+  onSelect,
+  confidenceFactors,
+}: FieldRowProps) {
+  const level = getConfidenceLevel(field.confidence)
+  const bgStyle = BG_STYLES[level]
+  const borderStyle = BORDER_STYLES[level]
 
   return (
     <div
       data-testid="field-row"
+      data-confidence-level={level}
       className={cn(
-        'flex items-center justify-between p-3 cursor-pointer transition-colors',
-        bgColor,
-        isSelected && 'ring-2 ring-inset ring-primary bg-primary/5'
+        'flex items-center justify-between p-3 cursor-pointer transition-all',
+        'border-l-4',
+        bgStyle,
+        borderStyle,
+        isSelected && 'ring-2 ring-inset ring-primary bg-primary/5',
+        level === 'low' && 'confidence-low-attention'
       )}
       onClick={onSelect}
       role="button"
@@ -158,7 +199,12 @@ export function FieldRow({ field, isSelected, onSelect }: FieldRowProps) {
       </div>
 
       <div className="flex items-center gap-2 ml-4 shrink-0">
-        <ConfidenceBadge score={field.confidence} size="sm" />
+        {/* 信心度徽章帶 Tooltip (AC2) */}
+        <ConfidenceTooltip score={field.confidence} factors={confidenceFactors}>
+          <div data-testid="confidence-badge">
+            <ConfidenceBadge score={field.confidence} size="sm" />
+          </div>
+        </ConfidenceTooltip>
       </div>
     </div>
   )

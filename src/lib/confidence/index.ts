@@ -35,3 +35,13 @@ export {
   quickCalculateFieldScore,
   batchCalculateFieldConfidence,
 } from './calculator'
+
+// 工具函數
+export {
+  formatConfidenceFactors,
+  getConfidenceDescription,
+  calculateTotalScore,
+} from './utils'
+
+// 重新導出類型
+export type { FormattedConfidenceFactor } from './utils'
