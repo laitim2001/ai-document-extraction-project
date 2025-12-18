@@ -159,6 +159,7 @@ export * from './city.service'
 // Epic 2: Manual Invoice Upload & AI Processing
 export * from './document.service'
 export * from './extraction.service'
+export * from './identification'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

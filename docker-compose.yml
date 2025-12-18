@@ -57,6 +57,29 @@ services:
       retries: 3
       start_period: 10s
 
+  # Forwarder Mapping Service (Python FastAPI)
+  forwarder-mapping:
+    build:
+      context: ./python-services/mapping
+      dockerfile: Dockerfile
+    container_name: ai-doc-extraction-mapping
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ai_document_extraction
+      CORS_ORIGINS: http://localhost:3000
+      DEBUG: ${DEBUG:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
 volumes:
   postgres_data:
   pgadmin_data:

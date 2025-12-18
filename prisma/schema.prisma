@@ -27,11 +27,12 @@ model User {
   lastLoginAt   DateTime?  @map("last_login_at")
 
   // Relations
-  accounts  Account[]
-  sessions  Session[]
-  auditLogs AuditLog[]
-  roles     UserRole[] // 用戶角色關聯
-  documents Document[] // 用戶上傳的文件
+  accounts             Account[]
+  sessions             Session[]
+  auditLogs            AuditLog[]
+  roles                UserRole[] // 用戶角色關聯
+  documents            Document[] // 用戶上傳的文件
+  forwarderAssignments ForwarderIdentification[] // 手動指派的 Forwarder
 
   @@map("users")
 }
@@ -181,23 +182,23 @@ model Document {
   processingPath  ProcessingPath? @map("processing_path")
   routingDecision Json?           @map("routing_decision")
 
-  uploadedBy String  @map("uploaded_by")
-  cityCode   String? @map("city_code")
+  uploadedBy  String  @map("uploaded_by")
+  cityCode    String? @map("city_code")
+  forwarderId String? @map("forwarder_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  uploader  User       @relation(fields: [uploadedBy], references: [id])
-  ocrResult OcrResult? // OCR 結果（一對一關聯）
-  // Future relations (to be added in later stories):
-  // extractions       ExtractionResult[]
-  // identifications   ForwarderIdentification[]
-  // processingQueue   ProcessingQueue?
+  uploader        User                      @relation(fields: [uploadedBy], references: [id])
+  ocrResult       OcrResult? // OCR 結果（一對一關聯）
+  forwarder       Forwarder?                @relation(fields: [forwarderId], references: [id])
+  identifications ForwarderIdentification[]
 
   @@index([status])
   @@index([uploadedBy])
   @@index([cityCode])
+  @@index([forwarderId])
   @@index([createdAt])
   @@map("documents")
 }
@@ -237,6 +238,78 @@ model OcrResult {
 }
 
 // =====================
+// Forwarder Management Models
+// =====================
+
+model Forwarder {
+  id          String @id @default(uuid())
+  name        String @unique
+  code        String @unique // Short code: "DHL", "FDX", "UPS"
+  displayName String @map("display_name")
+
+  // Identification Configuration
+  identificationPatterns Json @map("identification_patterns")
+  // Structure: {
+  //   names: string[],      // Company name variations
+  //   keywords: string[],   // Unique keywords/phrases
+  //   formats: string[],    // Document format patterns (regex)
+  //   logoText: string[]    // Text typically near logos
+  // }
+
+  // Settings
+  isActive Boolean @default(true) @map("is_active")
+  priority Int     @default(0) // Higher = checked first
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  documents       Document[]
+  identifications ForwarderIdentification[]
+
+  @@index([code])
+  @@index([isActive])
+  @@map("forwarders")
+}
+
+model ForwarderIdentification {
+  id          String  @id @default(uuid())
+  documentId  String  @unique @map("document_id")
+  forwarderId String? @map("forwarder_id")
+
+  // Identification Result
+  confidence      Float // 0-100 percentage
+  matchMethod     String   @map("match_method") // "name", "keyword", "format", "manual"
+  matchedPatterns String[] @map("matched_patterns") // Patterns that matched
+  matchDetails    Json?    @map("match_details") // Detailed match info
+
+  // Processing Info
+  isAutoMatched    Boolean   @default(true) @map("is_auto_matched")
+  isManual         Boolean   @default(false) @map("is_manual")
+  manualAssignedBy String?   @map("manual_assigned_by")
+  manualAssignedAt DateTime? @map("manual_assigned_at")
+
+  // Status
+  status IdentificationStatus @default(PENDING)
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  document   Document   @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  forwarder  Forwarder? @relation(fields: [forwarderId], references: [id])
+  assignedBy User?      @relation(fields: [manualAssignedBy], references: [id])
+
+  @@index([documentId])
+  @@index([forwarderId])
+  @@index([status])
+  @@index([confidence])
+  @@map("forwarder_identifications")
+}
+
+// =====================
 // Enums
 // =====================
 
@@ -265,4 +338,12 @@ enum ProcessingPath {
   QUICK_REVIEW // 快速審核（70-89% 信心度）
   FULL_REVIEW // 完整審核（<70% 信心度）
   MANUAL_REQUIRED // 需要人工處理
+}
+
+enum IdentificationStatus {
+  PENDING // 等待識別
+  IDENTIFIED // 已識別（自動或手動）
+  NEEDS_REVIEW // 低信心度，需人工審核
+  UNIDENTIFIED // 無法識別
+  FAILED // 識別過程失敗
 }

@@ -377,9 +377,9 @@ src/
 └── services/               # 服務層
 
 python-services/
-├── extraction/             # AI 提取服務 (port 8001)
-├── mapping/                # 映射服務 (port 8002)
-└── learning/               # 學習服務 (port 8003)
+├── extraction/             # AI 提取服務 (port 8000)
+├── mapping/                # Forwarder 識別服務 (port 8001)
+└── learning/               # 學習服務 (port 8002)
 ```
 
 ### 7.2 常用 API 端點
@@ -412,8 +412,8 @@ AZURE_OPENAI_ENDPOINT=
 AZURE_OPENAI_KEY=
 
 # Python Services
-EXTRACTION_SERVICE_URL=http://localhost:8001
-MAPPING_SERVICE_URL=http://localhost:8002
+OCR_SERVICE_URL=http://localhost:8000
+MAPPING_SERVICE_URL=http://localhost:8001
 
 # NextAuth
 NEXTAUTH_SECRET=
