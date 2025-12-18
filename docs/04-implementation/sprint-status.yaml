@@ -61,7 +61,7 @@ development_status:
   2-1-file-upload-interface-validation: done  # Completed 2025-12-18: Upload UI with drag-drop, validation, preview
   2-2-file-ocr-extraction-service: done  # Completed 2025-12-18: Python OCR service, Azure DI integration, Next.js API
   2-3-forwarder-auto-identification: done  # Completed 2025-12-18: Forwarder model, pattern matching service, confidence scoring
-  2-4-field-mapping-extraction: ready-for-dev
+  2-4-field-mapping-extraction: done  # Completed 2025-12-18: MappingRule/ExtractionResult models, field definitions, Python mapper, API routes, seed data
   2-5-confidence-score-calculation: ready-for-dev
   2-6-processing-path-auto-routing: ready-for-dev
   2-7-processing-status-tracking-display: ready-for-dev

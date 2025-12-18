@@ -190,10 +190,11 @@ model Document {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  uploader        User                      @relation(fields: [uploadedBy], references: [id])
-  ocrResult       OcrResult? // OCR 結果（一對一關聯）
-  forwarder       Forwarder?                @relation(fields: [forwarderId], references: [id])
-  identifications ForwarderIdentification[]
+  uploader         User                      @relation(fields: [uploadedBy], references: [id])
+  ocrResult        OcrResult? // OCR 結果（一對一關聯）
+  forwarder        Forwarder?                @relation(fields: [forwarderId], references: [id])
+  identifications  ForwarderIdentification[]
+  extractionResult ExtractionResult? // 欄位提取結果（一對一關聯）
 
   @@index([status])
   @@index([uploadedBy])
@@ -265,8 +266,10 @@ model Forwarder {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  documents       Document[]
-  identifications ForwarderIdentification[]
+  documents         Document[]
+  identifications   ForwarderIdentification[]
+  mappingRules      MappingRule[] // Forwarder-specific mapping rules
+  extractionResults ExtractionResult[] // Documents processed for this forwarder
 
   @@index([code])
   @@index([isActive])
@@ -346,4 +349,109 @@ enum IdentificationStatus {
   NEEDS_REVIEW // 低信心度，需人工審核
   UNIDENTIFIED // 無法識別
   FAILED // 識別過程失敗
+}
+
+enum ExtractionStatus {
+  PENDING // 等待提取
+  PROCESSING // 提取中
+  COMPLETED // 提取完成
+  PARTIAL // 部分完成（部分欄位提取成功）
+  FAILED // 提取失敗
+}
+
+// =====================
+// Mapping Rule Models
+// =====================
+
+model MappingRule {
+  id                String  @id @default(uuid())
+  forwarderId       String? @map("forwarder_id") // NULL = Universal Rule
+  fieldName         String  @map("field_name") // Standard field identifier
+  fieldLabel        String  @map("field_label") // Display label
+  extractionPattern Json    @map("extraction_pattern")
+  // Structure: {
+  //   method: "regex" | "keyword" | "position" | "azure_field",
+  //   pattern?: string,           // regex pattern
+  //   keywords?: string[],        // keyword list
+  //   position?: { page, region },// position data
+  //   azureFieldName?: string,    // Azure DI field name
+  //   confidence_boost?: number   // bonus confidence for this method
+  // }
+
+  priority          Int     @default(0) // Higher = processed first
+  isRequired        Boolean @default(false) @map("is_required")
+  isActive          Boolean @default(true) @map("is_active")
+  validationPattern String? @map("validation_pattern") // Regex for validation
+  defaultValue      String? @map("default_value")
+  category          String? // Field category: basic, shipper, consignee, etc.
+  description       String?
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  forwarder Forwarder? @relation(fields: [forwarderId], references: [id])
+
+  @@unique([forwarderId, fieldName])
+  @@index([forwarderId])
+  @@index([fieldName])
+  @@index([category])
+  @@index([isActive])
+  @@map("mapping_rules")
+}
+
+// =====================
+// Extraction Result Models
+// =====================
+
+model ExtractionResult {
+  id          String  @id @default(uuid())
+  documentId  String  @unique @map("document_id")
+  forwarderId String? @map("forwarder_id")
+
+  // Extraction Results
+  fieldMappings Json @map("field_mappings")
+  // Structure: {
+  //   [fieldName]: {
+  //     value: string | null,
+  //     rawValue: string | null,
+  //     confidence: number,
+  //     source: "tier1" | "tier2" | "tier3" | "azure",
+  //     ruleId?: string,
+  //     extractionMethod: string,
+  //     position?: { page, boundingBox }
+  //   }
+  // }
+
+  // Statistics
+  totalFields       Int   @map("total_fields")
+  mappedFields      Int   @map("mapped_fields")
+  unmappedFields    Int   @map("unmapped_fields")
+  averageConfidence Float @map("average_confidence") // 0-100 scale
+
+  // Processing Info
+  processingTime Int?             @map("processing_time") // milliseconds
+  rulesApplied   Int              @map("rules_applied")
+  status         ExtractionStatus @default(PENDING)
+  errorMessage   String?          @map("error_message")
+
+  // Unmapped Fields Tracking
+  unmappedFieldDetails Json? @map("unmapped_field_details")
+  // Structure: { [fieldName]: { reason: string, attempts: string[] } }
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  document  Document   @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  forwarder Forwarder? @relation(fields: [forwarderId], references: [id])
+
+  @@index([documentId])
+  @@index([forwarderId])
+  @@index([status])
+  @@index([averageConfidence])
+  @@index([createdAt])
+  @@map("extraction_results")
 }

@@ -1,7 +1,7 @@
 /**
  * @fileoverview Prisma 資料庫種子數據腳本
  * @description
- *   創建系統預設角色、城市、Forwarder 和初始數據。
+ *   創建系統預設角色、城市、Forwarder、映射規則和初始數據。
  *   使用 upsert 確保可重複執行。
  *
  *   預定義角色：
@@ -23,6 +23,10 @@
  *   - Regional: SF Express, Kerry Logistics
  *   - Unknown: 用於無法識別的文件
  *
+ *   映射規則：
+ *   - Universal Rules (Tier 1): 通用映射規則
+ *   - Forwarder-Specific Rules (Tier 2): DHL, FedEx, UPS, Maersk 特定規則
+ *
  * @module prisma/seed
  * @author Development Team
  * @since Epic 1 - Story 1.2 (User Database & Role Foundation)
@@ -42,6 +46,7 @@ import {
   ROLE_DESCRIPTIONS,
 } from '../src/types/role-permissions'
 import { FORWARDER_SEED_DATA } from './seed-data/forwarders'
+import { getAllMappingRules } from './seed-data/mapping-rules'
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -192,12 +197,100 @@ async function main() {
   }
 
   // ===========================================
+  // Seed Mapping Rules
+  // ===========================================
+  console.log('\n📋 Creating mapping rules...\n')
+
+  // 取得 Forwarder ID 對照表
+  const forwarders = await prisma.forwarder.findMany({
+    select: { id: true, code: true },
+  })
+  const forwarderIdMap = forwarders.reduce(
+    (acc, f) => {
+      acc[f.code] = f.id
+      return acc
+    },
+    {} as Record<string, string>
+  )
+
+  // 取得所有映射規則
+  const allMappingRules = getAllMappingRules(forwarderIdMap)
+
+  let ruleCreatedCount = 0
+  let ruleUpdatedCount = 0
+
+  for (const rule of allMappingRules) {
+    // 檢查是否已存在相同組合（使用 findFirst 處理 null forwarderId）
+    const existingRule = await prisma.mappingRule.findFirst({
+      where: {
+        forwarderId: rule.forwarderId,
+        fieldName: rule.fieldName,
+      },
+    })
+
+    // 由於同一欄位可能有多個規則（不同優先級），我們需要特殊處理
+    if (existingRule) {
+      // 如果已存在，更新它
+      await prisma.mappingRule.update({
+        where: { id: existingRule.id },
+        data: {
+          fieldLabel: rule.fieldLabel,
+          extractionPattern: rule.extractionPattern as unknown as Prisma.InputJsonValue,
+          priority: rule.priority,
+          isRequired: rule.isRequired,
+          validationPattern: rule.validationPattern || null,
+          defaultValue: rule.defaultValue || null,
+          category: rule.category,
+          description: rule.description || null,
+        },
+      })
+      ruleUpdatedCount++
+      if (ruleUpdatedCount <= 5) {
+        console.log(
+          `  🔄 Updated: ${rule.fieldName} (${rule.forwarderId ? 'Forwarder-specific' : 'Universal'})`
+        )
+      }
+    } else {
+      // 創建新規則
+      await prisma.mappingRule.create({
+        data: {
+          forwarderId: rule.forwarderId,
+          fieldName: rule.fieldName,
+          fieldLabel: rule.fieldLabel,
+          extractionPattern: rule.extractionPattern as unknown as Prisma.InputJsonValue,
+          priority: rule.priority,
+          isRequired: rule.isRequired,
+          validationPattern: rule.validationPattern || null,
+          defaultValue: rule.defaultValue || null,
+          category: rule.category,
+          description: rule.description || null,
+          isActive: true,
+        },
+      })
+      ruleCreatedCount++
+      if (ruleCreatedCount <= 5) {
+        console.log(
+          `  ✅ Created: ${rule.fieldName} (${rule.forwarderId ? 'Forwarder-specific' : 'Universal'})`
+        )
+      }
+    }
+  }
+
+  if (ruleCreatedCount > 5) {
+    console.log(`  ... and ${ruleCreatedCount - 5} more rules created`)
+  }
+  if (ruleUpdatedCount > 5) {
+    console.log(`  ... and ${ruleUpdatedCount - 5} more rules updated`)
+  }
+
+  // ===========================================
   // Summary
   // ===========================================
   const roleCount = await prisma.role.count()
   const userCount = await prisma.user.count()
   const cityCount = await prisma.city.count()
   const forwarderCount = await prisma.forwarder.count()
+  const mappingRuleCount = await prisma.mappingRule.count()
 
   console.log('\n========================================')
   console.log('✨ Seed completed successfully!')
@@ -208,10 +301,13 @@ async function main() {
   console.log(`  Cities updated: ${cityUpdatedCount}`)
   console.log(`  Forwarders created: ${forwarderCreatedCount}`)
   console.log(`  Forwarders updated: ${forwarderUpdatedCount}`)
+  console.log(`  Mapping rules created: ${ruleCreatedCount}`)
+  console.log(`  Mapping rules updated: ${ruleUpdatedCount}`)
   console.log('----------------------------------------')
   console.log(`  Total roles: ${roleCount}`)
   console.log(`  Total cities: ${cityCount}`)
   console.log(`  Total forwarders: ${forwarderCount}`)
+  console.log(`  Total mapping rules: ${mappingRuleCount}`)
   console.log(`  Total users: ${userCount}`)
   console.log('========================================\n')
 }

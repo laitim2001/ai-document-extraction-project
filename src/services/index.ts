@@ -74,7 +74,7 @@
  * @module src/services
  * @author Development Team
  * @since Epic 1 - Story 1.0 (Project Init Foundation)
- * @lastModified 2025-12-17
+ * @lastModified 2025-12-18
  *
  * @features
  *   - 統一服務導出入口
@@ -160,6 +160,7 @@ export * from './city.service'
 export * from './document.service'
 export * from './extraction.service'
 export * from './identification'
+export * from './mapping.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

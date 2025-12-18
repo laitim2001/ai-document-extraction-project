@@ -1,15 +1,21 @@
 """
 @fileoverview Forwarder Mapping FastAPI 服務
 @description
-  提供 Forwarder 識別的 RESTful API：
+  提供 Forwarder 識別和欄位映射的 RESTful API：
   - POST /identify - 從 OCR 文本識別 Forwarder
+  - POST /map-fields - 從 OCR 文本提取欄位值
   - GET /forwarders - 獲取所有 Forwarder 列表
   - GET /health - 健康檢查
 
-  信心度路由規則：
+  信心度路由規則（Forwarder 識別）：
   - >= 80%: 自動識別（AUTO_IDENTIFY）
   - 50-79%: 需要審核（NEEDS_REVIEW）
   - < 50%: 無法識別（UNIDENTIFIED）
+
+  信心度路由規則（欄位提取）：
+  - >= 90%: 自動通過（AUTO_APPROVE）
+  - 70-89%: 快速審核（QUICK_REVIEW）
+  - < 70%: 完整審核（FULL_REVIEW）
 
 @module python-services/mapping/src/main
 @since Epic 2 - Story 2.3 (Forwarder Auto-Identification)
@@ -18,7 +24,9 @@
 @features
   - FastAPI 異步 HTTP 服務
   - 基於模式的 Forwarder 識別
-  - 可配置的識別模式
+  - 三層架構欄位映射（Tier 1/2/3）
+  - 多種提取方法（regex, keyword, position, azure_field）
+  - 可配置的識別/映射模式
   - 結構化日誌 (structlog)
   - 健康檢查端點
 """
@@ -35,6 +43,15 @@ from pydantic_settings import BaseSettings
 
 from identifier import ForwarderMatcher, IdentificationResult
 from identifier.matcher import ForwarderPattern
+from mapper import (
+    FieldMapper,
+    MapFieldsRequest,
+    MapFieldsResponse,
+    FieldMappingResult,
+    ExtractionStatistics,
+    UnmappedFieldDetail,
+    MappingRule,
+)
 
 
 # ============================================================
@@ -227,6 +244,7 @@ DEFAULT_FORWARDER_PATTERNS: list[ForwarderPattern] = [
 
 # 全域匹配器實例
 matcher: Optional[ForwarderMatcher] = None
+field_mapper: Optional[FieldMapper] = None
 forwarder_list: list[ForwarderInfo] = []
 
 
@@ -291,7 +309,7 @@ def load_patterns_from_db() -> list[ForwarderPattern]:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """應用程式生命週期管理"""
-    global matcher, forwarder_list
+    global matcher, field_mapper, forwarder_list
 
     logger.info("application_startup")
 
@@ -313,6 +331,10 @@ async def lifespan(app: FastAPI):
     ]
 
     logger.info("matcher_ready", forwarder_count=len(forwarder_list))
+
+    # 初始化欄位映射器
+    field_mapper = FieldMapper()
+    logger.info("field_mapper_ready")
 
     yield
 
@@ -420,6 +442,86 @@ async def identify_forwarder(request: IdentifyRequest) -> IdentifyResponse:
         needsReview=needs_review,
         status=status,
     )
+
+
+@app.post("/map-fields", response_model=MapFieldsResponse)
+async def map_fields(request: MapFieldsRequest) -> MapFieldsResponse:
+    """
+    從 OCR 文本提取欄位值
+
+    使用三層映射架構（Tier 1/2/3）從 OCR 文本中提取發票欄位值。
+    支援多種提取方法：regex, keyword, position, azure_field。
+
+    Args:
+        request: 包含 OCR 文本和映射規則的請求
+
+    Returns:
+        欄位映射結果，包含每個欄位的值、信心度和來源
+    """
+    if field_mapper is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Field mapper not initialized",
+        )
+
+    logger.info(
+        "map_fields_request",
+        document_id=request.document_id,
+        forwarder_id=request.forwarder_id,
+        text_length=len(request.ocr_text),
+        rules_count=len(request.mapping_rules),
+    )
+
+    try:
+        # 執行欄位映射
+        field_mappings, unmapped_details, statistics = field_mapper.map_fields(
+            ocr_text=request.ocr_text,
+            rules=request.mapping_rules,
+            azure_invoice_data=request.azure_invoice_data,
+            forwarder_id=request.forwarder_id,
+        )
+
+        logger.info(
+            "map_fields_completed",
+            document_id=request.document_id,
+            mapped_fields=statistics.mapped_fields,
+            unmapped_fields=statistics.unmapped_fields,
+            average_confidence=statistics.average_confidence,
+            processing_time_ms=statistics.processing_time_ms,
+        )
+
+        return MapFieldsResponse(
+            success=True,
+            document_id=request.document_id,
+            forwarder_id=request.forwarder_id,
+            field_mappings=field_mappings,
+            statistics=statistics,
+            unmapped_field_details=unmapped_details if unmapped_details else None,
+            error_message=None,
+        )
+
+    except Exception as e:
+        logger.error(
+            "map_fields_failed",
+            document_id=request.document_id,
+            error=str(e),
+        )
+        return MapFieldsResponse(
+            success=False,
+            document_id=request.document_id,
+            forwarder_id=request.forwarder_id,
+            field_mappings={},
+            statistics=ExtractionStatistics(
+                total_fields=len(request.mapping_rules),
+                mapped_fields=0,
+                unmapped_fields=len(request.mapping_rules),
+                average_confidence=0.0,
+                processing_time_ms=0,
+                rules_applied=0,
+            ),
+            unmapped_field_details=None,
+            error_message=str(e),
+        )
 
 
 # ============================================================
