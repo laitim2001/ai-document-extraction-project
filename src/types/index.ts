@@ -27,3 +27,27 @@ export * from './review'
 
 // 升級相關 (Story 3.7)
 export * from './escalation'
+
+// 規則管理相關 (Story 4.1)
+// 注意：rule.ts 有自己的 ExtractionMethod/ExtractionPattern 定義
+// 使用命名導出避免與 field-mapping.ts 衝突
+export {
+  type RulesQueryParams,
+  type RuleListItem,
+  type RulesSummary,
+  type RulesListResponse,
+  type RuleStats,
+  type RecentApplication,
+  type RuleDetail,
+  type RuleDetailResponse,
+  // 規則專用的類型（命名空間區分）
+  type ExtractionMethod as RuleExtractionMethod,
+  type ExtractionPattern as RuleExtractionPattern,
+  EXTRACTION_METHODS as RULE_EXTRACTION_METHODS,
+  RULE_STATUSES,
+  FIELD_CATEGORIES as RULE_FIELD_CATEGORIES,
+  STANDARD_FIELD_NAMES,
+  getRuleStatusConfig,
+  getExtractionMethodConfig,
+  getStandardFieldConfig,
+} from './rule'

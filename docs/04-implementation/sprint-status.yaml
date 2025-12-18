@@ -84,8 +84,8 @@ development_status:
   # ============================================================
   # Epic 4: 映射規則管理與自動學習
   # ============================================================
-  epic-4: backlog
-  4-1-mapping-rule-list-view: ready-for-dev
+  epic-4: in-progress
+  4-1-mapping-rule-list-view: done  # Completed 2025-12-18: Rule list page, filters, detail view, API endpoints, React Query hooks
   4-2-suggest-new-mapping-rule: ready-for-dev
   4-3-correction-pattern-recording-analysis: ready-for-dev
   4-4-rule-upgrade-suggestion-generation: ready-for-dev
