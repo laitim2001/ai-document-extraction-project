@@ -4,7 +4,7 @@
  *   提供審核列表的篩選功能：
  *   - Forwarder 下拉選單
  *   - 處理路徑下拉選單
- *   - 信心度範圍（數字輸入）
+ *   - 信心度範圍（雙滑桿 Slider）
  *   - 清除篩選按鈕
  *
  * @module src/components/features/review/ReviewFilters
@@ -13,7 +13,7 @@
  *
  * @dependencies
  *   - @/components/ui/select - shadcn Select 組件
- *   - @/components/ui/input - shadcn Input 組件
+ *   - @/components/ui/slider - shadcn Slider 組件
  *   - @/components/ui/button - shadcn Button 組件
  *   - @prisma/client - ProcessingPath 枚舉
  */
@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
+import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 
@@ -49,6 +49,13 @@ interface ForwarderOption {
   id: string
   name: string
 }
+
+// ============================================================
+// Constants
+// ============================================================
+
+/** 信心度範圍預設值 */
+const DEFAULT_CONFIDENCE_RANGE: [number, number] = [0, 100]
 
 // ============================================================
 // Hooks
@@ -98,12 +105,12 @@ function useForwarders() {
  */
 export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) {
   const { forwarders, isLoading: forwardersLoading } = useForwarders()
-  const [minConfidence, setMinConfidence] = useState<string>(
-    filters.minConfidence?.toString() || ''
-  )
-  const [maxConfidence, setMaxConfidence] = useState<string>(
-    filters.maxConfidence?.toString() || ''
-  )
+
+  // 計算當前信心度範圍值
+  const confidenceRange: [number, number] = [
+    filters.minConfidence ?? DEFAULT_CONFIDENCE_RANGE[0],
+    filters.maxConfidence ?? DEFAULT_CONFIDENCE_RANGE[1],
+  ]
 
   // 檢查是否有篩選條件
   const hasFilters =
@@ -112,11 +119,14 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
     filters.minConfidence !== undefined ||
     filters.maxConfidence !== undefined
 
+  // 檢查信心度是否與預設不同
+  const hasConfidenceFilter =
+    confidenceRange[0] !== DEFAULT_CONFIDENCE_RANGE[0] ||
+    confidenceRange[1] !== DEFAULT_CONFIDENCE_RANGE[1]
+
   // 清除所有篩選
   const clearFilters = useCallback(() => {
     onFiltersChange({})
-    setMinConfidence('')
-    setMaxConfidence('')
   }, [onFiltersChange])
 
   // 處理 Forwarder 變更
@@ -141,23 +151,22 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
     [filters, onFiltersChange]
   )
 
-  // 處理信心度範圍變更（輸入完成後觸發）
-  const handleConfidenceBlur = useCallback(() => {
-    const min = minConfidence ? parseInt(minConfidence, 10) : undefined
-    const max = maxConfidence ? parseInt(maxConfidence, 10) : undefined
-
-    // 驗證範圍
-    const validMin =
-      min !== undefined ? Math.max(0, Math.min(100, min)) : undefined
-    const validMax =
-      max !== undefined ? Math.max(0, Math.min(100, max)) : undefined
-
-    onFiltersChange({
-      ...filters,
-      minConfidence: validMin,
-      maxConfidence: validMax,
-    })
-  }, [filters, minConfidence, maxConfidence, onFiltersChange])
+  // 處理信心度範圍變更
+  const handleConfidenceChange = useCallback(
+    (values: number[]) => {
+      if (values.length >= 2) {
+        const [min, max] = values
+        onFiltersChange({
+          ...filters,
+          minConfidence:
+            min === DEFAULT_CONFIDENCE_RANGE[0] ? undefined : min,
+          maxConfidence:
+            max === DEFAULT_CONFIDENCE_RANGE[1] ? undefined : max,
+        })
+      }
+    },
+    [filters, onFiltersChange]
+  )
 
   return (
     <div className="flex flex-wrap items-center gap-4 p-4 bg-muted/30 rounded-lg">
@@ -205,38 +214,46 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
         </Select>
       </div>
 
-      {/* 信心度範圍篩選 */}
-      <div className="flex items-center gap-2">
+      {/* 信心度範圍篩選 - 雙滑桿 Slider */}
+      <div className="flex items-center gap-3">
         <span className="text-sm text-muted-foreground whitespace-nowrap">
           信心度:
         </span>
-        <div className="flex items-center gap-1">
-          <Input
-            type="number"
+        <div className="flex items-center gap-3 min-w-[200px]">
+          <span className="text-sm font-medium w-8 text-right">
+            {confidenceRange[0]}%
+          </span>
+          <Slider
+            value={confidenceRange}
+            onValueChange={handleConfidenceChange}
             min={0}
             max={100}
-            placeholder="0"
-            value={minConfidence}
-            onChange={(e) => setMinConfidence(e.target.value)}
-            onBlur={handleConfidenceBlur}
-            className="w-16 h-9"
+            step={5}
+            className="w-[120px]"
           />
-          <span className="text-muted-foreground">-</span>
-          <Input
-            type="number"
-            min={0}
-            max={100}
-            placeholder="100"
-            value={maxConfidence}
-            onChange={(e) => setMaxConfidence(e.target.value)}
-            onBlur={handleConfidenceBlur}
-            className="w-16 h-9"
-          />
-          <span className="text-sm text-muted-foreground">%</span>
+          <span className="text-sm font-medium w-8">
+            {confidenceRange[1]}%
+          </span>
         </div>
+        {hasConfidenceFilter && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={() =>
+              onFiltersChange({
+                ...filters,
+                minConfidence: undefined,
+                maxConfidence: undefined,
+              })
+            }
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
       </div>
 
-      {/* 清除篩選 */}
+      {/* 清除所有篩選 */}
       {hasFilters && (
         <Button variant="ghost" size="sm" onClick={clearFilters}>
           <X className="h-4 w-4 mr-1" />
