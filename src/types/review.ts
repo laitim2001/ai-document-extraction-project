@@ -255,3 +255,87 @@ export interface ReviewDetailErrorResponse {
     instance?: string
   }
 }
+
+// ============================================================
+// Story 3-4: Approve Review Types
+// ============================================================
+
+/**
+ * 審核動作類型
+ */
+export type ReviewAction = 'APPROVED' | 'CORRECTED' | 'ESCALATED'
+
+/**
+ * 確認審核請求
+ * @description POST /api/review/[id]/approve 請求體
+ */
+export interface ApproveRequest {
+  /** 確認的欄位名稱列表 */
+  confirmedFields?: string[]
+  /** 審核備註 */
+  notes?: string
+  /** 審核開始時間（ISO 8601 格式） */
+  reviewStartedAt?: string
+}
+
+/**
+ * 確認審核成功響應
+ */
+export interface ApproveResponse {
+  success: true
+  data: {
+    /** 文件 ID */
+    documentId: string
+    /** 更新後的狀態 */
+    status: 'APPROVED'
+    /** 審核者 ID */
+    reviewedBy: string
+    /** 審核完成時間 (ISO 8601) */
+    reviewedAt: string
+    /** 審核記錄 ID */
+    reviewRecordId: string
+  }
+}
+
+/**
+ * 確認審核錯誤響應
+ */
+export interface ApproveErrorResponse {
+  type: string
+  title: string
+  status: number
+  detail: string
+  instance?: string
+  errors?: Record<string, string[]>
+}
+
+/**
+ * 審核記錄類型
+ * @description 對應 ReviewRecord Prisma 模型
+ */
+export interface ReviewRecordData {
+  /** 記錄 ID */
+  id: string
+  /** 文件 ID */
+  documentId: string
+  /** 審核者 ID */
+  reviewerId: string
+  /** 審核動作 */
+  action: ReviewAction
+  /** 處理路徑 */
+  processingPath: ProcessingPath
+  /** 確認的欄位 */
+  confirmedFields: string[]
+  /** 修改的欄位 */
+  modifiedFields: Record<string, { before: unknown; after: unknown }> | null
+  /** 審核備註 */
+  notes: string | null
+  /** 審核時長（秒） */
+  reviewDuration: number | null
+  /** 開始時間 */
+  startedAt: string | null
+  /** 完成時間 */
+  completedAt: string
+  /** 建立時間 */
+  createdAt: string
+}

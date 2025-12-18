@@ -34,6 +34,7 @@ model User {
   documents            Document[] // 用戶上傳的文件
   forwarderAssignments ForwarderIdentification[] // 手動指派的 Forwarder
   assignedQueues       ProcessingQueue[] // 分配的處理隊列
+  reviewRecords        ReviewRecord[] // 審核記錄（Story 3.4）
 
   @@map("users")
 }
@@ -197,6 +198,7 @@ model Document {
   identifications  ForwarderIdentification[]
   extractionResult ExtractionResult? // 欄位提取結果（一對一關聯）
   processingQueue  ProcessingQueue? // 處理隊列（一對一關聯）
+  reviewRecords    ReviewRecord[] // 審核記錄（Story 3.4）
 
   @@index([status])
   @@index([uploadedBy])
@@ -335,6 +337,7 @@ enum DocumentStatus {
   MAPPING_COMPLETED // 映射完成
   PENDING_REVIEW // 待審核
   IN_REVIEW // 審核中
+  APPROVED // 已核准（Story 3.4）
   COMPLETED // 已完成
   FAILED // 失敗
 }
@@ -368,6 +371,12 @@ enum QueueStatus {
   COMPLETED // 已完成
   SKIPPED // 跳過（例如重新分配）
   CANCELLED // 已取消
+}
+
+enum ReviewAction {
+  APPROVED // 確認無誤
+  CORRECTED // 修正後確認
+  ESCALATED // 升級處理
 }
 
 // =====================
@@ -552,4 +561,43 @@ model ProcessingQueue {
   @@index([assignedTo, status])
   @@index([priority, enteredAt])
   @@map("processing_queues")
+}
+
+// =====================
+// Review Record Model (Story 3.4)
+// =====================
+
+model ReviewRecord {
+  id         String @id @default(uuid())
+  documentId String @map("document_id")
+
+  // Review Action Details
+  action          ReviewAction @default(APPROVED)
+  reviewerId      String       @map("reviewer_id")
+  processingPath  ProcessingPath @map("processing_path")
+
+  // Field Tracking
+  confirmedFields String[] @map("confirmed_fields") // Array of field names confirmed
+  modifiedFields  Json?    @map("modified_fields") // { fieldName: { before, after } }
+
+  // Notes and Comments
+  notes String? @db.Text
+
+  // Review Metrics
+  reviewDuration Int?      @map("review_duration") // Duration in seconds
+  startedAt      DateTime? @map("started_at")
+  completedAt    DateTime  @default(now()) @map("completed_at")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  reviewer User     @relation(fields: [reviewerId], references: [id])
+
+  @@index([documentId])
+  @@index([reviewerId])
+  @@index([action])
+  @@index([completedAt])
+  @@map("review_records")
 }

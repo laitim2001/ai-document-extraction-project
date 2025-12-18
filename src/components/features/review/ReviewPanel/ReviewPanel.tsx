@@ -218,6 +218,8 @@ export function ReviewPanel({
         onEscalate={onEscalate}
         hasPendingChanges={hasPendingChanges()}
         isSubmitting={isSubmitting}
+        processingPath={data.processingQueue?.processingPath}
+        fieldCount={data.extraction.fields.length}
       />
     </div>
   )

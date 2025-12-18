@@ -22,6 +22,10 @@
  *   - ConfidenceIndicator - 信心度形狀指示器
  *   - ConfidenceTooltip - 信心度詳情 Tooltip
  *   - LowConfidenceFilter - 低信心度篩選開關
+ *
+ *   Story 3.4:
+ *   - ApprovalConfirmDialog - 審核確認對話框
+ *   - QuickReviewMode - 快速審核模式組件
  */
 
 // --- Story 3.1: 審核佇列組件 ---
@@ -41,3 +45,7 @@ export { ReviewDetailLayout } from './ReviewDetailLayout'
 export { ConfidenceIndicator } from './ConfidenceIndicator'
 export { ConfidenceTooltip } from './ConfidenceTooltip'
 export { LowConfidenceFilter } from './LowConfidenceFilter'
+
+// --- Story 3.4: 確認提取結果組件 ---
+export { ApprovalConfirmDialog } from './ApprovalConfirmDialog'
+export { QuickReviewMode } from './ReviewPanel/QuickReviewMode'

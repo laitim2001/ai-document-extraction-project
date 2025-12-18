@@ -6,6 +6,7 @@
  *   - 右側：提取欄位審核面板
  *   - 欄位與 PDF 來源位置聯動
  *   - 響應式佈局（桌面並排 / 行動版 Tab 切換）
+ *   - 審核確認對話框（Story 3.4）
  *
  * @module src/app/(dashboard)/review/[id]/page
  * @since Epic 3 - Story 3.2 (並排 PDF 審核介面)
@@ -13,21 +14,24 @@
  *
  * @dependencies
  *   - @/hooks/useReviewDetail - 審核詳情資料獲取
+ *   - @/hooks/useApproveReview - 審核確認 Hook (Story 3.4)
  *   - @/stores/reviewStore - 審核狀態管理
  *   - @/components/features/review - 審核相關組件
  */
 
 'use client'
 
-import { useCallback, useEffect, use } from 'react'
+import { useCallback, useEffect, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useReviewDetail } from '@/hooks/useReviewDetail'
+import { useApproveReview } from '@/hooks/useApproveReview'
 import { useReviewStore } from '@/stores/reviewStore'
 import {
   PdfViewer,
   ReviewPanel,
   ReviewDetailLayout,
+  ApprovalConfirmDialog,
 } from '@/components/features/review'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -159,13 +163,33 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
   // --- State ---
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
+  const [showApprovalDialog, setShowApprovalDialog] = useState(false)
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(
     null
   )
 
+  // 追蹤審核開始時間（用於計算審核時長）
+  const reviewStartedAtRef = useRef<string>(new Date().toISOString())
+
   // --- Hooks ---
   const { data, isLoading, error, refetch } = useReviewDetail(documentId)
   const { hasPendingChanges, resetStore } = useReviewStore()
+
+  // 審核確認 Hook (Story 3.4)
+  const { mutate: approveDocument, isPending: isApproving } = useApproveReview({
+    onSuccess: () => {
+      toast.success('審核已確認', {
+        description: '文件已標記為審核通過',
+      })
+      resetStore()
+      router.push('/review')
+    },
+    onError: (err) => {
+      toast.error('審核確認失敗', {
+        description: err.message,
+      })
+    },
+  })
 
   // --- Effects ---
   // 重置 store 狀態（進入頁面時）
@@ -219,33 +243,39 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
   }, [])
 
   /**
-   * 確認無誤（審核通過）
+   * 確認無誤按鈕點擊（顯示確認對話框）
    */
-  const handleApprove = useCallback(async () => {
-    setIsSubmitting(true)
-    try {
-      const response = await fetch(`/api/review/${documentId}/approve`, {
-        method: 'POST',
-      })
+  const handleApprove = useCallback(() => {
+    setShowApprovalDialog(true)
+  }, [])
 
-      if (!response.ok) {
-        throw new Error('審核確認失敗')
-      }
+  /**
+   * 確認審核通過（對話框確認後）
+   *
+   * @description
+   *   Story 3.4 AC2: 確認處理
+   *   - 更新 Document 狀態為 APPROVED
+   *   - 建立 ReviewRecord 記錄
+   *   - 記錄審計日誌
+   */
+  const handleConfirmApproval = useCallback(
+    (notes?: string) => {
+      if (!data) return
 
-      toast.success('審核已確認', {
-        description: '文件已標記為審核通過',
-      })
+      // 收集所有欄位 ID 作為已確認欄位
+      const confirmedFields = data.extraction.fields.map((f) => f.id)
 
-      resetStore()
-      router.push('/review')
-    } catch (err) {
-      toast.error('操作失敗', {
-        description: err instanceof Error ? err.message : '請稍後再試',
+      approveDocument({
+        documentId,
+        data: {
+          confirmedFields,
+          notes,
+          reviewStartedAt: reviewStartedAtRef.current,
+        },
       })
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [documentId, resetStore, router])
+    },
+    [data, documentId, approveDocument]
+  )
 
   /**
    * 儲存修正
@@ -403,7 +433,7 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
               onApprove={handleApprove}
               onSaveCorrections={handleSaveCorrections}
               onEscalate={handleEscalate}
-              isSubmitting={isSubmitting}
+              isSubmitting={isSubmitting || isApproving}
             />
           }
         />
@@ -414,6 +444,16 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
         isOpen={showUnsavedDialog}
         onConfirm={handleConfirmLeave}
         onCancel={handleCancelLeave}
+      />
+
+      {/* 審核確認對話框 (Story 3.4) */}
+      <ApprovalConfirmDialog
+        open={showApprovalDialog}
+        onOpenChange={setShowApprovalDialog}
+        onConfirm={handleConfirmApproval}
+        fieldCount={data?.extraction.fields.length || 0}
+        isSubmitting={isApproving}
+        processingPath={data?.processingQueue?.processingPath}
       />
     </div>
   )
