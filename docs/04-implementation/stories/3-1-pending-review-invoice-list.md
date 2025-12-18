@@ -142,6 +142,7 @@ interface ReviewQueueResponse {
 | `src/components/features/review/ReviewQueueSkeleton.tsx` | 載入骨架屏組件 |
 | `src/components/features/review/index.ts` | 組件統一導出 |
 | `src/app/(dashboard)/review/page.tsx` | 審核列表頁面 |
+| `src/components/ui/slider.tsx` | shadcn/ui Slider 組件（手動建立） |
 
 ### 關鍵實現決策
 
@@ -155,7 +156,7 @@ interface ReviewQueueResponse {
    - 回退到 `extractionResult.averageConfidence`
 
 3. **篩選組件實現**
-   - 使用 number inputs 替代 Slider 組件（shadcn Slider 安裝失敗）
+   - 使用雙滑桿 Slider 組件選擇信心度範圍（手動安裝 @radix-ui/react-slider）
    - 支援 Forwarder、處理路徑、信心度範圍篩選
 
 4. **URL 狀態同步**
