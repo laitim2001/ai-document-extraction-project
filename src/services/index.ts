@@ -165,6 +165,9 @@ export * from './historical-accuracy.service'
 export * from './confidence.service'
 export * from './routing.service'
 
+// Epic 3: Invoice Review & Correction Workflow
+export * from './notification.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

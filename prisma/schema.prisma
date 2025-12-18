@@ -35,6 +35,9 @@ model User {
   forwarderAssignments ForwarderIdentification[] // 手動指派的 Forwarder
   assignedQueues       ProcessingQueue[] // 分配的處理隊列
   reviewRecords        ReviewRecord[] // 審核記錄（Story 3.4）
+  corrections          Correction[] // 欄位修正記錄（Story 3.5）
+  reviewedSuggestions  RuleSuggestion[] @relation("RuleSuggestionReviewer") // 審核的規則建議（Story 3.6）
+  notifications        Notification[] // 通知（Story 3.6）
 
   @@map("users")
 }
@@ -199,6 +202,7 @@ model Document {
   extractionResult ExtractionResult? // 欄位提取結果（一對一關聯）
   processingQueue  ProcessingQueue? // 處理隊列（一對一關聯）
   reviewRecords    ReviewRecord[] // 審核記錄（Story 3.4）
+  corrections      Correction[] // 欄位修正記錄（Story 3.5）
 
   @@index([status])
   @@index([uploadedBy])
@@ -275,6 +279,7 @@ model Forwarder {
   mappingRules           MappingRule[] // Forwarder-specific mapping rules
   extractionResults      ExtractionResult[] // Documents processed for this forwarder
   fieldCorrectionHistory FieldCorrectionHistory[] // Historical accuracy tracking
+  ruleSuggestions        RuleSuggestion[] // 規則建議（Story 3.6）
 
   @@index([code])
   @@index([isActive])
@@ -377,6 +382,11 @@ enum ReviewAction {
   APPROVED // 確認無誤
   CORRECTED // 修正後確認
   ESCALATED // 升級處理
+}
+
+enum CorrectionType {
+  NORMAL // 正常修正，系統應學習
+  EXCEPTION // 特例，不學習
 }
 
 // =====================
@@ -600,4 +610,86 @@ model ReviewRecord {
   @@index([action])
   @@index([completedAt])
   @@map("review_records")
+}
+
+// =====================
+// Correction Record Model (Story 3.5)
+// =====================
+
+model Correction {
+  id              String         @id @default(uuid())
+  documentId      String         @map("document_id")
+  fieldName       String         @map("field_name")
+  originalValue   String?        @map("original_value")
+  correctedValue  String         @map("corrected_value")
+  correctionType  CorrectionType @default(NORMAL) @map("correction_type")
+  exceptionReason String?        @map("exception_reason") // Story 3.6: 特例原因
+  correctedBy     String         @map("corrected_by")
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  document  Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  corrector User     @relation(fields: [correctedBy], references: [id])
+
+  @@index([documentId])
+  @@index([correctedBy])
+  @@index([fieldName, documentId])
+  @@index([correctionType]) // Story 3.6: 新增索引
+  @@map("corrections")
+}
+
+// =====================
+// Rule Suggestion Model (Story 3.6)
+// =====================
+
+model RuleSuggestion {
+  id              String           @id @default(uuid())
+  forwarderId     String           @map("forwarder_id")
+  fieldName       String           @map("field_name")
+  suggestedPattern String          @map("suggested_pattern")
+  correctionCount Int              @map("correction_count")
+  status          SuggestionStatus @default(PENDING)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  reviewedAt      DateTime?        @map("reviewed_at")
+  reviewedBy      String?          @map("reviewed_by")
+  notes           String?
+
+  // Relations
+  forwarder Forwarder @relation(fields: [forwarderId], references: [id])
+  reviewer  User?     @relation("RuleSuggestionReviewer", fields: [reviewedBy], references: [id])
+
+  @@unique([forwarderId, fieldName, suggestedPattern])
+  @@index([forwarderId, fieldName])
+  @@index([status])
+  @@map("rule_suggestions")
+}
+
+enum SuggestionStatus {
+  PENDING  // 待審核
+  APPROVED // 已批准
+  REJECTED // 已拒絕
+  MERGED   // 已合併到規則
+}
+
+// =====================
+// Notification Model (Story 3.6)
+// =====================
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   // RULE_SUGGESTION, ESCALATION, etc.
+  title     String
+  message   String
+  data      String?  @db.Text // JSON string for additional data
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+  readAt    DateTime? @map("read_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
 }

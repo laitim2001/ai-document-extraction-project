@@ -31,6 +31,10 @@
  *   - FieldEditor - 欄位編輯器組件
  *   - UnsavedChangesGuard - 未儲存變更警告組件
  *   - UnsavedChangesDialog - 未儲存變更對話框
+ *
+ *   Story 3.6:
+ *   - CorrectionTypeSelector - 修正類型選擇器
+ *   - CorrectionTypeDialog - 修正類型選擇對話框
  */
 
 // --- Story 3.1: 審核佇列組件 ---
@@ -62,3 +66,15 @@ export {
   UnsavedChangesDialog,
   useUnsavedChangesNavigation,
 } from './UnsavedChangesGuard'
+
+// --- Story 3.6: 修正類型標記組件 ---
+export {
+  CorrectionTypeSelector,
+  type CorrectionType,
+} from './CorrectionTypeSelector'
+export {
+  CorrectionTypeDialog,
+  type CorrectionItem,
+  type CorrectionTypeSetting,
+  type CorrectionWithType,
+} from './CorrectionTypeDialog'

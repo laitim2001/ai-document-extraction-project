@@ -6,6 +6,8 @@
  *   - 更新 ExtractionResult 中的 fieldMappings
  *   - 建立 Correction 記錄（用於機器學習）
  *   - 記錄審計日誌（合規要求）
+ *   - Story 3.6: 支援修正類型標記（NORMAL/EXCEPTION）
+ *   - Story 3.6: 觸發規則建議（當 NORMAL 修正達到閾值）
  *
  *   端點：
  *   - PATCH /api/review/[id]/correct - 修正提取欄位
@@ -20,18 +22,21 @@
  *   - @/lib/auth - NextAuth 認證
  *   - @/lib/prisma - Prisma 客戶端
  *   - @/lib/audit - 審計日誌工具
+ *   - @/lib/learning - 學習服務（Story 3.6）
  *   - zod - 輸入驗證
  *
  * @related
  *   - src/hooks/useSaveCorrections.ts - React Query Hook
  *   - src/components/features/review/ReviewPanel/FieldEditor.tsx - 編輯組件
  *   - src/types/review.ts - 類型定義
+ *   - src/lib/learning/ruleSuggestionTrigger.ts - 規則建議觸發
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { logDocumentCorrected } from '@/lib/audit'
+import { triggerRuleSuggestionCheck } from '@/lib/learning/ruleSuggestionTrigger'
 import { z } from 'zod'
 
 // ============================================================
@@ -83,6 +88,8 @@ const CorrectionItemSchema = z.object({
   correctedValue: z.string(),
   /** 修正類型 */
   correctionType: z.enum(['NORMAL', 'EXCEPTION']).default('NORMAL'),
+  /** 特例原因（當 correctionType 為 EXCEPTION 時可選填） */
+  exceptionReason: z.string().optional(),
 })
 
 /**
@@ -277,6 +284,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
               originalValue: correction.originalValue,
               correctedValue: correction.correctedValue,
               correctionType: correction.correctionType,
+              // Story 3.6: 儲存特例原因（僅當 EXCEPTION 類型時）
+              exceptionReason:
+                correction.correctionType === 'EXCEPTION'
+                  ? correction.exceptionReason
+                  : null,
               correctedBy: userId,
             },
           })
@@ -312,6 +324,39 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // 記錄審計日誌（非阻斷式）
     await logDocumentCorrected(userId, documentId, result.modifiedFields, ipAddress)
 
+    // Story 3.6: 為 NORMAL 類型的修正觸發規則建議檢查
+    // 非阻斷式處理，錯誤不影響主流程
+    const ruleSuggestionResults: Array<{
+      fieldName: string
+      triggered: boolean
+      suggestionId?: string
+    }> = []
+
+    const normalCorrections = corrections.filter(
+      (c) => c.correctionType === 'NORMAL'
+    )
+
+    if (normalCorrections.length > 0) {
+      try {
+        const triggerPromises = normalCorrections.map(async (correction) => {
+          const triggerResult = await triggerRuleSuggestionCheck(
+            documentId,
+            correction.fieldName
+          )
+          return {
+            fieldName: correction.fieldName,
+            triggered: triggerResult.triggered,
+            suggestionId: triggerResult.suggestionId,
+          }
+        })
+        const results = await Promise.all(triggerPromises)
+        ruleSuggestionResults.push(...results)
+      } catch (error) {
+        // 規則建議檢查失敗不應影響主流程
+        console.error('Rule suggestion check failed:', error)
+      }
+    }
+
     // 返回成功響應
     return NextResponse.json({
       success: true,
@@ -319,6 +364,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         documentId,
         correctionCount: result.correctionCount,
         corrections: result.corrections,
+        // Story 3.6: 包含規則建議觸發結果
+        ruleSuggestions: ruleSuggestionResults.filter((r) => r.triggered),
       },
     })
   } catch (error) {
