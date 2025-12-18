@@ -138,6 +138,7 @@ export const REVIEW_TYPE = {
 // Epic 1: User Authentication & Access Control
 export * from './role.service'
 export * from './user.service'
+export * from './city.service'
 
 // TODO: Epic 6 實現後取消註釋
 // export { mappingService } from './mapping';
@@ -155,9 +156,8 @@ export * from './user.service'
 // export { forwarderService } from './forwarder';
 // export { ForwarderService } from './forwarder/forwarder-service';
 
-// TODO: Epic 2 實現後取消註釋
-// export { documentService } from './document';
-// export { DocumentService } from './document/document-service';
+// Epic 2: Manual Invoice Upload & AI Processing
+export * from './document.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

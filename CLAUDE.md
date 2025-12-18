@@ -562,18 +562,18 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 
 | Epic | 名稱 | 狀態 |
 |------|------|------|
-| 1 | Project Initialization & Foundation | 🟢 進行中 |
-| 2 | Document Upload & Management | ⚪ 待開始 |
-| 3 | Mapping Configuration | ⚪ 待開始 |
-| 4 | Forwarder Management | ⚪ 待開始 |
-| 5 | OCR & Document Processing | ⚪ 待開始 |
-| 6 | AI Classification Engine | ⚪ 待開始 |
-| 7 | Review Workflow | ⚪ 待開始 |
-| 8 | Dashboard & Analytics | ⚪ 待開始 |
-| 9 | Learning & Optimization | ⚪ 待開始 |
-| 10 | n8n Workflow Integration | ⚪ 待開始 |
-| 11 | External API Service | ⚪ 待開始 |
-| 12 | System Management & Monitoring | ⚪ 待開始 |
+| 1 | 用戶認證與存取控制 | ✅ 已完成 |
+| 2 | 手動發票上傳與 AI 處理 | 🟡 進行中 |
+| 3 | 發票審核與修正工作流 | ⚪ 待開始 |
+| 4 | 映射規則管理與自動學習 | ⚪ 待開始 |
+| 5 | Forwarder 配置管理 | ⚪ 待開始 |
+| 6 | 多城市數據隔離 | ⚪ 待開始 |
+| 7 | 報表儀表板與成本追蹤 | ⚪ 待開始 |
+| 8 | 審計追溯與合規 | ⚪ 待開始 |
+| 9 | 自動化文件獲取 | ⚪ 待開始 |
+| 10 | n8n 工作流整合 | ⚪ 待開始 |
+| 11 | 對外 API 服務 | ⚪ 待開始 |
+| 12 | 系統管理與監控 | ⚪ 待開始 |
 
 ---
 
@@ -588,7 +588,7 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 
 ## 版本資訊
 
-- **CLAUDE.md 版本**: 1.1.0
+- **CLAUDE.md 版本**: 1.3.0
 - **建立日期**: 2025-12-17
 - **最後更新**: 2025-12-18
 - **維護者**: Development Team
@@ -597,5 +597,7 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 
 | 版本 | 日期 | 變更內容 |
 |------|------|----------|
+| 1.3.0 | 2025-12-18 | Story 2-1 完成，Epic 2 開始進行 |
+| 1.2.0 | 2025-12-18 | Epic 1 完成，更新項目進度和 Epic 名稱（中文化） |
 | 1.1.0 | 2025-12-18 | 新增「開發後文檔更新檢查」章節 |
 | 1.0.0 | 2025-12-17 | 初始版本 |
