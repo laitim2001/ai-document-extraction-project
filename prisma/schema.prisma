@@ -266,10 +266,11 @@ model Forwarder {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  documents         Document[]
-  identifications   ForwarderIdentification[]
-  mappingRules      MappingRule[] // Forwarder-specific mapping rules
-  extractionResults ExtractionResult[] // Documents processed for this forwarder
+  documents              Document[]
+  identifications        ForwarderIdentification[]
+  mappingRules           MappingRule[] // Forwarder-specific mapping rules
+  extractionResults      ExtractionResult[] // Documents processed for this forwarder
+  fieldCorrectionHistory FieldCorrectionHistory[] // Historical accuracy tracking
 
   @@index([code])
   @@index([isActive])
@@ -430,6 +431,19 @@ model ExtractionResult {
   unmappedFields    Int   @map("unmapped_fields")
   averageConfidence Float @map("average_confidence") // 0-100 scale
 
+  // Confidence Scores (Story 2.5)
+  confidenceScores Json? @map("confidence_scores")
+  // Structure: DocumentConfidenceResult from @/types/confidence
+  // {
+  //   overallScore: number,
+  //   level: "high" | "medium" | "low",
+  //   color: string,
+  //   bgColor: string,
+  //   fieldScores: Record<string, FieldConfidenceResult>,
+  //   stats: DocumentConfidenceStats,
+  //   recommendation: "auto_approve" | "quick_review" | "full_review"
+  // }
+
   // Processing Info
   processingTime Int?             @map("processing_time") // milliseconds
   rulesApplied   Int              @map("rules_applied")
@@ -454,4 +468,36 @@ model ExtractionResult {
   @@index([averageConfidence])
   @@index([createdAt])
   @@map("extraction_results")
+}
+
+// =====================
+// Historical Accuracy Tracking (Story 2.5)
+// =====================
+
+model FieldCorrectionHistory {
+  id          String  @id @default(uuid())
+  forwarderId String? @map("forwarder_id")
+  fieldName   String  @map("field_name")
+
+  // Statistics
+  totalExtractions   Int   @default(0) @map("total_extractions")
+  correctExtractions Int   @default(0) @map("correct_extractions")
+  accuracy           Float @default(100) // Percentage (0-100)
+
+  // Period tracking (for aggregation)
+  periodStart DateTime @map("period_start")
+  periodEnd   DateTime @map("period_end")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  forwarder Forwarder? @relation(fields: [forwarderId], references: [id], onDelete: SetNull)
+
+  @@unique([forwarderId, fieldName, periodStart])
+  @@index([forwarderId])
+  @@index([fieldName])
+  @@index([periodStart])
+  @@map("field_correction_history")
 }
