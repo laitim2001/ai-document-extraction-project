@@ -163,6 +163,7 @@ export * from './identification'
 export * from './mapping.service'
 export * from './historical-accuracy.service'
 export * from './confidence.service'
+export * from './routing.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

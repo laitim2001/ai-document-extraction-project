@@ -1,6 +1,6 @@
 # Story 2.6: 處理路徑自動分流
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -46,52 +46,52 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 分流邏輯模組** (AC: #1, #2, #3)
-  - [ ] 1.1 創建 `src/lib/routing/router.ts`
-  - [ ] 1.2 實現分流決策邏輯
-  - [ ] 1.3 定義處理路徑枚舉
-  - [ ] 1.4 記錄分流原因
+- [x] **Task 1: 分流邏輯模組** (AC: #1, #2, #3)
+  - [x] 1.1 創建 `src/lib/routing/router.ts`
+  - [x] 1.2 實現分流決策邏輯
+  - [x] 1.3 定義處理路徑枚舉
+  - [x] 1.4 記錄分流原因
 
-- [ ] **Task 2: ProcessingQueue 資料表** (AC: #2, #3, #4)
-  - [ ] 2.1 創建 ProcessingQueue Prisma 模型
-  - [ ] 2.2 定義欄位（documentId, processingPath, assignedTo, priority）
-  - [ ] 2.3 執行 Prisma 遷移
+- [x] **Task 2: ProcessingQueue 資料表** (AC: #2, #3, #4)
+  - [x] 2.1 創建 ProcessingQueue Prisma 模型
+  - [x] 2.2 定義欄位（documentId, processingPath, assignedTo, priority）
+  - [x] 2.3 執行 Prisma 遷移
 
-- [ ] **Task 3: Document 狀態更新** (AC: #1, #2, #3)
-  - [ ] 3.1 在 Document 模型加入 processingPath 欄位
-  - [ ] 3.2 更新狀態流轉邏輯
-  - [ ] 3.3 記錄狀態變更歷史
+- [x] **Task 3: Document 狀態更新** (AC: #1, #2, #3)
+  - [x] 3.1 在 Document 模型加入 processingPath 欄位
+  - [x] 3.2 更新狀態流轉邏輯
+  - [x] 3.3 記錄狀態變更歷史
 
-- [ ] **Task 4: 自動通過處理** (AC: #1)
-  - [ ] 4.1 實現自動完成邏輯
-  - [ ] 4.2 創建最終提取記錄
-  - [ ] 4.3 標記為已完成
+- [x] **Task 4: 自動通過處理** (AC: #1)
+  - [x] 4.1 實現自動完成邏輯
+  - [x] 4.2 創建最終提取記錄
+  - [x] 4.3 標記為已完成
 
-- [ ] **Task 5: 審核隊列管理** (AC: #2, #3)
-  - [ ] 5.1 創建待審核隊列視圖
-  - [ ] 5.2 實現隊列優先級排序
-  - [ ] 5.3 支援分配給特定審核人員
+- [x] **Task 5: 審核隊列管理** (AC: #2, #3)
+  - [x] 5.1 創建待審核隊列視圖
+  - [x] 5.2 實現隊列優先級排序
+  - [x] 5.3 支援分配給特定審核人員
 
-- [ ] **Task 6: 分流 API** (AC: #1, #2, #3, #4)
-  - [ ] 6.1 創建 POST `/api/routing/route.ts`
-  - [ ] 6.2 接收信心度後執行分流
-  - [ ] 6.3 返回分流結果
+- [x] **Task 6: 分流 API** (AC: #1, #2, #3, #4)
+  - [x] 6.1 創建 POST `/api/routing/route.ts`
+  - [x] 6.2 接收信心度後執行分流
+  - [x] 6.3 返回分流結果
 
-- [ ] **Task 7: 通知服務** (AC: #4)
+- [ ] **Task 7: 通知服務** (AC: #4) - Deferred to Epic 3
   - [ ] 7.1 實現審核任務通知
   - [ ] 7.2 支援即時通知（WebSocket 或輪詢）
   - [ ] 7.3 記錄通知狀態
 
-- [ ] **Task 8: 分流配置** (AC: #1, #2, #3)
-  - [ ] 8.1 閾值可配置化
-  - [ ] 8.2 支援管理員調整
-  - [ ] 8.3 記錄配置變更
+- [x] **Task 8: 分流配置** (AC: #1, #2, #3)
+  - [x] 8.1 閾值可配置化
+  - [x] 8.2 支援管理員調整
+  - [x] 8.3 記錄配置變更
 
-- [ ] **Task 9: 驗證與測試** (AC: #1-4)
-  - [ ] 9.1 測試 >=95% 自動通過
-  - [ ] 9.2 測試 80-94% 快速確認
-  - [ ] 9.3 測試 <80% 完整審核
-  - [ ] 9.4 測試分流記錄
+- [x] **Task 9: 驗證與測試** (AC: #1-4)
+  - [x] 9.1 測試 >=95% 自動通過
+  - [x] 9.2 測試 80-94% 快速確認
+  - [x] 9.3 測試 <80% 完整審核
+  - [x] 9.4 測試分流記錄
 
 ---
 
@@ -296,5 +296,59 @@ export async function handleAutoApprove(documentId: string) {
 
 ---
 
+## Implementation Notes (2025-12-18)
+
+### Files Created/Modified
+
+#### Database Schema
+- `prisma/schema.prisma` - Added `QueueStatus` enum and `ProcessingQueue` model
+- Migration: `add_processing_queue`
+
+#### Types
+- `src/types/routing.ts` - Routing types, RoutingDecision, ProcessingQueueItem, QueueStats
+
+#### Configuration
+- `src/lib/routing/config.ts` - ROUTING_CONFIG, PROCESSING_PATH_CONFIG, QUEUE_PRIORITY
+- `src/lib/routing/index.ts` - Module exports
+
+#### Router Logic
+- `src/lib/routing/router.ts` - Core routing logic with:
+  - `determineProcessingPath()` - Main routing decision function
+  - `calculateQueuePriority()` - Priority calculation
+  - `shouldAutoApprove()` - Quick auto-approve check
+  - `getFieldsForReview()` - Get fields requiring review
+  - `estimateReviewTime()` - Review time estimation
+  - `isValidRoutingDecision()` - Decision validation
+
+#### Service
+- `src/services/routing.service.ts` - Routing service with:
+  - `routeDocument()` - Complete routing flow
+  - `handleAutoApprove()` - Auto-approve completion
+  - `getProcessingQueue()` - Queue queries
+  - `assignToReviewer()` - Reviewer assignment
+  - `completeReview()` - Review completion
+  - `cancelQueueItem()` - Queue item cancellation
+  - `getQueueStats()` - Queue statistics
+  - `batchRouteDocuments()` - Batch routing
+
+#### API Endpoints
+- `src/app/api/routing/route.ts` - POST /api/routing (single/batch routing)
+- `src/app/api/routing/queue/route.ts` - GET /api/routing/queue
+- `src/app/api/routing/queue/[id]/assign/route.ts` - POST /api/routing/queue/[id]/assign
+
+### Routing Thresholds
+| Path | Threshold | Review Scope |
+|------|-----------|--------------|
+| AUTO_APPROVE | ≥95% | None |
+| QUICK_REVIEW | 80-94% | Low-confidence fields |
+| FULL_REVIEW | <80% | All fields |
+| MANUAL_REQUIRED | ≥3 critical fields low | All fields |
+
+### Deferred Tasks
+- Task 7 (Notification Service) deferred to Epic 3 - Review Workflow
+
+---
+
 *Story created: 2025-12-16*
-*Status: ready-for-dev*
+*Status: done*
+*Completed: 2025-12-18*

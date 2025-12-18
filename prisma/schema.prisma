@@ -33,6 +33,7 @@ model User {
   roles                UserRole[] // 用戶角色關聯
   documents            Document[] // 用戶上傳的文件
   forwarderAssignments ForwarderIdentification[] // 手動指派的 Forwarder
+  assignedQueues       ProcessingQueue[] // 分配的處理隊列
 
   @@map("users")
 }
@@ -195,6 +196,7 @@ model Document {
   forwarder        Forwarder?                @relation(fields: [forwarderId], references: [id])
   identifications  ForwarderIdentification[]
   extractionResult ExtractionResult? // 欄位提取結果（一對一關聯）
+  processingQueue  ProcessingQueue? // 處理隊列（一對一關聯）
 
   @@index([status])
   @@index([uploadedBy])
@@ -360,6 +362,14 @@ enum ExtractionStatus {
   FAILED // 提取失敗
 }
 
+enum QueueStatus {
+  PENDING // 等待處理
+  IN_PROGRESS // 處理中
+  COMPLETED // 已完成
+  SKIPPED // 跳過（例如重新分配）
+  CANCELLED // 已取消
+}
+
 // =====================
 // Mapping Rule Models
 // =====================
@@ -500,4 +510,46 @@ model FieldCorrectionHistory {
   @@index([fieldName])
   @@index([periodStart])
   @@map("field_correction_history")
+}
+
+// =====================
+// Processing Queue Model (Story 2.6)
+// =====================
+
+model ProcessingQueue {
+  id         String @id @default(uuid())
+  documentId String @unique @map("document_id")
+
+  // Routing Info
+  processingPath ProcessingPath @map("processing_path")
+  priority       Int            @default(0) // Higher = more urgent
+  routingReason  String?        @map("routing_reason")
+
+  // Assignment
+  assignedTo String?   @map("assigned_to")
+  assignedAt DateTime? @map("assigned_at")
+
+  // Status
+  status      QueueStatus @default(PENDING)
+  enteredAt   DateTime    @default(now()) @map("entered_at")
+  startedAt   DateTime?   @map("started_at")
+  completedAt DateTime?   @map("completed_at")
+
+  // Review Summary
+  fieldsReviewed Int?    @map("fields_reviewed")
+  fieldsModified Int?    @map("fields_modified")
+  reviewNotes    String? @map("review_notes")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  assignee User?    @relation(fields: [assignedTo], references: [id])
+
+  @@index([processingPath, status])
+  @@index([assignedTo, status])
+  @@index([priority, enteredAt])
+  @@map("processing_queues")
 }

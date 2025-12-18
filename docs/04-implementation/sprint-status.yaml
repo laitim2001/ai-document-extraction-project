@@ -63,7 +63,7 @@ development_status:
   2-3-forwarder-auto-identification: done  # Completed 2025-12-18: Forwarder model, pattern matching service, confidence scoring
   2-4-field-mapping-extraction: done  # Completed 2025-12-18: MappingRule/ExtractionResult models, field definitions, Python mapper, API routes, seed data
   2-5-confidence-score-calculation: done  # Completed 2025-12-18: Multi-factor weighted scoring, confidence types, calculator, historical accuracy service, UI components, API endpoints
-  2-6-processing-path-auto-routing: ready-for-dev
+  2-6-processing-path-auto-routing: done  # Completed 2025-12-18: ProcessingQueue model, routing types/config, router logic, routing service, API endpoints
   2-7-processing-status-tracking-display: ready-for-dev
   epic-2-retrospective: optional
 
