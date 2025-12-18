@@ -59,11 +59,12 @@ export interface TriggerResult {
  *
  * @param documentId - 文件 ID
  * @param fieldName - 欄位名稱
+ * @param suggestedByUserId - 建議者用戶 ID（可選，用於記錄誰觸發了建議）
  * @returns 觸發結果
  *
  * @example
  * ```typescript
- * const result = await triggerRuleSuggestionCheck('doc-123', 'invoiceNumber')
+ * const result = await triggerRuleSuggestionCheck('doc-123', 'invoiceNumber', 'user-456')
  * if (result.triggered) {
  *   console.log('New rule suggestion created:', result.suggestionId)
  * }
@@ -71,7 +72,8 @@ export interface TriggerResult {
  */
 export async function triggerRuleSuggestionCheck(
   documentId: string,
-  fieldName: string
+  fieldName: string,
+  suggestedByUserId?: string
 ): Promise<TriggerResult> {
   // 獲取文件的 Forwarder
   const document = await prisma.document.findUnique({
@@ -129,6 +131,28 @@ export async function triggerRuleSuggestionCheck(
     }
   }
 
+  // 如果沒有提供 suggestedByUserId，嘗試從最近的修正中獲取
+  let suggesterId = suggestedByUserId
+  if (!suggesterId) {
+    const latestCorrection = await prisma.correction.findFirst({
+      where: {
+        document: { forwarderId: document.forwarderId },
+        fieldName,
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { correctedBy: true },
+    })
+    suggesterId = latestCorrection?.correctedBy
+  }
+
+  // 如果仍然無法獲取建議者，則無法創建建議
+  if (!suggesterId) {
+    return {
+      triggered: false,
+      message: 'Cannot determine suggester user ID',
+    }
+  }
+
   // 創建新的規則建議
   const suggestion = await prisma.ruleSuggestion.create({
     data: {
@@ -136,6 +160,7 @@ export async function triggerRuleSuggestionCheck(
       fieldName,
       suggestedPattern: pattern.correctedValue,
       correctionCount: pattern.count,
+      suggestedBy: suggesterId,
     },
   })
 
@@ -174,16 +199,18 @@ export async function triggerRuleSuggestionCheck(
  *
  * @param documentId - 文件 ID
  * @param fieldNames - 欄位名稱列表
+ * @param suggestedByUserId - 建議者用戶 ID（可選）
  * @returns 所有觸發結果
  */
 export async function batchTriggerRuleSuggestionCheck(
   documentId: string,
-  fieldNames: string[]
+  fieldNames: string[],
+  suggestedByUserId?: string
 ): Promise<TriggerResult[]> {
   const results: TriggerResult[] = []
 
   for (const fieldName of fieldNames) {
-    const result = await triggerRuleSuggestionCheck(documentId, fieldName)
+    const result = await triggerRuleSuggestionCheck(documentId, fieldName, suggestedByUserId)
     results.push(result)
   }
 

@@ -70,7 +70,7 @@ development_status:
   # ============================================================
   # Epic 3: 發票審核與修正工作流
   # ============================================================
-  epic-3: in-progress
+  epic-3: done  # All stories completed 2025-12-18
   3-1-pending-review-invoice-list: done  # Completed 2025-12-18: Review queue API, hooks, UI components, page
   3-2-side-by-side-pdf-review-interface: done  # Completed 2025-12-18: PDF viewer, review panel, resizable layout, field-source linking
   3-3-confidence-color-coding-display: done  # Completed 2025-12-18: Color coding, tooltip, low confidence filter
@@ -78,7 +78,7 @@ development_status:
   3-5-correct-extraction-result: done  # Completed 2025-12-18: FieldEditor, correct API, useSaveCorrections hook, UnsavedChangesGuard, field validation
   3-6-correction-type-marking: done  # Completed 2025-12-18: CorrectionType enum, RuleSuggestion model, correctionAnalyzer, notification service, CorrectionTypeDialog
   3-7-escalate-complex-cases: done  # Completed 2025-12-18: Escalation model, EscalationDialog, escalate API, useEscalateReview hook, Super User notification
-  3-8-super-user-handle-escalated-cases: ready-for-dev
+  3-8-super-user-handle-escalated-cases: done  # Completed 2025-12-18: Escalation list/detail APIs, hooks, UI components, resolve workflow
   epic-3-retrospective: optional
 
   # ============================================================

@@ -1,6 +1,6 @@
 # Story 3.8: Super User 處理升級案例
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -46,48 +46,48 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 升級案例頁面** (AC: #1)
-  - [ ] 1.1 創建 `src/app/(dashboard)/escalations/page.tsx`
-  - [ ] 1.2 顯示升級案例列表
-  - [ ] 1.3 顯示升級詳情摘要
-  - [ ] 1.4 支援篩選和排序
+- [x] **Task 1: 升級案例頁面** (AC: #1)
+  - [x] 1.1 創建 `src/app/(dashboard)/escalations/page.tsx`
+  - [x] 1.2 顯示升級案例列表
+  - [x] 1.3 顯示升級詳情摘要
+  - [x] 1.4 支援篩選和排序
 
-- [ ] **Task 2: 升級案例 API** (AC: #1)
-  - [ ] 2.1 創建 GET `/api/escalations`
-  - [ ] 2.2 查詢待處理案例
-  - [ ] 2.3 關聯升級人和文件資訊
+- [x] **Task 2: 升級案例 API** (AC: #1)
+  - [x] 2.1 創建 GET `/api/escalations`
+  - [x] 2.2 查詢待處理案例
+  - [x] 2.3 關聯升級人和文件資訊
 
-- [ ] **Task 3: 案例詳情頁面** (AC: #2)
-  - [ ] 3.1 創建 `src/app/(dashboard)/escalations/[id]/page.tsx`
-  - [ ] 3.2 顯示完整審核界面
-  - [ ] 3.3 顯示升級原因和備註
+- [x] **Task 3: 案例詳情頁面** (AC: #2)
+  - [x] 3.1 創建 `src/app/(dashboard)/escalations/[id]/page.tsx`
+  - [x] 3.2 顯示完整審核界面
+  - [x] 3.3 顯示升級原因和備註
 
-- [ ] **Task 4: 處理完成 API** (AC: #3)
-  - [ ] 4.1 創建 POST `/api/escalations/[id]/resolve`
-  - [ ] 4.2 更新 Escalation 狀態
-  - [ ] 4.3 更新 Document 狀態
-  - [ ] 4.4 記錄處理決策
+- [x] **Task 4: 處理完成 API** (AC: #3)
+  - [x] 4.1 創建 POST `/api/escalations/[id]/resolve`
+  - [x] 4.2 更新 Escalation 狀態
+  - [x] 4.3 更新 Document 狀態
+  - [x] 4.4 記錄處理決策
 
-- [ ] **Task 5: 處理決策記錄** (AC: #3)
-  - [ ] 5.1 記錄處理方式
-  - [ ] 5.2 記錄修正內容
-  - [ ] 5.3 記錄處理時間
+- [x] **Task 5: 處理決策記錄** (AC: #3)
+  - [x] 5.1 記錄處理方式
+  - [x] 5.2 記錄修正內容
+  - [x] 5.3 記錄處理時間
 
-- [ ] **Task 6: 創建規則建議** (AC: #4)
-  - [ ] 6.1 在處理界面加入「創建規則」按鈕
-  - [ ] 6.2 連結到 RuleSuggestion 創建
-  - [ ] 6.3 預填相關資訊
+- [x] **Task 6: 創建規則建議** (AC: #4)
+  - [x] 6.1 在處理界面加入「創建規則」按鈕
+  - [x] 6.2 連結到 RuleSuggestion 創建
+  - [x] 6.3 預填相關資訊
 
-- [ ] **Task 7: 權限控制** (AC: #1)
-  - [ ] 7.1 僅 Super User 可訪問
-  - [ ] 7.2 驗證用戶角色
-  - [ ] 7.3 隱藏無權限功能
+- [x] **Task 7: 權限控制** (AC: #1)
+  - [x] 7.1 僅 Super User 可訪問
+  - [x] 7.2 驗證用戶角色
+  - [x] 7.3 隱藏無權限功能
 
-- [ ] **Task 8: 驗證與測試** (AC: #1-4)
-  - [ ] 8.1 測試列表顯示
-  - [ ] 8.2 測試詳情查看
-  - [ ] 8.3 測試處理完成
-  - [ ] 8.4 測試規則創建
+- [x] **Task 8: 驗證與測試** (AC: #1-4)
+  - [x] 8.1 測試列表顯示
+  - [x] 8.2 測試詳情查看
+  - [x] 8.3 測試處理完成
+  - [x] 8.4 測試規則創建
 
 ---
 
