@@ -27,24 +27,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -70,24 +82,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -113,24 +137,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -156,24 +192,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -199,24 +247,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -242,24 +302,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -285,24 +357,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -328,24 +412,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -371,24 +467,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -416,24 +524,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -459,24 +579,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -502,24 +634,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -545,24 +689,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -588,24 +744,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -631,24 +799,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -674,24 +854,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -719,24 +911,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -762,24 +966,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -805,24 +1021,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -848,24 +1076,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -891,24 +1131,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -934,24 +1186,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -977,24 +1241,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1020,24 +1296,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1065,24 +1353,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1108,24 +1408,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1151,24 +1463,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1194,24 +1518,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1237,24 +1573,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1280,24 +1628,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1323,24 +1683,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1366,24 +1738,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1411,24 +1795,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1454,24 +1850,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1497,24 +1905,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1540,24 +1960,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1583,24 +2015,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1628,24 +2072,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1671,24 +2127,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1714,24 +2182,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1757,24 +2237,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1800,24 +2292,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1845,24 +2349,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1888,24 +2404,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1931,24 +2459,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -1974,24 +2514,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2017,24 +2569,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2060,24 +2624,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2103,24 +2679,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2146,24 +2734,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2189,24 +2789,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2232,24 +2844,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2277,24 +2901,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2320,24 +2956,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2363,24 +3011,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2406,24 +3066,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2449,24 +3121,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2492,24 +3176,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2537,24 +3233,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2580,24 +3288,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2623,24 +3343,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2666,24 +3398,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2709,24 +3453,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2754,24 +3510,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2797,24 +3565,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2840,24 +3620,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2883,24 +3675,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2926,24 +3730,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -2969,24 +3785,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3012,24 +3840,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3057,24 +3897,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3100,24 +3952,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3143,24 +4007,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3186,24 +4062,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3229,24 +4117,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3272,24 +4172,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3317,24 +4229,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3360,24 +4284,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3403,24 +4339,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3446,24 +4394,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3489,24 +4449,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3532,24 +4504,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
@@ -3575,24 +4559,36 @@
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. 重要發現記錄到 lessons-learned.md
-
-## ✅ 完成後檢查清單（必須執行）
-完成開發後，請依序執行以下更新：
-
-### 狀態更新
-- [ ] 更新 `docs/04-implementation/sprint-status.yaml` 將此 Story 狀態改為 `done`
-
-### 文檔同步（參考 CLAUDE.md「開發後文檔更新檢查」章節）
-- [ ] 如涉及新模組 → 更新對應 index.ts
-- [ ] 如涉及架構變更 → 更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 更新 .claude/rules/
-
-### 代碼品質
-- [ ] 通過 `npm run type-check`
-- [ ] 通過 `npm run lint`
-- [ ] Git commit 並 push
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
 
 請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/X-X-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
 ```
 
 ---
