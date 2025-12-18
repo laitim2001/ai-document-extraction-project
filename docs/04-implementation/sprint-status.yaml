@@ -44,7 +44,7 @@ development_status:
   # ============================================================
   epic-1: in-progress
   1-0-project-init-foundation: done
-  1-1-azure-ad-sso-login: ready-for-dev
+  1-1-azure-ad-sso-login: done
   1-2-user-database-role-foundation: ready-for-dev
   1-3-user-list-search: ready-for-dev
   1-4-add-user-role-assignment: ready-for-dev

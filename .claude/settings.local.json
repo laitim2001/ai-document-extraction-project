@@ -23,7 +23,16 @@
       "SlashCommand(/bmad:bmm:workflows:sprint-planning)",
       "SlashCommand(/bmad:bmm:workflows:create-story)",
       "Bash(move \"C:\\Users\\rci.ChrisLai\\Documents\\GitHub\\ai-document-extraction-project\\docs\\sprint-artifacts\\sprint-status.yaml\" \"C:\\Users\\rci.ChrisLai\\Documents\\GitHub\\ai-document-extraction-project\\docs\\04-implementation\\sprint-status.yaml\")",
-      "SlashCommand(/bmad:bmm:workflows:create-tech-spec)"
+      "SlashCommand(/bmad:bmm:workflows:create-tech-spec)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npx shadcn@latest init:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)"
     ]
   }
 }
