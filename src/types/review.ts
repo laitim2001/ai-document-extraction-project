@@ -131,3 +131,127 @@ export interface ReviewQueueStats {
   /** 高優先級數量 */
   highPriorityCount: number
 }
+
+// ============================================================
+// Story 3-2: Review Detail Types
+// ============================================================
+
+/**
+ * 欄位來源位置（PDF 座標）
+ * @description 定義欄位在 PDF 中的位置，使用百分比座標（0-1）
+ */
+export interface FieldSourcePosition {
+  /** 頁碼 (1-indexed) */
+  page: number
+  /** X 座標 (百分比 0-1) */
+  x: number
+  /** Y 座標 (百分比 0-1) */
+  y: number
+  /** 寬度 (百分比 0-1) */
+  width: number
+  /** 高度 (百分比 0-1) */
+  height: number
+}
+
+/**
+ * 映射來源類型
+ */
+export type MappingSource = 'UNIVERSAL' | 'FORWARDER' | 'LLM' | null
+
+/**
+ * 提取欄位結果
+ * @description 單個提取欄位的完整資訊
+ */
+export interface ExtractedField {
+  /** 欄位 ID */
+  id: string
+  /** 欄位名稱（技術名稱） */
+  fieldName: string
+  /** 欄位分組 */
+  fieldGroup: string
+  /** 提取值 */
+  value: string | null
+  /** 信心度 (0-100) */
+  confidence: number
+  /** PDF 來源位置 */
+  sourcePosition: FieldSourcePosition | null
+  /** 映射來源 */
+  mappingSource: MappingSource
+}
+
+/**
+ * 欄位分組資料
+ */
+export interface FieldGroupData {
+  /** 分組名稱（技術名稱） */
+  groupName: string
+  /** 分組顯示名稱 */
+  displayName: string
+  /** 分組內的欄位 */
+  fields: ExtractedField[]
+  /** 是否展開 */
+  isExpanded: boolean
+}
+
+/**
+ * 審核詳情資料
+ * @description GET /api/review/[id] 響應的資料結構
+ */
+export interface ReviewDetailData {
+  /** 文件資訊 */
+  document: {
+    /** 文件 ID */
+    id: string
+    /** 文件名稱 */
+    fileName: string
+    /** 文件 URL */
+    fileUrl: string
+    /** MIME 類型 */
+    mimeType: string
+    /** 頁數 */
+    pageCount: number
+    /** 建立時間 (ISO 8601) */
+    createdAt: string
+  }
+  /** Forwarder 資訊 */
+  forwarder: {
+    id: string
+    name: string
+    code: string
+  } | null
+  /** 處理隊列資訊 */
+  processingQueue: {
+    id: string
+    processingPath: ProcessingPath
+    overallConfidence: number
+    status: QueueStatus
+  } | null
+  /** 提取結果 */
+  extraction: {
+    id: string
+    overallConfidence: number
+    fields: ExtractedField[]
+  }
+}
+
+/**
+ * 審核詳情 API 成功響應
+ */
+export interface ReviewDetailResponse {
+  success: true
+  data: ReviewDetailData
+}
+
+/**
+ * 審核詳情 API 錯誤響應
+ */
+export interface ReviewDetailErrorResponse {
+  success: false
+  error: {
+    type: string
+    title: string
+    status: number
+    detail: string
+    instance?: string
+  }
+}

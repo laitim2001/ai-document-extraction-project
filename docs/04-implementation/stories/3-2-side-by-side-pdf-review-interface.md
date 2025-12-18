@@ -1,6 +1,7 @@
 # Story 3.2: 並排 PDF 對照審核界面
 
-**Status:** ready-for-dev
+**Status:** done
+**Completed:** 2025-12-18
 
 ---
 
