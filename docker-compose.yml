@@ -36,6 +36,27 @@ services:
     depends_on:
       - postgres
 
+  # OCR Extraction Service (Python FastAPI)
+  ocr-extraction:
+    build:
+      context: ./python-services/extraction
+      dockerfile: Dockerfile
+    container_name: ai-doc-extraction-ocr
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      AZURE_DI_ENDPOINT: ${AZURE_DI_ENDPOINT}
+      AZURE_DI_KEY: ${AZURE_DI_KEY}
+      CORS_ORIGINS: http://localhost:3000
+      DEBUG: ${DEBUG:-false}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
 volumes:
   postgres_data:
   pgadmin_data:

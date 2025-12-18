@@ -19,7 +19,7 @@ model User {
   emailVerified DateTime?  @map("email_verified")
   name          String?
   image         String?
-  password      String?    // Optional: 用於本地登入（若未來需要）
+  password      String? // Optional: 用於本地登入（若未來需要）
   azureAdId     String?    @unique @map("azure_ad_id") // Azure AD 用戶 ID
   status        UserStatus @default(ACTIVE)
   createdAt     DateTime   @default(now()) @map("created_at")
@@ -111,8 +111,8 @@ model UserRole {
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
   city City? @relation(fields: [cityId], references: [id], onDelete: SetNull)
 
   @@unique([userId, roleId])
@@ -129,8 +129,8 @@ model UserRole {
 model City {
   id        String   @id @default(cuid())
   code      String   @unique // 城市代碼，如 "TPE", "HKG", "SGP"
-  name      String   // 城市名稱
-  region    String?  // 區域，如 "APAC", "EMEA"
+  name      String // 城市名稱
+  region    String? // 區域，如 "APAC", "EMEA"
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -171,26 +171,26 @@ model AuditLog {
 model Document {
   id              String          @id @default(uuid())
   fileName        String          @map("file_name")
-  fileType        String          @map("file_type")       // MIME type
-  fileExtension   String          @map("file_extension")  // pdf, jpg, png
-  fileSize        Int             @map("file_size")       // bytes
-  filePath        String          @map("file_path")       // Azure Blob URL
-  blobName        String          @map("blob_name")       // Azure Blob name
+  fileType        String          @map("file_type") // MIME type
+  fileExtension   String          @map("file_extension") // pdf, jpg, png
+  fileSize        Int             @map("file_size") // bytes
+  filePath        String          @map("file_path") // Azure Blob URL
+  blobName        String          @map("blob_name") // Azure Blob name
   status          DocumentStatus  @default(UPLOADED)
   errorMessage    String?         @map("error_message")
   processingPath  ProcessingPath? @map("processing_path")
   routingDecision Json?           @map("routing_decision")
 
-  uploadedBy      String          @map("uploaded_by")
-  cityCode        String?         @map("city_code")
+  uploadedBy String  @map("uploaded_by")
+  cityCode   String? @map("city_code")
 
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  uploader        User            @relation(fields: [uploadedBy], references: [id])
+  uploader  User       @relation(fields: [uploadedBy], references: [id])
+  ocrResult OcrResult? // OCR 結果（一對一關聯）
   // Future relations (to be added in later stories):
-  // ocrResults        OcrResult[]
   // extractions       ExtractionResult[]
   // identifications   ForwarderIdentification[]
   // processingQueue   ProcessingQueue?
@@ -203,32 +203,66 @@ model Document {
 }
 
 // =====================
+// OCR Result Model
+// =====================
+
+model OcrResult {
+  id         String @id @default(uuid())
+  documentId String @unique @map("document_id")
+
+  // OCR 結果數據
+  rawResult     Json   @map("raw_result") // Azure DI 原始回應
+  extractedText String @map("extracted_text") @db.Text // 提取的文字內容
+  invoiceData   Json?  @map("invoice_data") // 結構化發票數據
+
+  // 處理指標
+  processingTime Int?   @map("processing_time") // 處理時間 (ms)
+  pageCount      Int?   @map("page_count") // 頁數
+  confidence     Float? @map("confidence") // 整體信心度 (0-1)
+
+  // 錯誤處理
+  errorCode    String? @map("error_code") // 錯誤代碼
+  errorMessage String? @map("error_message") // 錯誤訊息
+  retryCount   Int     @default(0) @map("retry_count") // 重試次數
+
+  // 時間戳
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@map("ocr_results")
+}
+
+// =====================
 // Enums
 // =====================
 
 enum UserStatus {
-  ACTIVE    // 啟用
-  INACTIVE  // 停用
+  ACTIVE // 啟用
+  INACTIVE // 停用
   SUSPENDED // 暫停
 }
 
 enum DocumentStatus {
-  UPLOADING           // 上傳中
-  UPLOADED            // 已上傳
-  OCR_PROCESSING      // OCR 處理中
-  OCR_COMPLETED       // OCR 完成
-  OCR_FAILED          // OCR 失敗
-  MAPPING_PROCESSING  // 映射處理中
-  MAPPING_COMPLETED   // 映射完成
-  PENDING_REVIEW      // 待審核
-  IN_REVIEW           // 審核中
-  COMPLETED           // 已完成
-  FAILED              // 失敗
+  UPLOADING // 上傳中
+  UPLOADED // 已上傳
+  OCR_PROCESSING // OCR 處理中
+  OCR_COMPLETED // OCR 完成
+  OCR_FAILED // OCR 失敗
+  MAPPING_PROCESSING // 映射處理中
+  MAPPING_COMPLETED // 映射完成
+  PENDING_REVIEW // 待審核
+  IN_REVIEW // 審核中
+  COMPLETED // 已完成
+  FAILED // 失敗
 }
 
 enum ProcessingPath {
-  AUTO_APPROVE    // 自動通過（≥90% 信心度）
-  QUICK_REVIEW    // 快速審核（70-89% 信心度）
-  FULL_REVIEW     // 完整審核（<70% 信心度）
+  AUTO_APPROVE // 自動通過（≥90% 信心度）
+  QUICK_REVIEW // 快速審核（70-89% 信心度）
+  FULL_REVIEW // 完整審核（<70% 信心度）
   MANUAL_REQUIRED // 需要人工處理
 }

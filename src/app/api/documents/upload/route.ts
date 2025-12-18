@@ -7,6 +7,7 @@
  *   - 文件大小驗證（最大 10MB）
  *   - 上傳到 Azure Blob Storage
  *   - 資料庫記錄創建
+ *   - 自動觸發 OCR 提取（可選）
  *
  *   端點：
  *   - POST /api/documents/upload - 上傳文件
@@ -25,10 +26,12 @@
  *   - @/lib/azure/storage - Azure Blob Storage
  *   - @/lib/upload/constants - 上傳配置和驗證
  *   - @/lib/prisma - Prisma ORM
+ *   - @/services/extraction.service - OCR 提取服務
  *
  * @related
  *   - src/components/features/invoice/FileUploader.tsx - 前端上傳組件
  *   - src/services/document.service.ts - Document 服務層
+ *   - src/services/extraction.service.ts - OCR 提取服務
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -44,6 +47,7 @@ import {
   getExtensionFromMime,
 } from '@/lib/upload'
 import { PERMISSIONS } from '@/types/permissions'
+import { extractDocument } from '@/services/extraction.service'
 
 // ===========================================
 // Types
@@ -189,6 +193,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const formData = await request.formData()
     const files = formData.getAll('files') as File[]
     const cityCode = formData.get('cityCode') as string | null
+    const autoExtract = formData.get('autoExtract') !== 'false' // 默認啟用
 
     // ===========================================
     // 5. 驗證文件數量
@@ -292,7 +297,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // ===========================================
-    // 7. 返回響應
+    // 7. 自動觸發 OCR 提取（Fire-and-Forget）
+    // ===========================================
+    if (autoExtract && uploaded.length > 0) {
+      // 使用 Promise.allSettled 確保所有請求都被發送
+      // 不等待結果，讓 OCR 在背景執行
+      Promise.allSettled(
+        uploaded.map((doc) => extractDocument(doc.id))
+      ).catch((error) => {
+        console.error('Auto-extract trigger error:', error)
+      })
+    }
+
+    // ===========================================
+    // 8. 返回響應
     // ===========================================
     const response: UploadResponse = {
       success: true,
