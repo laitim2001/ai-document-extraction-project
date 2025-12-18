@@ -339,3 +339,109 @@ export interface ReviewRecordData {
   /** 建立時間 */
   createdAt: string
 }
+
+// ============================================================
+// Story 3-5: Correction Types
+// ============================================================
+
+/**
+ * 修正類型
+ */
+export type CorrectionType = 'NORMAL' | 'EXCEPTION'
+
+/**
+ * 單個修正輸入
+ */
+export interface CorrectionInput {
+  /** 欄位 ID */
+  fieldId: string
+  /** 欄位名稱 */
+  fieldName: string
+  /** 原始值 */
+  originalValue: string | null
+  /** 修正後的值 */
+  correctedValue: string
+  /** 修正類型 */
+  correctionType: CorrectionType
+}
+
+/**
+ * 修正請求
+ * @description PATCH /api/review/[id]/correct 請求體
+ */
+export interface CorrectRequest {
+  /** 修正列表 */
+  corrections: CorrectionInput[]
+}
+
+/**
+ * 修正成功響應
+ */
+export interface CorrectResponse {
+  success: true
+  data: {
+    /** 文件 ID */
+    documentId: string
+    /** 修正數量 */
+    correctionCount: number
+    /** 修正記錄列表 */
+    corrections: {
+      /** 記錄 ID */
+      id: string
+      /** 欄位名稱 */
+      fieldName: string
+      /** 修正後的值 */
+      correctedValue: string
+      /** 修正類型 */
+      correctionType: CorrectionType
+    }[]
+  }
+}
+
+/**
+ * 修正錯誤響應
+ */
+export interface CorrectErrorResponse {
+  type: string
+  title: string
+  status: number
+  detail: string
+  instance?: string
+  errors?: Record<string, string[]>
+}
+
+/**
+ * 欄位編輯狀態
+ * @description 用於追蹤單個欄位的編輯狀態
+ */
+export interface FieldEditState {
+  /** 欄位 ID */
+  fieldId: string
+  /** 欄位名稱 */
+  fieldName: string
+  /** 原始值 */
+  originalValue: string | null
+  /** 當前值 */
+  currentValue: string
+  /** 是否正在編輯 */
+  isEditing: boolean
+  /** 是否已修改 */
+  isDirty: boolean
+  /** 驗證錯誤 */
+  validationError: string | null
+}
+
+/**
+ * 待儲存的修正
+ * @description 用於批量提交修正
+ */
+export interface PendingCorrection {
+  /** 欄位 ID */
+  fieldId: string
+  /** 欄位名稱 */
+  fieldName: string
+  /** 原始值 */
+  originalValue: string | null
+  /** 新值 */
+  newValue: string
+}

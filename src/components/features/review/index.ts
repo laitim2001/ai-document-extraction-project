@@ -26,6 +26,11 @@
  *   Story 3.4:
  *   - ApprovalConfirmDialog - 審核確認對話框
  *   - QuickReviewMode - 快速審核模式組件
+ *
+ *   Story 3.5:
+ *   - FieldEditor - 欄位編輯器組件
+ *   - UnsavedChangesGuard - 未儲存變更警告組件
+ *   - UnsavedChangesDialog - 未儲存變更對話框
  */
 
 // --- Story 3.1: 審核佇列組件 ---
@@ -49,3 +54,11 @@ export { LowConfidenceFilter } from './LowConfidenceFilter'
 // --- Story 3.4: 確認提取結果組件 ---
 export { ApprovalConfirmDialog } from './ApprovalConfirmDialog'
 export { QuickReviewMode } from './ReviewPanel/QuickReviewMode'
+
+// --- Story 3.5: 修正提取結果組件 ---
+export { FieldEditor } from './ReviewPanel/FieldEditor'
+export {
+  UnsavedChangesGuard,
+  UnsavedChangesDialog,
+  useUnsavedChangesNavigation,
+} from './UnsavedChangesGuard'
