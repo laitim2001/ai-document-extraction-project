@@ -43,7 +43,7 @@ development_status:
   # Epic 1: 用戶認證與存取控制
   # ============================================================
   epic-1: in-progress
-  1-0-project-init-foundation: ready-for-dev
+  1-0-project-init-foundation: done
   1-1-azure-ad-sso-login: ready-for-dev
   1-2-user-database-role-foundation: ready-for-dev
   1-3-user-list-search: ready-for-dev
