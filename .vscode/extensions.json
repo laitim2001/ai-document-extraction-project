@@ -1,0 +1,34 @@
+{
+  // AI Document Extraction Project - 推薦 VS Code 擴展
+  "recommendations": [
+    // --- 核心開發工具 ---
+    "dbaeumer.vscode-eslint",           // ESLint 支援
+    "esbenp.prettier-vscode",           // Prettier 格式化
+    "bradlc.vscode-tailwindcss",        // Tailwind CSS IntelliSense
+    "prisma.prisma",                    // Prisma Schema 支援
+
+    // --- TypeScript/React ---
+    "ms-vscode.vscode-typescript-next", // TypeScript 最新功能
+    "dsznajder.es7-react-js-snippets",  // React Snippets
+
+    // --- Docker ---
+    "ms-azuretools.vscode-docker",      // Docker 支援
+
+    // --- Git ---
+    "eamodio.gitlens",                  // Git 增強
+    "mhutchie.git-graph",               // Git 圖形化
+
+    // --- 效率工具 ---
+    "christian-kohler.path-intellisense", // 路徑自動完成
+    "streetsidesoftware.code-spell-checker", // 拼字檢查
+    "wayou.vscode-todo-highlight",      // TODO 高亮
+    "usernamehw.errorlens",             // 錯誤即時顯示
+
+    // --- API 開發 ---
+    "humao.rest-client",                // REST API 測試
+
+    // --- 主題（可選）---
+    "pkief.material-icon-theme"         // 文件圖標主題
+  ],
+  "unwantedRecommendations": []
+}

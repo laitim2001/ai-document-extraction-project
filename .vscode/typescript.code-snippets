@@ -1,0 +1,527 @@
+{
+  // ============================================================
+  // AI Document Extraction Project - TypeScript/React Snippets
+  // ============================================================
+  // 使用方式：輸入 prefix 後按 Tab 展開
+  // ============================================================
+
+  // --- 文件頭部註釋 ---
+
+  "File Header - Service": {
+    "prefix": "file-header-service",
+    "body": [
+      "/**",
+      " * @fileoverview ${1:服務功能概述}",
+      " * @description",
+      " *   ${2:詳細描述，包含：}",
+      " *   - ${3:主要功能說明}",
+      " *   - ${4:設計決策說明}",
+      " *",
+      " * @module src/services/${5:module-name}",
+      " * @author ${6:Development Team}",
+      " * @since Epic ${7:X} - Story ${8:X.X} (${9:功能名稱})",
+      " * @lastModified ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}",
+      " *",
+      " * @features",
+      " *   - ${10:功能點 1}",
+      " *   - ${11:功能點 2}",
+      " *",
+      " * @dependencies",
+      " *   - ${12:依賴名} - ${13:用途說明}",
+      " *",
+      " * @related",
+      " *   - ${14:相關文件路徑} - ${15:關係說明}",
+      " */",
+      ""
+    ],
+    "description": "服務文件的標準頭部註釋"
+  },
+
+  "File Header - API Route": {
+    "prefix": "file-header-api",
+    "body": [
+      "/**",
+      " * @fileoverview ${1:API 端點功能概述}",
+      " * @description",
+      " *   ${2:API 詳細描述}",
+      " *   - HTTP 方法：${3:GET/POST/PATCH/DELETE}",
+      " *   - 路徑：/api/v1/${4:resource}",
+      " *",
+      " * @module src/app/api/v1/${5:resource}/route",
+      " * @author ${6:Development Team}",
+      " * @since Epic ${7:X} - Story ${8:X.X} (${9:功能名稱})",
+      " * @lastModified ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}",
+      " *",
+      " * @features",
+      " *   - ${10:功能點 1}",
+      " *",
+      " * @dependencies",
+      " *   - prisma - 資料庫訪問",
+      " *   - zod - 輸入驗證",
+      " */",
+      ""
+    ],
+    "description": "API 路由文件的標準頭部註釋"
+  },
+
+  "File Header - Hook": {
+    "prefix": "file-header-hook",
+    "body": [
+      "/**",
+      " * @fileoverview ${1:Hook 功能概述}",
+      " * @description",
+      " *   ${2:Hook 詳細描述和使用場景}",
+      " *",
+      " * @module src/hooks/${3:hook-name}",
+      " * @author ${4:Development Team}",
+      " * @since Epic ${5:X} - Story ${6:X.X} (${7:功能名稱})",
+      " * @lastModified ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}",
+      " *",
+      " * @example",
+      " *   const { ${8:data}, ${9:isLoading} } = ${10:useHookName}();",
+      " */",
+      ""
+    ],
+    "description": "Hook 文件的標準頭部註釋"
+  },
+
+  "File Header - Component": {
+    "prefix": "file-header-component",
+    "body": [
+      "/**",
+      " * @fileoverview ${1:組件功能概述}",
+      " * @description",
+      " *   ${2:組件詳細描述，包含使用場景}",
+      " *",
+      " * @module src/components/${3:component-path}",
+      " * @author ${4:Development Team}",
+      " * @since Epic ${5:X} - Story ${6:X.X} (${7:功能名稱})",
+      " * @lastModified ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}",
+      " *",
+      " * @features",
+      " *   - ${8:功能點 1}",
+      " */",
+      ""
+    ],
+    "description": "組件文件的標準頭部註釋"
+  },
+
+  "File Header - Types": {
+    "prefix": "file-header-types",
+    "body": [
+      "/**",
+      " * @fileoverview ${1:模組}相關的 TypeScript 類型定義",
+      " * @module src/types/${2:module-name}",
+      " * @since Epic ${3:X} - Story ${4:X.X}",
+      " */",
+      ""
+    ],
+    "description": "類型文件的簡化頭部註釋"
+  },
+
+  // --- 函數註釋 ---
+
+  "Function JSDoc - Full": {
+    "prefix": "func-doc",
+    "body": [
+      "/**",
+      " * ${1:函數功能簡述}",
+      " *",
+      " * @description ${2:詳細描述，包含業務邏輯說明}",
+      " * @param {${3:Type}} ${4:paramName} - ${5:參數說明}",
+      " * @returns {${6:ReturnType}} ${7:返回值說明}",
+      " * @throws {${8:ErrorType}} ${9:可能拋出的錯誤}",
+      " *",
+      " * @example",
+      " * ```typescript",
+      " * const result = ${10:functionName}(${11:param});",
+      " * ```",
+      " */"
+    ],
+    "description": "完整的函數 JSDoc 註釋"
+  },
+
+  "Function JSDoc - Simple": {
+    "prefix": "func-doc-simple",
+    "body": [
+      "/**",
+      " * ${1:函數功能簡述}",
+      " * @param {${2:Type}} ${3:paramName} - ${4:參數說明}",
+      " * @returns {${5:ReturnType}} ${6:返回值說明}",
+      " */"
+    ],
+    "description": "簡化的函數 JSDoc 註釋"
+  },
+
+  // --- 區塊註釋 ---
+
+  "Section Comment": {
+    "prefix": "section",
+    "body": [
+      "// ============================================================",
+      "// ${1:Section Title}",
+      "// ============================================================",
+      ""
+    ],
+    "description": "區塊分隔註釋"
+  },
+
+  "Subsection Comment": {
+    "prefix": "subsection",
+    "body": [
+      "// --- ${1:Subsection Title} ---",
+      ""
+    ],
+    "description": "子區塊分隔註釋"
+  },
+
+  // --- React 組件模板 ---
+
+  "React Component - Feature": {
+    "prefix": "rfc-feature",
+    "body": [
+      "'use client';",
+      "",
+      "/**",
+      " * @fileoverview ${1:組件功能概述}",
+      " * @module src/components/features/${2:feature-name}",
+      " * @since Epic ${3:X} - Story ${4:X.X}",
+      " */",
+      "",
+      "import * as React from 'react';",
+      "",
+      "// ============================================================",
+      "// Types",
+      "// ============================================================",
+      "",
+      "interface ${5:ComponentName}Props {",
+      "  ${6:propName}: ${7:PropType};",
+      "}",
+      "",
+      "// ============================================================",
+      "// Component",
+      "// ============================================================",
+      "",
+      "/**",
+      " * @component ${5:ComponentName}",
+      " * @description ${8:組件描述}",
+      " */",
+      "export function ${5:ComponentName}({ ${6:propName} }: ${5:ComponentName}Props) {",
+      "  // --- Hooks ---",
+      "",
+      "  // --- State ---",
+      "",
+      "  // --- Handlers ---",
+      "",
+      "  // --- Render ---",
+      "  return (",
+      "    <div>",
+      "      ${0}",
+      "    </div>",
+      "  );",
+      "}",
+      ""
+    ],
+    "description": "功能組件模板（含完整結構）"
+  },
+
+  "React Component - Simple": {
+    "prefix": "rfc-simple",
+    "body": [
+      "interface ${1:ComponentName}Props {",
+      "  ${2:propName}: ${3:PropType};",
+      "}",
+      "",
+      "export function ${1:ComponentName}({ ${2:propName} }: ${1:ComponentName}Props) {",
+      "  return (",
+      "    <div>",
+      "      ${0}",
+      "    </div>",
+      "  );",
+      "}",
+      ""
+    ],
+    "description": "簡單組件模板"
+  },
+
+  // --- Hook 模板 ---
+
+  "Custom Hook - Query": {
+    "prefix": "hook-query",
+    "body": [
+      "/**",
+      " * @fileoverview ${1:資源}數據獲取 Hook",
+      " * @module src/hooks/use-${2:resource-name}",
+      " * @since Epic ${3:X} - Story ${4:X.X}",
+      " */",
+      "",
+      "import { useQuery } from '@tanstack/react-query';",
+      "import { ${5:resourceApi} } from '@/lib/api/${2:resource-name}';",
+      "import type { ${6:ResourceType}, ${7:FiltersType} } from '@/types/${2:resource-name}';",
+      "",
+      "/**",
+      " * 獲取${1:資源}列表",
+      " * @param filters - 過濾條件",
+      " * @returns React Query 結果",
+      " */",
+      "export function use${8:ResourceName}s(filters?: ${7:FiltersType}) {",
+      "  return useQuery({",
+      "    queryKey: ['${2:resource-name}s', filters],",
+      "    queryFn: () => ${5:resourceApi}.list(filters),",
+      "    staleTime: 5 * 60 * 1000, // 5 分鐘",
+      "  });",
+      "}",
+      ""
+    ],
+    "description": "React Query 數據獲取 Hook 模板"
+  },
+
+  "Custom Hook - Mutation": {
+    "prefix": "hook-mutation",
+    "body": [
+      "/**",
+      " * ${1:操作描述}",
+      " * @returns React Query mutation 結果",
+      " */",
+      "export function use${2:ActionName}${3:Resource}() {",
+      "  const queryClient = useQueryClient();",
+      "",
+      "  return useMutation({",
+      "    mutationFn: ${4:resourceApi}.${5:action},",
+      "    onSuccess: () => {",
+      "      queryClient.invalidateQueries({ queryKey: ['${6:resource-name}s'] });",
+      "    },",
+      "  });",
+      "}",
+      ""
+    ],
+    "description": "React Query Mutation Hook 模板"
+  },
+
+  // --- API Route 模板 ---
+
+  "API Route - GET List": {
+    "prefix": "api-get-list",
+    "body": [
+      "/**",
+      " * GET /api/v1/${1:resources}",
+      " * 獲取${2:資源}列表（支援分頁和過濾）",
+      " */",
+      "export async function GET(request: NextRequest) {",
+      "  try {",
+      "    const searchParams = request.nextUrl.searchParams;",
+      "    const params = ${3:listSchema}.parse({",
+      "      page: Number(searchParams.get('page') ?? 1),",
+      "      limit: Number(searchParams.get('limit') ?? 20),",
+      "    });",
+      "",
+      "    const [data, total] = await Promise.all([",
+      "      prisma.${4:model}.findMany({",
+      "        skip: (params.page - 1) * params.limit,",
+      "        take: params.limit,",
+      "        orderBy: { createdAt: 'desc' },",
+      "      }),",
+      "      prisma.${4:model}.count(),",
+      "    ]);",
+      "",
+      "    return NextResponse.json(",
+      "      createApiResponse(data, {",
+      "        pagination: {",
+      "          page: params.page,",
+      "          limit: params.limit,",
+      "          total,",
+      "          totalPages: Math.ceil(total / params.limit),",
+      "        },",
+      "      })",
+      "    );",
+      "  } catch (error) {",
+      "    return NextResponse.json(createApiError(error), { status: getErrorStatus(error) });",
+      "  }",
+      "}",
+      ""
+    ],
+    "description": "API GET 列表路由模板"
+  },
+
+  "API Route - POST Create": {
+    "prefix": "api-post-create",
+    "body": [
+      "/**",
+      " * POST /api/v1/${1:resources}",
+      " * 創建新${2:資源}",
+      " */",
+      "export async function POST(request: NextRequest) {",
+      "  try {",
+      "    const body = await request.json();",
+      "    const data = ${3:createSchema}.parse(body);",
+      "",
+      "    const ${4:resource} = await prisma.${5:model}.create({",
+      "      data,",
+      "    });",
+      "",
+      "    return NextResponse.json(createApiResponse(${4:resource}), { status: 201 });",
+      "  } catch (error) {",
+      "    return NextResponse.json(createApiError(error), { status: getErrorStatus(error) });",
+      "  }",
+      "}",
+      ""
+    ],
+    "description": "API POST 創建路由模板"
+  },
+
+  // --- Zod Schema 模板 ---
+
+  "Zod Schema - Model": {
+    "prefix": "zod-model",
+    "body": [
+      "/**",
+      " * ${1:模型名稱} Zod 驗證 Schema",
+      " */",
+      "export const ${2:modelName}Schema = z.object({",
+      "  id: z.string().cuid(),",
+      "  ${3:fieldName}: z.string().min(1).max(255),",
+      "  createdAt: z.date(),",
+      "  updatedAt: z.date(),",
+      "});",
+      "",
+      "export type ${4:ModelName} = z.infer<typeof ${2:modelName}Schema>;",
+      ""
+    ],
+    "description": "Zod 模型 Schema 模板"
+  },
+
+  "Zod Schema - Input": {
+    "prefix": "zod-input",
+    "body": [
+      "/**",
+      " * ${1:操作描述}輸入驗證 Schema",
+      " */",
+      "export const ${2:actionName}InputSchema = z.object({",
+      "  ${3:fieldName}: z.string().min(1, '${4:欄位名稱}不能為空'),",
+      "});",
+      "",
+      "export type ${5:ActionName}Input = z.infer<typeof ${2:actionName}InputSchema>;",
+      ""
+    ],
+    "description": "Zod 輸入驗證 Schema 模板"
+  },
+
+  // --- TypeScript 類型模板 ---
+
+  "Interface - Props": {
+    "prefix": "interface-props",
+    "body": [
+      "interface ${1:ComponentName}Props {",
+      "  ${2:propName}: ${3:PropType};",
+      "  ${4:optionalProp}?: ${5:OptionalType};",
+      "  ${6:onEvent}?: (${7:param}: ${8:ParamType}) => void;",
+      "}",
+      ""
+    ],
+    "description": "組件 Props Interface 模板"
+  },
+
+  "Type - API Response": {
+    "prefix": "type-response",
+    "body": [
+      "interface ${1:ResourceName}Response {",
+      "  ${2:fieldName}: ${3:FieldType};",
+      "}",
+      "",
+      "interface ${1:ResourceName}ListResponse {",
+      "  data: ${1:ResourceName}Response[];",
+      "  pagination: Pagination;",
+      "}",
+      ""
+    ],
+    "description": "API 響應類型模板"
+  },
+
+  // --- 常用代碼片段 ---
+
+  "Console Log - Debug": {
+    "prefix": "clog",
+    "body": [
+      "console.log('[${1:context}]', { ${2:variable} });"
+    ],
+    "description": "帶上下文的 console.log"
+  },
+
+  "Try-Catch Block": {
+    "prefix": "trycatch",
+    "body": [
+      "try {",
+      "  ${1:// 執行操作}",
+      "} catch (error) {",
+      "  console.error('[${2:context}] Error:', error);",
+      "  throw error;",
+      "}"
+    ],
+    "description": "Try-Catch 區塊"
+  },
+
+  "TODO Comment": {
+    "prefix": "todo",
+    "body": [
+      "// TODO(${1:username}): ${2:描述需要做的事情}"
+    ],
+    "description": "TODO 註釋"
+  },
+
+  "FIXME Comment": {
+    "prefix": "fixme",
+    "body": [
+      "// FIXME(${1:username}): ${2:需要修復的問題}"
+    ],
+    "description": "FIXME 註釋"
+  },
+
+  // --- Prisma 相關 ---
+
+  "Prisma Find Many": {
+    "prefix": "prisma-findmany",
+    "body": [
+      "const ${1:results} = await prisma.${2:model}.findMany({",
+      "  where: {",
+      "    ${3:field}: ${4:value},",
+      "  },",
+      "  orderBy: {",
+      "    createdAt: 'desc',",
+      "  },",
+      "  take: ${5:20},",
+      "});"
+    ],
+    "description": "Prisma findMany 查詢"
+  },
+
+  "Prisma Create": {
+    "prefix": "prisma-create",
+    "body": [
+      "const ${1:result} = await prisma.${2:model}.create({",
+      "  data: {",
+      "    ${3:field}: ${4:value},",
+      "  },",
+      "});"
+    ],
+    "description": "Prisma create 操作"
+  },
+
+  "Prisma Transaction": {
+    "prefix": "prisma-transaction",
+    "body": [
+      "const result = await prisma.$transaction(async (tx) => {",
+      "  const ${1:first} = await tx.${2:model1}.create({",
+      "    data: { ${3:field}: ${4:value} },",
+      "  });",
+      "",
+      "  const ${5:second} = await tx.${6:model2}.update({",
+      "    where: { id: ${1:first}.id },",
+      "    data: { ${7:field}: ${8:value} },",
+      "  });",
+      "",
+      "  return { ${1:first}, ${5:second} };",
+      "});"
+    ],
+    "description": "Prisma 事務操作"
+  }
+}

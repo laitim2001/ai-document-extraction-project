@@ -11,11 +11,16 @@ dist/
 build/
 .next/
 out/
+tsconfig.tsbuildinfo
 
 # IDE
 .idea/
 *.swp
 *.swo
+.vscode/settings.json
+
+# Claude Code local settings
+.claude/settings.local.json
 
 # OS
 .DS_Store
@@ -33,3 +38,5 @@ coverage/
 *.tmp
 *.temp
 nul
+
+/generated/prisma
