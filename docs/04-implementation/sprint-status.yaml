@@ -70,8 +70,8 @@ development_status:
   # ============================================================
   # Epic 3: 發票審核與修正工作流
   # ============================================================
-  epic-3: backlog
-  3-1-pending-review-invoice-list: ready-for-dev
+  epic-3: in-progress
+  3-1-pending-review-invoice-list: done  # Completed 2025-12-18: Review queue API, hooks, UI components, page
   3-2-side-by-side-pdf-review-interface: ready-for-dev
   3-3-confidence-color-coding-display: ready-for-dev
   3-4-confirm-extraction-result: ready-for-dev
