@@ -35,9 +35,12 @@ import { auth, signOut } from '@/lib/auth'
  * 角色顯示名稱映射
  */
 const ROLE_DISPLAY_NAMES: Record<string, string> = {
-  ADMIN: '系統管理員',
-  SUPERVISOR: '主管',
-  OPERATOR: '操作員',
+  'System Admin': '系統管理員',
+  'Super User': '超級用戶',
+  'Data Processor': '資料處理員',
+  'City Manager': '城市經理',
+  'Regional Manager': '區域經理',
+  Auditor: '審計員',
 }
 
 export default async function DashboardLayout({
@@ -52,8 +55,9 @@ export default async function DashboardLayout({
     redirect('/auth/login')
   }
 
-  const userRole = session.user?.role ?? 'OPERATOR'
-  const roleDisplayName = ROLE_DISPLAY_NAMES[userRole] ?? userRole
+  // 取得用戶的主要角色（第一個角色）
+  const primaryRole = session.user?.roles?.[0]?.name ?? 'Data Processor'
+  const roleDisplayName = ROLE_DISPLAY_NAMES[primaryRole] ?? primaryRole
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">

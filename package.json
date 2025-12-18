@@ -12,7 +12,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed"
   },
   "repository": {
     "type": "git",
@@ -57,8 +58,12 @@
     "zod": "^4.2.1",
     "zustand": "^5.0.9"
   },
+  "prisma": {
+    "seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
   "devDependencies": {
     "@prisma/client": "^7.2.0",
+    "ts-node": "^10.9.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.0",

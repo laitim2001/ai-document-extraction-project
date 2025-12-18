@@ -5,8 +5,9 @@
  *
  *   擴展屬性：
  *   - user.id: 用戶唯一標識符
- *   - user.role: 用戶角色 (ADMIN | SUPERVISOR | OPERATOR)
+ *   - user.status: 用戶狀態 (ACTIVE | INACTIVE | SUSPENDED)
  *   - user.azureAdId: Azure AD 用戶 ID
+ *   - user.roles: 角色列表（含權限）
  *
  * @module src/types/next-auth
  * @author Development Team
@@ -15,12 +16,14 @@
  *
  * @related
  *   - src/lib/auth.ts - NextAuth 配置
+ *   - src/types/role.ts - 角色類型定義
  *   - prisma/schema.prisma - 用戶模型定義
  */
 
-import type { UserRole } from '@prisma/client'
+import type { UserStatus } from '@prisma/client'
 import type { DefaultSession, DefaultUser } from 'next-auth'
 import type { DefaultJWT } from 'next-auth/jwt'
+import type { SessionRole } from './role'
 
 declare module 'next-auth' {
   /**
@@ -29,9 +32,14 @@ declare module 'next-auth' {
    */
   interface Session {
     user: {
+      /** 用戶唯一標識符 */
       id: string
-      role: UserRole
+      /** Azure AD 用戶 ID */
       azureAdId?: string
+      /** 用戶狀態 */
+      status: UserStatus
+      /** 用戶角色列表（含權限） */
+      roles: SessionRole[]
     } & DefaultSession['user']
   }
 
@@ -40,9 +48,10 @@ declare module 'next-auth' {
    * 對應 Prisma User 模型的自定義欄位
    */
   interface User extends DefaultUser {
-    role?: UserRole
+    /** Azure AD 用戶 ID */
     azureAdId?: string
-    isActive?: boolean
+    /** 用戶狀態 */
+    status?: UserStatus
   }
 }
 
@@ -52,8 +61,11 @@ declare module 'next-auth/jwt' {
    * 在 JWT token 中存儲自定義屬性
    */
   interface JWT extends DefaultJWT {
-    role?: UserRole
+    /** Azure AD 用戶 ID */
     azureAdId?: string
-    isActive?: boolean
+    /** 用戶狀態 */
+    status?: UserStatus
+    /** 用戶角色列表（含權限） */
+    roles?: SessionRole[]
   }
 }

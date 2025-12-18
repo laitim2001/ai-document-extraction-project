@@ -132,8 +132,12 @@ export const REVIEW_TYPE = {
 } as const;
 
 // ============================================================
-// 服務導出（待實現）
+// 服務導出
 // ============================================================
+
+// Epic 1: User Authentication & Access Control
+export * from './role.service'
+export * from './user.service'
 
 // TODO: Epic 6 實現後取消註釋
 // export { mappingService } from './mapping';

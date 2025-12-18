@@ -14,23 +14,23 @@ datasource db {
 // =====================
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime? @map("email_verified")
+  id            String     @id @default(cuid())
+  email         String     @unique
+  emailVerified DateTime?  @map("email_verified")
   name          String?
   image         String?
-  password      String?   // Optional: 用於本地登入（若未來需要）
-  azureAdId     String?   @unique @map("azure_ad_id") // Azure AD 用戶 ID
-  role          UserRole  @default(OPERATOR)
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  lastLoginAt   DateTime? @map("last_login_at")
-  isActive      Boolean   @default(true) @map("is_active")
+  password      String?    // Optional: 用於本地登入（若未來需要）
+  azureAdId     String?    @unique @map("azure_ad_id") // Azure AD 用戶 ID
+  status        UserStatus @default(ACTIVE)
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+  lastLoginAt   DateTime?  @map("last_login_at")
 
   // Relations
-  accounts      Account[]
-  sessions      Session[]
-  auditLogs     AuditLog[]
+  accounts  Account[]
+  sessions  Session[]
+  auditLogs AuditLog[]
+  roles     UserRole[] // 用戶角色關聯
 
   @@map("users")
 }
@@ -67,7 +67,7 @@ model Session {
   ipAddress    String?  @map("ip_address")
 
   // Relations
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expires])
@@ -84,21 +84,58 @@ model VerificationToken {
 }
 
 // =====================
+// Role & Permission Models (RBAC)
+// =====================
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  permissions String[] // JSON array of permission strings
+  isSystem    Boolean  @default(false) @map("is_system") // 系統預設角色不可刪除
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  users UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  roleId    String   @map("role_id")
+  cityId    String?  @map("city_id") // 城市歸屬（City Manager / Regional Manager 使用）
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+  @@index([cityId])
+  @@map("user_roles")
+}
+
+// =====================
 // Audit Models
 // =====================
 
 model AuditLog {
-  id           String   @id @default(cuid())
-  userId       String?  @map("user_id")
-  action       String
-  entityType   String   @map("entity_type")
-  entityId     String?  @map("entity_id")
-  details      Json?
-  ipAddress    String?  @map("ip_address")
-  createdAt    DateTime @default(now()) @map("created_at")
+  id         String   @id @default(cuid())
+  userId     String?  @map("user_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  details    Json?
+  ipAddress  String?  @map("ip_address")
+  createdAt  DateTime @default(now()) @map("created_at")
 
   // Relations
-  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([entityType, entityId])
@@ -110,8 +147,8 @@ model AuditLog {
 // Enums
 // =====================
 
-enum UserRole {
-  ADMIN
-  SUPERVISOR
-  OPERATOR
+enum UserStatus {
+  ACTIVE    // 啟用
+  INACTIVE  // 停用
+  SUSPENDED // 暫停
 }
