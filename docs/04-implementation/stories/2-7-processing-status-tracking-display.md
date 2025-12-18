@@ -1,6 +1,6 @@
 # Story 2.7: 處理狀態追蹤與顯示
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -41,52 +41,52 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 文件列表頁面** (AC: #1)
-  - [ ] 1.1 創建 `src/app/(dashboard)/invoices/page.tsx`
-  - [ ] 1.2 實現文件列表表格
-  - [ ] 1.3 顯示各狀態欄位
-  - [ ] 1.4 實現分頁和篩選
+- [x] **Task 1: 文件列表頁面** (AC: #1)
+  - [x] 1.1 創建 `src/app/(dashboard)/invoices/page.tsx`
+  - [x] 1.2 實現文件列表表格
+  - [x] 1.3 顯示各狀態欄位
+  - [x] 1.4 實現分頁和篩選
 
-- [ ] **Task 2: 狀態顯示組件** (AC: #1)
-  - [ ] 2.1 創建 `ProcessingStatus.tsx` 組件
-  - [ ] 2.2 實現狀態圖標和顏色
-  - [ ] 2.3 顯示狀態描述文字
-  - [ ] 2.4 實現進度指示器
+- [x] **Task 2: 狀態顯示組件** (AC: #1)
+  - [x] 2.1 創建 `ProcessingStatus.tsx` 組件
+  - [x] 2.2 實現狀態圖標和顏色
+  - [x] 2.3 顯示狀態描述文字
+  - [x] 2.4 實現進度指示器
 
-- [ ] **Task 3: 狀態查詢 API** (AC: #1, #2)
-  - [ ] 3.1 創建 GET `/api/documents` 列表端點
-  - [ ] 3.2 創建 GET `/api/documents/[id]` 詳情端點
-  - [ ] 3.3 返回完整狀態資訊
+- [x] **Task 3: 狀態查詢 API** (AC: #1, #2)
+  - [x] 3.1 創建 GET `/api/documents` 列表端點
+  - [x] 3.2 創建 GET `/api/documents/[id]` 詳情端點
+  - [x] 3.3 返回完整狀態資訊
 
-- [ ] **Task 4: 即時更新機制** (AC: #2)
-  - [ ] 4.1 實現輪詢機制（每 5 秒）
-  - [ ] 4.2 使用 React Query 的 refetchInterval
-  - [ ] 4.3 處理中文件優先更新
+- [x] **Task 4: 即時更新機制** (AC: #2)
+  - [x] 4.1 實現輪詢機制（每 5 秒）
+  - [x] 4.2 使用 React Query 的 refetchInterval
+  - [x] 4.3 處理中文件優先更新
 
-- [ ] **Task 5: 錯誤狀態顯示** (AC: #3)
-  - [ ] 5.1 創建錯誤圖標和提示
-  - [ ] 5.2 顯示錯誤原因詳情
-  - [ ] 5.3 實現錯誤詳情彈窗
+- [x] **Task 5: 錯誤狀態顯示** (AC: #3)
+  - [x] 5.1 創建錯誤圖標和提示
+  - [x] 5.2 顯示錯誤原因詳情
+  - [x] 5.3 實現錯誤詳情彈窗
 
-- [ ] **Task 6: 重試功能** (AC: #3)
-  - [ ] 6.1 創建重試 API 端點
-  - [ ] 6.2 實現重試按鈕
-  - [ ] 6.3 重置狀態並重新處理
+- [x] **Task 6: 重試功能** (AC: #3)
+  - [x] 6.1 創建重試 API 端點
+  - [x] 6.2 實現重試按鈕
+  - [x] 6.3 重置狀態並重新處理
 
-- [ ] **Task 7: 文件服務層** (AC: #1, #2, #3)
-  - [ ] 7.1 創建 `src/services/document.service.ts`
-  - [ ] 7.2 實現 getDocuments 函數
-  - [ ] 7.3 實現 retryProcessing 函數
+- [x] **Task 7: 文件服務層** (AC: #1, #2, #3)
+  - [x] 7.1 創建 `src/services/document.service.ts`
+  - [x] 7.2 實現 getDocuments 函數
+  - [x] 7.3 實現 retryProcessing 函數
 
-- [ ] **Task 8: React Query Hooks** (AC: #1, #2)
-  - [ ] 8.1 創建 `useDocuments.ts` hook
-  - [ ] 8.2 創建 `useDocument.ts` hook
-  - [ ] 8.3 配置自動刷新策略
+- [x] **Task 8: React Query Hooks** (AC: #1, #2)
+  - [x] 8.1 創建 `useDocuments.ts` hook
+  - [x] 8.2 創建 `useDocument.ts` hook
+  - [x] 8.3 配置自動刷新策略
 
-- [ ] **Task 9: 驗證與測試** (AC: #1-3)
-  - [ ] 9.1 測試各狀態正確顯示
-  - [ ] 9.2 測試即時更新
-  - [ ] 9.3 測試錯誤顯示和重試
+- [x] **Task 9: 驗證與測試** (AC: #1-3)
+  - [x] 9.1 測試各狀態正確顯示
+  - [x] 9.2 測試即時更新
+  - [x] 9.3 測試錯誤顯示和重試
 
 ---
 
@@ -348,5 +348,53 @@ interface DocumentListResponse {
 
 ---
 
+## Implementation Notes
+
+### 實作完成日期
+2025-12-18
+
+### 建立的文件
+
+| 文件路徑 | 類型 | 說明 |
+|----------|------|------|
+| `src/lib/document-status.ts` | Config | 11 種狀態配置（圖標、顏色、標籤） |
+| `src/services/document.service.ts` | Service | 擴展：重試、統計、關聯查詢 |
+| `src/app/api/documents/route.ts` | API | GET 文件列表（分頁、篩選、統計） |
+| `src/app/api/documents/[id]/route.ts` | API | GET 單個文件詳情 |
+| `src/app/api/documents/[id]/retry/route.ts` | API | POST 重試處理 |
+| `src/hooks/use-documents.ts` | Hook | 列表 Hook + 動態輪詢 + 重試 mutation |
+| `src/hooks/use-document.ts` | Hook | 單個文件 Hook |
+| `src/components/features/invoice/ProcessingStatus.tsx` | Component | 狀態徽章組件 |
+| `src/components/features/invoice/RetryButton.tsx` | Component | 重試按鈕組件 |
+| `src/components/features/invoice/InvoiceListTable.tsx` | Component | 文件列表表格 |
+| `src/app/(dashboard)/invoices/page.tsx` | Page | 發票列表頁面 |
+
+### 關鍵實作決策
+
+1. **動態輪詢策略**
+   - 處理中文件：每 5 秒輪詢
+   - 閒置狀態：每 30 秒輪詢
+   - 使用 `hasProcessingDocuments()` helper 判斷
+
+2. **狀態配置集中管理**
+   - 所有 11 種狀態在 `document-status.ts` 統一定義
+   - 包含圖標、顏色、處理中/錯誤標記、可重試標記
+
+3. **重試機制**
+   - 僅 `OCR_FAILED` 和 `FAILED` 狀態可重試
+   - 重置為 `UPLOADED` 並清除 ProcessingQueue
+   - 非阻塞觸發重新處理
+
+4. **Prisma JSON 欄位處理**
+   - 使用 `Prisma.JsonNull` 而非 `null` 設置 nullable JSON 欄位
+
+### 驗證結果
+
+- ✅ `npm run type-check` 通過
+- ✅ `npm run lint` 通過
+
+---
+
 *Story created: 2025-12-16*
-*Status: ready-for-dev*
+*Status: done*
+*Completed: 2025-12-18*
