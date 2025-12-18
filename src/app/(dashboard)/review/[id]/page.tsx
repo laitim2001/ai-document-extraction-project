@@ -7,6 +7,7 @@
  *   - 欄位與 PDF 來源位置聯動
  *   - 響應式佈局（桌面並排 / 行動版 Tab 切換）
  *   - 審核確認對話框（Story 3.4）
+ *   - 升級複雜案例對話框（Story 3.7）
  *
  * @module src/app/(dashboard)/review/[id]/page
  * @since Epic 3 - Story 3.2 (並排 PDF 審核介面)
@@ -15,6 +16,7 @@
  * @dependencies
  *   - @/hooks/useReviewDetail - 審核詳情資料獲取
  *   - @/hooks/useApproveReview - 審核確認 Hook (Story 3.4)
+ *   - @/hooks/useEscalateReview - 升級案例 Hook (Story 3.7)
  *   - @/stores/reviewStore - 審核狀態管理
  *   - @/components/features/review - 審核相關組件
  */
@@ -26,13 +28,16 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useReviewDetail } from '@/hooks/useReviewDetail'
 import { useApproveReview } from '@/hooks/useApproveReview'
+import { useEscalateReview } from '@/hooks/useEscalateReview'
 import { useReviewStore } from '@/stores/reviewStore'
 import {
   PdfViewer,
   ReviewPanel,
   ReviewDetailLayout,
   ApprovalConfirmDialog,
+  EscalationDialog,
 } from '@/components/features/review'
+import type { EscalateRequest } from '@/types/escalation'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -164,6 +169,7 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
   const [showApprovalDialog, setShowApprovalDialog] = useState(false)
+  const [showEscalateDialog, setShowEscalateDialog] = useState(false)
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(
     null
   )
@@ -190,6 +196,24 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
       })
     },
   })
+
+  // 升級案例 Hook (Story 3.7)
+  const { mutate: escalateDocument, isPending: isEscalating } =
+    useEscalateReview({
+      onSuccess: () => {
+        toast.success('案例已升級', {
+          description: '已通知 Super User 處理此案例',
+        })
+        setShowEscalateDialog(false)
+        resetStore()
+        router.push('/review')
+      },
+      onError: (err) => {
+        toast.error('升級失敗', {
+          description: err.message,
+        })
+      },
+    })
 
   // --- Effects ---
   // 重置 store 狀態（進入頁面時）
@@ -323,33 +347,31 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
   }, [documentId, refetch, resetStore])
 
   /**
-   * 升級案例
+   * 升級案例按鈕點擊（顯示升級對話框）
    */
-  const handleEscalate = useCallback(async () => {
-    setIsSubmitting(true)
-    try {
-      const response = await fetch(`/api/review/${documentId}/escalate`, {
-        method: 'POST',
-      })
+  const handleEscalate = useCallback(() => {
+    setShowEscalateDialog(true)
+  }, [])
 
-      if (!response.ok) {
-        throw new Error('升級案例失敗')
-      }
-
-      toast.success('已升級案例', {
-        description: '案例已轉交給資深審核人員',
+  /**
+   * 確認升級案例（對話框確認後）
+   *
+   * @description
+   *   Story 3.7 AC2: 升級處理
+   *   - 更新 Document 狀態為 ESCALATED
+   *   - 建立 Escalation 記錄
+   *   - 通知 Super User
+   *   - 記錄審計日誌
+   */
+  const handleConfirmEscalate = useCallback(
+    (escalateData: EscalateRequest) => {
+      escalateDocument({
+        documentId,
+        data: escalateData,
       })
-
-      resetStore()
-      router.push('/review')
-    } catch (err) {
-      toast.error('操作失敗', {
-        description: err instanceof Error ? err.message : '請稍後再試',
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [documentId, resetStore, router])
+    },
+    [documentId, escalateDocument]
+  )
 
   // --- Render ---
 
@@ -433,7 +455,7 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
               onApprove={handleApprove}
               onSaveCorrections={handleSaveCorrections}
               onEscalate={handleEscalate}
-              isSubmitting={isSubmitting || isApproving}
+              isSubmitting={isSubmitting || isApproving || isEscalating}
             />
           }
         />
@@ -454,6 +476,15 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
         fieldCount={data?.extraction.fields.length || 0}
         isSubmitting={isApproving}
         processingPath={data?.processingQueue?.processingPath}
+      />
+
+      {/* 升級案例對話框 (Story 3.7) */}
+      <EscalationDialog
+        open={showEscalateDialog}
+        onOpenChange={setShowEscalateDialog}
+        onConfirm={handleConfirmEscalate}
+        documentName={data?.document.fileName || ''}
+        isSubmitting={isEscalating}
       />
     </div>
   )

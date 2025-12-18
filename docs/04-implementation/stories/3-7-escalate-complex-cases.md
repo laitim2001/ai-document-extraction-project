@@ -1,6 +1,6 @@
 # Story 3.7: 升級複雜案例
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 

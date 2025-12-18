@@ -78,3 +78,6 @@ export {
   type CorrectionTypeSetting,
   type CorrectionWithType,
 } from './CorrectionTypeDialog'
+
+// --- Story 3.7: 升級複雜案例組件 ---
+export { EscalationDialog } from './EscalationDialog'

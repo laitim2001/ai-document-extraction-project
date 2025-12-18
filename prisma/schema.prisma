@@ -38,6 +38,8 @@ model User {
   corrections          Correction[] // 欄位修正記錄（Story 3.5）
   reviewedSuggestions  RuleSuggestion[] @relation("RuleSuggestionReviewer") // 審核的規則建議（Story 3.6）
   notifications        Notification[] // 通知（Story 3.6）
+  escalationsCreated   Escalation[] @relation("EscalationEscalator") // 發起的升級（Story 3.7）
+  escalationsAssigned  Escalation[] @relation("EscalationAssignee") // 被分配的升級（Story 3.7）
 
   @@map("users")
 }
@@ -203,6 +205,7 @@ model Document {
   processingQueue  ProcessingQueue? // 處理隊列（一對一關聯）
   reviewRecords    ReviewRecord[] // 審核記錄（Story 3.4）
   corrections      Correction[] // 欄位修正記錄（Story 3.5）
+  escalation       Escalation? // 升級記錄（Story 3.7）
 
   @@index([status])
   @@index([uploadedBy])
@@ -343,6 +346,7 @@ enum DocumentStatus {
   PENDING_REVIEW // 待審核
   IN_REVIEW // 審核中
   APPROVED // 已核准（Story 3.4）
+  ESCALATED // 已升級（Story 3.7）
   COMPLETED // 已完成
   FAILED // 失敗
 }
@@ -387,6 +391,20 @@ enum ReviewAction {
 enum CorrectionType {
   NORMAL // 正常修正，系統應學習
   EXCEPTION // 特例，不學習
+}
+
+enum EscalationReason {
+  UNKNOWN_FORWARDER // 無法識別的 Forwarder
+  RULE_NOT_APPLICABLE // 規則不適用
+  POOR_QUALITY // 文件品質不佳
+  OTHER // 其他原因
+}
+
+enum EscalationStatus {
+  PENDING // 待處理
+  IN_PROGRESS // 處理中
+  RESOLVED // 已解決
+  CANCELLED // 已取消
 }
 
 // =====================
@@ -692,4 +710,32 @@ model Notification {
   @@index([userId, isRead])
   @@index([createdAt])
   @@map("notifications")
+}
+
+// =====================
+// Escalation Model (Story 3.7)
+// =====================
+
+model Escalation {
+  id           String           @id @default(uuid())
+  documentId   String           @unique @map("document_id")
+  escalatedBy  String           @map("escalated_by")
+  reason       EscalationReason
+  reasonDetail String?          @map("reason_detail")
+  status       EscalationStatus @default(PENDING)
+  assignedTo   String?          @map("assigned_to")
+  resolution   String?
+  createdAt    DateTime         @default(now()) @map("created_at")
+  resolvedAt   DateTime?        @map("resolved_at")
+
+  // Relations
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  escalator User    @relation("EscalationEscalator", fields: [escalatedBy], references: [id])
+  assignee  User?   @relation("EscalationAssignee", fields: [assignedTo], references: [id])
+
+  @@index([status])
+  @@index([assignedTo])
+  @@index([escalatedBy])
+  @@index([createdAt])
+  @@map("escalations")
 }
