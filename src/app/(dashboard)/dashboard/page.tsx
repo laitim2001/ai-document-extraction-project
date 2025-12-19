@@ -2,7 +2,7 @@
  * @fileoverview Dashboard 首頁
  * @description
  *   已登入用戶的主要儀表板頁面，顯示系統概覽和快速操作入口。
- *   包含處理統計儀表板（Story 7.1）和功能入口卡片。
+ *   包含處理統計儀表板（Story 7.1）和時間範圍篩選器（Story 7.2）。
  *
  * @module src/app/(dashboard)/dashboard/page
  * @author Development Team
@@ -12,19 +12,18 @@
  * @features
  *   - Session 資訊顯示
  *   - 處理統計儀表板（Story 7.1）
+ *   - 時間範圍篩選器（Story 7.2）
  *   - 系統功能概覽
  *   - 快速操作入口
  *
  * @related
  *   - src/app/(dashboard)/layout.tsx - Dashboard 佈局
  *   - src/lib/auth.ts - NextAuth 配置
- *   - src/components/dashboard/DashboardStats.tsx - 統計組件
+ *   - src/components/dashboard/DashboardStatsWithDateRange.tsx - 統計組件（含日期範圍）
  */
 
-import { Suspense } from 'react'
 import { auth } from '@/lib/auth'
-import { DashboardStats } from '@/components/dashboard/DashboardStats'
-import { Skeleton } from '@/components/ui/skeleton'
+import { DashboardStatsWithDateRange } from '@/components/dashboard/DashboardStatsWithDateRange'
 
 /**
  * 功能卡片配置
@@ -95,24 +94,8 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* 處理統計儀表板 (Story 7.1) */}
-      <Suspense
-        fallback={
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-6 w-24" />
-              <Skeleton className="h-8 w-32" />
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-32" />
-              ))}
-            </div>
-          </div>
-        }
-      >
-        <DashboardStats />
-      </Suspense>
+      {/* 處理統計儀表板 (Story 7.1) + 時間範圍篩選器 (Story 7.2) */}
+      <DashboardStatsWithDateRange />
 
       {/* 功能入口 */}
       <div>

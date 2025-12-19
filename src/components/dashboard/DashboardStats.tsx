@@ -1,12 +1,13 @@
-'use client'
+'use client';
 
 /**
  * @fileoverview 儀表板統計容器組件
  * @description
- *   整合 React Query 獲取儀表板統計數據：
+ *   整合 React Query 和日期範圍篩選器：
+ *   - 日期範圍選擇（快速選擇 + 自訂範圍）
+ *   - URL 參數同步（書籤/分享）
  *   - 自動刷新（5 分鐘）
  *   - 手動刷新按鈕
- *   - 錯誤處理與重試
  *   - 5 個關鍵指標卡片
  *
  * @module src/components/dashboard/DashboardStats
@@ -15,7 +16,8 @@
  * @lastModified 2025-12-19
  *
  * @features
- *   - 處理量統計（今日/本週/本月）
+ *   - 時間範圍篩選器（Story 7.2）
+ *   - 處理量統計
  *   - 成功率與自動化率
  *   - 平均處理時間
  *   - 待審核數量（含緊急）
@@ -27,43 +29,36 @@
  *
  * @related
  *   - src/components/dashboard/StatCard.tsx - 統計卡片
+ *   - src/components/dashboard/DateRangePicker.tsx - 日期選擇器
+ *   - src/components/dashboard/DateRangeQuickSelect.tsx - 快速選擇
+ *   - src/contexts/DateRangeContext.tsx - 日期範圍 Context
  *   - src/app/api/dashboard/statistics/route.ts - 統計 API
- *   - src/types/dashboard.ts - 類型定義
  */
 
-import * as React from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { formatDistanceToNow } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
-import { RefreshCw, FileText, CheckCircle, Zap, Clock, AlertTriangle } from 'lucide-react'
-import { StatCard } from './StatCard'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { cn } from '@/lib/utils'
-import type { DashboardStatistics, DashboardStatisticsResponse } from '@/types/dashboard'
-
-// ============================================================
-// API Functions
-// ============================================================
-
-/**
- * 獲取儀表板統計數據
- */
-async function fetchDashboardStats(): Promise<DashboardStatistics> {
-  const response = await fetch('/api/dashboard/statistics')
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch statistics')
-  }
-
-  const result: DashboardStatisticsResponse = await response.json()
-
-  if (!result.success || !result.data) {
-    throw new Error(result.error || 'Unknown error')
-  }
-
-  return result.data
-}
+import * as React from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { zhTW } from 'date-fns/locale';
+import {
+  RefreshCw,
+  FileText,
+  CheckCircle,
+  Zap,
+  Clock,
+  AlertTriangle,
+} from 'lucide-react';
+import { StatCard } from './StatCard';
+import { DateRangePicker } from './DateRangePicker';
+import { DateRangeQuickSelectCompact } from './DateRangeQuickSelect';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
+import {
+  useDashboardStatistics,
+  useRefreshDashboardStatistics,
+} from '@/hooks/useDashboardStatistics';
+import { useDateRange } from '@/contexts/DateRangeContext';
+import { formatDateRangeDisplay } from '@/lib/date-range-utils';
+import { PRESET_LABELS } from '@/types/date-range';
 
 // ============================================================
 // Utility Functions
@@ -73,7 +68,7 @@ async function fetchDashboardStats(): Promise<DashboardStatistics> {
  * 格式化數字（千分位）
  */
 function formatNumber(num: number): string {
-  return new Intl.NumberFormat('zh-TW').format(num)
+  return new Intl.NumberFormat('zh-TW').format(num);
 }
 
 // ============================================================
@@ -85,21 +80,27 @@ function formatNumber(num: number): string {
  *
  * @description
  *   顯示 5 個關鍵業務指標卡片：
- *   1. 本月處理量
+ *   1. 處理量
  *   2. 成功率
  *   3. 自動化率
  *   4. 平均處理時間
  *   5. 待審核數量
+ *
+ *   必須包裹在 DateRangeProvider 內使用。
  */
 export function DashboardStats() {
-  const { data, isLoading, isError, error, refetch, isFetching, dataUpdatedAt } = useQuery({
-    queryKey: ['dashboard-statistics'],
-    queryFn: fetchDashboardStats,
-    refetchInterval: 5 * 60 * 1000, // 每 5 分鐘自動刷新
-    staleTime: 60 * 1000, // 1 分鐘內視為新鮮數據
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  })
+  const { dateRange, isLoading: isDateRangeLoading } = useDateRange();
+  const { data, isLoading, isError, error, isFetching, dataUpdatedAt } =
+    useDashboardStatistics();
+  const refreshStatistics = useRefreshDashboardStatistics();
+
+  // 計算顯示標題
+  const rangeTitle = React.useMemo(() => {
+    if (dateRange.preset && dateRange.preset !== 'custom') {
+      return PRESET_LABELS[dateRange.preset];
+    }
+    return formatDateRangeDisplay(dateRange);
+  }, [dateRange]);
 
   // ============================================================
   // Error State
@@ -107,16 +108,31 @@ export function DashboardStats() {
 
   if (isError && !data) {
     return (
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          無法載入統計數據：{(error as Error).message}
-          <Button variant="link" size="sm" onClick={() => refetch()} className="ml-2">
-            重試
-          </Button>
-        </AlertDescription>
-      </Alert>
-    )
+      <div className="space-y-4">
+        {/* 日期範圍篩選器 */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <DateRangePicker />
+            <DateRangeQuickSelectCompact />
+          </div>
+        </div>
+
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            無法載入統計數據：{(error as Error).message}
+            <Button
+              variant="link"
+              size="sm"
+              onClick={refreshStatistics}
+              className="ml-2"
+            >
+              重試
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
   }
 
   // ============================================================
@@ -125,9 +141,12 @@ export function DashboardStats() {
 
   return (
     <div className="space-y-4">
-      {/* 標題與刷新按鈕 */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">處理統計</h2>
+      {/* 日期範圍篩選器與刷新按鈕 */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <DateRangePicker disabled={isDateRangeLoading} />
+          <DateRangeQuickSelectCompact disabled={isDateRangeLoading} />
+        </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {dataUpdatedAt && (
             <span>
@@ -141,20 +160,28 @@ export function DashboardStats() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => refetch()}
+            onClick={refreshStatistics}
             disabled={isFetching}
             aria-label="刷新統計數據"
           >
-            <RefreshCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
+            <RefreshCw
+              className={cn('h-4 w-4', isFetching && 'animate-spin')}
+            />
           </Button>
         </div>
       </div>
 
+      {/* 統計標題 */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">處理統計</h2>
+        <span className="text-sm text-muted-foreground">{rangeTitle}</span>
+      </div>
+
       {/* 指標卡片網格 */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        {/* 本月處理量 */}
+        {/* 處理量 */}
         <StatCard
-          title="本月處理量"
+          title="處理量"
           value={formatNumber(data?.processingVolume?.thisMonth ?? 0)}
           subtitle={`今日 ${formatNumber(data?.processingVolume?.today ?? 0)}`}
           trend={data?.processingVolume?.trend}
@@ -214,10 +241,12 @@ export function DashboardStats() {
           icon={<AlertTriangle className="h-4 w-4" />}
           loading={isLoading}
           variant={
-            data?.pendingReview?.urgent && data.pendingReview.urgent > 0 ? 'warning' : 'default'
+            data?.pendingReview?.urgent && data.pendingReview.urgent > 0
+              ? 'warning'
+              : 'default'
           }
         />
       </div>
     </div>
-  )
+  );
 }
