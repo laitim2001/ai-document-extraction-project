@@ -288,6 +288,7 @@ model Forwarder {
   extractionResults      ExtractionResult[] // Documents processed for this forwarder
   fieldCorrectionHistory FieldCorrectionHistory[] // Historical accuracy tracking
   ruleSuggestions        RuleSuggestion[] // 規則建議（Story 3.6）
+  correctionPatterns     CorrectionPattern[] // 修正模式（Story 4.3）
 
   @@index([code])
   @@index([isActive])
@@ -396,6 +397,14 @@ enum ReviewAction {
 enum CorrectionType {
   NORMAL // 正常修正，系統應學習
   EXCEPTION // 特例，不學習
+}
+
+enum PatternStatus {
+  DETECTED       // 初次發現
+  CANDIDATE      // 達到閾值，成為候選規則
+  SUGGESTED      // 已建議給 Super User
+  PROCESSED      // 已處理（轉為規則或忽略）
+  IGNORED        // 被標記為忽略
 }
 
 enum EscalationReason {
@@ -662,15 +671,91 @@ model Correction {
   correctedBy     String         @map("corrected_by")
   createdAt       DateTime       @default(now()) @map("created_at")
 
+  // Story 4.3: Pattern Analysis Fields
+  extractionContext Json?              @map("extraction_context") // 提取時的上下文資訊
+  analyzedAt        DateTime?          @map("analyzed_at") // 被分析的時間
+  patternId         String?            @map("pattern_id") // 關聯的模式
+
   // Relations
-  document  Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  corrector User     @relation(fields: [correctedBy], references: [id])
+  document  Document           @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  corrector User               @relation(fields: [correctedBy], references: [id])
+  pattern   CorrectionPattern? @relation(fields: [patternId], references: [id], onDelete: SetNull)
 
   @@index([documentId])
   @@index([correctedBy])
   @@index([fieldName, documentId])
   @@index([correctionType]) // Story 3.6: 新增索引
+  @@index([analyzedAt]) // Story 4.3: 分析狀態索引
+  @@index([patternId]) // Story 4.3: 模式關聯索引
   @@map("corrections")
+}
+
+// =====================
+// Correction Pattern Model (Story 4.3)
+// 修正模式記錄，用於識別重複的修正行為
+// =====================
+
+model CorrectionPattern {
+  id            String        @id @default(uuid())
+  forwarderId   String        @map("forwarder_id")
+  fieldName     String        @map("field_name")
+  patternHash   String        @unique @map("pattern_hash") // SHA256(forwarderId + fieldName + patterns)
+  status        PatternStatus @default(DETECTED)
+
+  // 模式詳情
+  patterns      Json // [{ originalValue, correctedValue, similarity, count }]
+  occurrenceCount Int @default(1) @map("occurrence_count") // 發生次數
+
+  // 信心度與評估
+  confidence    Float @default(0) // 模式信心度 (0-1)
+
+  // 時間戳
+  firstSeenAt   DateTime @default(now()) @map("first_seen_at")
+  lastSeenAt    DateTime @default(now()) @map("last_seen_at")
+  analyzedAt    DateTime? @map("analyzed_at") // 上次分析時間
+  suggestedAt   DateTime? @map("suggested_at") // 建議時間
+  processedAt   DateTime? @map("processed_at") // 處理時間
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  corrections   Correction[] // 關聯的修正記錄
+  forwarder     Forwarder @relation(fields: [forwarderId], references: [id])
+
+  @@index([forwarderId, fieldName])
+  @@index([status])
+  @@index([occurrenceCount])
+  @@index([lastSeenAt])
+  @@map("correction_patterns")
+}
+
+// =====================
+// Pattern Analysis Log Model (Story 4.3)
+// 分析執行日誌，追蹤分析任務執行情況
+// =====================
+
+model PatternAnalysisLog {
+  id            String   @id @default(uuid())
+
+  // 執行統計
+  totalAnalyzed     Int @map("total_analyzed") // 分析的修正數量
+  patternsDetected  Int @map("patterns_detected") // 發現的模式數量
+  patternsUpdated   Int @map("patterns_updated") // 更新的模式數量
+  candidatesCreated Int @map("candidates_created") // 新建候選規則數量
+
+  // 執行資訊
+  executionTime Int       @map("execution_time") // 執行時間 (ms)
+  status        String    // "success" | "partial" | "failed"
+  errorMessage  String?   @map("error_message")
+
+  // 時間戳
+  startedAt     DateTime  @map("started_at")
+  completedAt   DateTime  @default(now()) @map("completed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([completedAt])
+  @@index([status])
+  @@map("pattern_analysis_logs")
 }
 
 // =====================
