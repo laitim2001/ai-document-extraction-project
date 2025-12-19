@@ -98,12 +98,12 @@ development_status:
   # ============================================================
   # Epic 5: Forwarder 配置管理
   # ============================================================
-  epic-5: in-progress
+  epic-5: done  # All stories completed 2025-12-19
   5-1-forwarder-profile-list: done  # Completed 2025-12-19: Forwarder list page with search, filter, sort, pagination
   5-2-forwarder-detail-config-view: done  # Completed 2025-12-19: Detail page with tabs, stats panel, rules table, recent documents
   5-3-edit-forwarder-mapping-rules: done  # Completed 2025-12-19: RuleChangeRequest flow, RuleEditForm, pattern editors, preview panel, ForwarderRulesTable integration
   5-4-test-rule-change-effect: done  # Completed 2025-12-19: RuleTestTask/Detail models, rule-testing.service, test APIs, PDF/Excel reports, React Query hooks, test page UI
-  5-5-add-disable-forwarder-profile: ready-for-dev
+  5-5-add-disable-forwarder-profile: done  # Completed 2025-12-19: ForwarderForm, LogoUploader, Azure Blob service, create/update/deactivate/activate APIs, ForwarderActions dialogs
   epic-5-retrospective: optional
 
   # ============================================================

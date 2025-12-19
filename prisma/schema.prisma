@@ -48,6 +48,7 @@ model User {
   changeRequestsCreated  RuleChangeRequest[]       @relation("ChangeRequester") // 創建的變更請求（Story 5.3）
   changeRequestsReviewed RuleChangeRequest[]       @relation("ChangeReviewer") // 審核的變更請求（Story 5.3）
   testTasksCreated       RuleTestTask[]            @relation("TestTaskCreator") // 創建的測試任務（Story 5.4）
+  forwardersCreated      Forwarder[]               @relation("ForwarderCreator") // 創建的 Forwarder（Story 5.5）
 
   @@map("users")
 }
@@ -270,6 +271,13 @@ model Forwarder {
   code        String @unique // Short code: "DHL", "FDX", "UPS"
   displayName String @map("display_name")
 
+  // Story 5.5: 新增欄位
+  description       String?          @db.Text
+  logoUrl           String?          @map("logo_url")
+  contactEmail      String?          @map("contact_email")
+  defaultConfidence Float            @default(0.8) @map("default_confidence")
+  status            ForwarderStatus  @default(PENDING)
+
   // Identification Configuration
   identificationPatterns Json @map("identification_patterns")
   // Structure: {
@@ -279,15 +287,19 @@ model Forwarder {
   //   logoText: string[]    // Text typically near logos
   // }
 
-  // Settings
+  // Settings (保留 isActive 用於向後兼容，新邏輯使用 status)
   isActive Boolean @default(true) @map("is_active")
   priority Int     @default(0) // Higher = checked first
+
+  // Story 5.5: 創建者追蹤
+  createdById String? @map("created_by_id")
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
+  createdBy              User?                     @relation("ForwarderCreator", fields: [createdById], references: [id])
   documents              Document[]
   identifications        ForwarderIdentification[]
   mappingRules           MappingRule[] // Forwarder-specific mapping rules
@@ -300,6 +312,8 @@ model Forwarder {
 
   @@index([code])
   @@index([isActive])
+  @@index([status])
+  @@index([createdById])
   @@map("forwarders")
 }
 
@@ -394,6 +408,13 @@ enum QueueStatus {
   COMPLETED // 已完成
   SKIPPED // 跳過（例如重新分配）
   CANCELLED // 已取消
+}
+
+// Story 5.5: Forwarder 生命週期狀態
+enum ForwarderStatus {
+  ACTIVE // 啟用中 - 可處理文件
+  INACTIVE // 已停用 - 暫停所有處理
+  PENDING // 待設定 - 新建立，尚未配置規則
 }
 
 enum ReviewAction {

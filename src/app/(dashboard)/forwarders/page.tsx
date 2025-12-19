@@ -36,9 +36,12 @@
 
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { Plus } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { PERMISSIONS } from '@/types/permissions'
 import { ForwarderList, ForwarderTableSkeleton } from '@/components/features/forwarders'
+import { Button } from '@/components/ui/button'
 
 export const metadata = {
   title: 'Forwarder 管理 | AI Document Extraction',
@@ -74,10 +77,10 @@ export default async function ForwardersPage() {
     redirect('/dashboard?error=access_denied')
   }
 
-  // 檢查 FORWARDER_MANAGE 權限（未來用於新增按鈕）
-  // const hasManagePermission = session.user.roles?.some((role) =>
-  //   role.permissions.includes(PERMISSIONS.FORWARDER_MANAGE)
-  // )
+  // 檢查 FORWARDER_MANAGE 權限（用於新增按鈕）
+  const hasManagePermission = session.user.roles?.some((role) =>
+    role.permissions.includes(PERMISSIONS.FORWARDER_MANAGE)
+  )
 
   return (
     <div className="space-y-6">
@@ -91,8 +94,15 @@ export default async function ForwardersPage() {
             管理貨運代理商檔案、映射規則和優先級設定
           </p>
         </div>
-        {/* 未來可加入新增 Forwarder 按鈕（需要 FORWARDER_MANAGE 權限） */}
-        {/* {hasManagePermission && <AddForwarderDialog />} */}
+        {/* 新增 Forwarder 按鈕（需要 FORWARDER_MANAGE 權限） */}
+        {hasManagePermission && (
+          <Button asChild>
+            <Link href="/forwarders/new">
+              <Plus className="mr-2 h-4 w-4" />
+              新增貨代商
+            </Link>
+          </Button>
+        )}
       </div>
 
       {/* Forwarder 列表 */}

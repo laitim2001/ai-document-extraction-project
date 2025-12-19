@@ -27,7 +27,7 @@ import type {
   ForwarderIdentificationPattern,
 } from '@/types/forwarder'
 import {
-  FORWARDER_STATUS_CONFIG,
+  LEGACY_FORWARDER_STATUS_CONFIG,
   RULE_STATUS_CONFIG,
   getForwarderDisplayStatus,
 } from '@/types/forwarder'
@@ -54,7 +54,7 @@ interface ForwarderInfoProps {
  */
 export function ForwarderInfo({ forwarder }: ForwarderInfoProps) {
   const displayStatus = getForwarderDisplayStatus(forwarder.isActive)
-  const statusConfig = FORWARDER_STATUS_CONFIG[displayStatus]
+  const statusConfig = LEGACY_FORWARDER_STATUS_CONFIG[displayStatus]
 
   return (
     <div className="grid gap-4 md:grid-cols-2">

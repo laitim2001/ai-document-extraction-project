@@ -21,6 +21,10 @@
  *   - ForwarderStatsPanel - 統計面板
  *   - ForwarderRulesTable - 規則列表
  *   - RecentDocumentsTable - 近期文件列表
+ *
+ *   Story 5.5 - 新增/停用貨代商配置:
+ *   - ForwarderForm - 貨代商表單
+ *   - LogoUploader - Logo 上傳組件
  */
 
 // Story 5.1 - Forwarder Profile List
@@ -35,3 +39,8 @@ export { ForwarderInfo } from './ForwarderInfo'
 export { ForwarderStatsPanel } from './ForwarderStatsPanel'
 export { ForwarderRulesTable } from './ForwarderRulesTable'
 export { RecentDocumentsTable } from './RecentDocumentsTable'
+
+// Story 5.5 - 新增/停用貨代商配置
+export { ForwarderForm } from './ForwarderForm'
+export { LogoUploader } from './LogoUploader'
+export { ForwarderActions } from './ForwarderActions'

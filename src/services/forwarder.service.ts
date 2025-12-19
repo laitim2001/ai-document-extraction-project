@@ -7,9 +7,10 @@
  *   主要功能：
  *   - Forwarder 列表查詢（分頁、搜尋、篩選、排序）
  *   - Forwarder 詳情查詢（含統計、規則摘要、近期文件）
- *   - Forwarder CRUD 操作
+ *   - Forwarder CRUD 操作（Story 5.5）
  *   - 規則數量統計
  *   - 規則列表查詢
+ *   - Forwarder 停用/啟用（Story 5.5）
  *
  * @module src/services/forwarder.service
  * @author Development Team
@@ -19,6 +20,8 @@
  * @features
  *   - Story 5.1: 列表查詢功能（getForwarders, getForwarderById）
  *   - Story 5.2: 詳情檢視功能（getForwarderDetailView, getForwarderRules, getForwarderStatsById）
+ *   - Story 5.5: CRUD 操作（createForwarder, updateForwarder）
+ *   - Story 5.5: 生命週期管理（deactivateForwarder, activateForwarder）
  *
  * @dependencies
  *   - @prisma/client - Prisma ORM 客戶端
@@ -26,14 +29,20 @@
  *   - @/types/forwarder - Forwarder 類型定義
  *
  * @related
- *   - src/app/api/forwarders/route.ts - 列表 API 端點
- *   - src/app/api/forwarders/[id]/route.ts - 詳情 API 端點
+ *   - src/app/api/forwarders/route.ts - 列表/創建 API 端點
+ *   - src/app/api/forwarders/[id]/route.ts - 詳情/更新 API 端點
+ *   - src/app/api/forwarders/[id]/deactivate/route.ts - 停用 API
+ *   - src/app/api/forwarders/[id]/activate/route.ts - 啟用 API
  *   - src/types/forwarder.ts - 類型定義
  *   - prisma/schema.prisma - 資料庫模型
  */
 
 import { prisma } from '@/lib/prisma'
-import type { Prisma, RuleStatus as PrismaRuleStatus } from '@prisma/client'
+import type {
+  Prisma,
+  RuleStatus as PrismaRuleStatus,
+  ForwarderStatus as PrismaForwarderStatus,
+} from '@prisma/client'
 import type {
   ForwarderListItem,
   ForwardersResponse,
@@ -52,8 +61,16 @@ import type {
   RuleListItem,
   RulesResponse,
   RuleStatus,
+  ForwarderStatus,
+  CreateForwarderFormData,
+  UpdateForwarderFormData,
+  DeactivateForwarderRequest,
+  ActivateForwarderRequest,
+  CreateForwarderResponse,
+  UpdateForwarderResponse,
+  ForwarderStatusChangeResponse,
 } from '@/types/forwarder'
-import { mapDocumentStatus } from '@/types/forwarder'
+import { mapDocumentStatus, getIsActiveFromStatus } from '@/types/forwarder'
 
 // ============================================================
 // 類型定義
@@ -185,10 +202,17 @@ export async function getForwarders(
     code: f.code,
     displayName: f.displayName,
     isActive: f.isActive,
+    // Story 5.5: 新增 status 欄位
+    status: f.status as ForwarderStatus,
     priority: f.priority,
     ruleCount: f._count.mappingRules,
     updatedAt: f.updatedAt,
     createdAt: f.createdAt,
+    // Story 5.5: 新增欄位
+    logoUrl: f.logoUrl,
+    description: f.description,
+    contactEmail: f.contactEmail,
+    defaultConfidence: f.defaultConfidence,
   }))
 
   return {
@@ -269,12 +293,19 @@ export async function getForwarderById(id: string): Promise<ForwarderDetail | nu
     code: forwarder.code,
     displayName: forwarder.displayName,
     isActive: forwarder.isActive,
+    // Story 5.5: 新增 status 欄位
+    status: forwarder.status as ForwarderStatus,
     priority: forwarder.priority,
     ruleCount: forwarder._count.mappingRules,
     documentCount: forwarder._count.documents,
     identificationPatterns,
     updatedAt: forwarder.updatedAt,
     createdAt: forwarder.createdAt,
+    // Story 5.5: 新增欄位
+    logoUrl: forwarder.logoUrl,
+    description: forwarder.description,
+    contactEmail: forwarder.contactEmail,
+    defaultConfidence: forwarder.defaultConfidence,
   }
 }
 
@@ -306,10 +337,17 @@ export async function getForwarderByCode(code: string): Promise<ForwarderListIte
     code: forwarder.code,
     displayName: forwarder.displayName,
     isActive: forwarder.isActive,
+    // Story 5.5: 新增 status 欄位
+    status: forwarder.status as ForwarderStatus,
     priority: forwarder.priority,
     ruleCount: forwarder._count.mappingRules,
     updatedAt: forwarder.updatedAt,
     createdAt: forwarder.createdAt,
+    // Story 5.5: 新增欄位
+    logoUrl: forwarder.logoUrl,
+    description: forwarder.description,
+    contactEmail: forwarder.contactEmail,
+    defaultConfidence: forwarder.defaultConfidence,
   }
 }
 
@@ -890,4 +928,375 @@ export async function getForwarderRulesFromQuery(
     sortBy: query.sortBy,
     sortOrder: query.sortOrder,
   })
+}
+
+// ============================================================
+// Story 5.5: Forwarder CRUD 操作
+// ============================================================
+
+/**
+ * 創建 Forwarder 輸入參數
+ */
+export interface CreateForwarderInput {
+  /** 名稱 */
+  name: string
+  /** 代碼 */
+  code: string
+  /** 描述 */
+  description?: string | null
+  /** 聯絡電子郵件 */
+  contactEmail?: string | null
+  /** 預設信心度 */
+  defaultConfidence?: number
+  /** Logo URL（上傳後的 URL） */
+  logoUrl?: string | null
+  /** 創建者 ID */
+  createdById: string
+}
+
+/**
+ * 創建新的 Forwarder
+ *
+ * @description
+ *   Story 5.5 - 創建新的 Forwarder Profile
+ *   - 初始狀態為 PENDING
+ *   - 設定 isActive = false（需要配置規則後才啟用）
+ *   - displayName 預設等於 name
+ *
+ * @param input - 創建參數
+ * @returns 創建的 Forwarder ID 和狀態
+ */
+export async function createForwarder(input: CreateForwarderInput): Promise<{
+  id: string
+  name: string
+  code: string
+  status: ForwarderStatus
+}> {
+  const forwarder = await prisma.forwarder.create({
+    data: {
+      name: input.name,
+      code: input.code,
+      displayName: input.name, // 預設等於 name
+      description: input.description,
+      contactEmail: input.contactEmail,
+      defaultConfidence: input.defaultConfidence ?? 0.8,
+      logoUrl: input.logoUrl,
+      status: 'PENDING' as PrismaForwarderStatus,
+      isActive: false, // PENDING 狀態下 isActive 為 false
+      createdById: input.createdById,
+      identificationPatterns: [], // 空陣列，由後續設定
+    },
+    select: {
+      id: true,
+      name: true,
+      code: true,
+      status: true,
+    },
+  })
+
+  return {
+    id: forwarder.id,
+    name: forwarder.name,
+    code: forwarder.code,
+    status: forwarder.status as ForwarderStatus,
+  }
+}
+
+/**
+ * 更新 Forwarder 輸入參數
+ */
+export interface UpdateForwarderInput {
+  /** 名稱 */
+  name?: string
+  /** 描述 */
+  description?: string | null
+  /** 聯絡電子郵件 */
+  contactEmail?: string | null
+  /** 預設信心度 */
+  defaultConfidence?: number
+  /** Logo URL（上傳後的 URL） */
+  logoUrl?: string | null
+}
+
+/**
+ * 更新 Forwarder
+ *
+ * @description
+ *   Story 5.5 - 更新 Forwarder Profile 基本資訊
+ *   - 不允許修改 code
+ *   - 不允許直接修改 status（使用 deactivate/activate）
+ *
+ * @param id - Forwarder ID
+ * @param input - 更新參數
+ * @returns 更新後的 Forwarder 資料
+ */
+export async function updateForwarder(
+  id: string,
+  input: UpdateForwarderInput
+): Promise<{
+  id: string
+  name: string
+  code: string
+  description: string | null
+  logoUrl: string | null
+  contactEmail: string | null
+  defaultConfidence: number
+  status: ForwarderStatus
+}> {
+  // 構建更新資料，只包含有值的欄位
+  const updateData: Prisma.ForwarderUpdateInput = {}
+
+  if (input.name !== undefined) {
+    updateData.name = input.name
+    updateData.displayName = input.name // 同步更新 displayName
+  }
+  if (input.description !== undefined) {
+    updateData.description = input.description
+  }
+  if (input.contactEmail !== undefined) {
+    updateData.contactEmail = input.contactEmail
+  }
+  if (input.defaultConfidence !== undefined) {
+    updateData.defaultConfidence = input.defaultConfidence
+  }
+  if (input.logoUrl !== undefined) {
+    updateData.logoUrl = input.logoUrl
+  }
+
+  const forwarder = await prisma.forwarder.update({
+    where: { id },
+    data: updateData,
+    select: {
+      id: true,
+      name: true,
+      code: true,
+      description: true,
+      logoUrl: true,
+      contactEmail: true,
+      defaultConfidence: true,
+      status: true,
+    },
+  })
+
+  return {
+    ...forwarder,
+    status: forwarder.status as ForwarderStatus,
+  }
+}
+
+/**
+ * 停用 Forwarder
+ *
+ * @description
+ *   Story 5.5 - 停用 Forwarder Profile
+ *   - 將狀態從 ACTIVE 改為 INACTIVE
+ *   - 可選擇同時停用所有 ACTIVE 規則（改為 DEPRECATED）
+ *   - 記錄停用原因
+ *
+ * @param id - Forwarder ID
+ * @param options - 停用選項
+ * @returns 停用結果
+ */
+export async function deactivateForwarder(
+  id: string,
+  options: {
+    reason?: string
+    deactivateRules?: boolean
+  } = {}
+): Promise<{
+  id: string
+  name: string
+  status: ForwarderStatus
+  rulesAffected: number
+}> {
+  const { deactivateRules = true } = options
+
+  // 使用事務確保一致性
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. 更新 Forwarder 狀態
+    const forwarder = await tx.forwarder.update({
+      where: { id },
+      data: {
+        status: 'INACTIVE' as PrismaForwarderStatus,
+        isActive: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+      },
+    })
+
+    let rulesAffected = 0
+
+    // 2. 如果需要，停用所有 ACTIVE 規則
+    if (deactivateRules) {
+      const updateResult = await tx.mappingRule.updateMany({
+        where: {
+          forwarderId: id,
+          status: 'ACTIVE',
+        },
+        data: {
+          status: 'DEPRECATED',
+        },
+      })
+      rulesAffected = updateResult.count
+    }
+
+    return {
+      id: forwarder.id,
+      name: forwarder.name,
+      status: forwarder.status as ForwarderStatus,
+      rulesAffected,
+    }
+  })
+
+  return result
+}
+
+/**
+ * 啟用 Forwarder
+ *
+ * @description
+ *   Story 5.5 - 啟用 Forwarder Profile
+ *   - 將狀態從 INACTIVE/PENDING 改為 ACTIVE
+ *   - 可選擇重新啟用之前的 DEPRECATED 規則（改為 ACTIVE）
+ *
+ * @param id - Forwarder ID
+ * @param options - 啟用選項
+ * @returns 啟用結果
+ */
+export async function activateForwarder(
+  id: string,
+  options: {
+    reactivateRules?: boolean
+  } = {}
+): Promise<{
+  id: string
+  name: string
+  status: ForwarderStatus
+  rulesAffected: number
+}> {
+  const { reactivateRules = false } = options
+
+  // 使用事務確保一致性
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. 更新 Forwarder 狀態
+    const forwarder = await tx.forwarder.update({
+      where: { id },
+      data: {
+        status: 'ACTIVE' as PrismaForwarderStatus,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+      },
+    })
+
+    let rulesAffected = 0
+
+    // 2. 如果需要，重新啟用 DEPRECATED 規則
+    if (reactivateRules) {
+      const updateResult = await tx.mappingRule.updateMany({
+        where: {
+          forwarderId: id,
+          status: 'DEPRECATED',
+        },
+        data: {
+          status: 'ACTIVE',
+        },
+      })
+      rulesAffected = updateResult.count
+    }
+
+    return {
+      id: forwarder.id,
+      name: forwarder.name,
+      status: forwarder.status as ForwarderStatus,
+      rulesAffected,
+    }
+  })
+
+  return result
+}
+
+/**
+ * 獲取 Forwarder 的 ACTIVE 規則數量
+ *
+ * @description
+ *   Story 5.5 - 用於停用對話框顯示影響的規則數
+ *
+ * @param forwarderId - Forwarder ID
+ * @returns ACTIVE 規則數量
+ */
+export async function getActiveRulesCount(forwarderId: string): Promise<number> {
+  return prisma.mappingRule.count({
+    where: {
+      forwarderId,
+      status: 'ACTIVE',
+    },
+  })
+}
+
+/**
+ * 獲取 Forwarder 的 DEPRECATED 規則數量
+ *
+ * @description
+ *   Story 5.5 - 用於啟用對話框顯示可恢復的規則數
+ *
+ * @param forwarderId - Forwarder ID
+ * @returns DEPRECATED 規則數量
+ */
+export async function getDeprecatedRulesCount(forwarderId: string): Promise<number> {
+  return prisma.mappingRule.count({
+    where: {
+      forwarderId,
+      status: 'DEPRECATED',
+    },
+  })
+}
+
+/**
+ * 獲取 Forwarder 原始資料（用於編輯）
+ *
+ * @description
+ *   Story 5.5 - 獲取 Forwarder 的完整原始資料供編輯使用
+ *
+ * @param id - Forwarder ID
+ * @returns Forwarder 原始資料或 null
+ */
+export async function getForwarderForEdit(id: string): Promise<{
+  id: string
+  name: string
+  code: string
+  description: string | null
+  logoUrl: string | null
+  contactEmail: string | null
+  defaultConfidence: number
+  status: ForwarderStatus
+} | null> {
+  const forwarder = await prisma.forwarder.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      code: true,
+      description: true,
+      logoUrl: true,
+      contactEmail: true,
+      defaultConfidence: true,
+      status: true,
+    },
+  })
+
+  if (!forwarder) {
+    return null
+  }
+
+  return {
+    ...forwarder,
+    status: forwarder.status as ForwarderStatus,
+  }
 }

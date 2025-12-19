@@ -5,7 +5,7 @@
  *   包含列表項目、詳情頁面、統計資料、查詢參數、分頁資訊等。
  *
  *   設計說明：
- *   - 適配現有 Prisma schema 的 `isActive` boolean 欄位
+ *   - Story 5.5 新增 ForwarderStatus enum 和生命週期管理
  *   - 在 UI 層轉換為易讀的狀態顯示
  *   - Story 5-2 新增詳情頁面相關類型（統計、規則摘要、近期文件）
  *
@@ -17,6 +17,7 @@
  * @features
  *   - Story 5.1: 列表頁面類型（ForwarderListItem, ForwardersQueryParams）
  *   - Story 5.2: 詳情頁面類型（ForwarderDetailView, ForwarderStats, RulesSummary）
+ *   - Story 5.5: 新增/停用 Forwarder（ForwarderStatus, CreateForwarder, UpdateForwarder）
  *
  * @dependencies
  *   - prisma/schema.prisma - Forwarder 模型定義
@@ -32,26 +33,78 @@
 import { z } from 'zod'
 
 // ============================================================
-// 狀態相關
+// Story 5.5: Forwarder 狀態 Enum（對應 Prisma）
+// ============================================================
+
+/**
+ * Forwarder 狀態（對應 Prisma ForwarderStatus enum）
+ * @description
+ *   - ACTIVE: 啟用中 - 可處理文件
+ *   - INACTIVE: 已停用 - 暫停所有處理
+ *   - PENDING: 待設定 - 新建立，尚未配置規則
+ */
+export type ForwarderStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING'
+
+/**
+ * Forwarder 狀態標籤配置
+ * @description Story 5.5 - 三種狀態的顯示配置
+ */
+export const FORWARDER_STATUS_CONFIG: Record<
+  ForwarderStatus,
+  { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive'; className: string; description: string }
+> = {
+  ACTIVE: {
+    label: '啟用',
+    variant: 'default',
+    className: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    description: '可正常處理文件',
+  },
+  INACTIVE: {
+    label: '停用',
+    variant: 'secondary',
+    className: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+    description: '暫停所有處理',
+  },
+  PENDING: {
+    label: '待設定',
+    variant: 'outline',
+    className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    description: '尚未配置規則',
+  },
+} as const
+
+// ============================================================
+// 狀態相關（向後兼容）
 // ============================================================
 
 /**
  * Forwarder 顯示狀態
- * @description 從 isActive boolean 轉換的 UI 友好狀態
+ * @description 從 isActive boolean 轉換的 UI 友好狀態（向後兼容）
+ * @deprecated 使用 ForwarderStatus 替代
  */
 export type ForwarderDisplayStatus = 'active' | 'inactive'
 
 /**
  * 將 isActive 轉換為顯示狀態
+ * @deprecated 使用 ForwarderStatus 替代
  */
 export function getForwarderDisplayStatus(isActive: boolean): ForwarderDisplayStatus {
   return isActive ? 'active' : 'inactive'
 }
 
 /**
- * 狀態標籤配置
+ * 將 ForwarderStatus 轉換為 isActive boolean
+ * @description 向後兼容轉換函數
  */
-export const FORWARDER_STATUS_CONFIG = {
+export function getIsActiveFromStatus(status: ForwarderStatus): boolean {
+  return status === 'ACTIVE'
+}
+
+/**
+ * 舊版狀態標籤配置（向後兼容）
+ * @deprecated 使用 FORWARDER_STATUS_CONFIG 替代
+ */
+export const LEGACY_FORWARDER_STATUS_CONFIG = {
   active: {
     label: '啟用',
     variant: 'default' as const,
@@ -71,6 +124,7 @@ export const FORWARDER_STATUS_CONFIG = {
 /**
  * Forwarder 列表項目
  * @description 用於列表頁面顯示的 Forwarder 資料
+ *   Story 5.5: 新增 status, logoUrl, description, contactEmail, defaultConfidence 欄位
  */
 export interface ForwarderListItem {
   /** Forwarder ID */
@@ -81,8 +135,10 @@ export interface ForwarderListItem {
   code: string
   /** 顯示名稱 */
   displayName: string
-  /** 是否啟用 */
+  /** 是否啟用（向後兼容，從 status 計算） */
   isActive: boolean
+  /** Story 5.5: Forwarder 狀態 */
+  status: ForwarderStatus
   /** 優先級 */
   priority: number
   /** 關聯的映射規則數量 */
@@ -91,6 +147,14 @@ export interface ForwarderListItem {
   updatedAt: Date | string
   /** 建立時間 */
   createdAt: Date | string
+  /** Story 5.5: Logo URL */
+  logoUrl?: string | null
+  /** Story 5.5: 描述 */
+  description?: string | null
+  /** Story 5.5: 聯絡電子郵件 */
+  contactEmail?: string | null
+  /** Story 5.5: 預設信心度 (0-1) */
+  defaultConfidence?: number
 }
 
 /**
@@ -539,3 +603,244 @@ export const FORWARDER_STATUS_OPTIONS = [
   { value: 'active', label: '啟用' },
   { value: 'inactive', label: '停用' },
 ] as const
+
+// ============================================================
+// Story 5.5: 新增/編輯 Forwarder 表單相關
+// ============================================================
+
+/**
+ * 創建 Forwarder 表單驗證 Schema
+ * @description Story 5.5 - 新增 Forwarder 的表單驗證
+ */
+export const CreateForwarderSchema = z.object({
+  name: z
+    .string()
+    .min(1, '名稱為必填')
+    .max(100, '名稱最多 100 個字符'),
+  code: z
+    .string()
+    .min(2, '代碼至少 2 個字符')
+    .max(20, '代碼最多 20 個字符')
+    .regex(/^[A-Z0-9_]+$/, '代碼只能包含大寫字母、數字和底線')
+    .transform((v) => v.toUpperCase()),
+  description: z.string().max(500, '描述最多 500 個字符').optional().nullable(),
+  contactEmail: z
+    .string()
+    .email('請輸入有效的電子郵件')
+    .optional()
+    .nullable()
+    .or(z.literal('')),
+  defaultConfidence: z.number().min(0).max(1),
+})
+
+/**
+ * 創建 Forwarder 表單資料類型
+ */
+export type CreateForwarderFormData = z.infer<typeof CreateForwarderSchema>
+
+/**
+ * 創建 Forwarder API 請求資料（含 Logo）
+ */
+export interface CreateForwarderRequest extends CreateForwarderFormData {
+  /** Logo 檔案（可選） */
+  logo?: File | null
+}
+
+/**
+ * 更新 Forwarder 表單驗證 Schema
+ * @description Story 5.5 - 編輯 Forwarder 的表單驗證（不包含 code）
+ */
+export const UpdateForwarderSchema = z.object({
+  name: z.string().min(1, '名稱為必填').max(100, '名稱最多 100 個字符').optional(),
+  description: z.string().max(500, '描述最多 500 個字符').optional().nullable(),
+  contactEmail: z
+    .string()
+    .email('請輸入有效的電子郵件')
+    .optional()
+    .nullable()
+    .or(z.literal('')),
+  defaultConfidence: z.number().min(0).max(1).optional(),
+})
+
+/**
+ * 更新 Forwarder 表單資料類型
+ */
+export type UpdateForwarderFormData = z.infer<typeof UpdateForwarderSchema>
+
+/**
+ * 更新 Forwarder API 請求資料（含 Logo）
+ */
+export interface UpdateForwarderRequest extends UpdateForwarderFormData {
+  /** 新的 Logo 檔案（可選） */
+  logo?: File | null
+  /** 是否移除現有 Logo */
+  removeLogo?: boolean
+}
+
+/**
+ * 停用 Forwarder Schema
+ * @description Story 5.5 - 停用 Forwarder 的請求驗證
+ */
+export const DeactivateForwarderSchema = z.object({
+  reason: z.string().max(500, '原因最多 500 個字符').optional(),
+  deactivateRules: z.boolean().default(true),
+})
+
+/**
+ * 停用 Forwarder 請求資料類型
+ */
+export type DeactivateForwarderRequest = z.infer<typeof DeactivateForwarderSchema>
+
+/**
+ * 啟用 Forwarder Schema
+ * @description Story 5.5 - 啟用 Forwarder 的請求驗證
+ */
+export const ActivateForwarderSchema = z.object({
+  reactivateRules: z.boolean().default(false),
+})
+
+/**
+ * 啟用 Forwarder 請求資料類型
+ */
+export type ActivateForwarderRequest = z.infer<typeof ActivateForwarderSchema>
+
+/**
+ * 檢查代碼唯一性請求 Schema
+ * @description Story 5.5 - 異步檢查 code 是否已存在
+ */
+export const CheckCodeSchema = z.object({
+  code: z
+    .string()
+    .min(2, '代碼至少 2 個字符')
+    .max(20, '代碼最多 20 個字符')
+    .regex(/^[A-Z0-9_]+$/, '代碼只能包含大寫字母、數字和底線'),
+  excludeId: z.string().uuid().optional(),
+})
+
+/**
+ * 檢查代碼唯一性回應
+ */
+export interface CheckCodeResponse {
+  /** 是否可用 */
+  available: boolean
+  /** 錯誤訊息（如果不可用） */
+  message?: string
+}
+
+/**
+ * Forwarder 創建成功回應
+ */
+export interface CreateForwarderResponse {
+  success: true
+  data: {
+    id: string
+    name: string
+    code: string
+    status: ForwarderStatus
+    message: string
+  }
+}
+
+/**
+ * Forwarder 更新成功回應
+ */
+export interface UpdateForwarderResponse {
+  success: true
+  data: {
+    id: string
+    name: string
+    code: string
+    description: string | null
+    logoUrl: string | null
+    contactEmail: string | null
+    defaultConfidence: number
+    status: ForwarderStatus
+    message: string
+  }
+}
+
+/**
+ * Forwarder 狀態變更回應
+ */
+export interface ForwarderStatusChangeResponse {
+  success: true
+  data: {
+    id: string
+    name: string
+    status: ForwarderStatus
+    rulesAffected?: number
+    message: string
+  }
+}
+
+/**
+ * Logo 上傳限制
+ */
+export const LOGO_UPLOAD_CONFIG = {
+  /** 最大檔案大小 (5MB) */
+  maxSize: 5 * 1024 * 1024,
+  /** 允許的 MIME 類型 */
+  acceptedTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml'],
+  /** 檔案類型說明 */
+  acceptedTypesLabel: 'PNG, JPG, WebP, GIF, SVG',
+  /** 建議的尺寸 */
+  recommendedSize: { width: 200, height: 200 },
+} as const
+
+/**
+ * Forwarder 表單欄位標籤配置
+ */
+export const FORWARDER_FORM_LABELS = {
+  name: {
+    label: 'Forwarder 名稱',
+    placeholder: '例如：DHL Express',
+    description: '用於顯示的完整名稱',
+  },
+  code: {
+    label: 'Forwarder 代碼',
+    placeholder: '例如：DHL_EXPRESS',
+    description: '唯一識別碼（大寫字母、數字、底線）',
+  },
+  description: {
+    label: '描述',
+    placeholder: '輸入 Forwarder 的描述...',
+    description: '選填，最多 500 個字符',
+  },
+  contactEmail: {
+    label: '聯絡電子郵件',
+    placeholder: 'contact@example.com',
+    description: '選填，用於接收通知',
+  },
+  defaultConfidence: {
+    label: '預設信心度',
+    description: '新規則的預設信心度閾值',
+  },
+  logo: {
+    label: 'Logo 圖片',
+    description: '選填，建議 200x200 像素',
+  },
+} as const
+
+/**
+ * 停用/啟用對話框文案
+ */
+export const FORWARDER_ACTION_DIALOGS = {
+  deactivate: {
+    title: '停用 Forwarder',
+    description: '停用後將暫停此 Forwarder 的所有文件處理。確定要繼續嗎？',
+    confirmText: '確認停用',
+    cancelText: '取消',
+    reasonLabel: '停用原因',
+    reasonPlaceholder: '選填，輸入停用原因...',
+    deactivateRulesLabel: '同時停用所有相關規則',
+    warningMessage: '此 Forwarder 有 {ruleCount} 條啟用中的規則',
+  },
+  activate: {
+    title: '啟用 Forwarder',
+    description: '啟用後此 Forwarder 將恢復文件處理功能。確定要繼續嗎？',
+    confirmText: '確認啟用',
+    cancelText: '取消',
+    reactivateRulesLabel: '同時重新啟用之前的規則',
+    infoMessage: '此 Forwarder 有 {ruleCount} 條可恢復的規則',
+  },
+} as const

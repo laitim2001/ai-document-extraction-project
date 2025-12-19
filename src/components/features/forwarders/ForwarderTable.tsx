@@ -51,7 +51,7 @@ import type {
   ForwarderSortField,
   SortOrder,
 } from '@/types/forwarder'
-import { FORWARDER_STATUS_CONFIG, getForwarderDisplayStatus } from '@/types/forwarder'
+import { LEGACY_FORWARDER_STATUS_CONFIG, getForwarderDisplayStatus } from '@/types/forwarder'
 
 // ============================================================
 // Types
@@ -128,7 +128,7 @@ function SortableHeader({
  */
 function StatusBadge({ isActive }: { isActive: boolean }) {
   const status = getForwarderDisplayStatus(isActive)
-  const config = FORWARDER_STATUS_CONFIG[status]
+  const config = LEGACY_FORWARDER_STATUS_CONFIG[status]
 
   return (
     <Badge variant={config.variant} className={config.className}>

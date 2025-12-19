@@ -29,7 +29,7 @@ import { ForwarderStatsPanel } from './ForwarderStatsPanel'
 import { ForwarderRulesTable } from './ForwarderRulesTable'
 import { RecentDocumentsTable } from './RecentDocumentsTable'
 import {
-  FORWARDER_STATUS_CONFIG,
+  LEGACY_FORWARDER_STATUS_CONFIG,
   getForwarderDisplayStatus,
 } from '@/types/forwarder'
 import { ArrowLeft, Building2, RefreshCw } from 'lucide-react'
@@ -156,7 +156,7 @@ export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
 
   // 計算狀態顯示
   const displayStatus = getForwarderDisplayStatus(forwarder.isActive)
-  const statusConfig = FORWARDER_STATUS_CONFIG[displayStatus]
+  const statusConfig = LEGACY_FORWARDER_STATUS_CONFIG[displayStatus]
 
   return (
     <div className="space-y-6">
