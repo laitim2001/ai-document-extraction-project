@@ -1,6 +1,6 @@
 # Story 7.5: 跨城市匯總報表
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -779,4 +779,78 @@ export function CityDetailPanel({ cityCode }: CityDetailPanelProps) {
 ---
 
 *Story created: 2025-12-16*
-*Status: ready-for-dev*
+*Status: done*
+*Completed: 2025-12-19*
+
+---
+
+## Implementation Notes
+
+### 已完成項目
+
+- [x] **Task 1: 跨城市統計 API**
+  - [x] 創建 `src/types/regional-report.ts` 定義所有類型
+  - [x] 創建 `src/services/regional-report.service.ts` 實現核心邏輯
+  - [x] 創建 `GET /api/reports/regional/summary` 端點
+  - [x] 實現內存快取機制 (10 分鐘 TTL)
+  - [x] 支援時間範圍參數
+
+- [x] **Task 2: 城市詳情 API**
+  - [x] 創建 `GET /api/reports/regional/city/[cityCode]` 端點
+  - [x] 實現城市趨勢數據查詢 (支援 day/week/month 粒度)
+  - [x] 實現 Top Forwarders 查詢
+
+- [x] **Task 3: 區域報表頁面**
+  - [x] 創建 `/reports/regional` 頁面路由
+  - [x] 實現權限檢查 (isRegionalManager || isGlobalAdmin)
+  - [x] 非授權用戶自動重導向到 /dashboard
+  - [x] 整合 DashboardFilterProvider 進行日期篩選
+
+- [x] **Task 4: 城市對比表格**
+  - [x] 創建 `CityComparisonTable` 組件
+  - [x] 實現 6 欄位排序功能
+  - [x] 添加趨勢指標 (TrendIndicator)
+  - [x] 實現成功率色彩標示 (綠/黃/紅)
+
+- [x] **Task 5: 城市詳情面板**
+  - [x] 創建 `CityDetailPanel` 組件
+  - [x] 實現趨勢圖表 (Recharts LineChart)
+  - [x] 添加 Top Forwarders 列表
+  - [x] 展開/收起動畫 (animate-in slide-in-from-top-2)
+
+- [x] **Task 6: 匯出功能**
+  - [x] 創建 `GET /api/reports/regional/export` 端點
+  - [x] 實現 Excel 多工作表匯出 (Summary, Cities, City Details)
+  - [x] 支援 includeTrend 和 includeForwarders 選項
+
+### Schema 適配
+
+由於實際資料庫 Schema 與 Tech Spec 略有不同，進行了以下適配：
+
+| Tech Spec | 實際實現 | 說明 |
+|-----------|----------|------|
+| `processedAt` | `createdAt` | 使用建立時間作為處理時間 |
+| `autoApproved` | `processingPath === 'AUTO_APPROVE'` | 使用處理路徑判斷 |
+| `processingDuration` | `extractionResult.processingTime` | 從提取結果取得處理時間 (ms→s) |
+| `apiUsageLogs.estimatedCost` | `aiCost: 0` | AI 成本追蹤尚未實現 |
+
+### 新增檔案
+
+| 檔案路徑 | 說明 |
+|----------|------|
+| `src/types/regional-report.ts` | 區域報表類型定義 |
+| `src/services/regional-report.service.ts` | 區域報表服務 (含快取) |
+| `src/app/api/reports/regional/summary/route.ts` | 區域匯總 API |
+| `src/app/api/reports/regional/city/[cityCode]/route.ts` | 城市詳情 API |
+| `src/app/api/reports/regional/export/route.ts` | 區域匯出 API |
+| `src/components/reports/CityComparisonTable.tsx` | 城市對比表格組件 |
+| `src/components/reports/CityDetailPanel.tsx` | 城市詳情面板組件 |
+| `src/components/reports/RegionalReportContent.tsx` | 區域報表內容組件 |
+| `src/app/(dashboard)/reports/regional/page.tsx` | 區域報表頁面 |
+
+### 修改檔案
+
+| 檔案路徑 | 變更說明 |
+|----------|----------|
+| `src/types/index.ts` | 新增 regional-report 導出 |
+| `src/services/index.ts` | 新增 regionalReportService 導出 |

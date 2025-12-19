@@ -201,6 +201,12 @@ export * from './rule-metrics'
 // Epic 7: Reports Dashboard (Story 7.1 - Processing Statistics Dashboard)
 export * from './dashboard-statistics.service'
 
+// Epic 7: Reports Dashboard (Story 7.4 - Expense Report Export)
+export * from './expense-report.service'
+
+// Epic 7: Reports Dashboard (Story 7.5 - Regional Report)
+export * from './regional-report.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';
