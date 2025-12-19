@@ -50,6 +50,7 @@ import { ForwardersQuerySchema, CreateForwarderSchema } from '@/types/forwarder'
 import { hasPermission } from '@/lib/auth/city-permission'
 import { PERMISSIONS } from '@/types/permissions'
 import { uploadToBlob, isBlobStorageConfigured } from '@/lib/azure-blob'
+import { forwarderIdentifier } from '@/services/forwarder-identifier'
 
 /**
  * GET /api/forwarders
@@ -401,7 +402,10 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // 10. 返回成功響應
+    // 10. 失效 Forwarder 快取（確保所有城市取得最新列表）
+    await forwarderIdentifier.invalidateCache()
+
+    // 11. 返回成功響應
     return NextResponse.json(
       {
         success: true,

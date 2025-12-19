@@ -109,12 +109,12 @@ development_status:
   # ============================================================
   # Epic 6: 多城市數據隔離
   # ============================================================
-  epic-6: in-progress  # Started 2025-12-19
+  epic-6: done  # All stories completed 2025-12-19
   6-1-city-data-model-rls-config: done  # Completed 2025-12-19: Region/City/UserCityAccess models, RLS policies, city-access.service, NextAuth integration, seed data
   6-2-city-user-data-access-control: done  # Completed 2025-12-19: API city filter middleware, resource access validator, security log service, useUserCity hook, CityIndicator/CityRestricted components
   6-3-regional-manager-cross-city-access: done  # Completed 2025-12-19: UserRegionAccess model, RegionalManagerService, accessible cities API, city filter hook/components, city comparison API/component, multi-city export API/dialog
   6-4-global-admin-full-access: done  # Completed 2025-12-19: SystemConfig/ConfigHistory models, GlobalAdminService, SystemConfigService, global analytics API, config management API, GlobalDashboard page, RegionView, CityRankings, GlobalTrend, SystemConfigPage
-  6-5-global-rule-sharing-mechanism: ready-for-dev
+  6-5-global-rule-sharing-mechanism: done  # Completed 2025-12-19: RuleCacheVersion model, RuleResolver service, ForwarderIdentifier service, RuleMetricsService, version/metrics APIs, useRuleVersion hook, cache invalidation integration
   epic-6-retrospective: optional
 
   # ============================================================

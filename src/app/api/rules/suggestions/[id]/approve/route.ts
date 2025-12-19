@@ -32,6 +32,7 @@ import { z } from 'zod'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { PERMISSIONS } from '@/types/permissions'
+import { ruleResolver } from '@/services/rule-resolver'
 
 // ============================================================
 // Validation Schemas
@@ -275,7 +276,10 @@ export async function POST(
       return { suggestion, rule: newRule, version: newVersion }
     })
 
-    // 5. 返回成功響應
+    // 5. 失效規則快取（確保所有城市取得最新規則）
+    await ruleResolver.invalidateForwarderCache(result.suggestion.forwarderId)
+
+    // 6. 返回成功響應
     return NextResponse.json({
       success: true,
       data: {

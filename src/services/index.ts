@@ -44,6 +44,9 @@
  *   | forwarder | Forwarder Profile CRUD | Epic 4 |
  *   | document | 文件上傳和管理 | Epic 2 |
  *   | analytics | 數據統計和報表 | Epic 8 |
+ *   | rule-resolver | 全域規則快取與解析 | Epic 6 Story 6.5 |
+ *   | forwarder-identifier | 全域 Forwarder 識別 | Epic 6 Story 6.5 |
+ *   | rule-metrics | 規則成效統計與分析 | Epic 6 Story 6.5 |
  *
  *   ## 核心設計原則
  *
@@ -80,6 +83,9 @@
  *   - 統一服務導出入口
  *   - 服務層架構文檔
  *   - 核心常數定義
+ *   - 全域規則快取與解析（Story 6.5）
+ *   - 全域 Forwarder 識別（Story 6.5）
+ *   - 規則成效統計（Story 6.5）
  *
  * @related
  *   - src/app/api/ - API 路由層（調用服務）
@@ -186,6 +192,11 @@ export * from './rule-change.service'
 
 // Epic 5: Forwarder Configuration (Story 5.4 - 規則測試服務)
 export * from './rule-testing.service'
+
+// Epic 6: Multi-City Data Isolation (Story 6.5 - Global Rule Sharing)
+export * from './rule-resolver'
+export * from './forwarder-identifier'
+export * from './rule-metrics'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

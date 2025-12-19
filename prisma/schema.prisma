@@ -1449,3 +1449,19 @@ enum ConfigScope {
   REGION // 區域配置
   CITY   // 城市配置
 }
+
+// =====================
+// Rule Cache Version Model (Story 6.5)
+// 規則快取版本追蹤，用於全域規則共享同步
+// =====================
+
+model RuleCacheVersion {
+  id         String   @id @default(uuid())
+  entityType String   @unique @map("entity_type") // 'mapping_rules' | 'forwarders'
+  version    Int      @default(1)
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([entityType])
+  @@map("rule_cache_versions")
+}

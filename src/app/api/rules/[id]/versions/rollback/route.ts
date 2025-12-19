@@ -29,6 +29,7 @@ import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { hasPermission } from '@/lib/auth/city-permission'
 import { PERMISSIONS } from '@/types/permissions'
+import { ruleResolver } from '@/services/rule-resolver'
 import type { RollbackResult } from '@/types/version'
 
 // ============================================================
@@ -244,10 +245,16 @@ export async function POST(
         newVersion,
         fromVersion: currentRule.version,
         toVersion: targetVersion.version,
+        forwarderId: currentRule.forwarderId,
       }
     })
 
-    // 9. 返回成功響應
+    // 9. 失效規則快取（確保所有城市取得最新規則）
+    if (result.forwarderId) {
+      await ruleResolver.invalidateForwarderCache(result.forwarderId)
+    }
+
+    // 10. 返回成功響應
     const response: RollbackResult = {
       ruleId: ruleId,
       fromVersion: result.fromVersion,
