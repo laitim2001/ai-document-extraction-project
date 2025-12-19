@@ -306,8 +306,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           data: {
             forwarderId: escalation.document.forwarderId,
             fieldName: createRule.fieldName,
+            extractionType: 'KEYWORD', // 預設使用 KEYWORD 類型
             suggestedPattern: createRule.suggestedPattern,
-            notes: createRule.description,
+            reviewNotes: createRule.description,
             suggestedBy: userId,
             escalationId: escalationId,
             correctionCount: 1,

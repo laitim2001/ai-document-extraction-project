@@ -439,15 +439,16 @@ export async function POST(request: NextRequest) {
 
     // 創建 RuleSuggestion 記錄
     // 注意：使用 PENDING 狀態，因為 SuggestionStatus 沒有 DRAFT
-    // 草稿模式通過 notes 欄位標記
+    // 草稿模式通過 reviewNotes 欄位標記
     const suggestion = await prisma.ruleSuggestion.create({
       data: {
         forwarderId,
         fieldName,
+        extractionType,
         suggestedPattern: JSON.stringify(patternData),
         suggestedBy: session.user.id,
         status: 'PENDING',
-        notes: saveAsDraft
+        reviewNotes: saveAsDraft
           ? `[DRAFT] ${description || ''}`
           : description || null,
         correctionCount: 0,

@@ -158,6 +158,7 @@ export async function triggerRuleSuggestionCheck(
     data: {
       forwarderId: document.forwarderId,
       fieldName,
+      extractionType: 'KEYWORD', // 預設使用 KEYWORD 類型，後續可透過規則推斷更新
       suggestedPattern: pattern.correctedValue,
       correctionCount: pattern.count,
       suggestedBy: suggesterId,
