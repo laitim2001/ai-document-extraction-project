@@ -90,3 +90,6 @@ export {
   getChangeTypeConfig as getTestChangeTypeConfig,
   getTaskStatusConfig,
 } from './rule-test'
+
+// 儀表板相關 (Story 7.1)
+export * from './dashboard'

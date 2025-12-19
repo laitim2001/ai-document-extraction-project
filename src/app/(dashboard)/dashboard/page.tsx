@@ -2,24 +2,29 @@
  * @fileoverview Dashboard 首頁
  * @description
  *   已登入用戶的主要儀表板頁面，顯示系統概覽和快速操作入口。
- *   此為佔位頁面，後續 Epic 將擴展完整功能。
+ *   包含處理統計儀表板（Story 7.1）和功能入口卡片。
  *
  * @module src/app/(dashboard)/dashboard/page
  * @author Development Team
  * @since Epic 1 - Story 1.1 (Azure AD SSO Login)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-19
  *
  * @features
  *   - Session 資訊顯示
+ *   - 處理統計儀表板（Story 7.1）
  *   - 系統功能概覽
- *   - 快速操作入口（佔位）
+ *   - 快速操作入口
  *
  * @related
  *   - src/app/(dashboard)/layout.tsx - Dashboard 佈局
  *   - src/lib/auth.ts - NextAuth 配置
+ *   - src/components/dashboard/DashboardStats.tsx - 統計組件
  */
 
+import { Suspense } from 'react'
 import { auth } from '@/lib/auth'
+import { DashboardStats } from '@/components/dashboard/DashboardStats'
+import { Skeleton } from '@/components/ui/skeleton'
 
 /**
  * 功能卡片配置
@@ -90,30 +95,24 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* 統計概覽（佔位） */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { label: '今日處理', value: '0', change: '待啟用' },
-          { label: '待審核', value: '0', change: '待啟用' },
-          { label: '本週準確率', value: '-', change: '待啟用' },
-          { label: '自動化率', value: '-', change: '待啟用' },
-        ].map((stat, index) => (
-          <div
-            key={index}
-            className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-4"
-          >
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              {stat.label}
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-              {stat.value}
-            </p>
-            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-              {stat.change}
-            </p>
+      {/* 處理統計儀表板 (Story 7.1) */}
+      <Suspense
+        fallback={
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-8 w-32" />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-32" />
+              ))}
+            </div>
           </div>
-        ))}
-      </div>
+        }
+      >
+        <DashboardStats />
+      </Suspense>
 
       {/* 功能入口 */}
       <div>

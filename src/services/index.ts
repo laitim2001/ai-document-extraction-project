@@ -198,6 +198,9 @@ export * from './rule-resolver'
 export * from './forwarder-identifier'
 export * from './rule-metrics'
 
+// Epic 7: Reports Dashboard (Story 7.1 - Processing Statistics Dashboard)
+export * from './dashboard-statistics.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';
