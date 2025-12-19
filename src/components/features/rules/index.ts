@@ -4,13 +4,13 @@
  *   集中導出所有映射規則相關組件：
  *   - 列表組件（RuleList, RuleTable, RuleFilters）
  *   - 狀態組件（RuleStatusBadge, ExtractionTypeIcon）
- *   - 統計組件（RuleSummaryCards, RuleStats）
+ *   - 統計組件（RuleSummaryCards, RuleStats, AccuracyMetrics）
  *   - 詳情組件（RuleDetailView, RulePatternViewer）
  *   - 骨架組件（RuleListSkeleton, RuleDetailSkeleton）
  *
  * @module src/components/features/rules
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-19
  */
 
 // 列表相關組件
@@ -26,6 +26,7 @@ export { ExtractionTypeIcon, getExtractionTypeConfig } from './ExtractionTypeIco
 // 統計組件
 export { RuleSummaryCards } from './RuleSummaryCards'
 export { RuleStats } from './RuleStats'
+export { AccuracyMetrics } from './AccuracyMetrics'
 
 // 詳情組件
 export { RuleDetailView, RuleDetailSkeleton } from './RuleDetailView'

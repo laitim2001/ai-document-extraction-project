@@ -168,10 +168,12 @@ export * from './routing.service'
 // Epic 3: Invoice Review & Correction Workflow
 export * from './notification.service'
 
-// Epic 4: 映射規則管理與自動學習 (Story 4.3)
+// Epic 4: 映射規則管理與自動學習 (Story 4.3, 4.4, 4.5)
 export * from './correction-recording'
 export * from './pattern-analysis'
 export * from './similarity'
+export * from './impact-analysis'
+export * from './rule-simulation'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

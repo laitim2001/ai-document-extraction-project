@@ -1,6 +1,6 @@
 # Story 4.8: 規則自動回滾
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -36,53 +36,109 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: RuleApplication 模型** (AC: #1)
-  - [ ] 1.1 創建規則應用記錄模型
-  - [ ] 1.2 記錄應用結果（成功/失敗）
-  - [ ] 1.3 記錄應用時間
+- [x] **Task 1: RuleApplication 模型** (AC: #1)
+  - [x] 1.1 創建規則應用記錄模型
+  - [x] 1.2 記錄應用結果（成功/失敗）
+  - [x] 1.3 記錄應用時間
 
-- [ ] **Task 2: 準確率計算服務** (AC: #1)
-  - [ ] 2.1 創建 `src/services/rule-accuracy.ts`
-  - [ ] 2.2 計算規則準確率
-  - [ ] 2.3 對比歷史準確率
+- [x] **Task 2: 準確率計算服務** (AC: #1)
+  - [x] 2.1 創建 `src/services/rule-accuracy.ts`
+  - [x] 2.2 計算規則準確率
+  - [x] 2.3 對比歷史準確率
 
-- [ ] **Task 3: 定時監控任務** (AC: #1)
-  - [ ] 3.1 設置每小時監控
-  - [ ] 3.2 獲取活躍規則
-  - [ ] 3.3 計算各規則準確率
+- [x] **Task 3: 定時監控任務** (AC: #1)
+  - [x] 3.1 設置每小時監控
+  - [x] 3.2 獲取活躍規則
+  - [x] 3.3 計算各規則準確率
 
-- [ ] **Task 4: 回滾閾值檢查** (AC: #2)
-  - [ ] 4.1 設定 10% 下降閾值
-  - [ ] 4.2 檢測準確率變化
-  - [ ] 4.3 觸發回滾決策
+- [x] **Task 4: 回滾閾值檢查** (AC: #2)
+  - [x] 4.1 設定 10% 下降閾值
+  - [x] 4.2 檢測準確率變化
+  - [x] 4.3 觸發回滾決策
 
-- [ ] **Task 5: 自動回滾服務** (AC: #2)
-  - [ ] 5.1 創建 `src/services/auto-rollback.ts`
-  - [ ] 5.2 獲取上一穩定版本
-  - [ ] 5.3 執行回滾操作
-  - [ ] 5.4 標記回滾原因
+- [x] **Task 5: 自動回滾服務** (AC: #2)
+  - [x] 5.1 創建 `src/services/auto-rollback.ts`
+  - [x] 5.2 獲取上一穩定版本
+  - [x] 5.3 執行回滾操作
+  - [x] 5.4 標記回滾原因
 
-- [ ] **Task 6: 回滾記錄** (AC: #2, #3)
-  - [ ] 6.1 創建 RollbackLog 模型
-  - [ ] 6.2 記錄回滾詳情
-  - [ ] 6.3 記錄觸發原因
+- [x] **Task 6: 回滾記錄** (AC: #2, #3)
+  - [x] 6.1 創建 RollbackLog 模型
+  - [x] 6.2 記錄回滾詳情
+  - [x] 6.3 記錄觸發原因
 
-- [ ] **Task 7: 告警通知** (AC: #3)
-  - [ ] 7.1 查詢 Super User
-  - [ ] 7.2 發送告警通知
-  - [ ] 7.3 包含回滾詳情
-  - [ ] 7.4 提供查看入口
+- [x] **Task 7: 告警通知** (AC: #3)
+  - [x] 7.1 查詢 Super User
+  - [x] 7.2 發送告警通知
+  - [x] 7.3 包含回滾詳情
+  - [x] 7.4 提供查看入口
 
-- [ ] **Task 8: 回滾歷史查看** (AC: #3)
-  - [ ] 8.1 創建回滾歷史頁面
-  - [ ] 8.2 顯示回滾列表
-  - [ ] 8.3 顯示回滾詳情
+- [x] **Task 8: 回滾歷史查看** (AC: #3)
+  - [x] 8.1 創建回滾歷史頁面
+  - [x] 8.2 顯示回滾列表
+  - [x] 8.3 顯示回滾詳情
 
-- [ ] **Task 9: 驗證與測試** (AC: #1-3)
-  - [ ] 9.1 測試準確率計算
-  - [ ] 9.2 測試閾值觸發
-  - [ ] 9.3 測試自動回滾
-  - [ ] 9.4 測試告警通知
+- [x] **Task 9: 驗證與測試** (AC: #1-3)
+  - [x] 9.1 測試準確率計算
+  - [x] 9.2 測試閾值觸發
+  - [x] 9.3 測試自動回滾
+  - [x] 9.4 測試告警通知
+
+---
+
+## Implementation Notes
+
+### 實作完成日期
+2025-12-19
+
+### 新增/修改文件清單
+
+#### 類型定義
+- `src/types/accuracy.ts` - 準確率相關類型（AccuracyMetrics, AccuracyDropResult, RollbackResult, RollbackHistoryItem 等）
+
+#### 服務層
+- `src/services/rule-accuracy.ts` - 準確率計算服務（RuleAccuracyService）
+- `src/services/auto-rollback.ts` - 自動回滾服務（AutoRollbackService）
+
+#### API 路由
+- `src/app/api/rules/[id]/accuracy/route.ts` - 規則準確率查詢 API
+- `src/app/api/rollback-logs/route.ts` - 回滾歷史查詢 API
+
+#### React Query Hooks
+- `src/hooks/use-accuracy.ts` - 準確率數據 Hook（useRuleAccuracy, calculateTrend, formatAccuracy）
+- `src/hooks/use-rollback.ts` - 回滾歷史 Hook（useRollbackHistory）
+
+#### UI 組件
+- `src/components/features/rules/AccuracyMetrics.tsx` - 準確率指標展示組件
+- `src/app/(dashboard)/rollback-history/page.tsx` - 回滾歷史頁面
+
+### 關鍵實作決策
+
+1. **準確率計算**
+   - 24 小時時間窗口計算準確率
+   - 最少 10 個樣本才有效（MIN_SAMPLE_SIZE）
+   - 比較當前版本與前一版本的準確率
+
+2. **回滾觸發條件**
+   - 10% 下降閾值（ACCURACY_DROP_THRESHOLD = 0.10）
+   - 60 分鐘冷卻期（ROLLBACK_COOLDOWN_MS）
+   - 僅對版本 > 1 的規則檢查
+
+3. **回滾執行**
+   - 使用 Prisma 事務確保數據一致性
+   - 回滾操作創建新版本號（version + 1）
+   - 記錄詳細的回滾日誌（RollbackLog）
+
+4. **告警通知**
+   - 使用現有的 notifySuperUsers 服務
+   - 通知類型為 RULE_AUTO_ROLLBACK
+   - 包含規則名稱、版本變化、準確率變化等詳情
+
+### 技術細節
+
+- **API 權限**: RULE_VIEW 查看準確率，RULE_MANAGE 執行回滾
+- **React Query 配置**: 5 分鐘自動重新獲取（refetchInterval）
+- **Prisma JsonValue 處理**: 使用 `as Prisma.InputJsonValue` 轉換類型
 
 ---
 
@@ -366,4 +422,5 @@ export const ruleAccuracyMonitorJob = new CronJob(
 ---
 
 *Story created: 2025-12-16*
-*Status: ready-for-dev*
+*Completed: 2025-12-19*
+*Status: done*
