@@ -1,6 +1,6 @@
 # Story 4.6: 審核學習規則
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -36,55 +36,55 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 待審核列表頁面** (AC: #1)
-  - [ ] 1.1 創建 `src/app/(dashboard)/rules/review/page.tsx`
-  - [ ] 1.2 顯示待審核規則列表
-  - [ ] 1.3 顯示來源標記（手動/自動學習）
-  - [ ] 1.4 支援排序和篩選
+- [x] **Task 1: 待審核列表頁面** (AC: #1)
+  - [x] 1.1 創建 `src/app/(dashboard)/rules/review/page.tsx`
+  - [x] 1.2 顯示待審核規則列表
+  - [x] 1.3 顯示來源標記（手動/自動學習）
+  - [x] 1.4 支援排序和篩選
 
-- [ ] **Task 2: 審核詳情頁面** (AC: #1)
-  - [ ] 2.1 創建 `src/app/(dashboard)/rules/review/[id]/page.tsx`
-  - [ ] 2.2 顯示規則完整詳情
-  - [ ] 2.3 顯示影響分析摘要
-  - [ ] 2.4 顯示樣本案例
+- [x] **Task 2: 審核詳情頁面** (AC: #1)
+  - [x] 2.1 創建 `src/app/(dashboard)/rules/review/[id]/page.tsx`
+  - [x] 2.2 顯示規則完整詳情
+  - [x] 2.3 顯示影響分析摘要
+  - [x] 2.4 顯示樣本案例
 
-- [ ] **Task 3: 待審核列表 API** (AC: #1)
-  - [ ] 3.1 創建 GET `/api/rules/suggestions?status=PENDING`
-  - [ ] 3.2 返回待審核建議列表
-  - [ ] 3.3 包含摘要統計
+- [x] **Task 3: 待審核列表 API** (AC: #1)
+  - [x] 3.1 創建 GET `/api/rules/suggestions?status=PENDING`
+  - [x] 3.2 返回待審核建議列表
+  - [x] 3.3 包含摘要統計
 
-- [ ] **Task 4: 批准功能** (AC: #2)
-  - [ ] 4.1 創建批准按鈕
-  - [ ] 4.2 可選填批准備註
-  - [ ] 4.3 確認對話框
+- [x] **Task 4: 批准功能** (AC: #2)
+  - [x] 4.1 創建批准按鈕
+  - [x] 4.2 可選填批准備註
+  - [x] 4.3 確認對話框
 
-- [ ] **Task 5: 批准 API** (AC: #2)
-  - [ ] 5.1 創建 POST `/api/rules/suggestions/[id]/approve`
-  - [ ] 5.2 更新建議狀態為 APPROVED
-  - [ ] 5.3 創建或更新 MappingRule
-  - [ ] 5.4 記錄審核人和時間
+- [x] **Task 5: 批准 API** (AC: #2)
+  - [x] 5.1 創建 POST `/api/rules/suggestions/[id]/approve`
+  - [x] 5.2 更新建議狀態為 APPROVED
+  - [x] 5.3 創建或更新 MappingRule
+  - [x] 5.4 記錄審核人和時間
 
-- [ ] **Task 6: 拒絕功能** (AC: #3)
-  - [ ] 6.1 創建拒絕按鈕
-  - [ ] 6.2 拒絕原因必填對話框
-  - [ ] 6.3 原因選項 + 自由文字
+- [x] **Task 6: 拒絕功能** (AC: #3)
+  - [x] 6.1 創建拒絕按鈕
+  - [x] 6.2 拒絕原因必填對話框
+  - [x] 6.3 原因選項 + 自由文字
 
-- [ ] **Task 7: 拒絕 API** (AC: #3)
-  - [ ] 7.1 創建 POST `/api/rules/suggestions/[id]/reject`
-  - [ ] 7.2 驗證拒絕原因
-  - [ ] 7.3 更新建議狀態為 REJECTED
-  - [ ] 7.4 記錄拒絕原因
+- [x] **Task 7: 拒絕 API** (AC: #3)
+  - [x] 7.1 創建 POST `/api/rules/suggestions/[id]/reject`
+  - [x] 7.2 驗證拒絕原因
+  - [x] 7.3 更新建議狀態為 REJECTED
+  - [x] 7.4 記錄拒絕原因
 
-- [ ] **Task 8: 審核歷史** (AC: #2, #3)
-  - [ ] 8.1 記錄所有審核動作
-  - [ ] 8.2 顯示審核歷史
-  - [ ] 8.3 審計追蹤
+- [x] **Task 8: 審核歷史** (AC: #2, #3)
+  - [x] 8.1 記錄所有審核動作
+  - [x] 8.2 顯示審核歷史
+  - [x] 8.3 審計追蹤
 
-- [ ] **Task 9: 驗證與測試** (AC: #1-3)
-  - [ ] 9.1 測試列表顯示
-  - [ ] 9.2 測試批准流程
-  - [ ] 9.3 測試拒絕流程
-  - [ ] 9.4 測試權限控制
+- [x] **Task 9: 驗證與測試** (AC: #1-3)
+  - [x] 9.1 測試列表顯示
+  - [x] 9.2 測試批准流程
+  - [x] 9.3 測試拒絕流程
+  - [x] 9.4 測試權限控制
 
 ---
 
@@ -336,4 +336,38 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
 ---
 
 *Story created: 2025-12-16*
-*Status: ready-for-dev*
+*Status: done*
+*Completed: 2025-12-19*
+
+## Implementation Summary
+
+### Files Created/Modified
+
+**Types:**
+- `src/types/review.ts` - RejectionReason type and REJECTION_REASONS constant
+
+**API Routes:**
+- `src/app/api/rules/suggestions/[id]/approve/route.ts` - Rule approval API
+- `src/app/api/rules/suggestions/[id]/reject/route.ts` - Rule rejection API
+
+**Hooks:**
+- `src/hooks/useRuleApprove.ts` - React Query mutation for rule approval
+- `src/hooks/useRuleReject.ts` - React Query mutation for rule rejection
+
+**Components:**
+- `src/components/features/rule-review/SuggestionInfo.tsx` - Suggestion details display
+- `src/components/features/rule-review/ImpactSummaryCard.tsx` - Impact statistics summary
+- `src/components/features/rule-review/SampleCasesTable.tsx` - Sample cases table
+- `src/components/features/rule-review/ApproveDialog.tsx` - Approval confirmation dialog
+- `src/components/features/rule-review/RejectDialog.tsx` - Rejection dialog with reason selection
+- `src/components/features/rule-review/ReviewDetailPage.tsx` - Main review detail component
+- `src/components/features/rule-review/index.ts` - Component exports
+
+**Pages:**
+- `src/app/(dashboard)/rules/review/page.tsx` - Review list page with filters and statistics
+- `src/app/(dashboard)/rules/review/[id]/page.tsx` - Review detail page with permission check
+
+### Key Features Implemented
+1. **AC1 - 審核頁面**: Complete review UI with rule details, impact analysis summary, and sample cases
+2. **AC2 - 批准規則**: Approve functionality with optional notes, MappingRule creation/update, RuleVersion record
+3. **AC3 - 拒絕規則**: Reject functionality with required reason selection and detailed explanation

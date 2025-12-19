@@ -90,7 +90,7 @@ development_status:
   4-3-correction-pattern-recording-analysis: done  # Completed 2025-12-19: Correction model, CorrectionPattern, PatternAnalysisLog, similarity algorithms, pattern analysis service, cron job API
   4-4-rule-upgrade-suggestion-generation: done  # Completed 2025-12-19: RuleSuggestion types, rule inference engine, suggestion generator service, API routes, React Query hooks
   4-5-rule-impact-scope-analysis: done  # Completed 2025-12-19: Impact types, ImpactAnalysisService, RuleSimulationService, API routes, React Query hooks, UI components
-  4-6-review-learning-rule: ready-for-dev
+  4-6-review-learning-rule: done  # Completed 2025-12-19: Review types, approve/reject APIs, useRuleApprove/useRuleReject hooks, ReviewDetailPage, ApproveDialog, RejectDialog, ImpactSummaryCard, SampleCasesTable, review pages
   4-7-rule-version-history-management: ready-for-dev
   4-8-rule-auto-rollback: ready-for-dev
   epic-4-retrospective: optional

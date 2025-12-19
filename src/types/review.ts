@@ -445,3 +445,210 @@ export interface PendingCorrection {
   /** 新值 */
   newValue: string
 }
+
+// ============================================================
+// Story 4-6: Rule Suggestion Review Types
+// ============================================================
+
+/**
+ * 規則審核拒絕原因枚舉
+ * @description 用於規則建議審核的拒絕原因分類
+ */
+export type RejectionReason =
+  | 'INSUFFICIENT_DATA'
+  | 'POOR_ACCURACY'
+  | 'HIGH_RISK'
+  | 'DUPLICATE'
+  | 'NOT_APPLICABLE'
+  | 'OTHER'
+
+/**
+ * 拒絕原因配置
+ */
+export interface RejectionReasonConfig {
+  value: RejectionReason
+  label: string
+  description: string
+}
+
+/**
+ * 拒絕原因配置列表
+ */
+export const REJECTION_REASONS: RejectionReasonConfig[] = [
+  {
+    value: 'INSUFFICIENT_DATA',
+    label: '數據不足',
+    description: '樣本數量不足以驗證規則的有效性',
+  },
+  {
+    value: 'POOR_ACCURACY',
+    label: '準確率不佳',
+    description: '模擬測試顯示規則準確率未達標準',
+  },
+  {
+    value: 'HIGH_RISK',
+    label: '風險過高',
+    description: '影響分析顯示潛在風險過高',
+  },
+  {
+    value: 'DUPLICATE',
+    label: '重複規則',
+    description: '已存在功能相同或類似的規則',
+  },
+  {
+    value: 'NOT_APPLICABLE',
+    label: '不適用',
+    description: '規則不適用於目標場景',
+  },
+  {
+    value: 'OTHER',
+    label: '其他',
+    description: '其他原因（請在詳細說明中說明）',
+  },
+]
+
+/**
+ * 規則批准請求
+ * @description POST /api/rules/suggestions/[id]/approve 請求體
+ */
+export interface RuleApproveRequest {
+  /** 審核備註（選填） */
+  notes?: string
+  /** 生效日期（選填，ISO 8601 格式） */
+  effectiveDate?: string
+}
+
+/**
+ * 規則批准響應
+ */
+export interface RuleApproveResponse {
+  success: true
+  data: {
+    /** 建議 ID */
+    suggestionId: string
+    /** 創建的規則 ID */
+    ruleId: string
+    /** 規則版本 */
+    ruleVersion: number
+    /** 狀態 */
+    status: 'APPROVED' | 'IMPLEMENTED'
+    /** 訊息 */
+    message: string
+  }
+}
+
+/**
+ * 規則拒絕請求
+ * @description POST /api/rules/suggestions/[id]/reject 請求體
+ */
+export interface RuleRejectRequest {
+  /** 拒絕原因 */
+  reason: RejectionReason
+  /** 詳細說明（必填） */
+  reasonDetail: string
+}
+
+/**
+ * 規則拒絕響應
+ */
+export interface RuleRejectResponse {
+  success: true
+  data: {
+    /** 建議 ID */
+    suggestionId: string
+    /** 狀態 */
+    status: 'REJECTED'
+    /** 訊息 */
+    message: string
+  }
+}
+
+/**
+ * 規則審核歷史項目
+ */
+export interface RuleReviewHistoryItem {
+  /** 記錄 ID */
+  id: string
+  /** 建議 ID */
+  suggestionId: string
+  /** 審核動作 */
+  action: 'APPROVED' | 'REJECTED'
+  /** 審核者 */
+  reviewer: {
+    id: string
+    name: string
+  }
+  /** 審核時間 (ISO 8601) */
+  reviewedAt: string
+  /** 審核備註 */
+  notes?: string
+  /** 拒絕原因 */
+  rejectionReason?: RejectionReason
+  /** 拒絕詳細說明 */
+  rejectionDetail?: string
+}
+
+/**
+ * 規則審核列表項目
+ * @description 待審核規則建議列表項目
+ */
+export interface RuleReviewListItem {
+  /** 建議 ID */
+  id: string
+  /** Forwarder 資訊 */
+  forwarder: {
+    id: string
+    name: string
+    code: string
+  }
+  /** 欄位名稱 */
+  fieldName: string
+  /** 提取類型 */
+  extractionType: string
+  /** 建議來源 */
+  source: 'AUTO_LEARNING' | 'MANUAL' | 'IMPORT'
+  /** 修正次數 */
+  correctionCount: number
+  /** 信心度 (0-100) */
+  confidence: number
+  /** 優先級 */
+  priority: number
+  /** 創建時間 (ISO 8601) */
+  createdAt: string
+  /** 是否有現有規則 */
+  hasExistingRule: boolean
+  /** 影響摘要 */
+  impactSummary: {
+    /** 受影響總數 */
+    totalAffected: number
+    /** 改善率 (百分比) */
+    improvementRate: number
+    /** 惡化率 (百分比) */
+    regressionRate: number
+  } | null
+}
+
+/**
+ * 規則審核列表響應
+ */
+export interface RuleReviewListResponse {
+  success: true
+  data: {
+    items: RuleReviewListItem[]
+    pagination: {
+      total: number
+      page: number
+      pageSize: number
+      totalPages: number
+    }
+  }
+}
+
+/**
+ * 根據拒絕原因值獲取配置
+ */
+export function getRejectionReasonConfig(
+  reason: RejectionReason
+): RejectionReasonConfig | undefined {
+  return REJECTION_REASONS.find((r) => r.value === reason)
+}
