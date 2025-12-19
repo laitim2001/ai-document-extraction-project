@@ -1548,7 +1548,7 @@ model ApiUsageLog {
 }
 
 // =====================
-// API Pricing Config Model (Story 7.6)
+// API Pricing Config Model (Story 7.6, 7.8)
 // API 計價配置，管理各服務的定價設定
 // =====================
 
@@ -1566,10 +1566,43 @@ model ApiPricingConfig {
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
 
+  // Story 7.8: 價格歷史關聯
+  history         ApiPricingHistory[]
+
   @@unique([provider, operation, effectiveFrom])
   @@index([provider, operation])
   @@index([isActive])
   @@map("api_pricing_configs")
+}
+
+// =====================
+// API Pricing History Model (Story 7.8)
+// API 計價歷史記錄，追蹤價格變更
+// =====================
+
+model ApiPricingHistory {
+  id                  String      @id @default(uuid())
+  pricingConfigId     String      @map("pricing_config_id")
+  provider            ApiProvider
+  operation           String
+  previousPricePerCall    Decimal?    @map("previous_price_per_call") @db.Decimal(10, 6)
+  previousPricePerInputToken  Decimal? @map("previous_price_per_input_token") @db.Decimal(10, 8)
+  previousPricePerOutputToken Decimal? @map("previous_price_per_output_token") @db.Decimal(10, 8)
+  newPricePerCall         Decimal?    @map("new_price_per_call") @db.Decimal(10, 6)
+  newPricePerInputToken   Decimal?    @map("new_price_per_input_token") @db.Decimal(10, 8)
+  newPricePerOutputToken  Decimal?    @map("new_price_per_output_token") @db.Decimal(10, 8)
+  changedBy           String      @map("changed_by")
+  changeReason        String?     @map("change_reason")
+  effectiveFrom       DateTime    @map("effective_from")
+  createdAt           DateTime    @default(now()) @map("created_at")
+
+  // Relations
+  pricingConfig       ApiPricingConfig @relation(fields: [pricingConfigId], references: [id], onDelete: Cascade)
+
+  @@index([pricingConfigId])
+  @@index([provider, operation])
+  @@index([createdAt])
+  @@map("api_pricing_history")
 }
 
 // =====================

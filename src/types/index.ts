@@ -2,7 +2,7 @@
  * @fileoverview 類型定義統一導出
  * @module src/types
  * @since Epic 1 - Story 1.7
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-19
  */
 
 // 權限相關
@@ -128,3 +128,6 @@ export * from './ai-cost'
 // 城市處理量統計相關 (Story 7.7)
 // TimeGranularity 從這裡導出（包含 hour, day, week, month, year）
 export * from './processing-statistics'
+
+// 城市 AI 成本追蹤相關 (Story 7.8)
+export * from './city-cost'
