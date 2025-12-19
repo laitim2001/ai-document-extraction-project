@@ -2,13 +2,20 @@
  * @fileoverview Azure Blob Storage 服務
  * @description
  *   提供 Azure Blob Storage 的上傳、刪除和 SAS URL 生成功能
- *   - 用於 Forwarder Logo 上傳
+ *   - 用於 Forwarder Logo 上傳（File 上傳）
+ *   - 用於報表檔案上傳（Buffer 上傳）
  *   - 支援圖片檔案上傳
  *   - 提供刪除和 SAS URL 生成
  *
  * @module src/lib/azure-blob
  * @since Epic 5 - Story 5.5
  * @lastModified 2025-12-19
+ *
+ * @features
+ *   - File 上傳（圖片）
+ *   - Buffer 上傳（報表）
+ *   - 刪除 Blob
+ *   - 生成 SAS URL（時間或日期過期）
  */
 
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob'
@@ -181,5 +188,79 @@ export function extractBlobNameFromUrl(url: string): string {
     return pathParts.slice(2).join('/')
   } catch {
     return ''
+  }
+}
+
+// =====================
+// Report Functions (Story 7.4)
+// =====================
+
+/**
+ * 上傳 Buffer 到 Azure Blob Storage（用於報表檔案）
+ * @param buffer - 要上傳的 Buffer 數據
+ * @param blobName - Blob 完整路徑名稱（例如 'reports/expense-report-xxx.xlsx'）
+ * @param contentType - MIME type（例如 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'）
+ * @returns 上傳後的 Blob 路徑名稱
+ * @throws Error 如果上傳失敗
+ */
+export async function uploadBufferToBlob(
+  buffer: Buffer,
+  blobName: string,
+  contentType: string
+): Promise<string> {
+  // 驗證 buffer 大小（最大 50MB）
+  const maxSize = 50 * 1024 * 1024
+  if (buffer.length > maxSize) {
+    throw new Error(`檔案大小超過限制。最大允許 50MB，實際大小 ${(buffer.length / 1024 / 1024).toFixed(2)}MB`)
+  }
+
+  const container = await getContainerClient()
+  const blockBlobClient = container.getBlockBlobClient(blobName)
+
+  // 上傳並設定 content type
+  await blockBlobClient.uploadData(buffer, {
+    blobHTTPHeaders: {
+      blobContentType: contentType
+    }
+  })
+
+  return blobName
+}
+
+/**
+ * 生成帶有指定過期時間的簽名 URL
+ * @param blobName - Blob 名稱/路徑
+ * @param expiresAt - 過期時間（Date 物件）
+ * @returns 簽名後的 URL
+ */
+export async function generateSignedUrl(
+  blobName: string,
+  expiresAt: Date
+): Promise<string> {
+  const container = await getContainerClient()
+  const blockBlobClient = container.getBlockBlobClient(blobName)
+
+  const sasUrl = await blockBlobClient.generateSasUrl({
+    permissions: { read: true } as unknown as import('@azure/storage-blob').BlobSASPermissions,
+    expiresOn: expiresAt
+  })
+
+  return sasUrl
+}
+
+/**
+ * 刪除 Blob（通過路徑名稱）
+ * @param blobName - Blob 路徑名稱
+ * @returns 是否刪除成功
+ */
+export async function deleteBlob(blobName: string): Promise<boolean> {
+  try {
+    const container = await getContainerClient()
+    const blockBlobClient = container.getBlockBlobClient(blobName)
+    await blockBlobClient.deleteIfExists()
+    return true
+  } catch (error) {
+    console.error('Error deleting blob:', error)
+    return false
   }
 }

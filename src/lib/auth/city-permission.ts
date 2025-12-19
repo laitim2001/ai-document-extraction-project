@@ -26,6 +26,7 @@
  */
 
 import { PERMISSIONS, type Permission } from '@/types/permissions'
+import { prisma } from '@/lib/prisma'
 
 // ============================================================
 // Types
@@ -376,4 +377,45 @@ export function hasPermission(
   }
 
   return user.roles.some((role) => role.permissions.includes(permission))
+}
+
+// ============================================================
+// Database Permission Check
+// ============================================================
+
+/**
+ * 通過用戶 ID 檢查是否擁有特定權限
+ *
+ * @description
+ *   從數據庫查詢用戶的角色權限，用於 API handlers 中的權限檢查。
+ *
+ * @param userId - 用戶 ID
+ * @param permission - 要檢查的權限字串
+ * @returns Promise<boolean> 是否有該權限
+ *
+ * @example
+ *   const canExport = await hasPermissionById(userId, 'report:export')
+ */
+export async function hasPermissionById(
+  userId: string,
+  permission: string
+): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      roles: {
+        include: {
+          role: {
+            select: { permissions: true }
+          }
+        }
+      }
+    }
+  })
+
+  if (!user) return false
+
+  return user.roles.some((userRole) =>
+    userRole.role.permissions.includes(permission)
+  )
 }

@@ -124,7 +124,7 @@ development_status:
   7-1-processing-statistics-dashboard: done  # Completed 2025-12-19: Dashboard types, DashboardStatisticsService with caching, StatCard component, DashboardStats container, React Query integration
   7-2-time-range-filter: done  # Completed 2025-12-19: DateRange types, date-range-utils, url-params, DateRangeContext with URL sync, DateRangePicker, DateRangeQuickSelect, useDashboardStatistics hook, DashboardStats integration
   7-3-forwarder-filter: done  # Completed 2025-12-19: ForwarderOption types, DashboardFilterContext, ForwarderMultiSelect, ForwarderComparisonChart, ControlledDateRangePicker, forwarders/list API
-  7-4-expense-detail-report-export: ready-for-dev
+  7-4-expense-detail-report-export: done  # Completed 2025-12-19: ReportJob model, ExcelJS export, Azure Blob storage, ExpenseReportService, export/estimate APIs, ExportDialog component, background job processing
   7-5-cross-city-summary-report: ready-for-dev
   7-6-ai-api-usage-cost-display: ready-for-dev
   7-7-city-processing-volume-tracking: ready-for-dev

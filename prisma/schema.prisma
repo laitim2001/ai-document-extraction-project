@@ -59,6 +59,7 @@ model User {
   grantedRegionAccesses  UserRegionAccess[]        @relation("GrantedRegionAccess") // Story 6.3: 授予的區域訪問權限
   configsUpdated         SystemConfig[]            @relation("ConfigUpdater") // Story 6.4: 更新的系統配置
   configChanges          ConfigHistory[]           @relation("ConfigChanger") // Story 6.4: 配置變更歷史
+  reportJobs             ReportJob[]               @relation("UserReportJobs") // Story 7.4: 報表任務
 
   @@map("users")
 }
@@ -1464,4 +1465,40 @@ model RuleCacheVersion {
 
   @@index([entityType])
   @@map("rule_cache_versions")
+}
+
+// =====================
+// Report Job Model (Story 7.4)
+// 報表匯出任務，支援大量數據背景處理
+// =====================
+
+model ReportJob {
+  id           String          @id @default(uuid())
+  userId       String          @map("user_id")
+  type         String          // 'expense-detail', 'city-cost', 'monthly-allocation'
+  config       Json            // ExportConfig JSON
+  status       ReportJobStatus @default(PENDING)
+  progress     Int?            @default(0)
+  totalRecords Int?            @map("total_records")
+  filePath     String?         @map("file_path")
+  downloadUrl  String?         @map("download_url")
+  expiresAt    DateTime?       @map("expires_at")
+  error        String?
+  createdAt    DateTime        @default(now()) @map("created_at")
+  completedAt  DateTime?       @map("completed_at")
+
+  // Relations
+  user User @relation("UserReportJobs", fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("report_jobs")
+}
+
+enum ReportJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
