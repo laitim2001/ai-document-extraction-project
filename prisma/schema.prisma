@@ -198,12 +198,13 @@ model City {
   updatedAt DateTime   @updatedAt @map("updated_at")
 
   // Relations
-  region        Region           @relation(fields: [regionId], references: [id])
-  userRoles     UserRole[]
-  userAccesses  UserCityAccess[]
-  documents     Document[]       @relation("DocumentCity")
-  auditLogs     AuditLog[]       @relation("AuditLogCity")
-  systemConfigs SystemConfig[]   @relation("ConfigCity") // Story 6.4: 城市層級配置
+  region               Region                 @relation(fields: [regionId], references: [id])
+  userRoles            UserRole[]
+  userAccesses         UserCityAccess[]
+  documents            Document[]             @relation("DocumentCity")
+  auditLogs            AuditLog[]             @relation("AuditLogCity")
+  systemConfigs        SystemConfig[]         @relation("ConfigCity") // Story 6.4: 城市層級配置
+  processingStatistics ProcessingStatistics[] // Story 7.7: 城市處理量統計
 
   @@index([regionId])
   @@index([status])
@@ -1569,4 +1570,94 @@ model ApiPricingConfig {
   @@index([provider, operation])
   @@index([isActive])
   @@map("api_pricing_configs")
+}
+
+// =====================
+// Processing Statistics Models (Story 7.7)
+// 城市處理量追蹤
+// =====================
+
+// 每日處理統計模型
+model ProcessingStatistics {
+  id                  String   @id @default(uuid())
+  cityCode            String   @map("city_code")
+  date                DateTime @db.Date
+
+  // 處理量統計
+  totalProcessed      Int      @default(0) @map("total_processed")
+  autoApproved        Int      @default(0) @map("auto_approved")
+  manualReviewed      Int      @default(0) @map("manual_reviewed")
+  escalated           Int      @default(0)
+  failed              Int      @default(0)
+
+  // 時間統計（秒）
+  totalProcessingTime Int      @default(0) @map("total_processing_time")
+  avgProcessingTime   Float?   @map("avg_processing_time")
+  minProcessingTime   Int?     @map("min_processing_time")
+  maxProcessingTime   Int?     @map("max_processing_time")
+
+  // 成功率統計
+  successCount        Int      @default(0) @map("success_count")
+  successRate         Float?   @map("success_rate")
+
+  // 自動化率統計
+  automationRate      Float?   @map("automation_rate")
+
+  // 元數據
+  lastUpdatedAt       DateTime @default(now()) @map("last_updated_at")
+  version             Int      @default(0)  // 樂觀鎖版本號
+
+  // 關聯
+  city                City     @relation(fields: [cityCode], references: [code])
+
+  @@unique([cityCode, date])
+  @@index([cityCode])
+  @@index([date])
+  @@index([cityCode, date])
+  @@map("processing_statistics")
+}
+
+// 每小時處理統計（細粒度分析用）
+model HourlyProcessingStats {
+  id                  String   @id @default(uuid())
+  cityCode            String   @map("city_code")
+  hour                DateTime @db.Timestamptz  // 精確到小時
+
+  // 處理量統計
+  totalProcessed      Int      @default(0) @map("total_processed")
+  autoApproved        Int      @default(0) @map("auto_approved")
+  manualReviewed      Int      @default(0) @map("manual_reviewed")
+  escalated           Int      @default(0)
+  failed              Int      @default(0)
+
+  // 處理時間
+  totalProcessingTime Int      @default(0) @map("total_processing_time")
+
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@unique([cityCode, hour])
+  @@index([cityCode, hour])
+  @@index([hour])
+  @@map("hourly_processing_stats")
+}
+
+// 統計校驗日誌
+model StatisticsAuditLog {
+  id              String   @id @default(uuid())
+  cityCode        String   @map("city_code")
+  date            DateTime @db.Date
+  auditType       String   @map("audit_type")  // 'SCHEDULED', 'MANUAL', 'AUTO_REPAIR'
+
+  // 校驗結果
+  verified        Boolean
+  discrepancies   Json?    // 差異詳情
+  corrections     Json?    // 修正內容
+
+  // 元數據
+  executedAt      DateTime @default(now()) @map("executed_at")
+  executedBy      String?  @map("executed_by")  // 用戶ID或 'SYSTEM'
+
+  @@index([cityCode, date])
+  @@index([executedAt])
+  @@map("statistics_audit_logs")
 }

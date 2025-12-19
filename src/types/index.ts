@@ -102,7 +102,29 @@ export * from './forwarder-filter'
 export * from './dashboard-filter'
 
 // 區域報表相關 (Story 7.5)
-export * from './regional-report'
+// 注意：TimeGranularity 在 processing-statistics.ts 有更完整的定義
+// 使用命名導出避免衝突
+export {
+  type CitySummary,
+  type CityTrend,
+  type RegionalSummary,
+  type CityTrendData,
+  type TopForwarderData,
+  type CityDetailReport,
+  type RegionalSummaryResponse,
+  type CityDetailResponse,
+  type RegionalReportParams,
+  type RegionalExportConfig,
+  TIME_GRANULARITY_OPTIONS,
+  DEFAULT_TOP_FORWARDERS_LIMIT,
+  REGIONAL_REPORT_CACHE_TTL,
+  // 重新導出為別名以保持向後相容
+  type TimeGranularity as RegionalTimeGranularity,
+} from './regional-report'
 
 // AI 成本追蹤相關 (Story 7.6)
 export * from './ai-cost'
+
+// 城市處理量統計相關 (Story 7.7)
+// TimeGranularity 從這裡導出（包含 hour, day, week, month, year）
+export * from './processing-statistics'
