@@ -55,6 +55,8 @@ model User {
   grantedCityAccesses    UserCityAccess[]          @relation("GrantedCityAccess") // Story 6.1: 授予的城市訪問權限
   securityLogs           SecurityLog[]             @relation("SecurityLogUser") // Story 6.2: 安全事件日誌
   resolvedSecurityLogs   SecurityLog[]             @relation("SecurityLogResolver") // Story 6.2: 處理的安全事件
+  regionAccesses         UserRegionAccess[]        @relation("UserRegionAccess") // Story 6.3: 區域訪問權限
+  grantedRegionAccesses  UserRegionAccess[]        @relation("GrantedRegionAccess") // Story 6.3: 授予的區域訪問權限
 
   @@map("users")
 }
@@ -160,9 +162,10 @@ model Region {
   updatedAt DateTime     @updatedAt @map("updated_at")
 
   // Relations
-  parent   Region?  @relation("RegionHierarchy", fields: [parentId], references: [id])
-  children Region[] @relation("RegionHierarchy")
-  cities   City[]
+  parent       Region?            @relation("RegionHierarchy", fields: [parentId], references: [id])
+  children     Region[]           @relation("RegionHierarchy")
+  cities       City[]
+  userAccesses UserRegionAccess[] // Story 6.3: 用戶區域訪問權限
 
   @@index([parentId])
   @@index([status])
@@ -241,6 +244,33 @@ model UserCityAccess {
 enum AccessLevel {
   READ_ONLY // 僅讀取
   FULL // 完整訪問（讀寫）
+}
+
+// =====================
+// UserRegionAccess Model (Story 6.3)
+// 用戶區域訪問權限 - 區域經理管理
+// =====================
+
+model UserRegionAccess {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  regionId    String      @map("region_id")
+  accessLevel AccessLevel @default(FULL)
+  grantedBy   String      @map("granted_by")
+  grantedAt   DateTime    @default(now()) @map("granted_at")
+  expiresAt   DateTime?   @map("expires_at") // 可選的過期時間
+  reason      String? // 授權原因
+
+  // Relations
+  user    User   @relation("UserRegionAccess", fields: [userId], references: [id], onDelete: Cascade)
+  region  Region @relation(fields: [regionId], references: [id])
+  grantor User   @relation("GrantedRegionAccess", fields: [grantedBy], references: [id])
+
+  @@unique([userId, regionId])
+  @@index([userId])
+  @@index([regionId])
+  @@index([expiresAt])
+  @@map("user_region_access")
 }
 
 // =====================
