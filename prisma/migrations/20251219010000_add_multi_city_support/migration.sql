@@ -268,16 +268,18 @@ CREATE POLICY audit_logs_city_isolation ON "audit_logs"
 -- ============================================
 -- 17. Create composite indexes for common queries
 -- ============================================
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_documents_city_status ON "documents"("city_code", "status");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_documents_city_created ON "documents"("city_code", "created_at" DESC);
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_processing_queue_city_status ON "processing_queues"("city_code", "status");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_audit_logs_city_created ON "audit_logs"("city_code", "created_at" DESC);
+-- Note: Removed CONCURRENTLY as it cannot run inside a transaction block
+CREATE INDEX IF NOT EXISTS idx_documents_city_status ON "documents"("city_code", "status");
+CREATE INDEX IF NOT EXISTS idx_documents_city_created ON "documents"("city_code", "created_at" DESC);
+CREATE INDEX IF NOT EXISTS idx_processing_queue_city_status ON "processing_queues"("city_code", "status");
+CREATE INDEX IF NOT EXISTS idx_audit_logs_city_created ON "audit_logs"("city_code", "created_at" DESC);
 
 -- Partial indexes for active records only
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_user_city_access_active
+-- Note: Changed to simple index as CURRENT_TIMESTAMP is not IMMUTABLE for partial indexes
+CREATE INDEX IF NOT EXISTS idx_user_city_access_active
     ON "user_city_access"("user_id", "city_id")
-    WHERE expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP;
+    WHERE expires_at IS NULL;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cities_active
+CREATE INDEX IF NOT EXISTS idx_cities_active
     ON "cities"("code")
     WHERE status = 'ACTIVE';

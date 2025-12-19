@@ -126,7 +126,7 @@ development_status:
   7-3-forwarder-filter: done  # Completed 2025-12-19: ForwarderOption types, DashboardFilterContext, ForwarderMultiSelect, ForwarderComparisonChart, ControlledDateRangePicker, forwarders/list API
   7-4-expense-detail-report-export: done  # Completed 2025-12-19: ReportJob model, ExcelJS export, Azure Blob storage, ExpenseReportService, export/estimate APIs, ExportDialog component, background job processing
   7-5-cross-city-summary-report: done  # Completed 2025-12-19: Regional report types, RegionalReportService with caching, summary/city-detail/export APIs, CityComparisonTable, CityDetailPanel, RegionalReportContent, permission-controlled page
-  7-6-ai-api-usage-cost-display: ready-for-dev
+  7-6-ai-api-usage-cost-display: done  # Completed 2025-12-19: ApiProvider/ApiUsageLog/ApiPricingConfig models, ai-cost.service, summary/trend/anomalies/daily APIs, AiCostCard, AiCostReportContent, useAiCost hooks
   7-7-city-processing-volume-tracking: ready-for-dev
   7-8-city-ai-cost-tracking: ready-for-dev
   7-9-city-cost-report: ready-for-dev

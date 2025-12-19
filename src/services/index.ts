@@ -207,6 +207,9 @@ export * from './expense-report.service'
 // Epic 7: Reports Dashboard (Story 7.5 - Regional Report)
 export * from './regional-report.service'
 
+// Epic 7: Reports Dashboard (Story 7.6 - AI API Cost Tracking)
+export * from './ai-cost.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

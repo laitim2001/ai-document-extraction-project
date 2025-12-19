@@ -1,6 +1,6 @@
 # Story 7.6: AI API 使用量與成本顯示
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
