@@ -143,6 +143,10 @@ export * from './city.service'
 // Epic 6: Multi-City Data Isolation (Story 6.1)
 export * from './city-access.service'
 
+// Epic 6: Global Admin Full Access (Story 6.4)
+export * from './global-admin.service'
+export * from './system-config.service'
+
 // TODO: Epic 6 實現後取消註釋
 // export { mappingService } from './mapping';
 // export { MappingService } from './mapping/mapping-service';

@@ -1,6 +1,6 @@
 # Story 1.3: 用戶列表與搜尋
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -54,50 +54,50 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 用戶列表頁面** (AC: #1, #5)
-  - [ ] 1.1 創建 `src/app/(dashboard)/admin/users/page.tsx`
-  - [ ] 1.2 實現用戶列表表格組件
-  - [ ] 1.3 實現 Skeleton 載入狀態
-  - [ ] 1.4 實現空狀態顯示
+- [x] **Task 1: 用戶列表頁面** (AC: #1, #5) ✅ Completed 2025-12-18
+  - [x] 1.1 創建 `src/app/(dashboard)/admin/users/page.tsx`
+  - [x] 1.2 實現用戶列表表格組件
+  - [x] 1.3 實現 Skeleton 載入狀態
+  - [x] 1.4 實現空狀態顯示
 
-- [ ] **Task 2: 用戶列表 API** (AC: #1, #2, #3, #4)
-  - [ ] 2.1 創建 `src/app/api/admin/users/route.ts`
-  - [ ] 2.2 實現 GET 端點，支援分頁參數
-  - [ ] 2.3 實現搜尋參數（name, email）
-  - [ ] 2.4 實現篩選參數（role, city, status）
-  - [ ] 2.5 返回用戶列表與總數
+- [x] **Task 2: 用戶列表 API** (AC: #1, #2, #3, #4) ✅ Completed 2025-12-18
+  - [x] 2.1 創建 `src/app/api/admin/users/route.ts`
+  - [x] 2.2 實現 GET 端點，支援分頁參數
+  - [x] 2.3 實現搜尋參數（name, email）
+  - [x] 2.4 實現篩選參數（role, city, status）
+  - [x] 2.5 返回用戶列表與總數
 
-- [ ] **Task 3: 用戶服務層** (AC: #1, #2, #3, #4)
-  - [ ] 3.1 創建 `src/services/user.service.ts`
-  - [ ] 3.2 實現 getUsers 函數（含分頁、搜尋、篩選）
-  - [ ] 3.3 實現 Prisma 查詢邏輯
-  - [ ] 3.4 加入關聯查詢（roles, city）
+- [x] **Task 3: 用戶服務層** (AC: #1, #2, #3, #4) ✅ Completed 2025-12-18
+  - [x] 3.1 擴展 `src/services/user.service.ts`
+  - [x] 3.2 實現 getUsers 函數（含分頁、搜尋、篩選）
+  - [x] 3.3 實現 Prisma 查詢邏輯
+  - [x] 3.4 加入關聯查詢（roles, city）
 
-- [ ] **Task 4: 分頁組件** (AC: #2)
-  - [ ] 4.1 創建或使用 shadcn/ui Pagination 組件
-  - [ ] 4.2 實現頁碼切換邏輯
-  - [ ] 4.3 更新 URL query params
+- [x] **Task 4: 分頁組件** (AC: #2) ✅ Completed 2025-12-18
+  - [x] 4.1 創建 Pagination 組件
+  - [x] 4.2 實現頁碼切換邏輯
+  - [x] 4.3 更新 URL query params
 
-- [ ] **Task 5: 搜尋組件** (AC: #3)
-  - [ ] 5.1 創建搜尋輸入框組件
-  - [ ] 5.2 實現 debounce 搜尋（300ms）
-  - [ ] 5.3 更新 URL query params
+- [x] **Task 5: 搜尋組件** (AC: #3) ✅ Completed 2025-12-18
+  - [x] 5.1 創建搜尋輸入框組件
+  - [x] 5.2 實現 debounce 搜尋（300ms）
+  - [x] 5.3 更新 URL query params
 
-- [ ] **Task 6: 篩選組件** (AC: #4)
-  - [ ] 6.1 創建篩選下拉選單（角色、城市、狀態）
-  - [ ] 6.2 實現篩選邏輯
-  - [ ] 6.3 支援多重篩選組合
+- [x] **Task 6: 篩選組件** (AC: #4) ✅ Completed 2025-12-18
+  - [x] 6.1 創建篩選下拉選單（角色、城市、狀態）
+  - [x] 6.2 實現篩選邏輯
+  - [x] 6.3 支援多重篩選組合
 
-- [ ] **Task 7: React Query 整合** (AC: #1, #5)
-  - [ ] 7.1 創建 `src/hooks/useUsers.ts`
-  - [ ] 7.2 實現 useUsers hook（含分頁、搜尋、篩選參數）
-  - [ ] 7.3 配置 staleTime 和緩存策略
+- [x] **Task 7: React Query 整合** (AC: #1, #5) ✅ Completed 2025-12-18
+  - [x] 7.1 創建 `src/hooks/use-users.ts`
+  - [x] 7.2 實現 useUsers hook（含分頁、搜尋、篩選參數）
+  - [x] 7.3 配置 staleTime 和緩存策略（keepPreviousData）
 
-- [ ] **Task 8: 權限控制** (AC: #1)
-  - [ ] 8.1 驗證用戶具有 USER_VIEW 權限
-  - [ ] 8.2 無權限時重導向或顯示錯誤
+- [x] **Task 8: 權限控制** (AC: #1) ✅ Completed 2025-12-18
+  - [x] 8.1 驗證用戶具有 USER_VIEW 權限
+  - [x] 8.2 無權限時重導向或顯示錯誤
 
-- [ ] **Task 9: 驗證與測試** (AC: #1-5)
+- [ ] **Task 9: 驗證與測試** (AC: #1-5) ⏳ Manual testing required
   - [ ] 9.1 測試用戶列表顯示
   - [ ] 9.2 測試分頁功能
   - [ ] 9.3 測試搜尋功能

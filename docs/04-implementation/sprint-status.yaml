@@ -113,7 +113,7 @@ development_status:
   6-1-city-data-model-rls-config: done  # Completed 2025-12-19: Region/City/UserCityAccess models, RLS policies, city-access.service, NextAuth integration, seed data
   6-2-city-user-data-access-control: done  # Completed 2025-12-19: API city filter middleware, resource access validator, security log service, useUserCity hook, CityIndicator/CityRestricted components
   6-3-regional-manager-cross-city-access: done  # Completed 2025-12-19: UserRegionAccess model, RegionalManagerService, accessible cities API, city filter hook/components, city comparison API/component, multi-city export API/dialog
-  6-4-global-admin-full-access: ready-for-dev
+  6-4-global-admin-full-access: done  # Completed 2025-12-19: SystemConfig/ConfigHistory models, GlobalAdminService, SystemConfigService, global analytics API, config management API, GlobalDashboard page, RegionView, CityRankings, GlobalTrend, SystemConfigPage
   6-5-global-rule-sharing-mechanism: ready-for-dev
   epic-6-retrospective: optional
 

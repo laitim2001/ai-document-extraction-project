@@ -29,6 +29,9 @@ import { prisma } from '@/lib/prisma'
 import type { User, UserStatus } from '@prisma/client'
 import { assignDefaultRole } from './role.service'
 import type { UserWithRoles, CreateUserFromAzureAD } from '@/types/user'
+import { AppError } from '@/lib/errors'
+import type { CreateUserInput, UpdateUserInput } from '@/lib/validations/user.schema'
+import { logUserChange } from '@/lib/audit/logger'
 
 // ============================================================
 // 用戶查詢
@@ -95,6 +98,25 @@ export async function userExists(email: string): Promise<boolean> {
   return count > 0
 }
 
+/**
+ * 檢查電子郵件是否已被使用
+ *
+ * @description
+ *   用於新增用戶前檢查電子郵件是否重複。
+ *   會將電子郵件轉為小寫進行比對。
+ *
+ * @param email - 電子郵件
+ * @returns 是否已存在
+ *
+ * @since Story 1.4
+ */
+export async function checkEmailExists(email: string): Promise<boolean> {
+  const count = await prisma.user.count({
+    where: { email: email.toLowerCase() },
+  })
+  return count > 0
+}
+
 // ============================================================
 // 用戶創建與更新
 // ============================================================
@@ -140,7 +162,79 @@ export async function updateUser(
 }
 
 /**
- * 更新用戶狀態
+ * 更新用戶狀態（含審計日誌）
+ *
+ * @description
+ *   更新用戶帳戶狀態（啟用/停用）。
+ *   防止用戶停用自己的帳戶。
+ *   自動記錄審計日誌。
+ *
+ * @param targetUserId - 目標用戶 ID
+ * @param status - 新狀態 (ACTIVE/INACTIVE)
+ * @param performedBy - 執行者用戶 ID
+ * @returns 更新後的用戶
+ * @throws {AppError} 當用戶不存在或嘗試停用自己時拋出錯誤
+ *
+ * @since Story 1.6
+ *
+ * @example
+ *   const user = await updateUserStatus('target-id', 'INACTIVE', 'admin-id')
+ */
+export async function updateUserStatusWithAudit(
+  targetUserId: string,
+  status: UserStatus,
+  performedBy: string
+): Promise<User> {
+  // 防止用戶停用自己
+  if (targetUserId === performedBy && status !== 'ACTIVE') {
+    throw new AppError(
+      'validation_error',
+      'Cannot Disable Self',
+      400,
+      '您無法停用自己的帳戶'
+    )
+  }
+
+  // 獲取當前用戶資料
+  const currentUser = await getUserById(targetUserId)
+  if (!currentUser) {
+    throw new AppError(
+      'not_found',
+      'User Not Found',
+      404,
+      '用戶不存在'
+    )
+  }
+
+  // 如果狀態相同，直接返回
+  if (currentUser.status === status) {
+    return currentUser
+  }
+
+  const oldStatus = currentUser.status
+
+  // 更新狀態
+  const updatedUser = await prisma.user.update({
+    where: { id: targetUserId },
+    data: { status },
+  })
+
+  // 記錄審計日誌
+  // 使用 UPDATE_STATUS 動作類型，在 details 中區分 enable/disable
+  await logUserChange({
+    userId: targetUserId,
+    action: 'UPDATE_STATUS',
+    oldValue: { status: oldStatus },
+    newValue: { status, action: status === 'ACTIVE' ? 'enable' : 'disable' },
+    performedBy,
+  })
+
+  return updatedUser
+}
+
+/**
+ * 更新用戶狀態（基礎版本，無審計）
+ * @deprecated 請使用 updateUserStatusWithAudit
  * @param id - 用戶 ID
  * @param status - 新狀態
  * @returns 更新後的用戶
@@ -165,6 +259,368 @@ export async function updateLastLoginAt(id: string): Promise<User> {
     where: { id },
     data: { lastLoginAt: new Date() },
   })
+}
+
+// ============================================================
+// 用戶詳情與更新（Story 1-5）
+// ============================================================
+
+/**
+ * 用戶詳情（含完整角色和城市資訊）
+ */
+export interface UserDetailWithRoles {
+  id: string
+  email: string
+  name: string | null
+  image: string | null
+  status: UserStatus
+  createdAt: Date
+  updatedAt: Date
+  lastLoginAt: Date | null
+  roles: {
+    id: string
+    roleId: string
+    cityId: string | null
+    role: {
+      id: string
+      name: string
+      description: string | null
+    }
+    city: {
+      id: string
+      name: string
+      code: string
+    } | null
+  }[]
+}
+
+/**
+ * 根據 ID 獲取用戶詳情（含角色和城市）
+ *
+ * @description
+ *   獲取用戶的完整資訊，包含所有角色和城市歸屬。
+ *   用於用戶詳情頁面和編輯對話框。
+ *
+ * @param id - 用戶 ID
+ * @returns 用戶詳情或 null
+ *
+ * @since Story 1.5
+ */
+export async function getUserByIdWithRoles(
+  id: string
+): Promise<UserDetailWithRoles | null> {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: {
+      roles: {
+        include: {
+          role: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+            },
+          },
+          city: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  return user as UserDetailWithRoles | null
+}
+
+/**
+ * 更新用戶資料（含角色和城市）
+ *
+ * @description
+ *   更新用戶的基本資料、角色和城市歸屬。
+ *   使用交易確保資料一致性。
+ *   自動記錄審計日誌。
+ *
+ * @param userId - 用戶 ID
+ * @param data - 更新資料
+ * @param performedBy - 執行者用戶 ID
+ * @returns 更新後的用戶詳情
+ * @throws {AppError} 當用戶不存在時拋出 404 錯誤
+ *
+ * @since Story 1.5
+ *
+ * @example
+ *   const user = await updateUserWithRoles(
+ *     'user-id',
+ *     { name: 'New Name', roleIds: ['role-1', 'role-2'], cityId: 'city-id' },
+ *     'admin-id'
+ *   )
+ */
+export async function updateUserWithRoles(
+  userId: string,
+  data: UpdateUserInput,
+  performedBy: string
+): Promise<UserDetailWithRoles> {
+  // 獲取當前用戶資料（用於審計日誌）
+  const currentUser = await getUserByIdWithRoles(userId)
+  if (!currentUser) {
+    throw new AppError(
+      'not_found',
+      'User Not Found',
+      404,
+      '用戶不存在'
+    )
+  }
+
+  const { name, roleIds, cityId } = data
+
+  // 記錄舊值
+  const oldValues = {
+    name: currentUser.name,
+    roleIds: currentUser.roles.map((r) => r.role.id),
+    cityId: currentUser.roles.find((r) => r.cityId)?.cityId ?? null,
+  }
+
+  // 使用交易確保資料一致性
+  const updatedUser = await prisma.$transaction(async (tx) => {
+    // 1. 更新用戶基本資料
+    if (name !== undefined) {
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          name,
+          updatedAt: new Date(),
+        },
+      })
+    }
+
+    // 2. 更新角色關聯（如果有提供）
+    if (roleIds !== undefined) {
+      // 刪除現有角色關聯
+      await tx.userRole.deleteMany({
+        where: { userId },
+      })
+
+      // 建立新角色關聯
+      await tx.userRole.createMany({
+        data: roleIds.map((roleId) => ({
+          userId,
+          roleId,
+          cityId: cityId ?? null,
+        })),
+      })
+    } else if (cityId !== undefined) {
+      // 只更新城市（保留現有角色）
+      await tx.userRole.updateMany({
+        where: { userId },
+        data: { cityId: cityId ?? null },
+      })
+    }
+
+    // 3. 返回更新後的用戶
+    return tx.user.findUniqueOrThrow({
+      where: { id: userId },
+      include: {
+        roles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+              },
+            },
+            city: {
+              select: {
+                id: true,
+                name: true,
+                code: true,
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  // 記錄審計日誌（非阻塞）
+  // 記錄名稱變更
+  if (name !== undefined && name !== oldValues.name) {
+    await logUserChange({
+      userId,
+      action: 'UPDATE_INFO',
+      oldValue: { name: oldValues.name },
+      newValue: { name },
+      performedBy,
+    })
+  }
+
+  // 記錄角色變更
+  if (roleIds !== undefined) {
+    const oldRolesSorted = [...oldValues.roleIds].sort().join(',')
+    const newRolesSorted = [...roleIds].sort().join(',')
+    if (oldRolesSorted !== newRolesSorted) {
+      await logUserChange({
+        userId,
+        action: 'UPDATE_ROLE',
+        oldValue: oldValues.roleIds,
+        newValue: roleIds,
+        performedBy,
+      })
+    }
+  }
+
+  // 記錄城市變更
+  if (cityId !== undefined && cityId !== oldValues.cityId) {
+    await logUserChange({
+      userId,
+      action: 'UPDATE_CITY',
+      oldValue: oldValues.cityId,
+      newValue: cityId,
+      performedBy,
+    })
+  }
+
+  return updatedUser as UserDetailWithRoles
+}
+
+// ============================================================
+// 手動創建用戶（Story 1-4）
+// ============================================================
+
+/**
+ * 手動創建用戶結果類型（含角色和城市資訊）
+ */
+export interface CreatedUserWithRoles {
+  id: string
+  email: string
+  name: string | null
+  image: string | null
+  status: UserStatus
+  createdAt: Date
+  lastLoginAt: Date | null
+  roles: {
+    role: {
+      id: string
+      name: string
+    }
+    city: {
+      id: string
+      name: string
+      code: string
+    } | null
+  }[]
+}
+
+/**
+ * 手動創建新用戶（管理員操作）
+ *
+ * @description
+ *   由系統管理員手動創建用戶帳號。
+ *   用於預先註冊用戶，讓他們之後可以通過 Azure AD 登入。
+ *
+ *   流程：
+ *   1. 檢查電子郵件是否已存在
+ *   2. 創建用戶記錄
+ *   3. 建立角色關聯
+ *   4. 記錄審計日誌
+ *   5. 返回完整用戶資料
+ *
+ * @param input - 創建用戶輸入
+ * @param createdById - 創建者用戶 ID
+ * @returns 創建的用戶（含角色）
+ * @throws {AppError} 當電子郵件已存在時拋出 409 錯誤
+ *
+ * @since Story 1.4
+ *
+ * @example
+ *   const user = await createUser(
+ *     { email: 'user@example.com', name: 'John Doe', roleIds: ['role-id'] },
+ *     currentUserId
+ *   )
+ */
+export async function createUser(
+  input: CreateUserInput,
+  createdById: string
+): Promise<CreatedUserWithRoles> {
+  const { email, name, roleIds, cityId } = input
+
+  // 檢查電子郵件是否已存在
+  const emailExists = await checkEmailExists(email)
+  if (emailExists) {
+    throw new AppError(
+      'validation_error',
+      'Email Already Exists',
+      409,
+      '此電子郵件已被註冊'
+    )
+  }
+
+  // 使用交易確保資料一致性
+  const user = await prisma.$transaction(async (tx) => {
+    // 1. 創建用戶
+    const newUser = await tx.user.create({
+      data: {
+        email: email.toLowerCase(),
+        name,
+        status: 'ACTIVE',
+      },
+    })
+
+    // 2. 建立角色關聯
+    await tx.userRole.createMany({
+      data: roleIds.map((roleId) => ({
+        userId: newUser.id,
+        roleId,
+        cityId: cityId || null,
+      })),
+    })
+
+    // 3. 記錄審計日誌
+    await tx.auditLog.create({
+      data: {
+        userId: createdById,
+        action: 'CREATE_USER',
+        entityType: 'USER',
+        entityId: newUser.id,
+        details: {
+          email,
+          name,
+          roleIds,
+          cityId,
+        },
+      },
+    })
+
+    // 4. 返回完整用戶資料
+    const createdUser = await tx.user.findUnique({
+      where: { id: newUser.id },
+      include: {
+        roles: {
+          include: {
+            role: { select: { id: true, name: true } },
+            city: { select: { id: true, name: true, code: true } },
+          },
+        },
+      },
+    })
+
+    if (!createdUser) {
+      throw new AppError(
+        'internal_error',
+        'User Creation Failed',
+        500,
+        '用戶創建失敗'
+      )
+    }
+
+    return createdUser
+  })
+
+  return user as CreatedUserWithRoles
 }
 
 // ============================================================
@@ -199,8 +655,153 @@ export async function syncUserFromAzureAD(
 }
 
 // ============================================================
-// 用戶列表和搜尋
+// 用戶列表和搜尋（Story 1-3）
 // ============================================================
+
+/**
+ * 用戶列表查詢參數
+ */
+export interface GetUsersParams {
+  /** 頁碼（從 1 開始）*/
+  page: number
+  /** 每頁數量 */
+  pageSize: number
+  /** 搜尋關鍵字（名稱或電子郵件）*/
+  search?: string
+  /** 角色 ID 篩選 */
+  roleId?: string
+  /** 城市 ID 篩選 */
+  cityId?: string
+  /** 狀態篩選 */
+  status?: UserStatus
+  /** 排序欄位 */
+  sortBy?: 'name' | 'email' | 'createdAt' | 'lastLoginAt'
+  /** 排序方向 */
+  sortOrder?: 'asc' | 'desc'
+}
+
+/**
+ * 用戶列表項目（含城市資訊）
+ */
+export interface UserListItemWithCity {
+  id: string
+  email: string
+  name: string | null
+  image: string | null
+  status: UserStatus
+  createdAt: Date
+  lastLoginAt: Date | null
+  roles: {
+    role: {
+      id: string
+      name: string
+    }
+    cityId: string | null
+    city?: {
+      id: string
+      name: string
+      code: string
+    } | null
+  }[]
+}
+
+/**
+ * 用戶列表查詢結果
+ */
+export interface UsersResult {
+  data: UserListItemWithCity[]
+  meta: {
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
+  }
+}
+
+/**
+ * 獲取用戶列表（分頁、搜尋、篩選）
+ *
+ * @description
+ *   支援分頁、關鍵字搜尋、角色/城市/狀態篩選、排序
+ *   使用 Prisma transaction 確保資料一致性
+ *
+ * @param params - 查詢參數
+ * @returns 用戶列表和分頁資訊
+ *
+ * @example
+ *   const result = await getUsers({
+ *     page: 1,
+ *     pageSize: 20,
+ *     search: 'john',
+ *     roleId: 'role-id',
+ *   })
+ */
+export async function getUsers(params: GetUsersParams): Promise<UsersResult> {
+  const {
+    page = 1,
+    pageSize = 20,
+    search,
+    roleId,
+    cityId,
+    status,
+    sortBy = 'createdAt',
+    sortOrder = 'desc',
+  } = params
+
+  // 構建 where 條件
+  const where: import('@prisma/client').Prisma.UserWhereInput = {
+    // 搜尋條件
+    ...(search && {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' as const } },
+        { email: { contains: search, mode: 'insensitive' as const } },
+      ],
+    }),
+    // 角色篩選
+    ...(roleId && {
+      roles: { some: { roleId } },
+    }),
+    // 城市篩選
+    ...(cityId && {
+      roles: { some: { cityId } },
+    }),
+    // 狀態篩選
+    ...(status && { status }),
+  }
+
+  // 執行並行查詢（資料 + 總數）
+  const [data, total] = await prisma.$transaction([
+    prisma.user.findMany({
+      where,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      orderBy: { [sortBy]: sortOrder },
+      include: {
+        roles: {
+          include: {
+            role: {
+              select: { id: true, name: true },
+            },
+            city: {
+              select: { id: true, name: true, code: true },
+            },
+          },
+        },
+      },
+    }),
+    prisma.user.count({ where }),
+  ])
+
+  return {
+    data: data as UserListItemWithCity[],
+    meta: {
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    },
+  }
+}
 
 /**
  * 獲取所有用戶（含角色資訊）

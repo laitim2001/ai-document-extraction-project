@@ -5,7 +5,7 @@
  *   此服務是 RBAC 系統的核心組件。
  *
  *   主要功能：
- *   - 角色 CRUD 操作
+ *   - 角色 CRUD 操作（含系統角色保護）
  *   - 用戶角色分配/移除
  *   - 權限檢查
  *   - 用戶權限聚合
@@ -18,6 +18,7 @@
  * @dependencies
  *   - @prisma/client - Prisma ORM 客戶端
  *   - @/lib/prisma - Prisma 單例實例
+ *   - @/lib/errors - 錯誤處理
  *
  * @related
  *   - src/types/permissions.ts - 權限常量
@@ -28,6 +29,44 @@
 import { prisma } from '@/lib/prisma'
 import type { Role, UserRole } from '@prisma/client'
 import { DEFAULT_ROLE } from '@/types/role-permissions'
+import {
+  createConflictError,
+  createNotFoundError,
+  createValidationError,
+} from '@/lib/errors'
+
+// ============================================================
+// 類型定義
+// ============================================================
+
+/**
+ * 建立角色的輸入資料
+ */
+export interface CreateRoleInput {
+  /** 角色名稱 */
+  name: string
+  /** 角色描述 */
+  description?: string | null
+  /** 權限列表 */
+  permissions: string[]
+}
+
+/**
+ * 更新角色的輸入資料
+ */
+export interface UpdateRoleInput {
+  /** 角色名稱 */
+  name?: string
+  /** 角色描述 */
+  description?: string | null
+  /** 權限列表 */
+  permissions?: string[]
+}
+
+/**
+ * 角色含用戶數量
+ */
+export type RoleWithUserCount = Role & { _count: { users: number } }
 
 // ============================================================
 // 角色查詢
@@ -277,4 +316,180 @@ export async function hasAnyRole(
 ): Promise<boolean> {
   const roles = await getUserRoles(userId)
   return roleNames.some((name) => roles.some((r) => r.name === name))
+}
+
+// ============================================================
+// 角色 CRUD 操作
+// ============================================================
+
+/**
+ * 檢查角色名稱是否已存在
+ * @param name - 角色名稱
+ * @param excludeId - 排除的角色 ID（用於更新時排除自己）
+ * @returns 是否存在
+ */
+export async function checkRoleNameExists(
+  name: string,
+  excludeId?: string
+): Promise<boolean> {
+  const role = await prisma.role.findFirst({
+    where: {
+      name,
+      ...(excludeId && { id: { not: excludeId } }),
+    },
+  })
+  return !!role
+}
+
+/**
+ * 檢查角色是否正在被使用
+ * @param roleId - 角色 ID
+ * @returns 是否有用戶分配了此角色
+ */
+export async function isRoleInUse(roleId: string): Promise<boolean> {
+  const count = await prisma.userRole.count({
+    where: { roleId },
+  })
+  return count > 0
+}
+
+/**
+ * 獲取角色使用此角色的用戶數量
+ * @param roleId - 角色 ID
+ * @returns 用戶數量
+ */
+export async function getRoleUserCount(roleId: string): Promise<number> {
+  return prisma.userRole.count({
+    where: { roleId },
+  })
+}
+
+/**
+ * 獲取單個角色（含用戶數量）
+ * @param id - 角色 ID
+ * @returns 角色或 null
+ */
+export async function getRoleWithUserCount(
+  id: string
+): Promise<RoleWithUserCount | null> {
+  return prisma.role.findUnique({
+    where: { id },
+    include: {
+      _count: {
+        select: { users: true },
+      },
+    },
+  })
+}
+
+/**
+ * 建立新角色
+ *
+ * @description
+ *   建立自訂角色，新角色的 isSystem 預設為 false。
+ *   系統角色只能透過資料庫 seed 建立。
+ *
+ * @param input - 角色資料
+ * @returns 建立的角色
+ * @throws AppError - 角色名稱已存在時
+ */
+export async function createRole(input: CreateRoleInput): Promise<Role> {
+  const { name, description, permissions } = input
+
+  // 檢查名稱是否已存在
+  const exists = await checkRoleNameExists(name)
+  if (exists) {
+    throw createConflictError(`Role name "${name}" already exists`)
+  }
+
+  return prisma.role.create({
+    data: {
+      name,
+      description: description ?? null,
+      permissions,
+      isSystem: false,
+    },
+  })
+}
+
+/**
+ * 更新角色
+ *
+ * @description
+ *   更新自訂角色的名稱、描述和權限。
+ *   系統角色（isSystem = true）無法被修改。
+ *
+ * @param id - 角色 ID
+ * @param input - 更新資料
+ * @returns 更新後的角色
+ * @throws AppError - 角色不存在、系統角色無法修改、名稱衝突
+ */
+export async function updateRole(
+  id: string,
+  input: UpdateRoleInput
+): Promise<Role> {
+  // 檢查角色是否存在
+  const role = await getRoleById(id)
+  if (!role) {
+    throw createNotFoundError('Role', id)
+  }
+
+  // 檢查是否為系統角色
+  if (role.isSystem) {
+    throw createValidationError('System roles cannot be modified')
+  }
+
+  // 如果要更新名稱，檢查是否衝突
+  if (input.name && input.name !== role.name) {
+    const exists = await checkRoleNameExists(input.name, id)
+    if (exists) {
+      throw createConflictError(`Role name "${input.name}" already exists`)
+    }
+  }
+
+  return prisma.role.update({
+    where: { id },
+    data: {
+      ...(input.name !== undefined && { name: input.name }),
+      ...(input.description !== undefined && { description: input.description }),
+      ...(input.permissions !== undefined && { permissions: input.permissions }),
+    },
+  })
+}
+
+/**
+ * 刪除角色
+ *
+ * @description
+ *   刪除自訂角色。
+ *   - 系統角色（isSystem = true）無法刪除
+ *   - 仍有用戶分配的角色無法刪除
+ *
+ * @param id - 角色 ID
+ * @throws AppError - 角色不存在、系統角色、角色仍在使用中
+ */
+export async function deleteRole(id: string): Promise<void> {
+  // 檢查角色是否存在
+  const role = await getRoleById(id)
+  if (!role) {
+    throw createNotFoundError('Role', id)
+  }
+
+  // 檢查是否為系統角色
+  if (role.isSystem) {
+    throw createValidationError('System roles cannot be deleted')
+  }
+
+  // 檢查是否有用戶在使用
+  const inUse = await isRoleInUse(id)
+  if (inUse) {
+    const count = await getRoleUserCount(id)
+    throw createConflictError(
+      `Cannot delete role "${role.name}" because it is assigned to ${count} user(s)`
+    )
+  }
+
+  await prisma.role.delete({
+    where: { id },
+  })
 }

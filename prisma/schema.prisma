@@ -57,6 +57,8 @@ model User {
   resolvedSecurityLogs   SecurityLog[]             @relation("SecurityLogResolver") // Story 6.2: 處理的安全事件
   regionAccesses         UserRegionAccess[]        @relation("UserRegionAccess") // Story 6.3: 區域訪問權限
   grantedRegionAccesses  UserRegionAccess[]        @relation("GrantedRegionAccess") // Story 6.3: 授予的區域訪問權限
+  configsUpdated         SystemConfig[]            @relation("ConfigUpdater") // Story 6.4: 更新的系統配置
+  configChanges          ConfigHistory[]           @relation("ConfigChanger") // Story 6.4: 配置變更歷史
 
   @@map("users")
 }
@@ -195,11 +197,12 @@ model City {
   updatedAt DateTime   @updatedAt @map("updated_at")
 
   // Relations
-  region       Region           @relation(fields: [regionId], references: [id])
-  userRoles    UserRole[]
-  userAccesses UserCityAccess[]
-  documents    Document[]       @relation("DocumentCity")
-  auditLogs    AuditLog[]       @relation("AuditLogCity")
+  region        Region           @relation(fields: [regionId], references: [id])
+  userRoles     UserRole[]
+  userAccesses  UserCityAccess[]
+  documents     Document[]       @relation("DocumentCity")
+  auditLogs     AuditLog[]       @relation("AuditLogCity")
+  systemConfigs SystemConfig[]   @relation("ConfigCity") // Story 6.4: 城市層級配置
 
   @@index([regionId])
   @@index([status])
@@ -1379,4 +1382,70 @@ model SecurityLog {
   @@index([resolved])
   @@index([createdAt])
   @@map("security_logs")
+}
+
+// =====================
+// System Configuration Models (Story 6.4)
+// 全局配置管理，支援版本控制與回滾
+// =====================
+
+model SystemConfig {
+  id          String         @id @default(uuid())
+  key         String         @unique
+  value       Json
+  description String?
+  category    ConfigCategory
+  scope       ConfigScope    @default(GLOBAL)
+  cityCode    String?        @map("city_code")
+  version     Int            @default(1)
+  isActive    Boolean        @default(true) @map("is_active")
+  updatedBy   String         @map("updated_by")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  city    City?           @relation("ConfigCity", fields: [cityCode], references: [code])
+  updater User            @relation("ConfigUpdater", fields: [updatedBy], references: [id])
+  history ConfigHistory[]
+
+  @@index([key])
+  @@index([category])
+  @@index([scope])
+  @@index([cityCode])
+  @@map("system_configs")
+}
+
+model ConfigHistory {
+  id            String   @id @default(uuid())
+  configId      String   @map("config_id")
+  version       Int
+  previousValue Json     @map("previous_value")
+  newValue      Json     @map("new_value")
+  changedBy     String   @map("changed_by")
+  changeReason  String?  @map("change_reason")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  // Relations
+  config  SystemConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  changer User         @relation("ConfigChanger", fields: [changedBy], references: [id])
+
+  @@index([configId])
+  @@index([createdAt])
+  @@map("config_history")
+}
+
+enum ConfigCategory {
+  PROCESSING   // 處理相關配置
+  NOTIFICATION // 通知設定
+  SECURITY     // 安全設定
+  DISPLAY      // 顯示設定
+  INTEGRATION  // 整合設定
+  AI_MODEL     // AI 模型設定
+  THRESHOLD    // 閾值設定
+}
+
+enum ConfigScope {
+  GLOBAL // 全局配置
+  REGION // 區域配置
+  CITY   // 城市配置
 }

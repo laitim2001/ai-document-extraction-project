@@ -1,6 +1,6 @@
 # Story 1.8: 城市經理用戶管理
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -36,54 +36,54 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 用戶列表城市篩選** (AC: #1)
-  - [ ] 1.1 獲取當前用戶的城市歸屬
-  - [ ] 1.2 API 自動加入城市篩選條件
-  - [ ] 1.3 City Manager 看不到其他城市用戶
-  - [ ] 1.4 System Admin 可看到所有用戶
+- [x] **Task 1: 用戶列表城市篩選** (AC: #1)
+  - [x] 1.1 獲取當前用戶的城市歸屬
+  - [x] 1.2 API 自動加入城市篩選條件
+  - [x] 1.3 City Manager 看不到其他城市用戶
+  - [x] 1.4 System Admin 可看到所有用戶
 
-- [ ] **Task 2: 城市權限檢查中間件** (AC: #1, #3)
-  - [ ] 2.1 創建 `checkCityPermission` 中間件
-  - [ ] 2.2 從 Session 獲取用戶角色和城市
-  - [ ] 2.3 驗證操作目標用戶的城市歸屬
-  - [ ] 2.4 無權限時返回 403 錯誤
+- [x] **Task 2: 城市權限檢查中間件** (AC: #1, #3)
+  - [x] 2.1 創建 `checkCityPermission` 中間件
+  - [x] 2.2 從 Session 獲取用戶角色和城市
+  - [x] 2.3 驗證操作目標用戶的城市歸屬
+  - [x] 2.4 無權限時返回 403 錯誤
 
-- [ ] **Task 3: 新增用戶城市限制** (AC: #2)
-  - [ ] 3.1 City Manager 城市選擇只顯示自己的城市
-  - [ ] 3.2 API 驗證城市選擇合法性
-  - [ ] 3.3 自動設定為當前城市（如只有一個）
+- [x] **Task 3: 新增用戶城市限制** (AC: #2)
+  - [x] 3.1 City Manager 城市選擇只顯示自己的城市
+  - [x] 3.2 API 驗證城市選擇合法性
+  - [x] 3.3 自動設定為當前城市（如只有一個）
 
-- [ ] **Task 4: 編輯用戶城市限制** (AC: #3)
-  - [ ] 4.1 City Manager 無法修改其他城市用戶
-  - [ ] 4.2 無法將用戶移動到其他城市
-  - [ ] 4.3 顯示友善的權限不足訊息
+- [x] **Task 4: 編輯用戶城市限制** (AC: #3)
+  - [x] 4.1 City Manager 無法修改其他城市用戶
+  - [x] 4.2 無法將用戶移動到其他城市
+  - [x] 4.3 顯示友善的權限不足訊息
 
-- [ ] **Task 5: API 權限增強** (AC: #1, #2, #3)
-  - [ ] 5.1 GET `/api/admin/users` 加入城市過濾
-  - [ ] 5.2 POST `/api/admin/users` 驗證城市權限
-  - [ ] 5.3 PATCH `/api/admin/users/[id]` 驗證城市權限
-  - [ ] 5.4 PATCH `/api/admin/users/[id]/status` 驗證城市權限
+- [x] **Task 5: API 權限增強** (AC: #1, #2, #3)
+  - [x] 5.1 GET `/api/admin/users` 加入城市過濾
+  - [x] 5.2 POST `/api/admin/users` 驗證城市權限
+  - [x] 5.3 PATCH `/api/admin/users/[id]` 驗證城市權限
+  - [x] 5.4 PATCH `/api/admin/users/[id]/status` 驗證城市權限
 
-- [ ] **Task 6: 城市選擇器更新** (AC: #2)
-  - [ ] 6.1 根據用戶角色動態載入城市選項
-  - [ ] 6.2 City Manager 只顯示管轄城市
-  - [ ] 6.3 System Admin 顯示所有城市
+- [x] **Task 6: 城市選擇器更新** (AC: #2)
+  - [x] 6.1 根據用戶角色動態載入城市選項
+  - [x] 6.2 City Manager 只顯示管轄城市
+  - [x] 6.3 System Admin 顯示所有城市
 
-- [ ] **Task 7: UI 權限提示** (AC: #3)
-  - [ ] 7.1 無權限操作時顯示 Toast 提示
-  - [ ] 7.2 隱藏無權限的操作按鈕
-  - [ ] 7.3 顯示權限範圍說明
+- [x] **Task 7: UI 權限提示** (AC: #3)
+  - [x] 7.1 無權限操作時顯示 Toast 提示
+  - [x] 7.2 隱藏無權限的操作按鈕
+  - [x] 7.3 顯示權限範圍說明
 
-- [ ] **Task 8: 城市資料模型** (AC: #1, #2)
-  - [ ] 8.1 創建 City 資料表（如尚未存在）
-  - [ ] 8.2 定義城市種子數據
-  - [ ] 8.3 建立城市-用戶關聯
+- [x] **Task 8: 城市資料模型** (AC: #1, #2)
+  - [x] 8.1 創建 City 資料表（如尚未存在）
+  - [x] 8.2 定義城市種子數據
+  - [x] 8.3 建立城市-用戶關聯
 
-- [ ] **Task 9: 驗證與測試** (AC: #1-3)
-  - [ ] 9.1 測試 City Manager 用戶列表篩選
-  - [ ] 9.2 測試 City Manager 新增用戶限制
-  - [ ] 9.3 測試跨城市操作阻擋
-  - [ ] 9.4 測試 System Admin 全權限
+- [x] **Task 9: 驗證與測試** (AC: #1-3)
+  - [x] 9.1 測試 City Manager 用戶列表篩選
+  - [x] 9.2 測試 City Manager 新增用戶限制
+  - [x] 9.3 測試跨城市操作阻擋
+  - [x] 9.4 測試 System Admin 全權限
 
 ---
 
@@ -264,4 +264,27 @@ for (const city of cities) {
 ---
 
 *Story created: 2025-12-15*
-*Status: ready-for-dev*
+*Status: done*
+*Completed: 2025-12-18*
+
+## Implementation Summary
+
+### Files Created
+- `src/lib/auth/city-permission.ts` - 城市權限檢查中間件
+- `src/lib/auth/index.ts` - Auth 模組入口
+- `src/services/city.service.ts` - 城市服務層
+- `src/app/api/admin/cities/route.ts` - 城市 API 端點
+- `src/components/features/admin/CitySelector.tsx` - 城市選擇器組件
+- `src/components/features/admin/PermissionScopeIndicator.tsx` - 權限範圍指示器
+
+### Files Modified
+- `src/services/index.ts` - 新增 city.service 導出
+- `src/hooks/use-cities.ts` - 新增 useCitiesGrouped hook
+- `src/app/api/admin/users/route.ts` - 加入城市權限過濾
+- `src/app/api/admin/users/[id]/route.ts` - 加入城市編輯權限檢查
+
+### Key Features
+1. **城市權限中間件**：統一的權限檢查邏輯，支援全域和城市範圍
+2. **自動城市過濾**：City Manager 的 API 請求自動過濾為所屬城市
+3. **跨城市操作阻擋**：防止 City Manager 存取其他城市的用戶
+4. **權限感知 UI**：CitySelector 和 PermissionScopeIndicator 根據權限調整顯示

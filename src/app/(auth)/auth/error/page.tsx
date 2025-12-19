@@ -7,6 +7,8 @@
  *   - Configuration: 系統配置錯誤
  *   - AccessDenied: 訪問被拒絕
  *   - Verification: 驗證失敗
+ *   - AccountDisabled: 帳戶已停用 (Story 1.6)
+ *   - AccountSuspended: 帳戶已暫停 (Story 1.6)
  *   - Default: 未知錯誤
  *
  * @module src/app/(auth)/auth/error/page
@@ -18,6 +20,7 @@
  *   - 錯誤類型識別
  *   - 用戶友好訊息
  *   - 重試和聯繫支援選項
+ *   - 帳戶狀態錯誤處理 (Story 1.6)
  *
  * @related
  *   - src/lib/auth.ts - NextAuth 配置
@@ -56,6 +59,20 @@ const ERROR_CONFIGS: Record<string, ErrorConfig> = {
     description: '您的帳戶沒有權限訪問此系統，或帳戶已被停用。如有疑問，請聯繫管理員。',
     action: '重新登入',
     actionUrl: '/auth/login',
+    showContactSupport: true,
+  },
+  AccountDisabled: {
+    title: '帳戶已停用',
+    description: '您的帳戶已被管理員停用，無法登入系統。如需恢復帳戶，請聯繫管理員。',
+    action: '返回首頁',
+    actionUrl: '/',
+    showContactSupport: true,
+  },
+  AccountSuspended: {
+    title: '帳戶已暫停',
+    description: '您的帳戶因安全原因已被暫停，無法登入系統。如有疑問，請聯繫管理員。',
+    action: '返回首頁',
+    actionUrl: '/',
     showContactSupport: true,
   },
   Verification: {

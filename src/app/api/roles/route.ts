@@ -59,9 +59,10 @@ export async function GET(request: Request) {
       )
     }
 
-    // 檢查權限：需要 USER_MANAGE 或 SYSTEM_CONFIG 權限
+    // 檢查權限：需要 USER_VIEW、USER_MANAGE 或 SYSTEM_CONFIG 權限
     const hasPermission = session.user.roles?.some(
       (role) =>
+        role.permissions.includes(PERMISSIONS.USER_VIEW) ||
         role.permissions.includes(PERMISSIONS.USER_MANAGE) ||
         role.permissions.includes(PERMISSIONS.SYSTEM_CONFIG)
     )
