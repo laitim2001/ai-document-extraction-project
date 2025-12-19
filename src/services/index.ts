@@ -177,6 +177,9 @@ export * from './rule-simulation'
 // Epic 5: Forwarder Configuration (Story 5.3 - 規則變更請求)
 export * from './rule-change.service'
 
+// Epic 5: Forwarder Configuration (Story 5.4 - 規則測試服務)
+export * from './rule-testing.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

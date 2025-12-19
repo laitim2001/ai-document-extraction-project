@@ -1,6 +1,6 @@
 # Story 5.4: 測試規則變更效果
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 

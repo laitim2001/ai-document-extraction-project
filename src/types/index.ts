@@ -57,3 +57,36 @@ export {
 
 // 規則變更請求相關 (Story 5.3)
 export * from './change-request'
+
+// 規則測試相關 (Story 5.4)
+// 注意：rule-test.ts 也有 getChangeTypeConfig，使用命名導出區分
+export {
+  // Types
+  type TestTaskStatus,
+  type TestChangeType,
+  type TestScope,
+  type TestConfig,
+  type TestResults,
+  type TestDetailItem,
+  type RuleTestTask,
+  type StartRuleTestRequest,
+  type CancelRuleTestRequest,
+  type StartRuleTestResponse,
+  type RuleTestTaskResponse,
+  type RuleTestDetailsResponse,
+  type RuleTestReportResponse,
+  type TestDetailsQueryParams,
+  type TestHistoryQueryParams,
+  type ReportFormat,
+  // Constants
+  TEST_SCOPES,
+  TEST_CHANGE_TYPES,
+  TEST_TASK_STATUSES,
+  REPORT_FORMATS,
+  // Schemas
+  testConfigSchema,
+  startRuleTestRequestSchema,
+  // Functions (renamed to avoid conflict with change-request.ts)
+  getChangeTypeConfig as getTestChangeTypeConfig,
+  getTaskStatusConfig,
+} from './rule-test'

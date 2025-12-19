@@ -47,6 +47,7 @@ model User {
   verifiedApplications   RuleApplication[]         @relation("ApplicationVerifier") // 驗證的規則應用（Story 4.8）
   changeRequestsCreated  RuleChangeRequest[]       @relation("ChangeRequester") // 創建的變更請求（Story 5.3）
   changeRequestsReviewed RuleChangeRequest[]       @relation("ChangeReviewer") // 審核的變更請求（Story 5.3）
+  testTasksCreated       RuleTestTask[]            @relation("TestTaskCreator") // 創建的測試任務（Story 5.4）
 
   @@map("users")
 }
@@ -215,6 +216,7 @@ model Document {
   escalation        Escalation? // 升級記錄（Story 3.7）
   ruleApplications  RuleApplication[] // 規則應用記錄（Story 4.1）
   suggestionSamples SuggestionSample[] // 建議樣本（Story 4.4）
+  testDetails       RuleTestDetail[] // 測試詳情（Story 5.4）
 
   @@index([status])
   @@index([uploadedBy])
@@ -294,6 +296,7 @@ model Forwarder {
   ruleSuggestions        RuleSuggestion[] // 規則建議（Story 3.6）
   correctionPatterns     CorrectionPattern[] // 修正模式（Story 4.3）
   changeRequests         RuleChangeRequest[] // 規則變更請求（Story 5.3）
+  testTasks              RuleTestTask[] // 測試任務（Story 5.4）
 
   @@index([code])
   @@index([isActive])
@@ -475,6 +478,7 @@ model MappingRule {
   rollbackLogs   RollbackLog[] // Story 4.8: 回滾日誌
   suggestion     RuleSuggestion?     @relation("CreatedFromSuggestion", fields: [suggestionId], references: [id])
   changeRequests RuleChangeRequest[] // Story 5.3: 變更請求
+  testTasks      RuleTestTask[] // Story 5.4: 測試任務
 
   @@unique([forwarderId, fieldName])
   @@index([forwarderId])
@@ -898,6 +902,26 @@ enum ChangeRequestStatus {
 }
 
 // =====================
+// Test Task Enums (Story 5.4)
+// =====================
+
+enum TestTaskStatus {
+  PENDING // 等待執行
+  RUNNING // 執行中
+  COMPLETED // 已完成
+  FAILED // 執行失敗
+  CANCELLED // 已取消
+}
+
+enum TestChangeType {
+  IMPROVED // 改善（原錯新對）
+  REGRESSED // 退化（原對新錯）
+  UNCHANGED // 無變化（雙對或雙錯狀態不變）
+  BOTH_WRONG // 雙錯（原本錯，新規則也錯）
+  BOTH_RIGHT // 雙對（原本對，新規則也對）
+}
+
+// =====================
 // Notification Priority Enum (Story 4.8)
 // =====================
 
@@ -1083,4 +1107,81 @@ model RuleChangeRequest {
   @@index([requestedById])
   @@index([createdAt])
   @@map("rule_change_requests")
+}
+
+// =====================
+// Rule Test Task Model (Story 5.4)
+// 規則測試任務，用於測試規則變更效果
+// =====================
+
+model RuleTestTask {
+  id              String         @id @default(uuid())
+  ruleId          String         @map("rule_id")
+  forwarderId     String         @map("forwarder_id")
+  originalPattern Json?          @map("original_pattern") // 原始提取規則（NULL 表示新規則）
+  testPattern     Json           @map("test_pattern") // 測試用的提取規則
+  config          Json // 測試配置 { scope, recentCount?, documentIds?, dateRange?, maxDocuments }
+  status          TestTaskStatus @default(PENDING)
+  progress        Int            @default(0) // 進度百分比 (0-100)
+  totalDocuments  Int            @map("total_documents") // 總測試文件數
+  testedDocuments Int            @default(0) @map("tested_documents") // 已測試文件數
+  results         Json? // 測試結果摘要
+  // Structure: {
+  //   improved: number,    // 改善數量
+  //   regressed: number,   // 退化數量
+  //   unchanged: number,   // 無變化數量
+  //   bothWrong: number,   // 雙錯數量
+  //   bothRight: number,   // 雙對數量
+  //   improvementRate: number,  // 改善率
+  //   regressionRate: number,   // 退化率
+  // }
+  errorMessage String?   @map("error_message")
+  startedAt    DateTime? @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  createdById  String    @map("created_by")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  rule      MappingRule      @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  forwarder Forwarder        @relation(fields: [forwarderId], references: [id])
+  creator   User             @relation("TestTaskCreator", fields: [createdById], references: [id])
+  details   RuleTestDetail[] // 詳細測試結果
+
+  @@index([ruleId])
+  @@index([forwarderId])
+  @@index([status])
+  @@index([createdById])
+  @@index([createdAt])
+  @@map("rule_test_tasks")
+}
+
+// =====================
+// Rule Test Detail Model (Story 5.4)
+// 規則測試詳細結果，記錄每個文件的測試結果
+// =====================
+
+model RuleTestDetail {
+  id                 String         @id @default(uuid())
+  taskId             String         @map("task_id")
+  documentId         String         @map("document_id")
+  originalResult     String?        @map("original_result") // 原規則提取結果
+  originalConfidence Float?         @map("original_confidence") // 原規則信心度
+  testResult         String?        @map("test_result") // 新規則提取結果
+  testConfidence     Float?         @map("test_confidence") // 新規則信心度
+  actualValue        String?        @map("actual_value") // 實際正確值（來自審核記錄）
+  originalAccurate   Boolean        @map("original_accurate") // 原規則是否準確
+  testAccurate       Boolean        @map("test_accurate") // 新規則是否準確
+  changeType         TestChangeType @map("change_type")
+  notes              String? // 備註
+  createdAt          DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  task     RuleTestTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  document Document     @relation(fields: [documentId], references: [id])
+
+  @@index([taskId])
+  @@index([documentId])
+  @@index([changeType])
+  @@map("rule_test_details")
 }
