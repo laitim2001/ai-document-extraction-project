@@ -86,7 +86,7 @@ development_status:
   # ============================================================
   epic-4: in-progress
   4-1-mapping-rule-list-view: done  # Completed 2025-12-18: Rule list page, filters, detail view, API endpoints, React Query hooks
-  4-2-suggest-new-mapping-rule: ready-for-dev
+  4-2-suggest-new-mapping-rule: done  # Completed 2025-12-18: New rule form, pattern editors, test panel, API endpoints, React Query hooks
   4-3-correction-pattern-recording-analysis: ready-for-dev
   4-4-rule-upgrade-suggestion-generation: ready-for-dev
   4-5-rule-impact-scope-analysis: ready-for-dev

@@ -6,16 +6,30 @@
  *   - 規則詳情類型
  *   - 提取方法配置
  *   - 規則狀態配置
+ *   - 規則創建和測試相關類型 (Story 4-2)
  *
  * @module src/types/rule
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
  * @lastModified 2025-12-18
  *
  * @dependencies
- *   - @prisma/client - RuleStatus enum
+ *   - @prisma/client - RuleStatus, ExtractionType enum
+ *   - zod - 運行時驗證
  */
 
 import type { RuleStatus } from '@prisma/client'
+import { z } from 'zod'
+
+/**
+ * 提取類型枚舉（非 Prisma 類型）
+ * 用於 Story 4-2 規則建議功能
+ */
+export type ExtractionType =
+  | 'REGEX'
+  | 'POSITION'
+  | 'KEYWORD'
+  | 'AI_PROMPT'
+  | 'TEMPLATE'
 
 // ============================================================
 // Extraction Method Types
@@ -443,3 +457,322 @@ export const STANDARD_FIELD_NAMES: {
 export function getStandardFieldConfig(fieldName: string) {
   return STANDARD_FIELD_NAMES.find((f) => f.name === fieldName)
 }
+
+// ============================================================
+// Rule Creation Types (Story 4-2)
+// ============================================================
+
+/**
+ * 正則表達式模式配置
+ */
+export interface RegexPattern {
+  /** 模式類型標識 */
+  type: 'REGEX'
+  /** 正則表達式 */
+  expression: string
+  /** 正則標誌 (i, g, m 等) */
+  flags?: string
+  /** 命名捕獲組 */
+  groups?: string[]
+}
+
+/**
+ * 位置提取模式配置
+ */
+export interface PositionPattern {
+  /** 模式類型標識 */
+  type: 'POSITION'
+  /** 座標配置 */
+  coordinates: {
+    /** 頁碼 */
+    page: number
+    /** X 座標 (百分比 0-100) */
+    x: number
+    /** Y 座標 (百分比 0-100) */
+    y: number
+    /** 寬度 (百分比 0-100) */
+    width: number
+    /** 高度 (百分比 0-100) */
+    height: number
+  }
+  /** 容差百分比 (0-50) */
+  tolerance?: number
+}
+
+/**
+ * 關鍵字匹配模式配置
+ */
+export interface KeywordPattern {
+  /** 模式類型標識 */
+  type: 'KEYWORD'
+  /** 關鍵字列表 */
+  keywords: string[]
+  /** 相對位置 */
+  position: 'before' | 'after' | 'above' | 'below'
+  /** 偏移量 */
+  offset?: number
+  /** 最大搜索距離 */
+  maxDistance?: number
+}
+
+/**
+ * AI 提示詞模式配置
+ */
+export interface PromptPattern {
+  /** 模式類型標識 */
+  type: 'AI_PROMPT'
+  /** 提示詞內容 */
+  prompt: string
+  /** 輸出格式 */
+  outputFormat?: string
+  /** 範例 */
+  examples?: {
+    input: string
+    output: string
+  }[]
+}
+
+/**
+ * 模板匹配模式配置
+ */
+export interface TemplatePattern {
+  /** 模式類型標識 */
+  type: 'TEMPLATE'
+  /** 模板 ID */
+  templateId?: string
+  /** 區域配置 */
+  regions: {
+    name: string
+    coordinates: PositionPattern['coordinates']
+  }[]
+}
+
+/**
+ * Pattern 配置聯合類型
+ * 根據提取類型選擇對應的配置結構
+ */
+export type PatternConfig =
+  | RegexPattern
+  | PositionPattern
+  | KeywordPattern
+  | PromptPattern
+  | TemplatePattern
+
+/**
+ * 創建規則請求參數
+ */
+export interface CreateRuleRequest {
+  /** Forwarder ID */
+  forwarderId: string
+  /** 目標欄位名稱 */
+  fieldName: string
+  /** 提取類型 */
+  extractionType: ExtractionType
+  /** Pattern 配置（字符串或對象） */
+  pattern: string | PatternConfig
+  /** 優先級 (0-100) */
+  priority?: number
+  /** 信心度閾值 (0-1) */
+  confidence?: number
+  /** 規則描述 */
+  description?: string
+  /** 是否儲存為草稿 */
+  saveAsDraft?: boolean
+}
+
+/**
+ * 創建規則響應
+ */
+export interface CreateRuleResponse {
+  success: true
+  data: {
+    /** 規則建議 ID */
+    suggestionId: string
+    /** 狀態 */
+    status: 'DRAFT' | 'PENDING_REVIEW'
+    /** 提示訊息 */
+    message: string
+  }
+}
+
+// ============================================================
+// Rule Testing Types (Story 4-2)
+// ============================================================
+
+/**
+ * 測試規則請求參數
+ */
+export interface TestRuleRequest {
+  /** 提取類型 */
+  extractionType: ExtractionType
+  /** Pattern 配置 */
+  pattern: string | PatternConfig
+  /** 已上傳的文件 ID */
+  documentId?: string
+  /** Base64 編碼的文件內容 */
+  documentContent?: string
+}
+
+/**
+ * 匹配位置資訊
+ */
+export interface MatchPosition {
+  /** 頁碼 */
+  page: number
+  /** X 座標 */
+  x: number
+  /** Y 座標 */
+  y: number
+  /** 寬度 */
+  width: number
+  /** 高度 */
+  height: number
+  /** 匹配的文字 */
+  text: string
+}
+
+/**
+ * 測試規則響應
+ */
+export interface TestRuleResponse {
+  success: true
+  data: {
+    /** 是否匹配成功 */
+    matched: boolean
+    /** 提取的值 */
+    extractedValue: string | null
+    /** 信心度 */
+    confidence: number
+    /** 匹配位置列表 */
+    matchPositions?: MatchPosition[]
+    /** 調試資訊 */
+    debugInfo?: {
+      /** 處理時間 (毫秒) */
+      processingTime: number
+      /** 匹配嘗試次數 */
+      matchAttempts: number
+      /** 錯誤訊息列表 */
+      errors?: string[]
+    }
+  }
+}
+
+// ============================================================
+// Rule Creation Validation Schemas (Story 4-2)
+// ============================================================
+
+/**
+ * 正則模式驗證 Schema
+ */
+export const regexPatternSchema = z.object({
+  expression: z
+    .string()
+    .min(1, '請輸入正則表達式')
+    .refine(
+      (val) => {
+        try {
+          new RegExp(val)
+          return true
+        } catch {
+          return false
+        }
+      },
+      { message: '正則表達式語法錯誤' }
+    ),
+  flags: z.string().optional(),
+  groups: z.array(z.string()).optional(),
+})
+
+/**
+ * 位置模式驗證 Schema
+ */
+export const positionPatternSchema = z.object({
+  coordinates: z.object({
+    page: z.number().min(1, '頁碼必須大於 0'),
+    x: z.number().min(0).max(100),
+    y: z.number().min(0).max(100),
+    width: z.number().min(0).max(100),
+    height: z.number().min(0).max(100),
+  }),
+  tolerance: z.number().min(0).max(50).optional(),
+})
+
+/**
+ * 關鍵字模式驗證 Schema
+ */
+export const keywordPatternSchema = z.object({
+  keywords: z.array(z.string()).min(1, '至少需要一個關鍵字'),
+  position: z.enum(['before', 'after', 'above', 'below']),
+  offset: z.number().optional(),
+  maxDistance: z.number().optional(),
+})
+
+/**
+ * AI 提示詞模式驗證 Schema
+ */
+export const promptPatternSchema = z.object({
+  prompt: z.string().min(10, '提示詞至少需要 10 個字符'),
+  outputFormat: z.string().optional(),
+  examples: z
+    .array(
+      z.object({
+        input: z.string(),
+        output: z.string(),
+      })
+    )
+    .optional(),
+})
+
+/**
+ * 模板模式驗證 Schema
+ */
+export const templatePatternSchema = z.object({
+  templateId: z.string().optional(),
+  regions: z
+    .array(
+      z.object({
+        name: z.string().min(1, '區域名稱不能為空'),
+        coordinates: z.object({
+          page: z.number().min(1),
+          x: z.number().min(0).max(100),
+          y: z.number().min(0).max(100),
+          width: z.number().min(0).max(100),
+          height: z.number().min(0).max(100),
+        }),
+      })
+    )
+    .min(1, '至少需要一個區域'),
+})
+
+/**
+ * 創建規則表單驗證 Schema
+ */
+export const createRuleFormSchema = z.object({
+  forwarderId: z.string().min(1, '請選擇 Forwarder'),
+  fieldName: z.string().min(1, '請選擇目標欄位'),
+  extractionType: z.enum(['REGEX', 'POSITION', 'KEYWORD', 'AI_PROMPT', 'TEMPLATE']),
+  pattern: z.string().min(1, '請輸入提取模式'),
+  priority: z.number().min(0).max(100).default(0),
+  confidence: z.number().min(0).max(1).default(0.8),
+  description: z.string().optional(),
+  saveAsDraft: z.boolean().optional(),
+})
+
+/**
+ * 創建規則表單類型
+ */
+export type CreateRuleFormValues = z.infer<typeof createRuleFormSchema>
+
+/**
+ * 測試規則請求驗證 Schema
+ */
+export const testRuleRequestSchema = z
+  .object({
+    extractionType: z.enum(['REGEX', 'POSITION', 'KEYWORD', 'AI_PROMPT', 'TEMPLATE']),
+    pattern: z.string().or(z.record(z.string(), z.unknown())),
+    documentId: z.string().optional(),
+    documentContent: z.string().optional(),
+  })
+  .refine((data) => data.documentId || data.documentContent, {
+    message: '請提供文件 ID 或文件內容',
+  })
