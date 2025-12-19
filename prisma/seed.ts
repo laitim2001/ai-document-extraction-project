@@ -1,7 +1,7 @@
 /**
  * @fileoverview Prisma 資料庫種子數據腳本
  * @description
- *   創建系統預設角色、城市、Forwarder、映射規則和初始數據。
+ *   創建系統預設角色、區域、城市、Forwarder、映射規則和初始數據。
  *   使用 upsert 確保可重複執行。
  *
  *   預定義角色：
@@ -11,6 +11,11 @@
  *   4. City Manager - 城市級別管理
  *   5. Regional Manager - 多城市管理
  *   6. Auditor - 只讀審計存取
+ *
+ *   預定義區域 (Story 6.1):
+ *   - APAC: Asia Pacific (UTC+8 default)
+ *   - EMEA: Europe, Middle East, Africa (UTC+0 default)
+ *   - AMER: Americas (UTC-5 default)
  *
  *   預定義城市：
  *   - APAC: Taipei, Hong Kong, Singapore, Tokyo, Shanghai, Sydney
@@ -30,7 +35,7 @@
  * @module prisma/seed
  * @author Development Team
  * @since Epic 1 - Story 1.2 (User Database & Role Foundation)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-19
  *
  * @usage
  *   npx prisma db seed
@@ -106,27 +111,90 @@ async function main() {
   }
 
   // ===========================================
-  // Seed Cities
+  // Seed Regions (Story 6.1)
+  // ===========================================
+  console.log('\n🌍 Creating regions...\n')
+
+  const regionData = [
+    { code: 'APAC', name: 'Asia Pacific', timezone: 'Asia/Hong_Kong' },
+    { code: 'EMEA', name: 'Europe, Middle East & Africa', timezone: 'Europe/London' },
+    { code: 'AMER', name: 'Americas', timezone: 'America/New_York' },
+  ]
+
+  const regionIdMap: Record<string, string> = {}
+  let regionCreatedCount = 0
+  let regionUpdatedCount = 0
+
+  for (const region of regionData) {
+    const existingRegion = await prisma.region.findUnique({
+      where: { code: region.code },
+    })
+
+    const result = await prisma.region.upsert({
+      where: { code: region.code },
+      update: {
+        name: region.name,
+        timezone: region.timezone,
+      },
+      create: {
+        code: region.code,
+        name: region.name,
+        timezone: region.timezone,
+        status: 'ACTIVE',
+      },
+    })
+
+    regionIdMap[region.code] = result.id
+
+    if (existingRegion) {
+      regionUpdatedCount++
+      console.log(`  🔄 Updated: ${result.name} (${result.code})`)
+    } else {
+      regionCreatedCount++
+      console.log(`  ✅ Created: ${result.name} (${result.code})`)
+    }
+  }
+
+  // ===========================================
+  // Seed Cities (Updated for Story 6.1)
   // ===========================================
   console.log('\n🏙️ Creating cities...\n')
 
-  const cityData = [
-    { code: 'TPE', name: 'Taipei', region: 'APAC' },
-    { code: 'HKG', name: 'Hong Kong', region: 'APAC' },
-    { code: 'SGP', name: 'Singapore', region: 'APAC' },
-    { code: 'TYO', name: 'Tokyo', region: 'APAC' },
-    { code: 'SHA', name: 'Shanghai', region: 'APAC' },
-    { code: 'SYD', name: 'Sydney', region: 'APAC' },
-    { code: 'LON', name: 'London', region: 'EMEA' },
-    { code: 'FRA', name: 'Frankfurt', region: 'EMEA' },
-    { code: 'NYC', name: 'New York', region: 'AMER' },
-    { code: 'LAX', name: 'Los Angeles', region: 'AMER' },
+  interface CityData {
+    code: string
+    name: string
+    regionCode: string
+    timezone: string
+    currency: string
+    locale: string
+  }
+
+  const cityData: CityData[] = [
+    // APAC Cities
+    { code: 'TPE', name: 'Taipei', regionCode: 'APAC', timezone: 'Asia/Taipei', currency: 'TWD', locale: 'zh-TW' },
+    { code: 'HKG', name: 'Hong Kong', regionCode: 'APAC', timezone: 'Asia/Hong_Kong', currency: 'HKD', locale: 'zh-HK' },
+    { code: 'SGP', name: 'Singapore', regionCode: 'APAC', timezone: 'Asia/Singapore', currency: 'SGD', locale: 'en-SG' },
+    { code: 'TYO', name: 'Tokyo', regionCode: 'APAC', timezone: 'Asia/Tokyo', currency: 'JPY', locale: 'ja-JP' },
+    { code: 'SHA', name: 'Shanghai', regionCode: 'APAC', timezone: 'Asia/Shanghai', currency: 'CNY', locale: 'zh-CN' },
+    { code: 'SYD', name: 'Sydney', regionCode: 'APAC', timezone: 'Australia/Sydney', currency: 'AUD', locale: 'en-AU' },
+    // EMEA Cities
+    { code: 'LON', name: 'London', regionCode: 'EMEA', timezone: 'Europe/London', currency: 'GBP', locale: 'en-GB' },
+    { code: 'FRA', name: 'Frankfurt', regionCode: 'EMEA', timezone: 'Europe/Berlin', currency: 'EUR', locale: 'de-DE' },
+    // AMER Cities
+    { code: 'NYC', name: 'New York', regionCode: 'AMER', timezone: 'America/New_York', currency: 'USD', locale: 'en-US' },
+    { code: 'LAX', name: 'Los Angeles', regionCode: 'AMER', timezone: 'America/Los_Angeles', currency: 'USD', locale: 'en-US' },
   ]
 
   let cityCreatedCount = 0
   let cityUpdatedCount = 0
 
   for (const city of cityData) {
+    const regionId = regionIdMap[city.regionCode]
+    if (!regionId) {
+      console.log(`  ⚠️ Skipped: ${city.name} - Region ${city.regionCode} not found`)
+      continue
+    }
+
     const existingCity = await prisma.city.findUnique({
       where: { code: city.code },
     })
@@ -135,22 +203,28 @@ async function main() {
       where: { code: city.code },
       update: {
         name: city.name,
-        region: city.region,
+        regionId: regionId,
+        timezone: city.timezone,
+        currency: city.currency,
+        locale: city.locale,
       },
       create: {
         code: city.code,
         name: city.name,
-        region: city.region,
-        isActive: true,
+        regionId: regionId,
+        timezone: city.timezone,
+        currency: city.currency,
+        locale: city.locale,
+        status: 'ACTIVE',
       },
     })
 
     if (existingCity) {
       cityUpdatedCount++
-      console.log(`  🔄 Updated: ${result.name} (${result.code})`)
+      console.log(`  🔄 Updated: ${result.name} (${result.code}) - ${city.regionCode}`)
     } else {
       cityCreatedCount++
-      console.log(`  ✅ Created: ${result.name} (${result.code})`)
+      console.log(`  ✅ Created: ${result.name} (${result.code}) - ${city.regionCode}`)
     }
   }
 
@@ -288,6 +362,7 @@ async function main() {
   // ===========================================
   const roleCount = await prisma.role.count()
   const userCount = await prisma.user.count()
+  const regionCount = await prisma.region.count()
   const cityCount = await prisma.city.count()
   const forwarderCount = await prisma.forwarder.count()
   const mappingRuleCount = await prisma.mappingRule.count()
@@ -297,6 +372,8 @@ async function main() {
   console.log('========================================')
   console.log(`  Roles created: ${createdCount}`)
   console.log(`  Roles updated: ${updatedCount}`)
+  console.log(`  Regions created: ${regionCreatedCount}`)
+  console.log(`  Regions updated: ${regionUpdatedCount}`)
   console.log(`  Cities created: ${cityCreatedCount}`)
   console.log(`  Cities updated: ${cityUpdatedCount}`)
   console.log(`  Forwarders created: ${forwarderCreatedCount}`)
@@ -305,6 +382,7 @@ async function main() {
   console.log(`  Mapping rules updated: ${ruleUpdatedCount}`)
   console.log('----------------------------------------')
   console.log(`  Total roles: ${roleCount}`)
+  console.log(`  Total regions: ${regionCount}`)
   console.log(`  Total cities: ${cityCount}`)
   console.log(`  Total forwarders: ${forwarderCount}`)
   console.log(`  Total mapping rules: ${mappingRuleCount}`)

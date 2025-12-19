@@ -135,11 +135,12 @@ export async function routeDocument(documentId: string): Promise<RoutingDecision
         data: { status: 'COMPLETED' },
       })
     } else {
-      // 創建或更新隊列項目
+      // 創建或更新隊列項目 (Story 6.1: 加入城市代碼)
       await tx.processingQueue.upsert({
         where: { documentId },
         create: {
           documentId,
+          cityCode: document.cityCode, // Story 6.1: 從文件取得城市代碼
           processingPath: decision.path as ProcessingPath,
           priority,
           routingReason: decision.reason,

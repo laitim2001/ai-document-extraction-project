@@ -109,8 +109,8 @@ development_status:
   # ============================================================
   # Epic 6: 多城市數據隔離
   # ============================================================
-  epic-6: backlog
-  6-1-city-data-model-rls-config: ready-for-dev
+  epic-6: in-progress  # Started 2025-12-19
+  6-1-city-data-model-rls-config: done  # Completed 2025-12-19: Region/City/UserCityAccess models, RLS policies, city-access.service, NextAuth integration, seed data
   6-2-city-user-data-access-control: ready-for-dev
   6-3-regional-manager-cross-city-access: ready-for-dev
   6-4-global-admin-full-access: ready-for-dev

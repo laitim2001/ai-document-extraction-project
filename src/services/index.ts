@@ -74,7 +74,7 @@
  * @module src/services
  * @author Development Team
  * @since Epic 1 - Story 1.0 (Project Init Foundation)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-19
  *
  * @features
  *   - 統一服務導出入口
@@ -139,6 +139,9 @@ export const REVIEW_TYPE = {
 export * from './role.service'
 export * from './user.service'
 export * from './city.service'
+
+// Epic 6: Multi-City Data Isolation (Story 6.1)
+export * from './city-access.service'
 
 // TODO: Epic 6 實現後取消註釋
 // export { mappingService } from './mapping';

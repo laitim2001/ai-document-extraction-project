@@ -229,6 +229,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // ===========================================
+    // 5b. 驗證城市代碼（Story 6.1 必填）
+    // ===========================================
+    if (!cityCode) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'https://api.example.com/errors/bad-request',
+            title: 'Bad Request',
+            status: 400,
+            detail: 'City code is required',
+          },
+        },
+        { status: 400 }
+      )
+    }
+
+    // ===========================================
     // 6. 處理每個文件
     // ===========================================
     const uploaded: UploadedFile[] = []
