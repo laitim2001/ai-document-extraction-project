@@ -6,30 +6,35 @@
  *
  *   設計特點：
  *   - 頂部導航列顯示系統名稱和用戶資訊
+ *   - 城市指示器顯示用戶城市訪問權限
  *   - 用戶頭像、名稱和角色顯示
  *   - 登出按鈕
  *
  * @module src/app/(dashboard)/layout
  * @author Development Team
  * @since Epic 1 - Story 1.1 (Azure AD SSO Login)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-19
  *
  * @features
  *   - 用戶 Session 資訊顯示
+ *   - 城市訪問指示器（Epic 6 - Story 6.2）
  *   - 響應式導航列
  *   - 登出功能
  *
  * @dependencies
  *   - next-auth - Session 獲取
+ *   - @/components/layout/DashboardHeader - 頭部客戶端組件
  *
  * @related
  *   - src/lib/auth.ts - NextAuth 配置
  *   - src/app/(dashboard)/dashboard/page.tsx - 儀表板首頁
+ *   - src/components/layout/CityIndicator.tsx - 城市指示器
  */
 
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import { auth, signOut } from '@/lib/auth'
+import { DashboardHeader } from '@/components/layout/DashboardHeader'
 
 /**
  * 角色顯示名稱映射
@@ -89,8 +94,8 @@ export default async function DashboardLayout({
               </div>
             </div>
 
-            {/* 右側：用戶資訊和登出 */}
-            <div className="flex items-center space-x-4">
+            {/* 右側：城市指示器、用戶資訊和登出 */}
+            <DashboardHeader>
               {/* 用戶資訊 */}
               <div className="flex items-center space-x-3">
                 {/* 用戶頭像 */}
@@ -149,7 +154,7 @@ export default async function DashboardLayout({
                   登出
                 </button>
               </form>
-            </div>
+            </DashboardHeader>
           </div>
         </div>
       </nav>

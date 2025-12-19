@@ -53,6 +53,8 @@ model User {
   forwardersCreated      Forwarder[]               @relation("ForwarderCreator") // 創建的 Forwarder（Story 5.5）
   cityAccesses           UserCityAccess[]          @relation("UserCityAccess") // Story 6.1: 城市訪問權限
   grantedCityAccesses    UserCityAccess[]          @relation("GrantedCityAccess") // Story 6.1: 授予的城市訪問權限
+  securityLogs           SecurityLog[]             @relation("SecurityLogUser") // Story 6.2: 安全事件日誌
+  resolvedSecurityLogs   SecurityLog[]             @relation("SecurityLogResolver") // Story 6.2: 處理的安全事件
 
   @@map("users")
 }
@@ -1043,6 +1045,26 @@ enum NotificationPriority {
 }
 
 // =====================
+// Security Enums (Story 6.2)
+// =====================
+
+enum SecurityEventType {
+  UNAUTHORIZED_ACCESS_ATTEMPT // 未授權訪問嘗試
+  CROSS_CITY_ACCESS_VIOLATION // 跨城市訪問違規
+  INVALID_CITY_REQUEST // 無效城市請求
+  RESOURCE_ACCESS_DENIED // 資源訪問被拒
+  SUSPICIOUS_ACTIVITY // 可疑活動
+  PERMISSION_ELEVATION_ATTEMPT // 權限提升嘗試
+}
+
+enum SecuritySeverity {
+  LOW // 低嚴重性
+  MEDIUM // 中等嚴重性
+  HIGH // 高嚴重性
+  CRITICAL // 關鍵（需立即處理）
+}
+
+// =====================
 // Notification Model (Story 3.6)
 // =====================
 
@@ -1294,4 +1316,37 @@ model RuleTestDetail {
   @@index([documentId])
   @@index([changeType])
   @@map("rule_test_details")
+}
+
+// =====================
+// Security Log Model (Story 6.2)
+// 安全事件日誌，追蹤跨城市訪問違規和安全事件
+// =====================
+
+model SecurityLog {
+  id           String            @id @default(uuid())
+  userId       String            @map("user_id")
+  eventType    SecurityEventType @map("event_type")
+  resourceType String?           @map("resource_type") // Document, Forwarder, etc.
+  resourceId   String?           @map("resource_id")
+  details      Json? // 事件詳情
+  severity     SecuritySeverity  @default(LOW)
+  ipAddress    String?           @map("ip_address")
+  userAgent    String?           @map("user_agent")
+  requestPath  String?           @map("request_path")
+  resolved     Boolean           @default(false)
+  resolvedBy   String?           @map("resolved_by")
+  resolvedAt   DateTime?         @map("resolved_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  // Relations
+  user     User  @relation("SecurityLogUser", fields: [userId], references: [id], onDelete: Cascade)
+  resolver User? @relation("SecurityLogResolver", fields: [resolvedBy], references: [id])
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([severity])
+  @@index([resolved])
+  @@index([createdAt])
+  @@map("security_logs")
 }
