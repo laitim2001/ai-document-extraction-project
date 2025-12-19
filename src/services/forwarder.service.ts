@@ -6,14 +6,19 @@
  *
  *   主要功能：
  *   - Forwarder 列表查詢（分頁、搜尋、篩選、排序）
- *   - Forwarder 詳情查詢
+ *   - Forwarder 詳情查詢（含統計、規則摘要、近期文件）
  *   - Forwarder CRUD 操作
  *   - 規則數量統計
+ *   - 規則列表查詢
  *
  * @module src/services/forwarder.service
  * @author Development Team
  * @since Epic 5 - Story 5.1 (Forwarder Profile List)
  * @lastModified 2025-12-19
+ *
+ * @features
+ *   - Story 5.1: 列表查詢功能（getForwarders, getForwarderById）
+ *   - Story 5.2: 詳情檢視功能（getForwarderDetailView, getForwarderRules, getForwarderStatsById）
  *
  * @dependencies
  *   - @prisma/client - Prisma ORM 客戶端
@@ -21,22 +26,34 @@
  *   - @/types/forwarder - Forwarder 類型定義
  *
  * @related
- *   - src/app/api/forwarders/route.ts - API 端點
+ *   - src/app/api/forwarders/route.ts - 列表 API 端點
+ *   - src/app/api/forwarders/[id]/route.ts - 詳情 API 端點
  *   - src/types/forwarder.ts - 類型定義
  *   - prisma/schema.prisma - 資料庫模型
  */
 
 import { prisma } from '@/lib/prisma'
-import type { Prisma } from '@prisma/client'
+import type { Prisma, RuleStatus as PrismaRuleStatus } from '@prisma/client'
 import type {
   ForwarderListItem,
   ForwardersResponse,
   ForwarderDetail,
+  ForwarderDetailView,
   ForwarderIdentificationPattern,
   ValidatedForwardersQuery,
+  ValidatedRulesQuery,
   ForwarderSortField,
   SortOrder,
+  RulesSummary,
+  RuleStatusCounts,
+  ForwarderStats as ForwarderStatsData,
+  DailyTrendData,
+  RecentDocumentItem,
+  RuleListItem,
+  RulesResponse,
+  RuleStatus,
 } from '@/types/forwarder'
+import { mapDocumentStatus } from '@/types/forwarder'
 
 // ============================================================
 // 類型定義
@@ -458,4 +475,419 @@ export async function getAllForwarderOptions(): Promise<ForwarderOption[]> {
     label: f.displayName || f.name,
     code: f.code,
   }))
+}
+
+// ============================================================
+// Story 5-2: Forwarder 詳情檢視
+// ============================================================
+
+/**
+ * 獲取規則摘要統計
+ *
+ * @description
+ *   統計 Forwarder 的規則數量，按狀態分組
+ *
+ * @param forwarderId - Forwarder ID
+ * @returns 規則摘要
+ */
+async function getRulesSummary(forwarderId: string): Promise<RulesSummary> {
+  const rules = await prisma.mappingRule.groupBy({
+    by: ['status'],
+    where: { forwarderId },
+    _count: {
+      id: true,
+    },
+  })
+
+  const byStatus: RuleStatusCounts = {
+    active: 0,
+    draft: 0,
+    pendingReview: 0,
+    deprecated: 0,
+  }
+
+  let total = 0
+  for (const rule of rules) {
+    const count = rule._count.id
+    total += count
+    switch (rule.status) {
+      case 'ACTIVE':
+        byStatus.active = count
+        break
+      case 'DRAFT':
+        byStatus.draft = count
+        break
+      case 'PENDING_REVIEW':
+        byStatus.pendingReview = count
+        break
+      case 'DEPRECATED':
+        byStatus.deprecated = count
+        break
+    }
+  }
+
+  return { total, byStatus }
+}
+
+/**
+ * 獲取每日趨勢資料
+ *
+ * @description
+ *   計算過去 30 天每天的文件處理數量和成功數量
+ *
+ * @param forwarderId - Forwarder ID
+ * @returns 每日趨勢資料陣列
+ */
+async function getDailyTrend(forwarderId: string): Promise<DailyTrendData[]> {
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  thirtyDaysAgo.setHours(0, 0, 0, 0)
+
+  // 獲取過去 30 天的文件
+  const documents = await prisma.document.findMany({
+    where: {
+      forwarderId,
+      createdAt: {
+        gte: thirtyDaysAgo,
+      },
+    },
+    select: {
+      createdAt: true,
+      status: true,
+    },
+  })
+
+  // 建立日期到資料的映射
+  const trendMap = new Map<string, { count: number; successCount: number }>()
+
+  // 初始化過去 30 天的資料
+  for (let i = 0; i < 30; i++) {
+    const date = new Date()
+    date.setDate(date.getDate() - i)
+    const dateStr = date.toISOString().split('T')[0]
+    trendMap.set(dateStr, { count: 0, successCount: 0 })
+  }
+
+  // 統計每天的數量
+  for (const doc of documents) {
+    const dateStr = doc.createdAt.toISOString().split('T')[0]
+    const existing = trendMap.get(dateStr)
+    if (existing) {
+      existing.count++
+      if (doc.status === 'COMPLETED') {
+        existing.successCount++
+      }
+    }
+  }
+
+  // 轉換為陣列並按日期排序
+  const trend: DailyTrendData[] = []
+  for (const [date, data] of trendMap) {
+    trend.push({
+      date,
+      count: data.count,
+      successCount: data.successCount,
+    })
+  }
+
+  // 按日期升序排序
+  trend.sort((a, b) => a.date.localeCompare(b.date))
+
+  return trend
+}
+
+/**
+ * 獲取 Forwarder 統計資料
+ *
+ * @description
+ *   計算 Forwarder 的處理統計，包含：
+ *   - 總文件數
+ *   - 過去 30 天處理數
+ *   - 成功率
+ *   - 平均信心度
+ *   - 每日趨勢
+ *
+ * @param forwarderId - Forwarder ID
+ * @returns 統計資料
+ */
+export async function getForwarderStatsById(forwarderId: string): Promise<ForwarderStatsData> {
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+  // 並行執行多個查詢
+  const [totalDocuments, last30Days, completedCount, avgConfidenceResult, dailyTrend] =
+    await Promise.all([
+      // 總文件數
+      prisma.document.count({
+        where: { forwarderId },
+      }),
+      // 過去 30 天處理數
+      prisma.document.count({
+        where: {
+          forwarderId,
+          createdAt: { gte: thirtyDaysAgo },
+        },
+      }),
+      // 成功完成數（用於計算成功率）
+      prisma.document.count({
+        where: {
+          forwarderId,
+          status: 'COMPLETED',
+        },
+      }),
+      // 平均信心度（從 ExtractionResult）
+      prisma.extractionResult.aggregate({
+        where: {
+          document: {
+            forwarderId,
+          },
+        },
+        _avg: {
+          averageConfidence: true,
+        },
+      }),
+      // 每日趨勢
+      getDailyTrend(forwarderId),
+    ])
+
+  // 計算成功率
+  const successRate = totalDocuments > 0 ? Math.round((completedCount / totalDocuments) * 100) : 0
+
+  // 平均信心度（0-100 範圍）
+  const avgConfidence = avgConfidenceResult._avg?.averageConfidence
+    ? Math.round(avgConfidenceResult._avg.averageConfidence)
+    : 0
+
+  return {
+    totalDocuments,
+    processedLast30Days: last30Days,
+    successRate,
+    avgConfidence,
+    dailyTrend,
+  }
+}
+
+/**
+ * 獲取近期文件
+ *
+ * @description
+ *   獲取 Forwarder 最近處理的文件列表
+ *
+ * @param forwarderId - Forwarder ID
+ * @param limit - 限制數量（預設 10）
+ * @returns 近期文件列表
+ */
+export async function getForwarderRecentDocuments(
+  forwarderId: string,
+  limit: number = 10
+): Promise<RecentDocumentItem[]> {
+  const documents = await prisma.document.findMany({
+    where: { forwarderId },
+    orderBy: { updatedAt: 'desc' },
+    take: limit,
+    select: {
+      id: true,
+      fileName: true,
+      status: true,
+      updatedAt: true,
+      createdAt: true,
+      extractionResult: {
+        select: {
+          averageConfidence: true,
+        },
+      },
+    },
+  })
+
+  return documents.map((doc) => ({
+    id: doc.id,
+    fileName: doc.fileName,
+    status: mapDocumentStatus(doc.status),
+    confidence: doc.extractionResult?.averageConfidence ?? null,
+    processedAt: doc.updatedAt,
+    createdAt: doc.createdAt,
+  }))
+}
+
+/**
+ * 獲取 Forwarder 詳情檢視（含統計資料）
+ *
+ * @description
+ *   獲取 Forwarder 的完整詳情，包含：
+ *   - 基本資料
+ *   - 識別模式
+ *   - 規則摘要（按狀態分組）
+ *   - 處理統計（成功率、平均信心度、趨勢）
+ *   - 近期文件列表
+ *
+ * @param id - Forwarder ID
+ * @returns 完整的詳情檢視資料或 null
+ *
+ * @example
+ *   const detail = await getForwarderDetailView('cuid123')
+ *   if (detail) {
+ *     console.log(detail.stats.successRate)
+ *     console.log(detail.rulesSummary.byStatus.active)
+ *   }
+ */
+export async function getForwarderDetailView(id: string): Promise<ForwarderDetailView | null> {
+  // 首先獲取基本詳情
+  const detail = await getForwarderById(id)
+  if (!detail) {
+    return null
+  }
+
+  // 並行獲取其他資料
+  const [rulesSummary, stats, recentDocuments] = await Promise.all([
+    getRulesSummary(id),
+    getForwarderStatsById(id),
+    getForwarderRecentDocuments(id, 10),
+  ])
+
+  return {
+    ...detail,
+    rulesSummary,
+    stats,
+    recentDocuments,
+  }
+}
+
+// ============================================================
+// Story 5-2: Forwarder 規則列表
+// ============================================================
+
+/**
+ * 規則列表查詢參數
+ */
+export interface GetForwarderRulesParams {
+  /** Forwarder ID */
+  forwarderId: string
+  /** 狀態篩選 */
+  status?: RuleStatus
+  /** 搜尋欄位名稱 */
+  search?: string
+  /** 頁碼（從 1 開始）*/
+  page?: number
+  /** 每頁數量 */
+  limit?: number
+  /** 排序欄位 */
+  sortBy?: 'fieldName' | 'status' | 'confidence' | 'matchCount' | 'updatedAt'
+  /** 排序方向 */
+  sortOrder?: SortOrder
+}
+
+/**
+ * 獲取 Forwarder 的規則列表（分頁）
+ *
+ * @description
+ *   獲取指定 Forwarder 的映射規則列表，支援：
+ *   - 狀態篩選
+ *   - 欄位名稱搜尋
+ *   - 分頁
+ *   - 排序
+ *
+ * @param params - 查詢參數
+ * @returns 規則列表和分頁資訊
+ *
+ * @example
+ *   const result = await getForwarderRules({
+ *     forwarderId: 'cuid123',
+ *     status: 'ACTIVE',
+ *     page: 1,
+ *     limit: 10,
+ *   })
+ */
+export async function getForwarderRules(params: GetForwarderRulesParams): Promise<RulesResponse> {
+  const {
+    forwarderId,
+    status,
+    search,
+    page = 1,
+    limit = 10,
+    sortBy = 'updatedAt',
+    sortOrder = 'desc',
+  } = params
+
+  // 構建 where 條件
+  const where: Prisma.MappingRuleWhereInput = {
+    forwarderId,
+    ...(status && { status: status as PrismaRuleStatus }),
+    ...(search && {
+      fieldName: { contains: search, mode: 'insensitive' as const },
+    }),
+  }
+
+  // 構建排序條件
+  const orderBy: Prisma.MappingRuleOrderByWithRelationInput = {
+    [sortBy]: sortOrder,
+  }
+
+  // 執行並行查詢
+  const [rulesRaw, total] = await prisma.$transaction([
+    prisma.mappingRule.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy,
+      select: {
+        id: true,
+        fieldName: true,
+        status: true,
+        version: true,
+        confidence: true,
+        updatedAt: true,
+        // 計算 matchCount 需要從 applications 關聯
+        _count: {
+          select: {
+            applications: true,
+          },
+        },
+      },
+    }),
+    prisma.mappingRule.count({ where }),
+  ])
+
+  // 轉換為 RuleListItem 格式
+  const data: RuleListItem[] = rulesRaw.map((rule) => ({
+    id: rule.id,
+    fieldName: rule.fieldName,
+    status: rule.status as RuleStatus,
+    version: rule.version,
+    confidence: Math.round(rule.confidence * 100), // 轉換為百分比
+    matchCount: rule._count.applications,
+    lastMatchedAt: null, // 需要從 applications 查詢最新的，暫時使用 null
+    updatedAt: rule.updatedAt,
+  }))
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  }
+}
+
+/**
+ * 從已驗證的查詢參數獲取規則列表
+ *
+ * @param forwarderId - Forwarder ID
+ * @param query - 已驗證的查詢參數
+ * @returns 規則列表和分頁資訊
+ */
+export async function getForwarderRulesFromQuery(
+  forwarderId: string,
+  query: ValidatedRulesQuery
+): Promise<RulesResponse> {
+  return getForwarderRules({
+    forwarderId,
+    status: query.status as RuleStatus | undefined,
+    search: query.search,
+    page: query.page,
+    limit: query.limit,
+    sortBy: query.sortBy,
+    sortOrder: query.sortOrder,
+  })
 }

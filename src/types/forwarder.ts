@@ -2,16 +2,21 @@
  * @fileoverview Forwarder 相關類型定義
  * @description
  *   定義 Forwarder Profile 功能所需的所有 TypeScript 類型，
- *   包含列表項目、查詢參數、分頁資訊等。
+ *   包含列表項目、詳情頁面、統計資料、查詢參數、分頁資訊等。
  *
  *   設計說明：
  *   - 適配現有 Prisma schema 的 `isActive` boolean 欄位
  *   - 在 UI 層轉換為易讀的狀態顯示
+ *   - Story 5-2 新增詳情頁面相關類型（統計、規則摘要、近期文件）
  *
  * @module src/types/forwarder
  * @author Development Team
  * @since Epic 5 - Story 5.1 (Forwarder Profile List)
  * @lastModified 2025-12-19
+ *
+ * @features
+ *   - Story 5.1: 列表頁面類型（ForwarderListItem, ForwardersQueryParams）
+ *   - Story 5.2: 詳情頁面類型（ForwarderDetailView, ForwarderStats, RulesSummary）
  *
  * @dependencies
  *   - prisma/schema.prisma - Forwarder 模型定義
@@ -19,7 +24,9 @@
  * @related
  *   - src/services/forwarder.service.ts - Forwarder 業務邏輯
  *   - src/app/api/forwarders/route.ts - API 端點
+ *   - src/app/api/forwarders/[id]/route.ts - Detail API 端點
  *   - src/hooks/use-forwarders.ts - React Query Hook
+ *   - src/hooks/use-forwarder-detail.ts - Detail Hook
  */
 
 import { z } from 'zod'
@@ -106,6 +113,238 @@ export interface ForwarderIdentificationPattern {
   value: string
   /** 優先級 */
   priority?: number
+}
+
+// ============================================================
+// Story 5-2: 詳情頁面相關類型
+// ============================================================
+
+/**
+ * 映射規則狀態（對應 Prisma RuleStatus enum）
+ */
+export type RuleStatus = 'DRAFT' | 'PENDING_REVIEW' | 'ACTIVE' | 'DEPRECATED'
+
+/**
+ * 規則狀態配置
+ */
+export const RULE_STATUS_CONFIG = {
+  DRAFT: {
+    label: '草稿',
+    variant: 'outline' as const,
+    className: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+  },
+  PENDING_REVIEW: {
+    label: '待審核',
+    variant: 'secondary' as const,
+    className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+  },
+  ACTIVE: {
+    label: '啟用',
+    variant: 'default' as const,
+    className: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  },
+  DEPRECATED: {
+    label: '已棄用',
+    variant: 'destructive' as const,
+    className: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  },
+} as const
+
+/**
+ * 規則狀態數量統計
+ */
+export interface RuleStatusCounts {
+  /** 啟用中的規則數 */
+  active: number
+  /** 草稿規則數 */
+  draft: number
+  /** 待審核規則數 */
+  pendingReview: number
+  /** 已棄用規則數 */
+  deprecated: number
+}
+
+/**
+ * 規則摘要資訊
+ */
+export interface RulesSummary {
+  /** 規則總數 */
+  total: number
+  /** 按狀態分組的數量 */
+  byStatus: RuleStatusCounts
+}
+
+/**
+ * 每日趨勢資料點
+ */
+export interface DailyTrendData {
+  /** 日期 (YYYY-MM-DD) */
+  date: string
+  /** 文件數量 */
+  count: number
+  /** 成功數量 */
+  successCount: number
+}
+
+/**
+ * Forwarder 統計資料
+ */
+export interface ForwarderStats {
+  /** 文件總數 */
+  totalDocuments: number
+  /** 過去 30 天處理數 */
+  processedLast30Days: number
+  /** 成功率 (0-100) */
+  successRate: number
+  /** 平均信心度 (0-100) */
+  avgConfidence: number
+  /** 每日趨勢資料（最近 30 天） */
+  dailyTrend: DailyTrendData[]
+}
+
+/**
+ * 文件處理狀態（簡化的顯示用狀態）
+ * @description 將 Prisma DocumentStatus 映射到簡化的顯示狀態
+ */
+export type DocumentProcessingStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'NEEDS_REVIEW'
+
+/**
+ * 文件處理狀態配置
+ */
+export const DOCUMENT_PROCESSING_STATUS_CONFIG: Record<
+  DocumentProcessingStatus,
+  { label: string; variant: string; className: string }
+> = {
+  PENDING: {
+    label: '待處理',
+    variant: 'outline',
+    className: 'bg-gray-100 text-gray-800',
+  },
+  PROCESSING: {
+    label: '處理中',
+    variant: 'secondary',
+    className: 'bg-blue-100 text-blue-800',
+  },
+  COMPLETED: {
+    label: '已完成',
+    variant: 'default',
+    className: 'bg-green-100 text-green-800',
+  },
+  FAILED: {
+    label: '失敗',
+    variant: 'destructive',
+    className: 'bg-red-100 text-red-800',
+  },
+  NEEDS_REVIEW: {
+    label: '待審核',
+    variant: 'secondary',
+    className: 'bg-yellow-100 text-yellow-800',
+  },
+}
+
+/**
+ * 將 Prisma DocumentStatus 映射到顯示用狀態
+ * @param prismaStatus - Prisma 的 DocumentStatus
+ * @returns 顯示用的處理狀態
+ */
+export function mapDocumentStatus(prismaStatus: string): DocumentProcessingStatus {
+  const statusMap: Record<string, DocumentProcessingStatus> = {
+    UPLOADING: 'PENDING',
+    UPLOADED: 'PENDING',
+    OCR_PROCESSING: 'PROCESSING',
+    OCR_COMPLETED: 'PROCESSING',
+    OCR_FAILED: 'FAILED',
+    MAPPING_PROCESSING: 'PROCESSING',
+    MAPPING_COMPLETED: 'PROCESSING',
+    PENDING_REVIEW: 'NEEDS_REVIEW',
+    IN_REVIEW: 'NEEDS_REVIEW',
+    APPROVED: 'COMPLETED',
+    ESCALATED: 'NEEDS_REVIEW',
+    COMPLETED: 'COMPLETED',
+    FAILED: 'FAILED',
+  }
+  return statusMap[prismaStatus] ?? 'PENDING'
+}
+
+/**
+ * 近期文件項目
+ */
+export interface RecentDocumentItem {
+  /** 文件 ID */
+  id: string
+  /** 檔案名稱 */
+  fileName: string
+  /** 文件處理狀態 */
+  status: DocumentProcessingStatus
+  /** 信心度 (0-100) */
+  confidence: number | null
+  /** 處理時間 */
+  processedAt: Date | string | null
+  /** 建立時間 */
+  createdAt: Date | string
+}
+
+/**
+ * Forwarder 詳情檢視（含統計資料）
+ * @description 用於詳情頁面的完整資料結構
+ */
+export interface ForwarderDetailView extends ForwarderDetail {
+  /** 規則摘要 */
+  rulesSummary: RulesSummary
+  /** 統計資料 */
+  stats: ForwarderStats
+  /** 近期文件（最多 10 筆） */
+  recentDocuments: RecentDocumentItem[]
+}
+
+/**
+ * 規則列表項目
+ */
+export interface RuleListItem {
+  /** 規則 ID */
+  id: string
+  /** 欄位名稱 */
+  fieldName: string
+  /** 規則狀態 */
+  status: RuleStatus
+  /** 版本號 */
+  version: number
+  /** 信心度 (0-100) */
+  confidence: number
+  /** 匹配次數 */
+  matchCount: number
+  /** 最後匹配時間 */
+  lastMatchedAt: Date | string | null
+  /** 更新時間 */
+  updatedAt: Date | string
+}
+
+/**
+ * 規則查詢參數
+ */
+export interface RulesQueryParams {
+  /** 狀態篩選 */
+  status?: RuleStatus
+  /** 搜尋欄位名稱 */
+  search?: string
+  /** 頁碼 */
+  page?: number
+  /** 每頁筆數 */
+  limit?: number
+  /** 排序欄位 */
+  sortBy?: 'fieldName' | 'status' | 'confidence' | 'matchCount' | 'updatedAt'
+  /** 排序方向 */
+  sortOrder?: SortOrder
+}
+
+/**
+ * 規則列表 API 回應
+ */
+export interface RulesResponse {
+  /** 規則列表 */
+  data: RuleListItem[]
+  /** 分頁資訊 */
+  pagination: PaginationInfo
 }
 
 // ============================================================
@@ -199,6 +438,43 @@ export const ForwardersQuerySchema = z.object({
  * 驗證後的查詢參數類型
  */
 export type ValidatedForwardersQuery = z.infer<typeof ForwardersQuerySchema>
+
+/**
+ * 規則狀態驗證 Schema
+ */
+export const RuleStatusSchema = z.enum(['DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'DEPRECATED'])
+
+/**
+ * 規則查詢參數驗證 Schema
+ */
+export const RulesQuerySchema = z.object({
+  status: RuleStatusSchema.optional(),
+  search: z.string().optional(),
+  page: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 1))
+    .pipe(z.number().int().positive()),
+  limit: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 10))
+    .pipe(z.number().int().min(1).max(100)),
+  sortBy: z.enum(['fieldName', 'status', 'confidence', 'matchCount', 'updatedAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+})
+
+/**
+ * 驗證後的規則查詢參數類型
+ */
+export type ValidatedRulesQuery = z.infer<typeof RulesQuerySchema>
+
+/**
+ * Forwarder ID 參數驗證 Schema
+ */
+export const ForwarderIdSchema = z.object({
+  id: z.string().cuid(),
+})
 
 // ============================================================
 // 表格相關
