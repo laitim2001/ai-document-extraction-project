@@ -6,6 +6,8 @@
  *   - 狀態組件（RuleStatusBadge, ExtractionTypeIcon）
  *   - 統計組件（RuleSummaryCards, RuleStats, AccuracyMetrics）
  *   - 詳情組件（RuleDetailView, RulePatternViewer）
+ *   - 編輯組件（RuleEditForm, RuleEditDialog, RulePreviewPanel）
+ *   - 表單組件（NewRuleForm, RuleTestPanel）
  *   - 骨架組件（RuleListSkeleton, RuleDetailSkeleton）
  *
  * @module src/components/features/rules
@@ -32,3 +34,12 @@ export { AccuracyMetrics } from './AccuracyMetrics'
 export { RuleDetailView, RuleDetailSkeleton } from './RuleDetailView'
 export { RulePatternViewer } from './RulePatternViewer'
 export { RecentApplicationsTable } from './RecentApplicationsTable'
+
+// 編輯組件（Story 5-3）
+export { RuleEditForm } from './RuleEditForm'
+export { RuleEditDialog } from './RuleEditDialog'
+export { RulePreviewPanel } from './RulePreviewPanel'
+
+// 表單組件
+export { NewRuleForm } from './NewRuleForm'
+export { RuleTestPanel } from './RuleTestPanel'

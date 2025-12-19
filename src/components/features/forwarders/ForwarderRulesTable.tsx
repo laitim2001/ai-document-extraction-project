@@ -8,6 +8,7 @@
  *   - 搜尋
  *   - 分頁
  *   - 排序
+ *   - 規則編輯（Story 5-3）
  *
  * @module src/components/features/forwarders/ForwarderRulesTable
  * @author Development Team
@@ -17,6 +18,7 @@
  * @dependencies
  *   - @/types/forwarder - 類型定義
  *   - @/components/ui - UI 組件
+ *   - @/components/features/rules - 規則編輯組件
  */
 
 import { useState, useCallback } from 'react'
@@ -39,15 +41,24 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Pagination } from '@/components/ui/pagination'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useForwarderRules } from '@/hooks/use-forwarder-detail'
+import { RuleEditDialog } from '@/components/features/rules/RuleEditDialog'
 import type { RuleStatus, RuleListItem } from '@/types/forwarder'
 import { RULE_STATUS_CONFIG } from '@/types/forwarder'
-import { Search, FileText, ExternalLink } from 'lucide-react'
+import { Search, FileText, MoreHorizontal, Edit, Eye } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import Link from 'next/link'
+import { useQueryClient } from '@tanstack/react-query'
+import { ruleKeys } from '@/hooks/useRuleEdit'
 
 // ============================================================
 // Types
@@ -73,6 +84,13 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
   const [statusFilter, setStatusFilter] = useState<RuleStatus | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+
+  // 編輯對話框狀態（Story 5-3）
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [selectedRule, setSelectedRule] = useState<RuleListItem | null>(null)
+
+  // Query client for cache invalidation
+  const queryClient = useQueryClient()
 
   // 使用 hook 獲取規則資料
   const { rules, pagination, isLoading, error } = useForwarderRules(
@@ -101,6 +119,19 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)
   }, [])
+
+  // 處理編輯規則（Story 5-3）
+  const handleEditRule = useCallback((rule: RuleListItem) => {
+    setSelectedRule(rule)
+    setEditDialogOpen(true)
+  }, [])
+
+  // 處理編輯成功
+  const handleEditSuccess = useCallback(() => {
+    // 刷新規則列表
+    queryClient.invalidateQueries({ queryKey: ruleKeys.list(forwarderId) })
+    setSelectedRule(null)
+  }, [queryClient, forwarderId])
 
   // 格式化時間
   const formatTime = (date: Date | string | null) => {
@@ -223,11 +254,25 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
                       {formatTime(rule.lastMatchedAt)}
                     </TableCell>
                     <TableCell>
-                      <Link href={`/rules/${rule.id}`}>
-                        <Button variant="ghost" size="sm">
-                          <ExternalLink className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEditRule(rule)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            編輯規則
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/rules/${rule.id}`}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              查看詳情
+                            </Link>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -245,6 +290,25 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
               </div>
             )}
           </>
+        )}
+
+        {/* 編輯對話框（Story 5-3） */}
+        {selectedRule && (
+          <RuleEditDialog
+            open={editDialogOpen}
+            onOpenChange={setEditDialogOpen}
+            rule={{
+              id: selectedRule.id,
+              fieldName: selectedRule.fieldName,
+              fieldLabel: selectedRule.fieldName, // 使用 fieldName 作為顯示標籤
+              extractionType: 'REGEX', // 預設值，實際會從 API 獲取
+              extractionPattern: {},
+              priority: 1,
+              confidence: selectedRule.confidence,
+              forwarderId,
+            }}
+            onSuccess={handleEditSuccess}
+          />
         )}
       </CardContent>
     </Card>

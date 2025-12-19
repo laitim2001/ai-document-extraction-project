@@ -152,9 +152,8 @@ export * from './city.service'
 // export { reviewService } from './review';
 // export { ReviewService } from './review/review-service';
 
-// TODO: Epic 4 實現後取消註釋
-// export { forwarderService } from './forwarder';
-// export { ForwarderService } from './forwarder/forwarder-service';
+// Epic 5: Forwarder Configuration (Story 5.1)
+export * from './forwarder.service'
 
 // Epic 2: Manual Invoice Upload & AI Processing
 export * from './document.service'
@@ -174,6 +173,9 @@ export * from './pattern-analysis'
 export * from './similarity'
 export * from './impact-analysis'
 export * from './rule-simulation'
+
+// Epic 5: Forwarder Configuration (Story 5.3 - 規則變更請求)
+export * from './rule-change.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

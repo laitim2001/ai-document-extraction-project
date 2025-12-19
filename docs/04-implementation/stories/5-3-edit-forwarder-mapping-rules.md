@@ -1,6 +1,6 @@
 # Story 5.3: 編輯 Forwarder 映射規則
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -47,69 +47,69 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 規則編輯頁面** (AC: #1)
-  - [ ] 1.1 創建 `src/app/(dashboard)/forwarders/[id]/rules/page.tsx`
-  - [ ] 1.2 顯示規則列表（可編輯模式）
-  - [ ] 1.3 加入新增規則按鈕
-  - [ ] 1.4 加入批量操作功能
+- [x] **Task 1: 規則編輯頁面** (AC: #1)
+  - [x] 1.1 創建 `src/app/(dashboard)/forwarders/[id]/rules/page.tsx`
+  - [x] 1.2 顯示規則列表（可編輯模式）
+  - [x] 1.3 加入新增規則按鈕
+  - [x] 1.4 加入批量操作功能
 
-- [ ] **Task 2: 規則編輯表單** (AC: #2)
-  - [ ] 2.1 創建 `RuleEditForm.tsx` 組件
-  - [ ] 2.2 提取模式類型選擇
-  - [ ] 2.3 Pattern 編輯器（根據類型動態切換）
-  - [ ] 2.4 優先級滑桿
-  - [ ] 2.5 信心度閾值設定
-  - [ ] 2.6 表單驗證
+- [x] **Task 2: 規則編輯表單** (AC: #2)
+  - [x] 2.1 創建 `RuleEditForm.tsx` 組件
+  - [x] 2.2 提取模式類型選擇
+  - [x] 2.3 Pattern 編輯器（根據類型動態切換）
+  - [x] 2.4 優先級滑桿
+  - [x] 2.5 信心度閾值設定
+  - [x] 2.6 表單驗證
 
-- [ ] **Task 3: Pattern 編輯器** (AC: #2)
-  - [ ] 3.1 REGEX 模式：正則編輯器 + 語法高亮
-  - [ ] 3.2 POSITION 模式：座標選擇器
-  - [ ] 3.3 KEYWORD 模式：關鍵字列表編輯
-  - [ ] 3.4 AI_PROMPT 模式：提示詞編輯器
-  - [ ] 3.5 TEMPLATE 模式：模板設計器
+- [x] **Task 3: Pattern 編輯器** (AC: #2)
+  - [x] 3.1 REGEX 模式：正則編輯器 + 語法高亮
+  - [x] 3.2 POSITION 模式：座標選擇器
+  - [x] 3.3 KEYWORD 模式：關鍵字列表編輯
+  - [x] 3.4 AI_PROMPT 模式：提示詞編輯器
+  - [x] 3.5 TEMPLATE 模式：模板設計器
 
-- [ ] **Task 4: 即時預覽功能** (AC: #2)
-  - [ ] 4.1 創建 `RulePreview.tsx` 組件
-  - [ ] 4.2 選擇測試文件
-  - [ ] 4.3 執行規則預覽
-  - [ ] 4.4 顯示提取結果
-  - [ ] 4.5 標記匹配位置
+- [x] **Task 4: 即時預覽功能** (AC: #2)
+  - [x] 4.1 創建 `RulePreview.tsx` 組件
+  - [x] 4.2 選擇測試文件
+  - [x] 4.3 執行規則預覽
+  - [x] 4.4 顯示提取結果
+  - [x] 4.5 標記匹配位置
 
-- [ ] **Task 5: 變更請求創建** (AC: #3)
-  - [ ] 5.1 創建 RuleChangeRequest 模型
-  - [ ] 5.2 記錄變更前後內容
-  - [ ] 5.3 設定變更類型（CREATE/UPDATE/DELETE）
-  - [ ] 5.4 關聯審核流程
+- [x] **Task 5: 變更請求創建** (AC: #3)
+  - [x] 5.1 創建 RuleChangeRequest 模型
+  - [x] 5.2 記錄變更前後內容
+  - [x] 5.3 設定變更類型（CREATE/UPDATE/DELETE）
+  - [x] 5.4 關聯審核流程
 
-- [ ] **Task 6: 規則編輯 API** (AC: #2, #3)
-  - [ ] 6.1 創建 PUT `/api/forwarders/[id]/rules/[ruleId]`
-  - [ ] 6.2 驗證編輯內容
-  - [ ] 6.3 創建變更請求
-  - [ ] 6.4 不直接修改規則（待審核）
+- [x] **Task 6: 規則編輯 API** (AC: #2, #3)
+  - [x] 6.1 創建 PUT `/api/forwarders/[id]/rules/[ruleId]`
+  - [x] 6.2 驗證編輯內容
+  - [x] 6.3 創建變更請求
+  - [x] 6.4 不直接修改規則（待審核）
 
-- [ ] **Task 7: 新增規則 API** (AC: #4)
-  - [ ] 7.1 創建 POST `/api/forwarders/[id]/rules`
-  - [ ] 7.2 驗證規則內容
-  - [ ] 7.3 創建待審核的規則建議
-  - [ ] 7.4 關聯到 Forwarder
+- [x] **Task 7: 新增規則 API** (AC: #4)
+  - [x] 7.1 創建 POST `/api/forwarders/[id]/rules`
+  - [x] 7.2 驗證規則內容
+  - [x] 7.3 創建待審核的規則建議
+  - [x] 7.4 關聯到 Forwarder
 
-- [ ] **Task 8: 審核通知** (AC: #3)
-  - [ ] 8.1 查詢有審核權限的用戶
-  - [ ] 8.2 創建通知記錄
-  - [ ] 8.3 發送即時通知
-  - [ ] 8.4 包含變更摘要
+- [x] **Task 8: 審核通知** (AC: #3)
+  - [x] 8.1 查詢有審核權限的用戶
+  - [x] 8.2 創建通知記錄
+  - [x] 8.3 發送即時通知
+  - [x] 8.4 包含變更摘要
 
-- [ ] **Task 9: 權限控制** (AC: #1-4)
-  - [ ] 9.1 驗證 RULE_EDIT 權限
-  - [ ] 9.2 驗證 Forwarder 訪問權限
-  - [ ] 9.3 記錄操作日誌
+- [x] **Task 9: 權限控制** (AC: #1-4)
+  - [x] 9.1 驗證 RULE_EDIT 權限
+  - [x] 9.2 驗證 Forwarder 訪問權限
+  - [x] 9.3 記錄操作日誌
 
-- [ ] **Task 10: 驗證與測試** (AC: #1-4)
-  - [ ] 10.1 測試規則編輯
-  - [ ] 10.2 測試預覽功能
-  - [ ] 10.3 測試審核流程
-  - [ ] 10.4 測試新增規則
-  - [ ] 10.5 測試權限控制
+- [x] **Task 10: 驗證與測試** (AC: #1-4)
+  - [x] 10.1 測試規則編輯
+  - [x] 10.2 測試預覽功能
+  - [x] 10.3 測試審核流程
+  - [x] 10.4 測試新增規則
+  - [x] 10.5 測試權限控制
 
 ---
 
@@ -539,4 +539,5 @@ export function RulePreview({ rule, forwarderId }: Props) {
 ---
 
 *Story created: 2025-12-16*
-*Status: ready-for-dev*
+*Status: done*
+*Completed: 2025-12-19*

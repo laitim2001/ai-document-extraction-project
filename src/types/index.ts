@@ -28,6 +28,9 @@ export * from './review'
 // 升級相關 (Story 3.7)
 export * from './escalation'
 
+// Forwarder 管理相關 (Story 5.1)
+export * from './forwarder'
+
 // 規則管理相關 (Story 4.1)
 // 注意：rule.ts 有自己的 ExtractionMethod/ExtractionPattern 定義
 // 使用命名導出避免與 field-mapping.ts 衝突
@@ -51,3 +54,6 @@ export {
   getExtractionMethodConfig,
   getStandardFieldConfig,
 } from './rule'
+
+// 規則變更請求相關 (Story 5.3)
+export * from './change-request'

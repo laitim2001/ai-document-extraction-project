@@ -27,23 +27,26 @@ model User {
   lastLoginAt   DateTime?  @map("last_login_at")
 
   // Relations
-  accounts             Account[]
-  sessions             Session[]
-  auditLogs            AuditLog[]
-  roles                UserRole[] // 用戶角色關聯
-  documents            Document[] // 用戶上傳的文件
-  forwarderAssignments ForwarderIdentification[] // 手動指派的 Forwarder
-  assignedQueues       ProcessingQueue[] // 分配的處理隊列
-  reviewRecords        ReviewRecord[] // 審核記錄（Story 3.4）
-  corrections          Correction[] // 欄位修正記錄（Story 3.5）
-  reviewedSuggestions  RuleSuggestion[] @relation("RuleSuggestionReviewer") // 審核的規則建議（Story 3.6）
-  suggestedRules       RuleSuggestion[] @relation("RuleSuggestionSuggester") // 建議的規則（Story 3.8）
-  notifications        Notification[] // 通知（Story 3.6）
-  escalationsCreated   Escalation[] @relation("EscalationEscalator") // 發起的升級（Story 3.7）
-  escalationsAssigned  Escalation[] @relation("EscalationAssignee") // 被分配的升級（Story 3.7）
-  escalationsResolved  Escalation[] @relation("EscalationResolver") // 處理的升級（Story 3.8）
-  createdRules         MappingRule[] @relation("RuleCreator") // 創建的規則（Story 4.1）
-  createdVersions      RuleVersion[] @relation("VersionCreator") // 創建的規則版本（Story 4.7）
+  accounts               Account[]
+  sessions               Session[]
+  auditLogs              AuditLog[]
+  roles                  UserRole[] // 用戶角色關聯
+  documents              Document[] // 用戶上傳的文件
+  forwarderAssignments   ForwarderIdentification[] // 手動指派的 Forwarder
+  assignedQueues         ProcessingQueue[] // 分配的處理隊列
+  reviewRecords          ReviewRecord[] // 審核記錄（Story 3.4）
+  corrections            Correction[] // 欄位修正記錄（Story 3.5）
+  reviewedSuggestions    RuleSuggestion[]          @relation("RuleSuggestionReviewer") // 審核的規則建議（Story 3.6）
+  suggestedRules         RuleSuggestion[]          @relation("RuleSuggestionSuggester") // 建議的規則（Story 3.8）
+  notifications          Notification[] // 通知（Story 3.6）
+  escalationsCreated     Escalation[]              @relation("EscalationEscalator") // 發起的升級（Story 3.7）
+  escalationsAssigned    Escalation[]              @relation("EscalationAssignee") // 被分配的升級（Story 3.7）
+  escalationsResolved    Escalation[]              @relation("EscalationResolver") // 處理的升級（Story 3.8）
+  createdRules           MappingRule[]             @relation("RuleCreator") // 創建的規則（Story 4.1）
+  createdVersions        RuleVersion[]             @relation("VersionCreator") // 創建的規則版本（Story 4.7）
+  verifiedApplications   RuleApplication[]         @relation("ApplicationVerifier") // 驗證的規則應用（Story 4.8）
+  changeRequestsCreated  RuleChangeRequest[]       @relation("ChangeRequester") // 創建的變更請求（Story 5.3）
+  changeRequestsReviewed RuleChangeRequest[]       @relation("ChangeReviewer") // 審核的變更請求（Story 5.3）
 
   @@map("users")
 }
@@ -201,16 +204,17 @@ model Document {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  uploader         User                      @relation(fields: [uploadedBy], references: [id])
-  ocrResult        OcrResult? // OCR 結果（一對一關聯）
-  forwarder        Forwarder?                @relation(fields: [forwarderId], references: [id])
-  identifications  ForwarderIdentification[]
-  extractionResult ExtractionResult? // 欄位提取結果（一對一關聯）
-  processingQueue  ProcessingQueue? // 處理隊列（一對一關聯）
-  reviewRecords    ReviewRecord[] // 審核記錄（Story 3.4）
-  corrections      Correction[] // 欄位修正記錄（Story 3.5）
-  escalation       Escalation? // 升級記錄（Story 3.7）
-  ruleApplications RuleApplication[] // 規則應用記錄（Story 4.1）
+  uploader          User                      @relation(fields: [uploadedBy], references: [id])
+  ocrResult         OcrResult? // OCR 結果（一對一關聯）
+  forwarder         Forwarder?                @relation(fields: [forwarderId], references: [id])
+  identifications   ForwarderIdentification[]
+  extractionResult  ExtractionResult? // 欄位提取結果（一對一關聯）
+  processingQueue   ProcessingQueue? // 處理隊列（一對一關聯）
+  reviewRecords     ReviewRecord[] // 審核記錄（Story 3.4）
+  corrections       Correction[] // 欄位修正記錄（Story 3.5）
+  escalation        Escalation? // 升級記錄（Story 3.7）
+  ruleApplications  RuleApplication[] // 規則應用記錄（Story 4.1）
+  suggestionSamples SuggestionSample[] // 建議樣本（Story 4.4）
 
   @@index([status])
   @@index([uploadedBy])
@@ -289,6 +293,7 @@ model Forwarder {
   fieldCorrectionHistory FieldCorrectionHistory[] // Historical accuracy tracking
   ruleSuggestions        RuleSuggestion[] // 規則建議（Story 3.6）
   correctionPatterns     CorrectionPattern[] // 修正模式（Story 4.3）
+  changeRequests         RuleChangeRequest[] // 規則變更請求（Story 5.3）
 
   @@index([code])
   @@index([isActive])
@@ -400,11 +405,11 @@ enum CorrectionType {
 }
 
 enum PatternStatus {
-  DETECTED       // 初次發現
-  CANDIDATE      // 達到閾值，成為候選規則
-  SUGGESTED      // 已建議給 Super User
-  PROCESSED      // 已處理（轉為規則或忽略）
-  IGNORED        // 被標記為忽略
+  DETECTED // 初次發現
+  CANDIDATE // 達到閾值，成為候選規則
+  SUGGESTED // 已建議給 Super User
+  PROCESSED // 已處理（轉為規則或忽略）
+  IGNORED // 被標記為忽略
 }
 
 enum EscalationReason {
@@ -426,11 +431,11 @@ enum EscalationStatus {
 // =====================
 
 model MappingRule {
-  id                String     @id @default(uuid())
-  forwarderId       String?    @map("forwarder_id") // NULL = Universal Rule
-  fieldName         String     @map("field_name") // Standard field identifier
-  fieldLabel        String     @map("field_label") // Display label
-  extractionPattern Json       @map("extraction_pattern")
+  id                String  @id @default(uuid())
+  forwarderId       String? @map("forwarder_id") // NULL = Universal Rule
+  fieldName         String  @map("field_name") // Standard field identifier
+  fieldLabel        String  @map("field_label") // Display label
+  extractionPattern Json    @map("extraction_pattern")
   // Structure: {
   //   method: "regex" | "keyword" | "position" | "azure_field" | "ai_prompt",
   //   pattern?: string,           // regex pattern
@@ -441,29 +446,35 @@ model MappingRule {
   //   confidence_boost?: number   // bonus confidence for this method
   // }
 
-  priority          Int        @default(0) // Higher = processed first
-  isRequired        Boolean    @default(false) @map("is_required")
-  isActive          Boolean    @default(true) @map("is_active")
-  validationPattern String?    @map("validation_pattern") // Regex for validation
-  defaultValue      String?    @map("default_value")
-  category          String?    // Field category: basic, shipper, consignee, etc.
+  priority          Int     @default(0) // Higher = processed first
+  isRequired        Boolean @default(false) @map("is_required")
+  isActive          Boolean @default(true) @map("is_active")
+  validationPattern String? @map("validation_pattern") // Regex for validation
+  defaultValue      String? @map("default_value")
+  category          String? // Field category: basic, shipper, consignee, etc.
   description       String?
 
   // Story 4.1: 規則管理欄位
-  status            RuleStatus @default(ACTIVE)
-  version           Int        @default(1)
-  createdBy         String?    @map("created_by") // NULL for system/seed rules
-  confidence        Float      @default(0.8) // 信心度閾值 (0-1)
+  status     RuleStatus @default(ACTIVE)
+  version    Int        @default(1)
+  createdBy  String?    @map("created_by") // NULL for system/seed rules
+  confidence Float      @default(0.8) // 信心度閾值 (0-1)
+
+  // Story 4.4: 建議來源追蹤
+  suggestionId String? @unique @map("suggestion_id")
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  forwarder    Forwarder?        @relation(fields: [forwarderId], references: [id])
-  creator      User?             @relation("RuleCreator", fields: [createdBy], references: [id])
-  versions     RuleVersion[]     // Story 4.7: 版本歷史
-  applications RuleApplication[] // Story 4.1: 應用記錄
+  forwarder      Forwarder?          @relation(fields: [forwarderId], references: [id])
+  creator        User?               @relation("RuleCreator", fields: [createdBy], references: [id])
+  versions       RuleVersion[] // Story 4.7: 版本歷史
+  applications   RuleApplication[] // Story 4.1: 應用記錄
+  rollbackLogs   RollbackLog[] // Story 4.8: 回滾日誌
+  suggestion     RuleSuggestion?     @relation("CreatedFromSuggestion", fields: [suggestionId], references: [id])
+  changeRequests RuleChangeRequest[] // Story 5.3: 變更請求
 
   @@unique([forwarderId, fieldName])
   @@index([forwarderId])
@@ -626,9 +637,9 @@ model ReviewRecord {
   documentId String @map("document_id")
 
   // Review Action Details
-  action          ReviewAction @default(APPROVED)
-  reviewerId      String       @map("reviewer_id")
-  processingPath  ProcessingPath @map("processing_path")
+  action         ReviewAction   @default(APPROVED)
+  reviewerId     String         @map("reviewer_id")
+  processingPath ProcessingPath @map("processing_path")
 
   // Field Tracking
   confirmedFields String[] @map("confirmed_fields") // Array of field names confirmed
@@ -672,9 +683,9 @@ model Correction {
   createdAt       DateTime       @default(now()) @map("created_at")
 
   // Story 4.3: Pattern Analysis Fields
-  extractionContext Json?              @map("extraction_context") // 提取時的上下文資訊
-  analyzedAt        DateTime?          @map("analyzed_at") // 被分析的時間
-  patternId         String?            @map("pattern_id") // 關聯的模式
+  extractionContext Json?     @map("extraction_context") // 提取時的上下文資訊
+  analyzedAt        DateTime? @map("analyzed_at") // 被分析的時間
+  patternId         String?   @map("pattern_id") // 關聯的模式
 
   // Relations
   document  Document           @relation(fields: [documentId], references: [id], onDelete: Cascade)
@@ -696,31 +707,32 @@ model Correction {
 // =====================
 
 model CorrectionPattern {
-  id            String        @id @default(uuid())
-  forwarderId   String        @map("forwarder_id")
-  fieldName     String        @map("field_name")
-  patternHash   String        @unique @map("pattern_hash") // SHA256(forwarderId + fieldName + patterns)
-  status        PatternStatus @default(DETECTED)
+  id          String        @id @default(uuid())
+  forwarderId String        @map("forwarder_id")
+  fieldName   String        @map("field_name")
+  patternHash String        @unique @map("pattern_hash") // SHA256(forwarderId + fieldName + patterns)
+  status      PatternStatus @default(DETECTED)
 
   // 模式詳情
-  patterns      Json // [{ originalValue, correctedValue, similarity, count }]
-  occurrenceCount Int @default(1) @map("occurrence_count") // 發生次數
+  patterns        Json // [{ originalValue, correctedValue, similarity, count }]
+  occurrenceCount Int  @default(1) @map("occurrence_count") // 發生次數
 
   // 信心度與評估
-  confidence    Float @default(0) // 模式信心度 (0-1)
+  confidence Float @default(0) // 模式信心度 (0-1)
 
   // 時間戳
-  firstSeenAt   DateTime @default(now()) @map("first_seen_at")
-  lastSeenAt    DateTime @default(now()) @map("last_seen_at")
-  analyzedAt    DateTime? @map("analyzed_at") // 上次分析時間
-  suggestedAt   DateTime? @map("suggested_at") // 建議時間
-  processedAt   DateTime? @map("processed_at") // 處理時間
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  firstSeenAt DateTime  @default(now()) @map("first_seen_at")
+  lastSeenAt  DateTime  @default(now()) @map("last_seen_at")
+  analyzedAt  DateTime? @map("analyzed_at") // 上次分析時間
+  suggestedAt DateTime? @map("suggested_at") // 建議時間
+  processedAt DateTime? @map("processed_at") // 處理時間
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  corrections   Correction[] // 關聯的修正記錄
-  forwarder     Forwarder @relation(fields: [forwarderId], references: [id])
+  corrections Correction[] // 關聯的修正記錄
+  forwarder   Forwarder       @relation(fields: [forwarderId], references: [id])
+  suggestion  RuleSuggestion? // Story 4.4: 生成的規則建議
 
   @@index([forwarderId, fieldName])
   @@index([status])
@@ -735,7 +747,7 @@ model CorrectionPattern {
 // =====================
 
 model PatternAnalysisLog {
-  id            String   @id @default(uuid())
+  id String @id @default(uuid())
 
   // 執行統計
   totalAnalyzed     Int @map("total_analyzed") // 分析的修正數量
@@ -744,14 +756,14 @@ model PatternAnalysisLog {
   candidatesCreated Int @map("candidates_created") // 新建候選規則數量
 
   // 執行資訊
-  executionTime Int       @map("execution_time") // 執行時間 (ms)
-  status        String    // "success" | "partial" | "failed"
-  errorMessage  String?   @map("error_message")
+  executionTime Int     @map("execution_time") // 執行時間 (ms)
+  status        String // "success" | "partial" | "failed"
+  errorMessage  String? @map("error_message")
 
   // 時間戳
-  startedAt     DateTime  @map("started_at")
-  completedAt   DateTime  @default(now()) @map("completed_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
+  startedAt   DateTime @map("started_at")
+  completedAt DateTime @default(now()) @map("completed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   @@index([completedAt])
   @@index([status])
@@ -759,41 +771,90 @@ model PatternAnalysisLog {
 }
 
 // =====================
-// Rule Suggestion Model (Story 3.6, 3.8)
+// Rule Suggestion Model (Story 3.6, 3.8, 4.4)
 // =====================
 
 model RuleSuggestion {
   id               String           @id @default(uuid())
   forwarderId      String           @map("forwarder_id")
   fieldName        String           @map("field_name")
-  suggestedPattern String           @map("suggested_pattern")
+  extractionType   ExtractionType   @map("extraction_type")
+  currentPattern   String?          @map("current_pattern") // 現有規則（如果有）
+  suggestedPattern String           @map("suggested_pattern") // 建議的規則
+  confidence       Float            @default(0) // 推斷信心度
+  source           SuggestionSource @default(MANUAL)
   correctionCount  Int              @default(0) @map("correction_count")
+  expectedImpact   Json?            @map("expected_impact") // 預期影響分析
   status           SuggestionStatus @default(PENDING)
-  suggestedBy      String           @map("suggested_by") // Story 3.8: 建議者
-  escalationId     String?          @unique @map("escalation_id") // Story 3.8: 關聯的升級案例
-  createdAt        DateTime         @default(now()) @map("created_at")
-  reviewedAt       DateTime?        @map("reviewed_at")
+  priority         Int              @default(0) // 優先級
+  suggestedBy      String?          @map("suggested_by") // NULL for AUTO_LEARNING
   reviewedBy       String?          @map("reviewed_by")
-  notes            String?
+  reviewNotes      String?          @map("review_notes")
+  rejectionReason  String?          @map("rejection_reason")
+  escalationId     String?          @unique @map("escalation_id") // Story 3.8: 關聯的升級案例
+  patternId        String?          @unique @map("pattern_id") // Story 4.4: 關聯的修正模式
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  reviewedAt       DateTime?        @map("reviewed_at")
 
   // Relations
-  forwarder  Forwarder   @relation(fields: [forwarderId], references: [id])
-  suggester  User        @relation("RuleSuggestionSuggester", fields: [suggestedBy], references: [id])
-  reviewer   User?       @relation("RuleSuggestionReviewer", fields: [reviewedBy], references: [id])
-  escalation Escalation? @relation(fields: [escalationId], references: [id])
+  forwarder   Forwarder          @relation(fields: [forwarderId], references: [id])
+  suggester   User?              @relation("RuleSuggestionSuggester", fields: [suggestedBy], references: [id])
+  reviewer    User?              @relation("RuleSuggestionReviewer", fields: [reviewedBy], references: [id])
+  escalation  Escalation?        @relation(fields: [escalationId], references: [id])
+  pattern     CorrectionPattern? @relation(fields: [patternId], references: [id])
+  sampleCases SuggestionSample[] // Story 4.4: 樣本案例
+  createdRule MappingRule?       @relation("CreatedFromSuggestion") // Story 4.4: 創建的規則
 
-  @@unique([forwarderId, fieldName, suggestedPattern])
   @@index([forwarderId, fieldName])
-  @@index([suggestedBy])
   @@index([status])
+  @@index([source])
+  @@index([createdAt])
   @@map("rule_suggestions")
 }
 
+// =====================
+// Suggestion Sample Model (Story 4.4)
+// 建議的樣本案例，展示修正歷史
+// =====================
+
+model SuggestionSample {
+  id              String   @id @default(uuid())
+  suggestionId    String   @map("suggestion_id")
+  documentId      String   @map("document_id")
+  originalValue   String   @map("original_value")
+  correctedValue  String   @map("corrected_value")
+  extractedValue  String?  @map("extracted_value") // 使用建議規則提取的值
+  matchesExpected Boolean? @map("matches_expected") // 是否符合預期
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Relations
+  suggestion RuleSuggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  document   Document       @relation(fields: [documentId], references: [id])
+
+  @@index([suggestionId])
+  @@map("suggestion_samples")
+}
+
 enum SuggestionStatus {
-  PENDING  // 待審核
+  PENDING // 待審核
   APPROVED // 已批准
   REJECTED // 已拒絕
-  MERGED   // 已合併到規則
+  IMPLEMENTED // 已實施（創建或更新規則）
+}
+
+enum SuggestionSource {
+  MANUAL // 手動建議
+  AUTO_LEARNING // 自動學習
+  IMPORT // 導入
+}
+
+enum ExtractionType {
+  REGEX // 正則表達式
+  KEYWORD // 關鍵字
+  POSITION // 位置
+  AI_PROMPT // AI 提示詞
+  TEMPLATE // 模板匹配
 }
 
 // =====================
@@ -801,10 +862,50 @@ enum SuggestionStatus {
 // =====================
 
 enum RuleStatus {
-  DRAFT          // 草稿
+  DRAFT // 草稿
   PENDING_REVIEW // 待審核
-  ACTIVE         // 生效中
-  DEPRECATED     // 已棄用
+  ACTIVE // 生效中
+  DEPRECATED // 已棄用
+}
+
+// =====================
+// Rollback Trigger Enum (Story 4.8)
+// =====================
+
+enum RollbackTrigger {
+  AUTO // 自動回滾（準確率下降觸發）
+  MANUAL // 手動回滾（用戶操作）
+  EMERGENCY // 緊急回滾（系統錯誤）
+}
+
+// =====================
+// Change Request Enums (Story 5.3)
+// =====================
+
+enum ChangeType {
+  CREATE // 新增規則
+  UPDATE // 修改規則
+  DELETE // 刪除規則
+  ACTIVATE // 啟用規則
+  DEACTIVATE // 停用規則
+}
+
+enum ChangeRequestStatus {
+  PENDING // 待審核
+  APPROVED // 已批准
+  REJECTED // 已拒絕
+  CANCELLED // 已取消
+}
+
+// =====================
+// Notification Priority Enum (Story 4.8)
+// =====================
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
 }
 
 // =====================
@@ -812,20 +913,23 @@ enum RuleStatus {
 // =====================
 
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  type      String   // RULE_SUGGESTION, ESCALATION, etc.
+  id        String               @id @default(uuid())
+  userId    String               @map("user_id")
+  type      String // RULE_SUGGESTION, ESCALATION, RULE_AUTO_ROLLBACK, etc.
   title     String
   message   String
-  data      String?  @db.Text // JSON string for additional data
-  isRead    Boolean  @default(false) @map("is_read")
-  createdAt DateTime @default(now()) @map("created_at")
-  readAt    DateTime? @map("read_at")
+  data      String?              @db.Text // JSON string for additional data
+  priority  NotificationPriority @default(NORMAL) // Story 4.8: 通知優先級
+  isRead    Boolean              @default(false) @map("is_read")
+  createdAt DateTime             @default(now()) @map("created_at")
+  readAt    DateTime?            @map("read_at")
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
+  @@index([type])
+  @@index([priority])
   @@index([createdAt])
   @@map("notifications")
 }
@@ -867,14 +971,14 @@ model Escalation {
 // =====================
 
 model RuleVersion {
-  id          String   @id @default(uuid())
-  ruleId      String   @map("rule_id")
-  version     Int
+  id      String @id @default(uuid())
+  ruleId  String @map("rule_id")
+  version Int
 
   // 版本快照
-  extractionPattern Json   @map("extraction_pattern")
-  confidence        Float  @default(0.8)
-  priority          Int    @default(0)
+  extractionPattern Json  @map("extraction_pattern")
+  confidence        Float @default(0.8)
+  priority          Int   @default(0)
 
   // 變更資訊
   changeReason String?  @map("change_reason")
@@ -904,16 +1008,79 @@ model RuleApplication {
   fieldName      String    @map("field_name")
   extractedValue String?   @map("extracted_value")
   isAccurate     Boolean?  @map("is_accurate") // NULL = 未驗證
+  verifiedBy     String?   @map("verified_by") // Story 4.8: 驗證者
   verifiedAt     DateTime? @map("verified_at")
   createdAt      DateTime  @default(now()) @map("created_at")
 
   // Relations
   rule     MappingRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
   document Document    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  verifier User?       @relation("ApplicationVerifier", fields: [verifiedBy], references: [id])
 
   @@index([ruleId, ruleVersion])
+  @@index([ruleId, createdAt])
   @@index([documentId])
   @@index([createdAt])
   @@index([isAccurate])
   @@map("rule_applications")
+}
+
+// =====================
+// Rollback Log Model (Story 4.8)
+// 回滾日誌記錄，追蹤所有規則回滾操作
+// =====================
+
+model RollbackLog {
+  id             String          @id @default(uuid())
+  ruleId         String          @map("rule_id")
+  fromVersion    Int             @map("from_version")
+  toVersion      Int             @map("to_version")
+  trigger        RollbackTrigger
+  reason         String
+  accuracyBefore Float           @map("accuracy_before")
+  accuracyAfter  Float           @map("accuracy_after")
+  metadata       Json? // 額外的回滾資訊
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  // Relations
+  rule MappingRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+  @@index([trigger])
+  @@index([createdAt])
+  @@map("rollback_logs")
+}
+
+// =====================
+// Rule Change Request Model (Story 5.3)
+// 規則變更請求，用於審核流程
+// =====================
+
+model RuleChangeRequest {
+  id            String              @id @default(uuid())
+  ruleId        String?             @map("rule_id") // NULL for CREATE
+  forwarderId   String              @map("forwarder_id")
+  changeType    ChangeType          @map("change_type")
+  beforeContent Json?               @map("before_content") // 變更前內容 (NULL for CREATE)
+  afterContent  Json                @map("after_content") // 變更後內容
+  reason        String?             @db.Text // 變更原因說明
+  status        ChangeRequestStatus @default(PENDING)
+  requestedById String              @map("requested_by")
+  reviewedById  String?             @map("reviewed_by")
+  reviewNotes   String?             @map("review_notes") @db.Text
+  createdAt     DateTime            @default(now()) @map("created_at")
+  reviewedAt    DateTime?           @map("reviewed_at")
+
+  // Relations
+  rule      MappingRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  forwarder Forwarder    @relation(fields: [forwarderId], references: [id])
+  requester User         @relation("ChangeRequester", fields: [requestedById], references: [id])
+  reviewer  User?        @relation("ChangeReviewer", fields: [reviewedById], references: [id])
+
+  @@index([forwarderId])
+  @@index([ruleId])
+  @@index([status])
+  @@index([requestedById])
+  @@index([createdAt])
+  @@map("rule_change_requests")
 }

@@ -101,7 +101,7 @@ development_status:
   epic-5: in-progress
   5-1-forwarder-profile-list: done  # Completed 2025-12-19: Forwarder list page with search, filter, sort, pagination
   5-2-forwarder-detail-config-view: done  # Completed 2025-12-19: Detail page with tabs, stats panel, rules table, recent documents
-  5-3-edit-forwarder-mapping-rules: ready-for-dev
+  5-3-edit-forwarder-mapping-rules: done  # Completed 2025-12-19: RuleChangeRequest flow, RuleEditForm, pattern editors, preview panel, ForwarderRulesTable integration
   5-4-test-rule-change-effect: ready-for-dev
   5-5-add-disable-forwarder-profile: ready-for-dev
   epic-5-retrospective: optional
