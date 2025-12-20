@@ -47,6 +47,8 @@
  *   | rule-resolver | 全域規則快取與解析 | Epic 6 Story 6.5 |
  *   | forwarder-identifier | 全域 Forwarder 識別 | Epic 6 Story 6.5 |
  *   | rule-metrics | 規則成效統計與分析 | Epic 6 Story 6.5 |
+ *   | audit-log | 用戶操作日誌記錄 | Epic 8 Story 8.1 |
+ *   | change-tracking | 數據變更追蹤 | Epic 8 Story 8.2 |
  *
  *   ## 核心設計原則
  *
@@ -224,6 +226,9 @@ export * from './monthly-cost-report.service'
 
 // Epic 8: Audit Trail & Compliance (Story 8.1 - User Operation Log Recording)
 export * from './audit-log.service'
+
+// Epic 8: Audit Trail & Compliance (Story 8.2 - Data Change Tracking)
+export * from './change-tracking.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

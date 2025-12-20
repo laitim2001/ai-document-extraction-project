@@ -61,6 +61,7 @@ model User {
   configChanges          ConfigHistory[]           @relation("ConfigChanger") // Story 6.4: 配置變更歷史
   reportJobs             ReportJob[]               @relation("UserReportJobs") // Story 7.4: 報表任務
   monthlyReports         MonthlyReport[]           @relation("MonthlyReportGenerator") // Story 7.10: 月度報告
+  dataChangeHistories    DataChangeHistory[]       @relation("DataChangeHistoryCreator") // Story 8.2: 數據變更歷史
 
   @@map("users")
 }
@@ -1759,6 +1760,44 @@ model StatisticsAuditLog {
   @@index([cityCode, date])
   @@index([executedAt])
   @@map("statistics_audit_logs")
+}
+
+// =====================
+// Data Change History Model (Story 8.2)
+// 數據變更追蹤，記錄所有資源的版本歷史
+// =====================
+
+model DataChangeHistory {
+  id            String            @id @default(uuid())
+  resourceType  String            @map("resource_type") // 資源類型 (user, role, forwarder, mapping_rule, etc.)
+  resourceId    String            @map("resource_id") // 資源 ID
+  version       Int // 版本號（從 1 開始遞增）
+  previousId    String?           @map("previous_id") // 上一個版本的 ID
+  snapshot      Json // 完整資料快照
+  changes       Json? // 變更詳情 { before: {...}, after: {...}, changedFields: [...] }
+  changedBy     String            @map("changed_by")
+  changedByName String            @map("changed_by_name")
+  changeReason  String?           @map("change_reason") // 變更原因
+  changeType    HistoryChangeType @map("change_type")
+  cityCode      String?           @map("city_code") // 城市隔離
+  createdAt     DateTime          @default(now()) @map("created_at")
+
+  // Relations
+  changedByUser User @relation("DataChangeHistoryCreator", fields: [changedBy], references: [id])
+
+  @@unique([resourceType, resourceId, version])
+  @@index([resourceType, resourceId])
+  @@index([changedBy])
+  @@index([createdAt])
+  @@index([cityCode])
+  @@map("data_change_history")
+}
+
+enum HistoryChangeType {
+  CREATE // 新建
+  UPDATE // 更新
+  DELETE // 刪除
+  RESTORE // 還原（從回收站或版本還原）
 }
 
 // =====================
