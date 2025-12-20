@@ -63,6 +63,8 @@ model User {
   monthlyReports         MonthlyReport[]           @relation("MonthlyReportGenerator") // Story 7.10: 月度報告
   dataChangeHistories    DataChangeHistory[]       @relation("DataChangeHistoryCreator") // Story 8.2: 數據變更歷史
   traceabilityReports    TraceabilityReport[]      @relation("TraceabilityReportGenerator") // Story 8.4: 追溯報告
+  auditReportJobs        AuditReportJob[]          @relation("AuditReportJobRequester") // Story 8.5: 審計報告任務
+  auditReportDownloads   AuditReportDownload[]     @relation("AuditReportDownloader") // Story 8.5: 審計報告下載
 
   @@map("users")
 }
@@ -1864,4 +1866,92 @@ model MonthlyReport {
   @@index([reportMonth])
   @@index([status])
   @@map("monthly_reports")
+}
+
+// =====================
+// Audit Report Models (Story 8.5)
+// 審計報告匯出功能
+// =====================
+
+model AuditReportJob {
+  id               String             @id @default(cuid())
+  reportType       AuditReportType    @map("report_type")
+  outputFormat     ReportOutputFormat @map("output_format")
+  title            String
+  queryParams      Json               @map("query_params")
+  dateFrom         DateTime           @map("date_from")
+  dateTo           DateTime           @map("date_to")
+  cityIds          String[]           @map("city_ids")
+  forwarderIds     String[]           @map("forwarder_ids")
+  includedFields   String[]           @map("included_fields")
+  includeChanges   Boolean            @default(true) @map("include_changes")
+  includeFiles     Boolean            @default(true) @map("include_files")
+  status           ReportJobStatus2   @default(PENDING)
+  progress         Int                @default(0)
+  totalRecords     Int?               @map("total_records")
+  processedRecords Int                @default(0) @map("processed_records")
+  fileUrl          String?            @map("file_url")
+  fileSize         BigInt?            @map("file_size")
+  checksum         String?
+  digitalSignature String?            @map("digital_signature")
+  errorMessage     String?            @map("error_message")
+  errorDetails     Json?              @map("error_details")
+  requestedById    String             @map("requested_by_id")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  startedAt        DateTime?          @map("started_at")
+  completedAt      DateTime?          @map("completed_at")
+  expiresAt        DateTime?          @map("expires_at")
+
+  // Relations
+  requestedBy User                  @relation("AuditReportJobRequester", fields: [requestedById], references: [id])
+  downloads   AuditReportDownload[]
+
+  @@index([requestedById])
+  @@index([status])
+  @@index([createdAt])
+  @@map("audit_report_jobs")
+}
+
+model AuditReportDownload {
+  id             String   @id @default(cuid())
+  reportJobId    String   @map("report_job_id")
+  downloadedById String   @map("downloaded_by_id")
+  downloadedAt   DateTime @default(now()) @map("downloaded_at")
+  ipAddress      String?  @map("ip_address")
+  userAgent      String?  @map("user_agent")
+
+  // Relations
+  reportJob    AuditReportJob @relation(fields: [reportJobId], references: [id], onDelete: Cascade)
+  downloadedBy User           @relation("AuditReportDownloader", fields: [downloadedById], references: [id])
+
+  @@index([reportJobId])
+  @@index([downloadedById])
+  @@map("audit_report_downloads")
+}
+
+enum AuditReportType {
+  PROCESSING_RECORDS // 處理記錄報告
+  CHANGE_HISTORY     // 變更歷史報告
+  FULL_AUDIT         // 完整審計報告
+  COMPLIANCE_SUMMARY // 合規摘要報告
+}
+
+enum ReportOutputFormat {
+  EXCEL // Excel 格式 (.xlsx)
+  PDF   // PDF 格式
+  CSV   // CSV 格式
+  JSON  // JSON 格式
+}
+
+// Renamed to avoid conflict with existing ReportJobStatus
+enum ReportJobStatus2 {
+  PENDING    // 等待處理
+  QUEUED     // 已排隊
+  PROCESSING // 處理中
+  GENERATING // 生成中
+  SIGNING    // 簽章中
+  COMPLETED  // 已完成
+  FAILED     // 失敗
+  CANCELLED  // 已取消
+  EXPIRED    // 已過期
 }

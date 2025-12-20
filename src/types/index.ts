@@ -191,3 +191,38 @@ export * from './audit-query'
 
 // 追溯功能相關 (Story 8.4)
 export * from './traceability'
+
+// 審計報告匯出相關 (Story 8.5)
+// 注意：REPORT_EXPIRY_DAYS 與 monthly-report.ts 衝突，使用別名
+export {
+  // Types
+  type AuditReportConfig,
+  type AuditReportData,
+  type ProcessingRecordItem,
+  type ChangeHistoryItem,
+  type FileListItem,
+  type AuditReportJob,
+  type AuditReportDownload,
+  type ReportIntegrityResult,
+  type CreateAuditReportRequest,
+  type CreateAuditReportResponse,
+  type AuditReportListParams,
+  type AuditReportListResponse,
+  type AuditReportJobListItem,
+  type AuditReportDetailResponse,
+  type DownloadReportResponse,
+  type VerifyReportResponse,
+  // Constants
+  AUDIT_REPORT_TYPES,
+  REPORT_OUTPUT_FORMATS,
+  REPORT_JOB_STATUSES,
+  LARGE_REPORT_THRESHOLD,
+  MAX_REPORT_RECORDS,
+  REPORT_EXPIRY_DAYS as AUDIT_REPORT_EXPIRY_DAYS,
+  // Functions
+  getReportTypeConfig,
+  getOutputFormatConfig,
+  getJobStatusConfig,
+  isReportDownloadable,
+  calculateExpiryDate,
+} from './audit-report'

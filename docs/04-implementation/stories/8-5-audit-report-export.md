@@ -8,7 +8,7 @@
 | Story ID | 8.5 |
 | 標題 | 審計報告匯出 |
 | FR 覆蓋 | FR52 |
-| 狀態 | ready-for-dev |
+| 狀態 | done |
 | 優先級 | High |
 | 估計點數 | 8 |
 
