@@ -182,3 +182,6 @@ export {
   DEFAULT_LABOR_COST_CONFIG,
   DEFAULT_ANOMALY_THRESHOLDS,
 } from './city-cost'
+
+// 月度成本分攤報告相關 (Story 7.10)
+export * from './monthly-report'

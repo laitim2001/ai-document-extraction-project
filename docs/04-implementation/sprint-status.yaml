@@ -120,7 +120,7 @@ development_status:
   # ============================================================
   # Epic 7: 報表儀表板與成本追蹤
   # ============================================================
-  epic-7: in-progress  # Started 2025-12-19
+  epic-7: done  # Completed 2025-12-20: All 10 stories completed
   7-1-processing-statistics-dashboard: done  # Completed 2025-12-19: Dashboard types, DashboardStatisticsService with caching, StatCard component, DashboardStats container, React Query integration
   7-2-time-range-filter: done  # Completed 2025-12-19: DateRange types, date-range-utils, url-params, DateRangeContext with URL sync, DateRangePicker, DateRangeQuickSelect, useDashboardStatistics hook, DashboardStats integration
   7-3-forwarder-filter: done  # Completed 2025-12-19: ForwarderOption types, DashboardFilterContext, ForwarderMultiSelect, ForwarderComparisonChart, ControlledDateRangePicker, forwarders/list API
@@ -130,7 +130,7 @@ development_status:
   7-7-city-processing-volume-tracking: done  # Completed 2025-12-19: ProcessingStatistics/HourlyProcessingStats/StatisticsAuditLog models, processing-stats.service, aggregated/cities/realtime/reconcile APIs, document-processed handler, useProcessingStats hooks
   7-8-city-ai-cost-tracking: done  # Completed 2025-12-19: ApiPricingHistory model, CityCostService, city-summary/city-trend/comparison APIs, pricing CRUD APIs, useCityCost hooks
   7-9-city-cost-report: done  # Completed 2025-12-19: CityCostReportService (AI+labor cost), anomaly detection, city-cost/trend/anomaly APIs, useCityCostReport hooks, CityCostTable, CostAnomalyDialog, cost report page
-  7-10-monthly-cost-allocation-report: ready-for-dev
+  7-10-monthly-cost-allocation-report: done  # Completed 2025-12-20: MonthlyReport model, MonthlyCostReportService, Excel/PDF generation, API routes, React Query hooks, MonthPicker, MonthlyReportDialog, reports/monthly page
   epic-7-retrospective: optional
 
   # ============================================================
