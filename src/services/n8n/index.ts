@@ -65,6 +65,7 @@
  *   - 工作流執行狀態追蹤（Story 10.3）
  *   - 手動觸發工作流（Story 10.4）
  *   - 工作流定義 CRUD（Story 10.4）
+ *   - 工作流錯誤診斷與統計（Story 10.5）
  *
  * @related
  *   - src/types/n8n.ts - n8n 類型定義
@@ -117,3 +118,9 @@ export { WorkflowTriggerService, workflowTriggerService } from './workflow-trigg
  * @description 管理工作流定義的 CRUD 操作（Story 10.4）
  */
 export { WorkflowDefinitionService, workflowDefinitionService } from './workflow-definition.service';
+
+/**
+ * 工作流錯誤服務
+ * @description 工作流錯誤診斷和統計分析（Story 10.5）
+ */
+export { WorkflowErrorService, workflowErrorService } from './workflow-error.service';

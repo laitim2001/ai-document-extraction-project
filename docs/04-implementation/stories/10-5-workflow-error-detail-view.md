@@ -970,3 +970,94 @@ describe('WorkflowErrorService', () => {
 - Story 10-3: 工作流執行狀態查看（基礎資料）
 - Story 10-4: 手動觸發工作流（重試功能）
 - Story 10-7: n8n 連接狀態監控（連線錯誤關聯）
+
+---
+
+## Implementation Notes
+
+### 實作日期
+2025-12-20
+
+### 實作摘要
+
+本 Story 完成工作流錯誤診斷系統的後端服務層和 React Query Hooks，為前端組件提供完整的錯誤詳情獲取和統計分析能力。
+
+### 已實作項目
+
+#### 1. 類型定義 (`src/types/workflow-error.ts`)
+- `WorkflowErrorType`: 8 種錯誤類型定義
+- `ErrorStage`: 錯誤發生階段（trigger/execution/callback/unknown）
+- `FailedStepInfo`: 失敗步驟資訊
+- `TechnicalDetails`: 技術詳情（堆疊追蹤、錯誤代碼）
+- `HttpDetails`: HTTP 請求/回應詳情
+- `N8nDetails`: n8n 執行資訊
+- `ErrorContext`: 錯誤上下文
+- `WorkflowErrorDetails`: 完整錯誤詳情
+- `ErrorDetailResponse`: API 回應格式
+- `ErrorStatistics`: 統計資料格式
+- `ErrorTypeConfig`: 錯誤類型配置
+- `CreateErrorDetailsInput`: 建立錯誤詳情輸入
+
+#### 2. 常數定義 (`src/lib/constants/error-types.ts`)
+- `ERROR_TYPE_CONFIG`: 8 種錯誤類型的配置（標籤、顏色、圖示、可恢復性、預設提示）
+- `SENSITIVE_HEADERS`: 敏感 HTTP 標頭列表（9 種）
+- `TIMEOUT_KEYWORDS`: 逾時錯誤關鍵字
+- `CONNECTION_KEYWORDS`: 連線錯誤關鍵字
+- `AUTHENTICATION_KEYWORDS`: 認證錯誤關鍵字
+- `VALIDATION_KEYWORDS`: 驗證錯誤關鍵字
+- Helper functions: `getErrorTypeConfig`, `isSensitiveHeader`, `isErrorRecoverable`
+
+#### 3. 服務層 (`src/services/n8n/workflow-error.service.ts`)
+- `WorkflowErrorService` 類別
+- `getErrorDetail(executionId)`: 獲取錯誤詳情（含文件列表、n8n URL）
+- `getErrorStatistics(options)`: 獲取錯誤統計（按類型/步驟分組、可恢復率）
+- `parseErrorDetails(rawDetails)`: 解析和標準化錯誤詳情
+- `createErrorDetails(input)`: 創建新錯誤詳情
+- 私有方法：錯誤分類、關鍵字匹配、敏感資訊遮蔽、n8n URL 建構
+
+#### 4. API 路由
+- `GET /api/workflows/executions/[id]/error`: 錯誤詳情端點
+  - 身份驗證和城市權限檢查
+  - 只處理 FAILED/TIMEOUT 狀態
+  - 返回完整錯誤詳情
+- `GET /api/workflow-errors/statistics`: 錯誤統計端點
+  - 僅 SUPER_USER/ADMIN 可存取
+  - 支援 cityCode、startDate、endDate 篩選
+  - 返回統計資料
+
+#### 5. React Query Hooks (`src/hooks/useWorkflowError.ts`)
+- `useWorkflowErrorDetail(executionId, options)`: 錯誤詳情查詢（1 分鐘快取）
+- `useErrorStatistics(options)`: 錯誤統計查詢（5 分鐘快取）
+- `workflowErrorKeys`: 查詢鍵定義
+
+### 錯誤分類邏輯
+
+1. 如果錯誤已有類型 → 直接使用
+2. 關鍵字匹配（優先順序）：逾時 > 連線 > 認證 > 驗證
+3. HTTP 狀態碼判斷：5xx → EXTERNAL_ERROR，4xx → BUSINESS_ERROR
+4. 其他 → UNKNOWN_ERROR
+
+### 敏感資訊處理
+
+自動遮蔽以下 HTTP 標頭：
+- authorization, x-api-key, cookie, set-cookie
+- x-auth-token, x-access-token, x-refresh-token
+- proxy-authorization, www-authenticate
+
+### 技術決策
+
+1. **類型安全**: 使用 Prisma JsonValue 類型守衛確保 config.value 為字串
+2. **錯誤可恢復性**: CONNECTION_ERROR、TIMEOUT_ERROR、EXTERNAL_ERROR 標記為可恢復
+3. **快取策略**: 錯誤詳情 1 分鐘、統計 5 分鐘（資料相對靜態）
+4. **retry: false**: 錯誤詳情不自動重試（避免無謂的重複請求）
+
+### 未實作項目（前端組件）
+
+以下項目在 Tech Spec 中定義但未在本次實作，留待後續或整合時實作：
+- `WorkflowErrorDetail` React 組件（展示錯誤詳情）
+- 錯誤統計圖表組件
+
+### 驗證結果
+
+- ✅ TypeScript 類型檢查通過 (`npm run type-check`)
+- ✅ ESLint 檢查通過 (`npm run lint`)

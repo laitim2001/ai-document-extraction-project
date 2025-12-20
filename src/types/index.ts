@@ -261,3 +261,6 @@ export * from './workflow-execution'
 
 // 工作流觸發相關 (Story 10.4)
 export * from './workflow-trigger'
+
+// 工作流錯誤相關 (Story 10.5)
+export * from './workflow-error'

@@ -164,7 +164,7 @@ development_status:
   10-2-webhook-config-management: done  # Completed 2025-12-20: WebhookConfig/WebhookConfigHistory models, AES-256-GCM encryption utility, webhook config types, WebhookConfigService, 5 API routes (list/create, get/update/delete, test, history), React Query hooks
   10-3-workflow-execution-status-view: done  # Completed 2025-12-20: WorkflowExecution/WorkflowExecutionStep models, workflow-execution types, WorkflowExecutionService, 4 API routes (list, detail, running, stats), React Query hooks with polling
   10-4-manual-trigger-workflow: done  # Completed 2025-12-20: WorkflowDefinition model, workflow-trigger types, WorkflowTriggerService, WorkflowDefinitionService, triggerable/trigger/retry/cancel APIs, useWorkflowTrigger hooks
-  10-5-workflow-error-detail-view: ready-for-dev
+  10-5-workflow-error-detail-view: done  # Completed 2025-12-20: workflow-error types, error-types constants, WorkflowErrorService (error detail/statistics/classification), error detail API, statistics API, useWorkflowError hooks
   10-6-document-processing-progress-tracking: ready-for-dev
   10-7-n8n-connection-status-monitoring: ready-for-dev
   epic-10-retrospective: optional
