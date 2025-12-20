@@ -57,6 +57,7 @@
  *   - API Key 生命週期管理
  *   - 文件提交與狀態追蹤
  *   - Webhook 雙向通訊
+ *   - Webhook 配置管理（Story 10.2）
  *
  * @related
  *   - src/types/n8n.ts - n8n 類型定義
@@ -85,3 +86,9 @@ export { N8nDocumentService, n8nDocumentService } from './n8n-document.service';
  * @description 管理 Webhook 事件發送與接收
  */
 export { N8nWebhookService, n8nWebhookService } from './n8n-webhook.service';
+
+/**
+ * Webhook 配置服務
+ * @description 管理 n8n Webhook 連接配置（Story 10.2）
+ */
+export { WebhookConfigService, webhookConfigService } from './webhook-config.service';

@@ -1430,3 +1430,106 @@ describe('WebhookConfigService', () => {
 
 - Story 10-1: n8n 雙向通訊 API（使用 Webhook 配置）
 - Story 10-7: n8n 連接狀態監控（監控 Webhook 健康狀態）
+
+---
+
+## Implementation Notes
+
+### 完成日期
+2025-12-20
+
+### 實際實現摘要
+
+#### 1. 資料庫模型 (Prisma Schema)
+- **WebhookConfig**: Webhook 配置模型，包含 n8n 連線資訊、重試策略、城市關聯
+- **WebhookConfigHistory**: 配置變更歷史記錄，支持審計追蹤
+- **WebhookTestResult**: 測試結果枚舉 (SUCCESS, FAILED, TIMEOUT, ERROR)
+- **ConfigChangeType**: 變更類型枚舉 (CREATED, UPDATED, ACTIVATED, DEACTIVATED, DELETED)
+
+#### 2. 加密工具 (src/lib/encryption.ts)
+- 使用 AES-256-GCM 加密算法保護 Auth Token
+- 使用 scrypt 進行密鑰衍生
+- 環境變數: `ENCRYPTION_KEY` (32 字元密鑰)
+
+#### 3. 類型定義 (src/types/n8n.ts)
+新增類型:
+- `WebhookConfigDto`: 完整配置 DTO
+- `WebhookConfigListItem`: 列表項目（簡化版）
+- `CreateWebhookConfigInput`: 創建輸入
+- `UpdateWebhookConfigInput`: 更新輸入
+- `TestConnectionRequest/Result`: 連線測試
+- `WebhookConfigHistoryDto`: 歷史記錄 DTO
+- `ListWebhookConfigsOptions/Result`: 列表查詢
+- `ListConfigHistoryOptions/Result`: 歷史查詢
+- `RetryStrategy`: 重試策略
+- `DEFAULT_RETRY_STRATEGY`: 預設重試策略常數
+
+#### 4. 服務層 (src/services/n8n/webhook-config.service.ts)
+`WebhookConfigService` 類別實現:
+- `create()`: 創建配置（自動加密 Token）
+- `update()`: 更新配置（支持部分更新）
+- `delete()`: 刪除配置（軟刪除歷史記錄）
+- `getById()`: 獲取單一配置
+- `getList()`: 列表查詢（支持分頁、篩選、排序）
+- `testConnection()`: 連線測試（支持現有配置或臨時配置）
+- `getHistory()`: 獲取變更歷史
+
+#### 5. API 路由
+| 端點 | 方法 | 功能 |
+|------|------|------|
+| `/api/admin/integrations/n8n/webhook-configs` | GET | 獲取配置列表 |
+| `/api/admin/integrations/n8n/webhook-configs` | POST | 創建新配置 |
+| `/api/admin/integrations/n8n/webhook-configs/[id]` | GET | 獲取配置詳情 |
+| `/api/admin/integrations/n8n/webhook-configs/[id]` | PATCH | 更新配置 |
+| `/api/admin/integrations/n8n/webhook-configs/[id]` | DELETE | 刪除配置 |
+| `/api/admin/integrations/n8n/webhook-configs/[id]/test` | POST | 測試連線 |
+| `/api/admin/integrations/n8n/webhook-configs/[id]/history` | GET | 獲取變更歷史 |
+
+#### 6. React Query Hooks (src/hooks/use-webhook-config.ts)
+- `useWebhookConfigs()`: 獲取配置列表
+- `useWebhookConfig(id)`: 獲取單一配置
+- `useCreateWebhookConfig()`: 創建配置
+- `useUpdateWebhookConfig()`: 更新配置
+- `useDeleteWebhookConfig()`: 刪除配置
+- `useToggleWebhookConfigActive()`: 切換啟用狀態
+- `useTestWebhookConfig()`: 測試連線
+- `useWebhookConfigHistory()`: 獲取變更歷史
+
+### 技術決策
+
+1. **加密方式**: 選擇 AES-256-GCM 而非其他方式，因為:
+   - 提供認證加密（AEAD）
+   - Node.js 原生支持
+   - 行業標準安全等級
+
+2. **Prisma 關聯處理**: 使用 relation 而非直接字段更新:
+   - `city: { connect: { code } }` 或 `{ disconnect: true }`
+   - `updatedByUser: { connect: { id } }`
+   - 確保參考完整性
+
+3. **歷史記錄設計**:
+   - 敏感資訊（authToken）在歷史中以 `[ENCRYPTED]` 標記
+   - 記錄 changedFields 陣列以便快速識別變更欄位
+   - 記錄 IP 地址和 User-Agent 用於審計
+
+### 待完成項目
+
+- [ ] 前端 UI 組件（WebhookConfigForm, WebhookConfigList）
+- [ ] 單元測試和整合測試
+- [ ] 監控儀表板整合 (Story 10-7)
+
+### 檔案清單
+
+```
+prisma/schema.prisma                                           # 更新 - 新增模型
+src/lib/encryption.ts                                          # 新建 - 加密工具
+src/types/n8n.ts                                               # 更新 - 新增類型
+src/services/n8n/webhook-config.service.ts                     # 新建 - 配置服務
+src/services/n8n/index.ts                                      # 更新 - 導出
+src/app/api/admin/integrations/n8n/webhook-configs/route.ts    # 新建 - 列表/創建
+src/app/api/admin/integrations/n8n/webhook-configs/[id]/route.ts      # 新建 - CRUD
+src/app/api/admin/integrations/n8n/webhook-configs/[id]/test/route.ts # 新建 - 測試
+src/app/api/admin/integrations/n8n/webhook-configs/[id]/history/route.ts # 新建 - 歷史
+src/hooks/use-webhook-config.ts                                # 新建 - React Query hooks
+src/hooks/index.ts                                             # 更新 - 導出
+```

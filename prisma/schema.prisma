@@ -75,6 +75,9 @@ model User {
   outlookConfigs         OutlookConfig[]           @relation("OutlookConfigCreator") // Story 9.3: Outlook 配置創建者
   outlookConfigsUpdated  OutlookConfig[]           @relation("OutlookConfigUpdater") // Story 9.4: Outlook 配置更新者
   n8nApiKeys             N8nApiKey[]               @relation("N8nApiKeyCreator") // Story 10.1: n8n API Key 創建者
+  webhookConfigsCreated  WebhookConfig[]           @relation("WebhookConfigCreator") // Story 10.2: Webhook 配置創建者
+  webhookConfigsUpdated  WebhookConfig[]           @relation("WebhookConfigUpdater") // Story 10.2: Webhook 配置更新者
+  webhookConfigHistories WebhookConfigHistory[]    @relation("WebhookConfigHistoryCreator") // Story 10.2: 配置變更歷史
 
   @@map("users")
 }
@@ -225,6 +228,7 @@ model City {
   outlookConfig        OutlookConfig?         // Story 9.3: Outlook 配置（一對一）
   outlookFetchLogs     OutlookFetchLog[]      // Story 9.3: Outlook 獲取記錄
   n8nApiKeys           N8nApiKey[]            // Story 10.1: n8n API Keys
+  webhookConfigs       WebhookConfig[]        // Story 10.2: Webhook 配置
 
   @@index([regionId])
   @@index([status])
@@ -2806,4 +2810,105 @@ enum WorkflowExecutionStatus {
   COMPLETED   // 已完成
   FAILED      // 失敗
   CANCELLED   // 已取消
+}
+
+// =====================
+// Webhook 配置模型 (Story 10.2)
+// =====================
+
+// Webhook 配置主表
+model WebhookConfig {
+  id               String              @id @default(cuid())
+  name             String              // 配置名稱
+  description      String?             // 配置描述
+
+  // n8n 連接設定
+  baseUrl          String              @map("base_url") // n8n 基礎 URL
+  endpointPath     String              @map("endpoint_path") // Webhook 端點路徑
+  authToken        String              @map("auth_token") // AES-256-GCM 加密的認證令牌
+
+  // 城市隔離（null = 全域配置）
+  cityCode         String?             @map("city_code")
+  city             City?               @relation(fields: [cityCode], references: [code])
+
+  // 重試策略
+  retryStrategy    Json                @map("retry_strategy") // { maxAttempts: 3, delays: [1000, 5000, 30000] }
+  timeoutMs        Int                 @default(30000) @map("timeout_ms")
+
+  // 訂閱事件
+  subscribedEvents String[]            @default([]) @map("subscribed_events") // ['DOCUMENT_RECEIVED', 'DOCUMENT_COMPLETED']
+
+  // 狀態管理
+  isActive         Boolean             @default(true) @map("is_active")
+
+  // 連接測試記錄
+  lastTestAt       DateTime?           @map("last_test_at")
+  lastTestResult   WebhookTestResult?  @map("last_test_result")
+  lastTestError    String?             @map("last_test_error")
+
+  // 審計欄位
+  createdBy        String              @map("created_by")
+  createdByUser    User                @relation("WebhookConfigCreator", fields: [createdBy], references: [id])
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedBy        String?             @map("updated_by")
+  updatedByUser    User?               @relation("WebhookConfigUpdater", fields: [updatedBy], references: [id])
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+
+  // 關聯
+  history          WebhookConfigHistory[]
+
+  @@index([cityCode])
+  @@index([isActive])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@map("webhook_configs")
+}
+
+// Webhook 配置變更歷史
+model WebhookConfigHistory {
+  id               String              @id @default(cuid())
+  configId         String              @map("config_id")
+  config           WebhookConfig       @relation(fields: [configId], references: [id], onDelete: Cascade)
+
+  // 變更類型
+  changeType       ConfigChangeType    @map("change_type")
+
+  // 變更前後的值
+  previousValue    Json?               @map("previous_value")
+  newValue         Json?               @map("new_value")
+
+  // 變更的欄位
+  changedFields    String[]            @default([]) @map("changed_fields")
+
+  // 審計欄位
+  changedBy        String              @map("changed_by")
+  changedByUser    User                @relation("WebhookConfigHistoryCreator", fields: [changedBy], references: [id])
+  changedAt        DateTime            @default(now()) @map("changed_at")
+
+  // IP 和來源資訊
+  ipAddress        String?             @map("ip_address")
+  userAgent        String?             @map("user_agent")
+
+  @@index([configId])
+  @@index([changeType])
+  @@index([changedBy])
+  @@index([changedAt])
+  @@map("webhook_config_history")
+}
+
+// Webhook 測試結果枚舉
+enum WebhookTestResult {
+  SUCCESS   // 連接成功
+  FAILED    // 連接失敗
+  TIMEOUT   // 連接超時
+  ERROR     // 發生錯誤
+}
+
+// 配置變更類型枚舉
+enum ConfigChangeType {
+  CREATED      // 創建配置
+  UPDATED      // 更新配置
+  ACTIVATED    // 啟用配置
+  DEACTIVATED  // 停用配置
+  DELETED      // 刪除配置
 }

@@ -6,10 +6,17 @@
  *   - 文件提交與狀態類型
  *   - Webhook 事件類型
  *   - 錯誤響應類型
+ *   - Webhook 配置管理類型 (Story 10.2)
  *
  * @module src/types/n8n
  * @since Epic 10 - Story 10.1
  * @lastModified 2025-12-20
+ *
+ * @features
+ *   - n8n API Key 管理
+ *   - 文件提交與狀態追蹤
+ *   - Webhook 雙向通信
+ *   - Webhook 配置管理
  */
 
 import { DocumentStatus } from '@prisma/client';
@@ -351,4 +358,197 @@ export interface ListApiKeysOptions {
 export interface ListApiKeysResult {
   items: N8nApiKeyInfo[];
   total: number;
+}
+
+// ============================================================
+// Webhook Configuration Types (Story 10.2)
+// ============================================================
+
+/**
+ * Webhook 測試結果類型
+ */
+export type WebhookTestResult = 'SUCCESS' | 'FAILED' | 'TIMEOUT' | 'ERROR';
+
+/**
+ * 配置變更類型
+ */
+export type ConfigChangeType =
+  | 'CREATED'
+  | 'UPDATED'
+  | 'ACTIVATED'
+  | 'DEACTIVATED'
+  | 'DELETED';
+
+/**
+ * 重試策略配置
+ */
+export interface RetryStrategy {
+  maxAttempts: number;
+  delays: number[]; // 毫秒，例如 [1000, 5000, 30000]
+}
+
+/**
+ * 預設重試策略
+ */
+export const DEFAULT_RETRY_STRATEGY: RetryStrategy = {
+  maxAttempts: 3,
+  delays: [1000, 5000, 30000],
+};
+
+/**
+ * Webhook 配置 DTO
+ */
+export interface WebhookConfigDto {
+  id: string;
+  name: string;
+  description: string | null;
+  baseUrl: string;
+  endpointPath: string;
+  cityCode: string | null;
+  cityName: string | null;
+  retryStrategy: RetryStrategy;
+  timeoutMs: number;
+  subscribedEvents: N8nEventType[];
+  isActive: boolean;
+  lastTestAt: Date | null;
+  lastTestResult: WebhookTestResult | null;
+  lastTestError: string | null;
+  createdBy: string;
+  createdByName: string | null;
+  createdAt: Date;
+  updatedBy: string | null;
+  updatedByName: string | null;
+  updatedAt: Date;
+}
+
+/**
+ * Webhook 配置列表項目（簡化版）
+ */
+export interface WebhookConfigListItem {
+  id: string;
+  name: string;
+  baseUrl: string;
+  endpointPath: string;
+  cityCode: string | null;
+  cityName: string | null;
+  isActive: boolean;
+  lastTestAt: Date | null;
+  lastTestResult: WebhookTestResult | null;
+  createdAt: Date;
+}
+
+/**
+ * 創建 Webhook 配置輸入
+ */
+export interface CreateWebhookConfigInput {
+  name: string;
+  description?: string;
+  baseUrl: string;
+  endpointPath: string;
+  authToken: string;
+  cityCode?: string;
+  retryStrategy?: RetryStrategy;
+  timeoutMs?: number;
+  subscribedEvents?: N8nEventType[];
+}
+
+/**
+ * 更新 Webhook 配置輸入
+ */
+export interface UpdateWebhookConfigInput {
+  name?: string;
+  description?: string | null;
+  baseUrl?: string;
+  endpointPath?: string;
+  authToken?: string;
+  cityCode?: string | null;
+  retryStrategy?: RetryStrategy;
+  timeoutMs?: number;
+  subscribedEvents?: N8nEventType[];
+  isActive?: boolean;
+}
+
+/**
+ * 連接測試請求
+ */
+export interface TestConnectionRequest {
+  configId?: string; // 使用現有配置測試
+  // 或者使用臨時配置測試
+  baseUrl?: string;
+  endpointPath?: string;
+  authToken?: string;
+  timeoutMs?: number;
+}
+
+/**
+ * 連接測試結果
+ */
+export interface TestConnectionResult {
+  success: boolean;
+  result: WebhookTestResult;
+  responseTime?: number;
+  statusCode?: number;
+  message?: string;
+  error?: string;
+  testedAt: Date;
+}
+
+/**
+ * Webhook 配置歷史 DTO
+ */
+export interface WebhookConfigHistoryDto {
+  id: string;
+  configId: string;
+  changeType: ConfigChangeType;
+  previousValue: Record<string, unknown> | null;
+  newValue: Record<string, unknown> | null;
+  changedFields: string[];
+  changedBy: string;
+  changedByName: string | null;
+  changedAt: Date;
+  ipAddress: string | null;
+  userAgent: string | null;
+}
+
+/**
+ * Webhook 配置列表選項
+ */
+export interface ListWebhookConfigsOptions {
+  cityCode?: string;
+  isActive?: boolean;
+  page?: number;
+  pageSize?: number;
+  orderBy?: 'createdAt' | 'name' | 'lastTestAt';
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * Webhook 配置列表結果
+ */
+export interface ListWebhookConfigsResult {
+  items: WebhookConfigListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+/**
+ * 配置歷史列表選項
+ */
+export interface ListConfigHistoryOptions {
+  configId: string;
+  changeType?: ConfigChangeType;
+  page?: number;
+  pageSize?: number;
+}
+
+/**
+ * 配置歷史列表結果
+ */
+export interface ListConfigHistoryResult {
+  items: WebhookConfigHistoryDto[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
