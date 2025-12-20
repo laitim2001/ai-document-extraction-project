@@ -67,6 +67,14 @@ export const SOURCE_TYPE_CONFIG: Record<
     bgColor: 'bg-purple-100',
     borderColor: 'border-purple-300',
   },
+  N8N_WORKFLOW: {
+    label: 'n8n 工作流',
+    labelEn: 'n8n Workflow',
+    icon: 'Workflow',
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-100',
+    borderColor: 'border-orange-300',
+  },
 }
 
 /**
@@ -77,6 +85,7 @@ export const SOURCE_TYPE_CHART_COLORS: Record<DocumentSourceType, string> = {
   SHAREPOINT: '#3b82f6',
   OUTLOOK: '#06b6d4',
   API: '#8b5cf6',
+  N8N_WORKFLOW: '#f97316',
 }
 
 /**
@@ -88,6 +97,7 @@ export const SOURCE_TYPE_OPTIONS = [
   { value: 'SHAREPOINT', label: 'SharePoint' },
   { value: 'OUTLOOK', label: 'Outlook 郵件' },
   { value: 'API', label: '外部 API' },
+  { value: 'N8N_WORKFLOW', label: 'n8n 工作流' },
 ] as const
 
 /**

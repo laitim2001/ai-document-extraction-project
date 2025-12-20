@@ -74,6 +74,7 @@ model User {
   apiKeys                ApiKey[]                  @relation("ApiKeyCreator") // Story 9.1: API Key 創建者
   outlookConfigs         OutlookConfig[]           @relation("OutlookConfigCreator") // Story 9.3: Outlook 配置創建者
   outlookConfigsUpdated  OutlookConfig[]           @relation("OutlookConfigUpdater") // Story 9.4: Outlook 配置更新者
+  n8nApiKeys             N8nApiKey[]               @relation("N8nApiKeyCreator") // Story 10.1: n8n API Key 創建者
 
   @@map("users")
 }
@@ -223,6 +224,7 @@ model City {
   sharePointFetchLogs  SharePointFetchLog[]   // Story 9.1: SharePoint 獲取記錄
   outlookConfig        OutlookConfig?         // Story 9.3: Outlook 配置（一對一）
   outlookFetchLogs     OutlookFetchLog[]      // Story 9.3: Outlook 獲取記錄
+  n8nApiKeys           N8nApiKey[]            // Story 10.1: n8n API Keys
 
   @@index([regionId])
   @@index([status])
@@ -426,6 +428,7 @@ model Document {
   apiUsageLogs        ApiUsageLog[]    @relation("DocumentApiUsageLogs") // API 使用記錄（Story 7.6）
   traceabilityReports TraceabilityReport[] // 追溯報告（Story 8.4）
   sharePointFetchLogs SharePointFetchLog[] // SharePoint 獲取記錄（Story 9.1）
+  n8nWebhookEvents    N8nWebhookEvent[]    // n8n Webhook 事件（Story 10.1）
 
   @@index([status])
   @@index([uploadedBy])
@@ -669,6 +672,7 @@ enum DocumentSourceType {
   SHAREPOINT // SharePoint
   OUTLOOK // Outlook 郵件附件
   API // 外部 API
+  N8N_WORKFLOW // n8n 工作流（Story 10.1）
 }
 
 // =====================
@@ -2552,4 +2556,254 @@ model OutlookFetchLog {
   @@index([cityId])
   @@index([createdAt])
   @@map("outlook_fetch_logs")
+}
+
+// =====================
+// n8n Integration Models (Story 10.1)
+// =====================
+
+// n8n API Key 模型
+model N8nApiKey {
+  id               String    @id @default(cuid())
+  key              String    @unique // SHA-256 hashed API key
+  keyPrefix        String    @map("key_prefix") // 前 12 字元用於顯示識別 (n8n_xxxxxxxx)
+  name             String    // 用途描述
+
+  // 城市隔離
+  cityCode         String    @map("city_code")
+  city             City      @relation(fields: [cityCode], references: [code])
+
+  // 權限設定
+  permissions      String[]  // ['documents:read', 'documents:write', 'webhook:receive', '*']
+
+  // 使用追蹤
+  lastUsedAt       DateTime? @map("last_used_at")
+  usageCount       Int       @default(0) @map("usage_count")
+
+  // 狀態管理
+  isActive         Boolean   @default(true) @map("is_active")
+  expiresAt        DateTime? @map("expires_at")
+
+  // 速率限制
+  rateLimit        Int       @default(100) @map("rate_limit")  // 每分鐘請求數
+  rateLimitWindow  Int       @default(60) @map("rate_limit_window")   // 秒
+
+  // 審計
+  createdBy        String    @map("created_by")
+  createdByUser    User      @relation("N8nApiKeyCreator", fields: [createdBy], references: [id])
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  // 關聯
+  apiCalls         N8nApiCall[]
+  incomingWebhooks N8nIncomingWebhook[]
+
+  @@index([key])
+  @@index([cityCode])
+  @@index([isActive])
+  @@index([keyPrefix])
+  @@map("n8n_api_keys")
+}
+
+// API 調用記錄
+model N8nApiCall {
+  id              String    @id @default(cuid())
+  apiKeyId        String    @map("api_key_id")
+  apiKey          N8nApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  // 請求資訊
+  endpoint        String
+  method          String
+  requestBody     Json?     @map("request_body")
+  requestHeaders  Json?     @map("request_headers")
+
+  // 回應資訊
+  statusCode      Int       @map("status_code")
+  responseBody    Json?     @map("response_body")
+
+  // 性能指標
+  durationMs      Int       @map("duration_ms")
+
+  // 追蹤
+  traceId         String    @unique @map("trace_id")
+  ipAddress       String    @map("ip_address")
+  userAgent       String?   @map("user_agent")
+
+  // 審計
+  timestamp       DateTime  @default(now())
+
+  @@index([apiKeyId])
+  @@index([endpoint])
+  @@index([timestamp])
+  @@index([traceId])
+  @@index([statusCode])
+  @@map("n8n_api_calls")
+}
+
+// n8n 出站 Webhook 事件記錄 (平台 → n8n)
+model N8nWebhookEvent {
+  id                  String                @id @default(cuid())
+
+  // 事件資訊
+  eventType           N8nEventType          @map("event_type")
+  documentId          String?               @map("document_id")
+  document            Document?             @relation(fields: [documentId], references: [id])
+  workflowExecutionId String?               @map("workflow_execution_id")
+
+  // 城市隔離
+  cityCode            String                @map("city_code")
+
+  // 回調資訊
+  webhookUrl          String                @map("webhook_url")
+  requestPayload      Json                  @map("request_payload")
+  requestHeaders      Json?                 @map("request_headers")
+
+  // 回應狀態
+  status              WebhookDeliveryStatus @default(PENDING)
+  responseCode        Int?                  @map("response_code")
+  responseBody        String?               @map("response_body")
+  responseHeaders     Json?                 @map("response_headers")
+
+  // 重試管理
+  attemptCount        Int                   @default(0) @map("attempt_count")
+  maxAttempts         Int                   @default(3) @map("max_attempts")
+  nextRetryAt         DateTime?             @map("next_retry_at")
+  lastAttemptAt       DateTime?             @map("last_attempt_at")
+
+  // 性能追蹤
+  durationMs          Int?                  @map("duration_ms")
+
+  // 錯誤追蹤
+  errorMessage        String?               @map("error_message")
+  errorStack          String?               @map("error_stack")
+
+  // 審計
+  createdAt           DateTime              @default(now()) @map("created_at")
+  completedAt         DateTime?             @map("completed_at")
+
+  @@index([eventType])
+  @@index([documentId])
+  @@index([status])
+  @@index([nextRetryAt])
+  @@index([cityCode])
+  @@index([createdAt])
+  @@map("n8n_webhook_events")
+}
+
+// n8n 入站 Webhook 記錄 (n8n → 平台)
+model N8nIncomingWebhook {
+  id                  String    @id @default(cuid())
+
+  // API Key 關聯
+  apiKeyId            String    @map("api_key_id")
+  apiKey              N8nApiKey @relation(fields: [apiKeyId], references: [id])
+
+  // 事件資訊
+  eventType           String    @map("event_type")
+  workflowExecutionId String?   @map("workflow_execution_id")
+  documentId          String?   @map("document_id")
+
+  // 請求資訊
+  payload             Json
+  headers             Json?
+
+  // 追蹤
+  traceId             String    @unique @map("trace_id")
+  ipAddress           String    @map("ip_address")
+
+  // 處理狀態
+  processed           Boolean   @default(false)
+  processedAt         DateTime? @map("processed_at")
+  processingError     String?   @map("processing_error")
+
+  // 審計
+  receivedAt          DateTime  @default(now()) @map("received_at")
+
+  @@index([apiKeyId])
+  @@index([eventType])
+  @@index([traceId])
+  @@index([receivedAt])
+  @@map("n8n_incoming_webhooks")
+}
+
+// 工作流執行記錄
+model WorkflowExecution {
+  id                  String                  @id @default(cuid())
+  n8nExecutionId      String                  @unique @map("n8n_execution_id")
+
+  // 工作流資訊
+  workflowId          String?                 @map("workflow_id")
+  workflowName        String                  @map("workflow_name")
+
+  // 觸發類型
+  triggerType         WorkflowTriggerType     @map("trigger_type")
+  triggerData         Json?                   @map("trigger_data")
+
+  // 城市隔離
+  cityCode            String                  @map("city_code")
+
+  // 狀態追蹤
+  status              WorkflowExecutionStatus @default(PENDING)
+  progress            Int                     @default(0)
+  currentStep         String?                 @map("current_step")
+
+  // 結果
+  result              Json?
+  errorDetails        Json?                   @map("error_details")
+
+  // 關聯的文件 IDs
+  documentIds         String[]                @default([]) @map("document_ids")
+
+  // 時間戳
+  startedAt           DateTime?               @map("started_at")
+  completedAt         DateTime?               @map("completed_at")
+  createdAt           DateTime                @default(now()) @map("created_at")
+  updatedAt           DateTime                @updatedAt @map("updated_at")
+
+  @@index([n8nExecutionId])
+  @@index([workflowId])
+  @@index([status])
+  @@index([cityCode])
+  @@index([createdAt])
+  @@map("workflow_executions")
+}
+
+// n8n 事件類型枚舉
+enum N8nEventType {
+  DOCUMENT_RECEIVED       // 文件已接收
+  DOCUMENT_PROCESSING     // 處理中
+  DOCUMENT_COMPLETED      // 處理完成
+  DOCUMENT_FAILED         // 處理失敗
+  DOCUMENT_REVIEW_NEEDED  // 需要人工審核
+  WORKFLOW_STARTED        // 工作流已啟動
+  WORKFLOW_COMPLETED      // 工作流已完成
+  WORKFLOW_FAILED         // 工作流失敗
+}
+
+// Webhook 發送狀態枚舉
+enum WebhookDeliveryStatus {
+  PENDING     // 待發送
+  SENDING     // 發送中
+  SUCCESS     // 發送成功
+  FAILED      // 發送失敗
+  RETRYING    // 重試中
+  EXHAUSTED   // 重試次數耗盡
+}
+
+// 工作流觸發類型枚舉
+enum WorkflowTriggerType {
+  WEBHOOK       // Webhook 觸發
+  SCHEDULE      // 排程觸發
+  MANUAL        // 手動觸發
+  API           // API 觸發
+  EVENT         // 事件觸發
+}
+
+// 工作流執行狀態枚舉
+enum WorkflowExecutionStatus {
+  PENDING     // 等待中
+  RUNNING     // 執行中
+  COMPLETED   // 已完成
+  FAILED      // 失敗
+  CANCELLED   // 已取消
 }

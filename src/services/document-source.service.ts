@@ -302,6 +302,7 @@ export class DocumentSourceService {
           SHAREPOINT: 0,
           OUTLOOK: 0,
           API: 0,
+          N8N_WORKFLOW: 0,
         }
       }
 

@@ -160,7 +160,7 @@ development_status:
   # Epic 10: n8n 工作流整合
   # ============================================================
   epic-10: in-progress
-  10-1-n8n-bidirectional-communication-api: ready-for-dev
+  10-1-n8n-bidirectional-communication-api: done  # Completed 2025-12-20: N8nApiKey/N8nApiCall/N8nIncomingWebhook/WorkflowExecution models, n8n types, n8nApiKeyService/n8nDocumentService/n8nWebhookService, n8nApiMiddleware, 4 API routes (api-keys, documents, status, webhook)
   10-2-webhook-config-management: ready-for-dev
   10-3-workflow-execution-status-view: ready-for-dev
   10-4-manual-trigger-workflow: ready-for-dev

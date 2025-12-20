@@ -288,6 +288,7 @@ export const SOURCE_TYPE_LABELS: Record<DocumentSourceType, string> = {
   SHAREPOINT: 'SharePoint',
   OUTLOOK: 'Outlook',
   API: '外部 API',
+  N8N_WORKFLOW: 'n8n 工作流',
 };
 
 // ============================================================

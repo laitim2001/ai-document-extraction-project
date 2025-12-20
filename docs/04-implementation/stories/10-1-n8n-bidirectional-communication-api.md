@@ -1477,3 +1477,97 @@ describe('POST /api/n8n/documents', () => {
 - Story 9-1: SharePoint 文件監控 API（共用 API Key 機制）
 - Story 10-2: Webhook 配置管理（Webhook URL 配置）
 - Story 11-5: API 存取控制（統一認證機制）
+
+---
+
+## 實現筆記
+
+### 完成日期
+2025-12-20
+
+### 實現概要
+
+本 Story 實現了 n8n 雙向通訊 API，包含以下主要組件：
+
+#### 1. 資料庫模型 (Prisma Schema)
+- `N8nApiKey` - API 金鑰管理，支援城市權限綁定
+- `N8nApiCall` - API 調用記錄審計
+- `N8nWebhookEvent` - 平台發送的 Webhook 事件
+- `N8nIncomingWebhook` - 接收的 n8n Webhook 事件
+- `WorkflowExecution` - 工作流執行狀態追蹤
+- 相關枚舉：`N8nEventType`, `WebhookDeliveryStatus`, `WorkflowStatus`, `WorkflowTriggerType`
+- 更新 `DocumentSourceType` 枚舉新增 `N8N_WORKFLOW`
+
+#### 2. 類型定義 (`src/types/n8n.ts`)
+- API Key 相關類型
+- 文件提交請求/響應類型
+- Webhook 事件類型
+- API 上下文和錯誤碼類型
+
+#### 3. 服務層 (`src/services/n8n/`)
+- `n8nApiKeyService` - API 金鑰 CRUD、驗證、權限檢查
+- `n8nDocumentService` - 文件提交、狀態查詢、結果獲取
+- `n8nWebhookService` - Webhook 事件發送、重試機制
+
+#### 4. 認證中間件 (`src/lib/middleware/n8n-api.middleware.ts`)
+- 支援 Bearer Token 和 X-API-Key 兩種認證方式
+- 權限驗證
+- API 調用記錄
+
+#### 5. API 路由
+- `POST /api/n8n/api-keys` - 創建 API Key
+- `GET /api/n8n/api-keys` - 列出 API Keys
+- `POST /api/n8n/documents` - 提交文件處理
+- `GET /api/n8n/documents/[id]/status` - 查詢處理狀態
+- `GET /api/n8n/documents/[id]/result` - 獲取處理結果
+- `POST /api/n8n/webhook` - 接收 n8n 回調通知
+
+### 技術決策與調整
+
+1. **Document 模型欄位對應**：
+   - 使用 `fileType` 而非 `mimeType`（原設計）
+   - 使用 `filePath` 而非 `blobUrl`
+   - 使用 `UPLOADED` 和 `OCR_PROCESSING` 狀態（取代原設計的 `PENDING` 和 `PROCESSING`）
+   - 添加 `blobName` 和 `fileExtension` 欄位
+
+2. **Forwarder 關聯**：
+   - 通過 `getForwarderIdByCode` 方法將 `forwarderCode` 轉換為 `forwarderId`
+
+3. **Zod 驗證**：
+   - 使用 `z.record(z.string(), z.unknown())` 格式
+   - 錯誤回應使用 `error.issues` 而非 `error.errors`
+
+4. **工作流觸發類型**：
+   - 添加 `parseTriggerType` 輔助函數進行字串到枚舉轉換
+
+### 驗收標準達成
+
+| AC | 狀態 | 說明 |
+|----|------|------|
+| AC1 | ✅ | 4 個 n8n 專用 API 端點已實現 |
+| AC2 | ✅ | API Key 認證機制含城市權限綁定和審計日誌 |
+| AC3 | ✅ | Webhook 服務支援發送和接收，含重試機制 |
+| AC4 | ✅ | 標準化錯誤格式含錯誤代碼、訊息和追蹤 ID |
+
+### 文件變更清單
+
+**新增文件：**
+- `src/types/n8n.ts`
+- `src/services/n8n/index.ts`
+- `src/services/n8n/n8n-api-key.service.ts`
+- `src/services/n8n/n8n-document.service.ts`
+- `src/services/n8n/n8n-webhook.service.ts`
+- `src/lib/middleware/n8n-api.middleware.ts`
+- `src/app/api/n8n/api-keys/route.ts`
+- `src/app/api/n8n/documents/route.ts`
+- `src/app/api/n8n/documents/[id]/status/route.ts`
+- `src/app/api/n8n/documents/[id]/result/route.ts`
+- `src/app/api/n8n/webhook/route.ts`
+
+**修改文件：**
+- `prisma/schema.prisma` - 新增 n8n 相關模型和枚舉
+- `src/types/index.ts` - 導出 n8n 類型
+- `src/services/index.ts` - 導出 n8n 服務
+- `src/lib/constants/source-types.ts` - 新增 N8N_WORKFLOW 配置
+- `src/types/sharepoint.ts` - 新增 N8N_WORKFLOW 標籤
+- `src/services/document-source.service.ts` - 支援 N8N_WORKFLOW 類型

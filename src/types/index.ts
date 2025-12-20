@@ -252,3 +252,6 @@ export {
   type SourceSearchResult,
   type DocumentWithSource,
 } from './document-source.types'
+
+// n8n 整合相關 (Story 10.1)
+export * from './n8n'
