@@ -185,3 +185,6 @@ export {
 
 // 月度成本分攤報告相關 (Story 7.10)
 export * from './monthly-report'
+
+// 審計查詢相關 (Story 8.3)
+export * from './audit-query'

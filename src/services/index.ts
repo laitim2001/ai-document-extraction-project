@@ -230,6 +230,9 @@ export * from './audit-log.service'
 // Epic 8: Audit Trail & Compliance (Story 8.2 - Data Change Tracking)
 export * from './change-tracking.service'
 
+// Epic 8: Audit Trail & Compliance (Story 8.3 - Processing Record Query)
+export * from './audit-query.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

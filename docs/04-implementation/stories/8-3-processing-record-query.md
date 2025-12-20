@@ -1,6 +1,8 @@
 # Story 8.3: 處理記錄查詢
 
-**Status:** ready-for-dev
+**Status:** done
+
+**Completed:** 2025-12-20
 
 ---
 
@@ -58,47 +60,47 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 審計查詢 API** (AC: #1, #2, #4)
-  - [ ] 1.1 創建 `POST /api/audit/query` 端點
-  - [ ] 1.2 實現多條件查詢邏輯
-  - [ ] 1.3 支援分頁參數
-  - [ ] 1.4 實現結果計數和限制
+- [x] **Task 1: 審計查詢 API** (AC: #1, #2, #4)
+  - [x] 1.1 創建 `POST /api/audit/query` 端點
+  - [x] 1.2 實現多條件查詢邏輯
+  - [x] 1.3 支援分頁參數
+  - [x] 1.4 實現結果計數和限制
 
-- [ ] **Task 2: 查詢優化** (AC: #2, #4)
-  - [ ] 2.1 設計查詢索引
-  - [ ] 2.2 實現查詢計劃優化
-  - [ ] 2.3 添加查詢超時處理
-  - [ ] 2.4 實現結果快取
+- [x] **Task 2: 查詢優化** (AC: #2, #4)
+  - [x] 2.1 設計查詢索引
+  - [x] 2.2 實現查詢計劃優化
+  - [x] 2.3 添加查詢超時處理
+  - [x] 2.4 實現結果快取
 
-- [ ] **Task 3: 審計查詢頁面** (AC: #1, #5)
-  - [ ] 3.1 創建 `/audit/query` 頁面路由
-  - [ ] 3.2 實現權限檢查
-  - [ ] 3.3 創建查詢表單組件
-  - [ ] 3.4 整合城市和 Forwarder 選擇器
+- [x] **Task 3: 審計查詢頁面** (AC: #1, #5)
+  - [x] 3.1 創建 `/audit/query` 頁面路由
+  - [x] 3.2 實現權限檢查
+  - [x] 3.3 創建查詢表單組件
+  - [x] 3.4 整合城市和 Forwarder 選擇器
 
-- [ ] **Task 4: 查詢結果表格** (AC: #2, #3)
-  - [ ] 4.1 創建 `AuditResultTable` 組件
-  - [ ] 4.2 實現分頁控制
-  - [ ] 4.3 實現欄位排序
-  - [ ] 4.4 實現結果內搜尋
+- [x] **Task 4: 查詢結果表格** (AC: #2, #3)
+  - [x] 4.1 創建 `AuditResultTable` 組件
+  - [x] 4.2 實現分頁控制
+  - [x] 4.3 實現欄位排序
+  - [x] 4.4 實現結果內搜尋
 
-- [ ] **Task 5: 大量結果處理** (AC: #4)
-  - [ ] 5.1 實現結果計數預檢
-  - [ ] 5.2 創建警告對話框
-  - [ ] 5.3 提供匯出替代選項
-  - [ ] 5.4 實現漸進式載入
+- [x] **Task 5: 大量結果處理** (AC: #4)
+  - [x] 5.1 實現結果計數預檢
+  - [x] 5.2 創建警告對話框
+  - [x] 5.3 提供匯出替代選項
+  - [x] 5.4 實現漸進式載入
 
-- [ ] **Task 6: 權限整合** (AC: #5)
-  - [ ] 6.1 定義 AUDITOR 角色權限
-  - [ ] 6.2 實現城市數據過濾
-  - [ ] 6.3 添加頁面訪問控制
-  - [ ] 6.4 記錄查詢操作日誌
+- [x] **Task 6: 權限整合** (AC: #5)
+  - [x] 6.1 定義 AUDITOR 角色權限
+  - [x] 6.2 實現城市數據過濾
+  - [x] 6.3 添加頁面訪問控制
+  - [x] 6.4 記錄查詢操作日誌
 
-- [ ] **Task 7: 測試** (AC: #1-5)
-  - [ ] 7.1 測試查詢功能
-  - [ ] 7.2 測試分頁和排序
-  - [ ] 7.3 測試大量數據處理
-  - [ ] 7.4 測試權限控制
+- [x] **Task 7: 測試** (AC: #1-5)
+  - [x] 7.1 測試查詢功能
+  - [x] 7.2 測試分頁和排序
+  - [x] 7.3 測試大量數據處理
+  - [x] 7.4 測試權限控制
 
 ---
 
@@ -750,4 +752,43 @@ export function AuditQueryForm({
 ---
 
 *Story created: 2025-12-16*
-*Status: ready-for-dev*
+*Completed: 2025-12-20*
+
+---
+
+## Implementation Notes
+
+### Files Created/Modified
+
+**Types:**
+- `src/types/audit-query.ts` - AuditQueryParams, AuditQueryResult, ProcessingRecord, CountPreview types with Zod schemas
+
+**Services:**
+- `src/services/audit-query.service.ts` - AuditQueryService with executeQuery and getResultCountPreview methods
+
+**API Routes:**
+- `src/app/api/audit/query/route.ts` - POST endpoint for audit queries with city filtering
+- `src/app/api/audit/query/count/route.ts` - POST endpoint for result count preview
+
+**Components:**
+- `src/components/audit/AuditQueryForm.tsx` - Query form with date range, status filters, count preview
+- `src/components/audit/AuditResultTable.tsx` - TanStack Table with pagination, sorting, search
+- `src/components/audit/index.ts` - Component exports
+
+**Hooks:**
+- `src/hooks/useAuditQuery.ts` - useAuditQuery and useAuditQueryCount React Query hooks
+
+**Pages:**
+- `src/app/(dashboard)/audit/query/page.tsx` - Server component with permission check
+- `src/app/(dashboard)/audit/query/client.tsx` - Client wrapper component
+
+### Key Features
+- Multi-condition filtering (date range required, city/forwarder/status/operator optional)
+- Result pagination (50 per page)
+- In-result search and column sorting
+- Large result handling (>10,000 records shows warning)
+- City-based data filtering via withCityFilter middleware
+- Role permission control (AUDITOR and GLOBAL_ADMIN only)
+
+### Dependencies Added
+- `@tanstack/react-table` - For sortable, filterable result tables
