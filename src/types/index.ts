@@ -226,3 +226,6 @@ export {
   isReportDownloadable,
   calculateExpiryDate,
 } from './audit-report'
+
+// 資料保留相關 (Story 8.6)
+export * from './retention'

@@ -136,13 +136,13 @@ development_status:
   # ============================================================
   # Epic 8: 審計追溯與合規
   # ============================================================
-  epic-8: in-progress  # Started 2025-12-20
+  epic-8: done  # Completed 2025-12-20: All 6 stories completed
   8-1-user-operation-log-recording: done  # Completed 2025-12-20: AuditLog/SecurityLog models, immutability triggers, AuditLogService batch/sync writing, withAuditLog middleware, type definitions
   8-2-data-change-tracking: done  # Completed 2025-12-20: DataChangeHistory model, HistoryChangeType enum, change-tracking types, ChangeTrackingService, Prisma middleware, history/compare APIs, ChangeHistoryTimeline/VersionCompareDialog components, useChangeHistory hooks
   8-3-processing-record-query: done  # Completed 2025-12-20: AuditQueryParams/AuditQueryResult/ProcessingRecord types, AuditQueryService, POST /api/audit/query and /count APIs, AuditQueryForm/AuditResultTable components, useAuditQuery hooks, audit query page
   8-4-original-file-traceability: done  # Completed 2025-12-20: TraceabilityReport model, traceability types, azure-blob storage functions, TraceabilityService, source/trace/report APIs, DocumentTraceView component, useTraceability hooks
   8-5-audit-report-export: done  # Completed 2025-12-20: AuditReportJob/AuditReportDownload models, audit-report types, AuditReportService (Excel/PDF/CSV/JSON), SHA-256 checksum + signature, reports APIs, AuditReportExportDialog, AuditReportJobList, ReportIntegrityDialog, useAuditReports hooks
-  8-6-long-term-data-retention: ready-for-dev
+  8-6-long-term-data-retention: done  # Completed 2025-12-20: DataRetentionPolicy/DataArchiveRecord/DataDeletionRequest/DataRestoreRequest models, DataRetentionService, policies/archives/restore/deletion/metrics APIs, useRetention hooks, StorageMetricsCard, RetentionPolicyList, ArchiveRecordList, DeletionRequestList, DataRetentionDashboard
   epic-8-retrospective: optional
 
   # ============================================================

@@ -8,7 +8,7 @@
 | Story ID | 8.6 |
 | 標題 | 長期數據保留 |
 | FR 覆蓋 | FR53 |
-| 狀態 | ready-for-dev |
+| 狀態 | done |
 | 優先級 | High |
 | 估計點數 | 8 |
 

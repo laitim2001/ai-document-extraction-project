@@ -239,6 +239,9 @@ export * from './traceability.service'
 // Epic 8: Audit Trail & Compliance (Story 8.5 - Audit Report Export)
 export * from './audit-report.service'
 
+// Epic 8: Audit Trail & Compliance (Story 8.6 - Long-term Data Retention)
+export * from './data-retention.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

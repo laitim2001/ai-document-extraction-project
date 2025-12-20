@@ -65,6 +65,10 @@ model User {
   traceabilityReports    TraceabilityReport[]      @relation("TraceabilityReportGenerator") // Story 8.4: 追溯報告
   auditReportJobs        AuditReportJob[]          @relation("AuditReportJobRequester") // Story 8.5: 審計報告任務
   auditReportDownloads   AuditReportDownload[]     @relation("AuditReportDownloader") // Story 8.5: 審計報告下載
+  retentionPolicies      DataRetentionPolicy[]     @relation("RetentionPolicyCreator") // Story 8.6: 保留策略創建者
+  deletionRequestsCreated DataDeletionRequest[]    @relation("DeletionRequestRequester") // Story 8.6: 刪除請求創建者
+  deletionRequestsApproved DataDeletionRequest[]   @relation("DeletionRequestApprover") // Story 8.6: 刪除請求審批者
+  restoreRequests        DataRestoreRequest[]      @relation("RestoreRequestRequester") // Story 8.6: 還原請求創建者
 
   @@map("users")
 }
@@ -1954,4 +1958,242 @@ enum ReportJobStatus2 {
   FAILED     // 失敗
   CANCELLED  // 已取消
   EXPIRED    // 已過期
+}
+
+// =====================
+// Data Retention Models (Story 8.6)
+// 長期數據保留，支援分層存儲和合規要求
+// =====================
+
+// 資料類型枚舉
+enum DataType {
+  AUDIT_LOG           // 審計日誌
+  DATA_CHANGE_HISTORY // 數據變更歷史
+  DOCUMENT            // 文件
+  EXTRACTION_RESULT   // 提取結果
+  PROCESSING_RECORD   // 處理記錄
+  USER_SESSION        // 用戶會話
+  API_USAGE_LOG       // API 使用記錄
+  SYSTEM_LOG          // 系統日誌
+}
+
+// 存儲層級枚舉
+enum StorageTier {
+  HOT     // 熱存儲 - 頻繁訪問（<90 天）
+  COOL    // 冷存儲 - 較少訪問（90-365 天）
+  COLD    // 冷藏存儲 - 很少訪問（365+ 天）
+  ARCHIVE // 歸檔存儲 - 極少訪問（長期保存）
+}
+
+// 歸檔狀態枚舉
+enum ArchiveStatus {
+  PENDING   // 等待歸檔
+  ARCHIVING // 歸檔中
+  ARCHIVED  // 已歸檔
+  FAILED    // 歸檔失敗
+  RESTORING // 還原中
+  RESTORED  // 已還原
+}
+
+// 刪除請求狀態枚舉
+enum DeletionRequestStatus {
+  PENDING   // 等待審批
+  APPROVED  // 已批准
+  REJECTED  // 已拒絕
+  EXECUTING // 執行中
+  COMPLETED // 已完成
+  FAILED    // 執行失敗
+}
+
+// 還原請求狀態枚舉
+enum RestoreRequestStatus {
+  PENDING     // 等待處理
+  IN_PROGRESS // 處理中
+  COMPLETED   // 已完成
+  FAILED      // 失敗
+  EXPIRED     // 已過期（還原的資料已過期）
+}
+
+// 資料保留策略模型
+model DataRetentionPolicy {
+  id                 String    @id @default(cuid())
+  policyName         String    @unique @map("policy_name")
+  description        String?   @db.Text
+  dataType           DataType  @map("data_type")
+
+  // 存儲層級天數設定
+  hotStorageDays     Int       @default(90) @map("hot_storage_days")    // 熱存儲天數
+  warmStorageDays    Int       @default(365) @map("warm_storage_days")  // 溫存儲天數（映射至 COOL）
+  coldStorageDays    Int       @default(2555) @map("cold_storage_days") // 冷存儲天數（7年=2555天）
+
+  // 刪除保護設定
+  deletionProtection Boolean   @default(true) @map("deletion_protection")  // 刪除保護開關
+  requireApproval    Boolean   @default(true) @map("require_approval")     // 是否需要審批
+  minApprovalLevel   String    @default("ADMIN") @map("min_approval_level") // 最低審批層級
+
+  // 歸檔排程設定
+  archiveSchedule    String?   @map("archive_schedule")  // Cron 表達式
+  lastArchiveAt      DateTime? @map("last_archive_at")   // 上次歸檔時間
+  nextArchiveAt      DateTime? @map("next_archive_at")   // 下次歸檔時間
+
+  // 狀態
+  isActive           Boolean   @default(true) @map("is_active")
+
+  // 創建者追蹤
+  createdById        String    @map("created_by_id")
+
+  // 時間戳
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  createdBy          User      @relation("RetentionPolicyCreator", fields: [createdById], references: [id])
+  archiveRecords     DataArchiveRecord[]
+  deletionRequests   DataDeletionRequest[]
+
+  @@index([dataType])
+  @@index([isActive])
+  @@index([createdById])
+  @@map("data_retention_policies")
+}
+
+// 資料歸檔記錄模型
+model DataArchiveRecord {
+  id                 String        @id @default(cuid())
+  policyId           String        @map("policy_id")
+  dataType           DataType      @map("data_type")
+
+  // 歸檔來源資訊
+  sourceTable        String        @map("source_table")       // 來源表名
+  recordCount        Int           @map("record_count")       // 記錄數量
+  dateRangeStart     DateTime      @map("date_range_start")   // 資料日期起始
+  dateRangeEnd       DateTime      @map("date_range_end")     // 資料日期結束
+
+  // Azure Blob Storage 資訊
+  storageTier        StorageTier   @default(COLD) @map("storage_tier")
+  blobContainer      String        @map("blob_container")     // Blob 容器名稱
+  blobPath           String        @map("blob_path")          // Blob 路徑
+  blobUrl            String?       @map("blob_url")           // Blob URL
+
+  // 檔案資訊
+  originalSizeBytes  BigInt        @map("original_size_bytes")  // 原始大小
+  compressedSizeBytes BigInt       @map("compressed_size_bytes") // 壓縮後大小
+  compressionRatio   Float         @map("compression_ratio")     // 壓縮比率
+  checksum           String        // SHA-256 校驗碼
+
+  // 狀態追蹤
+  status             ArchiveStatus @default(PENDING)
+  errorMessage       String?       @map("error_message") @db.Text
+
+  // 還原相關
+  lastRestoredAt     DateTime?     @map("last_restored_at")
+  restoredBlobUrl    String?       @map("restored_blob_url")  // 還原後的臨時 URL
+  restoreExpiresAt   DateTime?     @map("restore_expires_at") // 還原過期時間
+
+  // 元數據
+  metadata           Json?         // 額外資訊（欄位結構、版本等）
+
+  // 時間戳
+  archivedAt         DateTime?     @map("archived_at")
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  policy             DataRetentionPolicy @relation(fields: [policyId], references: [id])
+  restoreRequests    DataRestoreRequest[]
+
+  @@index([policyId])
+  @@index([dataType])
+  @@index([storageTier])
+  @@index([status])
+  @@index([dateRangeStart, dateRangeEnd])
+  @@index([archivedAt])
+  @@map("data_archive_records")
+}
+
+// 資料刪除請求模型
+model DataDeletionRequest {
+  id                 String                @id @default(cuid())
+  policyId           String                @map("policy_id")
+  dataType           DataType              @map("data_type")
+
+  // 刪除範圍
+  sourceTable        String                @map("source_table")
+  recordCount        Int                   @map("record_count")
+  dateRangeStart     DateTime              @map("date_range_start")
+  dateRangeEnd       DateTime              @map("date_range_end")
+
+  // 刪除原因與說明
+  reason             String                @db.Text
+  notes              String?               @db.Text
+
+  // 審批流程
+  status             DeletionRequestStatus @default(PENDING)
+  requestedById      String                @map("requested_by_id")
+  approvedById       String?               @map("approved_by_id")
+  approvedAt         DateTime?             @map("approved_at")
+  rejectionReason    String?               @map("rejection_reason") @db.Text
+
+  // 執行資訊
+  executedAt         DateTime?             @map("executed_at")
+  deletedRecordCount Int?                  @map("deleted_record_count")
+  errorMessage       String?               @map("error_message") @db.Text
+
+  // 保留備份資訊（刪除前的歸檔記錄）
+  backupArchiveId    String?               @map("backup_archive_id")
+
+  // 時間戳
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @updatedAt @map("updated_at")
+
+  // Relations
+  policy             DataRetentionPolicy   @relation(fields: [policyId], references: [id])
+  requestedBy        User                  @relation("DeletionRequestRequester", fields: [requestedById], references: [id])
+  approvedBy         User?                 @relation("DeletionRequestApprover", fields: [approvedById], references: [id])
+
+  @@index([policyId])
+  @@index([dataType])
+  @@index([status])
+  @@index([requestedById])
+  @@index([createdAt])
+  @@map("data_deletion_requests")
+}
+
+// 資料還原請求模型
+model DataRestoreRequest {
+  id                 String               @id @default(cuid())
+  archiveRecordId    String               @map("archive_record_id")
+
+  // 還原原因
+  reason             String               @db.Text
+  notes              String?              @db.Text
+
+  // 狀態追蹤
+  status             RestoreRequestStatus @default(PENDING)
+  requestedById      String               @map("requested_by_id")
+
+  // Azure Blob 還原資訊（ARCHIVE 層需要較長時間）
+  estimatedWaitTime  Int?                 @map("estimated_wait_time")  // 預估等待時間（秒）
+  actualWaitTime     Int?                 @map("actual_wait_time")     // 實際等待時間（秒）
+
+  // 還原結果
+  restoredBlobUrl    String?              @map("restored_blob_url")
+  expiresAt          DateTime?            @map("expires_at")
+  errorMessage       String?              @map("error_message") @db.Text
+
+  // 時間戳
+  startedAt          DateTime?            @map("started_at")
+  completedAt        DateTime?            @map("completed_at")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+
+  // Relations
+  archiveRecord      DataArchiveRecord    @relation(fields: [archiveRecordId], references: [id])
+  requestedBy        User                 @relation("RestoreRequestRequester", fields: [requestedById], references: [id])
+
+  @@index([archiveRecordId])
+  @@index([status])
+  @@index([requestedById])
+  @@index([createdAt])
+  @@map("data_restore_requests")
 }
