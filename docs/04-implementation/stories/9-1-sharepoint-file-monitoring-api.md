@@ -8,7 +8,7 @@
 | Story ID | 9.1 |
 | 標題 | SharePoint 文件監控 API |
 | FR 覆蓋 | FR2 |
-| 狀態 | ready-for-dev |
+| 狀態 | done |
 | 優先級 | High |
 | 估計點數 | 8 |
 

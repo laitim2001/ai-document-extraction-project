@@ -149,7 +149,7 @@ development_status:
   # Epic 9: 自動化文件獲取
   # ============================================================
   epic-9: in-progress
-  9-1-sharepoint-file-monitoring-api: ready-for-dev
+  9-1-sharepoint-file-monitoring-api: done  # Completed 2025-12-20: SharePoint types, Prisma models (ApiKey, SharePointConfig, SharePointFetchLog), EncryptionService, MicrosoftGraphService, SharePointDocumentService, ApiKeyService, POST/GET APIs
   9-2-sharepoint-connection-config: ready-for-dev
   9-3-outlook-mail-attachment-extraction-api: ready-for-dev
   9-4-outlook-connection-config: ready-for-dev

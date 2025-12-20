@@ -242,6 +242,11 @@ export * from './audit-report.service'
 // Epic 8: Audit Trail & Compliance (Story 8.6 - Long-term Data Retention)
 export * from './data-retention.service'
 
+// Epic 9: Automated Document Acquisition (Story 9.1 - SharePoint Document Monitoring API)
+export * from './encryption.service'
+export * from './microsoft-graph.service'
+export * from './sharepoint-document.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';
