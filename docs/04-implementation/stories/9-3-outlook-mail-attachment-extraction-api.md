@@ -8,7 +8,7 @@
 | Story ID | 9.3 |
 | 標題 | Outlook 郵件附件提取 API |
 | FR 覆蓋 | FR3 |
-| 狀態 | ready-for-dev |
+| 狀態 | done |
 | 優先級 | High |
 | 估計點數 | 8 |
 
@@ -1222,3 +1222,33 @@ describe('POST /api/documents/from-outlook', () => {
 2. 過濾規則可防止處理不相關郵件
 3. 文件類型白名單驗證
 4. 寄件者追蹤完整記錄
+
+---
+
+## 實現記錄
+
+### 完成日期
+2025-12-20
+
+### 實現檔案
+- [x] `prisma/schema.prisma` - 新增 OutlookConfig, OutlookFilterRule, OutlookFetchLog 模型
+- [x] `src/types/outlook.ts` - Outlook 類型定義
+- [x] `src/services/outlook-mail.service.ts` - Outlook 郵件服務（繼承 MicrosoftGraphService）
+- [x] `src/services/outlook-document.service.ts` - 文件提交服務（雙模式支援）
+- [x] `src/lib/auth/api-key.service.ts` - 新增 OUTLOOK_SUBMIT, OUTLOOK_STATUS 權限
+- [x] `src/app/api/documents/from-outlook/route.ts` - POST 提交 API
+- [x] `src/app/api/documents/from-outlook/status/[fetchLogId]/route.ts` - GET 狀態查詢 API
+- [x] `src/services/index.ts` - 服務導出
+- [x] `src/types/index.ts` - 類型導出
+
+### 實現亮點
+1. **雙模式支援**：MESSAGE_ID（系統從 Outlook 獲取）和 DIRECT_UPLOAD（n8n 預處理）
+2. **過濾規則**：支援白名單/黑名單，優先級排序，多種規則類型
+3. **完整錯誤處理**：RFC 7807 格式錯誤響應，詳細錯誤代碼
+4. **城市權限控制**：API Key 綁定城市存取權限
+
+### 驗收標準達成
+- [x] AC1: API 接收郵件附件提交 - POST /api/documents/from-outlook 支援 messageId 和 attachments
+- [x] AC2: 附件解析與過濾 - 支援 PDF/Image，過濾規則驗證
+- [x] AC3: 多附件處理 - 為每個有效附件建立 Document 和 ProcessingQueue
+- [x] AC4: 處理結果返回 - 包含 fetchLogId、各附件狀態、跳過原因

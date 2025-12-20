@@ -232,3 +232,6 @@ export * from './retention'
 
 // SharePoint 整合相關 (Story 9.1, 9.2)
 export * from './sharepoint'
+
+// Outlook 整合相關 (Story 9.3)
+export * from './outlook'

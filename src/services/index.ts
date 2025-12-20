@@ -251,6 +251,10 @@ export * from './sharepoint-document.service'
 // Epic 9: Automated Document Acquisition (Story 9.2 - SharePoint Connection Configuration)
 export * from './sharepoint-config.service'
 
+// Epic 9: Automated Document Acquisition (Story 9.3 - Outlook Mail Attachment Extraction API)
+export * from './outlook-mail.service'
+export * from './outlook-document.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

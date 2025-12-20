@@ -52,6 +52,10 @@ export const API_KEY_PERMISSIONS = {
   SHAREPOINT_SUBMIT: 'sharepoint:submit',
   /** SharePoint 狀態查詢權限 */
   SHAREPOINT_STATUS: 'sharepoint:status',
+  /** Outlook 郵件附件提交權限 */
+  OUTLOOK_SUBMIT: 'outlook:submit',
+  /** Outlook 狀態查詢權限 */
+  OUTLOOK_STATUS: 'outlook:status',
   /** 文件上傳權限 */
   DOCUMENT_UPLOAD: 'document:upload',
   /** 所有權限 */

@@ -151,7 +151,7 @@ development_status:
   epic-9: in-progress
   9-1-sharepoint-file-monitoring-api: done  # Completed 2025-12-20: SharePoint types, Prisma models (ApiKey, SharePointConfig, SharePointFetchLog), EncryptionService, MicrosoftGraphService, SharePointDocumentService, ApiKeyService, POST/GET APIs
   9-2-sharepoint-connection-config: done  # Completed 2025-12-20: SharePointConfigService, admin API routes (CRUD, test), SharePointConfigForm, SharePointConfigList, useSharePointConfig hooks, connection testing
-  9-3-outlook-mail-attachment-extraction-api: ready-for-dev
+  9-3-outlook-mail-attachment-extraction-api: done  # Completed 2025-12-20: Outlook types, OutlookConfig/FilterRule/FetchLog models, OutlookMailService, OutlookDocumentService (dual mode), API Key permissions, POST/GET APIs
   9-4-outlook-connection-config: ready-for-dev
   9-5-auto-retrieval-source-tracking: ready-for-dev
   epic-9-retrospective: optional

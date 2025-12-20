@@ -72,6 +72,7 @@ model User {
   sharePointConfigs          SharePointConfig[]        @relation("SharePointConfigCreator") // Story 9.1: SharePoint 配置創建者
   sharePointConfigsUpdated   SharePointConfig[]        @relation("SharePointConfigUpdater") // Story 9.2: SharePoint 配置更新者
   apiKeys                ApiKey[]                  @relation("ApiKeyCreator") // Story 9.1: API Key 創建者
+  outlookConfigs         OutlookConfig[]           @relation("OutlookConfigCreator") // Story 9.3: Outlook 配置創建者
 
   @@map("users")
 }
@@ -219,6 +220,8 @@ model City {
   processingStatistics ProcessingStatistics[] // Story 7.7: 城市處理量統計
   sharePointConfig     SharePointConfig?      // Story 9.1: SharePoint 配置（一對一）
   sharePointFetchLogs  SharePointFetchLog[]   // Story 9.1: SharePoint 獲取記錄
+  outlookConfig        OutlookConfig?         // Story 9.3: Outlook 配置（一對一）
+  outlookFetchLogs     OutlookFetchLog[]      // Story 9.3: Outlook 獲取記錄
 
   @@index([regionId])
   @@index([status])
@@ -2370,4 +2373,167 @@ model ApiKey {
   @@index([keyHash])
   @@index([isActive])
   @@map("api_keys")
+}
+
+// =====================
+// Outlook Integration Models (Story 9.3)
+// =====================
+
+// Outlook 過濾規則類型
+enum OutlookRuleType {
+  SENDER_EMAIL      // 寄件者 Email
+  SENDER_DOMAIN     // 寄件者網域
+  SUBJECT_KEYWORD   // 主旨關鍵字
+  SUBJECT_REGEX     // 主旨正則表達式
+  ATTACHMENT_TYPE   // 附件類型
+  ATTACHMENT_NAME   // 附件名稱模式
+}
+
+// 規則運算符
+enum RuleOperator {
+  EQUALS            // 完全匹配
+  CONTAINS          // 包含
+  STARTS_WITH       // 開頭匹配
+  ENDS_WITH         // 結尾匹配
+  REGEX             // 正則表達式
+}
+
+// Outlook 提交方式
+enum OutlookSubmissionType {
+  MESSAGE_ID        // 使用 Message ID 讓系統獲取
+  DIRECT_UPLOAD     // 直接上傳附件內容
+}
+
+// Outlook 獲取狀態
+enum OutlookFetchStatus {
+  PENDING           // 待處理
+  FETCHING          // 獲取中
+  PROCESSING        // 處理中
+  COMPLETED         // 已完成
+  PARTIAL           // 部分成功
+  FAILED            // 失敗
+  FILTERED          // 被過濾規則排除
+}
+
+// Outlook 連線配置
+model OutlookConfig {
+  id                String    @id @default(cuid())
+
+  // 配置識別
+  name              String
+  description       String?
+
+  // 郵箱設定
+  mailboxAddress    String    @map("mailbox_address")
+
+  // Azure AD 設定
+  tenantId          String    @map("tenant_id")
+  clientId          String    @map("client_id")
+  clientSecret      String    @map("client_secret")  // 加密儲存
+
+  // 城市關聯
+  cityId            String?   @unique @map("city_id")
+  city              City?     @relation(fields: [cityId], references: [id])
+
+  // 全域配置標記
+  isGlobal          Boolean   @default(false) @map("is_global")
+
+  // 狀態
+  isActive          Boolean   @default(true) @map("is_active")
+  lastTestedAt      DateTime? @map("last_tested_at")
+  lastTestResult    Boolean?  @map("last_test_result")
+  lastTestError     String?   @map("last_test_error")
+
+  // 時間戳
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  createdById       String    @map("created_by_id")
+  createdBy         User      @relation("OutlookConfigCreator", fields: [createdById], references: [id])
+
+  // 關聯
+  filterRules       OutlookFilterRule[]
+  fetchLogs         OutlookFetchLog[]
+
+  @@index([cityId])
+  @@index([isActive])
+  @@index([isGlobal])
+  @@map("outlook_configs")
+}
+
+// Outlook 過濾規則
+model OutlookFilterRule {
+  id              String            @id @default(cuid())
+  configId        String            @map("config_id")
+  config          OutlookConfig     @relation(fields: [configId], references: [id], onDelete: Cascade)
+
+  // 規則類型
+  ruleType        OutlookRuleType   @map("rule_type")
+  operator        RuleOperator      @default(CONTAINS)
+  ruleValue       String            @map("rule_value")
+  isWhitelist     Boolean           @default(true) @map("is_whitelist")
+
+  // 狀態
+  isActive        Boolean           @default(true) @map("is_active")
+  priority        Int               @default(0)
+
+  // 時間戳
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@index([configId])
+  @@index([priority])
+  @@map("outlook_filter_rules")
+}
+
+// Outlook 獲取日誌
+model OutlookFetchLog {
+  id                  String                @id @default(cuid())
+
+  // 郵件資訊
+  messageId           String?               @map("message_id")
+  subject             String
+  senderEmail         String                @map("sender_email")
+  senderName          String?               @map("sender_name")
+  receivedAt          DateTime              @map("received_at")
+
+  // 請求方式
+  submissionType      OutlookSubmissionType @default(DIRECT_UPLOAD) @map("submission_type")
+
+  // 附件統計
+  totalAttachments    Int                   @map("total_attachments")
+  validAttachments    Int                   @default(0) @map("valid_attachments")
+  skippedAttachments  Int                   @default(0) @map("skipped_attachments")
+
+  // 來源配置
+  configId            String?               @map("config_id")
+  config              OutlookConfig?        @relation(fields: [configId], references: [id])
+  cityId              String                @map("city_id")
+  city                City                  @relation(fields: [cityId], references: [id])
+
+  // 狀態
+  status              OutlookFetchStatus    @default(PENDING)
+
+  // 結果
+  documentIds         String[]              @default([]) @map("document_ids")
+  skippedFiles        Json?                 @map("skipped_files")
+
+  // 錯誤資訊
+  errorCode           String?               @map("error_code")
+  errorMessage        String?               @map("error_message")
+
+  // API 請求資訊
+  requestIp           String?               @map("request_ip")
+  requestUserAgent    String?               @map("request_user_agent")
+  apiKeyId            String?               @map("api_key_id")
+
+  // 時間戳
+  createdAt           DateTime              @default(now()) @map("created_at")
+  completedAt         DateTime?             @map("completed_at")
+
+  @@index([messageId])
+  @@index([senderEmail])
+  @@index([status])
+  @@index([cityId])
+  @@index([createdAt])
+  @@map("outlook_fetch_logs")
 }
