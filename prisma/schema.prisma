@@ -73,6 +73,7 @@ model User {
   sharePointConfigsUpdated   SharePointConfig[]        @relation("SharePointConfigUpdater") // Story 9.2: SharePoint 配置更新者
   apiKeys                ApiKey[]                  @relation("ApiKeyCreator") // Story 9.1: API Key 創建者
   outlookConfigs         OutlookConfig[]           @relation("OutlookConfigCreator") // Story 9.3: Outlook 配置創建者
+  outlookConfigsUpdated  OutlookConfig[]           @relation("OutlookConfigUpdater") // Story 9.4: Outlook 配置更新者
 
   @@map("users")
 }
@@ -2417,42 +2418,53 @@ enum OutlookFetchStatus {
 
 // Outlook 連線配置
 model OutlookConfig {
-  id                String    @id @default(cuid())
+  id                    String    @id @default(cuid())
 
   // 配置識別
-  name              String
-  description       String?
+  name                  String
+  description           String?
 
   // 郵箱設定
-  mailboxAddress    String    @map("mailbox_address")
+  mailboxAddress        String    @map("mailbox_address")
+  mailFolders           String[]  @default(["inbox"]) @map("mail_folders")
 
   // Azure AD 設定
-  tenantId          String    @map("tenant_id")
-  clientId          String    @map("client_id")
-  clientSecret      String    @map("client_secret")  // 加密儲存
+  tenantId              String    @map("tenant_id")
+  clientId              String    @map("client_id")
+  clientSecret          String    @map("client_secret")  // 加密儲存
 
   // 城市關聯
-  cityId            String?   @unique @map("city_id")
-  city              City?     @relation(fields: [cityId], references: [id])
+  cityId                String?   @unique @map("city_id")
+  city                  City?     @relation(fields: [cityId], references: [id])
 
   // 全域配置標記
-  isGlobal          Boolean   @default(false) @map("is_global")
+  isGlobal              Boolean   @default(false) @map("is_global")
+
+  // 附件設定
+  allowedExtensions     String[]  @default(["pdf", "jpg", "jpeg", "png", "tiff"]) @map("allowed_extensions")
+  maxAttachmentSizeMb   Int       @default(30) @map("max_attachment_size_mb")
 
   // 狀態
-  isActive          Boolean   @default(true) @map("is_active")
-  lastTestedAt      DateTime? @map("last_tested_at")
-  lastTestResult    Boolean?  @map("last_test_result")
-  lastTestError     String?   @map("last_test_error")
+  isActive              Boolean   @default(true) @map("is_active")
+  lastTestedAt          DateTime? @map("last_tested_at")
+  lastTestResult        Boolean?  @map("last_test_result")
+  lastTestError         String?   @map("last_test_error")
+
+  // 統計
+  totalProcessed        Int       @default(0) @map("total_processed")
+  lastProcessedAt       DateTime? @map("last_processed_at")
 
   // 時間戳
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
-  createdById       String    @map("created_by_id")
-  createdBy         User      @relation("OutlookConfigCreator", fields: [createdById], references: [id])
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  createdById           String    @map("created_by_id")
+  createdBy             User      @relation("OutlookConfigCreator", fields: [createdById], references: [id])
+  updatedById           String?   @map("updated_by_id")
+  updatedBy             User?     @relation("OutlookConfigUpdater", fields: [updatedById], references: [id])
 
   // 關聯
-  filterRules       OutlookFilterRule[]
-  fetchLogs         OutlookFetchLog[]
+  filterRules           OutlookFilterRule[]
+  fetchLogs             OutlookFetchLog[]
 
   @@index([cityId])
   @@index([isActive])
@@ -2465,6 +2477,10 @@ model OutlookFilterRule {
   id              String            @id @default(cuid())
   configId        String            @map("config_id")
   config          OutlookConfig     @relation(fields: [configId], references: [id], onDelete: Cascade)
+
+  // 規則識別
+  name            String
+  description     String?
 
   // 規則類型
   ruleType        OutlookRuleType   @map("rule_type")

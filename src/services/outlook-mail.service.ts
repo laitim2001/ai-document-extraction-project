@@ -10,6 +10,9 @@
  *   - 獲取附件內容
  *   - 獲取所有非內嵌附件
  *   - 測試郵箱存取權限
+ *   - 獲取郵箱基本資訊
+ *   - 獲取最近郵件數量
+ *   - 獲取郵件資料夾列表
  *
  *   ## 認證方式
  *   使用 Azure AD 應用程式認證（Client Credentials Flow）：
@@ -27,6 +30,9 @@
  *   - 附件內容下載
  *   - 批量附件獲取
  *   - 郵箱存取測試
+ *   - 郵箱資訊獲取 (Story 9.4)
+ *   - 最近郵件數量統計 (Story 9.4)
+ *   - 郵件資料夾列表 (Story 9.4)
  *
  * @dependencies
  *   - @microsoft/microsoft-graph-client - Graph API 客戶端
@@ -35,6 +41,7 @@
  * @related
  *   - src/services/microsoft-graph.service.ts - 父類
  *   - src/services/outlook-document.service.ts - 調用此服務
+ *   - src/services/outlook-config.service.ts - 配置服務 (Story 9.4)
  *   - src/types/outlook.ts - 類型定義
  */
 
@@ -305,6 +312,129 @@ export class OutlookMailService {
       displayName: user.displayName,
       mail: user.mail,
     };
+  }
+
+  /**
+   * 獲取最近郵件數量
+   *
+   * @description
+   *   獲取指定時間範圍內收到的郵件數量。
+   *   用於連線測試和監控統計。
+   *
+   * @param hours - 時間範圍（小時），預設 24 小時
+   * @returns 郵件數量
+   *
+   * @example
+   *   const count = await mailService.getRecentMailCount(24);
+   *   console.log(`過去 24 小時收到 ${count} 封郵件`);
+   */
+  async getRecentMailCount(hours: number = 24): Promise<number> {
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+
+    try {
+      // 嘗試使用 $count 參數
+      const result = await this.client
+        .api(`/users/${this.mailboxAddress}/messages`)
+        .filter(`receivedDateTime ge ${since}`)
+        .count()
+        .top(1)
+        .get();
+
+      return result['@odata.count'] || 0;
+    } catch {
+      // 如果計數失敗，嘗試獲取所有郵件並計數
+      const result = await this.client
+        .api(`/users/${this.mailboxAddress}/messages`)
+        .filter(`receivedDateTime ge ${since}`)
+        .select('id')
+        .top(1000)
+        .get();
+
+      return result.value?.length || 0;
+    }
+  }
+
+  /**
+   * 獲取郵件資料夾列表
+   *
+   * @description
+   *   獲取郵箱的所有資料夾，包含資料夾名稱、ID 和郵件數量。
+   *   用於配置界面顯示可選的資料夾。
+   *
+   * @returns 資料夾列表
+   *
+   * @example
+   *   const folders = await mailService.getMailFolders();
+   *   folders.forEach(f => console.log(`${f.displayName}: ${f.totalItemCount} 封`));
+   */
+  async getMailFolders(): Promise<
+    Array<{
+      id: string;
+      displayName: string;
+      totalItemCount: number;
+      unreadItemCount: number;
+    }>
+  > {
+    interface GraphMailFolder {
+      id: string;
+      displayName: string;
+      totalItemCount?: number;
+      unreadItemCount?: number;
+    }
+
+    const result = await this.client
+      .api(`/users/${this.mailboxAddress}/mailFolders`)
+      .select('id,displayName,totalItemCount,unreadItemCount')
+      .top(50)
+      .get();
+
+    return result.value.map((folder: GraphMailFolder) => ({
+      id: folder.id,
+      displayName: folder.displayName,
+      totalItemCount: folder.totalItemCount || 0,
+      unreadItemCount: folder.unreadItemCount || 0,
+    }));
+  }
+
+  /**
+   * 獲取特定資料夾的子資料夾
+   *
+   * @description
+   *   獲取指定資料夾的子資料夾列表。
+   *
+   * @param folderId - 父資料夾 ID
+   * @returns 子資料夾列表
+   */
+  async getChildFolders(
+    folderId: string
+  ): Promise<
+    Array<{
+      id: string;
+      displayName: string;
+      totalItemCount: number;
+      unreadItemCount: number;
+    }>
+  > {
+    interface GraphMailFolder {
+      id: string;
+      displayName: string;
+      totalItemCount?: number;
+      unreadItemCount?: number;
+    }
+
+    const result = await this.client
+      .api(
+        `/users/${this.mailboxAddress}/mailFolders/${folderId}/childFolders`
+      )
+      .select('id,displayName,totalItemCount,unreadItemCount')
+      .get();
+
+    return result.value.map((folder: GraphMailFolder) => ({
+      id: folder.id,
+      displayName: folder.displayName,
+      totalItemCount: folder.totalItemCount || 0,
+      unreadItemCount: folder.unreadItemCount || 0,
+    }));
   }
 
   /**

@@ -8,9 +8,10 @@
 | Story ID | 9.4 |
 | 標題 | Outlook 連線配置 |
 | FR 覆蓋 | FR3 |
-| 狀態 | ready-for-dev |
+| 狀態 | done |
 | 優先級 | High |
 | 估計點數 | 5 |
+| 完成日期 | 2025-12-20 |
 
 ---
 
