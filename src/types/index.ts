@@ -130,4 +130,55 @@ export * from './ai-cost'
 export * from './processing-statistics'
 
 // 城市 AI 成本追蹤相關 (Story 7.8)
-export * from './city-cost'
+// 注意：AnomalyType 和 AnomalySeverity 與 ai-cost.ts 衝突
+// 使用命名導出並為衝突類型添加前綴
+export {
+  // Story 7.8: City Cost Summary Types
+  type CityCostSummary,
+  type CityCostSummaryResponse,
+  type CityCostTrendDataPoint,
+  type CityCostTrend,
+  type CityCostTrendResponse,
+  type CityCostComparisonItem,
+  type CityCostComparisonResponse,
+  // Story 7.8: Pricing Configuration Types
+  type ApiPricingConfig,
+  type ApiPricingHistory,
+  type PricingConfigListResponse,
+  type PricingConfigDetailResponse,
+  // Story 7.8: API Request Types
+  type CityCostSummaryParams,
+  type CityCostTrendParams,
+  type CityCostComparisonParams,
+  type PricingConfigListParams,
+  type CreatePricingConfigRequest,
+  type UpdatePricingConfigRequest,
+  // Story 7.8: API Response Types
+  type CityCostApiResponse,
+  type CityCostApiError,
+  // Story 7.8: Component Props Types
+  type CityCostSummaryCardProps,
+  type CityCostComparisonTableProps,
+  type CityCostTrendChartProps,
+  type PricingConfigTableProps,
+  // Story 7.9: City Cost Report Types
+  type LaborCostConfig,
+  type AnomalyThresholds,
+  type CostTrendPoint,
+  type CostAnomalyDetail,
+  type CityCostReport,
+  type CityCostReportResponse,
+  type CostTrendResponse,
+  type AnomalyAnalysisResponse,
+  type CityCostReportParams,
+  type CostTrendParams,
+  type AnomalyAnalysisParams,
+  type CityCostTableProps,
+  type CostAnomalyDialogProps,
+  // Story 7.9: 衝突類型（使用別名區分）
+  type AnomalyType as CityCostAnomalyType,
+  type AnomalySeverity as CityCostAnomalySeverity,
+  // Story 7.9: Constants
+  DEFAULT_LABOR_COST_CONFIG,
+  DEFAULT_ANOMALY_THRESHOLDS,
+} from './city-cost'

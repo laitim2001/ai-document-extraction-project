@@ -6,6 +6,8 @@
  *   - 城市間成本比較
  *   - API 計價配置管理
  *   - API 請求參數與響應類型
+ *   - 城市成本報表類型（Story 7-9）
+ *   - 異常檢測類型
  *
  * @module src/types/city-cost
  * @since Epic 7 - Story 7.8 (城市 AI 成本追蹤)
@@ -16,13 +18,17 @@
  *   - 城市成本趨勢類型
  *   - 城市成本比較類型
  *   - 計價配置管理類型
+ *   - 城市成本報表類型（Story 7-9）
+ *   - 成本異常檢測類型（Story 7-9）
  *
  * @dependencies
  *   - @/types/ai-cost - 基礎 AI 成本類型
  *
  * @related
  *   - src/services/city-cost.service.ts - 城市成本服務
+ *   - src/services/city-cost-report.service.ts - 城市成本報表服務
  *   - src/app/api/cost/ - API 路由
+ *   - src/app/api/reports/city-cost/ - 成本報表 API 路由
  */
 
 import type { ApiProviderType, Granularity, ProviderCost } from './ai-cost'
@@ -410,6 +416,324 @@ export interface CityCostApiError {
     message: string
     details?: Record<string, unknown>
   }
+}
+
+// ============================================================
+// Story 7-9: City Cost Report Types
+// ============================================================
+
+/**
+ * 異常類型
+ * @description 定義成本報表中可能出現的異常類型
+ */
+export type AnomalyType =
+  | 'volume_spike'           // 處理量激增
+  | 'volume_drop'            // 處理量驟降
+  | 'cost_per_doc_increase'  // 單據成本上升
+  | 'cost_per_doc_decrease'  // 單據成本下降
+  | 'api_cost_spike'         // API 成本激增
+  | 'labor_cost_spike'       // 人工成本激增
+  | 'automation_rate_drop'   // 自動化率下降
+  | 'unknown'                // 未知異常
+
+/**
+ * 異常嚴重度
+ */
+export type AnomalySeverity = 'low' | 'medium' | 'high'
+
+/**
+ * 人工成本配置
+ * @description 用於估算人工審核成本的配置
+ */
+export interface LaborCostConfig {
+  /** 手動審核每筆成本（USD） */
+  manualReviewCostPerDoc: number
+  /** 升級處理每筆成本（USD） */
+  escalationCostPerDoc: number
+  /** 間接成本係數（1.2 = 20% 額外成本） */
+  overheadMultiplier: number
+}
+
+/**
+ * 異常檢測閾值配置
+ * @description 用於檢測成本異常的閾值設定
+ */
+export interface AnomalyThresholds {
+  /** 成本變化閾值（百分比，預設 20%） */
+  costChangeThreshold: number
+  /** 處理量變化閾值（百分比，預設 50%） */
+  volumeChangeThreshold: number
+  /** 單據成本變化閾值（百分比，預設 15%） */
+  costPerDocChangeThreshold: number
+}
+
+/**
+ * 成本趨勢數據點
+ * @description 用於顯示成本趨勢的單一數據點
+ */
+export interface CostTrendPoint {
+  /** 日期 (YYYY-MM-DD) */
+  date: string
+  /** API 成本（USD） */
+  apiCost: number
+  /** 人工成本（USD，估算） */
+  laborCost: number
+  /** 總成本（USD） */
+  totalCost: number
+  /** 處理文檔數量 */
+  documentCount: number
+  /** 每單據成本（USD） */
+  costPerDocument: number
+}
+
+/**
+ * 成本異常詳情
+ * @description 單一異常的完整信息
+ */
+export interface CostAnomalyDetail {
+  /** 異常 ID */
+  id: string
+  /** 城市代碼 */
+  cityCode: string
+  /** 城市名稱 */
+  cityName: string
+  /** 異常類型 */
+  type: AnomalyType
+  /** 嚴重度 */
+  severity: AnomalySeverity
+  /** 異常描述 */
+  description: string
+  /** 當前值 */
+  currentValue: number
+  /** 基準值（上期或歷史平均） */
+  baselineValue: number
+  /** 變化百分比 */
+  changePercentage: number
+  /** 檢測時間 */
+  detectedAt: string
+  /** 受影響期間開始 */
+  periodStart: string
+  /** 受影響期間結束 */
+  periodEnd: string
+  /** 建議處理方式 */
+  recommendation: string
+}
+
+/**
+ * 城市成本報表
+ * @description 整合 AI 成本與人工成本的城市級別報表
+ */
+export interface CityCostReport {
+  /** 城市代碼 */
+  cityCode: string
+  /** 城市名稱 */
+  cityName: string
+  /** 報表期間開始 */
+  periodStart: string
+  /** 報表期間結束 */
+  periodEnd: string
+  /** 處理統計 */
+  processing: {
+    /** 總處理文檔數 */
+    totalDocuments: number
+    /** 自動通過數量 */
+    autoApproved: number
+    /** 手動審核數量 */
+    manualReviewed: number
+    /** 升級處理數量 */
+    escalated: number
+    /** 自動化率 (0-100) */
+    automationRate: number
+  }
+  /** 成本明細 */
+  costs: {
+    /** API 成本（USD，實際） */
+    apiCost: number
+    /** 人工成本（USD，估算） */
+    laborCost: number
+    /** 總成本（USD） */
+    totalCost: number
+    /** 每單據平均成本（USD） */
+    costPerDocument: number
+    /** 與上期比較的變化百分比 */
+    changeFromLastPeriod: number | null
+  }
+  /** 異常列表 */
+  anomalies: CostAnomalyDetail[]
+  /** 趨勢數據 */
+  trend: CostTrendPoint[]
+}
+
+/**
+ * 城市成本報表響應
+ */
+export interface CityCostReportResponse {
+  /** 城市報表列表 */
+  reports: CityCostReport[]
+  /** 全部城市合計 */
+  totals: {
+    totalDocuments: number
+    totalApiCost: number
+    totalLaborCost: number
+    totalCost: number
+    averageCostPerDocument: number
+    overallAutomationRate: number
+  }
+  /** 生成時間 */
+  generatedAt: string
+}
+
+/**
+ * 成本趨勢查詢響應
+ */
+export interface CostTrendResponse {
+  /** 城市代碼 */
+  cityCode: string
+  /** 城市名稱 */
+  cityName: string
+  /** 趨勢數據 */
+  trend: CostTrendPoint[]
+  /** 期間統計 */
+  summary: {
+    totalApiCost: number
+    totalLaborCost: number
+    totalCost: number
+    totalDocuments: number
+    averageCostPerDocument: number
+    peakCost: number
+    peakDate: string
+  }
+}
+
+/**
+ * 異常分析查詢響應
+ */
+export interface AnomalyAnalysisResponse {
+  /** 城市代碼 */
+  cityCode: string
+  /** 城市名稱 */
+  cityName: string
+  /** 異常列表 */
+  anomalies: CostAnomalyDetail[]
+  /** 統計摘要 */
+  summary: {
+    totalAnomalies: number
+    highSeverityCount: number
+    mediumSeverityCount: number
+    lowSeverityCount: number
+  }
+}
+
+// ============================================================
+// Story 7-9: API Request Types
+// ============================================================
+
+/**
+ * 城市成本報表查詢參數
+ */
+export interface CityCostReportParams {
+  /** 城市代碼（可多選） */
+  cityCodes?: string[]
+  /** 開始日期 */
+  startDate?: string
+  /** 結束日期 */
+  endDate?: string
+  /** 是否包含趨勢數據 */
+  includeTrend?: boolean
+  /** 是否包含異常檢測 */
+  includeAnomalies?: boolean
+  /** 是否強制刷新快取 */
+  forceRefresh?: boolean
+}
+
+/**
+ * 成本趨勢查詢參數
+ */
+export interface CostTrendParams {
+  /** 城市代碼 */
+  cityCode: string
+  /** 開始日期 */
+  startDate: string
+  /** 結束日期 */
+  endDate: string
+  /** 時間粒度 */
+  granularity?: 'day' | 'week' | 'month'
+}
+
+/**
+ * 異常分析查詢參數
+ */
+export interface AnomalyAnalysisParams {
+  /** 城市代碼 */
+  cityCode: string
+  /** 開始日期 */
+  startDate?: string
+  /** 結束日期 */
+  endDate?: string
+  /** 嚴重度過濾 */
+  severity?: AnomalySeverity[]
+  /** 異常類型過濾 */
+  types?: AnomalyType[]
+}
+
+// ============================================================
+// Story 7-9: Default Constants
+// ============================================================
+
+/**
+ * 預設人工成本配置
+ */
+export const DEFAULT_LABOR_COST_CONFIG: LaborCostConfig = {
+  manualReviewCostPerDoc: 0.50,   // $0.50 per manual review
+  escalationCostPerDoc: 2.00,     // $2.00 per escalation
+  overheadMultiplier: 1.2,        // 20% overhead
+}
+
+/**
+ * 預設異常檢測閾值
+ */
+export const DEFAULT_ANOMALY_THRESHOLDS: AnomalyThresholds = {
+  costChangeThreshold: 20,         // 20% cost change
+  volumeChangeThreshold: 50,       // 50% volume change
+  costPerDocChangeThreshold: 15,   // 15% cost per doc change
+}
+
+// ============================================================
+// Story 7-9: Component Props Types
+// ============================================================
+
+/**
+ * 城市成本表格 Props
+ */
+export interface CityCostTableProps {
+  /** 報表數據 */
+  reports: CityCostReport[]
+  /** 是否顯示異常標記 */
+  showAnomalies?: boolean
+  /** 點擊城市回調 */
+  onCityClick?: (cityCode: string) => void
+  /** 點擊異常回調 */
+  onAnomalyClick?: (cityCode: string, anomaly: CostAnomalyDetail) => void
+  /** 自定義 className */
+  className?: string
+}
+
+/**
+ * 成本異常對話框 Props
+ */
+export interface CostAnomalyDialogProps {
+  /** 是否開啟 */
+  open: boolean
+  /** 關閉回調 */
+  onClose: () => void
+  /** 城市代碼 */
+  cityCode: string
+  /** 城市名稱 */
+  cityName: string
+  /** 異常列表 */
+  anomalies: CostAnomalyDetail[]
+  /** 是否載入中 */
+  isLoading?: boolean
 }
 
 // ============================================================
