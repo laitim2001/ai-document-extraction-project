@@ -88,6 +88,7 @@
  *   - 全域規則快取與解析（Story 6.5）
  *   - 全域 Forwarder 識別（Story 6.5）
  *   - 規則成效統計（Story 6.5）
+ *   - SharePoint 連線配置管理（Story 9.2）
  *
  * @related
  *   - src/app/api/ - API 路由層（調用服務）
@@ -246,6 +247,9 @@ export * from './data-retention.service'
 export * from './encryption.service'
 export * from './microsoft-graph.service'
 export * from './sharepoint-document.service'
+
+// Epic 9: Automated Document Acquisition (Story 9.2 - SharePoint Connection Configuration)
+export * from './sharepoint-config.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

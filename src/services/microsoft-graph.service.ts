@@ -46,6 +46,9 @@ import type {
   GraphApiConfig,
   SharePointFileInfo,
   SharePointUrlParts,
+  SharePointSiteInfo,
+  SharePointDriveInfo,
+  ConnectionTestDetails,
 } from '@/types/sharepoint';
 
 // ============================================================
@@ -332,6 +335,206 @@ export class MicrosoftGraphService {
         error: error instanceof Error ? error.message : 'Connection test failed',
       };
     }
+  }
+
+  /**
+   * 測試連線並獲取詳情
+   *
+   * @description
+   *   測試與 Microsoft Graph API 的連線並獲取詳細資訊，
+   *   包含站點資訊和 Drive 資訊。用於 Story 9-2 配置管理。
+   *
+   * @param siteUrl - SharePoint 站點 URL
+   * @param libraryPath - 文件庫路徑（可選）
+   * @returns 連線測試結果含詳情
+   *
+   * @example
+   *   const result = await service.testConnectionWithDetails(
+   *     'https://tenant.sharepoint.com/sites/MySite',
+   *     'Shared Documents'
+   *   );
+   */
+  async testConnectionWithDetails(
+    siteUrl: string,
+    libraryPath?: string
+  ): Promise<ConnectionTestResult & { details?: ConnectionTestDetails }> {
+    try {
+      // 取得站點資訊
+      const siteInfo = await this.getSiteInfo(siteUrl);
+
+      // 取得 Drive 資訊（如果提供文件庫路徑）
+      let driveInfo: SharePointDriveInfo | undefined;
+      if (libraryPath) {
+        const siteId = await this.getSiteId(siteUrl);
+        driveInfo = await this.getDriveInfo(siteId, libraryPath);
+      }
+
+      return {
+        success: true,
+        details: {
+          siteInfo: {
+            id: siteInfo.id,
+            name: siteInfo.displayName,
+            webUrl: siteInfo.webUrl,
+          },
+          driveInfo: driveInfo
+            ? {
+                id: driveInfo.id,
+                name: driveInfo.name,
+                driveType: driveInfo.driveType,
+              }
+            : undefined,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Connection test failed',
+      };
+    }
+  }
+
+  /**
+   * 獲取 SharePoint 站點資訊
+   *
+   * @description
+   *   從站點 URL 獲取站點的詳細資訊。
+   *   用於驗證站點存在並且有權限存取。
+   *
+   * @param siteUrl - SharePoint 站點 URL
+   * @returns 站點資訊
+   * @throws {GraphApiError} 當無法獲取站點資訊時
+   *
+   * @example
+   *   const siteInfo = await service.getSiteInfo(
+   *     'https://tenant.sharepoint.com/sites/MySite'
+   *   );
+   */
+  async getSiteInfo(siteUrl: string): Promise<SharePointSiteInfo> {
+    try {
+      const url = new URL(siteUrl);
+      const hostname = url.hostname;
+      const sitePath = url.pathname;
+
+      const site = await this.client.api(`/sites/${hostname}:${sitePath}`).get();
+
+      return {
+        id: site.id,
+        displayName: site.displayName,
+        webUrl: site.webUrl,
+        description: site.description,
+      };
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
+        throw new GraphApiError('SharePoint site not found', 'ITEM_NOT_FOUND');
+      }
+      if (error instanceof Error && error.message.includes('403')) {
+        throw new GraphApiError(
+          'Access denied to SharePoint site',
+          'ACCESS_DENIED'
+        );
+      }
+      throw new GraphApiError(
+        error instanceof Error ? error.message : 'Failed to get site info',
+        'API_ERROR'
+      );
+    }
+  }
+
+  /**
+   * 獲取 SharePoint Drive（文件庫）資訊
+   *
+   * @description
+   *   獲取站點中指定文件庫的詳細資訊，
+   *   包含 Drive ID、名稱、容量等。
+   *
+   * @param siteId - SharePoint 站點 ID
+   * @param libraryPath - 文件庫名稱或路徑
+   * @returns Drive 資訊
+   * @throws {GraphApiError} 當無法獲取 Drive 資訊時
+   *
+   * @example
+   *   const driveInfo = await service.getDriveInfo(siteId, 'Shared Documents');
+   */
+  async getDriveInfo(siteId: string, libraryPath: string): Promise<SharePointDriveInfo> {
+    try {
+      // 先嘗試通過名稱直接獲取 Drive
+      const drivesResponse = await this.client
+        .api(`/sites/${siteId}/drives`)
+        .get();
+
+      const drives = drivesResponse.value as Array<{
+        id: string;
+        name: string;
+        driveType: string;
+        webUrl: string;
+        quota?: {
+          used: number;
+          total: number;
+        };
+      }>;
+
+      // 搜尋匹配的 Drive
+      const matchingDrive = drives.find(
+        (drive) =>
+          drive.name.toLowerCase() === libraryPath.toLowerCase() ||
+          drive.webUrl.toLowerCase().includes(libraryPath.toLowerCase())
+      );
+
+      if (!matchingDrive) {
+        // 回退到預設 Drive
+        const defaultDrive = await this.client.api(`/sites/${siteId}/drive`).get();
+        return {
+          id: defaultDrive.id,
+          name: defaultDrive.name,
+          driveType: defaultDrive.driveType,
+          webUrl: defaultDrive.webUrl,
+          quota: defaultDrive.quota,
+        };
+      }
+
+      return {
+        id: matchingDrive.id,
+        name: matchingDrive.name,
+        driveType: matchingDrive.driveType,
+        webUrl: matchingDrive.webUrl,
+        quota: matchingDrive.quota,
+      };
+    } catch (error) {
+      throw new GraphApiError(
+        error instanceof Error ? error.message : 'Failed to get drive info',
+        'API_ERROR'
+      );
+    }
+  }
+
+  /**
+   * 獲取站點的所有 Drives（文件庫）列表
+   *
+   * @description
+   *   列出站點中所有可用的文件庫，用於配置時選擇文件庫。
+   *
+   * @param siteUrl - SharePoint 站點 URL
+   * @returns Drive 資訊列表
+   */
+  async listDrives(siteUrl: string): Promise<SharePointDriveInfo[]> {
+    const siteId = await this.getSiteId(siteUrl);
+
+    const response = await this.client.api(`/sites/${siteId}/drives`).get();
+
+    return (response.value as Array<{
+      id: string;
+      name: string;
+      driveType: string;
+      webUrl: string;
+      quota?: { used: number; total: number };
+    }>).map((drive) => ({
+      id: drive.id,
+      name: drive.name,
+      driveType: drive.driveType,
+      webUrl: drive.webUrl,
+      quota: drive.quota,
+    }));
   }
 
   /**

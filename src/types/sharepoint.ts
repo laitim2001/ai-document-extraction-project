@@ -2,15 +2,21 @@
  * @fileoverview SharePoint 整合相關類型定義
  * @description
  *   定義 SharePoint 文件提交、Microsoft Graph API 整合、
- *   API Key 驗證相關的類型和常數。
+ *   API Key 驗證、配置管理相關的類型和常數。
  *
  * @module src/types/sharepoint
  * @author Development Team
  * @since Epic 9 - Story 9.1 (SharePoint 文件監控 API)
  * @lastModified 2025-12-20
+ *
+ * @features
+ *   - SharePoint 文件提交類型
+ *   - Microsoft Graph API 類型
+ *   - API Key 驗證類型
+ *   - SharePoint 配置管理類型 (Story 9.2)
  */
 
-import type { SharePointFetchStatus, DocumentSourceType } from '@prisma/client';
+import type { SharePointFetchStatus, DocumentSourceType, City, User, SharePointConfig } from '@prisma/client';
 
 // ============================================================
 // Re-export Prisma Enums
@@ -328,3 +334,165 @@ export interface FetchStatusResponse {
   success: true;
   data: FetchLogDetail;
 }
+
+// ============================================================
+// SharePoint Config Types (Story 9.2)
+// ============================================================
+
+/**
+ * 建立/更新 SharePoint 配置的輸入
+ */
+export interface SharePointConfigInput {
+  name: string;
+  description?: string | null;
+  siteUrl: string;
+  tenantId: string;
+  clientId: string;
+  clientSecret: string;
+  libraryPath: string;
+  rootFolderPath?: string | null;
+  cityId?: string | null;
+  isGlobal?: boolean;
+  fileExtensions?: string[];
+  maxFileSizeMb?: number;
+  excludeFolders?: string[];
+}
+
+/**
+ * 更新配置的輸入（部分欄位）
+ */
+export type SharePointConfigUpdateInput = Partial<Omit<SharePointConfigInput, 'cityId' | 'isGlobal'>>;
+
+/**
+ * 連線測試結果
+ */
+export interface ConnectionTestResult {
+  success: boolean;
+  error?: string;
+  details?: ConnectionTestDetails;
+}
+
+/**
+ * 連線測試詳情
+ */
+export interface ConnectionTestDetails {
+  siteInfo?: {
+    id: string;
+    name: string;
+    webUrl: string;
+  };
+  driveInfo?: {
+    id: string;
+    name: string;
+    driveType: string;
+  };
+  permissions?: string[];
+}
+
+/**
+ * 配置回應（含關聯資料，密鑰已遮罩）
+ */
+export interface SharePointConfigResponse extends Omit<SharePointConfig, 'clientSecret'> {
+  clientSecret: string;  // 遮罩後的密鑰 ********
+  city?: Pick<City, 'id' | 'name' | 'code'> | null;
+  createdBy?: Pick<User, 'id' | 'name'>;
+  updatedBy?: Pick<User, 'id' | 'name'> | null;
+}
+
+/**
+ * 配置列表查詢選項
+ */
+export interface SharePointConfigQueryOptions {
+  cityId?: string;
+  includeInactive?: boolean;
+}
+
+/**
+ * 表單資料（前端表單用）
+ */
+export interface SharePointConfigFormData {
+  name: string;
+  description?: string;
+  siteUrl: string;
+  tenantId: string;
+  clientId: string;
+  clientSecret: string;
+  libraryPath: string;
+  rootFolderPath?: string;
+  cityId?: string | null;
+  isGlobal?: boolean;
+  fileExtensions?: string;  // 逗號分隔的字串
+  maxFileSizeMb?: number;
+  excludeFolders?: string;  // 逗號分隔的字串
+}
+
+/**
+ * SharePoint 站點資訊
+ */
+export interface SharePointSiteInfo {
+  id: string;
+  displayName: string;
+  webUrl: string;
+  description?: string;
+}
+
+/**
+ * SharePoint 文件庫資訊
+ */
+export interface SharePointDriveInfo {
+  id: string;
+  name: string;
+  driveType: string;
+  webUrl: string;
+  quota?: {
+    used: number;
+    total: number;
+  };
+}
+
+/**
+ * 配置列表項目（用於列表顯示）
+ */
+export interface SharePointConfigListItem {
+  id: string;
+  name: string;
+  description: string | null;
+  siteUrl: string;
+  libraryPath: string;
+  isActive: boolean;
+  isGlobal: boolean;
+  city: Pick<City, 'id' | 'name' | 'code'> | null;
+  lastTestedAt: Date | null;
+  lastTestResult: boolean | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * 配置詳情（用於編輯表單）
+ */
+export interface SharePointConfigDetail extends Omit<SharePointConfig, 'clientSecret'> {
+  clientSecret: string;  // 遮罩後的密鑰
+  city: Pick<City, 'id' | 'name' | 'code'> | null;
+  createdBy: Pick<User, 'id' | 'name'>;
+  updatedBy: Pick<User, 'id' | 'name'> | null;
+}
+
+// ============================================================
+// SharePoint Config Constants (Story 9.2)
+// ============================================================
+
+/**
+ * 預設允許的檔案類型
+ */
+export const DEFAULT_FILE_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.tiff'] as const;
+
+/**
+ * 預設最大檔案大小 (MB)
+ */
+export const DEFAULT_MAX_FILE_SIZE_MB = 50;
+
+/**
+ * 密鑰遮罩字串
+ */
+export const CLIENT_SECRET_MASK = '********';

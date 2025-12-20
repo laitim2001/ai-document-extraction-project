@@ -69,7 +69,8 @@ model User {
   deletionRequestsCreated DataDeletionRequest[]    @relation("DeletionRequestRequester") // Story 8.6: 刪除請求創建者
   deletionRequestsApproved DataDeletionRequest[]   @relation("DeletionRequestApprover") // Story 8.6: 刪除請求審批者
   restoreRequests        DataRestoreRequest[]      @relation("RestoreRequestRequester") // Story 8.6: 還原請求創建者
-  sharePointConfigs      SharePointConfig[]        @relation("SharePointConfigCreator") // Story 9.1: SharePoint 配置創建者
+  sharePointConfigs          SharePointConfig[]        @relation("SharePointConfigCreator") // Story 9.1: SharePoint 配置創建者
+  sharePointConfigsUpdated   SharePointConfig[]        @relation("SharePointConfigUpdater") // Story 9.2: SharePoint 配置更新者
   apiKeys                ApiKey[]                  @relation("ApiKeyCreator") // Story 9.1: API Key 創建者
 
   @@map("users")
@@ -2261,6 +2262,12 @@ model SharePointConfig {
   // 文件庫設定
   driveId           String?   @map("drive_id")
   libraryPath       String    @map("library_path")
+  rootFolderPath    String?   @map("root_folder_path")
+
+  // 檔案過濾設定
+  fileExtensions    String[]  @default([]) @map("file_extensions") // 允許的檔案類型，如 [".pdf", ".xlsx"]
+  maxFileSizeMb     Int       @default(50) @map("max_file_size_mb") // 最大檔案大小 MB
+  excludeFolders    String[]  @default([]) @map("exclude_folders") // 排除的資料夾
 
   // 城市關聯（可選，null 表示全域配置）
   cityId            String?   @unique @map("city_id")
@@ -2273,11 +2280,13 @@ model SharePointConfig {
   lastTestResult    Boolean?  @map("last_test_result")
   lastTestError     String?   @map("last_test_error")
 
-  // 時間戳
+  // 時間戳與審計
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
   createdById       String    @map("created_by_id")
   createdBy         User      @relation("SharePointConfigCreator", fields: [createdById], references: [id])
+  updatedById       String?   @map("updated_by_id")
+  updatedBy         User?     @relation("SharePointConfigUpdater", fields: [updatedById], references: [id])
 
   // 關聯
   fetchLogs         SharePointFetchLog[]

@@ -230,5 +230,5 @@ export {
 // 資料保留相關 (Story 8.6)
 export * from './retention'
 
-// SharePoint 整合相關 (Story 9.1)
+// SharePoint 整合相關 (Story 9.1, 9.2)
 export * from './sharepoint'

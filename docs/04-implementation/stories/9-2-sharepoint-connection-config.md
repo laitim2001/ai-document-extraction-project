@@ -8,7 +8,7 @@
 | Story ID | 9.2 |
 | 標題 | SharePoint 連線配置 |
 | FR 覆蓋 | FR2 |
-| 狀態 | ready-for-dev |
+| 狀態 | done |
 | 優先級 | High |
 | 估計點數 | 5 |
 
@@ -1519,3 +1519,80 @@ describe('SharePointConfigService', () => {
 2. 建議使用 Azure Key Vault 管理加密金鑰
 3. 定期輪換 Client Secret
 4. 監控 API 存取日誌
+
+---
+
+## 實作完成記錄
+
+### 完成日期
+2025-12-20
+
+### 實作項目
+
+#### 1. 類型定義 (src/types/sharepoint.ts)
+- [x] SharePointConfigInput - 配置輸入類型
+- [x] SharePointConfigUpdateInput - 配置更新類型
+- [x] SharePointConfigResponse - 配置回應類型（含遮罩密鑰）
+- [x] SharePointConfigListItem - 列表項目類型
+- [x] SharePointConfigQueryOptions - 查詢選項
+- [x] ConnectionTestResult - 連線測試結果類型
+
+#### 2. 服務層 (src/services/sharepoint-config.service.ts)
+- [x] SharePointConfigService 類別
+- [x] createConfig() - 建立配置（含城市/全域唯一性檢查）
+- [x] updateConfig() - 更新配置（含密鑰更新加密）
+- [x] getConfig() - 獲取單一配置
+- [x] getConfigs() - 獲取配置列表
+- [x] deleteConfig() - 刪除配置（軟刪除）
+- [x] toggleActive() - 啟用/停用配置
+- [x] testConnection() - 測試已儲存的配置連線
+- [x] testConnectionWithInput() - 測試未儲存的配置連線
+- [x] SharePointConfigError 自定義錯誤類別
+
+#### 3. MicrosoftGraphService 擴展
+- [x] getSiteInfo() - 獲取 SharePoint 站點資訊
+- [x] getDriveInfo() - 獲取文件庫資訊
+- [x] testConnectionWithDetails() - 含詳細資訊的連線測試
+
+#### 4. API 路由
+- [x] GET /api/admin/integrations/sharepoint - 配置列表
+- [x] POST /api/admin/integrations/sharepoint - 建立配置
+- [x] GET /api/admin/integrations/sharepoint/[configId] - 獲取配置
+- [x] PUT /api/admin/integrations/sharepoint/[configId] - 更新配置
+- [x] DELETE /api/admin/integrations/sharepoint/[configId] - 刪除配置
+- [x] POST /api/admin/integrations/sharepoint/[configId]/test - 測試已儲存配置
+- [x] POST /api/admin/integrations/sharepoint/test - 測試未儲存配置
+
+#### 5. React Query Hooks (src/hooks/use-sharepoint-config.ts)
+- [x] useSharePointConfigs() - 配置列表
+- [x] useSharePointConfig() - 單一配置
+- [x] useCreateSharePointConfig() - 建立配置
+- [x] useUpdateSharePointConfig() - 更新配置
+- [x] useDeleteSharePointConfig() - 刪除配置
+- [x] useToggleSharePointConfigActive() - 切換啟用狀態
+- [x] useTestSharePointConnection() - 測試已儲存配置
+- [x] useTestSharePointConnectionInput() - 測試未儲存配置
+
+#### 6. UI 元件
+- [x] SharePointConfigForm - 配置表單（新增/編輯）
+  - Azure AD 設定區塊
+  - SharePoint 設定區塊
+  - 檔案過濾設定區塊
+  - 城市關聯設定
+  - 即時連線測試
+  - Zod 表單驗證
+- [x] SharePointConfigList - 配置列表元件
+  - 表格顯示配置
+  - 連線狀態指示
+  - 啟用/停用開關
+  - 編輯/刪除/測試操作
+
+### 技術決策
+
+1. **NextAuth v5 認證模式**: 使用 `auth()` 函數替代 v4 的 `getServerSession(authOptions)`
+2. **react-hook-form 類型兼容**: 使用 `as Resolver<T>` 類型斷言解決版本兼容性問題
+3. **Admin 權限檢查**: 使用 `session.user.isGlobalAdmin || session.user.roles?.some(r => r.name === 'GLOBAL_ADMIN')` 模式
+
+### 驗證通過
+- [x] npm run type-check
+- [x] npm run lint
