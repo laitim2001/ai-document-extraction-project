@@ -33,3 +33,14 @@ export {
   type ApiHandler,
   type ApiHandlerWithParams,
 } from './audit-log.middleware'
+
+// External API Auth Middleware (Story 11.1)
+export {
+  externalApiAuthMiddleware,
+  generateTraceId,
+  getClientIpFromRequest,
+  getClientInfo,
+  isValidApiKeyFormat,
+  type ExternalApiAuthResult,
+  type ClientInfo,
+} from './external-api-auth'

@@ -273,3 +273,47 @@ export * from './health-monitoring'
 
 // 告警服務相關 (Story 10.7)
 export * from './alert-service'
+
+// 外部 API 相關 (Story 11.1)
+// 注意：MAX_FILE_SIZE 與 sharepoint.ts 衝突，使用命名導出
+export {
+  // Submission types
+  type FileUploadContent,
+  type Base64Content,
+  type UrlReferenceContent,
+  type SubmitInvoiceRequest,
+  type ProcessedFileData,
+  type ClientInfo,
+  SUPPORTED_MIME_TYPES,
+  MAX_FILE_SIZE as EXTERNAL_API_MAX_FILE_SIZE,
+  URL_FETCH_TIMEOUT,
+  // Response types
+  type SubmitInvoiceResponse,
+  type ApiErrorResponse,
+  type RateLimitErrorResponse,
+  type AuthenticationErrorCode,
+  type AuthorizationErrorCode,
+  type ValidationErrorCode,
+  type RateLimitErrorCode,
+  type ServerErrorCode,
+  type ExternalApiErrorCode,
+  ERROR_CODES,
+  getHttpStatusForErrorCode,
+  getDefaultMessageForErrorCode,
+  // Validation types
+  base64SubmissionSchema,
+  urlSubmissionSchema,
+  commonParamsSchema,
+  jsonRequestBodySchema,
+  multipartParamsSchema,
+  type Base64Submission,
+  type UrlSubmission,
+  type CommonParams,
+  type JsonRequestBody,
+  type MultipartParams,
+  isSupportedMimeType,
+  isFileSizeValid,
+  parseMimeType,
+  isValidBase64,
+  inferMimeTypeFromFileName,
+} from './external-api'

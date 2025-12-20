@@ -1097,3 +1097,110 @@ describe('POST /api/v1/invoices', () => {
 - Story 11-2: API 處理狀態查詢端點（狀態查詢 URL）
 - Story 11-5: API 訪問控制與認證（API Key 管理）
 - Story 10-1: n8n 雙向通訊 API（處理觸發機制）
+
+---
+
+## Implementation Notes
+
+> 實際實現於 2025-12-20
+
+### 實現的文件結構
+
+```
+src/
+├── app/api/v1/invoices/
+│   └── route.ts                    # POST /api/v1/invoices 端點
+├── middleware/
+│   ├── external-api-auth.ts        # API Key 認證中間件
+│   └── index.ts                    # 中間件導出
+├── services/
+│   ├── invoice-submission.service.ts  # 發票提交服務
+│   ├── rate-limit.service.ts       # 速率限制服務（內存實現）
+│   └── index.ts                    # 服務導出
+└── types/external-api/
+    ├── index.ts                    # 類型統一導出
+    ├── submission.ts               # 提交請求類型
+    ├── response.ts                 # 回應類型和錯誤代碼
+    └── validation.ts               # Zod 驗證 Schema
+```
+
+### 關鍵實現細節
+
+#### 1. API Key 認證 (`external-api-auth.ts`)
+- 從 `Authorization: Bearer {API_KEY}` 標頭提取 API Key
+- 使用 SHA-256 hash 在資料庫中查找 API Key
+- 驗證狀態（isActive）、過期時間、IP 限制
+- 驗證操作權限（allowedOperations）
+- 更新使用統計（lastUsedAt, usageCount）
+- 記錄失敗的認證嘗試到 `ApiAuthAttempt` 表
+
+#### 2. 速率限制 (`rate-limit.service.ts`)
+- 採用滑動窗口算法（1 分鐘窗口）
+- 使用內存 Map 實現（開發環境）
+- 返回 `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` 標頭
+- 超過限制時返回 HTTP 429 和 `Retry-After` 標頭
+
+#### 3. 三種提交方式
+1. **Multipart/form-data**: 直接上傳文件
+2. **Base64 JSON**: JSON 請求包含 Base64 編碼的文件內容
+3. **URL JSON**: JSON 請求包含文件 URL，服務端自動下載
+
+#### 4. 審計日誌
+- 每個 API 調用記錄到 `ApiAuditLog` 表
+- 包含：端點、方法、狀態碼、回應時間、traceId、客戶端 IP、User-Agent
+
+### 與 Tech Spec 的差異
+
+| 項目 | Tech Spec | 實際實現 | 原因 |
+|------|-----------|---------|------|
+| 速率限制 | Redis (Upstash) | 內存 Map | 開發環境簡化，生產環境可切換 |
+| Blob Storage | Azure Blob | 臨時路徑 | 與現有文件上傳流程整合 |
+| Document 狀態 | PENDING | UPLOADED | 配合現有 DocumentStatus enum |
+
+### 依賴的 Prisma 模型
+
+- `ExternalApiKey` - API Key 管理
+- `ExternalApiTask` - 外部 API 任務記錄
+- `ApiAuthAttempt` - 認證嘗試記錄
+- `ApiAuditLog` - API 調用審計日誌
+- `Document` - 文件記錄
+- `City` - 城市驗證
+
+### 測試建議
+
+```bash
+# 1. Multipart 上傳測試
+curl -X POST http://localhost:3000/api/v1/invoices \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "file=@invoice.pdf" \
+  -F 'params={"cityCode":"HKG","priority":"NORMAL"}'
+
+# 2. Base64 提交測試
+curl -X POST http://localhost:3000/api/v1/invoices \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "base64",
+    "content": "JVBERi0xLjQK...",
+    "fileName": "invoice.pdf",
+    "mimeType": "application/pdf",
+    "cityCode": "HKG"
+  }'
+
+# 3. URL 引用測試
+curl -X POST http://localhost:3000/api/v1/invoices \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "url",
+    "url": "https://example.com/invoice.pdf",
+    "cityCode": "HKG"
+  }'
+```
+
+### 後續改進建議
+
+1. **生產環境速率限制**: 切換到 Redis 實現
+2. **文件上傳**: 整合 Azure Blob Storage
+3. **單元測試**: 添加完整的測試覆蓋
+4. **API 文檔**: 生成 OpenAPI/Swagger 規格

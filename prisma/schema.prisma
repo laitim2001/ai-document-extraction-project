@@ -80,6 +80,7 @@ model User {
   webhookConfigHistories WebhookConfigHistory[]    @relation("WebhookConfigHistoryCreator") // Story 10.2: 配置變更歷史
   workflowDefinitionsCreated  WorkflowDefinition[]      @relation("WorkflowDefinitionCreator") // Story 10.4: 工作流定義創建者
   workflowDefinitionsUpdated  WorkflowDefinition[]      @relation("WorkflowDefinitionUpdater") // Story 10.4: 工作流定義更新者
+  externalApiKeys             ExternalApiKey[]          @relation("ExternalApiKeyCreator") // Story 11.1: 外部 API Key 創建者
 
   @@map("users")
 }
@@ -235,6 +236,7 @@ model City {
   workflowDefinitions  WorkflowDefinition[]   // Story 10.4: 工作流定義
   systemHealthLogs     SystemHealthLog[]      // Story 10.7: 系統健康日誌
   n8nConnectionStats   N8nConnectionStats[]   // Story 10.7: n8n 連接統計
+  externalApiTasks     ExternalApiTask[]      // Story 11.1: 外部 API 任務
 
   @@index([regionId])
   @@index([status])
@@ -449,6 +451,7 @@ model Document {
   n8nWebhookEvents    N8nWebhookEvent[]    // n8n Webhook 事件（Story 10.1）
   workflowExecution   WorkflowExecution?        @relation("WorkflowExecutionDocuments", fields: [workflowExecutionId], references: [id]) // Story 10.3
   processingStages    DocumentProcessingStage[] // 處理階段記錄（Story 10.6）
+  externalApiTask     ExternalApiTask?          // 外部 API 任務（Story 11.1）
 
   @@index([status])
   @@index([uploadedBy])
@@ -3331,5 +3334,316 @@ model AlertNotificationConfig {
   updatedAt      DateTime      @updatedAt @map("updated_at")
 
   @@map("alert_notification_configs")
+}
+
+// ==========================================================================
+// Epic 11: 外部 API 服務 (External API Services)
+// ==========================================================================
+
+// =====================
+// Story 11-1: API 發票提交端點
+// 外部 API 任務記錄
+// =====================
+
+// 提交方式枚舉
+enum SubmissionType {
+  FILE_UPLOAD       // multipart/form-data 直接上傳
+  BASE64            // Base64 編碼內容
+  URL_REFERENCE     // 外部 URL 引用
+}
+
+// 任務優先級枚舉
+enum TaskPriority {
+  NORMAL            // 標準優先級
+  HIGH              // 高優先級（加速處理）
+}
+
+// API 任務狀態枚舉
+enum ApiTaskStatus {
+  QUEUED            // 排隊中
+  PROCESSING        // 處理中
+  COMPLETED         // 已完成
+  FAILED            // 失敗
+  REVIEW_REQUIRED   // 需要審核
+  EXPIRED           // 已過期
+}
+
+// 外部 API 任務記錄
+model ExternalApiTask {
+  id                String         @id @default(cuid())
+  taskId            String         @unique @default(cuid()) @map("task_id") // 公開的任務 ID
+
+  // API Key 關聯
+  apiKeyId          String         @map("api_key_id")
+  apiKey            ExternalApiKey @relation(fields: [apiKeyId], references: [id])
+
+  // 文件關聯
+  documentId        String?        @unique @map("document_id")
+  document          Document?      @relation(fields: [documentId], references: [id])
+
+  // 提交方式
+  submissionType    SubmissionType @map("submission_type")
+  originalFileName  String         @map("original_file_name")
+  fileSize          Int            @map("file_size")
+  mimeType          String         @map("mime_type")
+
+  // 來源資訊
+  sourceUrl         String?        @map("source_url") // URL 引用時的原始 URL
+
+  // 處理配置
+  cityCode          String         @map("city_code")
+  city              City           @relation(fields: [cityCode], references: [code])
+  priority          TaskPriority   @default(NORMAL)
+  callbackUrl       String?        @map("callback_url")
+  metadata          Json?
+
+  // 狀態
+  status            ApiTaskStatus  @default(QUEUED)
+  progress          Int            @default(0)
+  currentStep       String?        @map("current_step")
+
+  // 結果
+  resultAvailable   Boolean        @default(false) @map("result_available")
+  resultExpiresAt   DateTime?      @map("result_expires_at")
+  confidenceScore   Float?         @map("confidence_score")
+
+  // 錯誤資訊
+  errorCode         String?        @map("error_code")
+  errorMessage      String?        @map("error_message")
+  errorRetryable    Boolean?       @map("error_retryable")
+
+  // 時間記錄
+  estimatedCompletion    DateTime? @map("estimated_completion")
+  processingStartedAt    DateTime? @map("processing_started_at")
+  completedAt            DateTime? @map("completed_at")
+
+  // 審計
+  clientIp          String         @map("client_ip")
+  userAgent         String?        @map("user_agent")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  // 關聯
+  webhookDeliveries ExternalWebhookDelivery[]
+
+  @@index([taskId])
+  @@index([apiKeyId])
+  @@index([status])
+  @@index([cityCode])
+  @@index([createdAt])
+  @@index([apiKeyId, status, createdAt])
+  @@map("external_api_tasks")
+}
+
+// =====================
+// Story 11-4: Webhook 回調通知
+// =====================
+
+// Webhook 事件類型
+enum WebhookEventType {
+  INVOICE_PROCESSING      // 開始處理
+  INVOICE_COMPLETED       // 處理完成
+  INVOICE_FAILED          // 處理失敗
+  INVOICE_REVIEW_REQUIRED // 需要人工審核
+}
+
+// 外部 API Webhook 發送狀態
+enum ExternalWebhookDeliveryStatus {
+  PENDING   // 等待發送
+  SENDING   // 發送中
+  DELIVERED // 已送達
+  FAILED    // 最終失敗
+  RETRYING  // 等待重試
+}
+
+// Webhook 發送記錄
+model ExternalWebhookDelivery {
+  id              String                        @id @default(cuid())
+
+  // 任務關聯
+  taskId          String                        @map("task_id")
+  task            ExternalApiTask               @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  // 發送資訊
+  event           WebhookEventType
+  targetUrl       String                        @map("target_url") @db.VarChar(2048)
+  payload         Json
+
+  // 安全簽名
+  signature       String                        @db.VarChar(128)
+  timestamp       BigInt
+
+  // 發送狀態
+  status          ExternalWebhookDeliveryStatus @default(PENDING)
+  httpStatus      Int?                  @map("http_status")
+  responseBody    String?               @map("response_body") @db.Text
+  errorMessage    String?               @map("error_message") @db.VarChar(1000)
+
+  // 重試控制
+  attempts        Int                   @default(0)
+  maxAttempts     Int                   @default(4) @map("max_attempts") // 首次 + 3 次重試
+  nextRetryAt     DateTime?             @map("next_retry_at")
+  lastAttemptAt   DateTime?             @map("last_attempt_at")
+
+  // 時間記錄
+  createdAt       DateTime              @default(now()) @map("created_at")
+  completedAt     DateTime?             @map("completed_at")
+
+  @@index([taskId])
+  @@index([status])
+  @@index([nextRetryAt])
+  @@index([createdAt])
+  @@map("external_webhook_deliveries")
+}
+
+// Webhook 配置（預設回調設定）
+model ExternalWebhookConfig {
+  id              String             @id @default(cuid())
+  apiKeyId        String             @map("api_key_id")
+  apiKey          ExternalApiKey     @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  // 基本設定
+  events          WebhookEventType[]
+  url             String             @db.VarChar(2048)
+  secret          String             @db.VarChar(128) // 用於簽名驗證
+  isActive        Boolean            @default(true) @map("is_active")
+
+  // 進階設定
+  timeout         Int                @default(30000) // 超時時間（毫秒）
+  retryEnabled    Boolean            @default(true) @map("retry_enabled")
+  maxRetries      Int                @default(3) @map("max_retries")
+
+  // 元數據
+  description     String?            @db.VarChar(500)
+  headers         Json?              // 額外自訂 Headers
+
+  // 時間記錄
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  @@unique([apiKeyId, url])
+  @@index([apiKeyId])
+  @@index([isActive])
+  @@map("external_webhook_configs")
+}
+
+// =====================
+// Story 11-5: API 訪問控制與認證
+// =====================
+
+// 外部 API Key
+model ExternalApiKey {
+  id                String    @id @default(cuid())
+
+  // 基本資訊
+  name              String    @db.VarChar(100)
+  description       String?   @db.VarChar(500)
+  keyHash           String    @unique @map("key_hash") @db.VarChar(64)  // SHA-256 hash
+  keyPrefix         String    @map("key_prefix") @db.VarChar(12)        // 前綴識別（如 inv_a1b2c3d4）
+
+  // 所有者
+  createdById       String    @map("created_by_id")
+  createdBy         User      @relation("ExternalApiKeyCreator", fields: [createdById], references: [id])
+  organizationId    String?   @map("organization_id")
+
+  // 權限設定
+  allowedCities     Json      @map("allowed_cities")      // string[] - 城市代碼列表，'*' 表示全部
+  allowedOperations Json      @map("allowed_operations")  // string[] - 允許操作：submit, query, result
+  scopes            Json?                                 // 額外細粒度權限
+
+  // 速率限制
+  rateLimit         Int       @default(60) @map("rate_limit")     // 每分鐘請求數
+  rateLimitBurst    Int?      @map("rate_limit_burst")            // 突發請求限制
+
+  // Webhook 設定
+  webhookSecret     String?   @map("webhook_secret") @db.VarChar(128) // 預設簽名密鑰
+
+  // 狀態
+  isActive          Boolean   @default(true) @map("is_active")
+  expiresAt         DateTime? @map("expires_at")
+
+  // 使用統計
+  lastUsedAt        DateTime? @map("last_used_at")
+  usageCount        BigInt    @default(0) @map("usage_count")
+  monthlyUsage      Int       @default(0) @map("monthly_usage")
+  monthlyReset      DateTime? @map("monthly_reset")
+
+  // IP 限制
+  allowedIps        Json?     @map("allowed_ips")  // string[] - 允許的 IP
+  blockedIps        Json?     @map("blocked_ips")  // string[] - 封鎖的 IP
+
+  // 時間記錄
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+
+  // 關聯
+  tasks             ExternalApiTask[]
+  webhookConfigs    ExternalWebhookConfig[]
+  auditLogs         ApiAuditLog[]
+
+  @@index([keyHash])
+  @@index([createdById])
+  @@index([isActive])
+  @@index([expiresAt])
+  @@map("external_api_keys")
+}
+
+// API 認證嘗試記錄（用於安全監控）
+model ApiAuthAttempt {
+  id              String    @id @default(cuid())
+  keyPrefix       String?   @map("key_prefix") @db.VarChar(12)  // API Key 前綴
+  ip              String    @db.VarChar(45)                      // 支援 IPv6
+  userAgent       String?   @map("user_agent") @db.VarChar(500)
+  success         Boolean
+  failureReason   String?   @map("failure_reason") @db.VarChar(100)
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@index([ip])
+  @@index([createdAt])
+  @@index([keyPrefix])
+  @@index([success, createdAt])
+  @@map("api_auth_attempts")
+}
+
+// API 審計日誌
+model ApiAuditLog {
+  id              String         @id @default(cuid())
+
+  // API Key 資訊
+  apiKeyId        String         @map("api_key_id")
+  apiKey          ExternalApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  // 請求資訊
+  method          String         @db.VarChar(10)
+  endpoint        String         @db.VarChar(100)   // 正規化端點
+  path            String         @db.VarChar(500)   // 完整路徑
+  queryParams     Json?          @map("query_params")
+  requestBody     Json?          @map("request_body") // 敏感資訊已過濾
+
+  // 回應資訊
+  statusCode      Int            @map("status_code")
+  responseTime    Int            @map("response_time") // 毫秒
+  errorCode       String?        @map("error_code") @db.VarChar(50)
+  errorMessage    String?        @map("error_message") @db.VarChar(500)
+
+  // 客戶端資訊
+  clientIp        String         @map("client_ip") @db.VarChar(45)
+  userAgent       String?        @map("user_agent") @db.VarChar(500)
+  country         String?        @db.VarChar(2)
+  city            String?        @db.VarChar(100)
+
+  // 追蹤
+  traceId         String?        @map("trace_id") @db.VarChar(50)
+
+  // 時間記錄
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  @@index([apiKeyId])
+  @@index([createdAt])
+  @@index([statusCode])
+  @@index([endpoint])
+  @@index([apiKeyId, createdAt])
+  @@map("api_audit_logs")
 }
 

@@ -274,6 +274,10 @@ export * from './document-progress.service'
 // Epic 10: n8n Workflow Integration (Story 10.7 - n8n Connection Status Monitoring)
 export * from './alert.service'
 
+// Epic 11: External API Services (Story 11.1 - API Invoice Submission Endpoint)
+export * from './invoice-submission.service'
+export * from './rate-limit.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

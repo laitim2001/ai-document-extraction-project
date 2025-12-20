@@ -248,15 +248,69 @@
 
 ## 外部 API
 
-> 路徑前綴: `/api/external/v1`
+> 路徑前綴: `/api/v1`
 
 | 端點 | 方法 | 描述 | 認證 | Story |
 |------|------|------|------|-------|
-| `/api/external/v1/invoices` | POST | 提交發票 | API Key | 11-1 |
-| `/api/external/v1/invoices/[id]/status` | GET | 查詢處理狀態 | API Key | 11-2 |
-| `/api/external/v1/invoices/[id]/result` | GET | 取得處理結果 | API Key | 11-3 |
-| `/api/external/v1/webhooks` | POST | 註冊 Webhook | API Key | 11-4 |
-| `/api/external/v1/webhooks/[id]` | DELETE | 取消 Webhook | API Key | 11-4 |
+| `/api/v1/invoices` | POST | 提交發票（支援 multipart/form-data、Base64、URL 引用） | Bearer Token (API Key) | 11-1 ✅ |
+| `/api/v1/invoices/[taskId]/status` | GET | 查詢處理狀態 | Bearer Token (API Key) | 11-2 |
+| `/api/v1/invoices/[taskId]/result` | GET | 取得處理結果 | Bearer Token (API Key) | 11-3 |
+| `/api/v1/webhooks` | POST | 註冊 Webhook | Bearer Token (API Key) | 11-4 |
+| `/api/v1/webhooks/[id]` | DELETE | 取消 Webhook | Bearer Token (API Key) | 11-4 |
+
+### 發票提交 API 詳情 (Story 11-1)
+
+**端點**: `POST /api/v1/invoices`
+
+**認證**: `Authorization: Bearer {API_KEY}`
+
+**請求格式**:
+1. **Multipart/form-data** (文件直接上傳)
+   ```
+   file: <binary>
+   params: {"cityCode": "HKG", "priority": "NORMAL", "callbackUrl": "https://..."}
+   ```
+
+2. **JSON (Base64 編碼)**
+   ```json
+   {
+     "type": "base64",
+     "content": "JVBERi0xLjQK...",
+     "fileName": "invoice.pdf",
+     "mimeType": "application/pdf",
+     "cityCode": "HKG",
+     "priority": "NORMAL"
+   }
+   ```
+
+3. **JSON (URL 引用)**
+   ```json
+   {
+     "type": "url",
+     "url": "https://example.com/invoice.pdf",
+     "fileName": "invoice.pdf",
+     "cityCode": "HKG"
+   }
+   ```
+
+**成功回應** (HTTP 202):
+```json
+{
+  "data": {
+    "taskId": "cm...",
+    "status": "queued",
+    "estimatedProcessingTime": 120,
+    "statusUrl": "/api/v1/invoices/{taskId}/status",
+    "createdAt": "2025-12-20T..."
+  },
+  "traceId": "api_..."
+}
+```
+
+**速率限制標頭**:
+- `X-RateLimit-Limit`: 每分鐘請求上限
+- `X-RateLimit-Remaining`: 剩餘請求數
+- `X-RateLimit-Reset`: 重置時間戳
 
 ---
 
