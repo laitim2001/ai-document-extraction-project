@@ -1202,3 +1202,88 @@ describe('WorkflowTriggerService', () => {
 - Story 10-1: n8n 雙向通訊 API（API 基礎）
 - Story 10-2: Webhook 配置管理（認證 Token）
 - Story 10-3: 工作流執行狀態查看（執行追蹤）
+
+---
+
+## Implementation Notes
+
+### 完成日期：2025-12-20
+
+### 實現的功能
+
+#### 1. Prisma Schema 擴展
+- **WorkflowDefinition 模型**：新增 `createdByUser` 和 `updatedByUser` 關聯，支持分類 (`category`) 和標籤 (`tags`)
+
+#### 2. 類型定義 (`src/types/workflow-trigger.ts`)
+- `WorkflowParameter`：參數定義，支持多種類型
+- `WorkflowParametersSchema`：參數 Schema 結構
+- `DocumentSelectionConfig`：文件選擇配置
+- `TriggerWorkflowInput/TriggerResult`：觸發輸入/結果
+- `TriggerableWorkflow`：可觸發工作流資訊
+- `WebhookTriggerPayload`：Webhook 請求負載
+
+#### 3. 服務層實現
+- **WorkflowDefinitionService** (`src/services/n8n/workflow-definition.service.ts`)
+  - 工作流定義 CRUD 操作
+  - 分類和標籤管理
+  - 批量啟用/停用
+  - 統計資訊查詢
+
+- **WorkflowTriggerService** (`src/services/n8n/workflow-trigger.service.ts`)
+  - `listTriggerableWorkflows()`：列出可觸發工作流
+  - `getWorkflowWithParameters()`：獲取工作流詳情
+  - `triggerWorkflow()`：觸發工作流
+  - `retryWorkflow()`：重試失敗執行
+  - `cancelExecution()`：取消待處理執行
+  - 參數驗證邏輯
+
+#### 4. API 端點
+| 端點 | 方法 | 說明 |
+|------|------|------|
+| `/api/workflows/triggerable` | GET | 獲取可觸發工作流列表 |
+| `/api/workflows/trigger` | POST | 觸發工作流 |
+| `/api/workflows/executions/[id]/retry` | POST | 重試失敗執行 |
+| `/api/workflows/executions/[id]/cancel` | POST | 取消待處理執行 |
+
+#### 5. React Query Hooks (`src/hooks/useWorkflowTrigger.ts`)
+- `useTriggerableWorkflows()`：獲取可觸發工作流列表
+- `useTriggerWorkflow()`：觸發工作流 Mutation
+- `useRetryWorkflow()`：重試工作流 Mutation
+- `useCancelExecution()`：取消執行 Mutation
+- `useRefreshWorkflowTrigger()`：刷新快取工具
+
+### 實現細節
+
+1. **城市數據隔離**：使用 `withCityFilter` 中間件驗證城市存取權限
+2. **角色權限控制**：僅 `SUPER_USER` 和 `ADMIN` 可觸發工作流
+3. **參數驗證**：支持必填檢查、類型驗證、範圍限制
+4. **加密處理**：使用 AES-256-GCM 加密/解密 Auth Token
+5. **錯誤處理**：區分 Webhook 失敗、參數錯誤、權限不足等錯誤碼
+
+### 技術要點
+
+1. **Zod Schema**：`z.record(z.string(), z.unknown())` 用於動態參數物件
+2. **Prisma 關聯更新**：使用 `connect` 語法處理 `updatedByUser` 關聯
+3. **JSON 類型轉換**：`as unknown as Prisma.InputJsonValue` 處理 JSON 欄位
+4. **解密結果存取**：`DecryptionResult.decrypted` 屬性（非 `data`）
+
+### 文件清單
+
+```
+prisma/schema.prisma (擴展)
+src/types/workflow-trigger.ts
+src/services/n8n/workflow-definition.service.ts
+src/services/n8n/workflow-trigger.service.ts
+src/services/n8n/index.ts (導出更新)
+src/app/api/workflows/triggerable/route.ts
+src/app/api/workflows/trigger/route.ts
+src/app/api/workflows/executions/[id]/retry/route.ts
+src/app/api/workflows/executions/[id]/cancel/route.ts
+src/hooks/useWorkflowTrigger.ts
+```
+
+### 驗證結果
+
+- ✅ TypeScript 類型檢查通過
+- ✅ ESLint 檢查通過（無新增警告）
+- ✅ 服務導出正確配置

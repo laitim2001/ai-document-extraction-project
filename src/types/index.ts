@@ -258,3 +258,6 @@ export * from './n8n'
 
 // 工作流執行狀態相關 (Story 10.3)
 export * from './workflow-execution'
+
+// 工作流觸發相關 (Story 10.4)
+export * from './workflow-trigger'

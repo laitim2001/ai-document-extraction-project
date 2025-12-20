@@ -34,6 +34,10 @@
  *   │  │  API Key     │ │   Document   │ │   Webhook    │        │
  *   │  │   Service    │ │   Service    │ │   Service    │        │
  *   │  └──────────────┘ └──────────────┘ └──────────────┘        │
+ *   │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐        │
+ *   │  │  Webhook     │ │  Execution   │ │   Trigger    │        │
+ *   │  │   Config     │ │   Service    │ │   Service    │        │
+ *   │  └──────────────┘ └──────────────┘ └──────────────┘        │
  *   └─────────────────────────────────────────────────────────────┘
  *   ```
  *
@@ -58,6 +62,9 @@
  *   - 文件提交與狀態追蹤
  *   - Webhook 雙向通訊
  *   - Webhook 配置管理（Story 10.2）
+ *   - 工作流執行狀態追蹤（Story 10.3）
+ *   - 手動觸發工作流（Story 10.4）
+ *   - 工作流定義 CRUD（Story 10.4）
  *
  * @related
  *   - src/types/n8n.ts - n8n 類型定義
@@ -98,3 +105,15 @@ export { WebhookConfigService, webhookConfigService } from './webhook-config.ser
  * @description 管理工作流執行狀態追蹤（Story 10.3）
  */
 export { WorkflowExecutionService, workflowExecutionService } from './workflow-execution.service';
+
+/**
+ * 工作流觸發服務
+ * @description 手動觸發 n8n 工作流（Story 10.4）
+ */
+export { WorkflowTriggerService, workflowTriggerService } from './workflow-trigger.service';
+
+/**
+ * 工作流定義服務
+ * @description 管理工作流定義的 CRUD 操作（Story 10.4）
+ */
+export { WorkflowDefinitionService, workflowDefinitionService } from './workflow-definition.service';

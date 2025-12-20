@@ -78,6 +78,8 @@ model User {
   webhookConfigsCreated  WebhookConfig[]           @relation("WebhookConfigCreator") // Story 10.2: Webhook 配置創建者
   webhookConfigsUpdated  WebhookConfig[]           @relation("WebhookConfigUpdater") // Story 10.2: Webhook 配置更新者
   webhookConfigHistories WebhookConfigHistory[]    @relation("WebhookConfigHistoryCreator") // Story 10.2: 配置變更歷史
+  workflowDefinitionsCreated  WorkflowDefinition[]      @relation("WorkflowDefinitionCreator") // Story 10.4: 工作流定義創建者
+  workflowDefinitionsUpdated  WorkflowDefinition[]      @relation("WorkflowDefinitionUpdater") // Story 10.4: 工作流定義更新者
 
   @@map("users")
 }
@@ -230,6 +232,7 @@ model City {
   n8nApiKeys           N8nApiKey[]            // Story 10.1: n8n API Keys
   webhookConfigs       WebhookConfig[]        // Story 10.2: Webhook 配置
   workflowExecutions   WorkflowExecution[]    // Story 10.3: 工作流執行記錄
+  workflowDefinitions  WorkflowDefinition[]   // Story 10.4: 工作流定義
 
   @@index([regionId])
   @@index([status])
@@ -2736,14 +2739,18 @@ model N8nIncomingWebhook {
   @@map("n8n_incoming_webhooks")
 }
 
-// 工作流執行記錄 (Story 10.3 Enhanced)
+// 工作流執行記錄 (Story 10.3 Enhanced, Story 10.4)
 model WorkflowExecution {
-  id                  String                  @id @default(cuid())
+  id                     String                  @id @default(cuid())
 
   // n8n 工作流資訊
-  n8nExecutionId      String?                 @unique @map("n8n_execution_id") // n8n 側的執行 ID
-  workflowId          String?                 @map("workflow_id")
-  workflowName        String                  @map("workflow_name")
+  n8nExecutionId         String?                 @unique @map("n8n_execution_id") // n8n 側的執行 ID
+  workflowId             String?                 @map("workflow_id")              // n8n 工作流 ID (向後兼容)
+  workflowName           String                  @map("workflow_name")
+
+  // 工作流定義關聯 (Story 10.4)
+  workflowDefinitionId   String?                 @map("workflow_definition_id")
+  workflowDefinition     WorkflowDefinition?     @relation(fields: [workflowDefinitionId], references: [id])
 
   // 觸發資訊
   triggerType         WorkflowTriggerType     @map("trigger_type")
@@ -2784,6 +2791,7 @@ model WorkflowExecution {
 
   @@index([n8nExecutionId])
   @@index([workflowId])
+  @@index([workflowDefinitionId])
   @@index([workflowName])
   @@index([status])
   @@index([cityCode])
@@ -2980,5 +2988,57 @@ enum ConfigChangeType {
   ACTIVATED    // 啟用配置
   DEACTIVATED  // 停用配置
   DELETED      // 刪除配置
+}
+
+// =====================
+// 工作流定義模型 (Story 10.4)
+// =====================
+model WorkflowDefinition {
+  id                    String    @id @default(cuid())
+
+  // 工作流基本資訊
+  name                  String                  // 工作流名稱
+  description           String?                 // 工作流描述
+  n8nWorkflowId         String    @unique @map("n8n_workflow_id")      // n8n 側的工作流 ID
+
+  // 觸發配置
+  triggerUrl            String    @map("trigger_url")                  // n8n Webhook URL
+  triggerMethod         String    @default("POST") @map("trigger_method")  // HTTP 方法
+
+  // 參數定義 (JSON Schema 格式)
+  parameters            Json?                   // 參數 schema 定義
+
+  // 城市配置
+  cityCode              String?   @map("city_code")                    // null 表示全域可用
+  city                  City?     @relation(fields: [cityCode], references: [code])
+
+  // 權限控制
+  allowedRoles          String[]  @default([]) @map("allowed_roles")   // 允許觸發的角色，空陣列表示所有角色
+
+  // 狀態
+  isActive              Boolean   @default(true) @map("is_active")
+
+  // 分類標籤
+  category              String?                 // 工作流分類
+  tags                  String[]  @default([])  // 標籤
+
+  // 審計
+  createdBy             String    @map("created_by")
+  createdByUser         User      @relation("WorkflowDefinitionCreator", fields: [createdBy], references: [id])
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedBy             String?   @map("updated_by")
+  updatedByUser         User?     @relation("WorkflowDefinitionUpdater", fields: [updatedBy], references: [id])
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  // 關聯
+  executions            WorkflowExecution[]
+
+  // 索引
+  @@index([cityCode])
+  @@index([isActive])
+  @@index([category])
+  @@index([n8nWorkflowId])
+  @@index([createdBy])
+  @@map("workflow_definitions")
 }
 
