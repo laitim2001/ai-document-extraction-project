@@ -62,6 +62,7 @@ model User {
   reportJobs             ReportJob[]               @relation("UserReportJobs") // Story 7.4: 報表任務
   monthlyReports         MonthlyReport[]           @relation("MonthlyReportGenerator") // Story 7.10: 月度報告
   dataChangeHistories    DataChangeHistory[]       @relation("DataChangeHistoryCreator") // Story 8.2: 數據變更歷史
+  traceabilityReports    TraceabilityReport[]      @relation("TraceabilityReportGenerator") // Story 8.4: 追溯報告
 
   @@map("users")
 }
@@ -395,8 +396,9 @@ model Document {
   escalation        Escalation? // 升級記錄（Story 3.7）
   ruleApplications  RuleApplication[] // 規則應用記錄（Story 4.1）
   suggestionSamples SuggestionSample[] // 建議樣本（Story 4.4）
-  testDetails       RuleTestDetail[] // 測試詳情（Story 5.4）
-  apiUsageLogs      ApiUsageLog[]    @relation("DocumentApiUsageLogs") // API 使用記錄（Story 7.6）
+  testDetails         RuleTestDetail[] // 測試詳情（Story 5.4）
+  apiUsageLogs        ApiUsageLog[]    @relation("DocumentApiUsageLogs") // API 使用記錄（Story 7.6）
+  traceabilityReports TraceabilityReport[] // 追溯報告（Story 8.4）
 
   @@index([status])
   @@index([uploadedBy])
@@ -1798,6 +1800,30 @@ enum HistoryChangeType {
   UPDATE // 更新
   DELETE // 刪除
   RESTORE // 還原（從回收站或版本還原）
+}
+
+// =====================
+// Traceability Report Model (Story 8.4)
+// 追溯報告，記錄完整數據鏈驗證
+// =====================
+
+model TraceabilityReport {
+  id                String   @id
+  documentId        String   @map("document_id")
+  generatedBy       String   @map("generated_by")
+  reportData        Json     @map("report_data")
+  reportHash        String   @map("report_hash")
+  integrityVerified Boolean  @map("integrity_verified")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  // Relations
+  document        Document @relation(fields: [documentId], references: [id])
+  generatedByUser User     @relation("TraceabilityReportGenerator", fields: [generatedBy], references: [id])
+
+  @@index([documentId])
+  @@index([generatedBy])
+  @@index([createdAt])
+  @@map("traceability_reports")
 }
 
 // =====================

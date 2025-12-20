@@ -264,3 +264,139 @@ export async function deleteBlob(blobName: string): Promise<boolean> {
     return false
   }
 }
+
+// =====================
+// Traceability Functions (Story 8.4)
+// =====================
+
+/**
+ * 儲存層級類型
+ */
+export type StorageLocation = 'active' | 'archive' | 'cold'
+
+/**
+ * 獲取檔案的儲存位置層級
+ * @description
+ *   根據 Blob 的存取層 (Access Tier) 判斷儲存位置：
+ *   - Hot/Cool → active (一般存取)
+ *   - Archive → archive (歸檔層)
+ *   - 其他 → cold (冷儲存)
+ *
+ * @param blobPath - Blob 路徑名稱
+ * @returns 儲存位置層級
+ */
+export async function getStorageLocation(blobPath: string): Promise<StorageLocation> {
+  try {
+    const container = await getContainerClient()
+    const blockBlobClient = container.getBlockBlobClient(blobPath)
+
+    // 獲取 Blob 屬性
+    const properties = await blockBlobClient.getProperties()
+    const accessTier = properties.accessTier?.toLowerCase()
+
+    // 根據 Access Tier 判斷儲存層級
+    if (accessTier === 'archive') {
+      return 'archive'
+    } else if (accessTier === 'cool' || accessTier === 'hot') {
+      return 'active'
+    } else if (accessTier === 'cold') {
+      return 'cold'
+    }
+
+    // 預設為 active（如果沒有設定 tier）
+    return 'active'
+  } catch (error) {
+    console.error('Error getting storage location:', error)
+    // 如果無法獲取，假設為 active
+    return 'active'
+  }
+}
+
+/**
+ * 從歸檔層恢復檔案
+ * @description
+ *   將 Archive 層級的 Blob 解凍到 Hot 層級。
+ *   Azure Archive 層級的檔案需要解凍才能讀取，
+ *   解凍通常需要數小時到 15 小時不等。
+ *
+ * @param blobPath - Blob 路徑名稱
+ * @param priority - 解凍優先級 ('High' = 1-15小時, 'Standard' = 最多15小時)
+ * @returns 是否成功發起解凍請求
+ */
+export async function retrieveFromArchive(
+  blobPath: string,
+  priority: 'High' | 'Standard' = 'High'
+): Promise<boolean> {
+  try {
+    const container = await getContainerClient()
+    const blockBlobClient = container.getBlockBlobClient(blobPath)
+
+    // 檢查當前層級
+    const properties = await blockBlobClient.getProperties()
+    const accessTier = properties.accessTier?.toLowerCase()
+
+    // 如果不是 archive 層級，不需要解凍
+    if (accessTier !== 'archive') {
+      return true
+    }
+
+    // 檢查是否已經在解凍中
+    if (properties.archiveStatus === 'rehydrate-pending-to-hot' ||
+        properties.archiveStatus === 'rehydrate-pending-to-cool') {
+      // 已經在解凍中
+      return true
+    }
+
+    // 發起解凍請求 - 將 Archive 層級的 Blob 移動到 Hot 層級
+    await blockBlobClient.setAccessTier('Hot', {
+      rehydratePriority: priority
+    })
+
+    return true
+  } catch (error) {
+    console.error('Error retrieving from archive:', error)
+    return false
+  }
+}
+
+/**
+ * 檢查 Blob 是否正在解凍中
+ * @param blobPath - Blob 路徑名稱
+ * @returns 解凍狀態資訊
+ */
+export async function getRehydrationStatus(blobPath: string): Promise<{
+  isRehydrating: boolean
+  archiveStatus?: string
+}> {
+  try {
+    const container = await getContainerClient()
+    const blockBlobClient = container.getBlockBlobClient(blobPath)
+
+    const properties = await blockBlobClient.getProperties()
+
+    return {
+      isRehydrating: properties.archiveStatus === 'rehydrate-pending-to-hot' ||
+                     properties.archiveStatus === 'rehydrate-pending-to-cool',
+      archiveStatus: properties.archiveStatus
+    }
+  } catch (error) {
+    console.error('Error checking rehydration status:', error)
+    return { isRehydrating: false }
+  }
+}
+
+/**
+ * 檢查 Blob 是否存在
+ * @param blobPath - Blob 路徑名稱
+ * @returns 是否存在
+ */
+export async function blobExists(blobPath: string): Promise<boolean> {
+  try {
+    const container = await getContainerClient()
+    const blockBlobClient = container.getBlockBlobClient(blobPath)
+    return await blockBlobClient.exists()
+  } catch (error) {
+    console.error('Error checking blob existence:', error)
+    return false
+  }
+}

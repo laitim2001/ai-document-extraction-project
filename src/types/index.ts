@@ -188,3 +188,6 @@ export * from './monthly-report'
 
 // 審計查詢相關 (Story 8.3)
 export * from './audit-query'
+
+// 追溯功能相關 (Story 8.4)
+export * from './traceability'

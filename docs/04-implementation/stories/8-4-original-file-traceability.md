@@ -1,6 +1,6 @@
 # Story 8.4: 原始文件追溯
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -860,4 +860,73 @@ function TraceNode({
 ---
 
 *Story created: 2025-12-16*
-*Status: ready-for-dev*
+*Status: done*
+*Completed: 2025-12-20*
+
+---
+
+## Implementation Notes
+
+### 實現摘要
+
+Story 8-4 原始文件追溯功能已完成實現，包含以下核心組件：
+
+### 資料模型
+
+- **TraceabilityReport** (Prisma Model): 追溯報告模型，儲存完整的報告資料和 SHA256 雜湊值
+
+### 類型定義 (src/types/traceability.ts)
+
+- `DocumentSource`: 文件來源資訊（活躍/歸檔/冷儲存）
+- `CorrectionTrace`: 修正記錄追溯
+- `OcrResult`: OCR 結果類型
+- `DocumentTraceChain`: 完整追溯鏈
+- `TraceabilityReport`: 追溯報告
+- `ExtractionResultData`: 提取結果資料
+- `ApprovalRecord`: 核准記錄
+- `ChangeHistoryRecord`: 變更歷史記錄
+
+### 服務層 (src/services/traceability.service.ts)
+
+- `TraceabilityService.getDocumentSource()`: 獲取文件來源和預簽名 URL
+- `TraceabilityService.getDocumentTraceChain()`: 構建完整追溯鏈
+- `TraceabilityService.generateTraceabilityReport()`: 生成追溯報告（含 SHA256 雜湊）
+
+### Azure Blob 函數 (src/lib/azure-blob.ts)
+
+- `generateSignedUrl()`: 生成預簽名 URL
+- `getStorageLocation()`: 判斷儲存層級
+- `retrieveFromArchive()`: 從歸檔層解凍文件
+
+### API 端點
+
+| 端點 | 方法 | 功能 |
+|------|------|------|
+| `/api/documents/[id]/source` | GET | 獲取文件來源資訊 |
+| `/api/documents/[id]/trace` | GET | 獲取完整追溯鏈 |
+| `/api/documents/[id]/trace/report` | POST | 生成追溯報告 |
+
+### React Query Hooks (src/hooks/useTraceability.ts)
+
+- `useDocumentSource()`: 獲取文件來源
+- `useDocumentTrace()`: 獲取追溯鏈
+- `useGenerateTraceabilityReport()`: 生成追溯報告
+
+### UI 組件 (src/components/audit/DocumentTraceView.tsx)
+
+- 追溯鏈時間軸視覺化
+- 修正記錄詳情展示
+- 變更歷史展示
+- 提取結果 JSON 展示
+- 原始文件預覽對話框
+
+### 設計偏差說明
+
+1. **checksum 欄位**: 原設計包含 `checksum` 欄位，但 Document 模型實際沒有此欄位，已從類型定義和 UI 中移除
+2. **changeHistory**: 原設計使用 `changeTrackingService.getHistory()`，但 Document 不在 TrackedModel 中，目前返回空陣列
+3. **OcrResult.provider**: 原設計包含 `provider` 欄位，但實際 Prisma 模型沒有此欄位，已移除
+
+### 權限控制
+
+- 追溯 API: AUDITOR, GLOBAL_ADMIN, CITY_MANAGER
+- 報告生成: AUDITOR, GLOBAL_ADMIN
