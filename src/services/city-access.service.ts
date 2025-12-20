@@ -322,10 +322,12 @@ export class CityAccessService {
       await tx.auditLog.create({
         data: {
           userId: grantedBy,
-          action: 'GRANT_CITY_ACCESS',
-          entityType: 'UserCityAccess',
-          entityId: userId,
-          details: {
+          userName: 'System', // 由系統記錄，實際用戶名在中間件層設置
+          action: 'GRANT',
+          resourceType: 'userCityAccess',
+          resourceId: userId,
+          description: `授予用戶 ${userId} 城市 ${cityCode} 的訪問權限`,
+          metadata: {
             targetUserId: userId,
             cityCode,
             accessLevel,
@@ -333,6 +335,7 @@ export class CityAccessService {
             expiresAt: expiresAt?.toISOString(),
             reason,
           },
+          cityCode,
         },
       })
     })
@@ -365,14 +368,17 @@ export class CityAccessService {
       await tx.auditLog.create({
         data: {
           userId: revokedBy,
-          action: 'REVOKE_CITY_ACCESS',
-          entityType: 'UserCityAccess',
-          entityId: userId,
-          details: {
+          userName: 'System', // 由系統記錄，實際用戶名在中間件層設置
+          action: 'REVOKE',
+          resourceType: 'userCityAccess',
+          resourceId: userId,
+          description: `撤銷用戶 ${userId} 城市 ${cityCode} 的訪問權限`,
+          metadata: {
             targetUserId: userId,
             cityCode,
             reason,
           },
+          cityCode,
         },
       })
     })

@@ -441,26 +441,28 @@ export async function PUT(
     // 10. 創建審計日誌
     await prisma.auditLog.create({
       data: {
-        action: 'FORWARDER_UPDATED',
-        entityType: 'Forwarder',
-        entityId: forwarderId,
+        action: 'UPDATE',
+        resourceType: 'forwarder',
+        resourceId: forwarderId,
+        resourceName: updatedForwarder.name,
         userId: session.user.id,
-        details: {
-          forwarderName: updatedForwarder.name,
-          forwarderCode: updatedForwarder.code,
-          changes: {
-            name: validatedData.name !== existingForwarder.name ? validatedData.name : undefined,
-            description:
-              validatedData.description !== existingForwarder.description
-                ? validatedData.description
-                : undefined,
-            contactEmail:
-              validatedData.contactEmail !== existingForwarder.contactEmail
-                ? validatedData.contactEmail
-                : undefined,
-            logoUpdated: logoUrl !== undefined,
+        userName: session.user.name || 'Unknown',
+        description: `Updated forwarder: ${updatedForwarder.name}`,
+        changes: {
+          before: {
+            name: existingForwarder.name,
+            description: existingForwarder.description,
+            contactEmail: existingForwarder.contactEmail,
+            logoUrl: existingForwarder.logoUrl,
+          },
+          after: {
+            name: validatedData.name ?? existingForwarder.name,
+            description: validatedData.description ?? existingForwarder.description,
+            contactEmail: validatedData.contactEmail ?? existingForwarder.contactEmail,
+            logoUrl: logoUrl ?? existingForwarder.logoUrl,
           },
         },
+        status: 'SUCCESS',
       },
     })
 

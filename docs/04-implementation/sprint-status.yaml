@@ -136,8 +136,8 @@ development_status:
   # ============================================================
   # Epic 8: 審計追溯與合規
   # ============================================================
-  epic-8: backlog
-  8-1-user-operation-log-recording: ready-for-dev
+  epic-8: in-progress  # Started 2025-12-20
+  8-1-user-operation-log-recording: done  # Completed 2025-12-20: AuditLog/SecurityLog models, immutability triggers, AuditLogService batch/sync writing, withAuditLog middleware, type definitions
   8-2-data-change-tracking: ready-for-dev
   8-3-processing-record-query: ready-for-dev
   8-4-original-file-traceability: ready-for-dev

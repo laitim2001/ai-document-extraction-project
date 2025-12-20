@@ -158,10 +158,13 @@ export async function routeDocument(documentId: string): Promise<RoutingDecision
     // 記錄審計日誌
     await tx.auditLog.create({
       data: {
-        entityType: 'Document',
-        entityId: documentId,
-        action: 'ROUTED',
-        details: {
+        userId: 'system',
+        userName: 'System',
+        action: 'UPDATE',
+        resourceType: 'document',
+        resourceId: documentId,
+        description: `Document routed to ${decision.path}`,
+        metadata: {
           path: decision.path,
           reason: decision.reason,
           confidence: decision.confidence,
@@ -169,6 +172,7 @@ export async function routeDocument(documentId: string): Promise<RoutingDecision
           lowConfidenceFields: decision.lowConfidenceFields,
           criticalFieldsAffected: decision.criticalFieldsAffected,
         },
+        status: 'SUCCESS',
       },
     })
   })
@@ -210,12 +214,16 @@ export async function handleAutoApprove(documentId: string): Promise<void> {
     // 記錄審計日誌
     await tx.auditLog.create({
       data: {
-        entityType: 'Document',
-        entityId: documentId,
-        action: 'AUTO_APPROVED',
-        details: {
+        userId: 'system',
+        userName: 'System',
+        action: 'APPROVE',
+        resourceType: 'document',
+        resourceId: documentId,
+        description: 'Document auto-approved',
+        metadata: {
           timestamp: new Date().toISOString(),
         },
+        status: 'SUCCESS',
       },
     })
   })
@@ -335,13 +343,16 @@ export async function assignToReviewer(
     await tx.auditLog.create({
       data: {
         userId: reviewerId,
-        entityType: 'ProcessingQueue',
-        entityId: queueId,
-        action: 'ASSIGNED',
-        details: {
+        userName: 'System',
+        action: 'UPDATE',
+        resourceType: 'processing-queue',
+        resourceId: queueId,
+        description: 'Queue item assigned to reviewer',
+        metadata: {
           documentId: queue.documentId,
           assignedTo: reviewerId,
         },
+        status: 'SUCCESS',
       },
     })
   })
@@ -394,14 +405,17 @@ export async function completeReview(
 
     await tx.auditLog.create({
       data: {
-        userId: queue.assignedTo,
-        entityType: 'ProcessingQueue',
-        entityId: queueId,
-        action: 'REVIEW_COMPLETED',
-        details: {
+        userId: queue.assignedTo || 'system',
+        userName: 'System',
+        action: 'APPROVE',
+        resourceType: 'processing-queue',
+        resourceId: queueId,
+        description: 'Review completed',
+        metadata: {
           documentId: queue.documentId,
           ...reviewSummary,
         },
+        status: 'SUCCESS',
       },
     })
   })
@@ -433,13 +447,17 @@ export async function cancelQueueItem(queueId: string, reason?: string): Promise
 
     await tx.auditLog.create({
       data: {
-        entityType: 'ProcessingQueue',
-        entityId: queueId,
-        action: 'CANCELLED',
-        details: {
+        userId: 'system',
+        userName: 'System',
+        action: 'UPDATE',
+        resourceType: 'processing-queue',
+        resourceId: queueId,
+        description: 'Queue item cancelled',
+        metadata: {
           documentId: queue.documentId,
           reason,
         },
+        status: 'SUCCESS',
       },
     })
   })

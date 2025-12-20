@@ -216,16 +216,19 @@ export async function createUpdateRequest(
   // 5. 創建審計日誌
   await prisma.auditLog.create({
     data: {
-      action: 'RULE_CHANGE_REQUEST_CREATED',
-      entityType: 'RuleChangeRequest',
-      entityId: changeRequest.id,
       userId: requesterId,
-      details: {
+      userName: 'System',
+      action: 'CREATE',
+      resourceType: 'rule-change-request',
+      resourceId: changeRequest.id,
+      description: `Created update request for rule ${existingRule.fieldName}`,
+      metadata: {
         changeType: ChangeType.UPDATE,
         ruleId,
         forwarderId,
         fieldName: existingRule.fieldName,
       },
+      status: 'SUCCESS',
     },
   });
 
@@ -329,15 +332,18 @@ export async function createNewRuleRequest(
   // 6. 創建審計日誌
   await prisma.auditLog.create({
     data: {
-      action: 'RULE_CHANGE_REQUEST_CREATED',
-      entityType: 'RuleChangeRequest',
-      entityId: changeRequest.id,
       userId: requesterId,
-      details: {
+      userName: 'System',
+      action: 'CREATE',
+      resourceType: 'rule-change-request',
+      resourceId: changeRequest.id,
+      description: `Created new rule request for ${content.fieldName}`,
+      metadata: {
         changeType: ChangeType.CREATE,
         forwarderId,
         fieldName: content.fieldName,
       },
+      status: 'SUCCESS',
     },
   });
 
@@ -528,16 +534,19 @@ export async function reviewChangeRequest(
     // 2c. 創建審計日誌
     await tx.auditLog.create({
       data: {
-        action: action === 'approve' ? 'RULE_CHANGE_APPROVED' : 'RULE_CHANGE_REJECTED',
-        entityType: 'RuleChangeRequest',
-        entityId: requestId,
         userId: reviewerId,
-        details: {
+        userName: 'System',
+        action: action === 'approve' ? 'APPROVE' : 'REJECT',
+        resourceType: 'rule-change-request',
+        resourceId: requestId,
+        description: `${action === 'approve' ? 'Approved' : 'Rejected'} rule change request`,
+        metadata: {
           changeType: request.changeType,
           ruleId: request.ruleId,
           forwarderId: request.forwarderId,
           notes,
         },
+        status: 'SUCCESS',
       },
     });
   });
@@ -597,15 +606,18 @@ export async function cancelChangeRequest(
     }),
     prisma.auditLog.create({
       data: {
-        action: 'RULE_CHANGE_CANCELLED',
-        entityType: 'RuleChangeRequest',
-        entityId: requestId,
         userId,
-        details: {
+        userName: 'System',
+        action: 'UPDATE',
+        resourceType: 'rule-change-request',
+        resourceId: requestId,
+        description: 'Cancelled rule change request',
+        metadata: {
           changeType: request.changeType,
           ruleId: request.ruleId,
           forwarderId: request.forwarderId,
         },
+        status: 'SUCCESS',
       },
     }),
   ]);

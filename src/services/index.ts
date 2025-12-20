@@ -77,7 +77,7 @@
  * @module src/services
  * @author Development Team
  * @since Epic 1 - Story 1.0 (Project Init Foundation)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-20
  *
  * @features
  *   - 統一服務導出入口
@@ -221,6 +221,9 @@ export * from './city-cost-report.service'
 
 // Epic 7: Reports Dashboard (Story 7.10 - Monthly Cost Allocation Report)
 export * from './monthly-cost-report.service'
+
+// Epic 8: Audit Trail & Compliance (Story 8.1 - User Operation Log Recording)
+export * from './audit-log.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

@@ -191,10 +191,13 @@ export class GlobalAdminService {
       await tx.auditLog.create({
         data: {
           userId: grantedBy,
-          action: 'GRANT_GLOBAL_ADMIN',
-          entityType: 'User',
-          entityId: userId,
-          details: {
+          userName: granter.name || 'System',
+          action: 'GRANT',
+          resourceType: 'globalAdmin',
+          resourceId: userId,
+          resourceName: targetUser.name || undefined,
+          description: `授予用戶 ${targetUser.name || userId} 全域管理員權限`,
+          metadata: {
             targetUserName: targetUser.name,
             grantedByName: granter.name,
           },
@@ -308,10 +311,13 @@ export class GlobalAdminService {
       await tx.auditLog.create({
         data: {
           userId: revokedBy,
-          action: 'REVOKE_GLOBAL_ADMIN',
-          entityType: 'User',
-          entityId: userId,
-          details: {
+          userName: revoker.name || 'System',
+          action: 'REVOKE',
+          resourceType: 'globalAdmin',
+          resourceId: userId,
+          resourceName: targetUser.name || undefined,
+          description: `撤銷用戶 ${targetUser.name || userId} 的全域管理員權限`,
+          metadata: {
             targetUserName: targetUser.name,
             revokedByName: revoker.name,
           },

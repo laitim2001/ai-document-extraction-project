@@ -182,14 +182,17 @@ export class RegionalManagerService {
       await tx.auditLog.create({
         data: {
           userId: grantedBy,
-          action: 'GRANT_REGIONAL_MANAGER',
-          entityType: 'User',
-          entityId: userId,
-          details: {
+          userName: 'System',
+          action: 'GRANT',
+          resourceType: 'user-role',
+          resourceId: userId,
+          description: `Granted regional manager role for ${regionCode}`,
+          metadata: {
             regionCode,
             citiesGranted: cityCodes,
             grantedAt: new Date().toISOString(),
           },
+          status: 'SUCCESS',
         },
       })
     })
@@ -257,15 +260,18 @@ export class RegionalManagerService {
       await tx.auditLog.create({
         data: {
           userId: revokedBy,
-          action: 'REVOKE_REGIONAL_MANAGER',
-          entityType: 'User',
-          entityId: userId,
-          details: {
+          userName: 'System',
+          action: 'REVOKE',
+          resourceType: 'user-role',
+          resourceId: userId,
+          description: `Revoked regional manager role for ${regionCode}`,
+          metadata: {
             regionCode,
             citiesRevoked: region.cities.map((c) => c.code),
             reason,
             revokedAt: new Date().toISOString(),
           },
+          status: 'SUCCESS',
         },
       })
     })
@@ -496,16 +502,19 @@ export class RegionalManagerService {
       await tx.auditLog.create({
         data: {
           userId: grantedBy,
-          action: 'GRANT_REGION_ACCESS',
-          entityType: 'UserRegionAccess',
-          entityId: userId,
-          details: {
+          userName: 'System',
+          action: 'GRANT',
+          resourceType: 'region-access',
+          resourceId: userId,
+          description: `Granted region access for ${regionCode}`,
+          metadata: {
             regionCode,
             accessLevel,
             citiesGranted: region.cities.map((c) => c.code),
             expiresAt: expiresAt?.toISOString(),
             reason,
           },
+          status: 'SUCCESS',
         },
       })
     })

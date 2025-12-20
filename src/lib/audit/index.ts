@@ -4,9 +4,13 @@
  *   提供統一的審計日誌記錄功能，用於追蹤系統中的重要操作。
  *   支援 RFC 7807 錯誤格式，滿足 7 年留存合規要求。
  *
+ *   注意：此模組為向後兼容層。新代碼應使用：
+ *   - src/services/audit-log.service.ts - 新審計日誌服務
+ *   - src/middleware/audit-log.middleware.ts - API 中間件
+ *
  * @module src/lib/audit
  * @since Epic 3 - Story 3.4 (確認提取結果)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-20
  *
  * @features
  *   - 統一審計日誌介面
@@ -16,17 +20,20 @@
  *
  * @dependencies
  *   - @/lib/prisma - Prisma 客戶端
+ *   - @/types/audit - 審計類型定義
  */
 
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
+import type { AuditAction as PrismaAuditAction } from '@/types/audit';
 
 // ============================================================
 // Types
 // ============================================================
 
 /**
- * 審計日誌操作類型
+ * 審計日誌操作類型（舊版，保持向後兼容）
+ * @deprecated 使用新的 AuditAction 類型：CREATE, UPDATE, DELETE 等
  */
 export type AuditAction =
   | 'DOCUMENT_UPLOADED'
@@ -59,6 +66,43 @@ export type AuditEntityType =
   | 'ReviewRecord'
   | 'ExtractionResult'
   | 'System';
+
+/**
+ * 舊 action 到新 action 的映射
+ */
+const ACTION_MAPPING: Record<AuditAction, PrismaAuditAction> = {
+  DOCUMENT_UPLOADED: 'CREATE',
+  DOCUMENT_PROCESSED: 'UPDATE',
+  DOCUMENT_APPROVED: 'APPROVE',
+  DOCUMENT_CORRECTED: 'UPDATE',
+  DOCUMENT_ESCALATED: 'ESCALATE',
+  DOCUMENT_DELETED: 'DELETE',
+  USER_LOGIN: 'LOGIN',
+  USER_LOGOUT: 'LOGOUT',
+  MAPPING_CREATED: 'CREATE',
+  MAPPING_UPDATED: 'UPDATE',
+  MAPPING_DELETED: 'DELETE',
+  FORWARDER_CREATED: 'CREATE',
+  FORWARDER_UPDATED: 'UPDATE',
+  FORWARDER_DELETED: 'DELETE',
+  REVIEW_STARTED: 'READ',
+  REVIEW_COMPLETED: 'UPDATE',
+  FIELDS_MODIFIED: 'UPDATE',
+  SYSTEM_ERROR: 'UPDATE',
+};
+
+/**
+ * 實體類型映射到資源類型
+ */
+const ENTITY_TO_RESOURCE: Record<AuditEntityType, string> = {
+  Document: 'document',
+  User: 'user',
+  Forwarder: 'forwarder',
+  MappingRule: 'mappingRule',
+  ReviewRecord: 'reviewRecord',
+  ExtractionResult: 'extractionResult',
+  System: 'system',
+};
 
 /**
  * 審計日誌參數
@@ -95,6 +139,7 @@ export interface AuditLogResult {
  * 記錄審計日誌
  *
  * @description 將操作記錄寫入審計日誌表，用於合規追蹤和問題調查
+ *              已更新以使用新的 AuditLog schema (Story 8.1)
  * @param params - 審計日誌參數
  * @returns Promise<AuditLogResult> - 記錄結果
  *
@@ -114,15 +159,23 @@ export async function logAudit(params: AuditLogParams): Promise<AuditLogResult> 
   const { userId, action, entityType, entityId, details, ipAddress } = params;
 
   try {
+    // 轉換舊的 action 到新的 action
+    const mappedAction = ACTION_MAPPING[action] || 'UPDATE';
+    const resourceType = ENTITY_TO_RESOURCE[entityType] || entityType.toLowerCase();
+
+    // 生成描述
+    const actionDescription = action.replace(/_/g, ' ').toLowerCase();
+
     const auditLog = await prisma.auditLog.create({
       data: {
-        userId: userId ?? null,
-        action,
-        entityType,
-        entityId: entityId ?? null,
-        // 將 details 轉換為 Prisma 的 InputJsonValue 類型
-        details: details as Prisma.InputJsonValue | undefined,
-        ipAddress: ipAddress ?? null,
+        userId: userId ?? 'system',
+        userName: 'System', // 由服務層呼叫，實際用戶名在 API 中間件設置
+        action: mappedAction,
+        resourceType,
+        resourceId: entityId ?? undefined,
+        description: `${actionDescription} on ${resourceType}`,
+        metadata: details as Prisma.InputJsonValue | undefined,
+        ipAddress: ipAddress ?? undefined,
       },
     });
 

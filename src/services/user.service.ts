@@ -583,10 +583,13 @@ export async function createUser(
     await tx.auditLog.create({
       data: {
         userId: createdById,
-        action: 'CREATE_USER',
-        entityType: 'USER',
-        entityId: newUser.id,
-        details: {
+        userName: 'System', // 由系統記錄，實際用戶名在中間件層設置
+        action: 'CREATE',
+        resourceType: 'user',
+        resourceId: newUser.id,
+        resourceName: name || email,
+        description: `創建用戶 ${email}`,
+        metadata: {
           email,
           name,
           roleIds,

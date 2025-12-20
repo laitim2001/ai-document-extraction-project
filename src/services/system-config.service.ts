@@ -427,15 +427,19 @@ export class SystemConfigService {
       await tx.auditLog.create({
         data: {
           userId: createdBy,
-          action: 'CREATE_CONFIG',
-          entityType: 'SystemConfig',
-          entityId: config.id,
-          details: {
+          userName: 'System',
+          action: 'CREATE',
+          resourceType: 'system-config',
+          resourceId: config.id,
+          resourceName: key,
+          description: `Created system configuration: ${key}`,
+          metadata: {
             key,
             category,
             scope,
             cityCode,
           },
+          status: 'SUCCESS',
         },
       })
     })
@@ -503,15 +507,19 @@ export class SystemConfigService {
       await tx.auditLog.create({
         data: {
           userId: updatedBy,
-          action: 'UPDATE_CONFIG',
-          entityType: 'SystemConfig',
-          entityId: current.id,
-          details: {
+          userName: 'System',
+          action: 'UPDATE',
+          resourceType: 'system-config',
+          resourceId: current.id,
+          resourceName: key,
+          description: `Updated system configuration: ${key}`,
+          metadata: {
             key,
             previousVersion: current.version,
             newVersion: current.version + 1,
             changeReason,
           },
+          status: 'SUCCESS',
         },
       })
     })
@@ -554,10 +562,14 @@ export class SystemConfigService {
       await tx.auditLog.create({
         data: {
           userId: updatedBy,
-          action: isActive ? 'ENABLE_CONFIG' : 'DISABLE_CONFIG',
-          entityType: 'SystemConfig',
-          entityId: config.id,
-          details: { key, isActive },
+          userName: 'System',
+          action: 'CONFIGURE',
+          resourceType: 'system-config',
+          resourceId: config.id,
+          resourceName: key,
+          description: `${isActive ? 'Enabled' : 'Disabled'} system configuration: ${key}`,
+          metadata: { key, isActive },
+          status: 'SUCCESS',
         },
       })
     })
@@ -690,15 +702,20 @@ export class SystemConfigService {
       await tx.auditLog.create({
         data: {
           userId: rolledBackBy,
-          action: 'ROLLBACK_CONFIG',
-          entityType: 'SystemConfig',
-          entityId: config.id,
-          details: {
+          userName: 'System',
+          action: 'UPDATE',
+          resourceType: 'system-config',
+          resourceId: config.id,
+          resourceName: key,
+          description: `Rolled back system configuration: ${key} to version ${targetVersion}`,
+          metadata: {
             key,
             targetVersion,
             reason,
             newVersion: config.version + 1,
+            rollback: true,
           },
+          status: 'SUCCESS',
         },
       })
     })
@@ -732,15 +749,19 @@ export class SystemConfigService {
       await tx.auditLog.create({
         data: {
           userId: deletedBy,
-          action: 'DELETE_CONFIG',
-          entityType: 'SystemConfig',
-          entityId: config.id,
-          details: {
+          userName: 'System',
+          action: 'DELETE',
+          resourceType: 'system-config',
+          resourceId: config.id,
+          resourceName: key,
+          description: `Deleted system configuration: ${key}`,
+          metadata: {
             key,
             category: config.category,
             scope: config.scope,
             lastValue: config.value,
           },
+          status: 'SUCCESS',
         },
       })
 

@@ -194,17 +194,21 @@ export async function POST(
     // 8. 創建審計日誌
     await prisma.auditLog.create({
       data: {
-        action: 'FORWARDER_ACTIVATED',
-        entityType: 'Forwarder',
-        entityId: forwarderId,
+        action: 'CONFIGURE',
+        resourceType: 'forwarder',
+        resourceId: forwarderId,
+        resourceName: result.name,
         userId: session.user.id,
-        details: {
+        userName: session.user.name || 'Unknown',
+        description: `Activated forwarder: ${result.name}`,
+        metadata: {
           forwarderName: result.name,
           forwarderCode: existingForwarder.code,
           previousStatus: existingForwarder.status,
           reactivateRules,
           rulesAffected: result.rulesAffected,
         },
+        status: 'SUCCESS',
       },
     })
 

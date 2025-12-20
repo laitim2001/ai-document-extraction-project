@@ -13,26 +13,31 @@
  * @module src/lib/audit/logger
  * @author Development Team
  * @since Epic 1 - Story 1.5 (Modify User Role & City)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-20
  *
  * @dependencies
  *   - @/lib/prisma - Prisma 客戶端
+ *   - @/types/audit - 審計類型定義
  *
  * @related
  *   - src/services/user.service.ts - 用戶服務
+ *   - src/services/audit-log.service.ts - 新審計日誌服務
  *   - src/app/api/admin/users/[id]/route.ts - 用戶更新 API
  */
 
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import type { AuditAction as PrismaAuditAction } from '@/types/audit'
 
 // ============================================================
 // Types
 // ============================================================
 
 /**
- * 審計動作類型
+ * 審計動作類型（舊版，保持向後兼容）
+ * @deprecated 使用新的 AuditAction 類型：CREATE, UPDATE, DELETE 等
  */
-export type AuditAction =
+export type LegacyAuditAction =
   | 'CREATE_USER'
   | 'UPDATE_USER'
   | 'UPDATE_ROLE'
@@ -50,13 +55,39 @@ export type AuditAction =
 export type EntityType = 'USER' | 'ROLE' | 'PERMISSION' | 'CITY'
 
 /**
+ * 舊 action 到新 action 的映射
+ */
+const ACTION_MAPPING: Record<LegacyAuditAction, PrismaAuditAction> = {
+  CREATE_USER: 'CREATE',
+  UPDATE_USER: 'UPDATE',
+  UPDATE_ROLE: 'UPDATE',
+  UPDATE_CITY: 'UPDATE',
+  UPDATE_INFO: 'UPDATE',
+  UPDATE_STATUS: 'UPDATE',
+  DELETE_USER: 'DELETE',
+  CREATE_ROLE: 'CREATE',
+  UPDATE_ROLE_PERMISSIONS: 'UPDATE',
+  DELETE_ROLE: 'DELETE',
+}
+
+/**
+ * 實體類型映射到資源類型
+ */
+const ENTITY_TO_RESOURCE: Record<EntityType, string> = {
+  USER: 'user',
+  ROLE: 'role',
+  PERMISSION: 'permission',
+  CITY: 'city',
+}
+
+/**
  * 用戶變更日誌參數
  */
 interface LogUserChangeParams {
   /** 目標用戶 ID */
   userId: string
   /** 操作動作 */
-  action: AuditAction
+  action: LegacyAuditAction
   /** 舊值 */
   oldValue: unknown
   /** 新值 */
@@ -76,7 +107,7 @@ interface LogParams {
   /** 實體 ID */
   entityId: string
   /** 操作動作 */
-  action: AuditAction
+  action: LegacyAuditAction
   /** 舊值（可選）*/
   oldValue?: unknown
   /** 新值（可選）*/
@@ -129,6 +160,7 @@ export async function logUserChange(params: LogUserChangeParams): Promise<void> 
  * @description
  *   記錄任意類型的審計日誌。
  *   使用非阻塞方式，即使日誌記錄失敗也不會影響主要操作。
+ *   此函數已更新以使用新的 AuditLog schema (Story 8.1)。
  *
  * @param params - 日誌參數
  *
@@ -143,18 +175,30 @@ export async function logUserChange(params: LogUserChangeParams): Promise<void> 
  */
 export async function logAudit(params: LogParams): Promise<void> {
   try {
+    // 轉換舊的 action 到新的 action
+    const mappedAction = ACTION_MAPPING[params.action] || 'UPDATE'
+    const resourceType = ENTITY_TO_RESOURCE[params.entityType] || params.entityType.toLowerCase()
+
+    // 生成描述
+    const actionDescription = params.action.replace(/_/g, ' ').toLowerCase()
+
     await prisma.auditLog.create({
       data: {
         userId: params.performedBy,
-        action: params.action,
-        entityType: params.entityType,
-        entityId: params.entityId,
-        details: {
-          oldValue: params.oldValue ?? null,
-          newValue: params.newValue ?? null,
-          ...(params.metadata ?? {}),
-        },
-        ipAddress: params.ipAddress ?? null,
+        userName: 'System', // 由服務層呼叫，實際用戶名在 API 中間件設置
+        action: mappedAction,
+        resourceType,
+        resourceId: params.entityId,
+        description: `${actionDescription} on ${resourceType}`,
+        changes:
+          params.oldValue || params.newValue
+            ? {
+                before: params.oldValue ?? undefined,
+                after: params.newValue ?? undefined,
+              }
+            : undefined,
+        metadata: (params.metadata ?? undefined) as Prisma.InputJsonValue | undefined,
+        ipAddress: params.ipAddress ?? undefined,
       },
     })
   } catch (error) {
@@ -171,12 +215,12 @@ export async function logAudit(params: LogParams): Promise<void> {
  * 審計日誌查詢參數
  */
 interface GetAuditLogsParams {
-  /** 實體類型篩選 */
+  /** 資源類型篩選（對應舊的 entityType）*/
   entityType?: EntityType
-  /** 實體 ID 篩選 */
+  /** 資源 ID 篩選（對應舊的 entityId）*/
   entityId?: string
   /** 操作動作篩選 */
-  action?: AuditAction
+  action?: LegacyAuditAction
   /** 執行者用戶 ID 篩選 */
   performedBy?: string
   /** 開始日期 */
@@ -194,6 +238,7 @@ interface GetAuditLogsParams {
  *
  * @description
  *   根據條件查詢審計日誌，支援分頁。
+ *   已更新以使用新的 AuditLog schema 欄位。
  *
  * @param params - 查詢參數
  * @returns 日誌列表和總數
@@ -217,10 +262,14 @@ export async function getAuditLogs(params: GetAuditLogsParams) {
     offset = 0,
   } = params
 
+  // 將舊的參數轉換為新的 schema 欄位
+  const resourceType = entityType ? ENTITY_TO_RESOURCE[entityType] : undefined
+  const mappedAction = action ? ACTION_MAPPING[action] : undefined
+
   const where = {
-    ...(entityType && { entityType }),
-    ...(entityId && { entityId }),
-    ...(action && { action }),
+    ...(resourceType && { resourceType }),
+    ...(entityId && { resourceId: entityId }),
+    ...(mappedAction && { action: mappedAction }),
     ...(performedBy && { userId: performedBy }),
     ...(startDate || endDate
       ? {
@@ -259,6 +308,7 @@ export async function getAuditLogs(params: GetAuditLogsParams) {
  *
  * @description
  *   獲取特定實體的完整審計歷史。
+ *   已更新以使用新的 AuditLog schema 欄位。
  *
  * @param entityType - 實體類型
  * @param entityId - 實體 ID
@@ -270,10 +320,12 @@ export async function getEntityAuditHistory(
   entityId: string,
   limit = 50
 ) {
+  const resourceType = ENTITY_TO_RESOURCE[entityType] || entityType.toLowerCase()
+
   return prisma.auditLog.findMany({
     where: {
-      entityType,
-      entityId,
+      resourceType,
+      resourceId: entityId,
     },
     orderBy: { createdAt: 'desc' },
     take: limit,

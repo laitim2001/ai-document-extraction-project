@@ -133,16 +133,19 @@ export async function createTestTask(
   // 4. 創建審計日誌
   await prisma.auditLog.create({
     data: {
-      action: 'RULE_TEST_CREATED',
-      entityType: 'RuleTestTask',
-      entityId: testTask.id,
       userId: createdById,
-      details: {
+      userName: 'System',
+      action: 'CREATE',
+      resourceType: 'rule-test-task',
+      resourceId: testTask.id,
+      description: `Created rule test task for ${rule.forwarder?.name ?? 'Unknown'} forwarder`,
+      metadata: {
         ruleId,
         forwarderId: rule.forwarderId,
         documentCount,
         config: config as unknown as Prisma.InputJsonValue,
       },
+      status: 'SUCCESS',
     },
   });
 
@@ -324,16 +327,19 @@ export async function executeTest(params: ExecuteTestParams): Promise<void> {
     // 8. 創建完成審計日誌
     await prisma.auditLog.create({
       data: {
-        action: 'RULE_TEST_COMPLETED',
-        entityType: 'RuleTestTask',
-        entityId: taskId,
         userId: task.createdById,
-        details: {
+        userName: 'System',
+        action: 'UPDATE',
+        resourceType: 'rule-test-task',
+        resourceId: taskId,
+        description: `Rule test completed: ${improved} improved, ${regressed} regressed`,
+        metadata: {
           ruleId: task.ruleId,
           totalTested,
           improved,
           regressed,
         },
+        status: 'SUCCESS',
       },
     });
   } catch (error) {
@@ -506,14 +512,17 @@ export async function cancelTestTask(
     }),
     prisma.auditLog.create({
       data: {
-        action: 'RULE_TEST_CANCELLED',
-        entityType: 'RuleTestTask',
-        entityId: taskId,
         userId,
-        details: {
+        userName: 'System',
+        action: 'UPDATE',
+        resourceType: 'rule-test-task',
+        resourceId: taskId,
+        description: 'Cancelled rule test task',
+        metadata: {
           ruleId: task.ruleId,
           previousStatus: task.status,
         },
+        status: 'SUCCESS',
       },
     }),
   ]);
