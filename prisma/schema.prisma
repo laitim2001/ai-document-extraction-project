@@ -229,6 +229,7 @@ model City {
   outlookFetchLogs     OutlookFetchLog[]      // Story 9.3: Outlook 獲取記錄
   n8nApiKeys           N8nApiKey[]            // Story 10.1: n8n API Keys
   webhookConfigs       WebhookConfig[]        // Story 10.2: Webhook 配置
+  workflowExecutions   WorkflowExecution[]    // Story 10.3: 工作流執行記錄
 
   @@index([regionId])
   @@index([status])
@@ -412,6 +413,9 @@ model Document {
   cityCode    String  @map("city_code") // Story 6.1: 必填城市代碼
   forwarderId String? @map("forwarder_id")
 
+  // 工作流執行關聯（Story 10.3）
+  workflowExecutionId String? @map("workflow_execution_id")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -433,6 +437,7 @@ model Document {
   traceabilityReports TraceabilityReport[] // 追溯報告（Story 8.4）
   sharePointFetchLogs SharePointFetchLog[] // SharePoint 獲取記錄（Story 9.1）
   n8nWebhookEvents    N8nWebhookEvent[]    // n8n Webhook 事件（Story 10.1）
+  workflowExecution   WorkflowExecution?        @relation("WorkflowExecutionDocuments", fields: [workflowExecutionId], references: [id]) // Story 10.3
 
   @@index([status])
   @@index([uploadedBy])
@@ -441,6 +446,7 @@ model Document {
   @@index([createdAt])
   @@index([sourceType])
   @@index([sharepointItemId])
+  @@index([workflowExecutionId])
   @@map("documents")
 }
 
@@ -2730,46 +2736,98 @@ model N8nIncomingWebhook {
   @@map("n8n_incoming_webhooks")
 }
 
-// 工作流執行記錄
+// 工作流執行記錄 (Story 10.3 Enhanced)
 model WorkflowExecution {
   id                  String                  @id @default(cuid())
-  n8nExecutionId      String                  @unique @map("n8n_execution_id")
 
-  // 工作流資訊
+  // n8n 工作流資訊
+  n8nExecutionId      String?                 @unique @map("n8n_execution_id") // n8n 側的執行 ID
   workflowId          String?                 @map("workflow_id")
   workflowName        String                  @map("workflow_name")
 
-  // 觸發類型
+  // 觸發資訊
   triggerType         WorkflowTriggerType     @map("trigger_type")
-  triggerData         Json?                   @map("trigger_data")
+  triggerSource       String?                 @map("trigger_source")   // 觸發來源描述
+  triggeredBy         String?                 @map("triggered_by")     // 觸發者 (用戶 ID 或 'system')
+  triggerData         Json?                   @map("trigger_data")     // 觸發資料
 
   // 城市隔離
   cityCode            String                  @map("city_code")
+  city                City                    @relation(fields: [cityCode], references: [code])
 
   // 狀態追蹤
   status              WorkflowExecutionStatus @default(PENDING)
-  progress            Int                     @default(0)
-  currentStep         String?                 @map("current_step")
+  progress            Int                     @default(0)              // 0-100 百分比
+  currentStep         String?                 @map("current_step")     // 當前執行步驟描述
 
-  // 結果
+  // 時間記錄
+  scheduledAt         DateTime?               @map("scheduled_at")     // 排程時間
+  startedAt           DateTime?               @map("started_at")       // 實際開始時間
+  completedAt         DateTime?               @map("completed_at")     // 完成時間
+  durationMs          Int?                    @map("duration_ms")      // 執行耗時（毫秒）
+
+  // 結果資訊
   result              Json?
   errorDetails        Json?                   @map("error_details")
 
-  // 關聯的文件 IDs
-  documentIds         String[]                @default([]) @map("document_ids")
+  // 相關文件
+  documentCount       Int                     @default(0) @map("document_count")
+  documentIds         String[]                @default([]) @map("document_ids") // 向後兼容
+  documents           Document[]              @relation("WorkflowExecutionDocuments")
+
+  // 執行步驟
+  steps               WorkflowExecutionStep[]
 
   // 時間戳
-  startedAt           DateTime?               @map("started_at")
-  completedAt         DateTime?               @map("completed_at")
   createdAt           DateTime                @default(now()) @map("created_at")
   updatedAt           DateTime                @updatedAt @map("updated_at")
 
   @@index([n8nExecutionId])
   @@index([workflowId])
+  @@index([workflowName])
   @@index([status])
   @@index([cityCode])
+  @@index([startedAt])
+  @@index([triggeredBy])
+  @@index([triggerType])
   @@index([createdAt])
   @@map("workflow_executions")
+}
+
+// 工作流執行步驟記錄 (Story 10.3)
+model WorkflowExecutionStep {
+  id              String              @id @default(cuid())
+  executionId     String              @map("execution_id")
+  execution       WorkflowExecution   @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  // 步驟資訊
+  stepNumber      Int                 @map("step_number")     // 步驟順序
+  stepName        String              @map("step_name")       // 步驟名稱
+  stepType        String?             @map("step_type")       // n8n 節點類型
+
+  // 狀態
+  status          StepExecutionStatus @default(PENDING)
+
+  // 時間
+  startedAt       DateTime?           @map("started_at")
+  completedAt     DateTime?           @map("completed_at")
+  durationMs      Int?                @map("duration_ms")
+
+  // 輸入輸出資料
+  inputData       Json?               @map("input_data")      // 輸入資料
+  outputData      Json?               @map("output_data")     // 輸出資料
+  errorMessage    String?             @map("error_message")   // 錯誤訊息
+
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  // 索引
+  @@index([executionId])
+  @@index([status])
+  @@index([stepNumber])
+
+  // 複合唯一約束
+  @@unique([executionId, stepNumber])
+  @@map("workflow_execution_steps")
 }
 
 // n8n 事件類型枚舉
@@ -2796,20 +2854,31 @@ enum WebhookDeliveryStatus {
 
 // 工作流觸發類型枚舉
 enum WorkflowTriggerType {
-  WEBHOOK       // Webhook 觸發
-  SCHEDULE      // 排程觸發
+  SCHEDULED     // 排程觸發
   MANUAL        // 手動觸發
-  API           // API 觸發
+  WEBHOOK       // Webhook 觸發
+  DOCUMENT      // 文件觸發
   EVENT         // 事件觸發
 }
 
 // 工作流執行狀態枚舉
 enum WorkflowExecutionStatus {
-  PENDING     // 等待中
-  RUNNING     // 執行中
-  COMPLETED   // 已完成
-  FAILED      // 失敗
-  CANCELLED   // 已取消
+  PENDING       // 等待執行
+  QUEUED        // 已排隊
+  RUNNING       // 執行中
+  COMPLETED     // 已完成
+  FAILED        // 失敗
+  CANCELLED     // 已取消
+  TIMEOUT       // 超時
+}
+
+// 步驟執行狀態枚舉 (Story 10.3)
+enum StepExecutionStatus {
+  PENDING       // 等待執行
+  RUNNING       // 執行中
+  COMPLETED     // 已完成
+  FAILED        // 失敗
+  SKIPPED       // 跳過
 }
 
 // =====================
@@ -2912,3 +2981,4 @@ enum ConfigChangeType {
   DEACTIVATED  // 停用配置
   DELETED      // 刪除配置
 }
+

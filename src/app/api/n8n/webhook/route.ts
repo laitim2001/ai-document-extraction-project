@@ -280,9 +280,11 @@ async function handleDocumentStatusChanged(data: WebhookEventData): Promise<void
 function parseTriggerType(value: string | undefined): WorkflowTriggerType {
   const validTypes: Record<string, WorkflowTriggerType> = {
     WEBHOOK: WorkflowTriggerType.WEBHOOK,
-    SCHEDULE: WorkflowTriggerType.SCHEDULE,
+    SCHEDULED: WorkflowTriggerType.SCHEDULED,
+    SCHEDULE: WorkflowTriggerType.SCHEDULED, // 兼容舊格式
     MANUAL: WorkflowTriggerType.MANUAL,
-    API: WorkflowTriggerType.API,
+    DOCUMENT: WorkflowTriggerType.DOCUMENT,
+    API: WorkflowTriggerType.DOCUMENT, // 兼容舊格式
     EVENT: WorkflowTriggerType.EVENT,
   };
 

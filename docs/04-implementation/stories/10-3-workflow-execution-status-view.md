@@ -1251,3 +1251,96 @@ describe('WorkflowExecutionService', () => {
 - Story 10-1: n8n 雙向通訊 API（狀態更新來源）
 - Story 10-5: 工作流錯誤詳情查看（錯誤詳情展示）
 - Story 10-6: 文件處理進度追蹤（關聯文件顯示）
+
+---
+
+## Implementation Notes
+
+### 完成日期
+2025-12-20
+
+### 實際實現
+
+#### 1. 資料模型更新 (Prisma Schema)
+- 已在 Story 10-1 中創建 `WorkflowExecution` 模型
+- 新增 `WorkflowExecutionStep` 模型用於追蹤執行步驟
+- 新增枚舉：`WorkflowExecutionStatus`, `WorkflowTriggerType`, `StepExecutionStatus`
+
+#### 2. 類型定義
+- **文件**: `src/types/workflow-execution.ts`
+- 包含：
+  - `ListExecutionsOptions` - 查詢選項
+  - `ExecutionSummary` - 列表摘要
+  - `ExecutionDetail` - 完整詳情
+  - `ExecutionStepSummary` - 步驟摘要
+  - `ExecutionStats` - 統計資料
+  - `ExecutionListResponse`, `ExecutionDetailResponse`, `RunningExecutionsResponse`, `ExecutionStatsResponse` - API 響應類型
+  - `EXECUTION_STATUS_CONFIG`, `TRIGGER_TYPE_CONFIG` - 狀態顯示配置常數
+  - 類型守衛函數：`isValidExecutionStatus`, `isValidTriggerType`, `isRunningExecution`, `isTerminalStatus`
+
+#### 3. 服務層
+- **文件**: `src/services/n8n/workflow-execution.service.ts`
+- `WorkflowExecutionService` 類別提供：
+  - `listExecutions()` - 分頁列表查詢
+  - `getExecutionDetail()` - 詳情查詢
+  - `getExecutionStats()` - 統計查詢
+  - `getRunningExecutions()` - 執行中工作流查詢
+  - `updateExecutionStatus()` - 狀態更新（供 Webhook 調用）
+
+#### 4. API 路由
+| 端點 | 方法 | 功能 |
+|------|------|------|
+| `/api/workflow-executions` | GET | 列表查詢（分頁、篩選、排序） |
+| `/api/workflow-executions/[id]` | GET | 詳情查詢 |
+| `/api/workflow-executions/running` | GET | 執行中工作流（用於輪詢） |
+| `/api/workflow-executions/stats` | GET | 執行統計 |
+
+所有 API 都使用 `withCityFilter` 中間件實現城市數據隔離。
+
+#### 5. React Query Hooks
+- **文件**: `src/hooks/useWorkflowExecutions.ts`
+- Hooks：
+  - `useWorkflowExecutions()` - 列表查詢
+  - `useWorkflowExecutionDetail()` - 詳情查詢
+  - `useRunningExecutions()` - 執行中工作流（支援輪詢，預設 5 秒）
+  - `useExecutionStats()` - 統計查詢
+  - `useRefreshWorkflowExecutions()` - 手動刷新
+
+#### 6. 導出更新
+- `src/types/index.ts` - 新增 workflow-execution 導出
+- `src/services/n8n/index.ts` - 新增 WorkflowExecutionService 導出
+- `src/hooks/index.ts` - 新增 useWorkflowExecutions hooks 導出
+
+### 技術決策
+
+1. **使用 React Query 替代 SWR**
+   - 專案已統一使用 React Query
+   - 更好的 TypeScript 支援
+   - 更豐富的快取控制選項
+
+2. **輪詢策略**
+   - 使用 `refetchInterval` 實現實時更新
+   - 預設 5 秒間隔（可配置）
+   - 當工作流完成後自動停止輪詢
+
+3. **城市數據隔離**
+   - 所有 API 使用 `withCityFilter` 中間件
+   - 全域管理員可查看所有城市
+   - 普通用戶只能查看授權城市
+
+### 與設計文件差異
+
+1. **UI 組件**
+   - Story 文件中的 React 組件範例使用 MUI
+   - 實際專案使用 shadcn/ui
+   - UI 組件將在後續整合時實現
+
+2. **服務層位置**
+   - 設計文件：`lib/services/n8n/`
+   - 實際實現：`src/services/n8n/`
+
+### 待後續實現
+
+- 前端 UI 組件（WorkflowExecutionList, WorkflowExecutionFilters）
+- 工作流監控頁面 (`/workflow-monitor`)
+- WebSocket 實時更新（可選優化）

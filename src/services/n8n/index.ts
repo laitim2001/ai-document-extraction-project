@@ -92,3 +92,9 @@ export { N8nWebhookService, n8nWebhookService } from './n8n-webhook.service';
  * @description 管理 n8n Webhook 連接配置（Story 10.2）
  */
 export { WebhookConfigService, webhookConfigService } from './webhook-config.service';
+
+/**
+ * 工作流執行服務
+ * @description 管理工作流執行狀態追蹤（Story 10.3）
+ */
+export { WorkflowExecutionService, workflowExecutionService } from './workflow-execution.service';
