@@ -1358,3 +1358,84 @@ describe('N8nHealthService', () => {
 - Story 10-2: Webhook 配置管理（配置來源）
 - Story 10-5: 工作流錯誤詳情查看（錯誤關聯）
 - Story 12-1: 系統健康監控儀表板（整合顯示）
+
+---
+
+## Implementation Notes
+
+### 實作日期
+2025-12-20
+
+### 實作摘要
+
+本 Story 成功實作了 n8n 連接狀態監控的完整後端架構，包含：
+
+1. **資料模型**：Prisma Schema 定義健康監控相關模型
+2. **類型定義**：TypeScript 類型和常數
+3. **服務層**：N8nHealthService 和 AlertService
+4. **API 路由**：8 個管理員 API 端點
+5. **React Query Hooks**：前端數據獲取 hooks
+
+### 建立的檔案
+
+| 檔案路徑 | 說明 |
+|---------|------|
+| `prisma/schema.prisma` | 新增 SystemHealthLog, N8nConnectionStats, AlertRecord 模型和枚舉 |
+| `src/types/health-monitoring.ts` | 健康監控類型定義 |
+| `src/types/alert-service.ts` | 告警服務類型定義和輔助函數 |
+| `src/services/n8n/n8n-health.service.ts` | N8nHealthService 服務實現 |
+| `src/services/alert.service.ts` | AlertService 告警管理服務 |
+| `src/app/api/admin/n8n-health/route.ts` | GET (健康狀態), POST (手動檢查) |
+| `src/app/api/admin/n8n-health/history/route.ts` | GET (健康歷史) |
+| `src/app/api/admin/n8n-health/changes/route.ts` | GET (狀態變化記錄) |
+| `src/app/api/admin/alerts/route.ts` | GET (告警列表), POST (建立告警) |
+| `src/app/api/admin/alerts/[id]/route.ts` | GET (告警詳情) |
+| `src/app/api/admin/alerts/[id]/acknowledge/route.ts` | POST (確認告警) |
+| `src/app/api/admin/alerts/[id]/resolve/route.ts` | POST (解決告警) |
+| `src/app/api/admin/alerts/summary/route.ts` | GET (告警摘要統計) |
+| `src/hooks/useN8nHealth.ts` | React Query hooks for n8n 健康監控 |
+| `src/hooks/useAlerts.ts` | React Query hooks for 告警管理 |
+
+### 修改的檔案
+
+| 檔案路徑 | 變更 |
+|---------|------|
+| `src/services/index.ts` | 導出 N8nHealthService 和 AlertService |
+| `src/types/index.ts` | 導出健康監控和告警類型 |
+
+### 技術決策與說明
+
+1. **錯誤分類**：原 Tech Spec 使用 `errorType` 分組，但 `N8nApiCall` 模型無此欄位。改用 `statusCode` 分組並按 HTTP 狀態碼分類（5xx = server_error, 4xx = client_error）。
+
+2. **用戶名稱查詢**：`AlertRecord` 模型無直接的 User 關聯。在告警詳情 API 中，以獨立查詢方式獲取 acknowledgedBy 和 resolvedBy 的用戶名稱。
+
+3. **告警類型擴展**：除原規格的 6 種類型外，新增 `AUTHENTICATION_FAILURE` 和 `RATE_LIMIT_EXCEEDED` 以支援更完整的錯誤情境。
+
+4. **通知冷卻機制**：`DEFAULT_COOLDOWN_MINUTES` 常數已預留但暫未啟用，待實際通知整合時使用。
+
+### 驗證結果
+
+- ✅ `npm run type-check` - 通過
+- ✅ `npm run lint` - 通過（僅有預先存在的警告，無新增問題）
+
+### API 端點清單
+
+| 方法 | 路徑 | 說明 |
+|------|------|------|
+| GET | `/api/admin/n8n-health` | 獲取整體健康狀態 |
+| POST | `/api/admin/n8n-health` | 執行手動健康檢查 |
+| GET | `/api/admin/n8n-health/history` | 獲取健康檢查歷史 |
+| GET | `/api/admin/n8n-health/changes` | 獲取狀態變化記錄 |
+| GET | `/api/admin/alerts` | 獲取告警列表（支援篩選和分頁） |
+| POST | `/api/admin/alerts` | 建立新告警 |
+| GET | `/api/admin/alerts/summary` | 獲取告警摘要統計 |
+| GET | `/api/admin/alerts/[id]` | 獲取告警詳情 |
+| POST | `/api/admin/alerts/[id]/acknowledge` | 確認告警 |
+| POST | `/api/admin/alerts/[id]/resolve` | 解決告警 |
+
+### 待後續實作
+
+1. **前端組件**：`N8nHealthStatus` 組件（Tech Spec 中已規劃，待前端 Sprint）
+2. **定期檢查任務**：`scheduledHealthCheck()` 需整合 cron job 或 Azure Functions
+3. **通知整合**：Email 和 Teams 通知功能（需配合 `sendEmail` 和 `sendTeamsNotification` 實現）
+4. **通知冷卻**：啟用 `DEFAULT_COOLDOWN_MINUTES` 避免重複通知

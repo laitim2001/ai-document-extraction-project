@@ -271,6 +271,9 @@ export * from './n8n'
 // Epic 10: n8n Workflow Integration (Story 10.6 - Document Processing Progress Tracking)
 export * from './document-progress.service'
 
+// Epic 10: n8n Workflow Integration (Story 10.7 - n8n Connection Status Monitoring)
+export * from './alert.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

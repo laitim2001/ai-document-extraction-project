@@ -233,6 +233,8 @@ model City {
   webhookConfigs       WebhookConfig[]        // Story 10.2: Webhook 配置
   workflowExecutions   WorkflowExecution[]    // Story 10.3: 工作流執行記錄
   workflowDefinitions  WorkflowDefinition[]   // Story 10.4: 工作流定義
+  systemHealthLogs     SystemHealthLog[]      // Story 10.7: 系統健康日誌
+  n8nConnectionStats   N8nConnectionStats[]   // Story 10.7: n8n 連接統計
 
   @@index([regionId])
   @@index([status])
@@ -3123,5 +3125,211 @@ model DocumentProcessingStage {
   // 每個文件每個階段只能有一筆記錄
   @@unique([documentId, stage])
   @@map("document_processing_stages")
+}
+
+// =====================
+// 健康監控相關模型 (Story 10.7)
+// =====================
+
+// 健康狀態枚舉
+enum HealthStatus {
+  HEALTHY       // 正常 - 服務運作正常
+  DEGRADED      // 降級 - 服務可用但性能下降
+  UNHEALTHY     // 異常 - 服務無法正常運作
+  UNKNOWN       // 未知 - 無法確定狀態
+  UNCONFIGURED  // 未配置 - 服務尚未設定
+}
+
+// 健康檢查類型枚舉
+enum HealthCheckType {
+  SCHEDULED     // 定期檢查 - 由排程任務觸發
+  MANUAL        // 手動檢查 - 管理員主動觸發
+  ON_ERROR      // 錯誤觸發 - 發生錯誤時觸發
+  ON_RECOVERY   // 恢復檢測 - 恢復後驗證
+  STARTUP       // 啟動檢查 - 系統啟動時
+}
+
+// 統計週期類型枚舉
+enum StatsPeriodType {
+  HOURLY        // 每小時
+  DAILY         // 每日
+  WEEKLY        // 每週
+  MONTHLY       // 每月
+}
+
+// 告警類型枚舉
+enum AlertType {
+  CONNECTION_FAILURE    // 連線失敗
+  HIGH_ERROR_RATE       // 高錯誤率
+  RESPONSE_TIMEOUT      // 回應逾時
+  SERVICE_DEGRADED      // 服務降級
+  SERVICE_RECOVERED     // 服務恢復
+  CONFIGURATION_ERROR   // 配置錯誤
+  AUTHENTICATION_FAILURE // 認證失敗
+  RATE_LIMIT_EXCEEDED   // 超過速率限制
+}
+
+// 告警嚴重程度枚舉
+enum AlertSeverity {
+  INFO      // 資訊 - 一般性通知
+  WARNING   // 警告 - 需要注意
+  ERROR     // 錯誤 - 需要處理
+  CRITICAL  // 嚴重 - 需要立即處理
+}
+
+// 告警狀態枚舉
+enum AlertStatus {
+  ACTIVE        // 活躍 - 需要處理
+  ACKNOWLEDGED  // 已確認 - 已知曉但未解決
+  RESOLVED      // 已解決 - 問題已處理
+  SUPPRESSED    // 已抑制 - 暫時忽略
+}
+
+// 系統健康日誌模型
+model SystemHealthLog {
+  id             String          @id @default(cuid())
+
+  // 服務標識
+  service        String          // 'n8n' | 'azure_blob' | 'azure_ai' | 'database'
+  serviceUrl     String?         @map("service_url") // 服務 URL（用於診斷）
+
+  // 狀態
+  status         HealthStatus
+  previousStatus HealthStatus?   @map("previous_status") // 前一次狀態（用於變化追蹤）
+
+  // 詳情
+  message        String?         // 狀態說明或錯誤訊息
+  details        Json?           // 額外詳情 (HealthCheckDetailsSchema)
+
+  // 檢查資訊
+  checkType      HealthCheckType @map("check_type")
+  responseTimeMs Int?            @map("response_time_ms") // 回應時間（毫秒）
+  httpStatus     Int?            @map("http_status") // HTTP 狀態碼
+
+  // 城市關聯（如適用）
+  cityCode       String?         @map("city_code")
+  city           City?           @relation(fields: [cityCode], references: [code])
+
+  // 審計
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  @@index([service])
+  @@index([status])
+  @@index([createdAt])
+  @@index([cityCode])
+  @@index([service, status])
+  @@index([service, createdAt])
+  @@map("system_health_logs")
+}
+
+// n8n 連接統計模型（聚合資料）
+model N8nConnectionStats {
+  id             String          @id @default(cuid())
+
+  // 時間範圍
+  periodStart    DateTime        @map("period_start")
+  periodEnd      DateTime        @map("period_end")
+  periodType     StatsPeriodType @map("period_type")
+
+  // 城市
+  cityCode       String?         @map("city_code")
+  city           City?           @relation(fields: [cityCode], references: [code])
+
+  // 統計數據
+  totalCalls     Int             @default(0) @map("total_calls")
+  successCalls   Int             @default(0) @map("success_calls")
+  failedCalls    Int             @default(0) @map("failed_calls")
+  avgResponseMs  Float?          @map("avg_response_ms") // 平均回應時間
+  maxResponseMs  Int?            @map("max_response_ms") // 最大回應時間
+  minResponseMs  Int?            @map("min_response_ms") // 最小回應時間
+  p95ResponseMs  Int?            @map("p95_response_ms") // P95 回應時間
+  p99ResponseMs  Int?            @map("p99_response_ms") // P99 回應時間
+
+  // 錯誤分類
+  errorsByType   Json?           @map("errors_by_type") // ErrorsByTypeSchema
+
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  @@unique([periodStart, periodType, cityCode])
+  @@index([periodStart])
+  @@index([cityCode])
+  @@index([periodType, periodStart])
+  @@map("n8n_connection_stats")
+}
+
+// 告警記錄模型
+model AlertRecord {
+  id               String        @id @default(cuid())
+
+  // 告警資訊
+  alertType        AlertType     @map("alert_type")
+  severity         AlertSeverity
+  title            String
+  message          String        @db.Text
+  details          Json?         // AlertDetailsSchema
+
+  // 來源
+  service          String        // 觸發告警的服務
+  cityCode         String?       @map("city_code") // 相關城市
+
+  // 狀態
+  status           AlertStatus   @default(ACTIVE)
+  acknowledgedBy   String?       @map("acknowledged_by") // 確認者 ID
+  acknowledgedAt   DateTime?     @map("acknowledged_at") // 確認時間
+  resolvedAt       DateTime?     @map("resolved_at") // 解決時間
+  resolvedBy       String?       @map("resolved_by") // 解決者 ID
+  resolutionNote   String?       @map("resolution_note") // 解決備註
+
+  // 通知
+  notificationsSent Json?        @map("notifications_sent") // NotificationsSentSchema
+
+  // 關聯
+  relatedAlertId   String?       @map("related_alert_id") // 相關告警 ID（用於告警串聯）
+
+  // 審計
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  @@index([alertType])
+  @@index([status])
+  @@index([service])
+  @@index([severity])
+  @@index([createdAt])
+  @@index([service, status])
+  @@map("alert_records")
+}
+
+// 告警通知配置模型
+model AlertNotificationConfig {
+  id             String        @id @default(cuid())
+
+  // 配置名稱
+  name           String
+  description    String?
+
+  // 觸發條件
+  services       String[]      // 適用的服務列表
+  alertTypes     AlertType[]   @map("alert_types") // 適用的告警類型
+  minSeverity    AlertSeverity @map("min_severity") // 最低嚴重程度
+
+  // 通知管道
+  emailEnabled   Boolean       @default(false) @map("email_enabled")
+  emailRecipients String[]     @map("email_recipients") // Email 收件人列表
+  teamsEnabled   Boolean       @default(false) @map("teams_enabled")
+  teamsWebhookUrl String?      @map("teams_webhook_url") // Teams Webhook URL
+  slackEnabled   Boolean       @default(false) @map("slack_enabled")
+  slackWebhookUrl String?      @map("slack_webhook_url") // Slack Webhook URL
+
+  // 抑制設定
+  cooldownMinutes Int          @default(30) @map("cooldown_minutes") // 相同告警的冷卻時間
+  suppressDuplicates Boolean   @default(true) @map("suppress_duplicates")
+
+  // 狀態
+  isActive       Boolean       @default(true) @map("is_active")
+
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  @@map("alert_notification_configs")
 }
 

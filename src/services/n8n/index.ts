@@ -66,6 +66,7 @@
  *   - 手動觸發工作流（Story 10.4）
  *   - 工作流定義 CRUD（Story 10.4）
  *   - 工作流錯誤診斷與統計（Story 10.5）
+ *   - n8n 連線健康監控（Story 10.7）
  *
  * @related
  *   - src/types/n8n.ts - n8n 類型定義
@@ -124,3 +125,9 @@ export { WorkflowDefinitionService, workflowDefinitionService } from './workflow
  * @description 工作流錯誤診斷和統計分析（Story 10.5）
  */
 export { WorkflowErrorService, workflowErrorService } from './workflow-error.service';
+
+/**
+ * n8n 健康監控服務
+ * @description n8n 連線狀態監控與健康檢查（Story 10.7）
+ */
+export { N8nHealthService, n8nHealthService } from './n8n-health.service';
