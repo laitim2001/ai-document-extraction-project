@@ -276,6 +276,14 @@
 | `/api/integrations/outlook/config` | PUT | 更新 Outlook 配置 | 是 | ADMIN | 9-4 |
 | `/api/integrations/outlook/test` | POST | 測試連線 | 是 | ADMIN | 9-4 |
 
+### 文件來源追蹤 (Epic 9)
+| 端點 | 方法 | 描述 | 認證 | 權限 | Story |
+|------|------|------|------|------|-------|
+| `/api/documents/[documentId]/source` | GET | 取得文件來源資訊 | 是 | USER+ | 9-5 |
+| `/api/documents/sources/stats` | GET | 取得來源類型統計 | 是 | USER+ | 9-5 |
+| `/api/documents/sources/trend` | GET | 取得來源類型趨勢 | 是 | USER+ | 9-5 |
+| `/api/documents/search` | GET | 搜尋文件 (支援來源篩選) | 是 | USER+ | 9-5 |
+
 ### n8n 整合 (Epic 10)
 | 端點 | 方法 | 描述 | 認證 | 權限 | Story |
 |------|------|------|------|------|-------|
@@ -436,5 +444,5 @@ export const PERMISSIONS = {
 
 ---
 
-*最後更新: 2025-12-17*
+*最後更新: 2025-12-20*
 *請在每次新增 API 後更新此文件*

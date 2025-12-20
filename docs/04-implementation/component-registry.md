@@ -155,6 +155,15 @@
 | ExportDialog | `dashboard/export-dialog.tsx` | 匯出對話框 | 7-4 |
 | CostSummaryCard | `dashboard/cost-summary-card.tsx` | 成本摘要卡片 | 7-6 |
 
+### 文件來源追蹤 (Epic 9)
+| 元件名稱 | 檔案路徑 | 描述 | 相關 Story |
+|----------|----------|------|------------|
+| SourceInfoCard | `features/document-source/SourceInfoCard.tsx` | 文件來源資訊卡片 | 9-5 |
+| SourceTypeBadge | `features/document-source/SourceTypeBadge.tsx` | 來源類型標籤 | 9-5 |
+| SourceTypeStats | `features/document-source/SourceTypeStats.tsx` | 來源類型統計圓餅圖 | 9-5 |
+| SourceTypeTrend | `features/document-source/SourceTypeTrend.tsx` | 來源類型趨勢長條圖 | 9-5 |
+| SourceSearchFilter | `features/document-source/SourceSearchFilter.tsx` | 來源搜尋篩選面板 | 9-5 |
+
 ### 系統管理 (Epic 12)
 | 元件名稱 | 檔案路徑 | 描述 | 相關 Story |
 |----------|----------|------|------------|
@@ -220,5 +229,5 @@ export function UserList({ users, onSelect }: UserListProps) {
 
 ---
 
-*最後更新: 2025-12-17*
+*最後更新: 2025-12-20*
 *請在每次新增元件後更新此文件*

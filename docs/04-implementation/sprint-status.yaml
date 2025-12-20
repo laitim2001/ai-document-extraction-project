@@ -148,12 +148,12 @@ development_status:
   # ============================================================
   # Epic 9: 自動化文件獲取
   # ============================================================
-  epic-9: in-progress
+  epic-9: done  # Completed 2025-12-20: All 5 stories completed
   9-1-sharepoint-file-monitoring-api: done  # Completed 2025-12-20: SharePoint types, Prisma models (ApiKey, SharePointConfig, SharePointFetchLog), EncryptionService, MicrosoftGraphService, SharePointDocumentService, ApiKeyService, POST/GET APIs
   9-2-sharepoint-connection-config: done  # Completed 2025-12-20: SharePointConfigService, admin API routes (CRUD, test), SharePointConfigForm, SharePointConfigList, useSharePointConfig hooks, connection testing
   9-3-outlook-mail-attachment-extraction-api: done  # Completed 2025-12-20: Outlook types, OutlookConfig/FilterRule/FetchLog models, OutlookMailService, OutlookDocumentService (dual mode), API Key permissions, POST/GET APIs
   9-4-outlook-connection-config: done  # Completed 2025-12-20: OutlookConfigService, admin CRUD APIs, filter rules management, connection testing, React Query hooks, OutlookConfigForm/List/FilterRulesEditor, admin page
-  9-5-auto-retrieval-source-tracking: ready-for-dev
+  9-5-auto-retrieval-source-tracking: done  # Completed 2025-12-20: SourceMetadata types, SOURCE_TYPE_CONFIG constants, DocumentSourceService, 4 API routes (source/stats/trend/search), 5 React components (SourceInfoCard, SourceTypeBadge, SourceTypeStats, SourceTypeTrend, SourceSearchFilter)
   epic-9-retrospective: optional
 
   # ============================================================

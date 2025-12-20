@@ -8,7 +8,7 @@
 | Story ID | 9.5 |
 | 標題 | 自動獲取來源追蹤 |
 | FR 覆蓋 | FR2, FR3 |
-| 狀態 | ready-for-dev |
+| 狀態 | done |
 | 優先級 | Medium |
 | 估計點數 | 5 |
 

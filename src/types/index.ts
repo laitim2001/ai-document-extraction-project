@@ -235,3 +235,20 @@ export * from './sharepoint'
 
 // Outlook 整合相關 (Story 9.3)
 export * from './outlook'
+
+// 文件來源追蹤相關 (Story 9.5)
+// 注意：SharePointSourceMetadata 和 OutlookSourceMetadata 已在上方導出
+// 使用命名導出避免衝突
+export {
+  // Types
+  type ManualUploadSourceMetadata,
+  type ApiSourceMetadata,
+  type SourceMetadata,
+  type DocumentSourceInfo,
+  type SourceDetails,
+  type SourceTypeStats,
+  type SourceTypeTrendData,
+  type SourceSearchOptions,
+  type SourceSearchResult,
+  type DocumentWithSource,
+} from './document-source.types'

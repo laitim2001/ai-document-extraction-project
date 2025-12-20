@@ -258,6 +258,9 @@ export * from './outlook-document.service'
 // Epic 9: Automated Document Acquisition (Story 9.4 - Outlook Connection Configuration)
 export * from './outlook-config.service'
 
+// Epic 9: Automated Document Acquisition (Story 9.5 - Auto Retrieval Source Tracking)
+export * from './document-source.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';
