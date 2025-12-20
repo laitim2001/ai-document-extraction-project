@@ -264,3 +264,6 @@ export * from './workflow-trigger'
 
 // 工作流錯誤相關 (Story 10.5)
 export * from './workflow-error'
+
+// 文件處理進度追蹤相關 (Story 10.6)
+export * from './document-progress'

@@ -419,6 +419,11 @@ model Document {
   // 工作流執行關聯（Story 10.3）
   workflowExecutionId String? @map("workflow_execution_id")
 
+  // 處理進度追蹤（Story 10.6）
+  processingStartedAt DateTime?  @map("processing_started_at")    // 處理開始時間
+  processingEndedAt   DateTime?  @map("processing_ended_at")      // 處理結束時間
+  processingDuration  Int?       @map("processing_duration")      // 總處理時長（毫秒）
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -441,6 +446,7 @@ model Document {
   sharePointFetchLogs SharePointFetchLog[] // SharePoint 獲取記錄（Story 9.1）
   n8nWebhookEvents    N8nWebhookEvent[]    // n8n Webhook 事件（Story 10.1）
   workflowExecution   WorkflowExecution?        @relation("WorkflowExecutionDocuments", fields: [workflowExecutionId], references: [id]) // Story 10.3
+  processingStages    DocumentProcessingStage[] // 處理階段記錄（Story 10.6）
 
   @@index([status])
   @@index([uploadedBy])
@@ -3040,5 +3046,82 @@ model WorkflowDefinition {
   @@index([n8nWorkflowId])
   @@index([createdBy])
   @@map("workflow_definitions")
+}
+
+// =====================
+// 文件處理進度追蹤 (Story 10.6)
+// =====================
+
+// 處理階段枚舉
+enum ProcessingStage {
+  RECEIVED              // 已接收
+  UPLOADED              // 已上傳
+  OCR_PROCESSING        // OCR 處理中
+  AI_EXTRACTION         // AI 提取中
+  FORWARDER_IDENTIFICATION // 貨代識別
+  FIELD_MAPPING         // 欄位映射
+  VALIDATION            // 驗證
+  REVIEW_PENDING        // 待審核
+  REVIEW_COMPLETED      // 審核完成
+  COMPLETED             // 已完成
+}
+
+// 處理階段狀態枚舉
+enum ProcessingStageStatus {
+  PENDING       // 待處理
+  IN_PROGRESS   // 處理中
+  COMPLETED     // 已完成
+  FAILED        // 失敗
+  SKIPPED       // 跳過
+}
+
+// 文件處理階段記錄模型
+model DocumentProcessingStage {
+  id            String                @id @default(cuid())
+
+  // 文件關聯
+  documentId    String                @map("document_id")
+  document      Document              @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  // 階段資訊
+  stage         ProcessingStage
+  stageName     String                @map("stage_name")     // 階段顯示名稱
+  stageOrder    Int                   @map("stage_order")    // 階段順序
+
+  // 狀態
+  status        ProcessingStageStatus @default(PENDING)
+
+  // 時間追蹤
+  scheduledAt   DateTime?             @map("scheduled_at")   // 排程時間
+  startedAt     DateTime?             @map("started_at")     // 開始時間
+  completedAt   DateTime?             @map("completed_at")   // 完成時間
+  durationMs    Int?                  @map("duration_ms")    // 執行時長（毫秒）
+
+  // 結果與錯誤
+  result        Json?                                        // 階段處理結果
+  error         String?                                      // 錯誤訊息
+
+  // 來源追蹤
+  sourceType    String?               @map("source_type")    // 來源類型
+  sourceId      String?               @map("source_id")      // 來源 ID
+
+  // 額外元數據
+  metadata      Json?
+
+  // 時間戳
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime              @updatedAt @map("updated_at")
+
+  // 索引
+  @@index([documentId])
+  @@index([stage])
+  @@index([status])
+  @@index([stageOrder])
+  @@index([sourceType])
+  @@index([createdAt])
+
+  // 每個文件每個階段只能有一筆記錄
+  @@unique([documentId, stage])
+  @@map("document_processing_stages")
 }
 

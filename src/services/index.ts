@@ -50,6 +50,7 @@
  *   | audit-log | 用戶操作日誌記錄 | Epic 8 Story 8.1 |
  *   | change-tracking | 數據變更追蹤 | Epic 8 Story 8.2 |
  *   | n8n | n8n 工作流雙向通訊 API | Epic 10 Story 10.1 |
+ *   | document-progress | 文件處理進度追蹤 | Epic 10 Story 10.6 |
  *
  *   ## 核心設計原則
  *
@@ -91,6 +92,7 @@
  *   - 規則成效統計（Story 6.5）
  *   - SharePoint 連線配置管理（Story 9.2）
  *   - n8n 工作流雙向通訊 API（Story 10.1）
+ *   - 文件處理進度追蹤（Story 10.6）
  *
  * @related
  *   - src/app/api/ - API 路由層（調用服務）
@@ -265,6 +267,9 @@ export * from './document-source.service'
 
 // Epic 10: n8n Workflow Integration (Story 10.1 - n8n Bidirectional Communication API)
 export * from './n8n'
+
+// Epic 10: n8n Workflow Integration (Story 10.6 - Document Processing Progress Tracking)
+export * from './document-progress.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

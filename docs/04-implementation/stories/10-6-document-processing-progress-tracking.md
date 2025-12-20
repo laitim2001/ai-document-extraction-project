@@ -991,3 +991,82 @@ describe('DocumentProgressService', () => {
 - Story 10-1: n8n 雙向通訊 API（狀態回報）
 - Story 10-3: 工作流執行狀態查看（關聯查詢）
 - Story 2-7: 處理狀態追蹤顯示（UI 整合）
+
+---
+
+## Implementation Notes
+
+### 完成日期：2025-12-20
+
+### 實作摘要
+
+本 Story 完成了文件處理進度追蹤功能，包含：
+
+1. **資料庫模型**（Prisma Schema）
+   - `DocumentProcessingStage` 模型 - 記錄每個處理階段
+   - `ProcessingStage` 枚舉 - 10 個處理階段
+   - `ProcessingStageStatus` 枚舉 - 5 種狀態（PENDING/IN_PROGRESS/COMPLETED/FAILED/SKIPPED）
+   - Document 模型擴展 - 新增 processingStartedAt, processingEndedAt, processingDuration 欄位
+
+2. **類型定義**（`src/types/document-progress.ts`）
+   - `ProcessingTimeline` - 完整時間軸類型
+   - `ProcessingProgress` - 即時進度類型（輪詢用）
+   - `ProcessingDocument` - 處理中文件列表項目
+   - `ProcessingStatistics` - 處理統計類型
+   - `STAGE_CONFIG` - 階段配置（含權重）
+   - `SOURCE_TYPE_CONFIG` - 來源類型配置
+
+3. **服務層**（`src/services/document-progress.service.ts`）
+   - `getProcessingTimeline()` - 獲取完整處理時間軸
+   - `getProgressUpdate()` - 獲取即時進度（輪詢用）
+   - `updateProcessingStage()` - 更新階段狀態
+   - `initializeProcessingStages()` - 初始化處理階段
+   - `getProcessingDocuments()` - 獲取處理中文件列表
+   - `getProcessingStatistics()` - 獲取處理統計
+
+4. **API 路由**
+   - `GET /api/documents/[id]/progress` - 獲取文件進度（支援 full=true 參數）
+   - `GET /api/documents/processing` - 獲取處理中文件列表
+   - `GET /api/documents/processing/stats` - 獲取處理統計
+
+5. **React Query Hooks**（`src/hooks/use-document-progress.ts`）
+   - `useDocumentProgress()` - 即時進度輪詢（處理中時 3s 間隔）
+   - `useDocumentTimeline()` - 完整時間軸查詢
+   - `useProcessingDocuments()` - 處理中文件列表（10s 間隔）
+   - `useProcessingStatistics()` - 處理統計（60s 間隔）
+
+### 技術決策
+
+1. **使用 React Query 而非 SWR**
+   - 原因：保持與項目現有 hooks 的一致性
+   - 項目已使用 `@tanstack/react-query` 作為伺服器狀態管理
+
+2. **權重計算進度**
+   - 各階段權重：RECEIVED(5), UPLOADED(10), OCR(25), AI_EXTRACTION(30), IDENTIFICATION(10), MAPPING(10), VALIDATION(5), REVIEW_PENDING(0), REVIEW_COMPLETED(5), COMPLETED(0)
+   - 進度 = 已完成權重 / 總權重 × 100
+   - 進行中階段計算 50% 權重
+
+3. **城市權限控制**
+   - 所有 API 都驗證用戶城市存取權限
+   - 支援 GLOBAL_ADMIN 角色的全域存取
+
+### 檔案清單
+
+```
+prisma/schema.prisma                              # 新增 DocumentProcessingStage 模型和枚舉
+src/types/document-progress.ts                    # 進度類型定義
+src/services/document-progress.service.ts         # 進度服務
+src/services/index.ts                             # 導出更新
+src/types/index.ts                                # 導出更新
+src/app/api/documents/[id]/progress/route.ts      # 進度 API
+src/app/api/documents/processing/route.ts         # 處理中列表 API
+src/app/api/documents/processing/stats/route.ts   # 統計 API
+src/hooks/use-document-progress.ts                # React Query Hooks
+```
+
+### 驗收標準達成
+
+- ✅ AC1: 完整處理時間軸 - `getProcessingTimeline()` 提供所有階段詳情
+- ✅ AC2: 即時進度顯示 - `useDocumentProgress()` 支援 3 秒輪詢
+- ✅ AC3: 處理結果摘要 - 時間軸包含結果和錯誤資訊
+- ✅ AC4: 來源標記顯示 - `SOURCE_TYPE_CONFIG` 配置來源圖標和標籤
