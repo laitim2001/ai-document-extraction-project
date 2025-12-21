@@ -3733,3 +3733,237 @@ model SystemOverallStatus {
   @@map("system_overall_status")
 }
 
+// =====================
+// Performance Monitoring Models (Story 12-2)
+// 效能指標追蹤，支援 API、數據庫、AI 服務和系統資源監控
+// =====================
+
+// API 效能指標
+model ApiPerformanceMetric {
+  id              String    @id @default(cuid())
+
+  // API 資訊
+  method          String    // GET, POST, PUT, DELETE
+  endpoint        String    // API 端點（標準化路徑，如 /api/invoices/{id}）
+  path            String    // 實際請求路徑
+  statusCode      Int       @map("status_code")
+
+  // 時間指標（毫秒）
+  responseTime    Int       @map("response_time")       // 總回應時間
+  dbQueryTime     Int?      @map("db_query_time")       // 資料庫查詢時間
+  externalApiTime Int?      @map("external_api_time")   // 外部 API 調用時間
+  processingTime  Int?      @map("processing_time")     // 業務邏輯處理時間
+
+  // 大小指標（bytes）
+  requestSize     Int?      @map("request_size")
+  responseSize    Int?      @map("response_size")
+
+  // 關聯資訊
+  userId          String?   @map("user_id")
+  cityId          String?   @map("city_id")
+  correlationId   String?   @map("correlation_id")      // 請求追蹤 ID
+
+  // 時間記錄
+  timestamp       DateTime  @default(now())
+
+  @@index([endpoint])
+  @@index([method, endpoint])
+  @@index([statusCode])
+  @@index([timestamp])
+  @@index([cityId, timestamp])
+  @@index([endpoint, timestamp])
+  @@map("api_performance_metrics")
+}
+
+// 系統資源指標
+model SystemResourceMetric {
+  id              String    @id @default(cuid())
+
+  // CPU 指標（百分比）
+  cpuUsage        Float     @map("cpu_usage")          // 總 CPU 使用率
+  cpuSystem       Float?    @map("cpu_system")         // 系統 CPU 使用率
+  cpuUser         Float?    @map("cpu_user")           // 用戶 CPU 使用率
+
+  // 記憶體指標
+  memoryUsage     Float     @map("memory_usage")       // 記憶體使用率（百分比）
+  memoryUsed      BigInt    @map("memory_used")        // 已使用記憶體（bytes）
+  memoryTotal     BigInt    @map("memory_total")       // 總記憶體（bytes）
+  heapUsed        BigInt?   @map("heap_used")          // Node.js heap 已使用
+  heapTotal       BigInt?   @map("heap_total")         // Node.js heap 總量
+
+  // 連接指標
+  activeConnections Int?    @map("active_connections") // 活躍連接數
+
+  // Event Loop 指標
+  eventLoopLag    Float?    @map("event_loop_lag")     // Event Loop 延遲（ms）
+
+  // 磁碟 I/O 指標
+  diskReadBytes   BigInt?   @map("disk_read_bytes")    // 磁碟讀取（bytes）
+  diskWriteBytes  BigInt?   @map("disk_write_bytes")   // 磁碟寫入（bytes）
+
+  // 時間記錄
+  timestamp       DateTime  @default(now())
+
+  @@index([timestamp])
+  @@index([cpuUsage])
+  @@index([memoryUsage])
+  @@map("system_resource_metrics")
+}
+
+// AI 服務效能指標
+model AiServiceMetric {
+  id              String    @id @default(cuid())
+
+  // 操作資訊
+  operationType   String    @map("operation_type")     // ocr, extraction, identification, classification, validation
+
+  // 時間指標（毫秒）
+  totalTime       Int       @map("total_time")         // 總處理時間
+  queueTime       Int?      @map("queue_time")         // 排隊等待時間
+  processingTime  Int?      @map("processing_time")    // 實際處理時間
+  networkTime     Int?      @map("network_time")       // 網路傳輸時間
+
+  // 文件資訊
+  documentId      String?   @map("document_id")
+  fileSize        Int?      @map("file_size")          // 文件大小（bytes）
+  pageCount       Int?      @map("page_count")         // 頁數
+
+  // 結果資訊
+  success         Boolean   @default(true)
+  errorCode       String?   @map("error_code")
+  errorMessage    String?   @map("error_message")
+
+  // Token 使用量（OpenAI）
+  tokensUsed      Int?      @map("tokens_used")        // 總 token 使用量
+  promptTokens    Int?      @map("prompt_tokens")      // Prompt tokens
+  completionTokens Int?     @map("completion_tokens")  // Completion tokens
+  modelName       String?   @map("model_name")         // 模型名稱
+
+  // 成本估算
+  estimatedCost   Decimal?  @map("estimated_cost") @db.Decimal(10, 6)
+
+  // 關聯資訊
+  cityId          String?   @map("city_id")
+
+  // 時間記錄
+  timestamp       DateTime  @default(now())
+
+  @@index([operationType])
+  @@index([success])
+  @@index([timestamp])
+  @@index([cityId, timestamp])
+  @@index([documentId])
+  @@map("ai_service_metrics")
+}
+
+// 數據庫查詢效能指標
+model DatabaseQueryMetric {
+  id              String    @id @default(cuid())
+
+  // 查詢資訊
+  queryType       String    @map("query_type")         // select, insert, update, delete, transaction
+  tableName       String?   @map("table_name")         // 主要表名
+  queryHash       String?   @map("query_hash")         // 查詢指紋（用於聚合分析）
+
+  // 時間指標（毫秒）
+  executionTime   Int       @map("execution_time")     // 執行時間
+  planningTime    Int?      @map("planning_time")      // 查詢規劃時間
+  lockWaitTime    Int?      @map("lock_wait_time")     // 鎖等待時間
+
+  // 影響範圍
+  rowsAffected    Int?      @map("rows_affected")      // 影響行數
+  rowsReturned    Int?      @map("rows_returned")      // 返回行數
+
+  // 來源資訊
+  endpoint        String?                               // 來源 API 端點
+  userId          String?   @map("user_id")
+  correlationId   String?   @map("correlation_id")     // 請求追蹤 ID
+
+  // 時間記錄
+  timestamp       DateTime  @default(now())
+
+  @@index([queryType])
+  @@index([tableName])
+  @@index([timestamp])
+  @@index([executionTime])
+  @@index([queryType, timestamp])
+  @@map("database_query_metrics")
+}
+
+// 效能小時彙總
+model PerformanceHourlySummary {
+  id              String    @id @default(cuid())
+
+  // 時間維度
+  date            DateTime  @db.Date
+  hour            Int       // 0-23
+  metricType      String    @map("metric_type")        // api, database, ai, system
+
+  // API 彙總指標
+  apiP50          Float?    @map("api_p50")
+  apiP95          Float?    @map("api_p95")
+  apiP99          Float?    @map("api_p99")
+  apiAvg          Float?    @map("api_avg")
+  apiCount        Int?      @map("api_count")
+  apiErrorRate    Float?    @map("api_error_rate")
+
+  // Database 彙總指標
+  dbP50           Float?    @map("db_p50")
+  dbP95           Float?    @map("db_p95")
+  dbP99           Float?    @map("db_p99")
+  dbAvg           Float?    @map("db_avg")
+  dbCount         Int?      @map("db_count")
+
+  // AI 彙總指標
+  aiP50           Float?    @map("ai_p50")
+  aiP95           Float?    @map("ai_p95")
+  aiP99           Float?    @map("ai_p99")
+  aiAvg           Float?    @map("ai_avg")
+  aiCount         Int?      @map("ai_count")
+  aiSuccessRate   Float?    @map("ai_success_rate")
+  aiTotalTokens   Int?      @map("ai_total_tokens")
+  aiTotalCost     Decimal?  @map("ai_total_cost") @db.Decimal(10, 2)
+
+  // 系統彙總指標
+  cpuAvg          Float?    @map("cpu_avg")
+  cpuMax          Float?    @map("cpu_max")
+  memoryAvg       Float?    @map("memory_avg")
+  memoryMax       Float?    @map("memory_max")
+
+  // 城市隔離
+  cityId          String?   @map("city_id")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@unique([date, hour, metricType, cityId])
+  @@index([date])
+  @@index([metricType])
+  @@index([cityId])
+  @@map("performance_hourly_summaries")
+}
+
+// 效能閾值配置
+model PerformanceThreshold {
+  id               String    @id @default(cuid())
+
+  // 指標類型
+  metricType       String    @unique @map("metric_type")  // api_response_time, db_query_time, ai_processing_time, cpu_usage, memory_usage
+  metricName       String    @map("metric_name")          // 顯示名稱
+
+  // 閾值設定
+  warningThreshold Float     @map("warning_threshold")    // 警告閾值
+  criticalThreshold Float    @map("critical_threshold")   // 嚴重閾值
+
+  // 單位和描述
+  unit             String    // ms, percent, count
+  description      String?
+
+  // 啟用狀態
+  isEnabled        Boolean   @default(true) @map("is_enabled")
+
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@map("performance_thresholds")
+}
+

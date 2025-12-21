@@ -1136,3 +1136,75 @@ describe('PerformanceService', () => {
 
 - Story 12-1: 系統健康監控儀表板（整合顯示）
 - Story 12-3: 錯誤告警配置（閾值觸發）
+
+---
+
+## 實作紀錄
+
+### 完成日期
+2025-12-21
+
+### 實作內容
+
+#### 1. Prisma Schema 模型 (prisma/schema.prisma)
+- ApiPerformanceMetric - API 效能指標
+- SystemResourceMetric - 系統資源指標
+- AiServiceMetric - AI 服務效能指標
+- DatabaseQueryMetric - 數據庫查詢效能
+- PerformanceHourlySummary - 每小時效能彙總
+- PerformanceThreshold - 效能閾值配置
+
+#### 2. 類型定義 (src/types/performance.ts)
+- TimeRange, MetricType, ExportFormat 類型
+- PerformanceOverview 效能概覽介面
+- TimeSeriesDataPoint 時間序列數據點
+- SlowestEndpoint, SlowestQuery, SlowestAiOperation 分析類型
+
+#### 3. 服務層
+- **PerformanceCollector** (src/services/performance-collector.service.ts)
+  - 批量緩衝寫入（10秒間隔）
+  - recordApi(), recordSystemResource(), recordAiService(), recordDbQuery() 方法
+  - 全局單例模式
+
+- **PerformanceService** (src/services/performance.service.ts)
+  - getOverview() - 效能概覽（P50/P95/P99 百分位計算）
+  - getTimeSeries() - 時間序列數據（依時間範圍自動調整聚合粒度）
+  - getSlowestEndpoints/Queries/AiOperations() - 最慢分析
+  - export() - CSV/JSON 匯出
+
+#### 4. API 路由 (src/app/api/admin/performance/)
+- GET /api/admin/performance - 效能概覽
+- GET /api/admin/performance/timeseries - 時間序列數據
+- GET /api/admin/performance/slowest - 最慢端點/查詢/操作分析
+- GET /api/admin/performance/export - CSV/JSON 匯出
+
+#### 5. React Query Hooks (src/hooks/use-performance.ts)
+- usePerformanceOverview - 效能概覽 hook
+- usePerformanceTimeSeries - 時間序列 hook
+- useSlowestEndpoints/Queries/AiOperations - 最慢分析 hooks
+- usePerformanceExport - 匯出 mutation
+- usePerformanceDashboard - 整合 hook（自動刷新 30 秒）
+
+#### 6. UI 組件 (src/components/admin/performance/)
+- **PerformanceDashboard.tsx**
+  - MetricCard - 效能指標卡片（狀態顏色標記）
+  - PerformanceChart - Recharts 時間序列圖表（含閾值參考線）
+  - SlowestEndpointsTable - 最慢端點表格
+  - 時間範圍選擇器、自動刷新開關、CSV 匯出按鈕
+
+#### 7. 頁面 (src/app/(dashboard)/admin/performance/page.tsx)
+- 效能監控管理頁面
+- Suspense 骨架載入
+
+### 驗收標準達成
+- ✅ AC1: 即時效能指標顯示（API P50/P95/P99、DB、AI、CPU、Memory）
+- ✅ AC2: 時間範圍選擇（1h, 6h, 24h, 7d, 30d）
+- ✅ AC3: 閾值警告顯示（警告/嚴重參考線）
+- ✅ AC4: 深入分析功能（最慢端點、最慢查詢、最慢 AI 操作）
+- ✅ AC5: 數據匯出（CSV 格式）
+
+### 技術債務
+無
+
+### 相關 PR
+待 commit

@@ -186,7 +186,7 @@ development_status:
   # ============================================================
   epic-12: in-progress
   12-1-system-health-monitoring-dashboard: done  # Completed 2025-12-21: HealthCheckService, API routes, HealthDashboard, useHealthMonitoring hooks, admin health page
-  12-2-performance-metrics-tracking: ready-for-dev
+  12-2-performance-metrics-tracking: done  # Completed 2025-12-21: Prisma models (ApiPerformanceMetric, SystemResourceMetric, AiServiceMetric, DatabaseQueryMetric, PerformanceHourlySummary, PerformanceThreshold), PerformanceCollector (batch writing), PerformanceService (percentile calculation), 4 API routes, usePerformance hooks, PerformanceDashboard page
   12-3-error-alert-configuration: ready-for-dev
   12-4-system-configuration-management: ready-for-dev
   12-5-data-backup-management: ready-for-dev
