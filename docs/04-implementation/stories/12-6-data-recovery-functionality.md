@@ -2118,3 +2118,78 @@ describe('RestoreService', () => {
 - [ ] 大型備份恢復正常完成
 - [ ] 恢復過程不導致系統崩潰
 - [ ] 演練環境正確清理
+
+---
+
+## Implementation Notes
+
+### 完成日期
+2025-12-21
+
+### 實作摘要
+
+#### 資料庫模型
+- 擴展現有 `RestoreRecord` 模型，新增恢復類型、範圍、進度追蹤欄位
+- 新增 `RestoreDrill` 模型用於恢復演練記錄
+- 新增 `RestoreLog` 模型用於恢復操作日誌
+- 新增 `RestoreType` 枚舉 (FULL, PARTIAL, DRILL, POINT_IN_TIME)
+- 新增 `RestoreStatus` 枚舉 (PENDING, VALIDATING, PRE_BACKUP, IN_PROGRESS, VERIFYING, COMPLETED, FAILED, CANCELLED, ROLLED_BACK)
+- 新增 `RestoreScope` 枚舉 (DATABASE, FILES, CONFIG, ALL)
+
+#### 服務層
+- `RestoreService` (`src/services/restore.service.ts`)
+  - `startRestore()` - 啟動恢復操作（包含模擬執行邏輯）
+  - `getRestoreRecord()` - 取得恢復記錄詳情
+  - `listRestoreRecords()` - 列表查詢（支援分頁、過濾、排序）
+  - `cancelRestore()` - 取消進行中的恢復
+  - `rollbackRestore()` - 回滾已完成的恢復
+  - `getRestoreLogs()` - 取得恢復日誌
+  - `getBackupPreview()` - 取得備份內容預覽
+  - `cleanupDrillEnvironment()` - 清理演練環境
+  - `getRestoreStats()` - 取得恢復統計
+
+#### API Routes
+- `GET /api/admin/restore` - 列表查詢
+- `POST /api/admin/restore` - 啟動恢復
+- `GET /api/admin/restore/[id]` - 取得詳情
+- `DELETE /api/admin/restore/[id]` - 取消恢復
+- `POST /api/admin/restore/[id]/rollback` - 回滾恢復
+- `GET /api/admin/restore/[id]/logs` - 取得日誌
+- `GET /api/admin/restore/preview/[backupId]` - 備份預覽
+- `GET /api/admin/restore/stats` - 統計數據
+
+#### React Hooks
+- `useRestoreRecords()` - 恢復記錄列表
+- `useRestoreRecord()` - 單一恢復記錄
+- `useRestoreLogs()` - 恢復日誌
+- `useBackupPreview()` - 備份預覽
+- `useRestoreStats()` - 恢復統計
+- `useStartRestore()` - 啟動恢復
+- `useCancelRestore()` - 取消恢復
+- `useRollbackRestore()` - 回滾恢復
+- `useCleanupDrill()` - 清理演練
+
+#### UI 元件
+- `RestoreManagement` - 恢復管理頁面主組件
+- `RestoreList` - 恢復記錄列表
+- `RestoreDialog` - 啟動恢復對話框（多步驟嚮導）
+- `RestoreDetailDialog` - 恢復詳情對話框（日誌、進度、回滾）
+
+#### 類型定義
+- `src/types/restore.ts` - 完整的恢復類型定義
+  - 恢復選項、進度、驗證詳情
+  - 備份預覽（表格、文件列表）
+  - 恢復記錄（基本與含關聯）
+  - 輔助函數（狀態圖標、標籤）
+
+### 技術決策
+1. **模擬恢復執行**: 由於實際的 PostgreSQL pg_restore 和文件系統操作需要實際環境配置，目前採用模擬執行模式。實際部署時需替換為真實的恢復邏輯。
+2. **進度追蹤**: 使用 React Query 輪詢機制（3秒間隔）即時更新恢復進度。
+3. **恢復前備份**: 支援自動在恢復前建立當前狀態的備份，以便回滾。
+4. **演練模式**: 恢復演練會建立隔離環境，驗證恢復流程而不影響生產數據。
+
+### 測試要點
+- 恢復對話框的多步驟表單驗證
+- 取消和回滾操作的狀態轉換
+- 日誌記錄的完整性
+- 進度更新的即時性
