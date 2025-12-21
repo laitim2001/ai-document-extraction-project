@@ -8,6 +8,7 @@
  *   - 任務狀態類型
  *   - 查詢參數類型
  *   - 處理步驟定義
+ *   - 結果擷取類型
  *
  * @module src/types/external-api
  * @author Development Team
@@ -17,6 +18,7 @@
  * @features
  *   - Story 11-1: 發票提交類型
  *   - Story 11-2: 狀態查詢類型
+ *   - Story 11-3: 結果擷取類型
  */
 
 // 提交相關類型 (Story 11-1)
@@ -36,3 +38,6 @@ export * from './query';
 
 // 處理步驟定義 (Story 11-2)
 export * from './steps';
+
+// 結果擷取類型 (Story 11-3)
+export * from './result';

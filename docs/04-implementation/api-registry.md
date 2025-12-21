@@ -256,7 +256,10 @@
 | `/api/v1/invoices` | GET | 查詢任務列表（分頁、篩選） | Bearer Token (API Key) | 11-2 ✅ |
 | `/api/v1/invoices/[taskId]/status` | GET | 查詢單一任務處理狀態 | Bearer Token (API Key) | 11-2 ✅ |
 | `/api/v1/invoices/batch-status` | POST | 批量查詢任務狀態（最多 100 個） | Bearer Token (API Key) | 11-2 ✅ |
-| `/api/v1/invoices/[taskId]/result` | GET | 取得處理結果 | Bearer Token (API Key) | 11-3 |
+| `/api/v1/invoices/[taskId]/result` | GET | 取得處理結果（支援 JSON/CSV/XML） | Bearer Token (API Key) | 11-3 ✅ |
+| `/api/v1/invoices/[taskId]/result/fields/[fieldName]` | GET | 查詢單一欄位值 | Bearer Token (API Key) | 11-3 ✅ |
+| `/api/v1/invoices/[taskId]/document` | GET | 取得原始文件下載資訊 | Bearer Token (API Key) | 11-3 ✅ |
+| `/api/v1/invoices/batch-results` | POST | 批量查詢處理結果（最多 50 個） | Bearer Token (API Key) | 11-3 ✅ |
 | `/api/v1/webhooks` | POST | 註冊 Webhook | Bearer Token (API Key) | 11-4 |
 | `/api/v1/webhooks/[id]` | DELETE | 取消 Webhook | Bearer Token (API Key) | 11-4 |
 
@@ -313,6 +316,186 @@
 - `X-RateLimit-Limit`: 每分鐘請求上限
 - `X-RateLimit-Remaining`: 剩餘請求數
 - `X-RateLimit-Reset`: 重置時間戳
+
+### 處理結果擷取 API 詳情 (Story 11-3)
+
+#### 1. 取得處理結果
+
+**端點**: `GET /api/v1/invoices/{taskId}/result`
+
+**認證**: `Authorization: Bearer {API_KEY}`
+
+**查詢參數**:
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| `format` | string | 否 | 輸出格式: `json`（預設）、`csv`、`xml` |
+
+**成功回應** (HTTP 200 - JSON 格式):
+```json
+{
+  "data": {
+    "taskId": "cm...",
+    "status": "completed",
+    "completedAt": "2025-12-21T10:30:00.000Z",
+    "expiresAt": "2026-01-20T10:30:00.000Z",
+    "result": {
+      "forwarder": {
+        "id": "fwd_123",
+        "name": "DHL Express",
+        "code": "DHL"
+      },
+      "fields": [
+        {
+          "name": "invoiceNumber",
+          "value": "INV-2024-001",
+          "confidence": 0.95,
+          "boundingBox": {"x": 100, "y": 50, "width": 200, "height": 30}
+        }
+      ],
+      "metadata": {
+        "processingDuration": 15234,
+        "ocrProvider": "azure-document-intelligence",
+        "modelVersion": "1.0.0"
+      }
+    }
+  },
+  "traceId": "api_..."
+}
+```
+
+**CSV 格式回應** (Content-Type: text/csv):
+```csv
+fieldName,value,confidence,boundingBoxX,boundingBoxY,boundingBoxWidth,boundingBoxHeight
+invoiceNumber,"INV-2024-001",0.95,100,50,200,30
+```
+
+**XML 格式回應** (Content-Type: application/xml):
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<taskResult>
+  <taskId>cm...</taskId>
+  <status>completed</status>
+  <result>
+    <forwarder>
+      <id>fwd_123</id>
+      <name>DHL Express</name>
+    </forwarder>
+    <fields>
+      <field>
+        <name>invoiceNumber</name>
+        <value>INV-2024-001</value>
+        <confidence>0.95</confidence>
+      </field>
+    </fields>
+  </result>
+</taskResult>
+```
+
+**錯誤回應**:
+- **HTTP 404**: 任務不存在
+- **HTTP 409**: 任務尚未完成（返回當前狀態）
+- **HTTP 410**: 結果已過期（已超過 30 天保留期）
+
+#### 2. 查詢單一欄位值
+
+**端點**: `GET /api/v1/invoices/{taskId}/result/fields/{fieldName}`
+
+**路徑參數**:
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `taskId` | string | 任務 ID |
+| `fieldName` | string | 欄位名稱（URL 編碼，不區分大小寫） |
+
+**成功回應** (HTTP 200):
+```json
+{
+  "data": {
+    "taskId": "cm...",
+    "field": {
+      "name": "invoiceNumber",
+      "value": "INV-2024-001",
+      "confidence": 0.95,
+      "boundingBox": {"x": 100, "y": 50, "width": 200, "height": 30}
+    }
+  },
+  "traceId": "api_..."
+}
+```
+
+**錯誤回應**:
+- **HTTP 404**: 任務不存在或欄位不存在
+
+#### 3. 取得原始文件下載資訊
+
+**端點**: `GET /api/v1/invoices/{taskId}/document`
+
+**成功回應** (HTTP 200):
+```json
+{
+  "data": {
+    "taskId": "cm...",
+    "document": {
+      "id": "doc_123",
+      "fileName": "invoice.pdf",
+      "mimeType": "application/pdf",
+      "size": 1024000,
+      "downloadUrl": "https://storage.blob.core.windows.net/...?sas_token",
+      "downloadUrlExpiresAt": "2025-12-21T11:30:00.000Z"
+    }
+  },
+  "traceId": "api_..."
+}
+```
+
+**注意**: `downloadUrl` 包含 SAS Token，有效期為 1 小時。
+
+#### 4. 批量查詢處理結果
+
+**端點**: `POST /api/v1/invoices/batch-results`
+
+**請求內容**:
+```json
+{
+  "taskIds": ["cm...", "cm...", "cm..."]
+}
+```
+
+**限制**: 每次最多查詢 50 個任務 ID。
+
+**成功回應** (HTTP 200):
+```json
+{
+  "data": {
+    "results": [
+      {
+        "taskId": "cm...",
+        "status": "completed",
+        "result": { ... }
+      },
+      {
+        "taskId": "cm...",
+        "status": "processing",
+        "error": null
+      },
+      {
+        "taskId": "cm...",
+        "status": "error",
+        "error": {
+          "code": "RESULT_EXPIRED",
+          "message": "Result has expired"
+        }
+      }
+    ],
+    "summary": {
+      "total": 3,
+      "completed": 1,
+      "processing": 1,
+      "failed": 1
+    }
+  },
+  "traceId": "api_..."
+}
+```
 
 ---
 
@@ -500,5 +683,5 @@ export const PERMISSIONS = {
 
 ---
 
-*最後更新: 2025-12-20*
+*最後更新: 2025-12-21*
 *請在每次新增 API 後更新此文件*

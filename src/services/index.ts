@@ -53,6 +53,7 @@
  *   | document-progress | 文件處理進度追蹤 | Epic 10 Story 10.6 |
  *   | invoice-submission | 外部 API 發票提交 | Epic 11 Story 11.1 |
  *   | task-status | 外部 API 任務狀態查詢 | Epic 11 Story 11.2 |
+ *   | result-retrieval | 外部 API 結果擷取 | Epic 11 Story 11.3 |
  *
  *   ## 核心設計原則
  *
@@ -97,6 +98,7 @@
  *   - 文件處理進度追蹤（Story 10.6）
  *   - 外部 API 發票提交（Story 11.1）
  *   - 外部 API 任務狀態查詢（Story 11.2）
+ *   - 外部 API 結果擷取（Story 11.3）
  *
  * @related
  *   - src/app/api/ - API 路由層（調用服務）
@@ -284,6 +286,9 @@ export * from './rate-limit.service'
 
 // Epic 11: External API Services (Story 11.2 - API Processing Status Query Endpoint)
 export * from './task-status.service'
+
+// Epic 11: External API Services (Story 11.3 - API Processing Result Retrieval Endpoint)
+export * from './result-retrieval.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
