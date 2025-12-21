@@ -253,7 +253,9 @@
 | 端點 | 方法 | 描述 | 認證 | Story |
 |------|------|------|------|-------|
 | `/api/v1/invoices` | POST | 提交發票（支援 multipart/form-data、Base64、URL 引用） | Bearer Token (API Key) | 11-1 ✅ |
-| `/api/v1/invoices/[taskId]/status` | GET | 查詢處理狀態 | Bearer Token (API Key) | 11-2 |
+| `/api/v1/invoices` | GET | 查詢任務列表（分頁、篩選） | Bearer Token (API Key) | 11-2 ✅ |
+| `/api/v1/invoices/[taskId]/status` | GET | 查詢單一任務處理狀態 | Bearer Token (API Key) | 11-2 ✅ |
+| `/api/v1/invoices/batch-status` | POST | 批量查詢任務狀態（最多 100 個） | Bearer Token (API Key) | 11-2 ✅ |
 | `/api/v1/invoices/[taskId]/result` | GET | 取得處理結果 | Bearer Token (API Key) | 11-3 |
 | `/api/v1/webhooks` | POST | 註冊 Webhook | Bearer Token (API Key) | 11-4 |
 | `/api/v1/webhooks/[id]` | DELETE | 取消 Webhook | Bearer Token (API Key) | 11-4 |

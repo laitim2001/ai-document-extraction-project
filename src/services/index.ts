@@ -51,6 +51,8 @@
  *   | change-tracking | 數據變更追蹤 | Epic 8 Story 8.2 |
  *   | n8n | n8n 工作流雙向通訊 API | Epic 10 Story 10.1 |
  *   | document-progress | 文件處理進度追蹤 | Epic 10 Story 10.6 |
+ *   | invoice-submission | 外部 API 發票提交 | Epic 11 Story 11.1 |
+ *   | task-status | 外部 API 任務狀態查詢 | Epic 11 Story 11.2 |
  *
  *   ## 核心設計原則
  *
@@ -81,7 +83,7 @@
  * @module src/services
  * @author Development Team
  * @since Epic 1 - Story 1.0 (Project Init Foundation)
- * @lastModified 2025-12-20
+ * @lastModified 2025-12-21
  *
  * @features
  *   - 統一服務導出入口
@@ -93,6 +95,8 @@
  *   - SharePoint 連線配置管理（Story 9.2）
  *   - n8n 工作流雙向通訊 API（Story 10.1）
  *   - 文件處理進度追蹤（Story 10.6）
+ *   - 外部 API 發票提交（Story 11.1）
+ *   - 外部 API 任務狀態查詢（Story 11.2）
  *
  * @related
  *   - src/app/api/ - API 路由層（調用服務）
@@ -277,6 +281,9 @@ export * from './alert.service'
 // Epic 11: External API Services (Story 11.1 - API Invoice Submission Endpoint)
 export * from './invoice-submission.service'
 export * from './rate-limit.service'
+
+// Epic 11: External API Services (Story 11.2 - API Processing Status Query Endpoint)
+export * from './task-status.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

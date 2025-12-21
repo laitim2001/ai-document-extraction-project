@@ -1,35 +1,35 @@
 /**
- * @fileoverview 發票提交 API 端點
+ * @fileoverview 發票提交與查詢 API 端點
  * @description
- *   RESTful API 端點用於外部系統提交發票，支援：
- *   - Multipart/form-data 文件上傳
- *   - Base64 編碼內容
- *   - URL 引用
+ *   RESTful API 端點用於外部系統發票操作，支援：
+ *   - POST: 發票提交（Multipart/Base64/URL）
+ *   - GET: 任務列表查詢（分頁、篩選）
  *
  *   認證方式：Bearer Token (API Key)
- *   回應格式：HTTP 202 Accepted
  *
  * @module src/app/api/v1/invoices/route
  * @author Development Team
  * @since Epic 11 - Story 11.1 (API 發票提交端點)
- * @lastModified 2025-12-20
+ * @lastModified 2025-12-21
  *
  * @features
- *   - 三種提交方式支援
- *   - API Key 認證
- *   - 速率限制
- *   - 請求追蹤
- *   - 審計日誌
+ *   - Story 11-1: 三種提交方式支援
+ *   - Story 11-2: 任務列表分頁查詢
+ *   - API Key 認證與速率限制
+ *   - 請求追蹤與審計日誌
  *
  * @dependencies
  *   - next/server - Next.js API 支援
  *   - @/services/invoice-submission.service - 發票提交服務
+ *   - @/services/task-status.service - 任務狀態服務
  *   - @/services/rate-limit.service - 速率限制服務
  *   - @/middleware/external-api-auth - 認證中間件
  *   - @/types/external-api - 類型定義
  *
  * @related
  *   - docs/04-implementation/tech-specs/epic-11-external-api/tech-spec-story-11-1.md
+ *   - src/app/api/v1/invoices/[taskId]/status/route.ts - 單一狀態查詢
+ *   - src/app/api/v1/invoices/batch-status/route.ts - 批量狀態查詢
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -38,6 +38,7 @@ import {
   invoiceSubmissionService,
   ApiError,
 } from '@/services/invoice-submission.service';
+import { taskStatusService } from '@/services/task-status.service';
 import { rateLimitService } from '@/services/rate-limit.service';
 import {
   externalApiAuthMiddleware,
@@ -51,12 +52,170 @@ import {
   multipartParamsSchema,
   SubmitInvoiceRequest,
   ApiErrorResponse,
+  listQuerySchema,
 } from '@/types/external-api';
+import { createExternalApiError } from '@/types/external-api/response';
 import { prisma } from '@/lib/prisma';
 
 // ============================================================
 // API 路由處理器
 // ============================================================
+
+/**
+ * GET /api/v1/invoices
+ * @description 查詢任務列表（分頁、篩選）
+ *
+ * @param request Next.js 請求對象
+ * @returns 任務列表回應（含分頁資訊）
+ *
+ * @example
+ * ```bash
+ * # 查詢所有任務（分頁）
+ * curl -X GET "https://api.example.com/api/v1/invoices?page=1&pageSize=20" \
+ *   -H "Authorization: Bearer YOUR_API_KEY"
+ *
+ * # 篩選特定狀態
+ * curl -X GET "https://api.example.com/api/v1/invoices?status=processing" \
+ *   -H "Authorization: Bearer YOUR_API_KEY"
+ *
+ * # 篩選城市代碼和日期範圍
+ * curl -X GET "https://api.example.com/api/v1/invoices?cityCode=HKG&startDate=2025-01-01" \
+ *   -H "Authorization: Bearer YOUR_API_KEY"
+ * ```
+ */
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  const traceId = generateTraceId();
+  const startTime = Date.now();
+
+  try {
+    // 1. 認證
+    const authResult = await externalApiAuthMiddleware(request, ['query']);
+
+    if (!authResult.authorized) {
+      await logApiCall(request, null, authResult.statusCode, startTime, traceId, 'GET');
+
+      return NextResponse.json(
+        createExternalApiError({
+          type: 'authentication_error',
+          title: authResult.errorCode || 'Authentication Failed',
+          status: authResult.statusCode,
+          detail: authResult.errorMessage || 'Invalid or missing API key',
+          instance: request.url,
+          traceId,
+        }),
+        { status: authResult.statusCode }
+      );
+    }
+
+    const apiKey = authResult.apiKey!;
+
+    // 2. 速率限制
+    const rateLimitResult = await rateLimitService.checkLimit(apiKey);
+
+    if (!rateLimitResult.allowed) {
+      await logApiCall(request, apiKey.id, 429, startTime, traceId, 'GET');
+
+      return NextResponse.json(
+        createExternalApiError({
+          type: 'rate_limit_exceeded',
+          title: 'Rate Limit Exceeded',
+          status: 429,
+          detail: `Too many requests. Limit: ${rateLimitResult.limit}, remaining: ${rateLimitResult.remaining}`,
+          instance: request.url,
+          traceId,
+        }),
+        {
+          status: 429,
+          headers: {
+            'Retry-After': rateLimitResult.retryAfter?.toString() || '60',
+            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': rateLimitResult.reset.toString(),
+          },
+        }
+      );
+    }
+
+    // 3. 解析查詢參數
+    const searchParams = request.nextUrl.searchParams;
+    const queryParams = {
+      status: searchParams.get('status') || undefined,
+      cityCode: searchParams.get('cityCode') || undefined,
+      startDate: searchParams.get('startDate') || undefined,
+      endDate: searchParams.get('endDate') || undefined,
+      page: searchParams.get('page') || undefined,
+      pageSize: searchParams.get('pageSize') || undefined,
+    };
+
+    // 4. 驗證查詢參數
+    const validationResult = listQuerySchema.safeParse(queryParams);
+
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string[]> = {};
+      validationResult.error.issues.forEach(issue => {
+        const path = issue.path.join('.');
+        if (!fieldErrors[path]) {
+          fieldErrors[path] = [];
+        }
+        fieldErrors[path].push(issue.message);
+      });
+
+      return NextResponse.json(
+        createExternalApiError({
+          type: 'validation_error',
+          title: 'Validation Error',
+          status: 400,
+          detail: 'Query parameter validation failed',
+          instance: request.url,
+          traceId,
+          errors: fieldErrors,
+        }),
+        { status: 400 }
+      );
+    }
+
+    // 5. 查詢任務列表
+    const listResult = await taskStatusService.listTasks(validationResult.data, apiKey);
+
+    await logApiCall(request, apiKey.id, 200, startTime, traceId, 'GET');
+
+    // 6. 返回結果
+    return NextResponse.json(
+      {
+        success: true,
+        data: listResult.tasks,
+        meta: {
+          pagination: listResult.pagination,
+        },
+      },
+      {
+        headers: {
+          'X-Trace-ID': traceId,
+          'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.reset.toString(),
+        },
+      }
+    );
+  } catch (error) {
+    console.error('[Invoice List API] Error:', {
+      traceId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+
+    return NextResponse.json(
+      createExternalApiError({
+        type: 'internal_error',
+        title: 'Internal Server Error',
+        status: 500,
+        detail: 'An unexpected error occurred while querying task list',
+        instance: request.url,
+        traceId,
+      }),
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * POST /api/v1/invoices
@@ -412,7 +571,8 @@ async function logApiCall(
   apiKeyId: string | null,
   statusCode: number,
   startTime: number,
-  traceId: string
+  traceId: string,
+  method: 'GET' | 'POST' = 'POST'
 ): Promise<void> {
   // 如果沒有 apiKeyId，跳過審計日誌（認證失敗的情況）
   if (!apiKeyId) {
@@ -425,7 +585,7 @@ async function logApiCall(
         apiKeyId,
         endpoint: '/api/v1/invoices',
         path: request.nextUrl.pathname,
-        method: 'POST',
+        method,
         statusCode,
         responseTime: Date.now() - startTime,
         traceId,

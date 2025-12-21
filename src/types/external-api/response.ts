@@ -261,3 +261,53 @@ export function getDefaultMessageForErrorCode(code: ExternalApiErrorCode): strin
 
   return messages[code];
 }
+
+// ============================================================
+// RFC 7807 錯誤格式（Story 11-2）
+// ============================================================
+
+/**
+ * RFC 7807 問題詳情類型
+ * @description 標準化的 API 錯誤格式
+ */
+export interface RFC7807Error {
+  /** 問題類型 URI */
+  type: string;
+  /** 問題標題 */
+  title: string;
+  /** HTTP 狀態碼 */
+  status: number;
+  /** 問題詳細描述 */
+  detail: string;
+  /** 問題發生的實例 URI */
+  instance: string;
+  /** 追蹤 ID */
+  traceId?: string;
+  /** 驗證錯誤詳情 */
+  errors?: Record<string, string[]>;
+}
+
+/**
+ * 創建外部 API 錯誤回應
+ * @param params 錯誤參數
+ * @returns RFC 7807 格式的錯誤物件
+ */
+export function createExternalApiError(params: {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  instance: string;
+  traceId?: string;
+  errors?: Record<string, string[]>;
+}): RFC7807Error {
+  return {
+    type: `https://api.example.com/errors/${params.type}`,
+    title: params.title,
+    status: params.status,
+    detail: params.detail,
+    instance: params.instance,
+    ...(params.traceId && { traceId: params.traceId }),
+    ...(params.errors && { errors: params.errors }),
+  };
+}

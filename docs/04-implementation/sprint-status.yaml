@@ -174,7 +174,7 @@ development_status:
   # ============================================================
   epic-11: in-progress
   11-1-api-invoice-submission-endpoint: done  # Completed 2025-12-20: POST /api/v1/invoices, three submission methods (multipart/Base64/URL), API Key auth, rate limiting, audit logging
-  11-2-api-processing-status-query-endpoint: ready-for-dev
+  11-2-api-processing-status-query-endpoint: done  # Completed 2025-12-21: GET /api/v1/invoices/{taskId}/status, GET /api/v1/invoices (list), POST /api/v1/invoices/batch-status, RFC 7807 error format
   11-3-api-processing-result-retrieval-endpoint: ready-for-dev
   11-4-webhook-notification-service: ready-for-dev
   11-5-api-access-control-authentication: ready-for-dev
