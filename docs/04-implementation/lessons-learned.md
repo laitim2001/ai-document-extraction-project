@@ -177,6 +177,34 @@
   - 重試和冪等性
   - 錯誤通知機制
 
+### TI-004: 資料庫備份實作
+- **日期**: 2025-12-21
+- **Story**: 12-5
+- **整合方式**: Prisma + Node.js 備份服務
+- **實作決策**:
+  1. **Cron 解析**: 使用自定義邏輯而非 `cron-parser` 套件
+     - 原因: 減少依賴、簡化維護、符合專案需求
+     - 實作: `parseCronExpression()` 函數處理 5 欄位 cron 格式
+  2. **自動備份偵測**: 檢查已啟用的 BackupSchedule 數量
+     - `isAutoBackupEnabled = enabledScheduleCount > 0`
+  3. **儲存空間上限**: 透過環境變數 `BACKUP_MAX_STORAGE_BYTES` 設定
+     - 預設值: 100GB (107374182400 bytes)
+  4. **備份執行**: 目前為模擬實作
+     - 實際部署需整合 `pg_dump` 和 Azure Blob Storage
+     - 加密方式: AES-256-CBC
+- **技術債務**:
+  - 備份執行為模擬，需在部署前實作實際備份邏輯
+  - 需增加備份驗證機制（還原測試）
+- **程式碼範例**:
+  ```typescript
+  // Cron 下次執行時間計算
+  function getNextRunTime(cronExpression: string): Date {
+    const parts = cronExpression.split(' ');
+    const [minute, hour, dayOfMonth, month, dayOfWeek] = parts;
+    // ... 解析邏輯
+  }
+  ```
+
 ---
 
 ## 開發流程改進
@@ -273,5 +301,5 @@
 
 ---
 
-*最後更新: 2025-12-17*
+*最後更新: 2025-12-21*
 *請持續記錄開發過程中的重要發現*

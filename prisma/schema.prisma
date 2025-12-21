@@ -86,6 +86,8 @@ model User {
   backupsCreated              Backup[]                  @relation("BackupCreator") // Story 12-5: 創建的備份
   backupSchedulesCreated      BackupSchedule[]          @relation("BackupScheduleCreator") // Story 12-5: 創建的備份排程
   restoreRecordsCreated       RestoreRecord[]           @relation("RestoreRecordCreator") // Story 12-6: 創建的恢復記錄
+  systemLogs                  SystemLog[]               @relation("SystemLogUser") // Story 12-7: 系統日誌
+  logExports                  LogExport[]               @relation("LogExportCreator") // Story 12-7: 日誌匯出
 
   @@map("users")
 }
@@ -4363,44 +4365,296 @@ model BackupStorageUsage {
   @@map("backup_storage_usage")
 }
 
-// 恢復記錄模型 (Story 12-6)
-model RestoreRecord {
-  id              String              @id @default(cuid())
+// ============================================================
+// RESTORE MANAGEMENT MODELS (Story 12-6)
+// ============================================================
 
-  // 備份關聯
-  backupId        String              @map("backup_id")
-  backup          Backup              @relation(fields: [backupId], references: [id], onDelete: Cascade)
-
-  // 恢復範圍
-  restoreSource   BackupSource        @map("restore_source")
-  restoreOptions  Json?               @map("restore_options") // 恢復選項
-
-  // 狀態
-  status          RestoreStatus       @default(PENDING)
-  progress        Int                 @default(0)
-  errorMessage    String?             @map("error_message") @db.Text
-
-  // 時間
-  startedAt       DateTime?           @map("started_at")
-  completedAt     DateTime?           @map("completed_at")
-
-  // 審計
-  createdAt       DateTime            @default(now()) @map("created_at")
-  createdBy       String              @map("created_by")
-  createdByUser   User                @relation("RestoreRecordCreator", fields: [createdBy], references: [id])
-
-  @@index([backupId])
-  @@index([status])
-  @@index([createdAt])
-  @@map("restore_records")
+// 恢復類型枚舉
+enum RestoreType {
+  FULL            // 完整恢復 - 替換所有數據
+  PARTIAL         // 部分恢復 - 選擇特定表/文件
+  DRILL           // 恢復演練 - 恢復至隔離環境
+  POINT_IN_TIME   // 時間點恢復 - 恢復到特定時間點
 }
 
 // 恢復狀態枚舉
 enum RestoreStatus {
-  PENDING       // 等待中
-  IN_PROGRESS   // 進行中
-  COMPLETED     // 完成
-  FAILED        // 失敗
-  CANCELLED     // 取消
+  PENDING         // 等待執行
+  VALIDATING      // 驗證備份中
+  PRE_BACKUP      // 恢復前備份中
+  IN_PROGRESS     // 恢復執行中
+  VERIFYING       // 驗證結果中
+  COMPLETED       // 恢復完成
+  FAILED          // 恢復失敗
+  CANCELLED       // 已取消
+  ROLLED_BACK     // 已回滾
+}
+
+// 恢復範圍枚舉
+enum RestoreScope {
+  DATABASE        // 數據庫
+  FILES           // 上傳文件
+  CONFIG          // 系統配置
+  ALL             // 全部範圍
+}
+
+// 恢復記錄模型 - 主要恢復操作紀錄
+model RestoreRecord {
+  id                    String          @id @default(cuid())
+
+  // 關聯備份
+  backupId              String          @map("backup_id")
+  backup                Backup          @relation(fields: [backupId], references: [id], onDelete: Cascade)
+
+  // 恢復設定
+  type                  RestoreType     @default(FULL) @map("type")
+  scope                 RestoreScope[]  // 恢復範圍 (可多選)
+  status                RestoreStatus   @default(PENDING)
+
+  // 恢復選項
+  targetEnvironment     String?         @map("target_environment") // 目標環境識別碼
+  selectedTables        String[]        @default([]) @map("selected_tables") // 選擇的資料表 (部分恢復時)
+  selectedFiles         String[]        @default([]) @map("selected_files") // 選擇的文件路徑 (部分恢復時)
+
+  // 進度追蹤
+  progress              Int             @default(0) // 0-100
+  currentStep           String?         @map("current_step") // 當前步驟描述
+  estimatedTimeRemaining Int?           @map("estimated_time_remaining") // 預估剩餘時間 (秒)
+
+  // 恢復前備份
+  preRestoreBackupId    String?         @map("pre_restore_backup_id") // 恢復前自動備份的 ID
+
+  // 恢復結果統計
+  restoredRecords       Json?           @map("restored_records") // { tableName: recordCount, ... }
+  restoredFiles         Int?            @map("restored_files") // 恢復的文件數量
+  restoredConfigs       Int?            @map("restored_configs") // 恢復的配置數量
+
+  // 驗證結果
+  validationPassed      Boolean?        @map("validation_passed") // 驗證是否通過
+  validationDetails     Json?           @map("validation_details") // { database: {...}, files: {...}, ... }
+
+  // 錯誤資訊
+  errorMessage          String?         @map("error_message") @db.Text
+  errorDetails          Json?           @map("error_details") // 詳細錯誤資訊
+
+  // 時間戳記
+  startedAt             DateTime?       @map("started_at")
+  completedAt           DateTime?       @map("completed_at")
+
+  // 審計資訊
+  createdAt             DateTime        @default(now()) @map("created_at")
+  createdBy             String          @map("created_by")
+  createdByUser         User            @relation("RestoreRecordCreator", fields: [createdBy], references: [id])
+
+  // 二次確認
+  confirmationText      String?         @map("confirmation_text") // 使用者輸入的確認文字
+  confirmedAt           DateTime?       @map("confirmed_at") // 確認時間
+
+  // 關聯
+  drill                 RestoreDrill?   // 演練記錄
+  logs                  RestoreLog[]    // 操作日誌
+
+  @@index([backupId])
+  @@index([status, createdAt])
+  @@index([createdBy])
+  @@index([type])
+  @@map("restore_records")
+}
+
+// 恢復演練記錄模型 - 演練環境資訊
+model RestoreDrill {
+  id                    String          @id @default(cuid())
+
+  // 關聯恢復記錄
+  restoreRecordId       String          @unique @map("restore_record_id")
+  restoreRecord         RestoreRecord   @relation(fields: [restoreRecordId], references: [id], onDelete: Cascade)
+
+  // 演練環境資訊
+  drillEnvironment      String          @map("drill_environment") // 演練環境識別碼
+  drillDatabaseName     String?         @map("drill_database_name") // 演練用數據庫名稱
+  drillStoragePath      String?         @map("drill_storage_path") // 演練用儲存路徑
+
+  // 演練結果
+  drillStatus           String?         @map("drill_status") // passed / failed / partial
+  drillReport           Json?           @map("drill_report") // 詳細演練報告
+
+  // 清理狀態
+  cleanedUp             Boolean         @default(false) @map("cleaned_up")
+  cleanedUpAt           DateTime?       @map("cleaned_up_at")
+
+  createdAt             DateTime        @default(now()) @map("created_at")
+
+  @@index([drillStatus])
+  @@map("restore_drills")
+}
+
+// 恢復操作日誌模型 - 詳細步驟記錄
+model RestoreLog {
+  id                    String          @id @default(cuid())
+
+  // 關聯恢復記錄
+  restoreRecordId       String          @map("restore_record_id")
+  restoreRecord         RestoreRecord   @relation(fields: [restoreRecordId], references: [id], onDelete: Cascade)
+
+  // 日誌內容
+  timestamp             DateTime        @default(now())
+  level                 String          // info / warn / error
+  step                  String          // 步驟名稱
+  message               String          @db.Text // 日誌訊息
+  details               Json?           // 額外詳情
+
+  @@index([restoreRecordId, timestamp])
+  @@index([level])
+  @@map("restore_logs")
+}
+
+// =====================
+// System Logging Models (Story 12-7)
+// =====================
+
+// 日誌級別枚舉
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+  CRITICAL
+}
+
+// 日誌來源枚舉
+enum LogSource {
+  WEB         // 前端 Web 應用
+  API         // API 請求處理
+  AI          // AI/OCR 服務
+  DATABASE    // 資料庫操作
+  N8N         // n8n 工作流
+  SCHEDULER   // 排程任務
+  BACKGROUND  // 背景任務
+  SYSTEM      // 系統級別
+}
+
+// 日誌匯出格式枚舉
+enum LogExportFormat {
+  CSV
+  JSON
+  TXT
+}
+
+// 日誌匯出狀態枚舉
+enum LogExportStatus {
+  PENDING     // 等待處理
+  PROCESSING  // 處理中
+  COMPLETED   // 已完成
+  FAILED      // 失敗
+  EXPIRED     // 已過期
+}
+
+// 系統日誌模型 - 主要日誌記錄
+model SystemLog {
+  id              String      @id @default(cuid())
+
+  // 日誌基本資訊
+  level           LogLevel    @default(INFO)
+  source          LogSource   @default(SYSTEM)
+  message         String      @db.Text
+  details         Json?       // 額外結構化資訊
+
+  // 追蹤資訊
+  correlationId   String?     @map("correlation_id") // 關聯 ID，用於追蹤相關日誌
+  requestId       String?     @map("request_id")     // 請求 ID
+  sessionId       String?     @map("session_id")     // 工作階段 ID
+
+  // 來源資訊
+  className       String?     @map("class_name")     // 類別名稱
+  methodName      String?     @map("method_name")    // 方法名稱
+  lineNumber      Int?        @map("line_number")    // 行號
+
+  // 錯誤資訊
+  errorCode       String?     @map("error_code")     // 錯誤代碼
+  errorStack      String?     @map("error_stack") @db.Text // 錯誤堆疊
+
+  // 效能資訊
+  duration        Int?        // 執行時間 (毫秒)
+  memoryUsage     Float?      @map("memory_usage")   // 記憶體使用 (MB)
+
+  // 上下文資訊
+  userId          String?     @map("user_id")        // 操作用戶
+  user            User?       @relation("SystemLogUser", fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress       String?     @map("ip_address")     // IP 地址
+  userAgent       String?     @map("user_agent")     // User Agent
+  endpoint        String?     // API 端點
+
+  // 時間戳記
+  timestamp       DateTime    @default(now())
+
+  // 索引優化
+  @@index([level, timestamp])
+  @@index([source, timestamp])
+  @@index([correlationId])
+  @@index([userId, timestamp])
+  @@index([errorCode, timestamp])
+  @@index([timestamp])
+  @@map("system_logs")
+}
+
+// 日誌保留策略模型
+model LogRetentionPolicy {
+  id              String      @id @default(cuid())
+
+  // 策略設定
+  level           LogLevel    @unique
+  retentionDays   Int         @map("retention_days") // 保留天數
+  archiveEnabled  Boolean     @default(false) @map("archive_enabled") // 是否啟用歸檔
+
+  // 自動清理設定
+  autoCleanup     Boolean     @default(true) @map("auto_cleanup")
+  lastCleanupAt   DateTime?   @map("last_cleanup_at")
+  recordsCleaned  Int         @default(0) @map("records_cleaned") // 累計清理筆數
+
+  // 時間戳記
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  @@map("log_retention_policies")
+}
+
+// 日誌匯出記錄模型
+model LogExport {
+  id              String            @id @default(cuid())
+
+  // 匯出設定
+  format          LogExportFormat   @default(CSV)
+  status          LogExportStatus   @default(PENDING)
+
+  // 篩選條件
+  levels          LogLevel[]        // 選擇的日誌級別
+  sources         LogSource[]       // 選擇的日誌來源
+  startDate       DateTime          @map("start_date")
+  endDate         DateTime          @map("end_date")
+  searchQuery     String?           @map("search_query") // 搜尋關鍵字
+
+  // 匯出結果
+  filePath        String?           @map("file_path")    // 匯出檔案路徑
+  fileSize        BigInt?           @map("file_size")    // 檔案大小 (bytes)
+  recordCount     Int?              @map("record_count") // 匯出筆數
+
+  // 錯誤資訊
+  errorMessage    String?           @map("error_message") @db.Text
+
+  // 過期設定
+  expiresAt       DateTime?         @map("expires_at")   // 檔案過期時間
+
+  // 時間戳記
+  createdAt       DateTime          @default(now()) @map("created_at")
+  completedAt     DateTime?         @map("completed_at")
+
+  // 建立者
+  createdBy       String            @map("created_by")
+  createdByUser   User              @relation("LogExportCreator", fields: [createdBy], references: [id])
+
+  @@index([status, createdAt])
+  @@index([createdBy])
+  @@index([expiresAt])
+  @@map("log_exports")
 }
 

@@ -2,7 +2,7 @@
  * @fileoverview 類型定義統一導出
  * @module src/types
  * @since Epic 1 - Story 1.7
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-21
  */
 
 // 權限相關
@@ -369,3 +369,9 @@ export * from './config'
 
 // 數據備份管理相關 (Story 12-5)
 export * from './backup'
+
+// 數據恢復管理相關 (Story 12-6)
+export * from './restore'
+
+// 系統日誌查詢相關 (Story 12-7)
+export * from './logging'

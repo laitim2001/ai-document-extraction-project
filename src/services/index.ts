@@ -325,6 +325,12 @@ export * from './system-config.service'
 export * from './backup.service'
 export * from './backup-scheduler.service'
 
+// Epic 12: System Administration & Monitoring (Story 12-6 - Data Recovery Functionality)
+export * from './restore.service'
+
+// Epic 12: System Administration & Monitoring (Story 12-7 - System Log Query)
+export * from './logging'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

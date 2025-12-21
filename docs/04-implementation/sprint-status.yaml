@@ -159,7 +159,7 @@ development_status:
   # ============================================================
   # Epic 10: n8n 工作流整合
   # ============================================================
-  epic-10: in-progress
+  epic-10: done  # Completed 2025-12-20: All 7 stories completed
   10-1-n8n-bidirectional-communication-api: done  # Completed 2025-12-20: N8nApiKey/N8nApiCall/N8nIncomingWebhook/WorkflowExecution models, n8n types, n8nApiKeyService/n8nDocumentService/n8nWebhookService, n8nApiMiddleware, 4 API routes (api-keys, documents, status, webhook)
   10-2-webhook-config-management: done  # Completed 2025-12-20: WebhookConfig/WebhookConfigHistory models, AES-256-GCM encryption utility, webhook config types, WebhookConfigService, 5 API routes (list/create, get/update/delete, test, history), React Query hooks
   10-3-workflow-execution-status-view: done  # Completed 2025-12-20: WorkflowExecution/WorkflowExecutionStep models, workflow-execution types, WorkflowExecutionService, 4 API routes (list, detail, running, stats), React Query hooks with polling
@@ -184,12 +184,12 @@ development_status:
   # ============================================================
   # Epic 12: 系統管理與監控
   # ============================================================
-  epic-12: in-progress
+  epic-12: done  # Completed 2025-12-21: All 7 stories completed
   12-1-system-health-monitoring-dashboard: done  # Completed 2025-12-21: HealthCheckService, API routes, HealthDashboard, useHealthMonitoring hooks, admin health page
   12-2-performance-metrics-tracking: done  # Completed 2025-12-21: Prisma models (ApiPerformanceMetric, SystemResourceMetric, AiServiceMetric, DatabaseQueryMetric, PerformanceHourlySummary, PerformanceThreshold), PerformanceCollector (batch writing), PerformanceService (percentile calculation), 4 API routes, usePerformance hooks, PerformanceDashboard page
   12-3-error-alert-configuration: done  # Completed 2025-12-21: AlertRule/Alert/AlertRuleNotification models, alert-rule.service, alert-evaluation.service, alert-notification.service, alert-evaluation-job, 9 API routes, useAlertRules/useAlerts hooks, AlertRuleTable/CreateAlertRuleDialog/AlertRuleManagement/AlertHistory UI components
   12-4-system-configuration-management: done  # Completed 2025-12-21: SystemConfig/ConfigHistory models, encryption/cache service, React Query hooks, 10 API routes, ConfigManagement UI, config seed data
   12-5-data-backup-management: done  # Completed 2025-12-21: Backup/BackupSchedule/BackupStorageUsage models, BackupService, BackupSchedulerService, 18 API routes, React Query hooks, BackupManagement/BackupList/CreateBackupDialog/ScheduleDialog UI components
-  12-6-data-recovery-functionality: ready-for-dev
-  12-7-system-log-query: ready-for-dev
+  12-6-data-recovery-functionality: done  # Completed 2025-12-21: RestoreRecord/RestoreDrill/RestoreLog models, RestoreService, 8 API routes (list/create/detail/cancel/logs/rollback/preview/stats), useRestore hooks, RestoreManagement/RestoreDialog/RestoreDetailDialog/RestoreList UI components
+  12-7-system-log-query: done  # Completed 2025-12-21: SystemLog/LogRetentionPolicy/LogExport models, LogQueryService, LoggerService (async context), 8 API routes (list/detail/related/stats/export/stream/retention), use-logs hooks (SSE streaming), LogViewer/LogDetailDialog/LogExportDialog/LogStreamPanel UI components
   epic-12-retrospective: optional

@@ -171,6 +171,17 @@
 | MetricsChart | `admin/metrics-chart.tsx` | 效能指標圖表 | 12-2 |
 | AlertConfigPanel | `admin/alert-config-panel.tsx` | 警報配置面板 | 12-3 |
 | SystemConfigEditor | `admin/system-config-editor.tsx` | 系統配置編輯器 | 12-4 |
+| BackupManagement | `features/backup/BackupManagement.tsx` | 備份管理主元件（含標籤頁切換） | 12-5 |
+| BackupStatusCard | `features/backup/BackupStatusCard.tsx` | 備份狀態摘要卡片 | 12-5 |
+| StorageUsageCard | `features/backup/StorageUsageCard.tsx` | 儲存空間使用量卡片（含進度條） | 12-5 |
+| BackupList | `features/backup/BackupList.tsx` | 備份列表（含篩選、分頁、操作） | 12-5 |
+| BackupScheduleList | `features/backup/BackupScheduleList.tsx` | 排程列表 | 12-5 |
+| CreateBackupDialog | `features/backup/CreateBackupDialog.tsx` | 建立備份對話框 | 12-5 |
+| ScheduleDialog | `features/backup/ScheduleDialog.tsx` | 排程新增/編輯對話框 | 12-5 |
+| RestoreManagement | `features/admin/restore/RestoreManagement.tsx` | 數據恢復管理主元件（含標籤頁） | 12-6 |
+| RestoreDialog | `features/admin/restore/RestoreDialog.tsx` | 新建恢復對話框（含備份選擇、範圍配置） | 12-6 |
+| RestoreDetailDialog | `features/admin/restore/RestoreDetailDialog.tsx` | 恢復詳情對話框（含日誌、回滾操作） | 12-6 |
+| RestoreList | `features/admin/restore/RestoreList.tsx` | 恢復記錄列表（含篩選、分頁、取消操作） | 12-6 |
 | LogViewer | `admin/log-viewer.tsx` | 日誌檢視器 | 12-7 |
 
 ---
@@ -229,5 +240,5 @@ export function UserList({ users, onSelect }: UserListProps) {
 
 ---
 
-*最後更新: 2025-12-20*
+*最後更新: 2025-12-21*
 *請在每次新增元件後更新此文件*

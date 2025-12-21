@@ -1827,6 +1827,72 @@ describe('LogQueryService', () => {
 - [ ] 敏感資訊適當遮罩
 
 ### 效能驗證
-- [ ] 大量日誌查詢效能良好
-- [ ] 即時串流不影響系統效能
-- [ ] 日誌寫入不阻塞主流程
+- [x] 大量日誌查詢效能良好
+- [x] 即時串流不影響系統效能
+- [x] 日誌寫入不阻塞主流程
+
+---
+
+## Implementation Notes
+
+### 完成日期
+2025-12-21
+
+### 實作摘要
+
+#### 資料模型
+- **SystemLog**: 系統日誌主表，包含 level、source、message、details、correlationId、requestId、sessionId 等欄位
+- **LogRetentionPolicy**: 日誌保留策略，按級別設定保留天數
+- **LogExport**: 日誌匯出任務記錄，支援 CSV/JSON/TXT 格式
+
+#### 服務層
+1. **LogQueryService** (`src/services/logging/log-query.service.ts`)
+   - 多條件日誌查詢（時間、級別、來源、關鍵字、correlationId、userId）
+   - 日誌詳情與關聯日誌查詢
+   - 日誌統計分析（按級別、來源、錯誤率）
+   - 日誌匯出（CSV/JSON/TXT）
+   - 過期日誌清理
+
+2. **LoggerService** (`src/services/logging/logger.service.ts`)
+   - 多級別日誌記錄（debug, info, warn, error, critical）
+   - AsyncLocalStorage 請求上下文追蹤
+   - EventEmitter 即時串流事件廣播
+   - 預設 Logger 實例（webLogger, apiLogger, aiLogger 等）
+
+#### API Routes
+- `GET /api/admin/logs` - 日誌列表查詢
+- `GET /api/admin/logs/[id]` - 日誌詳情
+- `GET /api/admin/logs/[id]/related` - 關聯日誌
+- `GET /api/admin/logs/stats` - 日誌統計
+- `POST /api/admin/logs/export` - 建立匯出任務
+- `GET /api/admin/logs/export/[id]` - 匯出狀態
+- `GET /api/admin/logs/stream` - SSE 即時串流
+- `GET /api/admin/logs/retention` - 保留策略
+
+#### React Hooks
+- `useLogs` - 日誌列表查詢
+- `useLogDetail` - 日誌詳情
+- `useRelatedLogs` - 關聯日誌
+- `useLogStats` - 統計數據
+- `useCreateLogExport` - 建立匯出
+- `useExportStatus` - 匯出狀態輪詢
+- `useLogStream` - SSE 即時串流
+
+#### UI 組件
+- **LogViewer**: 日誌列表主頁面，含篩選、分頁、統計卡片
+- **LogDetailDialog**: 日誌詳情對話框
+- **LogExportDialog**: 匯出設定對話框（格式選擇、時間範圍、進度追蹤）
+- **LogStreamPanel**: 即時日誌串流面板（SSE 連線、暫停/恢復、篩選）
+
+### 技術特點
+1. **AsyncLocalStorage**: 使用 Node.js AsyncLocalStorage 實現請求上下文追蹤
+2. **SSE 串流**: 使用 Server-Sent Events 實現即時日誌推送
+3. **批次匯出**: 異步處理大量日誌匯出，避免阻塞請求
+4. **React Query**: 使用 TanStack Query 管理伺服器狀態和快取
+
+### 已完成的 Acceptance Criteria
+- [x] AC 12-7-1: 日誌篩選搜尋
+- [x] AC 12-7-2: 日誌列表顯示
+- [x] AC 12-7-3: 日誌詳情
+- [x] AC 12-7-4: 日誌分頁與匯出
+- [x] AC 12-7-5: 即時日誌串流
