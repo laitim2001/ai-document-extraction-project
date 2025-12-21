@@ -260,8 +260,9 @@
 | `/api/v1/invoices/[taskId]/result/fields/[fieldName]` | GET | 查詢單一欄位值 | Bearer Token (API Key) | 11-3 ✅ |
 | `/api/v1/invoices/[taskId]/document` | GET | 取得原始文件下載資訊 | Bearer Token (API Key) | 11-3 ✅ |
 | `/api/v1/invoices/batch-results` | POST | 批量查詢處理結果（最多 50 個） | Bearer Token (API Key) | 11-3 ✅ |
-| `/api/v1/webhooks` | POST | 註冊 Webhook | Bearer Token (API Key) | 11-4 |
-| `/api/v1/webhooks/[id]` | DELETE | 取消 Webhook | Bearer Token (API Key) | 11-4 |
+| `/api/v1/webhooks` | GET | 查詢 Webhook 發送歷史（分頁、篩選） | Bearer Token (API Key) | 11-4 ✅ |
+| `/api/v1/webhooks/[deliveryId]/retry` | POST | 手動重試失敗的 Webhook | Bearer Token (API Key) | 11-4 ✅ |
+| `/api/v1/webhooks/stats` | GET | 查詢 Webhook 發送統計 | Bearer Token (API Key) | 11-4 ✅ |
 
 ### 發票提交 API 詳情 (Story 11-1)
 
@@ -491,6 +492,170 @@ invoiceNumber,"INV-2024-001",0.95,100,50,200,30
       "completed": 1,
       "processing": 1,
       "failed": 1
+    }
+  },
+  "traceId": "api_..."
+}
+```
+
+### Webhook 通知服務 API 詳情 (Story 11-4)
+
+Webhook 服務用於在發票處理過程中向外部系統推送事件通知。
+
+**事件類型**:
+| 事件類型 | 說明 |
+|---------|------|
+| `INVOICE_PROCESSING` | 發票開始處理 |
+| `INVOICE_COMPLETED` | 發票處理完成 |
+| `INVOICE_FAILED` | 發票處理失敗 |
+| `INVOICE_REVIEW_REQUIRED` | 發票需要人工審核 |
+
+**Webhook Payload 格式**:
+```json
+{
+  "event": "INVOICE_COMPLETED",
+  "taskId": "cm...",
+  "timestamp": "2025-12-21T10:30:00.000Z",
+  "data": {
+    "confidenceScore": 0.95,
+    "fieldCount": 12,
+    "processingTimeMs": 15234,
+    "completedAt": "2025-12-21T10:30:00.000Z",
+    "resultUrl": "https://api.example.com/api/v1/invoices/cm.../result"
+  }
+}
+```
+
+**簽名驗證**:
+- Header: `X-Webhook-Signature`
+- 算法: HMAC-SHA256
+- 格式: `sha256={signature}`
+
+驗證範例:
+```javascript
+const crypto = require('crypto');
+
+function verifySignature(payload, signature, secret) {
+  const expected = 'sha256=' + crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+}
+```
+
+**重試機制**:
+- 最多 3 次重試
+- 重試間隔: 1 分鐘 → 5 分鐘 → 30 分鐘
+- 可手動觸發重試
+
+#### 1. 查詢發送歷史
+
+**端點**: `GET /api/v1/webhooks`
+
+**查詢參數**:
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| `page` | number | 否 | 頁碼（預設: 1） |
+| `limit` | number | 否 | 每頁筆數（預設: 20，最大: 100） |
+| `event` | string | 否 | 事件類型篩選 |
+| `status` | string | 否 | 發送狀態篩選（PENDING/SENDING/DELIVERED/FAILED/RETRYING） |
+| `from` | string | 否 | 開始時間（ISO 8601） |
+| `to` | string | 否 | 結束時間（ISO 8601） |
+| `taskId` | string | 否 | 任務 ID 篩選 |
+
+**成功回應** (HTTP 200):
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "delivery_123",
+      "event": "INVOICE_COMPLETED",
+      "taskId": "cm...",
+      "status": "DELIVERED",
+      "attempts": 1,
+      "lastAttemptAt": "2025-12-21T10:30:05.000Z",
+      "completedAt": "2025-12-21T10:30:05.500Z",
+      "createdAt": "2025-12-21T10:30:00.000Z"
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 100,
+      "totalPages": 5
+    }
+  },
+  "traceId": "api_..."
+}
+```
+
+#### 2. 手動重試發送
+
+**端點**: `POST /api/v1/webhooks/{deliveryId}/retry`
+
+**成功回應** (HTTP 200):
+```json
+{
+  "success": true,
+  "data": {
+    "id": "delivery_123",
+    "status": "RETRYING",
+    "attempts": 2,
+    "scheduledAt": "2025-12-21T10:35:00.000Z"
+  },
+  "traceId": "api_..."
+}
+```
+
+**錯誤回應**:
+- **HTTP 404**: 發送記錄不存在
+- **HTTP 409**: 無法重試（已成功或進行中）
+
+#### 3. 查詢發送統計
+
+**端點**: `GET /api/v1/webhooks/stats`
+
+**查詢參數**:
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| `from` | string | 否 | 開始時間（預設: 7 天前） |
+| `to` | string | 否 | 結束時間（預設: 現在） |
+
+**成功回應** (HTTP 200):
+```json
+{
+  "success": true,
+  "data": {
+    "period": {
+      "from": "2025-12-14T00:00:00.000Z",
+      "to": "2025-12-21T23:59:59.000Z"
+    },
+    "summary": {
+      "total": 1000,
+      "delivered": 950,
+      "failed": 30,
+      "pending": 20,
+      "successRate": 0.95
+    },
+    "byEventType": [
+      {
+        "event": "INVOICE_COMPLETED",
+        "total": 500,
+        "delivered": 490,
+        "failed": 5,
+        "pending": 5,
+        "successRate": 0.98
+      }
+    ],
+    "byStatus": {
+      "PENDING": 20,
+      "SENDING": 0,
+      "DELIVERED": 950,
+      "FAILED": 30,
+      "RETRYING": 0
     }
   },
   "traceId": "api_..."

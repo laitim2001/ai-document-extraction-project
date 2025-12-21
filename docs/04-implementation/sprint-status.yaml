@@ -176,7 +176,7 @@ development_status:
   11-1-api-invoice-submission-endpoint: done  # Completed 2025-12-20: POST /api/v1/invoices, three submission methods (multipart/Base64/URL), API Key auth, rate limiting, audit logging
   11-2-api-processing-status-query-endpoint: done  # Completed 2025-12-21: GET /api/v1/invoices/{taskId}/status, GET /api/v1/invoices (list), POST /api/v1/invoices/batch-status, RFC 7807 error format
   11-3-api-processing-result-retrieval-endpoint: done  # Completed 2025-12-21: GET /api/v1/invoices/{taskId}/result (JSON/CSV/XML), GET /api/v1/invoices/{taskId}/result/fields/{fieldName}, GET /api/v1/invoices/{taskId}/document, POST /api/v1/invoices/batch-results
-  11-4-webhook-notification-service: ready-for-dev
+  11-4-webhook-notification-service: done  # Completed 2025-12-21: WebhookService, HMAC-SHA256 signature, 4 event types, retry mechanism (1/5/30min), WebhookEventTrigger, GET /api/v1/webhooks (history), POST /api/v1/webhooks/{deliveryId}/retry, GET /api/v1/webhooks/stats
   11-5-api-access-control-authentication: ready-for-dev
   11-6-api-documentation-developer-support: ready-for-dev
   epic-11-retrospective: optional
