@@ -1755,3 +1755,75 @@ describe('OpenAPI Specification', () => {
 - Story 11-3: API 處理結果獲取端點（文檔內容）
 - Story 11-4: Webhook 通知服務（文檔內容）
 - Story 11-5: API 訪問控制與認證（文檔內容）
+
+---
+
+## 實施記錄
+
+### 完成日期
+2025-12-21
+
+### 實現概要
+
+Story 11-6 實現了完整的 API 文檔與開發者支援功能，包括：
+
+1. **OpenAPI 3.0.3 規格文件** (`openapi/spec.yaml`)
+   - 完整記錄所有 API 端點（發票提交、狀態查詢、結果獲取、Webhook）
+   - 包含認證說明（Bearer Token）
+   - 包含速率限制說明（60 req/min）
+   - 完整的請求/響應 Schema
+
+2. **Swagger UI 互動文檔** (`/docs`)
+   - 使用 swagger-ui-react 渲染
+   - 支援直接測試 API（需 API Key）
+   - 暗色模式支援
+
+3. **多語言 SDK 範例** (`/docs/examples`)
+   - TypeScript/JavaScript 範例
+   - Python 範例
+   - C# 範例
+   - 包含安裝說明、初始化、完整錯誤處理
+
+4. **文檔 API 端點**
+   - `GET /api/openapi` - 返回 OpenAPI 規格（JSON）
+   - `GET /api/docs/error-codes` - 錯誤代碼參考
+   - `GET /api/docs/version` - API 版本資訊
+   - `GET /api/docs/examples` - SDK 範例資料
+
+### 新增文件
+
+| 類型 | 路徑 | 說明 |
+|------|------|------|
+| Spec | `openapi/spec.yaml` | OpenAPI 3.0.3 規格文件 |
+| Types | `src/types/documentation.ts` | 文檔相關類型定義 |
+| Types | `src/types/sdk-examples.ts` | SDK 範例類型定義 |
+| Service | `src/services/openapi-loader.service.ts` | OpenAPI 規格載入器 |
+| Service | `src/services/example-generator.service.ts` | SDK 範例生成器 |
+| API | `src/app/api/openapi/route.ts` | OpenAPI 規格端點 |
+| API | `src/app/api/docs/route.ts` | 文檔重定向 |
+| API | `src/app/api/docs/error-codes/route.ts` | 錯誤代碼端點 |
+| API | `src/app/api/docs/version/route.ts` | 版本資訊端點 |
+| API | `src/app/api/docs/examples/route.ts` | SDK 範例端點 |
+| Component | `src/components/features/docs/SwaggerUIWrapper.tsx` | Swagger UI 包裝器 |
+| Component | `src/components/features/docs/CodeBlock.tsx` | 代碼高亮組件 |
+| Component | `src/components/features/docs/LanguageTabs.tsx` | 語言切換標籤 |
+| Component | `src/components/features/docs/SDKExamplesContent.tsx` | SDK 範例內容 |
+| Page | `src/app/docs/page.tsx` | Swagger UI 文檔頁面 |
+| Page | `src/app/docs/examples/page.tsx` | SDK 範例頁面 |
+
+### 驗收標準完成狀態
+
+| AC | 狀態 | 說明 |
+|----|------|------|
+| AC1 | ✅ | 互動式 API 文檔 - Swagger UI 可訪問並支援測試 |
+| AC2 | ✅ | 完整端點說明 - 所有端點含參數、響應、錯誤代碼 |
+| AC3 | ✅ | 多語言整合範例 - TypeScript、Python、C# 完整範例 |
+
+### 依賴套件
+
+- `swagger-ui-react` - Swagger UI React 組件
+- `@types/swagger-ui-react` - TypeScript 類型
+- `js-yaml` - YAML 解析
+- `@types/js-yaml` - TypeScript 類型
+- `react-syntax-highlighter` - 代碼語法高亮
+- `@types/react-syntax-highlighter` - TypeScript 類型

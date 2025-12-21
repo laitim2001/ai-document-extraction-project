@@ -317,3 +317,7 @@ export {
   isValidBase64,
   inferMimeTypeFromFileName,
 } from './external-api'
+
+// API 文檔相關 (Story 11.6)
+export * from './documentation'
+export * from './sdk-examples'

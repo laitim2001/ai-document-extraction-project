@@ -303,6 +303,10 @@ export * from './webhook-event-trigger'
 export * from './api-key.service'
 export * from './api-audit-log.service'
 
+// Epic 11: External API Services (Story 11.6 - API Documentation & Developer Support)
+export * from './openapi-loader.service'
+export * from './example-generator.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';
