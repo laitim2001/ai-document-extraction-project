@@ -321,3 +321,45 @@ export {
 // API 文檔相關 (Story 11.6)
 export * from './documentation'
 export * from './sdk-examples'
+
+// 警報系統相關 (Story 12-3)
+// 注意：AlertSeverity, AlertStatus 與 health-monitoring.ts, alert-service.ts 衝突
+// NotificationSendResult 與 alert-service.ts 衝突
+// 使用命名導出避免衝突
+export {
+  // Condition types
+  AlertConditionType,
+  AlertOperator,
+  NotificationChannel,
+  NotificationStatus,
+  // Alert Rule types
+  type AlertChannelConfig,
+  type CreateAlertRuleRequest,
+  type UpdateAlertRuleRequest,
+  type AlertRuleResponse,
+  type AlertRuleListParams,
+  // Alert types
+  type AlertDetails,
+  type MetricDataSnapshot,
+  type AlertResponse,
+  type AlertListParams,
+  type AcknowledgeAlertRequest,
+  type ResolveAlertRequest,
+  // Statistics types
+  type AlertStatistics,
+  type AlertTrendPoint,
+  // Metric types
+  type MetricValue,
+  type AlertEvaluationContext,
+  // Notification types
+  type NotificationTemplateVars,
+  type SendNotificationRequest,
+  // 重新導出為別名以區分
+  AlertSeverity as RuleAlertSeverity,
+  AlertStatus as RuleAlertStatus,
+  type NotificationSendResult as RuleNotificationSendResult,
+  // Re-export Prisma types
+  type AlertRule,
+  type Alert,
+  type AlertRuleNotification,
+} from './alerts'

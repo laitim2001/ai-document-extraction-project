@@ -317,6 +317,7 @@ export function getAlertSeverityText(severity: AlertSeverity): string {
     WARNING: '警告',
     ERROR: '錯誤',
     CRITICAL: '嚴重',
+    EMERGENCY: '緊急',
   };
   return severityTextMap[severity] || severity;
 }
@@ -332,6 +333,7 @@ export function getAlertSeverityColor(
     WARNING: 'warning',
     ERROR: 'error',
     CRITICAL: 'destructive',
+    EMERGENCY: 'destructive',
   };
   return colorMap[severity] || 'info';
 }
@@ -345,6 +347,8 @@ export function getAlertStatusText(status: AlertStatus): string {
     ACKNOWLEDGED: '已確認',
     RESOLVED: '已解決',
     SUPPRESSED: '已抑制',
+    FIRING: '觸發中',
+    RECOVERED: '已恢復',
   };
   return statusTextMap[status] || status;
 }
@@ -370,7 +374,7 @@ export function getAlertTypeText(alertType: AlertType): string {
  * 判斷告警是否需要處理
  */
 export function isAlertActionRequired(status: AlertStatus): boolean {
-  return status === 'ACTIVE' || status === 'ACKNOWLEDGED';
+  return status === 'ACTIVE' || status === 'ACKNOWLEDGED' || status === 'FIRING';
 }
 
 /**
@@ -382,6 +386,7 @@ export function getSeverityPriority(severity: AlertSeverity): number {
     WARNING: 2,
     ERROR: 3,
     CRITICAL: 4,
+    EMERGENCY: 5,
   };
   return priorityMap[severity] || 0;
 }

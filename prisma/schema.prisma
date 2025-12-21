@@ -82,6 +82,7 @@ model User {
   workflowDefinitionsCreated  WorkflowDefinition[]      @relation("WorkflowDefinitionCreator") // Story 10.4: 工作流定義創建者
   workflowDefinitionsUpdated  WorkflowDefinition[]      @relation("WorkflowDefinitionUpdater") // Story 10.4: 工作流定義更新者
   externalApiKeys             ExternalApiKey[]          @relation("ExternalApiKeyCreator") // Story 11.1: 外部 API Key 創建者
+  alertRulesCreated           AlertRule[]               @relation("AlertRuleCreator") // Story 12-3: 創建的告警規則
 
   @@map("users")
 }
@@ -238,6 +239,8 @@ model City {
   systemHealthLogs     SystemHealthLog[]      // Story 10.7: 系統健康日誌
   n8nConnectionStats   N8nConnectionStats[]   // Story 10.7: n8n 連接統計
   externalApiTasks     ExternalApiTask[]      // Story 11.1: 外部 API 任務
+  alertRules           AlertRule[]            // Story 12-3: 警報規則
+  alerts               Alert[]                // Story 12-3: 警報記錄
 
   @@index([regionId])
   @@index([status])
@@ -3177,16 +3180,19 @@ enum AlertType {
 enum AlertSeverity {
   INFO      // 資訊 - 一般性通知
   WARNING   // 警告 - 需要注意
-  ERROR     // 錯誤 - 需要處理
+  ERROR     // 錯誤 - 需要處理 (Epic 10 使用)
   CRITICAL  // 嚴重 - 需要立即處理
+  EMERGENCY // 緊急 - 最高優先級 (Story 12-3 新增)
 }
 
 // 告警狀態枚舉
 enum AlertStatus {
-  ACTIVE        // 活躍 - 需要處理
+  ACTIVE        // 活躍 - 需要處理 (Epic 10 使用)
   ACKNOWLEDGED  // 已確認 - 已知曉但未解決
   RESOLVED      // 已解決 - 問題已處理
-  SUPPRESSED    // 已抑制 - 暫時忽略
+  SUPPRESSED    // 已抑制 - 暫時忽略 (Epic 10 使用)
+  FIRING        // 觸發中 - 條件規則觸發 (Story 12-3 新增)
+  RECOVERED     // 已恢復 - 系統自動恢復 (Story 12-3 新增)
 }
 
 // 系統健康日誌模型
@@ -3965,5 +3971,172 @@ model PerformanceThreshold {
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
   @@map("performance_thresholds")
+}
+
+// ==========================================================================
+// Epic 12: 系統管理與監控 - Story 12-3: 錯誤警報設定
+// ==========================================================================
+
+// 警報條件類型
+enum AlertConditionType {
+  SERVICE_DOWN    // 服務停機
+  ERROR_RATE      // 錯誤率
+  RESPONSE_TIME   // 回應時間
+  QUEUE_BACKLOG   // 佇列積壓
+  STORAGE_LOW     // 儲存空間不足
+  CPU_HIGH        // CPU 使用率過高
+  MEMORY_HIGH     // 記憶體使用率過高
+  CUSTOM_METRIC   // 自定義指標
+}
+
+// 警報運算符
+enum AlertOperator {
+  GREATER_THAN    // 大於
+  GREATER_THAN_EQ // 大於等於
+  LESS_THAN       // 小於
+  LESS_THAN_EQ    // 小於等於
+  EQUALS          // 等於
+  NOT_EQUALS      // 不等於
+}
+
+// 通知頻道
+enum NotificationChannel {
+  EMAIL   // 電子郵件
+  TEAMS   // Microsoft Teams
+  WEBHOOK // Webhook 回調
+}
+
+// 通知狀態
+enum NotificationStatus {
+  PENDING      // 待發送
+  SENT         // 已發送
+  FAILED       // 發送失敗
+  ACKNOWLEDGED // 已確認
+  RECOVERED    // 已恢復
+}
+
+// 警報規則模型
+model AlertRule {
+  id              String              @id @default(cuid())
+
+  // 規則基本資訊
+  name            String              // 規則名稱
+  description     String?             // 規則描述
+  isActive        Boolean             @default(true) @map("is_active")
+
+  // 觸發條件
+  conditionType   AlertConditionType  @map("condition_type")
+  metric          String              // 監控指標名稱
+  operator        AlertOperator       // 比較運算符
+  threshold       Float               // 閾值
+  duration        Int                 // 持續時間（秒）
+
+  // 過濾條件
+  serviceName     String?             @map("service_name") // 服務名稱過濾
+  endpoint        String?             // 端點過濾
+
+  // 警報配置
+  severity        AlertSeverity       // 嚴重程度
+  channels        Json                // 通知頻道配置 (NotificationChannel[])
+  recipients      Json                // 收件人列表 (string[])
+  cooldownMinutes Int                 @default(15) @map("cooldown_minutes") // 冷卻時間
+
+  // 城市關聯（可選）
+  cityId          String?             @map("city_id")
+  city            City?               @relation(fields: [cityId], references: [id])
+
+  // 創建者
+  createdById     String              @map("created_by_id")
+  createdBy       User                @relation("AlertRuleCreator", fields: [createdById], references: [id])
+
+  // 時間戳
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  // 關聯
+  alerts          Alert[]             @relation("AlertRuleAlerts")
+
+  @@index([isActive])
+  @@index([conditionType])
+  @@index([severity])
+  @@index([cityId])
+  @@index([createdById])
+  @@map("alert_rules")
+}
+
+// 警報記錄模型
+model Alert {
+  id              String              @id @default(cuid())
+
+  // 規則關聯
+  ruleId          String              @map("rule_id")
+  rule            AlertRule           @relation("AlertRuleAlerts", fields: [ruleId], references: [id], onDelete: Cascade)
+
+  // 狀態
+  status          AlertStatus         @default(FIRING)
+
+  // 確認資訊
+  acknowledgedBy  String?             @map("acknowledged_by")
+  acknowledgedAt  DateTime?           @map("acknowledged_at")
+
+  // 解決資訊
+  resolvedBy      String?             @map("resolved_by")
+  resolvedAt      DateTime?           @map("resolved_at")
+  resolution      String?             // 解決說明
+
+  // 觸發資訊
+  triggeredValue  Float               @map("triggered_value")  // 觸發時的實際值
+  triggeredAt     DateTime            @default(now()) @map("triggered_at")
+  recoveredAt     DateTime?           @map("recovered_at")     // 自動恢復時間
+
+  // 詳細資訊
+  details         Json?               // 額外的告警詳情
+  metricData      Json?               @map("metric_data") // 指標數據快照
+
+  // 城市關聯
+  cityId          String?             @map("city_id")
+  city            City?               @relation(fields: [cityId], references: [id])
+
+  // 時間戳
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  // 關聯
+  notifications   AlertRuleNotification[] @relation("AlertNotifications")
+
+  @@index([ruleId])
+  @@index([status])
+  @@index([triggeredAt])
+  @@index([cityId])
+  @@index([ruleId, status])
+  @@map("alerts")
+}
+
+// 警報通知記錄模型
+model AlertRuleNotification {
+  id              String              @id @default(cuid())
+
+  // 警報關聯
+  alertId         String              @map("alert_id")
+  alert           Alert               @relation("AlertNotifications", fields: [alertId], references: [id], onDelete: Cascade)
+
+  // 通知資訊
+  channel         NotificationChannel // 通知頻道
+  recipient       String              // 收件人
+  subject         String              // 主題
+  body            String              @db.Text // 內容
+
+  // 狀態
+  status          NotificationStatus  @default(PENDING)
+  errorMessage    String?             @map("error_message") // 錯誤訊息
+  sentAt          DateTime?           @map("sent_at")       // 發送時間
+
+  // 時間戳
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  @@index([alertId])
+  @@index([status])
+  @@index([channel])
+  @@map("alert_rule_notifications")
 }
 

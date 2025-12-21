@@ -571,7 +571,7 @@ export class AlertService {
    */
   private getSeverityLevels(severity: AlertSeverity): AlertSeverity[] {
     const levels: AlertSeverity[] = [];
-    const order: AlertSeverity[] = ['INFO', 'WARNING', 'ERROR', 'CRITICAL'];
+    const order: AlertSeverity[] = ['INFO', 'WARNING', 'ERROR', 'CRITICAL', 'EMERGENCY'];
     const index = order.indexOf(severity);
 
     for (let i = 0; i <= index; i++) {
@@ -701,6 +701,7 @@ export class AlertService {
       WARNING: 'FFA500',
       ERROR: 'FF0000',
       CRITICAL: '8B0000',
+      EMERGENCY: '4B0082',
     };
     return colors[severity] || '808080';
   }

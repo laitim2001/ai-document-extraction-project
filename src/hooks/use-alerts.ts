@@ -243,6 +243,7 @@ export function getAlertSeverityColor(
     WARNING: 'warning',
     ERROR: 'error',
     CRITICAL: 'destructive',
+    EMERGENCY: 'destructive',
   };
   return colorMap[severity] || 'info';
 }
@@ -251,5 +252,5 @@ export function getAlertSeverityColor(
  * 判斷告警是否需要處理
  */
 export function isAlertActionRequired(status: AlertStatus): boolean {
-  return status === 'ACTIVE' || status === 'ACKNOWLEDGED';
+  return status === 'ACTIVE' || status === 'ACKNOWLEDGED' || status === 'FIRING';
 }

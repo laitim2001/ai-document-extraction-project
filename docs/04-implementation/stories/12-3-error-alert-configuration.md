@@ -1274,3 +1274,61 @@ describe('AlertEvaluationService', () => {
 
 - Story 12-1: 系統健康監控儀表板（健康指標來源）
 - Story 12-2: 效能指標追蹤（效能指標來源）
+
+---
+
+## 實施記錄
+
+### 完成日期
+2025-12-21
+
+### 實施摘要
+
+本 Story 實現了完整的錯誤警報配置系統，包括：
+
+#### 資料層
+- **Prisma Schema**: 新增 AlertRule、Alert、AlertRuleNotification 模型
+- **Enum 類型**: AlertConditionType (8 種)、AlertOperator (6 種)、AlertSeverity (5 種)、AlertStatus (4 種)、AlertChannel (3 種)、NotificationStatus (3 種)
+
+#### 服務層
+- **alert-rule.service.ts**: 規則 CRUD、啟用/停用、列表查詢、按嚴重程度/條件類型統計
+- **alert-evaluation.service.ts**: 規則評估、冷卻期檢查、警報創建/恢復/確認/解決、統計查詢
+- **alert-notification.service.ts**: 多通道通知（Email/Teams/Webhook）、通知內容構建、發送記錄
+- **alert-evaluation-job.ts**: 背景評估任務、6 種指標收集器、定期執行與手動觸發
+
+#### API 層
+- **/api/admin/alerts/rules**: GET (列表)、POST (創建)
+- **/api/admin/alerts/rules/[id]**: GET (詳情)、PATCH (更新)、DELETE (刪除)
+- **/api/admin/alerts/rules/[id]/toggle**: POST (啟用/停用)
+- **/api/admin/alerts**: GET (警報列表)
+- **/api/admin/alerts/[id]**: GET (警報詳情)
+- **/api/admin/alerts/[id]/acknowledge**: POST (確認警報)
+- **/api/admin/alerts/[id]/resolve**: POST (解決警報)
+- **/api/admin/alerts/statistics**: GET (統計數據)
+
+#### UI 層
+- **AlertRuleTable.tsx**: 規則列表表格
+- **CreateAlertRuleDialog.tsx**: 創建規則對話框
+- **AlertRuleManagement.tsx**: 規則管理整合組件
+- **AlertHistory.tsx**: 警報歷史記錄組件
+- **AlertDashboard.tsx**: 警報儀表板（Tabs 整合）
+- **admin/alerts/page.tsx**: 管理頁面
+
+#### React Hooks
+- **useAlertRules.ts**: 規則 CRUD hooks、輔助函數
+- **useAlerts.ts**: 警報查詢、確認、解決 hooks
+
+### 技術決策
+
+1. **指標收集器模式**: 使用 Strategy Pattern 實現 6 種不同的指標收集器
+2. **背景任務**: 使用 setInterval 實現定期評估，支援手動觸發
+3. **通知系統**: 支援 Email (nodemailer)、Teams (Webhook)、自定義 Webhook
+4. **類型安全**: 完整的 TypeScript 類型定義，Zod 驗證
+
+### 驗收標準檢查
+
+- [x] AC1: 告警規則創建 - 完整實現
+- [x] AC2: 觸發條件類型 - 支援 8 種條件類型
+- [x] AC3: 告警通知發送 - 支援 3 種通道
+- [x] AC4: 恢復通知 - 自動檢測恢復並發送通知
+- [x] AC5: 告警歷史記錄 - 完整的歷史查詢與操作

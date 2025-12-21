@@ -312,6 +312,12 @@ export * from './example-generator.service'
 // Epic 12: System Administration & Monitoring (Story 12.1 - System Health Monitoring Dashboard)
 export * from './health-check.service'
 
+// Epic 12: System Administration & Monitoring (Story 12-3 - Error Alert Configuration)
+export * from './alert-rule.service'
+export * from './alert-evaluation.service'
+export * from './alert-notification.service'
+export * from './alert-evaluation-job'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';
