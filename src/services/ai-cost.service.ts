@@ -20,13 +20,13 @@
  *
  * @dependencies
  *   - @/lib/prisma - 資料庫客戶端
- *   - @/middleware/city-filter - 城市過濾
+ *   - @/middlewares/city-filter - 城市過濾
  *   - @/types/ai-cost - 類型定義
  */
 
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
-import { CityFilterContext } from '@/middleware/city-filter'
+import { CityFilterContext } from '@/middlewares/city-filter'
 import type {
   ApiProviderType,
   AiCostSummary,

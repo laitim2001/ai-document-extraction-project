@@ -19,7 +19,7 @@
  * @dependencies
  *   - next/server - Next.js API 支援
  *   - @/services/webhook.service - Webhook 服務
- *   - @/middleware/external-api-auth - 認證中間件
+ *   - @/middlewares/external-api-auth - 認證中間件
  *
  * @related
  *   - docs/04-implementation/tech-specs/epic-11-external-api/tech-spec-story-11-4.md
@@ -34,7 +34,7 @@ import {
 import {
   externalApiAuthMiddleware,
   generateTraceId,
-} from '@/middleware/external-api-auth';
+} from '@/middlewares/external-api-auth';
 import { createExternalApiError } from '@/types/external-api/response';
 import { WEBHOOK_ERROR_HTTP_STATUS } from '@/types/external-api/webhook';
 

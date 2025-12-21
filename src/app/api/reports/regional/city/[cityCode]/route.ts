@@ -11,7 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { withCityFilter, CityFilterContext, validateRequestedCities } from '@/middleware/city-filter'
+import { withCityFilter, CityFilterContext, validateRequestedCities } from '@/middlewares/city-filter'
 import { regionalReportService } from '@/services/regional-report.service'
 import type { CityDetailResponse, TimeGranularity } from '@/types/regional-report'
 

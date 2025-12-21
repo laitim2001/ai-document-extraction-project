@@ -23,12 +23,12 @@
  *   - @/lib/prisma - 資料庫客戶端
  *   - @/lib/azure-blob - Azure Blob Storage
  *   - @/lib/notification - 通知工具
- *   - @/middleware/city-filter - 城市過濾
+ *   - @/middlewares/city-filter - 城市過濾
  *   - exceljs - Excel 生成
  */
 
 import { prisma } from '@/lib/prisma'
-import { CityFilterContext, buildCityWhereClause } from '@/middleware/city-filter'
+import { CityFilterContext, buildCityWhereClause } from '@/middlewares/city-filter'
 import {
   ExportConfig,
   ExportField,

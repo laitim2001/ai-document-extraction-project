@@ -16,7 +16,7 @@
  *   - 分頁支援
  *
  * @dependencies
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/services/ai-cost.service - AI 成本服務
  */
 
@@ -27,7 +27,7 @@ import {
   CityFilterContext,
   extractCitiesFromRequest,
   validateRequestedCities,
-} from '@/middleware/city-filter'
+} from '@/middlewares/city-filter'
 import { aiCostService } from '@/services/ai-cost.service'
 import type { DailyDetail, AiCostApiResponse, ApiProviderType } from '@/types/ai-cost'
 
@@ -66,11 +66,10 @@ const dateParamSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
 async function handler(
   request: NextRequest,
   cityContext: CityFilterContext,
-  params?: { params: Promise<{ date: string }> }
+  params?: { date: string }
 ): Promise<NextResponse> {
   try {
-    const resolvedParams = await params?.params
-    const date = resolvedParams?.date
+    const date = params?.date
 
     // 驗證日期參數
     if (!date) {
@@ -171,4 +170,4 @@ async function handler(
   }
 }
 
-export const GET = withCityFilter<{ params: Promise<{ date: string }> }>(handler)
+export const GET = withCityFilter<{ date: string }>(handler)

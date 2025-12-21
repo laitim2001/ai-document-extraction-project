@@ -13,7 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { withCityFilter, CityFilterContext } from '@/middleware/city-filter'
+import { withCityFilter, CityFilterContext } from '@/middlewares/city-filter'
 import { expenseReportService } from '@/services/expense-report.service'
 import { ExportConfig, ExportResponse, LARGE_EXPORT_THRESHOLD } from '@/types/report-export'
 import { hasPermissionById } from '@/lib/auth/city-permission'

@@ -73,11 +73,11 @@ export interface AuditConfig {
 export type ApiHandler = (req: NextRequest) => Promise<NextResponse>;
 
 /**
- * 帶有參數的 API Handler 類型
+ * 帶有參數的 API Handler 類型（Next.js 15 Promise 版本）
  */
 export type ApiHandlerWithParams<TParams = Record<string, string>> = (
   req: NextRequest,
-  context: { params: TParams }
+  context: { params: Promise<TParams> }
 ) => Promise<NextResponse>;
 
 // ============================================================
@@ -270,7 +270,7 @@ export function withAuditLogParams<TParams = Record<string, string>>(
 ): ApiHandlerWithParams<TParams> {
   return async (
     request: NextRequest,
-    context: { params: TParams }
+    context: { params: Promise<TParams> }
   ): Promise<NextResponse> => {
     const session = await auth();
     const requestId = uuidv4();

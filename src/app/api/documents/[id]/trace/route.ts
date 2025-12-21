@@ -16,13 +16,13 @@
  * @dependencies
  *   - @/lib/auth - 認證函數
  *   - @/services/traceability.service - 追溯服務
- *   - @/middleware/audit-log.middleware - 審計日誌中間件
+ *   - @/middlewares/audit-log.middleware - 審計日誌中間件
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { traceabilityService } from '@/services/traceability.service';
-import { withAuditLogParams } from '@/middleware/audit-log.middleware';
+import { withAuditLogParams } from '@/middlewares/audit-log.middleware';
 
 // ============================================================
 // Types
@@ -60,7 +60,7 @@ const ALLOWED_ROLES = ['AUDITOR', 'GLOBAL_ADMIN', 'CITY_MANAGER'];
  */
 async function handleGet(
   request: NextRequest,
-  context: { params: RouteParams }
+  context: { params: Promise<RouteParams> }
 ): Promise<NextResponse> {
   // 驗證認證
   const session = await auth();
@@ -85,7 +85,7 @@ async function handleGet(
     );
   }
 
-  const { id } = await Promise.resolve(context.params);
+  const { id } = await context.params;
 
   try {
     // 獲取完整追溯鏈

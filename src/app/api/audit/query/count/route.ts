@@ -16,13 +16,13 @@
  *
  * @dependencies
  *   - @/lib/auth - 認證功能
- *   - @/middleware/city-filter - 城市過濾
+ *   - @/middlewares/city-filter - 城市過濾
  *   - @/services/audit-query.service - 審計查詢服務
  */
 
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { withCityFilter } from '@/middleware/city-filter'
+import { withCityFilter } from '@/middlewares/city-filter'
 import { auditQueryService } from '@/services/audit-query.service'
 import { AuditQueryParams } from '@/types/audit-query'
 

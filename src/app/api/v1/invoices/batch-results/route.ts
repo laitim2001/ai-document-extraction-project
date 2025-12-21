@@ -21,7 +21,7 @@
  *   - next/server - Next.js 伺服器端功能
  *   - @/services/result-retrieval.service - 結果擷取服務
  *   - @/services/rate-limit.service - 速率限制服務
- *   - @/middleware/external-api-auth - 外部 API 認證中間件
+ *   - @/middlewares/external-api-auth - 外部 API 認證中間件
  *   - zod - 請求驗證
  *
  * @related
@@ -37,7 +37,7 @@ import {
   externalApiAuthMiddleware,
   generateTraceId,
   getClientInfo,
-} from '@/middleware/external-api-auth';
+} from '@/middlewares/external-api-auth';
 import { createExternalApiError } from '@/types/external-api/response';
 import {
   MAX_BATCH_RESULTS_SIZE,

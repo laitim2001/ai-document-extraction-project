@@ -17,7 +17,7 @@
  *   - 每小時趨勢
  *
  * @dependencies
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/services/processing-stats.service - 處理統計服務
  *
  * @related
@@ -29,7 +29,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   withCityFilter,
   CityFilterContext,
-} from '@/middleware/city-filter'
+} from '@/middlewares/city-filter'
 import { processingStatsService } from '@/services/processing-stats.service'
 import type { RealtimeStatsResponse } from '@/types/processing-statistics'
 

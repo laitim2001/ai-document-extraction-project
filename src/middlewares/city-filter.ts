@@ -69,7 +69,7 @@ export interface CityValidationResult {
 // ===========================================
 
 /**
- * 城市過濾高階函數
+ * 城市過濾高階函數（無路由參數版本）
  *
  * @description
  *   包裝 API handlers 以自動注入城市過濾上下文。
@@ -87,6 +87,27 @@ export interface CityValidationResult {
  *     return NextResponse.json({ data: documents })
  *   })
  */
+export function withCityFilter(
+  handler: (
+    request: NextRequest,
+    context: CityFilterContext
+  ) => Promise<NextResponse>
+): (request: NextRequest) => Promise<NextResponse>
+
+/**
+ * 城市過濾高階函數（有路由參數版本）
+ */
+export function withCityFilter<T>(
+  handler: (
+    request: NextRequest,
+    context: CityFilterContext,
+    params: T
+  ) => Promise<NextResponse>
+): (request: NextRequest, routeContext: { params: Promise<T> }) => Promise<NextResponse>
+
+/**
+ * 城市過濾高階函數實現
+ */
 export function withCityFilter<T>(
   handler: (
     request: NextRequest,
@@ -94,7 +115,7 @@ export function withCityFilter<T>(
     params?: T
   ) => Promise<NextResponse>
 ) {
-  return async (request: NextRequest, routeContext?: { params: T }) => {
+  return async (request: NextRequest, routeContext?: { params: Promise<T> }) => {
     const session = await auth()
 
     // 認證檢查
@@ -141,7 +162,10 @@ export function withCityFilter<T>(
       )
     }
 
-    return handler(request, cityContext, routeContext?.params)
+    // 解析路由參數（Next.js 15 params 是 Promise）
+    const params = routeContext?.params ? await routeContext.params : undefined
+
+    return handler(request, cityContext, params)
   }
 }
 

@@ -19,12 +19,12 @@
  *
  * @dependencies
  *   - @/lib/prisma - 資料庫客戶端
- *   - @/middleware/city-filter - 城市過濾
+ *   - @/middlewares/city-filter - 城市過濾
  *   - @/types/city-cost - 類型定義
  */
 
 import { prisma } from '@/lib/prisma'
-import { CityFilterContext } from '@/middleware/city-filter'
+import { CityFilterContext } from '@/middlewares/city-filter'
 import type {
   CityCostReport,
   CityCostReportResponse,

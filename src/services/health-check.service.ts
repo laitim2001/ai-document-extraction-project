@@ -493,7 +493,6 @@ export class HealthCheckService {
       // 動態載入 Redis 客戶端（處理模組未安裝的情況）
       let Redis: { new (config: { url: string; token: string }): { ping(): Promise<string> } };
       try {
-        // @ts-expect-error - @upstash/redis 是可選依賴，可能未安裝
         const upstashRedis = await import('@upstash/redis');
         Redis = upstashRedis.Redis;
       } catch {

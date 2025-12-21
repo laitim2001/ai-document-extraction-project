@@ -11,7 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { withCityFilter, CityFilterContext } from '@/middleware/city-filter'
+import { withCityFilter, CityFilterContext } from '@/middlewares/city-filter'
 import { cityCostReportService } from '@/services/city-cost-report.service'
 import type { CityCostReportParams } from '@/types/city-cost'
 

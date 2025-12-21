@@ -2,13 +2,13 @@
  * @fileoverview 文件信心度 API 端點
  * @description
  *   提供文件信心度相關操作：
- *   - GET /api/confidence/[documentId] - 取得文件的信心度結果
- *   - POST /api/confidence/[documentId] - 計算並儲存文件的信心度
- *   - POST /api/confidence/[documentId]/review - 記錄審核結果
+ *   - GET /api/confidence/[id] - 取得文件的信心度結果
+ *   - POST /api/confidence/[id] - 計算並儲存文件的信心度
+ *   - POST /api/confidence/[id]/review - 記錄審核結果
  *
- * @module src/app/api/confidence/[documentId]/route
+ * @module src/app/api/confidence/[id]/route
  * @since Epic 2 - Story 2.5 (Confidence Score Calculation)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-21
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -24,7 +24,7 @@ import { prisma } from '@/lib/prisma'
 // ============================================================
 
 const paramsSchema = z.object({
-  documentId: z.string().uuid(),
+  id: z.string().uuid(),
 })
 
 const calculateOptionsSchema = z.object({
@@ -34,7 +34,7 @@ const calculateOptionsSchema = z.object({
 })
 
 // ============================================================
-// GET /api/confidence/[documentId] - 取得文件信心度
+// GET /api/confidence/[id] - 取得文件信心度
 // ============================================================
 
 /**
@@ -48,11 +48,11 @@ const calculateOptionsSchema = z.object({
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ documentId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const resolvedParams = await params
-    const { documentId } = paramsSchema.parse(resolvedParams)
+    const { id: documentId } = paramsSchema.parse(resolvedParams)
 
     // 檢查文件是否存在
     const document = await prisma.document.findUnique({
@@ -124,7 +124,7 @@ export async function GET(
 }
 
 // ============================================================
-// POST /api/confidence/[documentId] - 計算並儲存信心度
+// POST /api/confidence/[id] - 計算並儲存信心度
 // ============================================================
 
 /**
@@ -146,11 +146,11 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ documentId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const resolvedParams = await params
-    const { documentId } = paramsSchema.parse(resolvedParams)
+    const { id: documentId } = paramsSchema.parse(resolvedParams)
 
     // 解析請求體
     const body = await request.json().catch(() => ({}))

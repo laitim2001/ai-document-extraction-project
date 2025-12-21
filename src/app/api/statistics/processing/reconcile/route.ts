@@ -17,7 +17,7 @@
  *   - 審計日誌記錄
  *
  * @dependencies
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/services/processing-stats.service - 處理統計服務
  *   - zod - 請求驗證
  *
@@ -31,7 +31,7 @@ import { z } from 'zod'
 import {
   withCityFilter,
   CityFilterContext,
-} from '@/middleware/city-filter'
+} from '@/middlewares/city-filter'
 import { processingStatsService } from '@/services/processing-stats.service'
 import type { ReconciliationResponse } from '@/types/processing-statistics'
 

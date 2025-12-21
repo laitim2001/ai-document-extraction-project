@@ -19,7 +19,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { withCityFilter, CityFilterContext } from '@/middleware/city-filter'
+import { withCityFilter, CityFilterContext } from '@/middlewares/city-filter'
 import { regionalReportService } from '@/services'
 import { z } from 'zod'
 

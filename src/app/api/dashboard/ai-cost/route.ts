@@ -24,7 +24,7 @@
  *   - 5 分鐘快取
  *
  * @dependencies
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/services/ai-cost.service - AI 成本服務
  *   - zod - 請求驗證
  */
@@ -36,7 +36,7 @@ import {
   CityFilterContext,
   extractCitiesFromRequest,
   validateRequestedCities,
-} from '@/middleware/city-filter'
+} from '@/middlewares/city-filter'
 import { aiCostService } from '@/services/ai-cost.service'
 import type { AiCostSummary, AiCostApiResponse } from '@/types/ai-cost'
 

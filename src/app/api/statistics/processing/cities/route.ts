@@ -17,7 +17,7 @@
  *   - 5 分鐘快取
  *
  * @dependencies
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/services/processing-stats.service - 處理統計服務
  *   - zod - 請求驗證
  *
@@ -33,7 +33,7 @@ import {
   CityFilterContext,
   extractCitiesFromRequest,
   validateRequestedCities,
-} from '@/middleware/city-filter'
+} from '@/middlewares/city-filter'
 import { processingStatsService } from '@/services/processing-stats.service'
 import type { CityStatsSummaryResponse } from '@/types/processing-statistics'
 

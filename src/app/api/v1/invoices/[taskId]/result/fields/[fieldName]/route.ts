@@ -20,7 +20,7 @@
  *   - next/server - Next.js 伺服器端功能
  *   - @/services/result-retrieval.service - 結果擷取服務
  *   - @/services/rate-limit.service - 速率限制服務
- *   - @/middleware/external-api-auth - 外部 API 認證中間件
+ *   - @/middlewares/external-api-auth - 外部 API 認證中間件
  *
  * @related
  *   - src/app/api/v1/invoices/[taskId]/result/route.ts - 完整結果查詢
@@ -33,7 +33,7 @@ import {
   externalApiAuthMiddleware,
   generateTraceId,
   getClientInfo,
-} from '@/middleware/external-api-auth';
+} from '@/middlewares/external-api-auth';
 import { taskIdSchema } from '@/types/external-api';
 import { createExternalApiError } from '@/types/external-api/response';
 import {

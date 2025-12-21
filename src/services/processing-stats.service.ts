@@ -19,12 +19,12 @@
  *
  * @dependencies
  *   - @/lib/prisma - 資料庫客戶端
- *   - @/middleware/city-filter - 城市過濾
+ *   - @/middlewares/city-filter - 城市過濾
  *   - @/types/processing-statistics - 類型定義
  */
 
 import { prisma } from '@/lib/prisma'
-import { CityFilterContext, buildCityWhereClause } from '@/middleware/city-filter'
+import { CityFilterContext, buildCityWhereClause } from '@/middlewares/city-filter'
 import type {
   ProcessingResultType,
   AggregatedStats,

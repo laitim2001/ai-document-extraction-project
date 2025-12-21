@@ -23,7 +23,7 @@
  *   - 進度指示器支援
  *
  * @dependencies
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/services/n8n/workflow-execution.service - 執行服務
  *
  * @related
@@ -35,7 +35,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   withCityFilter,
   CityFilterContext,
-} from '@/middleware/city-filter';
+} from '@/middlewares/city-filter';
 import { workflowExecutionService } from '@/services/n8n/workflow-execution.service';
 import type { RunningExecutionsResponse } from '@/types/workflow-execution';
 

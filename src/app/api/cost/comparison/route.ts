@@ -21,7 +21,7 @@
  *   - 城市數據隔離
  *
  * @dependencies
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/services/city-cost.service - 城市成本服務
  *   - zod - 請求驗證
  */
@@ -33,7 +33,7 @@ import {
   CityFilterContext,
   extractCitiesFromRequest,
   validateRequestedCities,
-} from '@/middleware/city-filter'
+} from '@/middlewares/city-filter'
 import { cityCostService } from '@/services/city-cost.service'
 import type { CityCostApiResponse, CityCostComparisonResponse } from '@/types/city-cost'
 

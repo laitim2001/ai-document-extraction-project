@@ -23,7 +23,7 @@
  *   - @/services/invoice-submission.service - 發票提交服務
  *   - @/services/task-status.service - 任務狀態服務
  *   - @/services/rate-limit.service - 速率限制服務
- *   - @/middleware/external-api-auth - 認證中間件
+ *   - @/middlewares/external-api-auth - 認證中間件
  *   - @/types/external-api - 類型定義
  *
  * @related
@@ -44,7 +44,7 @@ import {
   externalApiAuthMiddleware,
   generateTraceId,
   getClientInfo,
-} from '@/middleware/external-api-auth';
+} from '@/middlewares/external-api-auth';
 import {
   base64SubmissionSchema,
   urlSubmissionSchema,

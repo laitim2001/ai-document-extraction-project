@@ -2,11 +2,11 @@
  * @fileoverview 審核結果記錄 API 端點
  * @description
  *   記錄用戶審核結果以更新歷史準確率：
- *   - POST /api/confidence/[documentId]/review - 記錄審核結果
+ *   - POST /api/confidence/[id]/review - 記錄審核結果
  *
- * @module src/app/api/confidence/[documentId]/review/route
+ * @module src/app/api/confidence/[id]/review/route
  * @since Epic 2 - Story 2.5 (Confidence Score Calculation)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-21
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -19,7 +19,7 @@ import { prisma } from '@/lib/prisma'
 // ============================================================
 
 const paramsSchema = z.object({
-  documentId: z.string().uuid(),
+  id: z.string().uuid(),
 })
 
 const reviewBodySchema = z.object({
@@ -28,7 +28,7 @@ const reviewBodySchema = z.object({
 })
 
 // ============================================================
-// POST /api/confidence/[documentId]/review - 記錄審核結果
+// POST /api/confidence/[id]/review - 記錄審核結果
 // ============================================================
 
 /**
@@ -53,11 +53,11 @@ const reviewBodySchema = z.object({
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ documentId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const resolvedParams = await params
-    const { documentId } = paramsSchema.parse(resolvedParams)
+    const { id: documentId } = paramsSchema.parse(resolvedParams)
 
     // 解析請求體
     const body = await request.json()

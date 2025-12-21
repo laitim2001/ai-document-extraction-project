@@ -21,7 +21,7 @@
  *   - next/server - Next.js 伺服器端功能
  *   - @/services/task-status.service - 任務狀態服務
  *   - @/services/rate-limit.service - 速率限制服務
- *   - @/middleware/external-api-auth - 外部 API 認證中間件
+ *   - @/middlewares/external-api-auth - 外部 API 認證中間件
  *   - @/types/external-api - 外部 API 類型定義
  *
  * @related
@@ -36,7 +36,7 @@ import {
   externalApiAuthMiddleware,
   generateTraceId,
   getClientInfo,
-} from '@/middleware/external-api-auth';
+} from '@/middlewares/external-api-auth';
 import { batchStatusSchema } from '@/types/external-api';
 import { createExternalApiError } from '@/types/external-api/response';
 

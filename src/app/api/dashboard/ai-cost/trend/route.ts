@@ -15,7 +15,7 @@
  *   - 城市數據隔離
  *
  * @dependencies
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/services/ai-cost.service - AI 成本服務
  */
 
@@ -26,7 +26,7 @@ import {
   CityFilterContext,
   extractCitiesFromRequest,
   validateRequestedCities,
-} from '@/middleware/city-filter'
+} from '@/middlewares/city-filter'
 import { aiCostService } from '@/services/ai-cost.service'
 import type { AiCostTrend, AiCostApiResponse, ApiProviderType } from '@/types/ai-cost'
 

@@ -25,7 +25,7 @@
  *   - 文件選擇支持
  *
  * @dependencies
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/services/n8n/workflow-trigger.service - 觸發服務
  *   - zod - 請求驗證
  *
@@ -39,7 +39,7 @@ import { z } from 'zod';
 import {
   withCityFilter,
   CityFilterContext,
-} from '@/middleware/city-filter';
+} from '@/middlewares/city-filter';
 import { workflowTriggerService } from '@/services/n8n/workflow-trigger.service';
 import type { TriggerWorkflowResponse } from '@/types/workflow-trigger';
 

@@ -62,7 +62,7 @@ interface RouteParams {
  */
 export async function GET(
   request: NextRequest,
-  context: { params: RouteParams }
+  context: { params: Promise<RouteParams> }
 ): Promise<NextResponse> {
   // 驗證認證
   const session = await auth()
@@ -73,7 +73,7 @@ export async function GET(
     )
   }
 
-  const { id } = await Promise.resolve(context.params)
+  const { id } = await context.params
 
   try {
     // 先獲取文件以驗證權限

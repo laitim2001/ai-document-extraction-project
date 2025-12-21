@@ -10,7 +10,8 @@
  */
 
 // 主要認證配置
-export { auth, authConfig, handlers } from '../auth'
+export { auth, handlers } from '../auth'
+export { authConfig } from '../auth.config'
 
 // 城市權限中間件
 export {

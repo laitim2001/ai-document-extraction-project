@@ -24,7 +24,7 @@
  *   - 趨勢指標
  *
  * @dependencies
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/services/dashboard-statistics.service - 統計服務
  *   - zod - 請求驗證
  *
@@ -40,7 +40,7 @@ import {
   CityFilterContext,
   extractCitiesFromRequest,
   validateRequestedCities,
-} from '@/middleware/city-filter'
+} from '@/middlewares/city-filter'
 import { dashboardStatisticsService } from '@/services/dashboard-statistics.service'
 import type { DashboardStatisticsResponse } from '@/types/dashboard'
 

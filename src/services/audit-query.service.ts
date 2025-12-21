@@ -20,7 +20,7 @@
  *
  * @dependencies
  *   - @/lib/prisma - 資料庫客戶端
- *   - @/middleware/city-filter - 城市過濾中間件
+ *   - @/middlewares/city-filter - 城市過濾中間件
  *   - @/types/audit-query - 審計查詢類型
  *
  * @related
@@ -30,7 +30,7 @@
  */
 
 import { prisma } from '@/lib/prisma'
-import { CityFilterContext } from '@/middleware/city-filter'
+import { CityFilterContext } from '@/middlewares/city-filter'
 import {
   AuditQueryParams,
   AuditQueryResult,

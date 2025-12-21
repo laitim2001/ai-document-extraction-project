@@ -13,7 +13,8 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:push": "prisma db push",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "index:check": "node scripts/check-index-sync.js"
   },
   "repository": {
     "type": "git",
@@ -62,6 +63,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/js-yaml": "^4.0.9",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@upstash/redis": "^1.35.8",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

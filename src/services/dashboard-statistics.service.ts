@@ -30,8 +30,9 @@
  *   - src/types/dashboard.ts - 類型定義
  */
 
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import { CityFilterContext, buildCityWhereClause } from '@/middleware/city-filter'
+import { CityFilterContext, buildCityWhereClause } from '@/middlewares/city-filter'
 import {
   DashboardStatistics,
   StatisticsQueryParams,
@@ -382,6 +383,11 @@ export class DashboardStatisticsService {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
 
+    // 建立城市過濾條件片段
+    const cityFilter = cityWhere.cityCode
+      ? Prisma.sql`AND city_code = ${cityWhere.cityCode}`
+      : Prisma.empty
+
     // 使用原生 SQL 計算平均處理時間（秒）
     // 因為 Prisma aggregate 不直接支援 DateTime 差計算
     const currentResult = await prisma.$queryRaw<{ avg_seconds: number | null }[]>`
@@ -391,7 +397,7 @@ export class DashboardStatisticsService {
         AND completed_at >= ${monthStart}
         AND started_at IS NOT NULL
         AND completed_at IS NOT NULL
-        ${cityWhere.cityCode ? prisma.$queryRaw`AND city_code = ${cityWhere.cityCode}` : prisma.$queryRaw``}
+        ${cityFilter}
     `
 
     const lastResult = await prisma.$queryRaw<{ avg_seconds: number | null }[]>`
@@ -402,7 +408,7 @@ export class DashboardStatisticsService {
         AND completed_at < ${monthStart}
         AND started_at IS NOT NULL
         AND completed_at IS NOT NULL
-        ${cityWhere.cityCode ? prisma.$queryRaw`AND city_code = ${cityWhere.cityCode}` : prisma.$queryRaw``}
+        ${cityFilter}
     `
 
     const currentAvg = currentResult[0]?.avg_seconds || 0

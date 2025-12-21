@@ -1,7 +1,8 @@
 /**
- * @fileoverview NextAuth v5 認證配置
+ * @fileoverview NextAuth v5 完整認證配置
  * @description
  *   本模組配置 NextAuth v5 與 Azure AD (Entra ID) 整合，提供企業級 SSO 認證。
+ *   此配置包含資料庫存取，用於 API Routes 和 Server Components。
  *
  *   設計考量：
  *   - 使用 JWT 策略以支援無狀態認證
@@ -10,10 +11,14 @@
  *   - 擴展 session 包含角色、權限和用戶狀態
  *   - 整合城市權限系統支援多城市資料隔離 (Story 6.1)
  *
+ *   架構說明：
+ *   - auth.config.ts: Edge-compatible 配置（用於 Middleware）
+ *   - auth.ts: 完整配置（用於 API Routes、Server Components）
+ *
  * @module src/lib/auth
  * @author Development Team
  * @since Epic 1 - Story 1.1 (Azure AD SSO Login)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-21
  *
  * @features
  *   - Azure AD (Entra ID) SSO 整合
@@ -31,6 +36,7 @@
  *   - @/services/city-access.service - 城市權限服務
  *
  * @related
+ *   - src/lib/auth.config.ts - Edge-compatible 認證配置
  *   - src/app/api/auth/[...nextauth]/route.ts - API 路由
  *   - src/middleware.ts - 路由保護中間件
  *   - src/types/next-auth.d.ts - 類型擴展
@@ -40,20 +46,35 @@
  */
 
 import NextAuth from 'next-auth'
-import type { NextAuthConfig } from 'next-auth'
-import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/prisma'
 import type { SessionRole } from '@/types/role'
 import { DEFAULT_ROLE } from '@/types/role-permissions'
 import { assignRoleToUser, getRoleByName } from '@/services/role.service'
 import { CityAccessService } from '@/services/city-access.service'
+import { authConfig } from './auth.config'
 
 /**
- * Session 最大存活時間（秒）
- * 8 小時 = 8 * 60 * 60 = 28800 秒
+ * 檢查 Azure AD 環境變數是否已正確配置
  */
-const SESSION_MAX_AGE = 8 * 60 * 60
+function isAzureADConfigured(): boolean {
+  const clientId = process.env.AZURE_AD_CLIENT_ID
+  const clientSecret = process.env.AZURE_AD_CLIENT_SECRET
+  const tenantId = process.env.AZURE_AD_TENANT_ID
+
+  if (!clientId || !clientSecret || !tenantId) return false
+  if (clientId.startsWith('your-') || clientId === 'placeholder') return false
+  if (clientSecret.startsWith('your-') || clientSecret === 'placeholder') return false
+  if (tenantId.startsWith('your-') || tenantId === 'placeholder') return false
+
+  return true
+}
+
+/**
+ * 開發模式標識
+ * 當 Azure AD 未配置時，使用簡化的認證流程
+ */
+const isDevelopmentMode = process.env.NODE_ENV === 'development' && !isAzureADConfigured()
 
 /**
  * 獲取用戶的角色和權限
@@ -82,35 +103,24 @@ async function getUserRoles(userId: string): Promise<SessionRole[]> {
 }
 
 /**
- * NextAuth v5 配置
+ * NextAuth 實例導出
+ * 合併 Edge 配置並加入資料庫功能
  */
-export const authConfig: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma),
+export const {
+  handlers,
+  auth,
+  signIn,
+  signOut,
+} = NextAuth({
+  ...authConfig,
 
-  providers: [
-    MicrosoftEntraID({
-      clientId: process.env.AZURE_AD_CLIENT_ID!,
-      clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
-      issuer: `https://login.microsoftonline.com/${process.env.AZURE_AD_TENANT_ID}/v2.0`,
-      authorization: {
-        params: {
-          scope: 'openid profile email User.Read',
-        },
-      },
-    }),
-  ],
-
-  session: {
-    strategy: 'jwt',
-    maxAge: SESSION_MAX_AGE,
-  },
-
-  pages: {
-    signIn: '/auth/login',
-    error: '/auth/error',
-  },
+  // 加入 Prisma adapter（僅在生產環境或 Azure AD 已配置時使用）
+  // 開發模式使用 Credentials provider 時不需要 adapter
+  ...(isDevelopmentMode ? {} : { adapter: PrismaAdapter(prisma) }),
 
   callbacks: {
+    ...authConfig.callbacks,
+
     /**
      * JWT callback - 在 JWT 建立/更新時調用
      * 將用戶角色、權限、城市權限和 azureAdId 加入 token
@@ -122,7 +132,29 @@ export const authConfig: NextAuthConfig = {
      *   - 識別全域管理員和區域管理員身份
      *   - 載入區域管理員負責的區域代碼
      */
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
+      // 開發模式：使用簡化的 token 設置
+      if (isDevelopmentMode) {
+        if (user) {
+          token.sub = user.id
+          token.email = user.email
+          token.name = user.name
+        }
+        // 設置開發模式預設值
+        token.status = 'ACTIVE'
+        token.roles = [{
+          id: 'dev-role-1',
+          name: 'Administrator',
+          permissions: ['*'], // 開發模式給予所有權限
+        }]
+        token.cityCodes = ['*'] // 開發模式可存取所有城市
+        token.primaryCityCode = 'HKG'
+        token.isGlobalAdmin = true
+        token.isRegionalManager = false
+        return token
+      }
+
+      // 生產模式：從資料庫獲取用戶資訊
       // 首次登入時，從 account 取得 Azure AD ID
       if (account) {
         token.azureAdId = account.providerAccountId
@@ -207,6 +239,12 @@ export const authConfig: NextAuthConfig = {
      *   - SUSPENDED: 重導至 /auth/error?error=AccountSuspended
      */
     async signIn({ user }) {
+      // 開發模式：跳過資料庫檢查
+      if (isDevelopmentMode) {
+        return true
+      }
+
+      // 生產模式：檢查用戶狀態
       if (user.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
@@ -237,8 +275,14 @@ export const authConfig: NextAuthConfig = {
   events: {
     /**
      * 建立用戶時設置預設值和預設角色
+     * 注意：開發模式下不會觸發此事件（因為沒有使用 PrismaAdapter）
      */
     async createUser({ user }) {
+      // 開發模式下此事件不會觸發，但保留檢查以防萬一
+      if (isDevelopmentMode) {
+        return
+      }
+
       if (user.id) {
         // 設置用戶狀態為 ACTIVE
         await prisma.user.update({
@@ -256,18 +300,4 @@ export const authConfig: NextAuthConfig = {
       }
     },
   },
-
-  // 開發模式下啟用調試日誌
-  debug: process.env.NODE_ENV === 'development',
-}
-
-/**
- * NextAuth 實例導出
- * 提供 handlers、auth、signIn、signOut 方法
- */
-export const {
-  handlers,
-  auth,
-  signIn,
-  signOut,
-} = NextAuth(authConfig)
+})

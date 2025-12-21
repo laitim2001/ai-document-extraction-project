@@ -68,10 +68,8 @@ export interface UploadOptions {
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING || '';
 const containerName = process.env.AZURE_STORAGE_CONTAINER || 'documents';
 
-// Validate connection string in production
-if (!connectionString && process.env.NODE_ENV === 'production') {
-  throw new Error('AZURE_STORAGE_CONNECTION_STRING is required in production');
-}
+// Note: We no longer throw at module level to avoid build-time errors.
+// Runtime checks in getBlobServiceClient() will catch missing configuration.
 
 // ===========================================
 // Clients (lazy initialization)
@@ -82,11 +80,24 @@ let containerClient: ContainerClient | null = null;
 
 /**
  * 獲取 BlobServiceClient (延遲初始化)
+ *
+ * @throws {Error} 如果連接字符串未配置
  */
 function getBlobServiceClient(): BlobServiceClient {
   if (!blobServiceClient) {
     if (!connectionString) {
-      throw new Error('Azure Storage connection string is not configured');
+      const isProduction = process.env.NODE_ENV === 'production';
+      if (isProduction) {
+        throw new Error(
+          'AZURE_STORAGE_CONNECTION_STRING is required in production. ' +
+            'Please configure your Azure Storage connection string in environment variables.'
+        );
+      } else {
+        throw new Error(
+          'Azure Storage is not configured. ' +
+            'Please set AZURE_STORAGE_CONNECTION_STRING in .env file, or use mock storage for development.'
+        );
+      }
     }
     blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
   }
