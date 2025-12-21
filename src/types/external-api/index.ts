@@ -46,3 +46,6 @@ export * from './result';
 
 // Webhook 通知類型 (Story 11-4)
 export * from './webhook';
+
+// API 認證類型 (Story 11-5)
+export * from './auth';

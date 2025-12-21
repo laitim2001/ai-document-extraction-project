@@ -1549,3 +1549,90 @@ describe('ApiKeyService', () => {
 - Story 1-1: Azure AD SSO 登入（管理員認證）
 - Story 11-1: API 發票提交端點（使用 API Key 認證）
 - Story 11-4: Webhook 通知服務（Webhook Secret 管理）
+
+---
+
+## Implementation Notes
+
+### 實現日期
+2025-12-21
+
+### 實現摘要
+
+本 Story 完成了 API 訪問控制與認證系統的核心實現，包括：
+
+1. **API Key 服務層 (`src/services/api-key.service.ts`)**
+   - SHA-256 哈希儲存 API Key（安全性考量，原始 Key 只在創建時顯示一次）
+   - Bearer Token 認證模式 (`Authorization: Bearer {api_key}`)
+   - 支援 Key 輪替功能（保留配置、生成新 Key、停用舊 Key）
+   - 軟刪除機制（deletedAt 標記）
+   - 使用量統計追蹤
+
+2. **API 審計日誌服務 (`src/services/api-audit-log.service.ts`)**
+   - 批量寫入優化（減少資料庫壓力）
+   - 敏感欄位過濾（password、secret、apiKey、token、authorization、base64Content、content）
+   - 端點標準化（移除動態 ID 參數以便統計）
+   - 查詢和統計功能
+
+3. **Admin API 路由**
+   - `POST /api/admin/api-keys` - 創建 API Key
+   - `GET /api/admin/api-keys` - 列出 API Key（支援分頁和篩選）
+   - `GET /api/admin/api-keys/[keyId]` - 獲取單一 Key 詳情
+   - `PATCH /api/admin/api-keys/[keyId]` - 更新 Key 配置
+   - `DELETE /api/admin/api-keys/[keyId]` - 刪除 Key（軟刪除）
+   - `POST /api/admin/api-keys/[keyId]/rotate` - 輪替 Key
+   - `GET /api/admin/api-keys/[keyId]/stats` - 使用統計
+
+4. **前端組件**
+   - `ApiKeyManagement.tsx` - 主管理介面（搜尋、篩選、列表、分頁）
+   - `ApiKeyTable.tsx` - 表格組件（顯示 Key 列表與操作按鈕）
+   - `CreateApiKeyDialog.tsx` - 創建對話框（包含權限配置表單）
+
+5. **類型與常數**
+   - `src/types/external-api/auth.ts` - API 認證相關類型定義
+   - `src/lib/constants/api-auth.ts` - API 認證常數（Key 前綴、長度、敏感欄位等）
+
+### 實現細節
+
+#### 權限檢查模式
+Admin API 路由使用以下權限檢查模式：
+```typescript
+const isAdmin =
+  session.user.isGlobalAdmin ||
+  session.user.roles?.some((r) => r.name === 'ADMIN' || r.name === 'GLOBAL_ADMIN');
+```
+
+#### 表單類型處理
+CreateApiKeyDialog 使用 `z.number()` 而非 `z.coerce.number()` 以確保 react-hook-form 類型推斷正確，並透過 `valueAsNumber` 處理輸入轉換。
+
+### 建立的檔案
+
+| 檔案路徑 | 用途 |
+|---------|------|
+| `src/types/external-api/auth.ts` | API 認證類型定義 |
+| `src/lib/constants/api-auth.ts` | API 認證常數 |
+| `src/services/api-key.service.ts` | API Key 管理服務 |
+| `src/services/api-audit-log.service.ts` | API 審計日誌服務 |
+| `src/app/api/admin/api-keys/route.ts` | 列出/創建 API Key |
+| `src/app/api/admin/api-keys/[keyId]/route.ts` | 單一 Key CRUD |
+| `src/app/api/admin/api-keys/[keyId]/rotate/route.ts` | Key 輪替 |
+| `src/app/api/admin/api-keys/[keyId]/stats/route.ts` | 使用統計 |
+| `src/components/features/admin/api-keys/ApiKeyManagement.tsx` | 主管理組件 |
+| `src/components/features/admin/api-keys/ApiKeyTable.tsx` | 表格組件 |
+| `src/components/features/admin/api-keys/CreateApiKeyDialog.tsx` | 創建對話框 |
+| `src/components/features/admin/api-keys/index.ts` | 組件導出 |
+
+### 待辦事項
+
+- [ ] 實現 EditApiKeyDialog 組件（編輯現有 Key 配置）
+- [ ] 實現速率限制中間件（檢查請求頻率、返回 429）
+- [ ] 實現 API Key 驗證中間件（用於 `/api/v1/*` 外部 API 路由）
+- [ ] 添加單元測試
+- [ ] 添加 E2E 測試
+
+### 驗證狀態
+
+- [x] TypeScript 類型檢查通過
+- [x] ESLint 檢查通過
+- [ ] 單元測試（待實現）
+- [ ] E2E 測試（待實現）
