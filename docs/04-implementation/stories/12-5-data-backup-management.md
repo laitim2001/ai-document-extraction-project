@@ -2081,3 +2081,68 @@ describe('BackupService', () => {
 - [ ] 大型數據庫備份正常完成
 - [ ] 備份不影響系統正常運作
 - [ ] 儲存空間使用量正確計算
+
+---
+
+## Implementation Notes (2025-12-21)
+
+### 實現摘要
+
+Story 12-5 已完成實現，包含以下組件：
+
+#### Prisma Models
+- `Backup` - 備份記錄模型，包含狀態、來源、類型、大小、校驗碼等
+- `BackupSchedule` - 備份排程模型，包含 Cron 表達式、保留策略
+- `BackupStorageUsage` - 儲存使用量追蹤
+- `BackupConfig` - 備份配置（Azure Blob Storage、加密設定）
+
+#### Services
+- `BackupService` (`src/services/backup.service.ts`)
+  - 手動備份建立與執行
+  - 備份列表與詳情查詢
+  - 儲存使用量統計
+  - 過期備份清理
+  - 備份取消與刪除
+
+- `BackupSchedulerService` (`src/services/backup-scheduler.service.ts`)
+  - 排程 CRUD 操作
+  - Cron 表達式驗證
+  - 下次執行時間計算
+  - 手動觸發執行
+
+#### API Routes (18 個端點)
+- `/api/admin/backups` - 備份列表與建立
+- `/api/admin/backups/[id]` - 備份詳情與刪除
+- `/api/admin/backups/[id]/cancel` - 取消備份
+- `/api/admin/backups/summary` - 狀態摘要
+- `/api/admin/backups/storage` - 儲存使用量
+- `/api/admin/backup-schedules` - 排程列表與建立
+- `/api/admin/backup-schedules/[id]` - 排程詳情、更新、刪除
+- `/api/admin/backup-schedules/[id]/toggle` - 啟用/停用排程
+- `/api/admin/backup-schedules/[id]/run` - 手動執行排程
+
+#### React Query Hooks
+- `use-backup.ts` - 備份操作 hooks
+- `use-backup-schedule.ts` - 排程操作 hooks
+
+#### UI Components
+- `BackupManagement` - 備份管理主組件（標籤頁切換）
+- `BackupStatusCard` - 狀態摘要卡片
+- `StorageUsageCard` - 儲存使用量卡片（含進度條）
+- `BackupList` - 備份列表（篩選、分頁、操作）
+- `BackupScheduleList` - 排程列表（啟用/停用、執行、編輯、刪除）
+- `CreateBackupDialog` - 建立備份對話框
+- `ScheduleDialog` - 排程新增/編輯對話框
+
+#### Admin Page
+- `/admin/backup` - 備份管理頁面
+
+### 實現決策
+1. **Cron 解析**: 使用自定義解析邏輯而非 cron-parser 套件，減少依賴
+2. **自動備份判斷**: 通過檢查啟用的 BackupSchedule 數量判斷
+3. **最大儲存空間**: 使用環境變數 `BACKUP_MAX_STORAGE_BYTES`，預設 100GB
+4. **備份執行**: 使用模擬實現，實際專案需整合 pg_dump 和 Azure Blob Storage
+
+### 驗證通過
+- ✅ TypeScript 類型檢查通過
+- ✅ ESLint 檢查通過（僅警告，無錯誤）

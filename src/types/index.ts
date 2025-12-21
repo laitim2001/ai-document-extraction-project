@@ -366,3 +366,6 @@ export {
 
 // 系統配置管理相關 (Story 12-4)
 export * from './config'
+
+// 數據備份管理相關 (Story 12-5)
+export * from './backup'

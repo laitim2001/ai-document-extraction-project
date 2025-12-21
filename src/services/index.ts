@@ -318,6 +318,13 @@ export * from './alert-evaluation.service'
 export * from './alert-notification.service'
 export * from './alert-evaluation-job'
 
+// Epic 12: System Administration & Monitoring (Story 12-4 - System Configuration Management)
+export * from './system-config.service'
+
+// Epic 12: System Administration & Monitoring (Story 12-5 - Data Backup Management)
+export * from './backup.service'
+export * from './backup-scheduler.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

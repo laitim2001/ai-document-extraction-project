@@ -83,6 +83,9 @@ model User {
   workflowDefinitionsUpdated  WorkflowDefinition[]      @relation("WorkflowDefinitionUpdater") // Story 10.4: 工作流定義更新者
   externalApiKeys             ExternalApiKey[]          @relation("ExternalApiKeyCreator") // Story 11.1: 外部 API Key 創建者
   alertRulesCreated           AlertRule[]               @relation("AlertRuleCreator") // Story 12-3: 創建的告警規則
+  backupsCreated              Backup[]                  @relation("BackupCreator") // Story 12-5: 創建的備份
+  backupSchedulesCreated      BackupSchedule[]          @relation("BackupScheduleCreator") // Story 12-5: 創建的備份排程
+  restoreRecordsCreated       RestoreRecord[]           @relation("RestoreRecordCreator") // Story 12-6: 創建的恢復記錄
 
   @@map("users")
 }
@@ -4188,5 +4191,216 @@ model AlertRuleNotification {
   @@index([status])
   @@index([channel])
   @@map("alert_rule_notifications")
+}
+
+// ==========================================================================
+// Epic 12: 系統管理與監控 - Story 12-5: 數據備份管理
+// ==========================================================================
+
+// 備份類型枚舉
+enum BackupType {
+  FULL          // 完整備份
+  INCREMENTAL   // 增量備份
+  DIFFERENTIAL  // 差異備份
+}
+
+// 備份狀態枚舉
+enum BackupStatus {
+  PENDING       // 等待中
+  IN_PROGRESS   // 進行中
+  COMPLETED     // 完成
+  FAILED        // 失敗
+  CANCELLED     // 取消
+}
+
+// 備份來源類型枚舉
+enum BackupSource {
+  DATABASE      // 數據庫
+  FILES         // 上傳文件
+  CONFIG        // 系統配置
+  FULL_SYSTEM   // 完整系統
+}
+
+// 備份觸發方式枚舉
+enum BackupTrigger {
+  SCHEDULED     // 排程
+  MANUAL        // 手動
+  PRE_RESTORE   // 恢復前自動備份
+}
+
+// 備份記錄模型
+model Backup {
+  id              String        @id @default(cuid())
+
+  // 備份資訊
+  name            String
+  description     String?       @db.Text
+  type            BackupType
+  source          BackupSource
+  trigger         BackupTrigger
+
+  // 狀態
+  status          BackupStatus  @default(PENDING)
+  progress        Int           @default(0) // 進度百分比
+  errorMessage    String?       @map("error_message") @db.Text
+
+  // 檔案資訊
+  storagePath     String?       @map("storage_path") // Azure Blob 路徑
+  sizeBytes       BigInt?       @map("size_bytes")   // 備份大小
+  checksum        String?                             // SHA-256 校驗碼
+
+  // 內容詳情 (JSON)
+  contents        Json?         // {database: {...}, files: {...}, config: {...}}
+
+  // 時間
+  startedAt       DateTime?     @map("started_at")
+  completedAt     DateTime?     @map("completed_at")
+  expiresAt       DateTime?     @map("expires_at") // 過期時間
+
+  // 審計
+  createdAt       DateTime      @default(now()) @map("created_at")
+  createdBy       String?       @map("created_by")
+  createdByUser   User?         @relation("BackupCreator", fields: [createdBy], references: [id])
+
+  // 關聯
+  scheduleId      String?       @map("schedule_id")
+  schedule        BackupSchedule? @relation(fields: [scheduleId], references: [id])
+
+  // 恢復記錄
+  restores        RestoreRecord[]
+
+  @@index([status, createdAt])
+  @@index([type, source])
+  @@index([expiresAt])
+  @@index([scheduleId])
+  @@map("backups")
+}
+
+// 備份排程模型
+model BackupSchedule {
+  id              String        @id @default(cuid())
+
+  // 排程設定
+  name            String
+  description     String?       @db.Text
+  isEnabled       Boolean       @default(true) @map("is_enabled")
+
+  // 備份類型
+  backupType      BackupType    @map("backup_type")
+  backupSource    BackupSource  @map("backup_source")
+
+  // 排程 (Cron 表達式)
+  cronExpression  String        @map("cron_expression") // 例如 "0 2 * * *" = 每天凌晨 2 點
+  timezone        String        @default("Asia/Taipei")
+
+  // 保留策略
+  retentionDays   Int           @default(30) @map("retention_days")  // 保留天數
+  maxBackups      Int           @default(10) @map("max_backups")     // 最大備份數量
+
+  // 下次執行時間
+  nextRunAt       DateTime?     @map("next_run_at")
+  lastRunAt       DateTime?     @map("last_run_at")
+
+  // 審計
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdBy       String?       @map("created_by")
+  createdByUser   User?         @relation("BackupScheduleCreator", fields: [createdBy], references: [id])
+
+  // 關聯
+  backups         Backup[]
+
+  @@index([isEnabled, nextRunAt])
+  @@index([createdBy])
+  @@map("backup_schedules")
+}
+
+// 備份配置模型
+model BackupConfig {
+  id                      String    @id @default(cuid())
+  key                     String    @unique
+
+  // Azure Blob Storage 設定
+  storageConnectionString String?   @map("storage_connection_string") @db.Text // 加密儲存
+  containerName           String    @default("backups") @map("container_name")
+
+  // PostgreSQL 設定
+  databaseHost            String?   @map("database_host")
+  databasePort            Int       @default(5432) @map("database_port")
+  databaseName            String?   @map("database_name")
+
+  // 備份設定
+  compressionEnabled      Boolean   @default(true) @map("compression_enabled")
+  encryptionEnabled       Boolean   @default(true) @map("encryption_enabled")
+  encryptionKey           String?   @map("encryption_key") @db.Text // 加密儲存
+
+  // 通知設定
+  notifyOnSuccess         Boolean   @default(false) @map("notify_on_success")
+  notifyOnFailure         Boolean   @default(true) @map("notify_on_failure")
+  notificationEmails      String[]  @default([]) @map("notification_emails")
+
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  @@map("backup_configs")
+}
+
+// 備份儲存使用量模型
+model BackupStorageUsage {
+  id              String    @id @default(cuid())
+  recordedAt      DateTime  @default(now()) @map("recorded_at")
+
+  // 使用量
+  totalSizeBytes  BigInt    @map("total_size_bytes")
+  backupCount     Int       @map("backup_count")
+  oldestBackupAt  DateTime? @map("oldest_backup_at")
+  newestBackupAt  DateTime? @map("newest_backup_at")
+
+  // 配額
+  quotaBytes      BigInt?   @map("quota_bytes")
+  usagePercent    Float?    @map("usage_percent")
+
+  @@index([recordedAt])
+  @@map("backup_storage_usage")
+}
+
+// 恢復記錄模型 (Story 12-6)
+model RestoreRecord {
+  id              String              @id @default(cuid())
+
+  // 備份關聯
+  backupId        String              @map("backup_id")
+  backup          Backup              @relation(fields: [backupId], references: [id], onDelete: Cascade)
+
+  // 恢復範圍
+  restoreSource   BackupSource        @map("restore_source")
+  restoreOptions  Json?               @map("restore_options") // 恢復選項
+
+  // 狀態
+  status          RestoreStatus       @default(PENDING)
+  progress        Int                 @default(0)
+  errorMessage    String?             @map("error_message") @db.Text
+
+  // 時間
+  startedAt       DateTime?           @map("started_at")
+  completedAt     DateTime?           @map("completed_at")
+
+  // 審計
+  createdAt       DateTime            @default(now()) @map("created_at")
+  createdBy       String              @map("created_by")
+  createdByUser   User                @relation("RestoreRecordCreator", fields: [createdBy], references: [id])
+
+  @@index([backupId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("restore_records")
+}
+
+// 恢復狀態枚舉
+enum RestoreStatus {
+  PENDING       // 等待中
+  IN_PROGRESS   // 進行中
+  COMPLETED     // 完成
+  FAILED        // 失敗
+  CANCELLED     // 取消
 }
 
