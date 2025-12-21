@@ -1,0 +1,423 @@
+/**
+ * @fileoverview 系統配置種子資料
+ * @description
+ *   定義系統預設配置項目，包含處理參數、整合設定、
+ *   安全設定、通知設定和系統設定等五大類別。
+ *
+ * @module prisma/seed-data/config-seeds
+ * @author Development Team
+ * @since Epic 12 - Story 12-4 (系統設定管理)
+ * @lastModified 2025-12-21
+ */
+
+import type {
+  ConfigCategory,
+  ConfigValueType,
+  ConfigEffectType,
+} from '@prisma/client'
+
+// ============================================================
+// Types
+// ============================================================
+
+export interface ConfigSeedData {
+  key: string
+  defaultValue: string
+  category: ConfigCategory
+  valueType: ConfigValueType
+  effectType: ConfigEffectType
+  name: string
+  description: string
+  impactNote?: string
+  validation?: Record<string, unknown>
+  isEncrypted?: boolean
+  isReadOnly?: boolean
+  sortOrder: number
+}
+
+// ============================================================
+// Seed Data
+// ============================================================
+
+export const CONFIG_SEED_DATA: ConfigSeedData[] = [
+  // ===== 處理參數 (PROCESSING) =====
+  {
+    key: 'processing.confidence_threshold',
+    defaultValue: '0.8',
+    category: 'PROCESSING',
+    valueType: 'NUMBER',
+    effectType: 'IMMEDIATE',
+    name: '信心度閾值',
+    description: 'AI 提取結果需要人工審核的信心度閾值。低於此值的結果將標記為需要審核。',
+    impactNote: '降低此值會增加需要人工審核的發票數量，提高準確性但降低處理效率。',
+    validation: { min: 0, max: 1, required: true },
+    sortOrder: 1,
+  },
+  {
+    key: 'processing.auto_approve_threshold',
+    defaultValue: '0.95',
+    category: 'PROCESSING',
+    valueType: 'NUMBER',
+    effectType: 'IMMEDIATE',
+    name: '自動通過閾值',
+    description: '高於此信心度的發票將自動通過審核，無需人工介入。',
+    impactNote: '提高此值會減少自動通過的發票數量，增加人工審核工作量。',
+    validation: { min: 0, max: 1, required: true },
+    sortOrder: 2,
+  },
+  {
+    key: 'processing.max_file_size_mb',
+    defaultValue: '50',
+    category: 'PROCESSING',
+    valueType: 'NUMBER',
+    effectType: 'IMMEDIATE',
+    name: '最大檔案大小 (MB)',
+    description: '允許上傳的最大檔案大小限制。',
+    validation: { min: 1, max: 500, required: true },
+    sortOrder: 3,
+  },
+  {
+    key: 'processing.batch_size',
+    defaultValue: '10',
+    category: 'PROCESSING',
+    valueType: 'NUMBER',
+    effectType: 'IMMEDIATE',
+    name: '批次處理大小',
+    description: '每批次處理的檔案數量上限。',
+    validation: { min: 1, max: 100, required: true },
+    sortOrder: 4,
+  },
+  {
+    key: 'processing.max_concurrent_jobs',
+    defaultValue: '5',
+    category: 'PROCESSING',
+    valueType: 'NUMBER',
+    effectType: 'IMMEDIATE',
+    name: '最大並行任務數',
+    description: '系統同時處理的最大任務數量。',
+    impactNote: '增加此值會提高處理速度但可能增加系統負載。',
+    validation: { min: 1, max: 20, required: true },
+    sortOrder: 5,
+  },
+
+  // ===== 整合設定 (INTEGRATION) =====
+  {
+    key: 'integration.ai.provider',
+    defaultValue: 'azure-openai',
+    category: 'INTEGRATION',
+    valueType: 'ENUM',
+    effectType: 'IMMEDIATE',
+    name: 'AI 服務提供者',
+    description: '使用的 AI 服務提供者。',
+    validation: { options: ['azure-openai', 'openai', 'anthropic', 'custom'] },
+    sortOrder: 1,
+  },
+  {
+    key: 'integration.ai.api_key',
+    defaultValue: '',
+    category: 'INTEGRATION',
+    valueType: 'SECRET',
+    effectType: 'IMMEDIATE',
+    name: 'AI API 金鑰',
+    description: 'AI 服務的 API 金鑰。',
+    isEncrypted: true,
+    sortOrder: 2,
+  },
+  {
+    key: 'integration.ai.endpoint',
+    defaultValue: '',
+    category: 'INTEGRATION',
+    valueType: 'STRING',
+    effectType: 'IMMEDIATE',
+    name: 'AI 服務端點',
+    description: 'AI 服務的 API 端點 URL（Azure OpenAI 需要）。',
+    validation: { pattern: '^https?://' },
+    sortOrder: 3,
+  },
+  {
+    key: 'integration.ai.model',
+    defaultValue: 'gpt-4-vision-preview',
+    category: 'INTEGRATION',
+    valueType: 'STRING',
+    effectType: 'IMMEDIATE',
+    name: 'AI 模型名稱',
+    description: '使用的 AI 模型名稱或部署名稱。',
+    sortOrder: 4,
+  },
+  {
+    key: 'integration.n8n.base_url',
+    defaultValue: 'http://localhost:5678',
+    category: 'INTEGRATION',
+    valueType: 'STRING',
+    effectType: 'IMMEDIATE',
+    name: 'n8n 基礎 URL',
+    description: 'n8n 服務的基礎 URL。',
+    validation: { pattern: '^https?://' },
+    sortOrder: 5,
+  },
+  {
+    key: 'integration.n8n.api_key',
+    defaultValue: '',
+    category: 'INTEGRATION',
+    valueType: 'SECRET',
+    effectType: 'IMMEDIATE',
+    name: 'n8n API 金鑰',
+    description: 'n8n 服務的 API 金鑰。',
+    isEncrypted: true,
+    sortOrder: 6,
+  },
+  {
+    key: 'integration.storage.provider',
+    defaultValue: 'azure-blob',
+    category: 'INTEGRATION',
+    valueType: 'ENUM',
+    effectType: 'RESTART_REQUIRED',
+    name: '儲存服務提供者',
+    description: '檔案儲存服務提供者。',
+    impactNote: '變更儲存提供者需要重新啟動服務並遷移現有檔案。',
+    validation: { options: ['local', 'azure-blob', 's3', 'gcs'] },
+    sortOrder: 7,
+  },
+
+  // ===== 安全設定 (SECURITY) =====
+  {
+    key: 'security.session_timeout_minutes',
+    defaultValue: '60',
+    category: 'SECURITY',
+    valueType: 'NUMBER',
+    effectType: 'RESTART_REQUIRED',
+    name: 'Session 超時時間 (分鐘)',
+    description: '用戶閒置多久後自動登出。',
+    impactNote: '變更此設定需要重啟服務才能生效。',
+    validation: { min: 5, max: 480, required: true },
+    sortOrder: 1,
+  },
+  {
+    key: 'security.password_min_length',
+    defaultValue: '8',
+    category: 'SECURITY',
+    valueType: 'NUMBER',
+    effectType: 'IMMEDIATE',
+    name: '密碼最小長度',
+    description: '用戶密碼的最小長度要求。',
+    validation: { min: 6, max: 32, required: true },
+    sortOrder: 2,
+  },
+  {
+    key: 'security.password_require_uppercase',
+    defaultValue: 'true',
+    category: 'SECURITY',
+    valueType: 'BOOLEAN',
+    effectType: 'IMMEDIATE',
+    name: '密碼需要大寫字母',
+    description: '是否要求密碼包含至少一個大寫字母。',
+    sortOrder: 3,
+  },
+  {
+    key: 'security.password_require_number',
+    defaultValue: 'true',
+    category: 'SECURITY',
+    valueType: 'BOOLEAN',
+    effectType: 'IMMEDIATE',
+    name: '密碼需要數字',
+    description: '是否要求密碼包含至少一個數字。',
+    sortOrder: 4,
+  },
+  {
+    key: 'security.password_require_special',
+    defaultValue: 'false',
+    category: 'SECURITY',
+    valueType: 'BOOLEAN',
+    effectType: 'IMMEDIATE',
+    name: '密碼需要特殊字元',
+    description: '是否要求密碼包含至少一個特殊字元。',
+    sortOrder: 5,
+  },
+  {
+    key: 'security.max_login_attempts',
+    defaultValue: '5',
+    category: 'SECURITY',
+    valueType: 'NUMBER',
+    effectType: 'IMMEDIATE',
+    name: '最大登入嘗試次數',
+    description: '帳戶鎖定前允許的登入失敗次數。',
+    validation: { min: 3, max: 10, required: true },
+    sortOrder: 6,
+  },
+  {
+    key: 'security.lockout_duration_minutes',
+    defaultValue: '15',
+    category: 'SECURITY',
+    valueType: 'NUMBER',
+    effectType: 'IMMEDIATE',
+    name: '帳戶鎖定時間 (分鐘)',
+    description: '帳戶被鎖定後需要等待的時間。',
+    validation: { min: 1, max: 60, required: true },
+    sortOrder: 7,
+  },
+  {
+    key: 'security.jwt_secret',
+    defaultValue: '',
+    category: 'SECURITY',
+    valueType: 'SECRET',
+    effectType: 'RESTART_REQUIRED',
+    name: 'JWT 密鑰',
+    description: '用於簽署 JWT 令牌的密鑰。',
+    impactNote: '變更此設定將使所有現有的 JWT 令牌失效。',
+    isEncrypted: true,
+    sortOrder: 8,
+  },
+
+  // ===== 通知設定 (NOTIFICATION) =====
+  {
+    key: 'notification.email.enabled',
+    defaultValue: 'false',
+    category: 'NOTIFICATION',
+    valueType: 'BOOLEAN',
+    effectType: 'IMMEDIATE',
+    name: '啟用 Email 通知',
+    description: '是否啟用 Email 通知功能。',
+    sortOrder: 1,
+  },
+  {
+    key: 'notification.email.smtp_host',
+    defaultValue: '',
+    category: 'NOTIFICATION',
+    valueType: 'STRING',
+    effectType: 'IMMEDIATE',
+    name: 'SMTP 主機',
+    description: '郵件伺服器主機地址。',
+    sortOrder: 2,
+  },
+  {
+    key: 'notification.email.smtp_port',
+    defaultValue: '587',
+    category: 'NOTIFICATION',
+    valueType: 'NUMBER',
+    effectType: 'IMMEDIATE',
+    name: 'SMTP 連接埠',
+    description: '郵件伺服器連接埠。',
+    validation: { min: 1, max: 65535 },
+    sortOrder: 3,
+  },
+  {
+    key: 'notification.email.smtp_user',
+    defaultValue: '',
+    category: 'NOTIFICATION',
+    valueType: 'STRING',
+    effectType: 'IMMEDIATE',
+    name: 'SMTP 使用者名稱',
+    description: 'SMTP 認證的使用者名稱。',
+    sortOrder: 4,
+  },
+  {
+    key: 'notification.email.smtp_password',
+    defaultValue: '',
+    category: 'NOTIFICATION',
+    valueType: 'SECRET',
+    effectType: 'IMMEDIATE',
+    name: 'SMTP 密碼',
+    description: 'SMTP 認證的密碼。',
+    isEncrypted: true,
+    sortOrder: 5,
+  },
+  {
+    key: 'notification.email.from_address',
+    defaultValue: 'noreply@example.com',
+    category: 'NOTIFICATION',
+    valueType: 'STRING',
+    effectType: 'IMMEDIATE',
+    name: '寄件者地址',
+    description: '系統發送通知郵件時使用的寄件者地址。',
+    validation: { pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' },
+    sortOrder: 6,
+  },
+  {
+    key: 'notification.teams.enabled',
+    defaultValue: 'false',
+    category: 'NOTIFICATION',
+    valueType: 'BOOLEAN',
+    effectType: 'IMMEDIATE',
+    name: '啟用 Teams 通知',
+    description: '是否啟用 Microsoft Teams 通知功能。',
+    sortOrder: 7,
+  },
+  {
+    key: 'notification.teams.webhook_url',
+    defaultValue: '',
+    category: 'NOTIFICATION',
+    valueType: 'SECRET',
+    effectType: 'IMMEDIATE',
+    name: 'Teams Webhook URL',
+    description: 'Microsoft Teams 的 Incoming Webhook URL。',
+    isEncrypted: true,
+    sortOrder: 8,
+  },
+
+  // ===== 系統設定 (SYSTEM) =====
+  {
+    key: 'system.log_level',
+    defaultValue: 'info',
+    category: 'SYSTEM',
+    valueType: 'ENUM',
+    effectType: 'IMMEDIATE',
+    name: '日誌級別',
+    description: '系統日誌的記錄級別。',
+    validation: { options: ['debug', 'info', 'warn', 'error'] },
+    sortOrder: 1,
+  },
+  {
+    key: 'system.log_retention_days',
+    defaultValue: '30',
+    category: 'SYSTEM',
+    valueType: 'NUMBER',
+    effectType: 'IMMEDIATE',
+    name: '日誌保留天數',
+    description: '系統日誌保留的天數。',
+    validation: { min: 7, max: 365, required: true },
+    sortOrder: 2,
+  },
+  {
+    key: 'system.maintenance_mode',
+    defaultValue: 'false',
+    category: 'SYSTEM',
+    valueType: 'BOOLEAN',
+    effectType: 'IMMEDIATE',
+    name: '維護模式',
+    description: '啟用維護模式後，只有管理員可以存取系統。',
+    impactNote: '啟用此設定將阻止一般用戶存取系統。',
+    sortOrder: 3,
+  },
+  {
+    key: 'system.timezone',
+    defaultValue: 'Asia/Taipei',
+    category: 'SYSTEM',
+    valueType: 'STRING',
+    effectType: 'IMMEDIATE',
+    name: '系統時區',
+    description: '系統使用的時區設定。',
+    sortOrder: 4,
+  },
+  {
+    key: 'system.locale',
+    defaultValue: 'zh-TW',
+    category: 'SYSTEM',
+    valueType: 'ENUM',
+    effectType: 'IMMEDIATE',
+    name: '系統語言',
+    description: '系統預設的語言設定。',
+    validation: { options: ['zh-TW', 'zh-CN', 'en-US', 'ja-JP'] },
+    sortOrder: 5,
+  },
+  {
+    key: 'system.version',
+    defaultValue: '1.0.0',
+    category: 'SYSTEM',
+    valueType: 'STRING',
+    effectType: 'IMMEDIATE',
+    name: '系統版本',
+    description: '目前系統版本號。',
+    isReadOnly: true,
+    sortOrder: 6,
+  },
+]

@@ -1535,40 +1535,71 @@ model SecurityLog {
 // =====================
 
 model SystemConfig {
-  id          String         @id @default(uuid())
+  id          String         @id @default(cuid())
   key         String         @unique
-  value       Json
-  description String?
+  value       String         // JSON 編碼值，敏感值加密儲存
+  description String         // 配置詳細描述
+
+  // 配置元資料 (Story 12-4)
   category    ConfigCategory
+  valueType   ConfigValueType @default(STRING) @map("value_type")
+  effectType  ConfigEffectType @default(IMMEDIATE) @map("effect_type")
+
+  // 顯示資訊 (Story 12-4)
+  name        String         // 顯示名稱（如「信心度閾值」）
+  defaultValue String?       @map("default_value") // 預設值（用於重置）
+  impactNote  String?        @map("impact_note")   // 變更影響說明
+
+  // 驗證規則 (Story 12-4)
+  // { min?: number, max?: number, pattern?: string, options?: string[], required?: boolean }
+  validation  Json?
+
+  // 控制標誌 (Story 12-4)
+  isEncrypted Boolean        @default(false) @map("is_encrypted") // 是否加密儲存
+  isReadOnly  Boolean        @default(false) @map("is_read_only") // 是否唯讀
+  sortOrder   Int            @default(0) @map("sort_order")       // 顯示排序
+
+  // 範圍控制 (Story 6.4)
   scope       ConfigScope    @default(GLOBAL)
   cityCode    String?        @map("city_code")
   version     Int            @default(1)
   isActive    Boolean        @default(true) @map("is_active")
-  updatedBy   String         @map("updated_by")
+
+  // 審計資訊
+  updatedBy   String?        @map("updated_by")
   createdAt   DateTime       @default(now()) @map("created_at")
   updatedAt   DateTime       @updatedAt @map("updated_at")
 
   // Relations
   city    City?           @relation("ConfigCity", fields: [cityCode], references: [code])
-  updater User            @relation("ConfigUpdater", fields: [updatedBy], references: [id])
+  updater User?           @relation("ConfigUpdater", fields: [updatedBy], references: [id])
   history ConfigHistory[]
 
   @@index([key])
   @@index([category])
   @@index([scope])
   @@index([cityCode])
+  @@index([isEncrypted])
   @@map("system_configs")
 }
 
 model ConfigHistory {
-  id            String   @id @default(uuid())
+  id            String   @id @default(cuid())
   configId      String   @map("config_id")
   version       Int
-  previousValue Json     @map("previous_value")
-  newValue      Json     @map("new_value")
+
+  // 變更內容 (Story 12-4: 敏感值顯示為遮罩)
+  previousValue String   @map("previous_value")
+  newValue      String   @map("new_value")
+
+  // 審計資訊
   changedBy     String   @map("changed_by")
   changeReason  String?  @map("change_reason")
   createdAt     DateTime @default(now()) @map("created_at")
+
+  // 回滾資訊 (Story 12-4)
+  isRollback    Boolean  @default(false) @map("is_rollback")
+  rollbackFrom  String?  @map("rollback_from") // 回滾來源的歷史記錄 ID
 
   // Relations
   config  SystemConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
@@ -1576,23 +1607,42 @@ model ConfigHistory {
 
   @@index([configId])
   @@index([createdAt])
+  @@index([configId, createdAt])
   @@map("config_history")
 }
 
 enum ConfigCategory {
-  PROCESSING   // 處理相關配置
-  NOTIFICATION // 通知設定
-  SECURITY     // 安全設定
+  PROCESSING   // 處理相關配置（信心度、閾值、檔案大小限制）
+  NOTIFICATION // 通知設定（Email、Teams、Webhook）
+  SECURITY     // 安全設定（Session、密碼策略、帳戶鎖定）
   DISPLAY      // 顯示設定
-  INTEGRATION  // 整合設定
+  INTEGRATION  // 整合設定（AI 服務、n8n、外部系統）
   AI_MODEL     // AI 模型設定
   THRESHOLD    // 閾值設定
+  SYSTEM       // 系統設定（日誌、維護模式、時區）
 }
 
 enum ConfigScope {
   GLOBAL // 全局配置
   REGION // 區域配置
   CITY   // 城市配置
+}
+
+// 配置值類型 (Story 12-4)
+enum ConfigValueType {
+  STRING         // 文字字串
+  NUMBER         // 數值（整數或浮點數）
+  BOOLEAN        // 布林值（true/false）
+  JSON           // JSON 物件或陣列
+  SECRET         // 敏感資料（加密儲存）
+  ENUM           // 預定義選項列表
+}
+
+// 配置效果類型 (Story 12-4)
+enum ConfigEffectType {
+  IMMEDIATE           // 立即生效（透過快取更新）
+  RESTART_REQUIRED    // 需要重啟服務才能生效
+  SCHEDULED           // 排程在指定時間生效
 }
 
 // =====================

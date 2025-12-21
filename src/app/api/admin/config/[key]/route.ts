@@ -4,21 +4,21 @@
  * @fileoverview 單一配置操作 API
  * @description
  *   提供單一系統配置的操作：
- *   - 獲取配置詳情（含歷史）
- *   - 更新配置值（版本控制）
+ *   - 獲取配置詳情
+ *   - 更新配置值（帶驗證和版本控制）
  *   - 刪除配置
  *   - 僅限全局管理者訪問
  *
  * @module src/app/api/admin/config/[key]
  * @author Development Team
  * @since Epic 6 - Story 6.4 (Global Admin Full Access)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-21
  *
  * @features
  *   - 配置詳情查詢
- *   - 配置更新（帶版本控制）
+ *   - 配置更新（帶版本控制、驗證）
  *   - 配置刪除
- *   - 變更歷史追蹤
+ *   - 敏感值自動遮罩
  *
  * @dependencies
  *   - @/lib/auth - 認證服務
@@ -28,6 +28,7 @@
  * @related
  *   - src/app/api/admin/config/route.ts - 配置列表 API
  *   - src/app/api/admin/config/[key]/history/route.ts - 配置歷史 API
+ *   - src/app/api/admin/config/[key]/reset/route.ts - 配置重置 API
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -39,8 +40,11 @@ import { z } from 'zod'
 // Validation Schema
 // ============================================================
 
+/**
+ * 更新配置請求驗證
+ */
 const updateConfigSchema = z.object({
-  value: z.record(z.string(), z.unknown()),
+  value: z.unknown(),
   changeReason: z.string().max(500).optional(),
 })
 
@@ -53,15 +57,13 @@ const updateConfigSchema = z.object({
  *
  * @description
  *   獲取單一配置的詳細資訊。
+ *   敏感值會自動遮罩。
  *   僅限全局管理者訪問。
  *
  * @params
  *   - key: 配置鍵
  *
- * @query
- *   - includeHistory: 是否包含歷史記錄（預設 false）
- *
- * @returns 配置詳情（可選包含歷史）
+ * @returns 配置詳情
  */
 export async function GET(
   request: NextRequest,
@@ -98,12 +100,9 @@ export async function GET(
   const { key } = await params
   const decodedKey = decodeURIComponent(key)
 
-  // --- 解析參數 ---
-  const includeHistory =
-    request.nextUrl.searchParams.get('includeHistory') === 'true'
-
   try {
-    const config = await SystemConfigService.getByKey(decodedKey)
+    // 使用 Story 12-4 新方法
+    const config = await SystemConfigService.getConfigByKey(decodedKey)
 
     if (!config) {
       return NextResponse.json(
@@ -115,18 +114,6 @@ export async function GET(
         },
         { status: 404 }
       )
-    }
-
-    // 如果需要包含歷史
-    if (includeHistory) {
-      const history = await SystemConfigService.getHistory(decodedKey)
-      return NextResponse.json({
-        success: true,
-        data: {
-          ...config,
-          history,
-        },
-      })
     }
 
     return NextResponse.json({
@@ -152,17 +139,17 @@ export async function GET(
  * PUT /api/admin/config/[key]
  *
  * @description
- *   更新配置值。會自動記錄到歷史並增加版本號。
+ *   更新配置值。會自動驗證值類型、記錄歷史並檢查生效類型。
  *   僅限全局管理者訪問。
  *
  * @params
  *   - key: 配置鍵
  *
  * @body
- *   - value: 新配置值（JSON 物件）
+ *   - value: 新配置值（根據 valueType 驗證）
  *   - changeReason: 變更原因（可選）
  *
- * @returns 更新成功訊息
+ * @returns 更新結果（包含是否需要重啟）
  */
 export async function PUT(
   request: NextRequest,
@@ -233,16 +220,29 @@ export async function PUT(
   const { value, changeReason } = validation.data
 
   try {
-    await SystemConfigService.update({
-      key: decodedKey,
-      value,
-      updatedBy: session.user.id,
-      changeReason,
-    })
+    // 使用 Story 12-4 新方法（帶驗證和生效類型檢查）
+    const result = await SystemConfigService.updateConfig(
+      decodedKey,
+      { value, changeReason },
+      session.user.id
+    )
+
+    if (!result.success) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/validation',
+          title: 'Validation Error',
+          status: 400,
+          detail: result.error || 'Failed to update configuration',
+        },
+        { status: 400 }
+      )
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Configuration updated successfully',
+      requiresRestart: result.requiresRestart,
     })
   } catch (error) {
     if (error instanceof SystemConfigError) {
@@ -255,6 +255,17 @@ export async function PUT(
             detail: error.message,
           },
           { status: 404 }
+        )
+      }
+      if (error.code === 'CONFIG_READ_ONLY') {
+        return NextResponse.json(
+          {
+            type: 'https://api.example.com/errors/forbidden',
+            title: 'Forbidden',
+            status: 403,
+            detail: error.message,
+          },
+          { status: 403 }
         )
       }
     }

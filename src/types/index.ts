@@ -363,3 +363,6 @@ export {
   type Alert,
   type AlertRuleNotification,
 } from './alerts'
+
+// 系統配置管理相關 (Story 12-4)
+export * from './config'

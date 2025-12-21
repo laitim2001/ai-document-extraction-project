@@ -52,6 +52,7 @@ import {
 } from '../src/types/role-permissions'
 import { FORWARDER_SEED_DATA } from './seed-data/forwarders'
 import { getAllMappingRules } from './seed-data/mapping-rules'
+import { CONFIG_SEED_DATA } from './seed-data/config-seeds'
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -358,6 +359,72 @@ async function main() {
   }
 
   // ===========================================
+  // Seed System Configs (Story 12-4)
+  // ===========================================
+  console.log('\n⚙️ Creating system configs...\n')
+
+  let configCreatedCount = 0
+  let configUpdatedCount = 0
+
+  for (const config of CONFIG_SEED_DATA) {
+    const existingConfig = await prisma.systemConfig.findUnique({
+      where: { key: config.key },
+    })
+
+    if (existingConfig) {
+      // 只更新元資料，不更新值
+      await prisma.systemConfig.update({
+        where: { key: config.key },
+        data: {
+          name: config.name,
+          description: config.description,
+          impactNote: config.impactNote || null,
+          validation: config.validation
+            ? (config.validation as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
+          effectType: config.effectType,
+          sortOrder: config.sortOrder,
+        },
+      })
+      configUpdatedCount++
+      if (configUpdatedCount <= 5) {
+        console.log(`  🔄 Updated: ${config.name} (${config.key})`)
+      }
+    } else {
+      await prisma.systemConfig.create({
+        data: {
+          key: config.key,
+          value: config.defaultValue,
+          defaultValue: config.defaultValue,
+          category: config.category,
+          valueType: config.valueType,
+          effectType: config.effectType,
+          name: config.name,
+          description: config.description,
+          impactNote: config.impactNote || null,
+          validation: config.validation
+            ? (config.validation as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
+          isEncrypted: config.isEncrypted ?? false,
+          isReadOnly: config.isReadOnly ?? false,
+          sortOrder: config.sortOrder,
+        },
+      })
+      configCreatedCount++
+      if (configCreatedCount <= 5) {
+        console.log(`  ✅ Created: ${config.name} (${config.key})`)
+      }
+    }
+  }
+
+  if (configCreatedCount > 5) {
+    console.log(`  ... and ${configCreatedCount - 5} more configs created`)
+  }
+  if (configUpdatedCount > 5) {
+    console.log(`  ... and ${configUpdatedCount - 5} more configs updated`)
+  }
+
+  // ===========================================
   // Summary
   // ===========================================
   const roleCount = await prisma.role.count()
@@ -366,6 +433,7 @@ async function main() {
   const cityCount = await prisma.city.count()
   const forwarderCount = await prisma.forwarder.count()
   const mappingRuleCount = await prisma.mappingRule.count()
+  const systemConfigCount = await prisma.systemConfig.count()
 
   console.log('\n========================================')
   console.log('✨ Seed completed successfully!')
@@ -380,12 +448,15 @@ async function main() {
   console.log(`  Forwarders updated: ${forwarderUpdatedCount}`)
   console.log(`  Mapping rules created: ${ruleCreatedCount}`)
   console.log(`  Mapping rules updated: ${ruleUpdatedCount}`)
+  console.log(`  System configs created: ${configCreatedCount}`)
+  console.log(`  System configs updated: ${configUpdatedCount}`)
   console.log('----------------------------------------')
   console.log(`  Total roles: ${roleCount}`)
   console.log(`  Total regions: ${regionCount}`)
   console.log(`  Total cities: ${cityCount}`)
   console.log(`  Total forwarders: ${forwarderCount}`)
   console.log(`  Total mapping rules: ${mappingRuleCount}`)
+  console.log(`  Total system configs: ${systemConfigCount}`)
   console.log(`  Total users: ${userCount}`)
   console.log('========================================\n')
 }

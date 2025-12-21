@@ -1,29 +1,28 @@
 'use server'
 
 /**
- * @fileoverview 配置回滾 API
+ * @fileoverview 配置重置 API
  * @description
- *   將配置回滾到指定的歷史版本。
+ *   重置配置為預設值。
  *   僅限全局管理者訪問。
  *
- * @module src/app/api/admin/config/[key]/rollback
+ * @module src/app/api/admin/config/[key]/reset
  * @author Development Team
- * @since Epic 6 - Story 6.4 (Global Admin Full Access)
+ * @since Epic 12 - Story 12-4 (系統設定管理)
  * @lastModified 2025-12-21
  *
  * @features
- *   - 回滾到指定歷史版本
- *   - 回滾操作追蹤
+ *   - 重置為預設值
+ *   - 變更歷史追蹤
  *   - 全局管理者權限驗證
  *
  * @dependencies
  *   - @/lib/auth - 認證服務
  *   - @/services/system-config.service - 配置服務
- *   - zod - 請求驗證
  *
  * @related
- *   - src/app/api/admin/config/[key]/history/route.ts - 配置歷史
- *   - src/app/api/admin/config/[key]/reset/route.ts - 配置重置
+ *   - src/app/api/admin/config/[key]/route.ts - 配置 CRUD
+ *   - src/app/api/admin/config/[key]/rollback/route.ts - 配置回滾
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -35,8 +34,7 @@ import { z } from 'zod'
 // Validation Schema
 // ============================================================
 
-const rollbackSchema = z.object({
-  historyId: z.string().cuid(),
+const resetRequestSchema = z.object({
   reason: z.string().max(500).optional(),
 })
 
@@ -45,20 +43,19 @@ const rollbackSchema = z.object({
 // ============================================================
 
 /**
- * POST /api/admin/config/[key]/rollback
+ * POST /api/admin/config/[key]/reset
  *
  * @description
- *   將配置回滾到指定的歷史版本。
+ *   重置配置為預設值。會記錄到變更歷史。
  *   僅限全局管理者訪問。
  *
  * @params
  *   - key: 配置鍵
  *
  * @body
- *   - historyId: 目標歷史記錄 ID
- *   - reason: 回滾原因（可選）
+ *   - reason: 重置原因（可選）
  *
- * @returns 回滾結果
+ * @returns 重置結果
  */
 export async function POST(
   request: NextRequest,
@@ -96,22 +93,17 @@ export async function POST(
   const decodedKey = decodeURIComponent(key)
 
   // --- 解析請求體 ---
-  let body: unknown
+  let body: unknown = {}
   try {
-    body = await request.json()
+    const text = await request.text()
+    if (text) {
+      body = JSON.parse(text)
+    }
   } catch {
-    return NextResponse.json(
-      {
-        type: 'https://api.example.com/errors/validation',
-        title: 'Invalid JSON',
-        status: 400,
-        detail: 'Request body must be valid JSON',
-      },
-      { status: 400 }
-    )
+    // Empty body is acceptable
   }
 
-  const validation = rollbackSchema.safeParse(body)
+  const validation = resetRequestSchema.safeParse(body)
 
   if (!validation.success) {
     return NextResponse.json(
@@ -126,24 +118,20 @@ export async function POST(
     )
   }
 
-  const { historyId, reason } = validation.data
-
   try {
-    // 使用 Story 12-4 新方法
-    const result = await SystemConfigService.rollbackConfig(
+    const result = await SystemConfigService.resetToDefault(
       decodedKey,
-      historyId,
       session.user.id,
-      reason
+      validation.data.reason
     )
 
     if (!result.success) {
       return NextResponse.json(
         {
           type: 'https://api.example.com/errors/validation',
-          title: 'Rollback Failed',
+          title: 'Reset Failed',
           status: 400,
-          detail: result.error || 'Failed to rollback configuration',
+          detail: result.error || 'Failed to reset configuration',
         },
         { status: 400 }
       )
@@ -151,7 +139,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: 'Configuration rolled back successfully',
+      message: 'Configuration reset to default value',
       requiresRestart: result.requiresRestart,
     })
   } catch (error) {
@@ -167,27 +155,27 @@ export async function POST(
           { status: 404 }
         )
       }
-      if (error.code === 'HISTORY_NOT_FOUND') {
+      if (error.code === 'NO_DEFAULT_VALUE') {
         return NextResponse.json(
           {
-            type: 'https://api.example.com/errors/not-found',
-            title: 'History Not Found',
-            status: 404,
+            type: 'https://api.example.com/errors/validation',
+            title: 'No Default Value',
+            status: 400,
             detail: error.message,
           },
-          { status: 404 }
+          { status: 400 }
         )
       }
     }
 
-    console.error('[Admin Config API] Rollback error:', error)
+    console.error('[Admin Config API] Reset error:', error)
 
     return NextResponse.json(
       {
         type: 'https://api.example.com/errors/internal',
         title: 'Internal Server Error',
         status: 500,
-        detail: 'Failed to rollback configuration',
+        detail: 'Failed to reset configuration',
       },
       { status: 500 }
     )

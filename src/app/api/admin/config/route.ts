@@ -4,17 +4,18 @@
  * @fileoverview 系統配置管理 API
  * @description
  *   提供系統配置的列表和創建功能：
- *   - 列出所有配置或按類別篩選
+ *   - 列出所有配置（依類別分組）
+ *   - 支援類別篩選和搜尋
  *   - 創建新配置
  *   - 僅限全局管理者訪問
  *
  * @module src/app/api/admin/config
  * @author Development Team
  * @since Epic 6 - Story 6.4 (Global Admin Full Access)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-21
  *
  * @features
- *   - 配置列表（支援分類篩選）
+ *   - 配置列表（支援分類篩選、搜尋）
  *   - 創建新配置
  *   - 全局管理者權限驗證
  *
@@ -38,6 +39,18 @@ import { z } from 'zod'
 // Validation Schema
 // ============================================================
 
+/**
+ * 列表查詢參數驗證
+ */
+const listQuerySchema = z.object({
+  category: z.nativeEnum(ConfigCategory).optional(),
+  search: z.string().max(100).optional(),
+  includeReadOnly: z.boolean().optional(),
+})
+
+/**
+ * 創建配置請求驗證
+ */
 const createConfigSchema = z.object({
   key: z.string().min(1).max(255),
   value: z.record(z.string(), z.unknown()),
@@ -55,14 +68,16 @@ const createConfigSchema = z.object({
  * GET /api/admin/config
  *
  * @description
- *   獲取系統配置列表。可選擇按類別篩選。
+ *   獲取系統配置列表。可選擇按類別篩選或搜尋。
+ *   返回依類別分組的配置列表。
  *   僅限全局管理者訪問。
  *
  * @query
  *   - category: 配置類別（可選）
- *   - includeInactive: 是否包含停用的配置（預設 false）
+ *   - search: 搜尋關鍵字（可選）
+ *   - includeReadOnly: 是否包含唯讀配置（預設 true）
  *
- * @returns 配置列表（按類別分組或單一類別）
+ * @returns 配置列表（按類別分組）
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   // --- 認證檢查 ---
@@ -93,47 +108,41 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   // --- 解析參數 ---
-  const category = request.nextUrl.searchParams.get('category')
-  const includeInactive =
-    request.nextUrl.searchParams.get('includeInactive') === 'true'
+  const { searchParams } = new URL(request.url)
 
   try {
-    // 如果指定了類別，返回該類別的配置
-    if (category && Object.values(ConfigCategory).includes(category as ConfigCategory)) {
-      const configs = await SystemConfigService.getByCategory(
-        category as ConfigCategory
-      )
-      return NextResponse.json({
-        success: true,
-        data: configs,
-      })
-    }
+    const query = listQuerySchema.parse({
+      category: searchParams.get('category') || undefined,
+      search: searchParams.get('search') || undefined,
+      includeReadOnly: searchParams.get('includeReadOnly') !== 'false',
+    })
 
-    // 否則返回所有類別的配置（按類別分組）
-    const allCategories = Object.values(ConfigCategory)
-    const categorizedConfigs: Record<string, Awaited<ReturnType<typeof SystemConfigService.getByCategory>>> = {}
-
-    for (const cat of allCategories) {
-      categorizedConfigs[cat] = await SystemConfigService.getByCategory(cat)
-    }
-
-    // 如果需要包含停用的配置
-    if (includeInactive) {
-      const allConfigs = await SystemConfigService.getAll(true)
-      return NextResponse.json({
-        success: true,
-        data: {
-          byCategory: categorizedConfigs,
-          all: allConfigs,
-        },
-      })
-    }
+    // 使用 Story 12-4 新方法
+    const configs = await SystemConfigService.listConfigs({
+      category: query.category,
+      search: query.search,
+      includeReadOnly: query.includeReadOnly,
+    })
 
     return NextResponse.json({
       success: true,
-      data: categorizedConfigs,
+      data: configs,
+      timestamp: new Date().toISOString(),
     })
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/validation',
+          title: 'Validation Error',
+          status: 400,
+          detail: 'Invalid query parameters',
+          errors: error.flatten().fieldErrors,
+        },
+        { status: 400 }
+      )
+    }
+
     console.error('[Admin Config API] Error:', error)
 
     return NextResponse.json(

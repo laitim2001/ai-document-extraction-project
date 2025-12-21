@@ -5,23 +5,29 @@
  *   - 配置 CRUD 操作
  *   - 版本控制與歷史追蹤
  *   - 配置回滾功能
- *   - 按類別/範圍查詢配置
+ *   - 敏感值 AES-256-GCM 加密
+ *   - 配置快取與熱載入
+ *   - 值類型驗證
  *
  * @module src/services/system-config.service
  * @author Development Team
  * @since Epic 6 - Story 6.4 (Global Admin Full Access)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-21
  *
  * @features
  *   - 配置版本控制
  *   - 變更歷史追蹤
  *   - 支援回滾到任意版本
- *   - 按類別/範圍過濾
+ *   - 敏感值加密儲存 (AES-256-GCM)
+ *   - 配置快取 (60 秒 TTL)
+ *   - 值類型驗證
+ *   - 重置為預設值
  *   - 審計日誌記錄
  *
  * @dependencies
  *   - @prisma/client - Prisma ORM 客戶端
  *   - @/lib/prisma - Prisma 實例
+ *   - crypto - Node.js 加密模組
  *
  * @related
  *   - src/services/global-admin.service.ts - 全局管理者服務
@@ -30,27 +36,69 @@
  */
 
 import { prisma } from '@/lib/prisma'
-import { ConfigCategory, ConfigScope, Prisma } from '@prisma/client'
+import {
+  ConfigCategory,
+  ConfigScope,
+  ConfigValueType,
+  Prisma,
+} from '@prisma/client'
+import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypto'
+import { EventEmitter } from 'events'
+import type {
+  ConfigValue,
+  ConfigValidation,
+  ConfigUpdateInput,
+  ConfigUpdateResult,
+  ConfigListOptions,
+  ConfigHistoryOptions,
+  ConfigHistoryResult,
+  ConfigHistoryItem,
+  GroupedConfigs,
+  ConfigImportResult,
+} from '@/types/config'
 
 // ============================================================
-// Types
+// Constants
+// ============================================================
+
+/** 加密演算法 */
+const ENCRYPTION_ALGORITHM = 'aes-256-gcm'
+
+/** 加密金鑰（從環境變數讀取） */
+const ENCRYPTION_KEY = process.env.CONFIG_ENCRYPTION_KEY || 'default-key-for-development-only'
+
+/** 加密鹽值 */
+const ENCRYPTION_SALT = 'config-salt'
+
+/** 快取 TTL（毫秒） */
+const CACHE_TTL = 60000 // 60 秒
+
+// ============================================================
+// Event Emitter
+// ============================================================
+
+/** 配置變更事件發射器 */
+export const configEvents = new EventEmitter()
+
+// ============================================================
+// Legacy Types (保持向後相容 Story 6.4)
 // ============================================================
 
 /**
- * 配置值類型
+ * 配置值類型 (Legacy)
  */
-export interface ConfigValue {
+export interface LegacyConfigValue {
   [key: string]: unknown
 }
 
 /**
- * 配置項目資訊
+ * 配置項目資訊 (Legacy)
  */
 export interface ConfigInfo {
   /** 配置鍵 */
   key: string
   /** 配置值 */
-  value: ConfigValue
+  value: LegacyConfigValue
   /** 描述 */
   description: string | null
   /** 類別 */
@@ -66,19 +114,19 @@ export interface ConfigInfo {
   /** 更新時間 */
   updatedAt: Date
   /** 更新者 */
-  updatedBy: string
+  updatedBy: string | null
 }
 
 /**
- * 配置歷史記錄
+ * 配置歷史記錄 (Legacy)
  */
 export interface ConfigHistoryInfo {
   /** 版本號 */
   version: number
   /** 變更前的值 */
-  previousValue: ConfigValue
+  previousValue: LegacyConfigValue
   /** 變更後的值 */
-  newValue: ConfigValue
+  newValue: LegacyConfigValue
   /** 變更者 */
   changedBy: {
     id: string
@@ -92,13 +140,13 @@ export interface ConfigHistoryInfo {
 }
 
 /**
- * 建立配置參數
+ * 建立配置參數 (Legacy)
  */
 export interface CreateConfigParams {
   /** 配置鍵 */
   key: string
   /** 配置值 */
-  value: ConfigValue
+  value: LegacyConfigValue
   /** 描述 */
   description?: string
   /** 類別 */
@@ -112,13 +160,13 @@ export interface CreateConfigParams {
 }
 
 /**
- * 更新配置參數
+ * 更新配置參數 (Legacy)
  */
 export interface UpdateConfigParams {
   /** 配置鍵 */
   key: string
   /** 新配置值 */
-  value: ConfigValue
+  value: LegacyConfigValue
   /** 更新者 ID */
   updatedBy: string
   /** 變更原因 */
@@ -126,7 +174,7 @@ export interface UpdateConfigParams {
 }
 
 /**
- * 回滾配置參數
+ * 回滾配置參數 (Legacy)
  */
 export interface RollbackConfigParams {
   /** 配置鍵 */
@@ -158,6 +206,217 @@ export class SystemConfigError extends Error {
 }
 
 // ============================================================
+// Config Cache Class
+// ============================================================
+
+/**
+ * 配置快取類別
+ * 提供記憶體快取以減少資料庫查詢
+ */
+class ConfigCache {
+  private cache: Map<string, unknown> = new Map()
+  private lastRefresh: Date = new Date(0)
+  private refreshInterval = CACHE_TTL
+  private isRefreshing = false
+
+  /**
+   * 取得快取值
+   */
+  async get(key: string): Promise<unknown | undefined> {
+    if (this.shouldRefresh() && !this.isRefreshing) {
+      await this.refresh()
+    }
+    return this.cache.get(key)
+  }
+
+  /**
+   * 設定快取值
+   */
+  set(key: string, value: unknown): void {
+    this.cache.set(key, value)
+  }
+
+  /**
+   * 清除快取
+   */
+  invalidate(key?: string): void {
+    if (key) {
+      this.cache.delete(key)
+    } else {
+      this.cache.clear()
+    }
+    this.lastRefresh = new Date(0)
+  }
+
+  /**
+   * 檢查是否需要刷新
+   */
+  private shouldRefresh(): boolean {
+    return Date.now() - this.lastRefresh.getTime() > this.refreshInterval
+  }
+
+  /**
+   * 刷新所有快取
+   */
+  private async refresh(): Promise<void> {
+    this.isRefreshing = true
+    try {
+      const configs = await prisma.systemConfig.findMany({
+        where: { isActive: true },
+      })
+      this.cache.clear()
+
+      for (const config of configs) {
+        const value = decryptIfNeeded(config.value, config.isEncrypted)
+        this.cache.set(config.key, parseConfigValue(value, config.valueType))
+      }
+
+      this.lastRefresh = new Date()
+    } finally {
+      this.isRefreshing = false
+    }
+  }
+
+  /**
+   * 取得所有快取的鍵
+   */
+  keys(): string[] {
+    return Array.from(this.cache.keys())
+  }
+
+  /**
+   * 取得快取大小
+   */
+  size(): number {
+    return this.cache.size
+  }
+}
+
+// 單例快取實例
+const configCache = new ConfigCache()
+
+// ============================================================
+// Encryption Utilities
+// ============================================================
+
+/**
+ * 使用 scrypt 衍生加密金鑰
+ */
+function deriveKey(): Buffer {
+  return scryptSync(ENCRYPTION_KEY, ENCRYPTION_SALT, 32)
+}
+
+/**
+ * 加密值
+ * @param value 原始值
+ * @returns 加密後的字串（格式：IV:AuthTag:EncryptedData）
+ */
+function encryptValue(value: string): string {
+  const key = deriveKey()
+  const iv = randomBytes(16)
+  const cipher = createCipheriv(ENCRYPTION_ALGORITHM, key, iv)
+
+  let encrypted = cipher.update(value, 'utf8', 'hex')
+  encrypted += cipher.final('hex')
+  const authTag = cipher.getAuthTag()
+
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`
+}
+
+/**
+ * 解密值
+ * @param encrypted 加密的字串
+ * @returns 解密後的原始值
+ */
+function decryptValue(encrypted: string): string {
+  const [ivHex, authTagHex, data] = encrypted.split(':')
+
+  if (!ivHex || !authTagHex || !data) {
+    throw new Error('Invalid encrypted value format')
+  }
+
+  const key = deriveKey()
+  const iv = Buffer.from(ivHex, 'hex')
+  const authTag = Buffer.from(authTagHex, 'hex')
+
+  const decipher = createDecipheriv(ENCRYPTION_ALGORITHM, key, iv)
+  decipher.setAuthTag(authTag)
+
+  let decrypted = decipher.update(data, 'hex', 'utf8')
+  decrypted += decipher.final('utf8')
+
+  return decrypted
+}
+
+/**
+ * 若需要則解密值
+ */
+function decryptIfNeeded(value: string, isEncrypted: boolean): string {
+  if (isEncrypted && value) {
+    try {
+      return decryptValue(value)
+    } catch {
+      console.error('Failed to decrypt config value')
+      return value
+    }
+  }
+  return value
+}
+
+/**
+ * 解析配置值為對應的 JavaScript 型別
+ */
+function parseConfigValue(value: string | null, valueType: ConfigValueType): unknown {
+  if (value === null || value === undefined || value === '') {
+    return null
+  }
+
+  switch (valueType) {
+    case 'NUMBER':
+      return parseFloat(value)
+    case 'BOOLEAN':
+      return value === 'true' || value === '1'
+    case 'JSON':
+      try {
+        return JSON.parse(value)
+      } catch {
+        return null
+      }
+    default:
+      return value
+  }
+}
+
+/**
+ * 將值序列化為字串以儲存
+ */
+function stringifyConfigValue(value: unknown, valueType: ConfigValueType): string {
+  if (value === null || value === undefined) {
+    return ''
+  }
+
+  switch (valueType) {
+    case 'NUMBER':
+    case 'BOOLEAN':
+      return String(value)
+    case 'JSON':
+      return JSON.stringify(value)
+    default:
+      return String(value)
+  }
+}
+
+/**
+ * 遮罩敏感值
+ */
+function maskSensitiveValue(value: string, showLength: number = 4): string {
+  if (!value || value.length <= showLength) {
+    return '••••••••'
+  }
+  return '••••••••' + value.slice(-showLength)
+}
+
+// ============================================================
 // Service Class
 // ============================================================
 
@@ -165,65 +424,645 @@ export class SystemConfigError extends Error {
  * 系統配置管理服務
  *
  * @description
- *   提供系統配置的完整管理功能，包括版本控制和回滾機制。
+ *   提供系統配置的完整管理功能，包括版本控制、加密和回滾機制。
  *   所有變更都會記錄到歷史表和審計日誌中。
  *
  * @example
  * ```typescript
- * // 獲取配置
- * const aiConfig = await SystemConfigService.get('ai.model.temperature')
+ * // 獲取配置值（使用快取）
+ * const threshold = await SystemConfigService.getValue<number>(
+ *   'processing.confidence_threshold',
+ *   0.7
+ * )
  *
  * // 更新配置
- * await SystemConfigService.update({
- *   key: 'ai.model.temperature',
- *   value: { temperature: 0.7 },
- *   updatedBy: 'user-1',
- *   changeReason: 'Improve response creativity'
- * })
+ * await SystemConfigService.updateConfig(
+ *   'processing.confidence_threshold',
+ *   { value: 0.8, changeReason: 'Improve accuracy' },
+ *   'user-id'
+ * )
  *
  * // 回滾配置
- * await SystemConfigService.rollback({
- *   key: 'ai.model.temperature',
- *   targetVersion: 2,
- *   rolledBackBy: 'admin-1',
- *   reason: 'Revert due to performance issues'
- * })
+ * await SystemConfigService.rollbackConfig(
+ *   'processing.confidence_threshold',
+ *   'history-id',
+ *   'admin-id'
+ * )
  * ```
  */
 export class SystemConfigService {
+  // ============================================================
+  // Story 12-4: New Methods
+  // ============================================================
+
   /**
-   * 根據鍵獲取配置
-   *
-   * @description
-   *   獲取指定鍵的配置值。只返回啟用狀態的配置。
-   *
-   * @param key - 配置鍵
-   * @returns Promise<T | null> - 配置值或 null
-   *
-   * @example
-   * ```typescript
-   * const config = await SystemConfigService.get<{ temperature: number }>(
-   *   'ai.model.temperature'
-   * )
-   * console.log(config?.temperature) // 0.7
-   * ```
+   * 取得配置列表（依類別分組）
    */
-  static async get<T = ConfigValue>(key: string): Promise<T | null> {
+  static async listConfigs(options: ConfigListOptions = {}): Promise<GroupedConfigs> {
+    const { category, search, includeReadOnly = true } = options
+
+    const where: Prisma.SystemConfigWhereInput = {
+      isActive: true,
+    }
+
+    if (category) {
+      where.category = category
+    }
+
+    if (!includeReadOnly) {
+      where.isReadOnly = false
+    }
+
+    if (search) {
+      where.OR = [
+        { key: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ]
+    }
+
+    const configs = await prisma.systemConfig.findMany({
+      where,
+      orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }, { name: 'asc' }],
+      include: {
+        updater: {
+          select: { id: true, name: true },
+        },
+      },
+    })
+
+    // 初始化分組結構
+    const grouped: GroupedConfigs = {
+      PROCESSING: [],
+      INTEGRATION: [],
+      SECURITY: [],
+      NOTIFICATION: [],
+      SYSTEM: [],
+      DISPLAY: [],
+      AI_MODEL: [],
+      THRESHOLD: [],
+    }
+
+    for (const config of configs) {
+      const decryptedValue = decryptIfNeeded(config.value, config.isEncrypted)
+      const parsedValue = parseConfigValue(decryptedValue, config.valueType)
+      const defaultValue = parseConfigValue(config.defaultValue, config.valueType)
+
+      const configValue: ConfigValue = {
+        key: config.key,
+        // 敏感值以遮罩方式顯示
+        value: config.isEncrypted ? maskSensitiveValue(decryptedValue) : parsedValue,
+        name: config.name,
+        description: config.description,
+        category: config.category,
+        valueType: config.valueType,
+        effectType: config.effectType,
+        defaultValue,
+        validation: config.validation as ConfigValidation | undefined,
+        impactNote: config.impactNote || undefined,
+        isEncrypted: config.isEncrypted,
+        isReadOnly: config.isReadOnly,
+        isModified: config.value !== config.defaultValue,
+        updatedAt: config.updatedAt,
+        updatedBy: config.updater?.name || undefined,
+      }
+
+      if (grouped[config.category]) {
+        grouped[config.category].push(configValue)
+      }
+    }
+
+    return grouped
+  }
+
+  /**
+   * 取得單一配置值（完整資訊）
+   */
+  static async getConfigByKey(key: string): Promise<ConfigValue | null> {
+    const config = await prisma.systemConfig.findUnique({
+      where: { key },
+      include: {
+        updater: {
+          select: { id: true, name: true },
+        },
+      },
+    })
+
+    if (!config) return null
+
+    const decryptedValue = decryptIfNeeded(config.value, config.isEncrypted)
+    const parsedValue = parseConfigValue(decryptedValue, config.valueType)
+    const defaultValue = parseConfigValue(config.defaultValue, config.valueType)
+
+    return {
+      key: config.key,
+      value: parsedValue,
+      name: config.name,
+      description: config.description,
+      category: config.category,
+      valueType: config.valueType,
+      effectType: config.effectType,
+      defaultValue,
+      validation: config.validation as ConfigValidation | undefined,
+      impactNote: config.impactNote || undefined,
+      isEncrypted: config.isEncrypted,
+      isReadOnly: config.isReadOnly,
+      isModified: config.value !== config.defaultValue,
+      updatedAt: config.updatedAt,
+      updatedBy: config.updater?.name || undefined,
+    }
+  }
+
+  /**
+   * 取得配置值（用於運行時，使用快取）
+   */
+  static async getValue<T>(key: string, defaultValue?: T): Promise<T> {
+    // 先檢查快取
+    const cached = await configCache.get(key)
+    if (cached !== undefined) {
+      return cached as T
+    }
+
+    // 從資料庫載入
+    const config = await this.getConfigByKey(key)
+    if (config) {
+      configCache.set(key, config.value)
+      return config.value as T
+    }
+
+    return defaultValue as T
+  }
+
+  /**
+   * 更新配置值
+   */
+  static async updateConfig(
+    key: string,
+    input: ConfigUpdateInput,
+    userId: string
+  ): Promise<ConfigUpdateResult> {
+    const config = await prisma.systemConfig.findUnique({
+      where: { key },
+    })
+
+    if (!config) {
+      return { success: false, requiresRestart: false, error: '配置不存在' }
+    }
+
+    if (config.isReadOnly) {
+      return { success: false, requiresRestart: false, error: '此配置為唯讀，無法修改' }
+    }
+
+    // 驗證值
+    const validation = config.validation as ConfigValidation | null
+    const validationError = this.validateValue(input.value, config.valueType, validation)
+    if (validationError) {
+      return { success: false, requiresRestart: false, error: validationError }
+    }
+
+    // 序列化值
+    let newValue = stringifyConfigValue(input.value, config.valueType)
+
+    // 加密敏感值
+    if (config.isEncrypted) {
+      newValue = encryptValue(newValue)
+    }
+
+    const previousValue = config.value
+
+    // 使用交易確保一致性
+    await prisma.$transaction([
+      // 更新配置
+      prisma.systemConfig.update({
+        where: { key },
+        data: {
+          value: newValue,
+          version: { increment: 1 },
+          updatedBy: userId,
+        },
+      }),
+      // 記錄歷史（敏感值以遮罩顯示）
+      prisma.configHistory.create({
+        data: {
+          configId: config.id,
+          version: config.version + 1,
+          previousValue: config.isEncrypted
+            ? maskSensitiveValue(decryptIfNeeded(previousValue, true))
+            : previousValue,
+          newValue: config.isEncrypted
+            ? maskSensitiveValue(stringifyConfigValue(input.value, config.valueType))
+            : newValue,
+          changedBy: userId,
+          changeReason: input.changeReason,
+        },
+      }),
+    ])
+
+    // 清除快取
+    configCache.invalidate(key)
+
+    // 記錄審計日誌
+    await this.logConfigChange(key, config.name, userId, 'CONFIG_UPDATE')
+
+    // 發送配置變更事件
+    configEvents.emit('config:updated', { key, effectType: config.effectType })
+
+    return {
+      success: true,
+      requiresRestart: config.effectType === 'RESTART_REQUIRED',
+    }
+  }
+
+  /**
+   * 回滾配置到特定版本
+   */
+  static async rollbackConfig(
+    key: string,
+    historyId: string,
+    userId: string,
+    reason?: string
+  ): Promise<{ success: boolean; requiresRestart?: boolean; error?: string }> {
+    const config = await prisma.systemConfig.findUnique({
+      where: { key },
+    })
+
+    if (!config) {
+      return { success: false, error: '配置不存在' }
+    }
+
+    if (config.isReadOnly) {
+      return { success: false, error: '此配置為唯讀，無法回滾' }
+    }
+
+    const historyRecord = await prisma.configHistory.findUnique({
+      where: { id: historyId },
+    })
+
+    if (!historyRecord || historyRecord.configId !== config.id) {
+      return { success: false, error: '歷史記錄不存在或不屬於此配置' }
+    }
+
+    // 執行回滾
+    await prisma.$transaction([
+      prisma.systemConfig.update({
+        where: { key },
+        data: {
+          value: historyRecord.previousValue,
+          version: { increment: 1 },
+          updatedBy: userId,
+        },
+      }),
+      prisma.configHistory.create({
+        data: {
+          configId: config.id,
+          version: config.version + 1,
+          previousValue: config.value,
+          newValue: historyRecord.previousValue,
+          changedBy: userId,
+          changeReason: reason || `回滾至 ${historyRecord.createdAt.toISOString()} 的版本`,
+          isRollback: true,
+          rollbackFrom: historyId,
+        },
+      }),
+    ])
+
+    // 清除快取
+    configCache.invalidate(key)
+
+    // 記錄審計日誌
+    await this.logConfigChange(key, config.name, userId, 'CONFIG_ROLLBACK')
+
+    // 發送配置變更事件
+    configEvents.emit('config:rolledback', { key, historyId })
+
+    return {
+      success: true,
+      requiresRestart: config.effectType === 'RESTART_REQUIRED',
+    }
+  }
+
+  /**
+   * 取得配置變更歷史
+   */
+  static async getConfigHistory(
+    key: string,
+    options: ConfigHistoryOptions = {}
+  ): Promise<ConfigHistoryResult> {
+    const { limit = 20, offset = 0 } = options
+
+    const config = await prisma.systemConfig.findUnique({
+      where: { key },
+    })
+
+    if (!config) {
+      return { history: [], total: 0 }
+    }
+
+    const [history, total] = await Promise.all([
+      prisma.configHistory.findMany({
+        where: { configId: config.id },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+        include: {
+          changer: {
+            select: { id: true, name: true },
+          },
+        },
+      }),
+      prisma.configHistory.count({
+        where: { configId: config.id },
+      }),
+    ])
+
+    return {
+      history: history.map((h): ConfigHistoryItem => ({
+        id: h.id,
+        previousValue: h.previousValue,
+        newValue: h.newValue,
+        changedAt: h.createdAt,
+        changedBy: h.changedBy,
+        changedByName: h.changer?.name || undefined,
+        changeReason: h.changeReason || undefined,
+        isRollback: h.isRollback,
+      })),
+      total,
+    }
+  }
+
+  /**
+   * 重置配置為預設值
+   */
+  static async resetToDefault(
+    key: string,
+    userId: string,
+    reason?: string
+  ): Promise<{ success: boolean; requiresRestart?: boolean; error?: string }> {
+    const config = await prisma.systemConfig.findUnique({
+      where: { key },
+    })
+
+    if (!config) {
+      return { success: false, error: '配置不存在' }
+    }
+
+    if (config.isReadOnly) {
+      return { success: false, error: '此配置為唯讀，無法重置' }
+    }
+
+    // 如果已是預設值則直接返回成功
+    if (config.value === config.defaultValue) {
+      return { success: true, requiresRestart: false }
+    }
+
+    let defaultValue = config.defaultValue || ''
+    if (config.isEncrypted && defaultValue) {
+      defaultValue = encryptValue(defaultValue)
+    }
+
+    await prisma.$transaction([
+      prisma.systemConfig.update({
+        where: { key },
+        data: {
+          value: defaultValue,
+          version: { increment: 1 },
+          updatedBy: userId,
+        },
+      }),
+      prisma.configHistory.create({
+        data: {
+          configId: config.id,
+          version: config.version + 1,
+          previousValue: config.isEncrypted
+            ? maskSensitiveValue(decryptIfNeeded(config.value, true))
+            : config.value,
+          newValue: config.isEncrypted
+            ? maskSensitiveValue(config.defaultValue || '')
+            : config.defaultValue || '',
+          changedBy: userId,
+          changeReason: reason || '重置為預設值',
+        },
+      }),
+    ])
+
+    // 清除快取
+    configCache.invalidate(key)
+
+    // 記錄審計日誌
+    await this.logConfigChange(key, config.name, userId, 'CONFIG_RESET')
+
+    // 發送配置變更事件
+    configEvents.emit('config:reset', { key, effectType: config.effectType })
+
+    return {
+      success: true,
+      requiresRestart: config.effectType === 'RESTART_REQUIRED',
+    }
+  }
+
+  /**
+   * 驗證配置值
+   */
+  private static validateValue(
+    value: unknown,
+    valueType: ConfigValueType,
+    validation?: ConfigValidation | null
+  ): string | null {
+    // 必填驗證
+    if (validation?.required && (value === null || value === undefined || value === '')) {
+      return '此配置為必填'
+    }
+
+    // 空值允許（若非必填）
+    if (value === null || value === undefined || value === '') {
+      return null
+    }
+
+    // 數值類型驗證
+    if (valueType === 'NUMBER') {
+      const numValue = Number(value)
+      if (isNaN(numValue)) {
+        return '必須為有效數值'
+      }
+      if (validation?.min !== undefined && numValue < validation.min) {
+        return `最小值為 ${validation.min}`
+      }
+      if (validation?.max !== undefined && numValue > validation.max) {
+        return `最大值為 ${validation.max}`
+      }
+    }
+
+    // 字串類型驗證
+    if (valueType === 'STRING' || valueType === 'SECRET') {
+      const strValue = String(value)
+      if (validation?.minLength !== undefined && strValue.length < validation.minLength) {
+        return `最小長度為 ${validation.minLength}`
+      }
+      if (validation?.maxLength !== undefined && strValue.length > validation.maxLength) {
+        return `最大長度為 ${validation.maxLength}`
+      }
+      if (validation?.pattern) {
+        const regex = new RegExp(validation.pattern)
+        if (!regex.test(strValue)) {
+          return '格式不正確'
+        }
+      }
+    }
+
+    // 列舉類型驗證
+    if (valueType === 'ENUM' || validation?.options) {
+      if (validation?.options && !validation.options.includes(String(value))) {
+        return `必須是以下選項之一: ${validation.options.join(', ')}`
+      }
+    }
+
+    // JSON 類型驗證
+    if (valueType === 'JSON' && typeof value === 'string') {
+      try {
+        JSON.parse(value)
+      } catch {
+        return 'JSON 格式不正確'
+      }
+    }
+
+    return null
+  }
+
+  /**
+   * 記錄配置變更至審計日誌
+   */
+  private static async logConfigChange(
+    key: string,
+    name: string,
+    userId: string,
+    action: string
+  ): Promise<void> {
+    const actionText =
+      action === 'CONFIG_UPDATE'
+        ? '更新'
+        : action === 'CONFIG_ROLLBACK'
+          ? '回滾'
+          : '重置'
+
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        userName: 'System',
+        action: 'CONFIGURE',
+        resourceType: 'SystemConfig',
+        resourceId: key,
+        resourceName: name,
+        description: `${actionText}系統配置: ${name}`,
+        status: 'SUCCESS',
+      },
+    })
+  }
+
+  /**
+   * 重新載入所有配置（熱載入）
+   */
+  static async reloadAllConfigs(): Promise<void> {
+    configCache.invalidate()
+    configEvents.emit('config:reloaded')
+  }
+
+  /**
+   * 匯出所有配置（排除敏感值）
+   */
+  static async exportConfigs(userId: string): Promise<Record<string, unknown>> {
+    const configs = await prisma.systemConfig.findMany({
+      where: { isEncrypted: false, isActive: true },
+    })
+
+    const exported: Record<string, unknown> = {}
+    for (const config of configs) {
+      exported[config.key] = parseConfigValue(config.value, config.valueType)
+    }
+
+    // 記錄審計日誌
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        userName: 'System',
+        action: 'EXPORT',
+        resourceType: 'SystemConfig',
+        resourceId: 'all',
+        resourceName: 'System Configurations',
+        description: '匯出系統配置',
+        status: 'SUCCESS',
+      },
+    })
+
+    return exported
+  }
+
+  /**
+   * 批量匯入配置
+   */
+  static async importConfigs(
+    configs: Record<string, unknown>,
+    userId: string
+  ): Promise<ConfigImportResult> {
+    let imported = 0
+    let skipped = 0
+    const errors: string[] = []
+
+    for (const [key, value] of Object.entries(configs)) {
+      const existingConfig = await prisma.systemConfig.findUnique({
+        where: { key },
+      })
+
+      if (!existingConfig) {
+        skipped++
+        continue
+      }
+
+      if (existingConfig.isEncrypted || existingConfig.isReadOnly) {
+        skipped++
+        continue
+      }
+
+      const result = await this.updateConfig(
+        key,
+        { value, changeReason: '批量匯入' },
+        userId
+      )
+
+      if (result.success) {
+        imported++
+      } else {
+        errors.push(`${key}: ${result.error}`)
+      }
+    }
+
+    return { imported, skipped, errors }
+  }
+
+  // ============================================================
+  // Legacy Methods (Story 6.4 - 保持向後相容)
+  // ============================================================
+
+  /**
+   * 根據鍵獲取配置 (Legacy)
+   */
+  static async get<T = LegacyConfigValue>(key: string): Promise<T | null> {
     const config = await prisma.systemConfig.findFirst({
       where: { key, isActive: true },
     })
 
-    return config?.value as T | null
+    if (!config) return null
+
+    // 處理 Story 12-4 的新格式
+    const value = parseConfigValue(
+      decryptIfNeeded(config.value, config.isEncrypted),
+      config.valueType
+    )
+
+    return value as T | null
   }
 
   /**
-   * 根據鍵獲取完整配置資訊
-   *
-   * @description
-   *   獲取指定鍵的完整配置資訊，包括元數據。
-   *
-   * @param key - 配置鍵
-   * @returns Promise<ConfigInfo | null> - 配置資訊或 null
+   * 根據鍵獲取完整配置資訊 (Legacy)
    */
   static async getByKey(key: string): Promise<ConfigInfo | null> {
     const config = await prisma.systemConfig.findFirst({
@@ -232,9 +1071,14 @@ export class SystemConfigService {
 
     if (!config) return null
 
+    const value = parseConfigValue(
+      decryptIfNeeded(config.value, config.isEncrypted),
+      config.valueType
+    )
+
     return {
       key: config.key,
-      value: config.value as ConfigValue,
+      value: typeof value === 'object' ? (value as LegacyConfigValue) : { value },
       description: config.description,
       category: config.category,
       scope: config.scope,
@@ -247,18 +1091,7 @@ export class SystemConfigService {
   }
 
   /**
-   * 根據類別獲取配置列表
-   *
-   * @description
-   *   獲取指定類別的所有啟用配置。
-   *
-   * @param category - 配置類別
-   * @returns Promise<ConfigInfo[]> - 配置列表
-   *
-   * @example
-   * ```typescript
-   * const aiConfigs = await SystemConfigService.getByCategory('AI_MODEL')
-   * ```
+   * 根據類別獲取配置列表 (Legacy)
    */
   static async getByCategory(category: ConfigCategory): Promise<ConfigInfo[]> {
     const configs = await prisma.systemConfig.findMany({
@@ -266,29 +1099,28 @@ export class SystemConfigService {
       orderBy: { key: 'asc' },
     })
 
-    return configs.map((c) => ({
-      key: c.key,
-      value: c.value as ConfigValue,
-      description: c.description,
-      category: c.category,
-      scope: c.scope,
-      cityCode: c.cityCode,
-      version: c.version,
-      isActive: c.isActive,
-      updatedAt: c.updatedAt,
-      updatedBy: c.updatedBy,
-    }))
+    return configs.map((c) => {
+      const value = parseConfigValue(
+        decryptIfNeeded(c.value, c.isEncrypted),
+        c.valueType
+      )
+      return {
+        key: c.key,
+        value: typeof value === 'object' ? (value as LegacyConfigValue) : { value },
+        description: c.description,
+        category: c.category,
+        scope: c.scope,
+        cityCode: c.cityCode,
+        version: c.version,
+        isActive: c.isActive,
+        updatedAt: c.updatedAt,
+        updatedBy: c.updatedBy,
+      }
+    })
   }
 
   /**
-   * 根據範圍獲取配置列表
-   *
-   * @description
-   *   獲取指定範圍的所有啟用配置。
-   *
-   * @param scope - 配置範圍
-   * @param cityCode - 城市代碼（當範圍為 CITY 時需要）
-   * @returns Promise<ConfigInfo[]> - 配置列表
+   * 根據範圍獲取配置列表 (Legacy)
    */
   static async getByScope(
     scope: ConfigScope,
@@ -308,28 +1140,28 @@ export class SystemConfigService {
       orderBy: { key: 'asc' },
     })
 
-    return configs.map((c) => ({
-      key: c.key,
-      value: c.value as ConfigValue,
-      description: c.description,
-      category: c.category,
-      scope: c.scope,
-      cityCode: c.cityCode,
-      version: c.version,
-      isActive: c.isActive,
-      updatedAt: c.updatedAt,
-      updatedBy: c.updatedBy,
-    }))
+    return configs.map((c) => {
+      const value = parseConfigValue(
+        decryptIfNeeded(c.value, c.isEncrypted),
+        c.valueType
+      )
+      return {
+        key: c.key,
+        value: typeof value === 'object' ? (value as LegacyConfigValue) : { value },
+        description: c.description,
+        category: c.category,
+        scope: c.scope,
+        cityCode: c.cityCode,
+        version: c.version,
+        isActive: c.isActive,
+        updatedAt: c.updatedAt,
+        updatedBy: c.updatedBy,
+      }
+    })
   }
 
   /**
-   * 獲取所有配置
-   *
-   * @description
-   *   獲取系統中所有配置（可選擇是否包含停用的配置）。
-   *
-   * @param includeInactive - 是否包含停用的配置
-   * @returns Promise<ConfigInfo[]> - 配置列表
+   * 獲取所有配置 (Legacy)
    */
   static async getAll(includeInactive = false): Promise<ConfigInfo[]> {
     const whereClause: Prisma.SystemConfigWhereInput = includeInactive
@@ -341,40 +1173,28 @@ export class SystemConfigService {
       orderBy: [{ category: 'asc' }, { key: 'asc' }],
     })
 
-    return configs.map((c) => ({
-      key: c.key,
-      value: c.value as ConfigValue,
-      description: c.description,
-      category: c.category,
-      scope: c.scope,
-      cityCode: c.cityCode,
-      version: c.version,
-      isActive: c.isActive,
-      updatedAt: c.updatedAt,
-      updatedBy: c.updatedBy,
-    }))
+    return configs.map((c) => {
+      const value = parseConfigValue(
+        decryptIfNeeded(c.value, c.isEncrypted),
+        c.valueType
+      )
+      return {
+        key: c.key,
+        value: typeof value === 'object' ? (value as LegacyConfigValue) : { value },
+        description: c.description,
+        category: c.category,
+        scope: c.scope,
+        cityCode: c.cityCode,
+        version: c.version,
+        isActive: c.isActive,
+        updatedAt: c.updatedAt,
+        updatedBy: c.updatedBy,
+      }
+    })
   }
 
   /**
-   * 建立新配置
-   *
-   * @description
-   *   建立新的系統配置項目。配置鍵必須唯一。
-   *
-   * @param params - 建立配置參數
-   * @throws {SystemConfigError} 當配置鍵已存在時
-   *
-   * @example
-   * ```typescript
-   * await SystemConfigService.create({
-   *   key: 'notification.email.enabled',
-   *   value: { enabled: true, recipients: ['admin@example.com'] },
-   *   description: 'Email notification settings',
-   *   category: 'NOTIFICATION',
-   *   scope: 'GLOBAL',
-   *   createdBy: 'admin-1'
-   * })
-   * ```
+   * 建立新配置 (Legacy)
    */
   static async create(params: CreateConfigParams): Promise<void> {
     const {
@@ -414,9 +1234,11 @@ export class SystemConfigService {
       const config = await tx.systemConfig.create({
         data: {
           key,
-          value: value as Prisma.InputJsonValue,
-          description,
+          value: JSON.stringify(value),
+          name: key,
+          description: description || '',
           category,
+          valueType: 'JSON',
           scope,
           cityCode,
           updatedBy: createdBy,
@@ -446,23 +1268,7 @@ export class SystemConfigService {
   }
 
   /**
-   * 更新配置
-   *
-   * @description
-   *   更新現有配置的值。會自動記錄到歷史表中並增加版本號。
-   *
-   * @param params - 更新配置參數
-   * @throws {SystemConfigError} 當配置不存在時
-   *
-   * @example
-   * ```typescript
-   * await SystemConfigService.update({
-   *   key: 'ai.model.temperature',
-   *   value: { temperature: 0.8 },
-   *   updatedBy: 'admin-1',
-   *   changeReason: 'Increase creativity for better responses'
-   * })
-   * ```
+   * 更新配置 (Legacy)
    */
   static async update(params: UpdateConfigParams): Promise<void> {
     const { key, value, updatedBy, changeReason } = params
@@ -481,13 +1287,15 @@ export class SystemConfigService {
         )
       }
 
+      const newValueStr = JSON.stringify(value)
+
       // 儲存到歷史
       await tx.configHistory.create({
         data: {
           configId: current.id,
           version: current.version,
-          previousValue: current.value as Prisma.InputJsonValue,
-          newValue: value as Prisma.InputJsonValue,
+          previousValue: current.value,
+          newValue: newValueStr,
           changedBy: updatedBy,
           changeReason,
         },
@@ -497,7 +1305,7 @@ export class SystemConfigService {
       await tx.systemConfig.update({
         where: { id: current.id },
         data: {
-          value: value as Prisma.InputJsonValue,
+          value: newValueStr,
           version: { increment: 1 },
           updatedBy,
         },
@@ -523,18 +1331,13 @@ export class SystemConfigService {
         },
       })
     })
+
+    // 清除快取
+    configCache.invalidate(key)
   }
 
   /**
-   * 切換配置啟用狀態
-   *
-   * @description
-   *   啟用或停用指定配置。
-   *
-   * @param key - 配置鍵
-   * @param isActive - 是否啟用
-   * @param updatedBy - 更新者 ID
-   * @throws {SystemConfigError} 當配置不存在時
+   * 切換配置啟用狀態 (Legacy)
    */
   static async setActive(
     key: string,
@@ -573,24 +1376,13 @@ export class SystemConfigService {
         },
       })
     })
+
+    // 清除快取
+    configCache.invalidate(key)
   }
 
   /**
-   * 獲取配置歷史
-   *
-   * @description
-   *   獲取指定配置的所有變更歷史，按版本號降序排列。
-   *
-   * @param key - 配置鍵
-   * @returns Promise<ConfigHistoryInfo[]> - 歷史記錄列表
-   *
-   * @example
-   * ```typescript
-   * const history = await SystemConfigService.getHistory('ai.model.temperature')
-   * history.forEach(h => {
-   *   console.log(`Version ${h.version}: ${h.changeReason}`)
-   * })
-   * ```
+   * 獲取配置歷史 (Legacy)
    */
   static async getHistory(key: string): Promise<ConfigHistoryInfo[]> {
     const config = await prisma.systemConfig.findFirst({
@@ -612,8 +1404,12 @@ export class SystemConfigService {
 
     return history.map((h) => ({
       version: h.version,
-      previousValue: h.previousValue as ConfigValue,
-      newValue: h.newValue as ConfigValue,
+      previousValue: typeof h.previousValue === 'string'
+        ? JSON.parse(h.previousValue)
+        : h.previousValue as LegacyConfigValue,
+      newValue: typeof h.newValue === 'string'
+        ? JSON.parse(h.newValue)
+        : h.newValue as LegacyConfigValue,
       changedBy: h.changer,
       changeReason: h.changeReason,
       createdAt: h.createdAt,
@@ -621,23 +1417,7 @@ export class SystemConfigService {
   }
 
   /**
-   * 回滾配置到指定版本
-   *
-   * @description
-   *   將配置回滾到歷史中的某個版本。回滾操作本身也會記錄到歷史中。
-   *
-   * @param params - 回滾參數
-   * @throws {SystemConfigError} 當配置或目標版本不存在時
-   *
-   * @example
-   * ```typescript
-   * await SystemConfigService.rollback({
-   *   key: 'ai.model.temperature',
-   *   targetVersion: 2,
-   *   rolledBackBy: 'admin-1',
-   *   reason: 'Revert due to performance regression'
-   * })
-   * ```
+   * 回滾配置到指定版本 (Legacy)
    */
   static async rollback(params: RollbackConfigParams): Promise<void> {
     const { key, targetVersion, rolledBackBy, reason } = params
@@ -673,18 +1453,18 @@ export class SystemConfigService {
       }
 
       // 要恢復的值是目標歷史記錄的 previousValue
-      // （即該版本變更之前的值）
-      const restoreValue = targetHistory.previousValue as Prisma.InputJsonValue
+      const restoreValue = targetHistory.previousValue
 
       // 先將當前值儲存到歷史
       await tx.configHistory.create({
         data: {
           configId: config.id,
           version: config.version,
-          previousValue: config.value as Prisma.InputJsonValue,
-          newValue: restoreValue,
+          previousValue: config.value,
+          newValue: restoreValue as string,
           changedBy: rolledBackBy,
           changeReason: `Rollback to version ${targetVersion}: ${reason}`,
+          isRollback: true,
         },
       })
 
@@ -692,7 +1472,7 @@ export class SystemConfigService {
       await tx.systemConfig.update({
         where: { id: config.id },
         data: {
-          value: restoreValue,
+          value: restoreValue as string,
           version: { increment: 1 },
           updatedBy: rolledBackBy,
         },
@@ -719,17 +1499,13 @@ export class SystemConfigService {
         },
       })
     })
+
+    // 清除快取
+    configCache.invalidate(key)
   }
 
   /**
-   * 刪除配置
-   *
-   * @description
-   *   永久刪除配置及其所有歷史記錄。此操作不可逆。
-   *
-   * @param key - 配置鍵
-   * @param deletedBy - 刪除者 ID
-   * @throws {SystemConfigError} 當配置不存在時
+   * 刪除配置 (Legacy)
    */
   static async delete(key: string, deletedBy: string): Promise<void> {
     const config = await prisma.systemConfig.findFirst({
@@ -770,5 +1546,8 @@ export class SystemConfigService {
         where: { id: config.id },
       })
     })
+
+    // 清除快取
+    configCache.invalidate(key)
   }
 }
