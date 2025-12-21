@@ -28,3 +28,6 @@ export {
   DeleteRoleDialog,
   PermissionSelector,
 } from './roles'
+
+// Monitoring Components (Story 12.1)
+export { HealthDashboard } from './monitoring'

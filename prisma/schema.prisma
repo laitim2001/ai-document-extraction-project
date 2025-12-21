@@ -27,6 +27,7 @@ model User {
   createdAt         DateTime   @default(now()) @map("created_at")
   updatedAt         DateTime   @updatedAt @map("updated_at")
   lastLoginAt       DateTime?  @map("last_login_at")
+  lastActiveAt      DateTime?  @map("last_active_at") // Story 12-1: 最後活躍時間（用於活躍用戶統計）
 
   // Relations
   accounts               Account[]
@@ -3645,5 +3646,90 @@ model ApiAuditLog {
   @@index([endpoint])
   @@index([apiKeyId, createdAt])
   @@map("api_audit_logs")
+}
+
+// =====================
+// System Health Monitoring Models (Story 12-1)
+// 系統健康監控，支援多服務健康檢查和可用性統計
+// =====================
+
+// 服務類型枚舉
+enum ServiceType {
+  WEB_APP       // Web 應用程式
+  AI_SERVICE    // AI 處理服務
+  DATABASE      // 資料庫
+  STORAGE       // Blob 儲存
+  N8N           // n8n 工作流
+  CACHE         // Redis 快取
+  EXTERNAL_API  // 外部 API
+}
+
+// 注意: HealthStatus 枚舉已在 Story 10.7 定義（見上方）
+
+// 服務健康檢查記錄
+model ServiceHealthCheck {
+  id              String       @id @default(cuid())
+
+  // 服務資訊
+  serviceName     String       @map("service_name") // web, ai, database, storage, n8n, cache
+  serviceType     ServiceType  @map("service_type")
+
+  // 健康狀態
+  status          HealthStatus
+  responseTime    Int?         @map("response_time") // 毫秒
+  errorMessage    String?      @map("error_message")
+  errorCode       String?      @map("error_code")
+
+  // 詳細資訊
+  details         Json?        // 額外的健康檢查細節
+  endpoint        String?      // 健康檢查端點
+
+  // 時間記錄
+  checkedAt       DateTime     @default(now()) @map("checked_at")
+
+  @@index([serviceName])
+  @@index([status])
+  @@index([checkedAt])
+  @@index([serviceName, checkedAt])
+  @@map("service_health_checks")
+}
+
+// 服務可用性記錄（每小時彙總）
+model ServiceAvailability {
+  id              String    @id @default(cuid())
+  serviceName     String    @map("service_name")
+  date            DateTime  @db.Date
+  hour            Int       // 0-23
+
+  // 統計數據
+  totalChecks     Int       @map("total_checks")
+  healthyChecks   Int       @map("healthy_checks")
+  degradedChecks  Int       @map("degraded_checks")
+  unhealthyChecks Int       @map("unhealthy_checks")
+  avgResponseTime Float?    @map("avg_response_time")
+
+  // 計算的可用性
+  availabilityPct Float     @map("availability_pct") // 可用性百分比
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@unique([serviceName, date, hour])
+  @@index([serviceName])
+  @@index([date])
+  @@index([serviceName, date])
+  @@map("service_availability")
+}
+
+// 系統整體狀態
+model SystemOverallStatus {
+  id              String       @id @default(cuid())
+  status          HealthStatus
+  activeUsers     Int          @default(0) @map("active_users")
+  lastUpdated     DateTime     @default(now()) @map("last_updated")
+
+  // 各服務狀態摘要
+  servicesSummary Json         @map("services_summary") // { healthy: 4, degraded: 1, unhealthy: 0 }
+
+  @@map("system_overall_status")
 }
 

@@ -57,6 +57,7 @@
  *   | webhook | Webhook 通知服務 | Epic 11 Story 11.4 |
  *   | api-key | API Key 管理服務 | Epic 11 Story 11.5 |
  *   | api-audit-log | API 審計日誌服務 | Epic 11 Story 11.5 |
+ *   | health-check | 系統健康監控服務 | Epic 12 Story 12.1 |
  *
  *   ## 核心設計原則
  *
@@ -104,6 +105,7 @@
  *   - 外部 API 結果擷取（Story 11.3）
  *   - Webhook 通知服務（Story 11.4）
  *   - API 存取控制與認證（Story 11.5）
+ *   - 系統健康監控服務（Story 12.1）
  *
  * @related
  *   - src/app/api/ - API 路由層（調用服務）
@@ -306,6 +308,9 @@ export * from './api-audit-log.service'
 // Epic 11: External API Services (Story 11.6 - API Documentation & Developer Support)
 export * from './openapi-loader.service'
 export * from './example-generator.service'
+
+// Epic 12: System Administration & Monitoring (Story 12.1 - System Health Monitoring Dashboard)
+export * from './health-check.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

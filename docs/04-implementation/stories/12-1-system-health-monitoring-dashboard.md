@@ -1282,3 +1282,99 @@ describe('HealthCheckService', () => {
 - Story 12-2: 效能指標追蹤（指標數據來源）
 - Story 12-3: 錯誤告警配置（告警觸發）
 - Story 12-7: 系統日誌查詢（錯誤日誌）
+
+---
+
+## Implementation Notes
+
+**完成日期**: 2025-12-21
+
+### 實現摘要
+
+本 Story 實現了系統健康監控儀表板，提供以下功能：
+
+1. **Prisma Schema 擴展**
+   - `ServiceHealthCheck` - 服務健康檢查記錄
+   - `ServiceAvailability` - 每小時可用性彙總
+   - `SystemOverallStatus` - 系統整體狀態
+   - `ServiceType` enum - 服務類型 (WEB_APP, AI_SERVICE, DATABASE, STORAGE, N8N, CACHE)
+   - `HealthStatus` enum - 健康狀態 (HEALTHY, DEGRADED, UNHEALTHY, UNKNOWN, UNCONFIGURED)
+
+2. **核心服務** (`src/services/health-check.service.ts`)
+   - `HealthCheckService` 類別：
+     - `checkAllServices()` - 執行所有服務健康檢查
+     - `checkService()` - 檢查單一服務
+     - `getOverallHealth()` - 獲取整體健康狀態
+     - `getServiceDetails()` - 獲取服務詳情與歷史
+   - 支援的服務類型：
+     - Web 應用（HTTP 端點檢查）
+     - AI 服務（HTTP 端點檢查）
+     - 資料庫（Prisma 連接測試）
+     - Azure Blob Storage
+     - n8n 工作流
+     - Redis 快取（可選依賴）
+
+3. **API 端點**
+   - `GET /api/admin/health` - 獲取系統整體健康狀態
+   - `POST /api/admin/health` - 手動觸發健康檢查
+   - `GET /api/admin/health/[serviceName]` - 獲取特定服務詳情
+   - `GET /api/health` - 公開健康檢查端點（無認證）
+
+4. **前端組件** (`src/components/features/admin/monitoring/`)
+   - `HealthDashboard.tsx` - 主儀表板組件
+     - 整體健康狀態指示器
+     - 服務狀態卡片網格
+     - 服務詳情面板（點擊展開）
+     - 回應時間趨勢圖（recharts）
+     - 效能指標統計
+     - 錯誤日誌列表
+     - 手動刷新按鈕
+
+5. **React Query Hooks** (`src/hooks/use-health-monitoring.ts`)
+   - `useHealthStatus()` - 系統健康狀態查詢（30 秒自動刷新）
+   - `useServiceDetails()` - 服務詳情查詢
+   - `useTriggerHealthCheck()` - 手動觸發健康檢查
+   - `useHealthMonitoring()` - 組合 Hook
+
+6. **管理頁面** (`src/app/(dashboard)/admin/monitoring/health/page.tsx`)
+   - SYSTEM_MONITOR 權限或管理員角色驗證
+   - Suspense 骨架屏載入
+
+### 實現細節
+
+- **24 小時可用性計算**: HEALTHY = 100%, DEGRADED = 50%, UNHEALTHY = 0%
+- **活躍用戶判定**: Session 未過期且 lastActiveAt 在 15 分鐘內
+- **狀態變化處理**: 記錄日誌，為 WebSocket 通知預留接口
+- **可選依賴處理**: Redis (@upstash/redis) 為可選，未安裝時返回 UNCONFIGURED
+
+### 技術決策
+
+1. **WebSocket 通知延後實現**: 根據 Tech Spec，WebSocket 整合標記為 Story 12-1 Phase 2，目前使用 30 秒輪詢替代
+2. **Redis 可選依賴**: 使用動態 import 和 ts-expect-error 處理模組未安裝的情況
+3. **權限模型**: 同時支援 SYSTEM_MONITOR 權限和角色檢查（GLOBAL_ADMIN, ADMIN, SUPER_USER）
+
+### 檔案清單
+
+| 檔案 | 類型 | 說明 |
+|------|------|------|
+| `prisma/schema.prisma` | 修改 | 新增健康監控相關模型 |
+| `src/types/monitoring.ts` | 新增 | 健康監控類型定義 |
+| `src/services/health-check.service.ts` | 新增 | 健康檢查服務 |
+| `src/services/index.ts` | 修改 | 導出 HealthCheckService |
+| `src/app/api/admin/health/route.ts` | 新增 | 健康狀態 API |
+| `src/app/api/admin/health/[serviceName]/route.ts` | 新增 | 服務詳情 API |
+| `src/app/api/health/route.ts` | 新增 | 公開健康檢查端點 |
+| `src/components/features/admin/monitoring/HealthDashboard.tsx` | 新增 | 健康監控儀表板 |
+| `src/components/features/admin/monitoring/index.ts` | 新增 | 監控組件導出 |
+| `src/components/features/admin/index.ts` | 修改 | 導出監控組件 |
+| `src/hooks/use-health-monitoring.ts` | 新增 | 健康監控 React Query Hooks |
+| `src/app/(dashboard)/admin/monitoring/health/page.tsx` | 新增 | 健康監控頁面 |
+
+### 驗收標準達成
+
+| AC | 狀態 | 說明 |
+|----|------|------|
+| AC1 | ✅ | 健康狀態總覽顯示整體狀態、服務卡片、24h 可用性、活躍用戶數 |
+| AC2 | ✅ | 異常服務卡片顯示紅色警示、異常開始時間、錯誤描述 |
+| AC3 | ✅ | 30 秒自動刷新，手動刷新按鈕 |
+| AC4 | ✅ | 點擊服務卡片展開詳情面板，含回應時間圖、錯誤率、錯誤日誌 |
