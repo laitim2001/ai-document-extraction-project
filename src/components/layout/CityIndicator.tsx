@@ -37,6 +37,7 @@ import { MapPin, Globe, Building2 } from 'lucide-react'
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -132,82 +133,90 @@ export function CityIndicator() {
   // 全球管理員
   if (isGlobalAdmin) {
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Badge variant="secondary" className="gap-1 cursor-help">
-            <Globe className="h-3 w-3" />
-            全球管理員
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>您擁有所有城市的完整訪問權限</p>
-        </TooltipContent>
-      </Tooltip>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="secondary" className="gap-1 cursor-help">
+              <Globe className="h-3 w-3" />
+              全球管理員
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>您擁有所有城市的完整訪問權限</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     )
   }
 
   // 區域管理員
   if (isRegionalManager) {
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Badge variant="secondary" className="gap-1 cursor-help">
-            <Building2 className="h-3 w-3" />
-            區域管理
-            {cityCodes.length > 0 && (
-              <span className="ml-1 text-xs bg-primary/10 px-1 rounded">
-                {cityCodes.length}
-              </span>
-            )}
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>您可訪問 {cityCodes.length} 個城市</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {cityCodes.join(', ')}
-          </p>
-        </TooltipContent>
-      </Tooltip>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="secondary" className="gap-1 cursor-help">
+              <Building2 className="h-3 w-3" />
+              區域管理
+              {cityCodes.length > 0 && (
+                <span className="ml-1 text-xs bg-primary/10 px-1 rounded">
+                  {cityCodes.length}
+                </span>
+              )}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>您可訪問 {cityCodes.length} 個城市</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {cityCodes.join(', ')}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     )
   }
 
   // 單一城市用戶
   if (isSingleCity && cityInfo) {
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Badge variant="outline" className="gap-1 cursor-help">
-            <MapPin className="h-3 w-3" />
-            {cityInfo.name}
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>
-            {cityInfo.name} ({cityInfo.code})
-          </p>
-          <p className="text-xs text-muted-foreground">{cityInfo.region.name}</p>
-        </TooltipContent>
-      </Tooltip>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="outline" className="gap-1 cursor-help">
+              <MapPin className="h-3 w-3" />
+              {cityInfo.name}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>
+              {cityInfo.name} ({cityInfo.code})
+            </p>
+            <p className="text-xs text-muted-foreground">{cityInfo.region.name}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     )
   }
 
   // 多城市用戶（非區域管理員）
   if (cityCodes.length > 1) {
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Badge variant="outline" className="gap-1 cursor-help">
-            <MapPin className="h-3 w-3" />
-            {cityCodes.length} 個城市
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>您可訪問以下城市:</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {cityCodes.join(', ')}
-          </p>
-        </TooltipContent>
-      </Tooltip>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="outline" className="gap-1 cursor-help">
+              <MapPin className="h-3 w-3" />
+              {cityCodes.length} 個城市
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>您可訪問以下城市:</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {cityCodes.join(', ')}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     )
   }
 
@@ -223,18 +232,20 @@ export function CityIndicator() {
 
   // 無城市配置
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Badge variant="destructive" className="gap-1 cursor-help">
-          <MapPin className="h-3 w-3" />
-          未配置城市
-        </Badge>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>您尚未被分配任何城市訪問權限</p>
-        <p className="text-xs text-muted-foreground">請聯繫管理員配置</p>
-      </TooltipContent>
-    </Tooltip>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Badge variant="destructive" className="gap-1 cursor-help">
+            <MapPin className="h-3 w-3" />
+            未配置城市
+          </Badge>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>您尚未被分配任何城市訪問權限</p>
+          <p className="text-xs text-muted-foreground">請聯繫管理員配置</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
 

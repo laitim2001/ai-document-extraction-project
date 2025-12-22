@@ -133,10 +133,9 @@ export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps
   const pathname = usePathname()
 
   const isActiveLink = (href: string) => {
-    if (href === '/dashboard') {
-      return pathname === '/dashboard'
-    }
-    return pathname.startsWith(href)
+    // 使用精確匹配，避免父路徑誤匹配子路徑
+    // 例如：/invoices 不應該匹配 /invoices/upload
+    return pathname === href
   }
 
   return (
@@ -196,7 +195,7 @@ export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps
                 {isCollapsed && sectionIndex > 0 && (
                   <Separator className="my-2" />
                 )}
-                <ul className="space-y-1">
+                <ul className={cn('space-y-1', !isCollapsed && 'pl-2')}>
                   {section.items.map((item) => {
                     const Icon = item.icon
                     const isActive = isActiveLink(item.href)
@@ -231,13 +230,13 @@ export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps
                         <Link
                           href={item.href}
                           className={cn(
-                            'flex items-center rounded-lg px-3 py-2 transition-colors',
+                            'flex items-center rounded-lg px-3 py-2 text-sm transition-colors',
                             isActive
                               ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
                               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                           )}
                         >
-                          <Icon className="h-5 w-5 flex-shrink-0" />
+                          <Icon className="h-4 w-4 flex-shrink-0" />
                           <span className="ml-3 truncate">{item.name}</span>
                           {isActive && (
                             <div className="ml-auto h-2 w-2 rounded-full bg-blue-600" />
