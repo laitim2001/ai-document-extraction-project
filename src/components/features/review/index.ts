@@ -46,7 +46,10 @@ export { ProcessingPathBadge } from './ProcessingPathBadge'
 export { ReviewQueueSkeleton } from './ReviewQueueSkeleton'
 
 // --- Story 3.2: 審核詳情組件 ---
-export { PdfViewer } from './PdfViewer'
+// 注意：不直接導出 PdfViewer，因為它依賴 pdfjs-dist 無法在 SSR 中運行
+// 使用 DynamicPdfViewer 代替，它使用 dynamic import 並禁用 SSR
+export { DynamicPdfViewer } from './PdfViewer'
+export type { PdfViewerProps } from './PdfViewer'
 export { ReviewPanel, FieldGroup, FieldRow, ReviewActions } from './ReviewPanel'
 export { ReviewDetailLayout } from './ReviewDetailLayout'
 

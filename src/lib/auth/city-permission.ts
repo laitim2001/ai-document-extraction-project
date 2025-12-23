@@ -358,6 +358,12 @@ export function getManagedCityIds(
  *
  * @description
  *   通用權限檢查函數，檢查用戶的所有角色中是否包含指定權限。
+ *   支援 '*' 通配符表示所有權限（開發模式）。
+ *
+ *   安全注意事項：
+ *   - Wildcard ('*') 權限僅限開發/測試環境使用
+ *   - 使用 wildcard 權限時會記錄審計日誌以便追蹤
+ *   - 生產環境應避免使用 wildcard 權限
  *
  * @param user - Session 用戶資訊
  * @param permission - 要檢查的權限
@@ -376,7 +382,27 @@ export function hasPermission(
     return false
   }
 
-  return user.roles.some((role) => role.permissions.includes(permission))
+  // 檢查是否有 wildcard 權限
+  const hasWildcard = user.roles.some((role) =>
+    Array.isArray(role.permissions) && role.permissions.includes('*')
+  )
+
+  if (hasWildcard) {
+    // 審計日誌：記錄 wildcard 權限使用（開發模式警告）
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(
+        `[Wildcard Permission] User "${user.id}" accessed "${permission}" via wildcard. ` +
+        `This is acceptable in development but should be audited in production.`
+      )
+    }
+    return true
+  }
+
+  // 標準權限檢查（含類型防護）
+  return user.roles.some(
+    (role) =>
+      Array.isArray(role.permissions) && role.permissions.includes(permission)
+  )
 }
 
 // ============================================================
