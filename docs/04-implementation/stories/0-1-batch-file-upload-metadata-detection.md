@@ -1,6 +1,6 @@
 # Story 0.1: 批量文件上傳與元數據檢測
 
-**Status:** pending
+**Status:** completed (2025-12-23)
 
 ---
 

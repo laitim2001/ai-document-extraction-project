@@ -88,6 +88,7 @@ model User {
   restoreRecordsCreated       RestoreRecord[]           @relation("RestoreRecordCreator") // Story 12-6: 創建的恢復記錄
   systemLogs                  SystemLog[]               @relation("SystemLogUser") // Story 12-7: 系統日誌
   logExports                  LogExport[]               @relation("LogExportCreator") // Story 12-7: 日誌匯出
+  historicalBatchesCreated    HistoricalBatch[]         @relation("HistoricalBatchCreator") // Story 0-1: 歷史數據批量任務
 
   @@map("users")
 }
@@ -4656,5 +4657,89 @@ model LogExport {
   @@index([createdBy])
   @@index([expiresAt])
   @@map("log_exports")
+}
+
+// =====================
+// Historical Data Models (Epic 0 - Story 0.1)
+// 歷史數據批量處理相關模型
+// =====================
+
+/// 批量處理狀態
+enum HistoricalBatchStatus {
+  PENDING       // 待處理
+  PROCESSING    // 處理中
+  COMPLETED     // 完成
+  FAILED        // 失敗
+  CANCELLED     // 已取消
+}
+
+/// 文件檢測類型 - 區分原生 PDF、掃描 PDF 和圖片
+enum DetectedFileType {
+  NATIVE_PDF    // 原生 PDF（有文字層）
+  SCANNED_PDF   // 掃描 PDF（純圖片）
+  IMAGE         // 圖片文件
+}
+
+/// 歷史文件處理狀態
+enum HistoricalFileStatus {
+  PENDING       // 待處理
+  DETECTING     // 檢測中
+  DETECTED      // 已檢測
+  PROCESSING    // AI 處理中
+  COMPLETED     // 完成
+  FAILED        // 失敗
+}
+
+/// 歷史數據批量處理任務
+model HistoricalBatch {
+  id             String                 @id @default(uuid())
+  name           String                 // 批次名稱
+  description    String?                // 批次描述
+  status         HistoricalBatchStatus  @default(PENDING)
+  totalFiles     Int                    @default(0) @map("total_files")
+  processedFiles Int                    @default(0) @map("processed_files")
+  failedFiles    Int                    @default(0) @map("failed_files")
+  errorMessage   String?                @map("error_message") @db.Text
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime               @updatedAt @map("updated_at")
+  startedAt      DateTime?              @map("started_at")   // 開始處理時間
+  completedAt    DateTime?              @map("completed_at") // 完成時間
+  createdBy      String                 @map("created_by")
+
+  // Relations
+  creator        User                   @relation("HistoricalBatchCreator", fields: [createdBy], references: [id])
+  files          HistoricalFile[]
+
+  @@index([status])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@map("historical_batches")
+}
+
+/// 歷史文件記錄
+model HistoricalFile {
+  id             String                 @id @default(uuid())
+  batchId        String                 @map("batch_id")
+  fileName       String                 @map("file_name")
+  originalName   String                 @map("original_name")  // 原始文件名
+  fileSize       Int                    @map("file_size")      // 文件大小（bytes）
+  mimeType       String                 @map("mime_type")      // MIME 類型
+  detectedType   DetectedFileType?      @map("detected_type")  // 檢測到的類型
+  storagePath    String                 @map("storage_path")   // 存儲路徑
+  status         HistoricalFileStatus   @default(PENDING)
+  errorMessage   String?                @map("error_message") @db.Text
+  metadata       Json?                  // 額外元數據（如頁數、檢測信心度等）
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime               @updatedAt @map("updated_at")
+  detectedAt     DateTime?              @map("detected_at")    // 檢測完成時間
+  processedAt    DateTime?              @map("processed_at")   // 處理完成時間
+
+  // Relations
+  batch          HistoricalBatch        @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([batchId])
+  @@index([status])
+  @@index([detectedType])
+  @@map("historical_files")
 }
 

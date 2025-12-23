@@ -42,8 +42,8 @@ development_status:
   # ============================================================
   # Epic 0: 歷史數據初始化（前置 Epic）
   # ============================================================
-  epic-0: backlog  # 待開發，需在系統正式運營前完成
-  0-1-batch-file-upload-metadata-detection: backlog  # 批量文件上傳與元數據檢測
+  epic-0: in-progress  # Epic 0 started 2025-12-23
+  0-1-batch-file-upload-metadata-detection: done  # Completed 2025-12-23: BatchFileUploader, HistoricalFileList, file-detection.service, upload/files/bulk APIs, HistoricalBatch/HistoricalFile models
   0-2-intelligent-processing-routing: backlog  # 智能處理路由
   0-3-just-in-time-company-profile: backlog  # 即時公司 Profile 建立
   0-4-batch-processing-progress-tracking: backlog  # 批量處理進度追蹤
