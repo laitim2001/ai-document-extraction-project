@@ -172,7 +172,7 @@ export function ReviewPanel({
         </div>
 
         <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-          <span>Forwarder: {data.forwarder?.name || '未識別'}</span>
+          <span>Forwarder: {data.company?.name || '未識別'}</span>
           <Separator orientation="vertical" className="h-4" />
           <div className="flex items-center gap-2">
             <span>整體信心度:</span>

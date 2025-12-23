@@ -48,9 +48,10 @@ import { Prisma, DocumentStatus } from '@prisma/client'
 /**
  * 文件查詢結果類型（使用實際 Prisma Schema 關聯）
  */
+// REFACTOR-001: forwarder → company
 type DocumentWithRelations = Prisma.DocumentGetPayload<{
   include: {
-    forwarder: { select: { code: true; name: true } }
+    company: { select: { code: true; name: true } }
     city: { select: { code: true; name: true } }
     processingQueue: {
       select: {
@@ -134,7 +135,8 @@ export class AuditQueryService {
       skip: (page - 1) * pageSize,
       take: pageSize,
       include: {
-        forwarder: { select: { code: true, name: true } },
+        // REFACTOR-001: forwarder → company
+        company: { select: { code: true, name: true } },
         city: { select: { code: true, name: true } },
         processingQueue: {
           select: {
@@ -233,9 +235,10 @@ export class AuditQueryService {
       }
     }
 
+    // REFACTOR-001: forwarder → company
     // Forwarder 篩選
     if (params.forwarderIds?.length) {
-      where.forwarderId = { in: params.forwarderIds }
+      where.companyId = { in: params.forwarderIds }
     }
 
     // 狀態篩選
@@ -250,12 +253,13 @@ export class AuditQueryService {
       }
     }
 
+    // REFACTOR-001: forwarder → company
     // 搜尋關鍵字
     if (params.searchTerm) {
       where.OR = [
         { id: { contains: params.searchTerm, mode: 'insensitive' } },
-        { forwarder: { code: { contains: params.searchTerm, mode: 'insensitive' } } },
-        { forwarder: { name: { contains: params.searchTerm, mode: 'insensitive' } } }
+        { company: { code: { contains: params.searchTerm, mode: 'insensitive' } } },
+        { company: { name: { contains: params.searchTerm, mode: 'insensitive' } } }
       ]
     }
 
@@ -275,9 +279,10 @@ export class AuditQueryService {
   ): Prisma.DocumentOrderByWithRelationInput {
     const order = sortOrder || 'desc'
 
+    // REFACTOR-001: forwarder → company
     switch (sortBy) {
       case 'forwarder':
-        return { forwarder: { code: order } }
+        return { company: { code: order } }
       case 'status':
         return { status: order }
       case 'processedAt':
@@ -329,12 +334,13 @@ export class AuditQueryService {
     const processingType: 'AUTO' | 'MANUAL' =
       queue?.processingPath === 'AUTO_APPROVE' ? 'AUTO' : 'MANUAL'
 
+    // REFACTOR-001: forwarder → company
     return {
       id: doc.id,
       documentId: doc.id,
       invoiceNumber,
-      forwarderCode: doc.forwarder?.code || '',
-      forwarderName: doc.forwarder?.name || '',
+      forwarderCode: doc.company?.code || '',
+      forwarderName: doc.company?.name || '',
       cityCode: doc.cityCode,
       cityName: doc.city?.name || doc.cityCode,
       status: doc.status,

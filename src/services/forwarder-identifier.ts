@@ -162,8 +162,9 @@ export class ForwarderIdentifier {
       return this.forwardersCache.data;
     }
 
+    // REFACTOR-001: forwarder → company
     // 從資料庫取得
-    const forwarders = await prisma.forwarder.findMany({
+    const forwarders = await prisma.company.findMany({
       where: { status: 'ACTIVE' },
       select: {
         id: true,
@@ -176,13 +177,14 @@ export class ForwarderIdentifier {
       orderBy: { name: 'asc' },
     });
 
+    // REFACTOR-001: forwarder → company (添加類型標註 + 處理 null code)
     const forwarderInfos: ForwarderInfo[] = forwarders.map((f) => ({
       id: f.id,
       name: f.name,
-      code: f.code,
+      code: f.code ?? '', // code 可能為 null，提供空字串預設值
       displayName: f.displayName,
       defaultConfidence: f.defaultConfidence,
-      status: f.status,
+      status: f.status as 'ACTIVE' | 'INACTIVE' | 'PENDING', // REFACTOR-001: CompanyStatus → ForwarderInfo status
     }));
 
     // 更新快取
@@ -199,8 +201,9 @@ export class ForwarderIdentifier {
    *
    * @returns 所有 Forwarder 列表
    */
+  // REFACTOR-001: forwarder → company
   async getAllForwarders(): Promise<ForwarderInfo[]> {
-    const forwarders = await prisma.forwarder.findMany({
+    const forwarders = await prisma.company.findMany({
       select: {
         id: true,
         name: true,
@@ -215,10 +218,10 @@ export class ForwarderIdentifier {
     return forwarders.map((f) => ({
       id: f.id,
       name: f.name,
-      code: f.code,
+      code: f.code ?? '', // REFACTOR-001: 處理 null code
       displayName: f.displayName,
       defaultConfidence: f.defaultConfidence,
-      status: f.status,
+      status: f.status as 'ACTIVE' | 'INACTIVE' | 'PENDING', // REFACTOR-001: CompanyStatus → ForwarderInfo status
     }));
   }
 
@@ -263,8 +266,9 @@ export class ForwarderIdentifier {
       return cached.data;
     }
 
+    // REFACTOR-001: forwarder → company
     // 從資料庫取得
-    const forwarder = await prisma.forwarder.findUnique({
+    const forwarder = await prisma.company.findUnique({
       where: { id: forwarderId },
       select: { identificationPatterns: true },
     });

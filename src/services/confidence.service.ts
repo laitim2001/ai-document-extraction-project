@@ -119,11 +119,12 @@ export async function calculateAndSaveConfidence(
   } = options
 
   // 1. 取得提取結果
+  // REFACTOR-001: forwarder → company
   const extractionResult = await prisma.extractionResult.findUnique({
     where: { id: extractionResultId },
     include: {
       document: true,
-      forwarder: true,
+      company: true,
     },
   })
 
@@ -134,10 +135,11 @@ export async function calculateAndSaveConfidence(
   // 2. 解析欄位映射
   const fieldMappings = extractionResult.fieldMappings as unknown as FieldMappings
 
+  // REFACTOR-001: forwarder → company
   // 3. 查詢歷史準確率
   let historicalData: ForwarderFieldAccuracy | undefined
-  if (includeHistorical && extractionResult.forwarderId) {
-    historicalData = await getForwarderFieldAccuracy(extractionResult.forwarderId)
+  if (includeHistorical && extractionResult.companyId) {
+    historicalData = await getForwarderFieldAccuracy(extractionResult.companyId)
   }
 
   // 4. 計算信心度
@@ -316,13 +318,14 @@ export async function recordReviewResult(
   documentId: string,
   corrections: Record<string, boolean>
 ): Promise<void> {
-  // 取得文件關聯的 forwarderId
+  // REFACTOR-001: forwarder → company
+  // 取得文件關聯的 companyId
   const document = await prisma.document.findUnique({
     where: { id: documentId },
-    select: { forwarderId: true },
+    select: { companyId: true },
   })
 
-  const forwarderId = document?.forwarderId ?? null
+  const forwarderId = document?.companyId ?? null
 
   // 轉換為批量記錄格式
   const correctionRecords = Object.entries(corrections).map(

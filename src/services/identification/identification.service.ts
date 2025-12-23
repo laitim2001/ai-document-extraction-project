@@ -1,7 +1,7 @@
 /**
- * @fileoverview Forwarder 識別服務
+ * @fileoverview Company 識別服務 (REFACTOR-001)
  * @description
- *   提供 Forwarder 自動識別功能：
+ *   提供 Company 自動識別功能：
  *   - 調用 Python Mapping 服務進行模式匹配
  *   - 處理識別結果並更新資料庫
  *   - 觸發後續工作流程
@@ -13,8 +13,8 @@
  *
  * @module src/services/identification/identification.service
  * @author Development Team
- * @since Epic 2 - Story 2.3 (Forwarder Auto-Identification)
- * @lastModified 2025-12-18
+ * @since Epic 2 - Story 2.3 (Company Auto-Identification)
+ * @lastModified 2025-12-22 (REFACTOR-001: Forwarder → Company)
  *
  * @features
  *   - Python 服務整合
@@ -47,6 +47,7 @@ export interface IdentifyRequest {
 
 /**
  * Python 服務識別響應
+ * REFACTOR-001: 欄位命名保持 forwarder* 以維持與 Python 服務的兼容性
  */
 interface MappingServiceResponse {
   success: boolean
@@ -65,11 +66,13 @@ interface MappingServiceResponse {
 
 /**
  * 識別結果
+ * REFACTOR-001: 對外介面使用 companyId，但內部仍保留 forwarder* 別名以維持兼容性
  */
 export interface IdentificationResult {
   success: boolean
   documentId: string
-  forwarderId: string | null
+  companyId: string | null // REFACTOR-001: 新名稱
+  forwarderId?: string | null // REFACTOR-001: 保留別名以維持兼容性
   forwarderCode: string | null
   forwarderName: string | null
   confidence: number
@@ -109,7 +112,7 @@ export const CONFIDENCE_THRESHOLDS = {
 // ============================================================
 
 /**
- * Forwarder 識別服務
+ * Company 識別服務 (REFACTOR-001)
  */
 export class IdentificationService {
   private readonly baseUrl: string
@@ -124,7 +127,7 @@ export class IdentificationService {
   }
 
   /**
-   * 從 OCR 文本識別 Forwarder
+   * 從 OCR 文本識別 Company (REFACTOR-001)
    *
    * @param request - 識別請求
    * @returns 識別結果
@@ -140,20 +143,21 @@ export class IdentificationService {
         return this.createFailedResult(documentId, 'Mapping service returned error')
       }
 
-      // 查找 Forwarder ID（如果 Python 服務返回的是 code）
-      let forwarderId = response.forwarderId
-      if (!forwarderId && response.forwarderCode) {
-        const forwarder = await prisma.forwarder.findUnique({
+      // REFACTOR-001: 查找 Company ID（如果 Python 服務返回的是 code）
+      let companyId = response.forwarderId
+      if (!companyId && response.forwarderCode) {
+        const company = await prisma.company.findUnique({
           where: { code: response.forwarderCode },
         })
-        forwarderId = forwarder?.id || null
+        companyId = company?.id || null
       }
 
       // 建立識別結果
       const result: IdentificationResult = {
         success: true,
         documentId,
-        forwarderId: forwarderId || null,
+        companyId: companyId || null, // REFACTOR-001: 新名稱
+        forwarderId: companyId || null, // REFACTOR-001: 保留別名
         forwarderCode: response.forwarderCode || null,
         forwarderName: response.forwarderName || null,
         confidence: response.confidence,
@@ -179,7 +183,7 @@ export class IdentificationService {
   }
 
   /**
-   * 從 OCR 文本識別 Forwarder（Fire-and-forget 模式）
+   * 從 OCR 文本識別 Company（Fire-and-forget 模式）(REFACTOR-001)
    *
    * 不等待結果，立即返回。適用於在文件上傳後自動觸發識別。
    *
@@ -230,7 +234,7 @@ export class IdentificationService {
   }
 
   /**
-   * 保存識別結果到資料庫
+   * 保存識別結果到資料庫 (REFACTOR-001)
    *
    * @param result - 識別結果
    */
@@ -240,11 +244,11 @@ export class IdentificationService {
     // 確定識別狀態
     const status = this.mapStatusToDb(result.status)
 
-    // 使用 upsert 更新或創建識別記錄
-    await prisma.forwarderIdentification.upsert({
+    // REFACTOR-001: 使用 companyIdentification 和 companyId
+    await prisma.companyIdentification.upsert({
       where: { documentId: result.documentId },
       update: {
-        forwarderId: result.forwarderId,
+        companyId: result.companyId,
         confidence: result.confidence,
         matchMethod: result.matchMethod,
         matchedPatterns: result.matchedPatterns,
@@ -255,7 +259,7 @@ export class IdentificationService {
       },
       create: {
         documentId: result.documentId,
-        forwarderId: result.forwarderId,
+        companyId: result.companyId,
         confidence: result.confidence,
         matchMethod: result.matchMethod,
         matchedPatterns: result.matchedPatterns,
@@ -266,11 +270,11 @@ export class IdentificationService {
       },
     })
 
-    // 如果識別成功，更新 Document 的 forwarderId
-    if (result.forwarderId && result.isIdentified) {
+    // REFACTOR-001: 如果識別成功，更新 Document 的 companyId
+    if (result.companyId && result.isIdentified) {
       await prisma.document.update({
         where: { id: result.documentId },
-        data: { forwarderId: result.forwarderId },
+        data: { companyId: result.companyId },
       })
     }
   }
@@ -299,7 +303,7 @@ export class IdentificationService {
   }
 
   /**
-   * 創建失敗結果
+   * 創建失敗結果 (REFACTOR-001)
    *
    * @param documentId - 文件 ID
    * @param errorMessage - 錯誤訊息
@@ -312,7 +316,8 @@ export class IdentificationService {
     return {
       success: false,
       documentId,
-      forwarderId: null,
+      companyId: null, // REFACTOR-001: 新名稱
+      forwarderId: null, // REFACTOR-001: 保留別名
       forwarderCode: null,
       forwarderName: null,
       confidence: 0,
@@ -341,13 +346,13 @@ export const identificationService = new IdentificationService()
 // ============================================================
 
 /**
- * 從 OCR 文本識別 Forwarder
+ * 從 OCR 文本識別 Company (REFACTOR-001)
  *
  * @param documentId - 文件 ID
  * @param text - OCR 文本
  * @returns 識別結果
  */
-export async function identifyForwarder(
+export async function identifyCompany(
   documentId: string,
   text: string
 ): Promise<IdentificationResult> {
@@ -355,14 +360,25 @@ export async function identifyForwarder(
 }
 
 /**
- * 從 OCR 文本識別 Forwarder（Fire-and-forget 模式）
+ * 從 OCR 文本識別 Company（Fire-and-forget 模式）(REFACTOR-001)
  *
  * @param documentId - 文件 ID
  * @param text - OCR 文本
  */
-export async function identifyForwarderAsync(
+export async function identifyCompanyAsync(
   documentId: string,
   text: string
 ): Promise<void> {
   return identificationService.identifyAsync({ documentId, text })
 }
+
+// REFACTOR-001: 保留舊函數名稱以維持向後兼容性（標記為已棄用）
+/**
+ * @deprecated 使用 identifyCompany 代替 (REFACTOR-001)
+ */
+export const identifyForwarder = identifyCompany
+
+/**
+ * @deprecated 使用 identifyCompanyAsync 代替 (REFACTOR-001)
+ */
+export const identifyForwarderAsync = identifyCompanyAsync

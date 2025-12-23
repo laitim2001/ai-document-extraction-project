@@ -54,7 +54,7 @@ export class RuleSimulationService {
     const suggestion = await prisma.ruleSuggestion.findUnique({
       where: { id: suggestionId },
       include: {
-        forwarder: true
+        company: true
       }
     })
 
@@ -76,7 +76,7 @@ export class RuleSimulationService {
 
     // 獲取樣本文件
     const documents = await this.getSampleDocuments(
-      suggestion.forwarderId,
+      suggestion.companyId,
       suggestion.fieldName,
       startDate,
       endDate,
@@ -391,7 +391,7 @@ interface SuggestionData {
   currentPattern: string | null
   suggestedPattern: string
   extractionType: string
-  forwarder: {
+  company: {
     id: string
     name: string
   }

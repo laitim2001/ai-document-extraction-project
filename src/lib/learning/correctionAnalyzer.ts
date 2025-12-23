@@ -8,7 +8,8 @@
  *
  * @module src/lib/learning/correctionAnalyzer
  * @since Epic 3 - Story 3.6 (修正類型標記)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - AC2: 正常修正處理 - 記錄學習統計
@@ -38,10 +39,11 @@ export const ANALYSIS_PERIOD_DAYS = 30
 
 /**
  * 修正模式介面
+ * @refactor REFACTOR-001: forwarderId → companyId
  */
 export interface CorrectionPattern {
-  /** Forwarder ID */
-  forwarderId: string
+  /** Company ID */
+  companyId: string
   /** 欄位名稱 */
   fieldName: string
   /** 原始值模式 */
@@ -68,6 +70,7 @@ export interface CorrectionPattern {
  * @param originalValue - 原始值
  * @param correctedValue - 修正後的值
  * @returns 修正模式資訊，若無法分析則返回 null
+ * @refactor REFACTOR-001: forwarderId → companyId
  *
  * @example
  * ```typescript
@@ -77,7 +80,7 @@ export interface CorrectionPattern {
  *   'INV123',
  *   'INV-123'
  * )
- * // { forwarderId: 'fwd-1', fieldName: 'invoiceNumber', count: 3 }
+ * // { companyId: 'cmp-1', fieldName: 'invoiceNumber', count: 3 }
  * ```
  */
 export async function analyzeCorrectionPattern(
@@ -86,13 +89,13 @@ export async function analyzeCorrectionPattern(
   originalValue: string | null,
   correctedValue: string
 ): Promise<CorrectionPattern | null> {
-  // 獲取文件的 Forwarder
+  // REFACTOR-001: 獲取文件的 Company (原 Forwarder)
   const document = await prisma.document.findUnique({
     where: { id: documentId },
-    select: { forwarderId: true },
+    select: { companyId: true },
   })
 
-  if (!document?.forwarderId) {
+  if (!document?.companyId) {
     return null
   }
 
@@ -100,10 +103,10 @@ export async function analyzeCorrectionPattern(
   const since = new Date()
   since.setDate(since.getDate() - ANALYSIS_PERIOD_DAYS)
 
-  // 統計相同模式的修正次數
+  // REFACTOR-001: 統計相同模式的修正次數 (companyId)
   const count = await prisma.correction.count({
     where: {
-      document: { forwarderId: document.forwarderId },
+      document: { companyId: document.companyId },
       fieldName,
       correctedValue,
       correctionType: CorrectionType.NORMAL,
@@ -112,7 +115,7 @@ export async function analyzeCorrectionPattern(
   })
 
   return {
-    forwarderId: document.forwarderId,
+    companyId: document.companyId,
     fieldName,
     originalPattern: originalValue,
     correctedPattern: correctedValue,
@@ -124,31 +127,33 @@ export async function analyzeCorrectionPattern(
  * 檢查是否達到修正閾值
  *
  * @description
- *   檢查特定 Forwarder 的特定欄位是否達到觸發規則建議的閾值。
+ *   檢查特定 Company 的特定欄位是否達到觸發規則建議的閾值。
  *   只計算 NORMAL 類型的修正。
  *
- * @param forwarderId - Forwarder ID
+ * @param companyId - Company ID
  * @param fieldName - 欄位名稱
  * @returns 是否達到閾值
+ * @refactor REFACTOR-001: forwarderId → companyId
  *
  * @example
  * ```typescript
- * const shouldTrigger = await checkCorrectionThreshold('fwd-1', 'invoiceNumber')
+ * const shouldTrigger = await checkCorrectionThreshold('cmp-1', 'invoiceNumber')
  * if (shouldTrigger) {
  *   // 創建規則建議
  * }
  * ```
  */
 export async function checkCorrectionThreshold(
-  forwarderId: string,
+  companyId: string,
   fieldName: string
 ): Promise<boolean> {
   const since = new Date()
   since.setDate(since.getDate() - ANALYSIS_PERIOD_DAYS)
 
+  // REFACTOR-001: companyId 取代 forwarderId
   const count = await prisma.correction.count({
     where: {
-      document: { forwarderId },
+      document: { companyId },
       fieldName,
       correctionType: CorrectionType.NORMAL,
       createdAt: { gte: since },
@@ -162,30 +167,32 @@ export async function checkCorrectionThreshold(
  * 獲取最常見的修正模式
  *
  * @description
- *   獲取特定 Forwarder 和欄位的最常見修正值。
+ *   獲取特定 Company 和欄位的最常見修正值。
  *   用於生成規則建議時確定建議的映射模式。
  *
- * @param forwarderId - Forwarder ID
+ * @param companyId - Company ID
  * @param fieldName - 欄位名稱
  * @returns 最常見的修正值和次數，若無則返回 null
+ * @refactor REFACTOR-001: forwarderId → companyId
  *
  * @example
  * ```typescript
- * const pattern = await getMostCommonCorrection('fwd-1', 'invoiceNumber')
+ * const pattern = await getMostCommonCorrection('cmp-1', 'invoiceNumber')
  * // { correctedValue: 'INV-123', count: 5 }
  * ```
  */
 export async function getMostCommonCorrection(
-  forwarderId: string,
+  companyId: string,
   fieldName: string
 ): Promise<{ correctedValue: string; count: number } | null> {
   const since = new Date()
   since.setDate(since.getDate() - ANALYSIS_PERIOD_DAYS)
 
+  // REFACTOR-001: companyId 取代 forwarderId
   const result = await prisma.correction.groupBy({
     by: ['correctedValue'],
     where: {
-      document: { forwarderId },
+      document: { companyId },
       fieldName,
       correctionType: CorrectionType.NORMAL,
       createdAt: { gte: since },
@@ -209,23 +216,24 @@ export async function getMostCommonCorrection(
  * 獲取欄位修正統計
  *
  * @description
- *   獲取特定 Forwarder 所有欄位的修正統計資料。
+ *   獲取特定 Company 所有欄位的修正統計資料。
  *   用於儀表板顯示和規則管理。
  *
- * @param forwarderId - Forwarder ID
+ * @param companyId - Company ID
  * @returns 按欄位分組的修正統計
+ * @refactor REFACTOR-001: forwarderId → companyId
  */
 export async function getFieldCorrectionStats(
-  forwarderId: string
+  companyId: string
 ): Promise<Array<{ fieldName: string; totalCount: number; normalCount: number; exceptionCount: number }>> {
   const since = new Date()
   since.setDate(since.getDate() - ANALYSIS_PERIOD_DAYS)
 
-  // 獲取所有修正記錄按欄位分組
+  // REFACTOR-001: 獲取所有修正記錄按欄位分組 (companyId)
   const stats = await prisma.correction.groupBy({
     by: ['fieldName', 'correctionType'],
     where: {
-      document: { forwarderId },
+      document: { companyId },
       createdAt: { gte: since },
     },
     _count: true,

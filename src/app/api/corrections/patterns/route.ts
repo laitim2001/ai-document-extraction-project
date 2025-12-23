@@ -8,11 +8,12 @@
  *
  * @module src/app/api/corrections/patterns/route
  * @since Epic 4 - Story 4.3
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - 分頁查詢
- *   - Forwarder 過濾
+ *   - Company 過濾
  *   - 狀態過濾
  *   - 欄位名稱搜尋
  *   - 多欄位排序
@@ -60,7 +61,7 @@ function hasPermission(
  *   支援分頁、過濾和排序的模式列表查詢
  *
  * @query
- *   - forwarderId: Forwarder ID 過濾
+ *   - companyId: Company ID 過濾
  *   - fieldName: 欄位名稱搜尋（模糊匹配）
  *   - status: 狀態過濾（DETECTED, CANDIDATE, SUGGESTED, PROCESSED, IGNORED）
  *   - minOccurrences: 最小發生次數（預設 1）
@@ -110,7 +111,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // 解析查詢參數
-    const forwarderId = searchParams.get('forwarderId') || undefined;
+    const companyId = searchParams.get('companyId') || undefined;
     const fieldName = searchParams.get('fieldName') || undefined;
     const status = searchParams.get('status') as PatternStatus | null;
     const minOccurrences = parseInt(searchParams.get('minOccurrences') || '1');
@@ -124,8 +125,8 @@ export async function GET(request: NextRequest) {
       occurrenceCount: { gte: minOccurrences },
     };
 
-    if (forwarderId) {
-      where.forwarderId = forwarderId;
+    if (companyId) {
+      where.companyId = companyId;
     }
 
     if (fieldName) {
@@ -162,7 +163,7 @@ export async function GET(request: NextRequest) {
         take: pageSize,
         orderBy,
         include: {
-          forwarder: {
+          company: {
             select: {
               id: true,
               name: true,
@@ -204,7 +205,7 @@ export async function GET(request: NextRequest) {
 
           return {
             id: p.id,
-            forwarder: p.forwarder,
+            company: p.company,
             fieldName: p.fieldName,
             originalPattern: firstPattern?.originalValue || '',
             correctedPattern: firstPattern?.correctedValue || '',

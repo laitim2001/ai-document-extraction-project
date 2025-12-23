@@ -1,6 +1,244 @@
 # 全部 Story 開發提示 (方式一：簡短版)
 
-本文檔包含所有 83 個 Story 的簡短版開發提示。使用時直接複製對應 Story 的內容貼到 AI 助手對話中。
+本文檔包含所有 Story 的簡短版開發提示。使用時直接複製對應 Story 的內容貼到 AI 助手對話中。
+
+---
+
+## Epic 00: 歷史數據初始化
+
+> **說明**：此 Epic 在系統正式運營前執行，用於處理歷史發票文件並建立初始映射規則。
+
+### Story 0-1: 批量文件上傳與元數據檢測
+
+```
+# 開發任務：Story 0-1 批量文件上傳與元數據檢測
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-1-batch-file-upload-metadata-detection.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/component-registry.md
+- docs/04-implementation/api-registry.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+
+## 開發要求
+1. 嚴格遵循 Story 文件中的 Tasks 和 Dev Notes
+2. 使用 dev-checklist.md 作為品質檢查標準
+3. 新增的元件需更新 component-registry.md
+4. 新增的 API 需更新 api-registry.md
+5. 重要發現記錄到 lessons-learned.md
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/0-1-*.md`)：
+  - Status 改為 `done`
+  - 所有 Tasks 打勾 `[x]`
+  - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 0-2: 智能處理路由
+
+```
+# 開發任務：Story 0-2 智能處理路由
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-2-intelligent-processing-routing.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/component-registry.md
+- docs/04-implementation/api-registry.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+
+## 開發要求
+1. 嚴格遵循 Story 文件中的 Tasks 和 Dev Notes
+2. 使用 dev-checklist.md 作為品質檢查標準
+3. 新增的元件需更新 component-registry.md
+4. 新增的 API 需更新 api-registry.md
+5. 重要發現記錄到 lessons-learned.md
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 0-3: 即時公司 Profile 建立
+
+```
+# 開發任務：Story 0-3 即時公司 Profile 建立（Just-in-Time）
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-3-just-in-time-company-profile.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+- claudedocs/4-changes/refactors/REFACTOR-001-forwarder-to-company.md (如存在)
+
+## 開發要求
+1. 嚴格遵循 Story 文件中的 Tasks 和 Dev Notes
+2. **注意**：此 Story 涉及 Company 模型，需要與 REFACTOR-001 協調
+3. 新增的元件需更新 component-registry.md
+4. 新增的 API 需更新 api-registry.md
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 0-4: 批量處理進度追蹤
+
+```
+# 開發任務：Story 0-4 批量處理進度追蹤
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-4-batch-processing-progress-tracking.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+
+## 開發要求
+1. 嚴格遵循 Story 文件中的 Tasks 和 Dev Notes
+2. 實現即時更新機制（推薦 SSE）
+3. 新增的元件需更新 component-registry.md
+4. 新增的 API 需更新 api-registry.md
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 0-5: 術語聚合與初始規則建立
+
+```
+# 開發任務：Story 0-5 術語聚合與初始規則建立
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-5-term-aggregation-initial-rules.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+- docs/04-implementation/stories/4-1-mapping-rule-list-view.md (規則模型參考)
+
+## 開發要求
+1. 嚴格遵循 Story 文件中的 Tasks 和 Dev Notes
+2. GPT-4o 分類需注意 token 限制，使用批量處理
+3. 新增的元件需更新 component-registry.md
+4. 新增的 API 需更新 api-registry.md
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
 
 ---
 

@@ -62,6 +62,7 @@ const DEFAULT_SAMPLE_SIZE = 0
  *   const accuracy = await getHistoricalAccuracy('invoice_number', 'fw_123')
  *   // { accuracy: 92.5, sampleSize: 150 }
  */
+// REFACTOR-001: forwarder → company (註: forwarderId 參數名維持不變以保持 API 一致性)
 export async function getHistoricalAccuracy(
   fieldName: string,
   forwarderId?: string | null
@@ -71,7 +72,7 @@ export async function getHistoricalAccuracy(
     const history = await prisma.fieldCorrectionHistory.findFirst({
       where: {
         fieldName,
-        forwarderId: forwarderId ?? null,
+        companyId: forwarderId ?? null,
       },
       orderBy: {
         periodEnd: 'desc',
@@ -115,6 +116,7 @@ export async function getHistoricalAccuracy(
  *   const accuracies = await getForwarderFieldAccuracy('fw_123')
  *   // { invoice_number: { accuracy: 92.5, sampleSize: 150 }, ... }
  */
+// REFACTOR-001: forwarder → company (註: forwarderId 參數名維持不變以保持 API 一致性)
 export async function getForwarderFieldAccuracy(
   forwarderId: string
 ): Promise<ForwarderFieldAccuracy> {
@@ -122,7 +124,7 @@ export async function getForwarderFieldAccuracy(
     // 查詢該 Forwarder 所有欄位的最新準確率
     const histories = await prisma.fieldCorrectionHistory.findMany({
       where: {
-        forwarderId,
+        companyId: forwarderId,
       },
       orderBy: {
         periodEnd: 'desc',
@@ -157,11 +159,12 @@ export async function getForwarderFieldAccuracy(
  *
  * @returns 欄位名稱到準確率數據的映射
  */
+// REFACTOR-001: forwarder → company
 export async function getUniversalFieldAccuracy(): Promise<ForwarderFieldAccuracy> {
   try {
     const histories = await prisma.fieldCorrectionHistory.findMany({
       where: {
-        forwarderId: null,
+        companyId: null,
       },
       orderBy: {
         periodEnd: 'desc',
@@ -207,6 +210,7 @@ export async function getUniversalFieldAccuracy(): Promise<ForwarderFieldAccurac
  *   // 用戶修正了提取結果
  *   await recordFieldCorrection('total_amount', 'fw_123', false)
  */
+// REFACTOR-001: forwarder → company (註: forwarderId 參數名維持不變以保持 API 一致性)
 export async function recordFieldCorrection(
   fieldName: string,
   forwarderId: string | null,
@@ -222,7 +226,7 @@ export async function recordFieldCorrection(
     const existing = await prisma.fieldCorrectionHistory.findFirst({
       where: {
         fieldName,
-        forwarderId: forwarderId,
+        companyId: forwarderId,
         periodStart,
       },
     })
@@ -242,10 +246,11 @@ export async function recordFieldCorrection(
         },
       })
     } else {
+      // REFACTOR-001: forwarder → company
       // 創建新記錄
       await prisma.fieldCorrectionHistory.create({
         data: {
-          forwarderId,
+          companyId: forwarderId,
           fieldName,
           totalExtractions: 1,
           correctExtractions: wasCorrect ? 1 : 0,
@@ -317,6 +322,7 @@ export async function recordFieldCorrections(
  * @param endDate - 結束日期
  * @returns 聚合後的準確率數據
  */
+// REFACTOR-001: forwarder → company (註: forwarderId 參數名維持不變以保持 API 一致性)
 export async function aggregateHistoricalAccuracy(
   fieldName: string,
   forwarderId: string | null,
@@ -327,7 +333,7 @@ export async function aggregateHistoricalAccuracy(
     const histories = await prisma.fieldCorrectionHistory.findMany({
       where: {
         fieldName,
-        forwarderId: forwarderId ?? null,
+        companyId: forwarderId ?? null,
         periodStart: { gte: startDate },
         periodEnd: { lte: endDate },
       },

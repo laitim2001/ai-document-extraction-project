@@ -152,9 +152,9 @@ export function RuleDetailView({ ruleId }: RuleDetailViewProps) {
           </Button>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">
-              {rule.forwarder ? (
+              {rule.company ? (
                 <>
-                  {rule.forwarder.name} - {rule.fieldName}
+                  {rule.company.name} - {rule.fieldName}
                 </>
               ) : (
                 <span className="flex items-center gap-2">
@@ -302,8 +302,8 @@ export function RuleDetailView({ ruleId }: RuleDetailViewProps) {
             <div>
               <span className="text-muted-foreground">Forwarder：</span>
               <span className="ml-2">
-                {rule.forwarder
-                  ? `${rule.forwarder.name} (${rule.forwarder.code})`
+                {rule.company
+                  ? `${rule.company.name} (${rule.company.code})`
                   : '通用規則'}
               </span>
             </div>

@@ -11,7 +11,8 @@
  *
  * @module src/types/escalation
  * @since Epic 3 - Story 3.7 (升級複雜案例)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - @prisma/client - EscalationReason, EscalationStatus enums
@@ -74,8 +75,8 @@ export interface EscalationReasonConfig {
  */
 export const ESCALATION_REASONS: EscalationReasonConfig[] = [
   {
-    value: 'UNKNOWN_FORWARDER',
-    label: '無法識別 Forwarder',
+    value: 'UNKNOWN_COMPANY', // REFACTOR-001: 原 UNKNOWN_FORWARDER
+    label: '無法識別公司',
     description: '系統無法判斷此發票來自哪個物流商',
     requiresDetail: false,
   },
@@ -120,7 +121,7 @@ export interface EscalationListItem {
   document: {
     id: string
     fileName: string
-    forwarder: { name: string } | null
+    company: { name: string } | null // REFACTOR-001: 原 forwarder
   }
   /** 升級發起者 */
   escalatedBy: {
@@ -182,8 +183,8 @@ export const ESCALATION_REASON_CONFIG: Record<
   EscalationReason,
   { label: string; icon: string }
 > = {
-  UNKNOWN_FORWARDER: {
-    label: '無法識別 Forwarder',
+  UNKNOWN_COMPANY: { // REFACTOR-001: 原 UNKNOWN_FORWARDER
+    label: '無法識別公司',
     icon: 'HelpCircle',
   },
   RULE_NOT_APPLICABLE: {
@@ -316,8 +317,8 @@ export interface EscalationDetail {
     fileUrl: string
     status: string
     pageCount: number | null
-    /** 關聯的 Forwarder */
-    forwarder: {
+    /** 關聯的 Company (REFACTOR-001: 原 Forwarder) */
+    company: {
       id: string
       name: string
       code: string

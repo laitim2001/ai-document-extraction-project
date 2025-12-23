@@ -6,7 +6,8 @@
  *
  * @module src/app/api/confidence/[id]/review/route
  * @since Epic 2 - Story 2.5 (Confidence Score Calculation)
- * @lastModified 2025-12-21
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -64,9 +65,10 @@ export async function POST(
     const { corrections } = reviewBodySchema.parse(body)
 
     // 檢查文件是否存在
+    // REFACTOR-001: 原 forwarderId
     const document = await prisma.document.findUnique({
       where: { id: documentId },
-      select: { id: true, forwarderId: true },
+      select: { id: true, companyId: true },
     })
 
     if (!document) {
@@ -93,7 +95,7 @@ export async function POST(
       success: true,
       data: {
         documentId,
-        forwarderId: document.forwarderId,
+        companyId: document.companyId, // REFACTOR-001: 原 forwarderId
         recorded: true,
         stats: {
           totalFields,

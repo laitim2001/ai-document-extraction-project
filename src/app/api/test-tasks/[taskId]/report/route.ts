@@ -12,7 +12,8 @@
  *
  * @module src/app/api/test-tasks/[taskId]/report/route
  * @since Epic 5 - Story 5.4 (測試規則變更效果)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -132,7 +133,8 @@ export async function GET(
             extractionPattern: true,
           },
         },
-        forwarder: {
+        // REFACTOR-001: 原 forwarder
+        company: {
           select: {
             id: true,
             name: true,
@@ -220,9 +222,10 @@ export async function GET(
           fieldName: task.rule.fieldLabel || task.rule.fieldName,
           extractionType,
         },
-        forwarder: {
-          name: task.forwarder.name,
-          code: task.forwarder.code,
+        // REFACTOR-001: 原 forwarder
+        company: {
+          name: task.company.name,
+          code: task.company.code,
         },
         totalDocuments: task.totalDocuments,
         startedAt: task.startedAt,

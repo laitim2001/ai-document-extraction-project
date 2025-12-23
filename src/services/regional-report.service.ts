@@ -435,11 +435,11 @@ export class RegionalReportService {
     limit: number = DEFAULT_TOP_FORWARDERS_LIMIT
   ): Promise<TopForwarderData[]> {
     const result = await prisma.document.groupBy({
-      by: ['forwarderId'],
+      by: ['companyId'],
       where: {
         cityCode,
         createdAt: { gte: startDate, lte: endDate },
-        forwarderId: { not: null }
+        companyId: { not: null }
       },
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
@@ -448,42 +448,42 @@ export class RegionalReportService {
 
     if (result.length === 0) return []
 
-    const forwarderIds = result
-      .map(r => r.forwarderId)
+    const companyIds = result
+      .map(r => r.companyId)
       .filter((id): id is string => id !== null)
 
-    const forwarders = await prisma.forwarder.findMany({
-      where: { id: { in: forwarderIds } },
+    const companies = await prisma.company.findMany({
+      where: { id: { in: companyIds } },
       select: { id: true, code: true, name: true }
     })
 
     // 獲取成功率
     const successRates = await Promise.all(
-      forwarderIds.map(async (forwarderId) => {
+      companyIds.map(async (companyId) => {
         const [total, success] = await Promise.all([
           prisma.document.count({
-            where: { cityCode, forwarderId, createdAt: { gte: startDate, lte: endDate } }
+            where: { cityCode, companyId, createdAt: { gte: startDate, lte: endDate } }
           }),
           prisma.document.count({
             where: {
               cityCode,
-              forwarderId,
+              companyId,
               createdAt: { gte: startDate, lte: endDate },
               status: { in: ['COMPLETED', 'APPROVED'] }
             }
           })
         ])
-        return { forwarderId, rate: total > 0 ? (success / total) * 100 : 0 }
+        return { companyId, rate: total > 0 ? (success / total) * 100 : 0 }
       })
     )
 
     return result.map(r => {
-      const forwarder = forwarders.find(f => f.id === r.forwarderId)
-      const rateData = successRates.find(s => s.forwarderId === r.forwarderId)
+      const company = companies.find((f: { id: string; code: string | null; name: string }) => f.id === r.companyId)
+      const rateData = successRates.find(s => s.companyId === r.companyId)
       return {
-        code: forwarder?.code || '',
-        name: forwarder?.name || '',
-        volume: r._count.id,
+        code: company?.code || '',
+        name: company?.name || '',
+        volume: r._count?.id ?? 0,
         successRate: Number((rateData?.rate || 0).toFixed(1))
       }
     })

@@ -76,15 +76,16 @@ function _calculateReviewType(
  * @returns 映射規則列表
  */
 export async function getMappingRules(options?: {
-  forwarderId?: string | null;
+  companyId?: string | null; // REFACTOR-001: 原 forwarderId
   category?: string;
   fieldName?: string;
   isActive?: boolean;
 }): Promise<MappingRuleDTO[]> {
   const where: Prisma.MappingRuleWhereInput = {};
 
-  if (options?.forwarderId !== undefined) {
-    where.forwarderId = options.forwarderId;
+  // REFACTOR-001: forwarderId → companyId
+  if (options?.companyId !== undefined) {
+    where.companyId = options.companyId;
   }
   if (options?.category) {
     where.category = options.category;
@@ -103,7 +104,7 @@ export async function getMappingRules(options?: {
 
   return rules.map((rule) => ({
     id: rule.id,
-    forwarderId: rule.forwarderId,
+    companyId: rule.companyId, // REFACTOR-001: forwarderId → companyId
     fieldName: rule.fieldName,
     fieldLabel: rule.fieldLabel,
     extractionPattern: rule.extractionPattern as unknown as ExtractionPattern,
@@ -120,28 +121,29 @@ export async function getMappingRules(options?: {
 /**
  * 取得文件的適用映射規則
  *
- * 優先順序：Forwarder 特定規則 > 通用規則
+ * 優先順序：Company 特定規則 > 通用規則
+ * REFACTOR-001: Forwarder → Company
  *
- * @param forwarderId Forwarder ID
+ * @param companyId Company ID (原 forwarderId)
  * @returns 合併後的規則列表
  */
-export async function getApplicableRules(forwarderId?: string): Promise<MappingRuleDTO[]> {
-  // 取得通用規則（forwarderId = null）
+export async function getApplicableRules(companyId?: string): Promise<MappingRuleDTO[]> {
+  // 取得通用規則（companyId = null）
   const universalRules = await getMappingRules({
-    forwarderId: null,
+    companyId: null,
     isActive: true,
   });
 
-  // 如果有 forwarderId，取得特定規則
-  let forwarderRules: MappingRuleDTO[] = [];
-  if (forwarderId) {
-    forwarderRules = await getMappingRules({
-      forwarderId,
+  // 如果有 companyId，取得特定規則
+  let companyRules: MappingRuleDTO[] = [];
+  if (companyId) {
+    companyRules = await getMappingRules({
+      companyId,
       isActive: true,
     });
   }
 
-  // 合併規則：Forwarder 特定規則優先
+  // 合併規則：Company 特定規則優先
   const rulesByField = new Map<string, MappingRuleDTO>();
 
   // 先加入通用規則
@@ -149,8 +151,8 @@ export async function getApplicableRules(forwarderId?: string): Promise<MappingR
     rulesByField.set(rule.fieldName, rule);
   }
 
-  // 再加入 Forwarder 特定規則（覆蓋通用規則）
-  for (const rule of forwarderRules) {
+  // 再加入 Company 特定規則（覆蓋通用規則）
+  for (const rule of companyRules) {
     rulesByField.set(rule.fieldName, rule);
   }
 
@@ -168,7 +170,7 @@ export async function createMappingRule(
 ): Promise<MappingRuleDTO> {
   const rule = await prisma.mappingRule.create({
     data: {
-      forwarderId: data.forwarderId || null,
+      companyId: data.companyId || null, // REFACTOR-001: forwarderId → companyId
       fieldName: data.fieldName,
       fieldLabel: data.fieldLabel,
       extractionPattern: data.extractionPattern as unknown as Prisma.InputJsonValue,
@@ -183,7 +185,7 @@ export async function createMappingRule(
 
   return {
     id: rule.id,
-    forwarderId: rule.forwarderId,
+    companyId: rule.companyId, // REFACTOR-001: forwarderId → companyId
     fieldName: rule.fieldName,
     fieldLabel: rule.fieldLabel,
     extractionPattern: rule.extractionPattern as unknown as ExtractionPattern,
@@ -230,7 +232,7 @@ export async function updateMappingRule(
 
   return {
     id: rule.id,
-    forwarderId: rule.forwarderId,
+    companyId: rule.companyId, // REFACTOR-001: forwarderId → companyId
     fieldName: rule.fieldName,
     fieldLabel: rule.fieldLabel,
     extractionPattern: rule.extractionPattern as unknown as ExtractionPattern,
@@ -269,7 +271,7 @@ export async function deleteMappingRule(id: string): Promise<void> {
 export async function mapDocumentFields(
   documentId: string,
   options?: {
-    forwarderId?: string;
+    companyId?: string; // REFACTOR-001: 原 forwarderId
     force?: boolean;
   }
 ): Promise<ExtractionResultDTO> {
@@ -282,11 +284,12 @@ export async function mapDocumentFields(
   }
 
   // 2. 取得文件和 OCR 結果
+  // REFACTOR-001: forwarder → company
   const document = await prisma.document.findUnique({
     where: { id: documentId },
     include: {
       ocrResult: true,
-      forwarder: true,
+      company: true,
     },
   });
 
@@ -294,7 +297,8 @@ export async function mapDocumentFields(
     throw new Error(`Document not found: ${documentId}`);
   }
 
-  if (!document.ocrResult) {
+  const ocrResult = document.ocrResult;
+  if (!ocrResult) {
     throw new Error(`OCR result not found for document: ${documentId}`);
   }
 
@@ -305,8 +309,9 @@ export async function mapDocumentFields(
   });
 
   // 4. 取得適用的映射規則
-  const forwarderId = options?.forwarderId || document.forwarderId || undefined;
-  const rules = await getApplicableRules(forwarderId);
+  // REFACTOR-001: forwarderId → companyId
+  const companyId = options?.companyId || document.companyId || undefined;
+  const rules = await getApplicableRules(companyId);
 
   // 5. 準備 Python 服務請求
   const pythonRules: PythonMappingRule[] = rules.map((rule) => ({
@@ -321,11 +326,12 @@ export async function mapDocumentFields(
     category: rule.category || undefined,
   }));
 
+  // REFACTOR-001: forwarder_id → company_id (Python service field name kept for compatibility)
   const pythonRequest: PythonMapFieldsRequest = {
     document_id: documentId,
-    forwarder_id: forwarderId,
-    ocr_text: document.ocrResult.extractedText,
-    azure_invoice_data: document.ocrResult.invoiceData as Record<string, unknown> | undefined,
+    forwarder_id: companyId, // Python service still expects forwarder_id
+    ocr_text: ocrResult.extractedText,
+    azure_invoice_data: ocrResult.invoiceData as Record<string, unknown> | undefined,
     mapping_rules: pythonRules,
   };
 
@@ -363,9 +369,10 @@ export async function mapDocumentFields(
     ? convertPythonUnmapped(pythonResponse.unmapped_field_details)
     : null;
 
+  // REFACTOR-001: forwarderId → companyId
   const extractionResult = await saveExtractionResult({
     documentId,
-    forwarderId: forwarderId || null,
+    companyId: companyId || null,
     fieldMappings,
     statistics: {
       totalFields: pythonResponse.statistics.total_fields,
@@ -403,7 +410,7 @@ export async function getExtractionResult(documentId: string): Promise<Extractio
   const result = await prisma.extractionResult.findUnique({
     where: { documentId },
     include: {
-      forwarder: true,
+      company: true, // REFACTOR-001: forwarder → company
     },
   });
 
@@ -414,7 +421,7 @@ export async function getExtractionResult(documentId: string): Promise<Extractio
   return {
     id: result.id,
     documentId: result.documentId,
-    forwarderId: result.forwarderId,
+    companyId: result.companyId, // REFACTOR-001: forwarderId → companyId
     fieldMappings: result.fieldMappings as unknown as FieldMappings,
     statistics: {
       totalFields: result.totalFields,
@@ -438,10 +445,11 @@ export async function getExtractionResult(documentId: string): Promise<Extractio
 
 /**
  * 儲存提取結果
+ * REFACTOR-001: forwarderId → companyId
  */
 async function saveExtractionResult(data: {
   documentId: string;
-  forwarderId: string | null;
+  companyId: string | null;
   fieldMappings: FieldMappings;
   statistics: {
     totalFields: number;
@@ -459,7 +467,7 @@ async function saveExtractionResult(data: {
     where: { documentId: data.documentId },
     create: {
       documentId: data.documentId,
-      forwarderId: data.forwarderId,
+      companyId: data.companyId, // REFACTOR-001: forwarderId → companyId
       fieldMappings: data.fieldMappings as unknown as Prisma.InputJsonValue,
       totalFields: data.statistics.totalFields,
       mappedFields: data.statistics.mappedFields,
@@ -472,7 +480,7 @@ async function saveExtractionResult(data: {
       unmappedFieldDetails: data.unmappedDetails as unknown as Prisma.InputJsonValue,
     },
     update: {
-      forwarderId: data.forwarderId,
+      companyId: data.companyId, // REFACTOR-001: forwarderId → companyId
       fieldMappings: data.fieldMappings as unknown as Prisma.InputJsonValue,
       totalFields: data.statistics.totalFields,
       mappedFields: data.statistics.mappedFields,
@@ -489,7 +497,7 @@ async function saveExtractionResult(data: {
   return {
     id: result.id,
     documentId: result.documentId,
-    forwarderId: result.forwarderId,
+    companyId: result.companyId, // REFACTOR-001: forwarderId → companyId
     fieldMappings: result.fieldMappings as unknown as FieldMappings,
     statistics: {
       totalFields: result.totalFields,

@@ -26,12 +26,14 @@
 /**
  * Forwarder option for dropdown selection
  * Used in ForwarderMultiSelect component
+ *
+ * REFACTOR-001: code 改為 nullable，因為 Company 模型中 code 可為空
  */
 export interface ForwarderOption {
   /** Unique identifier (CUID) */
   id: string;
-  /** Forwarder code (e.g., "DHL", "FEDEX") */
-  code: string;
+  /** Forwarder code (e.g., "DHL", "FEDEX") - nullable for auto-created companies */
+  code: string | null;
   /** Full name */
   name: string;
   /** Display name for UI */

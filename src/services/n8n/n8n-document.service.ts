@@ -216,8 +216,8 @@ export class N8nDocumentService {
           // 初始狀態
           status: 'UPLOADED',
 
-          // 可選的 forwarder（需通過 ID 關聯）
-          forwarderId: request.forwarderCode
+          // 可選的 company（需通過 ID 關聯）
+          companyId: request.forwarderCode
             ? await this.getForwarderIdByCode(request.forwarderCode)
             : null,
         },
@@ -351,7 +351,7 @@ export class N8nDocumentService {
         cityCode,
       },
       include: {
-        forwarder: true,
+        company: true,
       },
     });
 
@@ -385,8 +385,8 @@ export class N8nDocumentService {
       status: document.status as DocumentStatus,
       extractedData: extractedData ?? undefined,
       confidenceScore,
-      forwarderCode: document.forwarder?.code ?? null,
-      forwarderName: document.forwarder?.name ?? null,
+      forwarderCode: document.company?.code ?? null,
+      forwarderName: document.company?.name ?? null,
       reviewStatus,
       processingDuration: processingDurationMs,
       completedAt: document.status === 'COMPLETED' ? document.updatedAt : undefined,
@@ -480,17 +480,17 @@ export class N8nDocumentService {
   }
 
   /**
-   * 根據 forwarder code 獲取 forwarder ID
+   * 根據 forwarder code 獲取 company ID
    *
-   * @param code - Forwarder 代碼
-   * @returns Forwarder ID 或 null
+   * @param code - Company 代碼
+   * @returns Company ID 或 null
    */
   private async getForwarderIdByCode(code: string): Promise<string | null> {
-    const forwarder = await prisma.forwarder.findUnique({
+    const company = await prisma.company.findUnique({
       where: { code },
       select: { id: true },
     });
-    return forwarder?.id ?? null;
+    return company?.id ?? null;
   }
 
   /**

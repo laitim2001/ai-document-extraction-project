@@ -148,7 +148,7 @@ export async function createUpdateRequest(
   const existingRule = await prisma.mappingRule.findUnique({
     where: { id: ruleId },
     include: {
-      forwarder: { select: { id: true, name: true, code: true } },
+      company: { select: { id: true, name: true, code: true } },
     },
   });
 
@@ -156,7 +156,7 @@ export async function createUpdateRequest(
     throw new Error('找不到指定的規則');
   }
 
-  if (existingRule.forwarderId !== forwarderId) {
+  if (existingRule.companyId !== forwarderId) {
     throw new Error('此規則不屬於指定的 Forwarder');
   }
 
@@ -199,7 +199,7 @@ export async function createUpdateRequest(
   const changeRequest = await prisma.ruleChangeRequest.create({
     data: {
       ruleId,
-      forwarderId,
+      companyId: forwarderId,
       changeType: ChangeType.UPDATE,
       beforeContent: beforeContent as unknown as import('@prisma/client').Prisma.InputJsonValue,
       afterContent: afterContent as unknown as import('@prisma/client').Prisma.InputJsonValue,
@@ -236,7 +236,7 @@ export async function createUpdateRequest(
   await notifyChangeRequestReviewers({
     changeRequestId: changeRequest.id,
     changeType: ChangeType.UPDATE,
-    forwarderName: existingRule.forwarder?.name ?? 'Unknown',
+    forwarderName: existingRule.company?.name ?? 'Unknown',
     fieldName: existingRule.fieldName,
     requesterName: changeRequest.requester.name ?? 'Unknown',
   });
@@ -260,7 +260,7 @@ export async function createNewRuleRequest(
   const { forwarderId, requesterId, content, reason } = params;
 
   // 1. 檢查 Forwarder 是否存在
-  const forwarder = await prisma.forwarder.findUnique({
+  const forwarder = await prisma.company.findUnique({
     where: { id: forwarderId },
     select: { id: true, name: true, code: true },
   });
@@ -272,7 +272,7 @@ export async function createNewRuleRequest(
   // 2. 檢查欄位名稱是否已存在
   const existingRule = await prisma.mappingRule.findFirst({
     where: {
-      forwarderId,
+      companyId: forwarderId,
       fieldName: content.fieldName,
     },
   });
@@ -284,7 +284,7 @@ export async function createNewRuleRequest(
   // 3. 檢查是否有待審核的相同欄位請求
   const pendingRequest = await prisma.ruleChangeRequest.findFirst({
     where: {
-      forwarderId,
+      companyId: forwarderId,
       changeType: ChangeType.CREATE,
       status: ChangeRequestStatus.PENDING,
     },
@@ -315,7 +315,7 @@ export async function createNewRuleRequest(
   const changeRequest = await prisma.ruleChangeRequest.create({
     data: {
       ruleId: null,
-      forwarderId,
+      companyId: forwarderId,
       changeType: ChangeType.CREATE,
       beforeContent: Prisma.DbNull,
       afterContent: afterContent as unknown as Prisma.InputJsonValue,
@@ -375,7 +375,7 @@ export async function getChangeRequests(params: ChangeRequestsQueryParams) {
   const where: import('@prisma/client').Prisma.RuleChangeRequestWhereInput = {};
 
   if (forwarderId) {
-    where.forwarderId = forwarderId;
+    where.companyId = forwarderId;
   }
   if (status) {
     where.status = status;
@@ -390,7 +390,7 @@ export async function getChangeRequests(params: ChangeRequestsQueryParams) {
       include: {
         requester: { select: { id: true, name: true } },
         reviewer: { select: { id: true, name: true } },
-        forwarder: { select: { id: true, name: true, code: true } },
+        company: { select: { id: true, name: true, code: true } },
         rule: { select: { id: true, fieldName: true, fieldLabel: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -449,7 +449,7 @@ export async function getChangeRequest(
     include: {
       requester: { select: { id: true, name: true } },
       reviewer: { select: { id: true, name: true } },
-      forwarder: { select: { id: true, name: true, code: true } },
+      company: { select: { id: true, name: true, code: true } },
       rule: { select: { id: true, fieldName: true, fieldLabel: true, version: true } },
     },
   });
@@ -466,7 +466,12 @@ export async function getChangeRequest(
 
   return {
     ...item,
-    forwarder: request.forwarder,
+    // REFACTOR-001: company.code 可為 null，需要提供默認值
+    forwarder: request.company ? {
+      id: request.company.id,
+      name: request.company.name,
+      code: request.company.code ?? '',
+    } : null,
     rule: request.rule,
   };
 }
@@ -494,7 +499,7 @@ export async function reviewChangeRequest(
   const request = await prisma.ruleChangeRequest.findUnique({
     where: { id: requestId },
     include: {
-      forwarder: { select: { id: true, name: true } },
+      company: { select: { id: true, name: true } },
       rule: true,
       requester: { select: { id: true, name: true, email: true } },
     },
@@ -543,7 +548,7 @@ export async function reviewChangeRequest(
         metadata: {
           changeType: request.changeType,
           ruleId: request.ruleId,
-          forwarderId: request.forwarderId,
+          companyId: request.companyId,
           notes,
         },
         status: 'SUCCESS',
@@ -557,7 +562,7 @@ export async function reviewChangeRequest(
     requesterName: request.requester.name ?? 'Unknown',
     action,
     changeType: request.changeType,
-    forwarderName: request.forwarder.name,
+    forwarderName: request.company.name,
     fieldName: (request.afterContent as unknown as RuleChangeContent).fieldName,
     notes,
   });
@@ -615,7 +620,7 @@ export async function cancelChangeRequest(
         metadata: {
           changeType: request.changeType,
           ruleId: request.ruleId,
-          forwarderId: request.forwarderId,
+          companyId: request.companyId,
         },
         status: 'SUCCESS',
       },
@@ -642,7 +647,7 @@ async function applyChangeRequest(
   request: {
     id: string;
     ruleId: string | null;
-    forwarderId: string;
+    companyId: string;
     changeType: ChangeType;
     beforeContent: Prisma.JsonValue;
     afterContent: Prisma.JsonValue;
@@ -656,7 +661,7 @@ async function applyChangeRequest(
       // 創建新規則
       return tx.mappingRule.create({
         data: {
-          forwarderId: request.forwarderId,
+          companyId: request.companyId,
           fieldName: afterContent.fieldName,
           fieldLabel: afterContent.fieldLabel,
           extractionPattern: afterContent.extractionPattern as Prisma.InputJsonValue,

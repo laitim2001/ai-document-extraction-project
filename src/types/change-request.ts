@@ -144,12 +144,12 @@ export interface RuleChangeRequestItem {
  * 規則變更請求詳情
  */
 export interface RuleChangeRequestDetail extends RuleChangeRequestItem {
-  /** 關聯的 Forwarder */
+  /** 關聯的 Forwarder/Company (REFACTOR-001: 可為 null) */
   forwarder: {
     id: string;
     name: string;
     code: string;
-  };
+  } | null;
   /** 關聯的規則（如果存在） */
   rule: {
     id: string;

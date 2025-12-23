@@ -73,7 +73,8 @@ interface DocumentWithRelations {
   cityCode: string | null
   processingPath: string | null
   createdAt: Date
-  forwarder: {
+  // REFACTOR-001: forwarder → company
+  company: {
     code: string
     name: string
   } | null
@@ -141,8 +142,9 @@ export class ExpenseReportService {
         },
         // 只計算已完成處理的文件
         status: { in: ['COMPLETED', 'APPROVED', 'PENDING_REVIEW'] },
-        ...(config.forwarderIds?.length && {
-          forwarderId: { in: config.forwarderIds }
+        // REFACTOR-001: forwarder → company
+        ...(config.companyIds?.length && {
+          companyId: { in: config.companyIds }
         })
       }
     })
@@ -180,12 +182,14 @@ export class ExpenseReportService {
           },
           // 只查詢已完成處理的文件
           status: { in: ['COMPLETED', 'APPROVED', 'PENDING_REVIEW'] },
-          ...(config.forwarderIds?.length && {
-            forwarderId: { in: config.forwarderIds }
+          // REFACTOR-001: forwarder → company
+          ...(config.companyIds?.length && {
+            companyId: { in: config.companyIds }
           })
         },
         include: {
-          forwarder: {
+          // REFACTOR-001: forwarder → company
+          company: {
             select: { code: true, name: true }
           },
           extractionResult: {
@@ -262,8 +266,9 @@ export class ExpenseReportService {
       invoiceNumber: { header: '發票編號', key: 'invoiceNumber', width: 20 },
       uploadTime: { header: '上傳時間', key: 'uploadTime', width: 20 },
       processedTime: { header: '處理時間', key: 'processedTime', width: 20 },
-      forwarderCode: { header: 'Forwarder 代碼', key: 'forwarderCode', width: 15 },
-      forwarderName: { header: 'Forwarder 名稱', key: 'forwarderName', width: 25 },
+      // REFACTOR-001: forwarder → company (欄位名稱保持不變以維持向後兼容)
+      companyCode: { header: 'Company 代碼', key: 'companyCode', width: 15 },
+      companyName: { header: 'Company 名稱', key: 'companyName', width: 25 },
       aiCost: { header: 'AI 成本 (USD)', key: 'aiCost', width: 15 },
       reviewDuration: { header: '審核時長 (分鐘)', key: 'reviewDuration', width: 15 },
       status: { header: '狀態', key: 'status', width: 12 },
@@ -306,8 +311,9 @@ export class ExpenseReportService {
       invoiceNumber: invoiceNumber,
       uploadTime: doc.createdAt ? this.formatDateTime(doc.createdAt) : '',
       processedTime: processedTime ? this.formatDateTime(processedTime) : '',
-      forwarderCode: doc.forwarder?.code || '',
-      forwarderName: doc.forwarder?.name || '',
+      // REFACTOR-001: forwarder → company
+      companyCode: doc.company?.code || '',
+      companyName: doc.company?.name || '',
       aiCost: 0, // AI 成本追蹤功能待實現
       reviewDuration: reviewDuration,
       status: STATUS_TRANSLATIONS[doc.status] || doc.status,

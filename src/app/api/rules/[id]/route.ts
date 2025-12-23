@@ -12,7 +12,8 @@
  *
  * @module src/app/api/rules/[id]/route
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -111,7 +112,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const rule = await prisma.mappingRule.findUnique({
       where: { id: ruleId },
       include: {
-        forwarder: {
+        company: {
           select: {
             id: true,
             name: true,
@@ -261,7 +262,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // 構建響應數據
     const ruleDetail: RuleDetail = {
       id: rule.id,
-      forwarder: rule.forwarder,
+      company: rule.company, // REFACTOR-001: 原 forwarder
       fieldName: rule.fieldName,
       fieldLabel: rule.fieldLabel,
       extractionPattern: rule.extractionPattern as unknown as ExtractionPattern,

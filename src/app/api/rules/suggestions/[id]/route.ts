@@ -7,7 +7,8 @@
  *
  * @module src/app/api/rules/suggestions/[id]/route
  * @since Epic 4 - Story 4.4 (規則升級建議生成)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - 建議詳情查詢（含樣本案例、影響分析）
@@ -124,7 +125,7 @@ export async function GET(
     const suggestion = await prisma.ruleSuggestion.findUnique({
       where: { id },
       include: {
-        forwarder: {
+        company: { // REFACTOR-001: 原 forwarder
           select: { id: true, name: true, code: true },
         },
         suggester: {
@@ -169,7 +170,7 @@ export async function GET(
     // 獲取現有規則
     const existingRule = await prisma.mappingRule.findFirst({
       where: {
-        forwarderId: suggestion.forwarderId,
+        companyId: suggestion.companyId, // REFACTOR-001: 原 forwarderId
         fieldName: suggestion.fieldName,
         status: 'ACTIVE',
       },
@@ -184,7 +185,7 @@ export async function GET(
     // 格式化響應
     const response = {
       id: suggestion.id,
-      forwarder: suggestion.forwarder,
+      company: suggestion.company, // REFACTOR-001: 原 forwarder
       fieldName: suggestion.fieldName,
       extractionType: suggestion.extractionType,
       source: suggestion.source,
@@ -408,7 +409,7 @@ export async function PATCH(
       // 創建或更新映射規則
       const existingRule = await prisma.mappingRule.findFirst({
         where: {
-          forwarderId: suggestion.forwarderId,
+          companyId: suggestion.companyId, // REFACTOR-001: 原 forwarderId
           fieldName: suggestion.fieldName,
           status: 'ACTIVE',
         },
@@ -429,7 +430,7 @@ export async function PATCH(
         // 創建新規則
         const newRule = await prisma.mappingRule.create({
           data: {
-            forwarderId: suggestion.forwarderId,
+            companyId: suggestion.companyId, // REFACTOR-001: 原 forwarderId
             fieldName: suggestion.fieldName,
             fieldLabel: suggestion.fieldName, // 使用 fieldName 作為 label
             extractionPattern,

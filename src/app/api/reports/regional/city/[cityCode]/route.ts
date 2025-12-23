@@ -2,12 +2,13 @@
  * @fileoverview 城市詳情報表 API
  * @description
  *   提供單一城市的詳細報表數據：
- *   - GET: 獲取城市摘要、趨勢數據、Top Forwarders
+ *   - GET: 獲取城市摘要、趨勢數據、Top Companies (REFACTOR-001: 原 Forwarders)
  *   - 權限控制：必須有該城市的訪問權限
  *
  * @module src/app/api/reports/regional/city/[cityCode]
  * @since Epic 7 - Story 7.5 (跨城市匯總報表)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -29,7 +30,7 @@ interface RouteParams {
  *   返回指定城市的詳細數據：
  *   - 城市摘要（處理量、成功率、自動化率等）
  *   - 趨勢數據（按日/週/月）
- *   - Top Forwarders
+ *   - Top Companies (REFACTOR-001: 原 Forwarders)
  *
  * @method GET
  * @route /api/reports/regional/city/[cityCode]

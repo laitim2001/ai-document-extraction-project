@@ -5,7 +5,7 @@
  * @description
  *   顯示升級案例列表的表格，包含：
  *   - 文件名稱
- *   - Forwarder
+ *   - Company (REFACTOR-001: 原 Forwarder)
  *   - 升級原因
  *   - 狀態
  *   - 升級者
@@ -14,7 +14,8 @@
  *
  * @module src/components/features/escalation/EscalationListTable
  * @since Epic 3 - Story 3.8 (Super User 處理升級案例)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - @/components/ui/table - shadcn Table 組件
@@ -83,7 +84,7 @@ export function EscalationListTable({
         <TableHeader>
           <TableRow>
             <TableHead className="w-[250px]">文件名</TableHead>
-            <TableHead>Forwarder</TableHead>
+            <TableHead>Company</TableHead>
             <TableHead>升級原因</TableHead>
             <TableHead>狀態</TableHead>
             <TableHead>升級者</TableHead>
@@ -103,7 +104,7 @@ export function EscalationListTable({
                 </span>
               </TableCell>
               <TableCell>
-                {item.document.forwarder?.name || (
+                {item.document.company?.name || (
                   <span className="text-muted-foreground">未識別</span>
                 )}
               </TableCell>

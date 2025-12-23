@@ -3,7 +3,7 @@
  * @description
  *   提供全域規則快取版本查詢功能：
  *   - 查詢 mapping_rules 版本
- *   - 查詢 forwarders 版本
+ *   - 查詢 companies 版本 (REFACTOR-001: 原 forwarders)
  *   - 用於客戶端同步檢測
  *
  *   端點：
@@ -11,7 +11,8 @@
  *
  * @module src/app/api/rules/version/route
  * @since Epic 6 - Story 6.5 (Global Rule Sharing)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -37,8 +38,8 @@ import { ruleResolver, ENTITY_TYPES } from '@/services/rule-resolver';
 interface VersionData {
   /** 映射規則版本 */
   mappingRules: number;
-  /** Forwarders 版本 */
-  forwarders: number;
+  /** Companies 版本 (REFACTOR-001: 原 forwarders) */
+  companies: number;
   /** 版本查詢時間 */
   timestamp: string;
 }
@@ -64,7 +65,7 @@ interface VersionData {
  *     "success": true,
  *     "data": {
  *       "mappingRules": 5,
- *       "forwarders": 3,
+ *       "companies": 3,
  *       "timestamp": "2025-12-19T10:30:00.000Z"
  *     }
  *   }
@@ -86,14 +87,15 @@ export async function GET() {
     }
 
     // 取得版本號
-    const [mappingRulesVersion, forwardersVersion] = await Promise.all([
+    // REFACTOR-001: ENTITY_TYPES.FORWARDERS 已更新為 ENTITY_TYPES.COMPANIES
+    const [mappingRulesVersion, companiesVersion] = await Promise.all([
       ruleResolver.getGlobalVersion(ENTITY_TYPES.MAPPING_RULES),
-      ruleResolver.getGlobalVersion(ENTITY_TYPES.FORWARDERS),
+      ruleResolver.getGlobalVersion(ENTITY_TYPES.COMPANIES),
     ]);
 
     const data: VersionData = {
       mappingRules: mappingRulesVersion,
-      forwarders: forwardersVersion,
+      companies: companiesVersion,
       timestamp: new Date().toISOString(),
     };
 

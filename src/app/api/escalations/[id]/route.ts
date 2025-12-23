@@ -11,7 +11,8 @@
  *
  * @module src/app/api/escalations/[id]/route
  * @since Epic 3 - Story 3.8 (Super User 處理升級案例)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -106,7 +107,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       include: {
         document: {
           include: {
-            forwarder: {
+            company: {
               select: {
                 id: true,
                 name: true,
@@ -222,11 +223,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         fileUrl: escalation.document.filePath,
         status: escalation.document.status,
         pageCount: escalation.document.ocrResult?.pageCount || 1,
-        forwarder: escalation.document.forwarder
+        company: escalation.document.company
           ? {
-              id: escalation.document.forwarder.id,
-              name: escalation.document.forwarder.name,
-              code: escalation.document.forwarder.code,
+              id: escalation.document.company.id,
+              name: escalation.document.company.name,
+              code: escalation.document.company.code,
             }
           : null,
         extractionResult: formattedFields.length > 0

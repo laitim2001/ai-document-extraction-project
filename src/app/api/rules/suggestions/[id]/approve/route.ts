@@ -11,7 +11,8 @@
  *
  * @module src/app/api/rules/suggestions/[id]/approve/route
  * @since Epic 4 - Story 4.6 (審核學習規則)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - 權限檢查（RULE_APPROVE）
@@ -153,7 +154,7 @@ export async function POST(
       const suggestion = await tx.ruleSuggestion.findUnique({
         where: { id: suggestionId },
         include: {
-          forwarder: true,
+          company: true, // REFACTOR-001: 原 forwarder
         },
       })
 
@@ -179,7 +180,7 @@ export async function POST(
       // 4.3 檢查是否有現有活躍規則
       const existingRule = await tx.mappingRule.findFirst({
         where: {
-          forwarderId: suggestion.forwarderId,
+          companyId: suggestion.companyId, // REFACTOR-001: 原 forwarderId
           fieldName: suggestion.fieldName,
           status: 'ACTIVE',
         },
@@ -206,7 +207,7 @@ export async function POST(
         // 4.4b 創建新版本規則
         newRule = await tx.mappingRule.create({
           data: {
-            forwarderId: suggestion.forwarderId,
+            companyId: suggestion.companyId, // REFACTOR-001: 原 forwarderId
             fieldName: suggestion.fieldName,
             fieldLabel: existingRule.fieldLabel,
             extractionPattern,
@@ -225,7 +226,7 @@ export async function POST(
 
         newRule = await tx.mappingRule.create({
           data: {
-            forwarderId: suggestion.forwarderId,
+            companyId: suggestion.companyId, // REFACTOR-001: 原 forwarderId
             fieldName: suggestion.fieldName,
             fieldLabel: suggestion.fieldName,
             extractionPattern,
@@ -277,7 +278,8 @@ export async function POST(
     })
 
     // 5. 失效規則快取（確保所有城市取得最新規則）
-    await ruleResolver.invalidateForwarderCache(result.suggestion.forwarderId)
+    // REFACTOR-001: 原 invalidateForwarderCache
+    await ruleResolver.invalidateCompanyCache(result.suggestion.companyId)
 
     // 6. 返回成功響應
     return NextResponse.json({

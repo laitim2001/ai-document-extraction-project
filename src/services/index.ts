@@ -185,8 +185,9 @@ export * from './system-config.service'
 // export { reviewService } from './review';
 // export { ReviewService } from './review/review-service';
 
-// Epic 5: Forwarder Configuration (Story 5.1)
-export * from './forwarder.service'
+// REFACTOR-001: Company Configuration (原 Forwarder)
+// 注意：已包含向後相容的 Forwarder 別名，無需額外導出 forwarder.service
+export * from './company.service'
 
 // Epic 2: Manual Invoice Upload & AI Processing
 export * from './document.service'

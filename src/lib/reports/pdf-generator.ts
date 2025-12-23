@@ -9,7 +9,8 @@
  *
  * @module src/lib/reports/pdf-generator
  * @since Epic 5 - Story 5.4 (測試規則變更效果)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - pdfkit - PDF 生成庫
@@ -34,9 +35,10 @@ export interface ReportData {
       fieldName: string
       extractionType: string
     }
-    forwarder: {
+    /** Company 資訊 (REFACTOR-001: 原 forwarder) */
+    company: {
       name: string
-      code: string
+      code: string | null
     }
     totalDocuments: number
     startedAt: Date | null
@@ -180,7 +182,7 @@ export async function generatePDFReport(data: ReportData): Promise<Buffer> {
     doc.fontSize(14).text('基本資訊', { underline: true })
     doc.fontSize(10)
     doc.text(
-      `Forwarder: ${data.task.forwarder.name} (${data.task.forwarder.code})`
+      `Company: ${data.task.company.name}${data.task.company.code ? ` (${data.task.company.code})` : ''}`
     )
     doc.text(`欄位名稱: ${data.task.rule.fieldName}`)
     doc.text(`提取類型: ${data.task.rule.extractionType}`)

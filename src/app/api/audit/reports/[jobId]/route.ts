@@ -7,7 +7,8 @@
  *
  * @module src/app/api/audit/reports/[jobId]/route
  * @since Epic 8 - Story 8.5 (審計報告匯出)
- * @lastModified 2025-12-20
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - AC3: 報告進度追蹤
@@ -126,7 +127,7 @@ export async function GET(
           dateFrom: job.dateFrom,
           dateTo: job.dateTo,
           cityIds: job.cityIds,
-          forwarderIds: job.forwarderIds,
+          companyIds: job.companyIds, // REFACTOR-001: 原 forwarderIds
           includedFields: job.includedFields,
           includeChanges: job.includeChanges,
           includeFiles: job.includeFiles,

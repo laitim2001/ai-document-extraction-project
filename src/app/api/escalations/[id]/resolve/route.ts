@@ -14,7 +14,8 @@
  *
  * @module src/app/api/escalations/[id]/resolve/route
  * @since Epic 3 - Story 3.8 (Super User 處理升級案例)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -197,7 +198,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       include: {
         document: {
           include: {
-            forwarder: true,
+            company: true,
             extractionResult: {
               select: { totalFields: true },
             },
@@ -299,12 +300,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         },
       })
 
-      // 5. 創建 RuleSuggestion（如有且有 Forwarder）
+      // 5. 創建 RuleSuggestion（如有且有 Company）(REFACTOR-001)
       let ruleSuggestion = null
-      if (createRule && escalation.document.forwarderId) {
+      if (createRule && escalation.document.companyId) {
         ruleSuggestion = await tx.ruleSuggestion.create({
           data: {
-            forwarderId: escalation.document.forwarderId,
+            companyId: escalation.document.companyId,
             fieldName: createRule.fieldName,
             extractionType: 'KEYWORD', // 預設使用 KEYWORD 類型
             suggestedPattern: createRule.suggestedPattern,

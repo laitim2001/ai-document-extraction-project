@@ -13,7 +13,8 @@
  *
  * @module src/app/api/review/[id]/escalate/route
  * @since Epic 3 - Story 3.7 (升級複雜案例)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -55,7 +56,7 @@ interface RouteParams {
 const EscalateRequestSchema = z.object({
   /** 升級原因 */
   reason: z.enum([
-    'UNKNOWN_FORWARDER',
+    'UNKNOWN_COMPANY', // REFACTOR-001: 原 UNKNOWN_FORWARDER
     'RULE_NOT_APPLICABLE',
     'POOR_QUALITY',
     'OTHER',
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       include: {
         processingQueue: true,
         escalation: true,
-        forwarder: { select: { name: true } },
+        company: { select: { name: true } },
         extractionResult: {
           select: { totalFields: true },
         },
@@ -227,9 +228,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       }
     })
 
-    // 獲取升級原因的顯示標籤
+    // 獲取升級原因的顯示標籤 (REFACTOR-001: 更新命名)
     const reasonLabels: Record<string, string> = {
-      UNKNOWN_FORWARDER: '無法識別 Forwarder',
+      UNKNOWN_COMPANY: '無法識別 Company',
       RULE_NOT_APPLICABLE: '映射規則不適用',
       POOR_QUALITY: '文件品質問題',
       OTHER: '其他',
@@ -244,7 +245,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         escalationId: result.escalation.id,
         documentId,
         reason,
-        forwarderName: document.forwarder?.name || '未識別',
+        companyName: document.company?.name || '未識別',
       },
     })
 

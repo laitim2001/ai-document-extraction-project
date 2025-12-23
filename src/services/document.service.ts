@@ -537,11 +537,12 @@ export async function retryProcessing(documentId: string): Promise<void> {
 export async function getDocumentWithRelations(id: string) {
   return prisma.document.findUnique({
     where: { id },
+    // REFACTOR-001: forwarder → company
     include: {
       uploader: {
         select: { id: true, name: true, email: true },
       },
-      forwarder: {
+      company: {
         select: { id: true, name: true, code: true },
       },
       ocrResult: true,

@@ -1,12 +1,12 @@
 /**
  * @fileoverview Prisma 資料庫種子數據腳本
  * @description
- *   創建系統預設角色、區域、城市、Forwarder、映射規則和初始數據。
+ *   創建系統預設角色、區域、城市、Company（含 Forwarder）、映射規則和初始數據。
  *   使用 upsert 確保可重複執行。
  *
  *   預定義角色：
  *   1. System Admin - 擁有所有權限
- *   2. Super User - 規則和 Forwarder 管理
+ *   2. Super User - 規則和 Company 管理
  *   3. Data Processor - 基礎發票處理（預設角色）
  *   4. City Manager - 城市級別管理
  *   5. Regional Manager - 多城市管理
@@ -22,7 +22,7 @@
  *   - EMEA: London, Frankfurt
  *   - AMER: New York, Los Angeles
  *
- *   預定義 Forwarder：
+ *   預定義 Company（Forwarder 類型）：
  *   - Express: DHL, FedEx, UPS, TNT
  *   - Ocean: Maersk, MSC, CMA CGM, Hapag-Lloyd, Evergreen, COSCO, ONE, Yang Ming
  *   - Regional: SF Express, Kerry Logistics
@@ -30,12 +30,13 @@
  *
  *   映射規則：
  *   - Universal Rules (Tier 1): 通用映射規則
- *   - Forwarder-Specific Rules (Tier 2): DHL, FedEx, UPS, Maersk 特定規則
+ *   - Company-Specific Rules (Tier 2): DHL, FedEx, UPS, Maersk 特定規則
  *
  * @module prisma/seed
  * @author Development Team
  * @since Epic 1 - Story 1.2 (User Database & Role Foundation)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @usage
  *   npx prisma db seed
@@ -230,19 +231,20 @@ async function main() {
   }
 
   // ===========================================
-  // Seed Forwarders
+  // Seed Companies (Forwarder Type)
+  // REFACTOR-001: Changed from Forwarder to Company model
   // ===========================================
-  console.log('\n📦 Creating forwarders...\n')
+  console.log('\n📦 Creating companies (forwarders)...\n')
 
-  let forwarderCreatedCount = 0
-  let forwarderUpdatedCount = 0
+  let companyCreatedCount = 0
+  let companyUpdatedCount = 0
 
   for (const forwarder of FORWARDER_SEED_DATA) {
-    const existingForwarder = await prisma.forwarder.findUnique({
+    const existingCompany = await prisma.company.findUnique({
       where: { code: forwarder.code },
     })
 
-    const result = await prisma.forwarder.upsert({
+    const result = await prisma.company.upsert({
       where: { code: forwarder.code },
       update: {
         name: forwarder.name,
@@ -255,50 +257,55 @@ async function main() {
         code: forwarder.code,
         name: forwarder.name,
         displayName: forwarder.displayName,
+        type: 'FORWARDER', // REFACTOR-001: Specify company type
         identificationPatterns:
           forwarder.identificationPatterns as unknown as Prisma.InputJsonValue,
         priority: forwarder.priority,
-        isActive: true,
+        status: 'ACTIVE',
       },
     })
 
-    if (existingForwarder) {
-      forwarderUpdatedCount++
+    if (existingCompany) {
+      companyUpdatedCount++
       console.log(`  🔄 Updated: ${result.displayName} (${result.code})`)
     } else {
-      forwarderCreatedCount++
+      companyCreatedCount++
       console.log(`  ✅ Created: ${result.displayName} (${result.code})`)
     }
   }
 
   // ===========================================
   // Seed Mapping Rules
+  // REFACTOR-001: Changed forwarderId to companyId
   // ===========================================
   console.log('\n📋 Creating mapping rules...\n')
 
-  // 取得 Forwarder ID 對照表
-  const forwarders = await prisma.forwarder.findMany({
+  // 取得 Company ID 對照表
+  const companies = await prisma.company.findMany({
     select: { id: true, code: true },
   })
-  const forwarderIdMap = forwarders.reduce(
-    (acc, f) => {
-      acc[f.code] = f.id
+  const companyIdMap = companies.reduce(
+    (acc: Record<string, string>, c: { id: string; code: string | null }) => {
+      if (c.code) {
+        acc[c.code] = c.id
+      }
       return acc
     },
     {} as Record<string, string>
   )
 
-  // 取得所有映射規則
-  const allMappingRules = getAllMappingRules(forwarderIdMap)
+  // 取得所有映射規則（仍使用舊的 forwarderIdMap 參數名，因為 seed-data 尚未更新）
+  const allMappingRules = getAllMappingRules(companyIdMap)
 
   let ruleCreatedCount = 0
   let ruleUpdatedCount = 0
 
   for (const rule of allMappingRules) {
-    // 檢查是否已存在相同組合（使用 findFirst 處理 null forwarderId）
+    // 檢查是否已存在相同組合（使用 findFirst 處理 null companyId）
+    // 注意：rule.forwarderId 實際上是 companyId（來自 seed-data）
     const existingRule = await prisma.mappingRule.findFirst({
       where: {
-        forwarderId: rule.forwarderId,
+        companyId: rule.forwarderId, // seed-data 仍使用 forwarderId 名稱
         fieldName: rule.fieldName,
       },
     })
@@ -322,14 +329,14 @@ async function main() {
       ruleUpdatedCount++
       if (ruleUpdatedCount <= 5) {
         console.log(
-          `  🔄 Updated: ${rule.fieldName} (${rule.forwarderId ? 'Forwarder-specific' : 'Universal'})`
+          `  🔄 Updated: ${rule.fieldName} (${rule.forwarderId ? 'Company-specific' : 'Universal'})`
         )
       }
     } else {
       // 創建新規則
       await prisma.mappingRule.create({
         data: {
-          forwarderId: rule.forwarderId,
+          companyId: rule.forwarderId, // seed-data 仍使用 forwarderId 名稱
           fieldName: rule.fieldName,
           fieldLabel: rule.fieldLabel,
           extractionPattern: rule.extractionPattern as unknown as Prisma.InputJsonValue,
@@ -345,7 +352,7 @@ async function main() {
       ruleCreatedCount++
       if (ruleCreatedCount <= 5) {
         console.log(
-          `  ✅ Created: ${rule.fieldName} (${rule.forwarderId ? 'Forwarder-specific' : 'Universal'})`
+          `  ✅ Created: ${rule.fieldName} (${rule.forwarderId ? 'Company-specific' : 'Universal'})`
         )
       }
     }
@@ -431,7 +438,7 @@ async function main() {
   const userCount = await prisma.user.count()
   const regionCount = await prisma.region.count()
   const cityCount = await prisma.city.count()
-  const forwarderCount = await prisma.forwarder.count()
+  const companyCount = await prisma.company.count()
   const mappingRuleCount = await prisma.mappingRule.count()
   const systemConfigCount = await prisma.systemConfig.count()
 
@@ -444,8 +451,8 @@ async function main() {
   console.log(`  Regions updated: ${regionUpdatedCount}`)
   console.log(`  Cities created: ${cityCreatedCount}`)
   console.log(`  Cities updated: ${cityUpdatedCount}`)
-  console.log(`  Forwarders created: ${forwarderCreatedCount}`)
-  console.log(`  Forwarders updated: ${forwarderUpdatedCount}`)
+  console.log(`  Companies created: ${companyCreatedCount}`)
+  console.log(`  Companies updated: ${companyUpdatedCount}`)
   console.log(`  Mapping rules created: ${ruleCreatedCount}`)
   console.log(`  Mapping rules updated: ${ruleUpdatedCount}`)
   console.log(`  System configs created: ${configCreatedCount}`)
@@ -454,7 +461,7 @@ async function main() {
   console.log(`  Total roles: ${roleCount}`)
   console.log(`  Total regions: ${regionCount}`)
   console.log(`  Total cities: ${cityCount}`)
-  console.log(`  Total forwarders: ${forwarderCount}`)
+  console.log(`  Total companies: ${companyCount}`)
   console.log(`  Total mapping rules: ${mappingRuleCount}`)
   console.log(`  Total system configs: ${systemConfigCount}`)
   console.log(`  Total users: ${userCount}`)

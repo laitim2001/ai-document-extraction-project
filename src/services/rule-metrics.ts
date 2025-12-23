@@ -317,7 +317,7 @@ export class RuleMetricsService {
         isAccurate: true,
         rule: {
           select: {
-            forwarder: {
+            company: {
               select: { name: true },
             },
           },
@@ -344,7 +344,7 @@ export class RuleMetricsService {
     for (const app of applications) {
       const stats = ruleStatsMap.get(app.ruleId) || {
         fieldName: app.fieldName,
-        forwarderName: app.rule?.forwarder?.name || 'Universal',
+        forwarderName: app.rule?.company?.name || 'Universal',
         total: 0,
         verified: 0,
         accurate: 0,
@@ -394,7 +394,7 @@ export class RuleMetricsService {
     // 建立查詢條件
     type ApplicationWhereInput = {
       createdAt?: { gte?: Date; lte?: Date };
-      rule?: { forwarderId?: string };
+      rule?: { companyId?: string };
     };
 
     const where: ApplicationWhereInput = {};
@@ -406,7 +406,7 @@ export class RuleMetricsService {
     }
 
     if (forwarderId) {
-      where.rule = { forwarderId };
+      where.rule = { companyId: forwarderId };
     }
 
     // 取得所有符合條件的應用記錄
@@ -416,6 +416,7 @@ export class RuleMetricsService {
         ruleId: true,
         fieldName: true,
         isAccurate: true,
+        rule: true,
         document: {
           select: { cityCode: true },
         },
@@ -473,8 +474,10 @@ export class RuleMetricsService {
       ruleStatsMap.set(app.ruleId, ruleStats);
 
       // 城市統計
-      const cityCode = app.document.cityCode;
-      cityCountMap.set(cityCode, (cityCountMap.get(cityCode) || 0) + 1);
+      if (app.document) {
+        const cityCode = app.document.cityCode;
+        cityCountMap.set(cityCode, (cityCountMap.get(cityCode) || 0) + 1);
+      }
     }
 
     // 過濾低使用量規則，計算準確率排名

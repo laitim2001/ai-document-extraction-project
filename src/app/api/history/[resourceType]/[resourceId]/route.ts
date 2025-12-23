@@ -15,7 +15,8 @@
  * @module src/app/api/history/[resourceType]/[resourceId]/route
  * @author Development Team
  * @since Epic 8 - Story 8.2 (數據變更追蹤)
- * @lastModified 2025-12-20
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - 分頁歷史查詢
@@ -65,7 +66,7 @@ const QueryParamsSchema = z.object({
  * @example
  *   GET /api/history/mappingRule/rule-123
  *   GET /api/history/user/user-456?limit=10&offset=0
- *   GET /api/history/forwarder/fwd-789?format=timeline
+ *   GET /api/history/company/company-789?format=timeline
  *   GET /api/history/role/role-001?version=3
  */
 export async function GET(

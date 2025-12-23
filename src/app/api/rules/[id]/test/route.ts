@@ -12,7 +12,8 @@
  *
  * @module src/app/api/rules/[id]/test/route
  * @since Epic 5 - Story 5.4 (測試規則變更效果)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -156,7 +157,7 @@ export async function POST(
         id: true,
         fieldName: true,
         fieldLabel: true,
-        forwarderId: true,
+        companyId: true, // REFACTOR-001: 原 forwarderId
         extractionPattern: true,
       },
     })

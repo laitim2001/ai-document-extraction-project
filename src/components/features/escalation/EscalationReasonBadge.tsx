@@ -4,14 +4,15 @@
  * @fileoverview 升級原因 Badge 組件
  * @description
  *   顯示升級案例原因的標籤組件：
- *   - UNKNOWN_FORWARDER: 無法識別 Forwarder
+ *   - UNKNOWN_COMPANY: 無法識別 Company (REFACTOR-001: 原 UNKNOWN_FORWARDER)
  *   - RULE_NOT_APPLICABLE: 映射規則不適用
  *   - POOR_QUALITY: 文件品質問題
  *   - OTHER: 其他
  *
  * @module src/components/features/escalation/EscalationReasonBadge
  * @since Epic 3 - Story 3.8 (Super User 處理升級案例)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - @/components/ui/badge - shadcn Badge 組件
@@ -51,7 +52,7 @@ interface EscalationReasonBadgeProps {
  * 原因對應的圖示組件
  */
 const REASON_ICONS: Record<EscalationReason, React.ElementType> = {
-  UNKNOWN_FORWARDER: HelpCircle,
+  UNKNOWN_COMPANY: HelpCircle, // REFACTOR-001: 原 UNKNOWN_FORWARDER
   RULE_NOT_APPLICABLE: FileX,
   POOR_QUALITY: AlertTriangle,
   OTHER: MoreHorizontal,
@@ -66,7 +67,7 @@ const REASON_ICONS: Record<EscalationReason, React.ElementType> = {
  *
  * @example
  * ```tsx
- * <EscalationReasonBadge reason="UNKNOWN_FORWARDER" />
+ * <EscalationReasonBadge reason="UNKNOWN_COMPANY" />
  * <EscalationReasonBadge reason="POOR_QUALITY" showIcon />
  * ```
  */

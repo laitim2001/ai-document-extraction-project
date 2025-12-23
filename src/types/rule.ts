@@ -10,7 +10,8 @@
  *
  * @module src/types/rule
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - @prisma/client - RuleStatus, ExtractionType enum
@@ -82,8 +83,8 @@ export interface ExtractionPattern {
  * 規則列表查詢參數
  */
 export interface RulesQueryParams {
-  /** Forwarder ID 篩選 */
-  forwarderId?: string
+  /** Company ID 篩選 (REFACTOR-001: 原 forwarderId) */
+  companyId?: string
   /** 欄位名稱搜索 */
   fieldName?: string
   /** 狀態篩選 */
@@ -106,11 +107,11 @@ export interface RulesQueryParams {
 export interface RuleListItem {
   /** 規則 ID */
   id: string
-  /** 關聯的 Forwarder */
-  forwarder: {
+  /** 關聯的 Company (REFACTOR-001: 原 forwarder) */
+  company: {
     id: string
     name: string
-    code: string
+    code: string | null
   } | null
   /** 標準欄位名稱 */
   fieldName: string
@@ -162,7 +163,7 @@ export interface RulesSummary {
   pendingReviewRules: number
   /** 已棄用規則數 */
   deprecatedRules: number
-  /** 通用規則數 (forwarderId = NULL) */
+  /** 通用規則數 (companyId = NULL) */
   universalRules: number
 }
 
@@ -233,11 +234,11 @@ export interface RecentApplication {
 export interface RuleDetail {
   /** 規則 ID */
   id: string
-  /** 關聯的 Forwarder */
-  forwarder: {
+  /** 關聯的 Company (REFACTOR-001: 原 forwarder) */
+  company: {
     id: string
     name: string
-    code: string
+    code: string | null
     logoUrl?: string
   } | null
   /** 標準欄位名稱 */
@@ -562,8 +563,8 @@ export type PatternConfig =
  * 創建規則請求參數
  */
 export interface CreateRuleRequest {
-  /** Forwarder ID */
-  forwarderId: string
+  /** Company ID (REFACTOR-001: 原 forwarderId) */
+  companyId: string
   /** 目標欄位名稱 */
   fieldName: string
   /** 提取類型 */
@@ -748,7 +749,7 @@ export const templatePatternSchema = z.object({
  * 創建規則表單驗證 Schema
  */
 export const createRuleFormSchema = z.object({
-  forwarderId: z.string().min(1, '請選擇 Forwarder'),
+  companyId: z.string().min(1, '請選擇 Company'), // REFACTOR-001: 原 forwarderId
   fieldName: z.string().min(1, '請選擇目標欄位'),
   extractionType: z.enum(['REGEX', 'POSITION', 'KEYWORD', 'AI_PROMPT', 'TEMPLATE']),
   pattern: z.string().min(1, '請輸入提取模式'),

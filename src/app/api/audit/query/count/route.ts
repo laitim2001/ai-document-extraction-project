@@ -8,7 +8,8 @@
  *
  * @module src/app/api/audit/query/count/route
  * @since Epic 8 - Story 8.3 (處理記錄查詢)
- * @lastModified 2025-12-20
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - AC4: 大量結果處理預覽
@@ -43,7 +44,7 @@ import { AuditQueryParams } from '@/types/audit-query'
  *   - startDate: string (required) - 開始日期 (ISO 8601)
  *   - endDate: string (required) - 結束日期 (ISO 8601)
  *   - cityCodes?: string[] - 城市代碼過濾
- *   - forwarderIds?: string[] - Forwarder ID 過濾
+ *   - companyIds?: string[] - Company ID 過濾 (REFACTOR-001: 原 forwarderIds)
  *   - statuses?: string[] - 狀態過濾
  *   - operatorIds?: string[] - 操作人員過濾
  *

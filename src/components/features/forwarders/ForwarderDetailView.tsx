@@ -28,6 +28,8 @@ import { ForwarderInfo } from './ForwarderInfo'
 import { ForwarderStatsPanel } from './ForwarderStatsPanel'
 import { ForwarderRulesTable } from './ForwarderRulesTable'
 import { RecentDocumentsTable } from './RecentDocumentsTable'
+// REFACTOR-001: 從 company.ts 導入 ForwarderDetailView 類型（已棄用的 forwarder 類型）
+import type { ForwarderDetailView } from '@/types/company'
 import {
   LEGACY_FORWARDER_STATUS_CONFIG,
   getForwarderDisplayStatus,
@@ -137,7 +139,9 @@ function NotFoundDisplay() {
  */
 export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
   // 獲取 Forwarder 詳情
-  const { forwarder, isLoading, error, refetch } = useForwarderDetail(forwarderId)
+  // REFACTOR-001: useForwarderDetail 返回 { company: ... }
+  // company 類型為 CompanyDetailView，ForwarderDetailView 是其 type alias
+  const { company: forwarder, isLoading, error, refetch } = useForwarderDetail(forwarderId)
 
   // 載入中狀態
   if (isLoading) {

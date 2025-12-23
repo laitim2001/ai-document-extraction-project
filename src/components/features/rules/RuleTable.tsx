@@ -205,11 +205,11 @@ export function RuleTable({
             >
               {/* Forwarder */}
               <TableCell>
-                {rule.forwarder ? (
+                {rule.company ? (
                   <div>
-                    <div className="font-medium">{rule.forwarder.name}</div>
+                    <div className="font-medium">{rule.company.name}</div>
                     <div className="text-xs text-muted-foreground">
-                      {rule.forwarder.code}
+                      {rule.company.code}
                     </div>
                   </div>
                 ) : (

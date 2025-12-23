@@ -122,7 +122,8 @@ export interface AuditReportConfig {
   /** 過濾條件 */
   filters: {
     cityIds?: string[]
-    forwarderIds?: string[]
+    // REFACTOR-001: forwarder → company
+    companyIds?: string[]
     userIds?: string[]
     statuses?: string[]
   }

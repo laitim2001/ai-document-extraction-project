@@ -7,7 +7,8 @@
  *
  * @module src/app/api/rules/suggestions/route
  * @since Epic 4 - Story 4.4 (規則升級建議生成)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - 建議列表查詢（支援分頁、篩選、排序）
@@ -57,7 +58,7 @@ function hasRuleManagePermission(roles: { permissions: string[] }[] | undefined)
  * 創建建議請求驗證 Schema
  */
 const createSuggestionSchema = z.object({
-  forwarderId: z.string().min(1, 'Forwarder ID is required'),
+  companyId: z.string().min(1, 'Company ID is required'),
   fieldName: z.string().min(1, 'Field name is required'),
   extractionType: z.enum(['REGEX', 'POSITION', 'KEYWORD', 'AI_PROMPT', 'TEMPLATE']),
   suggestedPattern: z.string().min(1, 'Suggested pattern is required'),
@@ -74,7 +75,7 @@ const createSuggestionSchema = z.object({
  *
  * @description
  *   查詢參數：
- *   - forwarderId: Forwarder ID 篩選
+ *   - companyId: Company ID 篩選
  *   - fieldName: 欄位名稱搜索（模糊匹配）
  *   - status: 狀態篩選 (PENDING | APPROVED | REJECTED | IMPLEMENTED)
  *   - source: 來源篩選 (AUTO_LEARNING | MANUAL | IMPORT)
@@ -122,7 +123,7 @@ export async function GET(request: NextRequest) {
 
     // 解析查詢參數
     const { searchParams } = new URL(request.url)
-    const forwarderId = searchParams.get('forwarderId') || undefined
+    const companyId = searchParams.get('companyId') || undefined
     const fieldName = searchParams.get('fieldName') || undefined
     const status = searchParams.get('status') as SuggestionStatus | null
     const source = searchParams.get('source') as SuggestionSource | null
@@ -137,8 +138,8 @@ export async function GET(request: NextRequest) {
     // 構建查詢條件
     const where: Prisma.RuleSuggestionWhereInput = {}
 
-    if (forwarderId) {
-      where.forwarderId = forwarderId
+    if (companyId) {
+      where.companyId = companyId
     }
 
     if (fieldName) {
@@ -174,7 +175,7 @@ export async function GET(request: NextRequest) {
         take: pageSize,
         orderBy,
         include: {
-          forwarder: {
+          company: {
             select: { id: true, name: true, code: true },
           },
           suggester: {
@@ -198,7 +199,7 @@ export async function GET(request: NextRequest) {
       suggestions.map(async (s) => {
         const existingRule = await prisma.mappingRule.findFirst({
           where: {
-            forwarderId: s.forwarderId,
+            companyId: s.companyId,
             fieldName: s.fieldName,
             status: 'ACTIVE',
           },
@@ -207,7 +208,7 @@ export async function GET(request: NextRequest) {
 
         return {
           id: s.id,
-          forwarder: s.forwarder,
+          company: s.company, // REFACTOR-001: 原 forwarder
           fieldName: s.fieldName,
           extractionType: s.extractionType,
           source: s.source,
@@ -290,7 +291,7 @@ export async function GET(request: NextRequest) {
  *   - 來源設為 MANUAL
  *
  * @body CreateSuggestionRequest
- *   - forwarderId: Forwarder ID
+ *   - companyId: Company ID
  *   - fieldName: 欄位名稱
  *   - extractionType: 提取類型
  *   - suggestedPattern: 建議的規則模式
@@ -353,14 +354,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { forwarderId, fieldName, extractionType, suggestedPattern } = validation.data
+    const { companyId, fieldName, extractionType, suggestedPattern } = validation.data
 
-    // 驗證 Forwarder 是否存在
-    const forwarder = await prisma.forwarder.findUnique({
-      where: { id: forwarderId },
+    // 驗證 Company 是否存在 (REFACTOR-001)
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
     })
 
-    if (!forwarder) {
+    if (!company) {
       return NextResponse.json(
         {
           success: false,
@@ -368,7 +369,7 @@ export async function POST(request: NextRequest) {
             type: 'not_found',
             title: 'Not Found',
             status: 404,
-            detail: `Forwarder ${forwarderId} not found`,
+            detail: `Company ${companyId} not found`,
           },
         },
         { status: 404 }
@@ -378,7 +379,7 @@ export async function POST(request: NextRequest) {
     // 獲取現有規則
     const existingRule = await prisma.mappingRule.findFirst({
       where: {
-        forwarderId,
+        companyId,
         fieldName,
         status: 'ACTIVE',
       },
@@ -395,7 +396,7 @@ export async function POST(request: NextRequest) {
     // 創建建議
     const suggestion = await prisma.ruleSuggestion.create({
       data: {
-        forwarderId,
+        companyId, // REFACTOR-001: 原 forwarderId
         fieldName,
         extractionType,
         currentPattern: currentPatternString,

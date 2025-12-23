@@ -7,7 +7,8 @@
  *
  * @module src/app/api/mapping/route
  * @since Epic 2 - Story 2.4 (Field Mapping & Extraction)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -24,12 +25,12 @@ import {
 
 const mapFieldsSchema = z.object({
   documentId: z.string().uuid(),
-  forwarderId: z.string().uuid().optional(),
+  companyId: z.string().uuid().optional(), // REFACTOR-001: 原 forwarderId
   force: z.boolean().optional().default(false),
 });
 
 const getMappingRulesSchema = z.object({
-  forwarderId: z.string().uuid().optional().nullable(),
+  companyId: z.string().uuid().optional().nullable(), // REFACTOR-001: 原 forwarderId
   category: z.string().optional(),
   fieldName: z.string().optional(),
   isActive: z
@@ -51,8 +52,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = mapFieldsSchema.parse(body);
 
+    // REFACTOR-001: 原 forwarderId
     const result = await mapDocumentFields(validatedData.documentId, {
-      forwarderId: validatedData.forwarderId,
+      companyId: validatedData.companyId,
       force: validatedData.force,
     });
 
@@ -110,21 +112,23 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
+    // REFACTOR-001: 原 forwarderId 改為 companyId
     const params = getMappingRulesSchema.parse({
-      forwarderId: searchParams.get('forwarderId'),
+      companyId: searchParams.get('companyId'),
       category: searchParams.get('category'),
       fieldName: searchParams.get('fieldName'),
       isActive: searchParams.get('isActive'),
     });
 
-    // 如果指定了 forwarderId，取得該 Forwarder 的適用規則（含通用規則）
+    // 如果指定了 companyId，取得該 Company 的適用規則（含通用規則）
     // 否則取得所有規則
+    // REFACTOR-001: 原 Forwarder
     let rules;
-    if (params.forwarderId) {
-      rules = await getApplicableRules(params.forwarderId);
+    if (params.companyId) {
+      rules = await getApplicableRules(params.companyId);
     } else {
       rules = await getMappingRules({
-        forwarderId: params.forwarderId,
+        companyId: params.companyId,
         category: params.category,
         fieldName: params.fieldName,
         isActive: params.isActive,
@@ -132,8 +136,9 @@ export async function GET(request: NextRequest) {
     }
 
     // 計算統計
-    const universalCount = rules.filter((r) => r.forwarderId === null).length;
-    const forwarderSpecificCount = rules.filter((r) => r.forwarderId !== null).length;
+    // REFACTOR-001: 原 forwarderId
+    const universalCount = rules.filter((r) => r.companyId === null).length;
+    const companySpecificCount = rules.filter((r) => r.companyId !== null).length;
 
     return NextResponse.json({
       success: true,
@@ -141,7 +146,7 @@ export async function GET(request: NextRequest) {
       meta: {
         total: rules.length,
         universalCount,
-        forwarderSpecificCount,
+        companySpecificCount, // REFACTOR-001: 原 forwarderSpecificCount
       },
     });
   } catch (error) {

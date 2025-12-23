@@ -39,10 +39,11 @@ export class ImpactAnalysisService {
    */
   async analyze(suggestionId: string): Promise<ImpactAnalysisResult> {
     // 獲取建議詳情
+    // REFACTOR-001: 改用 company 關聯（替代 forwarder）
     const suggestion = await prisma.ruleSuggestion.findUnique({
       where: { id: suggestionId },
       include: {
-        forwarder: {
+        company: {
           select: { id: true, name: true }
         }
       }
@@ -56,9 +57,10 @@ export class ImpactAnalysisService {
     const ninetyDaysAgo = new Date()
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
 
+    // REFACTOR-001: 改用 companyId（替代 forwarderId）
     const documents = await prisma.document.findMany({
       where: {
-        forwarderId: suggestion.forwarderId,
+        companyId: suggestion.companyId,
         createdAt: { gte: ninetyDaysAgo }
       },
       include: {
@@ -84,11 +86,12 @@ export class ImpactAnalysisService {
     // 生成時間軸數據
     const timeline = this.generateTimeline(documents, suggestion)
 
+    // REFACTOR-001: 改用 company.name（替代 forwarder.name）
     return {
       suggestion: {
         id: suggestion.id,
         fieldName: suggestion.fieldName,
-        forwarderName: suggestion.forwarder.name,
+        forwarderName: suggestion.company.name,
         currentPattern: suggestion.currentPattern,
         suggestedPattern: suggestion.suggestedPattern,
         extractionType: suggestion.extractionType
@@ -434,9 +437,11 @@ export class ImpactAnalysisService {
 }
 
 // 內部類型定義
+// REFACTOR-001: 添加 companyId 以支援資料查詢（nullable 因為可能未識別）
 interface DocumentWithRelations {
   id: string
   fileName: string
+  companyId: string | null
   createdAt: Date
   ocrResult: {
     extractedText: string
@@ -451,13 +456,15 @@ interface DocumentWithRelations {
   }[]
 }
 
+// REFACTOR-001: 改用 company 關聯（替代 forwarder）
 interface SuggestionWithForwarder {
   id: string
   fieldName: string
   currentPattern: string | null
   suggestedPattern: string
   extractionType: string
-  forwarder: {
+  companyId: string
+  company: {
     id: string
     name: string
   }

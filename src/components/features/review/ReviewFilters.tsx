@@ -114,7 +114,7 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
 
   // 檢查是否有篩選條件
   const hasFilters =
-    filters.forwarderId ||
+    filters.companyId ||
     filters.processingPath ||
     filters.minConfidence !== undefined ||
     filters.maxConfidence !== undefined
@@ -134,7 +134,7 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
     (value: string) => {
       onFiltersChange({
         ...filters,
-        forwarderId: value === 'all' ? undefined : value,
+        companyId: value === 'all' ? undefined : value,
       })
     },
     [filters, onFiltersChange]
@@ -176,7 +176,7 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
           Forwarder:
         </span>
         <Select
-          value={filters.forwarderId || 'all'}
+          value={filters.companyId || 'all'}
           onValueChange={handleForwarderChange}
           disabled={forwardersLoading}
         >

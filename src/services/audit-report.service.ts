@@ -107,7 +107,8 @@ export class AuditReportService {
         dateFrom,
         dateTo,
         cityIds: config.filters.cityIds || [],
-        forwarderIds: config.filters.forwarderIds || [],
+        // REFACTOR-001: forwarder → company
+        companyIds: config.filters.companyIds || [],
         includedFields: config.includedFields,
         includeChanges: config.includeChanges,
         includeFiles: config.includeFiles,
@@ -650,12 +651,13 @@ export class AuditReportService {
   /**
    * 收集報告數據
    */
+  // REFACTOR-001: forwarder → company
   private async collectReportData(job: {
     reportType: AuditReportType
     dateFrom: Date
     dateTo: Date
     cityIds: string[]
-    forwarderIds: string[]
+    companyIds: string[]
     includeChanges: boolean
     includeFiles: boolean
     requestedBy: Pick<User, 'id' | 'name' | 'email'>
@@ -667,7 +669,8 @@ export class AuditReportService {
         generatedAt: new Date(),
         generatedBy: job.requestedBy.name || job.requestedBy.email || job.requestedBy.id,
         dateRange: { from: job.dateFrom, to: job.dateTo },
-        filters: { cityIds: job.cityIds, forwarderIds: job.forwarderIds },
+        // REFACTOR-001: forwarder → company
+        filters: { cityIds: job.cityIds, companyIds: job.companyIds },
         totalRecords: 0,
       },
       processingRecords: [],
@@ -741,7 +744,8 @@ export class AuditReportService {
         where: {
           ...dateWhere,
           ...(job.cityIds.length > 0 && { cityCode: { in: job.cityIds } }),
-          ...(job.forwarderIds.length > 0 && { forwarderId: { in: job.forwarderIds } }),
+          // REFACTOR-001: forwarder → company
+          ...(job.companyIds.length > 0 && { companyId: { in: job.companyIds } }),
         },
         select: {
           id: true,

@@ -8,7 +8,8 @@
  *
  * @module src/app/api/reports/expense-detail/estimate
  * @since Epic 7 - Story 7.4 (費用明細報表匯出)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -21,7 +22,7 @@ import { expenseReportService } from '@/services/expense-report.service'
 interface EstimateRequestBody {
   startDate: string
   endDate: string
-  forwarderIds?: string[]
+  companyIds?: string[] // REFACTOR-001: 原 forwarderIds
 }
 
 /**
@@ -61,6 +62,7 @@ export const POST = withCityFilter(
         )
       }
 
+      // REFACTOR-001: 原 forwarderIds
       const count = await expenseReportService.getEstimatedCount(cityContext, {
         dateRange: {
           startDate: body.startDate,
@@ -68,7 +70,7 @@ export const POST = withCityFilter(
         },
         format: 'xlsx',
         fields: [],
-        forwarderIds: body.forwarderIds
+        companyIds: body.companyIds
       })
 
       return NextResponse.json<EstimateResponse>({

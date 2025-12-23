@@ -71,11 +71,12 @@ export class ResultRetrievalError extends Error {
 
 /**
  * 任務查詢結果（包含關聯）
+ * REFACTOR-001: forwarder → company
  */
 type TaskWithRelations = ExternalApiTask & {
   document: (Document & {
     extractionResult: ExtractionResult | null;
-    forwarder: { id: string; name: string; code: string } | null;
+    company: { id: string; name: string; code: string | null } | null; // REFACTOR-001
   }) | null;
 };
 
@@ -228,7 +229,7 @@ export class ResultRetrievalService {
         document: {
           include: {
             extractionResult: true,
-            forwarder: {
+            company: { // REFACTOR-001: forwarder → company
               select: { id: true, name: true, code: true },
             },
           },
@@ -383,7 +384,7 @@ export class ResultRetrievalService {
         document: {
           include: {
             extractionResult: true,
-            forwarder: {
+            company: { // REFACTOR-001: forwarder → company
               select: { id: true, name: true, code: true },
             },
           },
@@ -458,19 +459,20 @@ export class ResultRetrievalService {
 
   /**
    * 構建元數據
+   * REFACTOR-001: forwarder → company
    */
   private buildMetadata(task: TaskWithRelations): ResultMetadata {
     const extractionResult = task.document?.extractionResult;
-    const forwarder = task.document?.forwarder;
+    const company = task.document?.company;
 
     return {
       pageCount: (extractionResult as { pageCount?: number } | null)?.pageCount ?? 1,
       processingTimeMs: extractionResult?.processingTime ?? 0,
-      forwarder: forwarder
+      forwarder: company
         ? {
-            id: forwarder.id,
-            name: forwarder.name,
-            code: forwarder.code,
+            id: company.id,
+            name: company.name,
+            code: company.code ?? '', // REFACTOR-001: Handle nullable code
           }
         : null,
       documentLanguage: 'en',

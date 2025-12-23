@@ -7,7 +7,8 @@
  *
  * @module src/app/api/corrections/patterns/[id]/route
  * @since Epic 4 - Story 4.3
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - 模式詳情查詢
@@ -69,7 +70,7 @@ function hasPermission(
  *
  * @description
  *   返回模式的完整資訊，包括：
- *   - 基本資訊（Forwarder、欄位、狀態等）
+ *   - 基本資訊（Company、欄位、狀態等）
  *   - 相關的修正記錄（最近 20 筆）
  *   - 統計資訊
  *
@@ -116,7 +117,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const pattern = await prisma.correctionPattern.findUnique({
       where: { id: patternId },
       include: {
-        forwarder: {
+        company: {
           select: {
             id: true,
             name: true,
@@ -177,7 +178,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       success: true,
       data: {
         id: pattern.id,
-        forwarder: pattern.forwarder,
+        company: pattern.company,
         fieldName: pattern.fieldName,
         patternHash: pattern.patternHash,
         originalPattern: firstPattern?.originalValue || '',

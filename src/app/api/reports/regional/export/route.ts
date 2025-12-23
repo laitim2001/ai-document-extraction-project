@@ -4,11 +4,12 @@
  *   提供區域報表 Excel 匯出功能：
  *   - 匯出區域匯總數據
  *   - 匯出城市對比表格
- *   - 可選包含趨勢和 Forwarder 數據
+ *   - 可選包含趨勢和 Company 數據
  *
  * @module src/app/api/reports/regional/export/route
  * @since Epic 7 - Story 7.5 (跨城市匯總報表)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - AC4: 區域報表匯出（Excel 格式）
@@ -31,7 +32,7 @@ const exportParamsSchema = z.object({
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
   includeTrend: z.enum(['true', 'false']).optional().default('false'),
-  includeForwarders: z.enum(['true', 'false']).optional().default('false'),
+  includeCompanies: z.enum(['true', 'false']).optional().default('false'), // REFACTOR-001: 原 includeForwarders
 })
 
 // ============================================================
@@ -47,14 +48,14 @@ const exportParamsSchema = z.object({
  *   - 區域匯總統計
  *   - 城市對比表格
  *   - 可選：各城市趨勢數據
- *   - 可選：各城市 Top Forwarders
+ *   - 可選：各城市 Top Companies (REFACTOR-001: 原 Forwarders)
  *
  * @access 區域經理、全局管理員
  *
  * @query {string} startDate - 開始日期 (YYYY-MM-DD)
  * @query {string} endDate - 結束日期 (YYYY-MM-DD)
  * @query {string} [includeTrend=false] - 是否包含趨勢數據
- * @query {string} [includeForwarders=false] - 是否包含 Forwarder 數據
+ * @query {string} [includeCompanies=false] - 是否包含 Company 數據 (REFACTOR-001: 原 includeForwarders)
  *
  * @returns {Buffer} Excel 文件
  *
@@ -84,7 +85,7 @@ export const GET = withCityFilter(
         startDate: searchParams.get('startDate') || '',
         endDate: searchParams.get('endDate') || '',
         includeTrend: searchParams.get('includeTrend') || 'false',
-        includeForwarders: searchParams.get('includeForwarders') || 'false',
+        includeCompanies: searchParams.get('includeCompanies') || 'false', // REFACTOR-001: 原 includeForwarders
       }
 
       // 驗證參數
@@ -104,7 +105,7 @@ export const GET = withCityFilter(
       const startDate = new Date(params.startDate)
       const endDate = new Date(params.endDate)
       const includeTrend = params.includeTrend === 'true'
-      const includeForwarders = params.includeForwarders === 'true'
+      const includeCompanies = params.includeCompanies === 'true' // REFACTOR-001: 原 includeForwarders
 
       // 驗證日期範圍
       if (startDate > endDate) {
@@ -122,7 +123,7 @@ export const GET = withCityFilter(
         cityFilter,
         startDate,
         endDate,
-        { includeTrend, includeForwarders }
+        { includeTrend, includeForwarders: includeCompanies } // REFACTOR-001: service 仍使用 includeForwarders
       )
 
       // 生成檔案名稱

@@ -60,7 +60,7 @@ type CorrectionWithDocument = Correction & {
   document: {
     id: string;
     fileName: string;
-    forwarderId: string | null;
+    companyId: string | null;
   };
 };
 
@@ -244,7 +244,7 @@ export class PatternAnalysisService {
           select: {
             id: true,
             fileName: true,
-            forwarderId: true,
+            companyId: true,
           },
         },
       },
@@ -267,7 +267,7 @@ export class PatternAnalysisService {
     const grouped = new Map<string, PatternGroup>();
 
     for (const correction of corrections) {
-      const forwarderId = correction.document.forwarderId;
+      const forwarderId = correction.document.companyId;
       if (!forwarderId) continue;
 
       const key = `${forwarderId}:${correction.fieldName}`;
@@ -541,7 +541,7 @@ export class PatternAnalysisService {
     // 創建新模式
     const pattern = await prisma.correctionPattern.create({
       data: {
-        forwarderId,
+        companyId: forwarderId,
         fieldName,
         patternHash,
         patterns: patternsData as unknown as Parameters<typeof prisma.correctionPattern.create>[0]['data']['patterns'],
@@ -699,10 +699,10 @@ export class PatternAnalysisService {
     return prisma.correctionPattern.findMany({
       where: {
         status: 'CANDIDATE',
-        ...(forwarderId && { forwarderId }),
+        ...(forwarderId && { companyId: forwarderId }),
       },
       include: {
-        forwarder: {
+        company: {
           select: {
             id: true,
             name: true,
@@ -752,7 +752,7 @@ export class PatternAnalysisService {
     return prisma.correctionPattern.findUnique({
       where: { id: patternId },
       include: {
-        forwarder: {
+        company: {
           select: {
             id: true,
             name: true,

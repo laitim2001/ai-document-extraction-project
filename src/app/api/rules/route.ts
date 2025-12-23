@@ -4,7 +4,7 @@
  *   提供映射規則管理功能：
  *   - 獲取所有映射規則（GET）
  *   - 創建規則建議（POST）- Story 4-2
- *   - 支持 Forwarder、欄位名稱、狀態、類別篩選
+ *   - 支持 Company、欄位名稱、狀態、類別篩選
  *   - 支持分頁和排序
  *   - 包含規則統計數據（應用次數、成功率）
  *   - 權限檢查：GET 需要 RULE_VIEW，POST 需要 RULE_MANAGE
@@ -15,7 +15,8 @@
  *
  * @module src/app/api/rules/route
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -74,7 +75,7 @@ function hasRuleManagePermission(
  * 創建規則請求驗證 Schema
  */
 const createRuleSchema = z.object({
-  forwarderId: z.string().min(1, 'Forwarder ID is required'),
+  companyId: z.string().min(1, 'Company ID is required'),
   fieldName: z.string().min(1, 'Field name is required'),
   extractionType: z.enum(['REGEX', 'POSITION', 'KEYWORD', 'AI_PROMPT', 'TEMPLATE']),
   pattern: z.string().or(z.record(z.string(), z.unknown())),
@@ -94,7 +95,7 @@ const createRuleSchema = z.object({
  *
  * @description
  *   查詢參數：
- *   - forwarderId: Forwarder ID 篩選
+ *   - companyId: Company ID 篩選
  *   - fieldName: 欄位名稱搜索（模糊匹配）
  *   - status: 狀態篩選 (DRAFT | PENDING_REVIEW | ACTIVE | DEPRECATED)
  *   - category: 類別篩選 (basic | amount | party | logistics | reference | other)
@@ -136,7 +137,7 @@ export async function GET(request: NextRequest) {
 
     // 解析查詢參數
     const { searchParams } = new URL(request.url)
-    const forwarderId = searchParams.get('forwarderId') || undefined
+    const companyId = searchParams.get('companyId') || undefined
     const fieldName = searchParams.get('fieldName') || undefined
     const status = searchParams.get('status') as RuleStatus | null
     const category = searchParams.get('category') || undefined
@@ -153,11 +154,11 @@ export async function GET(request: NextRequest) {
       isActive: true, // 只顯示啟用的規則
     }
 
-    if (forwarderId) {
-      if (forwarderId === 'universal') {
-        where.forwarderId = null // 通用規則
+    if (companyId) {
+      if (companyId === 'universal') {
+        where.companyId = null // 通用規則
       } else {
-        where.forwarderId = forwarderId
+        where.companyId = companyId
       }
     }
 
@@ -197,7 +198,7 @@ export async function GET(request: NextRequest) {
         take: pageSize,
         orderBy,
         include: {
-          forwarder: {
+          company: {
             select: {
               id: true,
               name: true,
@@ -237,7 +238,7 @@ export async function GET(request: NextRequest) {
 
     // 計算通用規則數量
     const universalCount = await prisma.mappingRule.count({
-      where: { isActive: true, forwarderId: null },
+      where: { isActive: true, companyId: null },
     })
 
     // 處理規則列表數據，計算統計
@@ -249,7 +250,7 @@ export async function GET(request: NextRequest) {
 
       return {
         id: rule.id,
-        forwarder: rule.forwarder,
+        company: rule.company,
         fieldName: rule.fieldName,
         fieldLabel: rule.fieldLabel,
         extractionPattern: rule.extractionPattern as unknown as ExtractionPattern,
@@ -336,7 +337,7 @@ export async function GET(request: NextRequest) {
  *   - 記錄審計日誌
  *
  * @body CreateRuleRequest
- *   - forwarderId: Forwarder ID
+ *   - companyId: Company ID
  *   - fieldName: 欄位名稱
  *   - extractionType: 提取類型
  *   - pattern: 提取模式配置（字串或物件）
@@ -394,7 +395,7 @@ export async function POST(request: NextRequest) {
     }
 
     const {
-      forwarderId,
+      companyId,
       fieldName,
       extractionType,
       pattern,
@@ -404,19 +405,19 @@ export async function POST(request: NextRequest) {
       saveAsDraft,
     } = validation.data
 
-    // 驗證 Forwarder 是否存在
-    const forwarder = await prisma.forwarder.findUnique({
-      where: { id: forwarderId },
+    // 驗證 Company 是否存在 (REFACTOR-001)
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
       select: { id: true, name: true },
     })
 
-    if (!forwarder) {
+    if (!company) {
       return NextResponse.json(
         {
           type: 'not_found',
           title: 'Not Found',
           status: 404,
-          detail: `Forwarder with ID ${forwarderId} not found`,
+          detail: `Company with ID ${companyId} not found`,
         },
         { status: 404 }
       )
@@ -442,7 +443,7 @@ export async function POST(request: NextRequest) {
     // 草稿模式通過 reviewNotes 欄位標記
     const suggestion = await prisma.ruleSuggestion.create({
       data: {
-        forwarderId,
+        companyId, // REFACTOR-001: 原 forwarderId
         fieldName,
         extractionType,
         suggestedPattern: JSON.stringify(patternData),
@@ -466,10 +467,10 @@ export async function POST(request: NextRequest) {
         await notifySuperUsers({
           type: NOTIFICATION_TYPES.RULE_SUGGESTION,
           title: '新的規則建議',
-          message: `${session.user.name || session.user.email || 'Unknown'} 提交了 ${forwarder.name} 的 ${fieldName} 欄位映射建議`,
+          message: `${session.user.name || session.user.email || 'Unknown'} 提交了 ${company.name} 的 ${fieldName} 欄位映射建議`,
           data: {
             suggestionId: suggestion.id,
-            forwarderName: forwarder.name,
+            companyName: company.name, // REFACTOR-001: 原 forwarderName
             fieldName,
             extractionType,
             suggestedBy: session.user.name || session.user.email || 'Unknown',
@@ -488,8 +489,8 @@ export async function POST(request: NextRequest) {
       entityType: 'MappingRule',
       entityId: suggestion.id,
       details: {
-        forwarderId,
-        forwarderName: forwarder.name,
+        companyId, // REFACTOR-001: 原 forwarderId
+        companyName: company.name, // REFACTOR-001: 原 forwarderName
         fieldName,
         extractionType,
         isDraft: saveAsDraft,

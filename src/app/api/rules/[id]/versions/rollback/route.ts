@@ -8,7 +8,8 @@
  *
  * @module src/app/api/rules/[id]/versions/rollback/route
  * @since Epic 4 - Story 4.7 (規則版本歷史管理)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - 回滾到指定歷史版本
@@ -245,13 +246,14 @@ export async function POST(
         newVersion,
         fromVersion: currentRule.version,
         toVersion: targetVersion.version,
-        forwarderId: currentRule.forwarderId,
+        companyId: currentRule.companyId, // REFACTOR-001: 原 forwarderId
       }
     })
 
     // 9. 失效規則快取（確保所有城市取得最新規則）
-    if (result.forwarderId) {
-      await ruleResolver.invalidateForwarderCache(result.forwarderId)
+    // REFACTOR-001: 原 invalidateForwarderCache
+    if (result.companyId) {
+      await ruleResolver.invalidateCompanyCache(result.companyId)
     }
 
     // 10. 返回成功響應

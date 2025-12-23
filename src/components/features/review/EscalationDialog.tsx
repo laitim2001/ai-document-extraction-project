@@ -10,7 +10,8 @@
  *
  * @module src/components/features/review/EscalationDialog
  * @since Epic 3 - Story 3.7 (升級複雜案例)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - @/components/ui/* - shadcn/ui 組件
@@ -72,7 +73,7 @@ interface EscalationDialogProps {
  * 升級原因對應的圖示
  */
 const REASON_ICONS: Record<EscalationReason, React.ElementType> = {
-  UNKNOWN_FORWARDER: HelpCircle,
+  UNKNOWN_COMPANY: HelpCircle, // REFACTOR-001: 原 UNKNOWN_FORWARDER
   RULE_NOT_APPLICABLE: FileX,
   POOR_QUALITY: AlertTriangle,
   OTHER: MoreHorizontal,
@@ -285,7 +286,7 @@ export function EscalationDialog({
  */
 function getPlaceholder(reason: EscalationReason | null): string {
   switch (reason) {
-    case 'UNKNOWN_FORWARDER':
+    case 'UNKNOWN_COMPANY': // REFACTOR-001: 原 UNKNOWN_FORWARDER
       return '描述無法識別的情況（選填）...'
     case 'RULE_NOT_APPLICABLE':
       return '請說明哪個欄位的規則需要調整...'

@@ -202,7 +202,7 @@ export function ExportDialog({
       },
       format: 'xlsx',
       fields: selectedFields,
-      forwarderIds: selectedForwarderIds.length > 0 ? selectedForwarderIds : undefined
+      companyIds: selectedForwarderIds.length > 0 ? selectedForwarderIds : undefined
     }
     exportMutation.mutate(config)
   }, [dateRange, selectedFields, selectedForwarderIds, exportMutation])

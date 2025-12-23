@@ -11,12 +11,13 @@
  *
  * @module src/app/api/forwarders/list/route
  * @since Epic 7 - Story 7.3 (Forwarder Filter)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22 (REFACTOR-001)
  *
  * @features
  *   - 簡化響應（只返回下拉選單需要的欄位）
  *   - HTTP 快取標頭（5 分鐘）
  *   - 按 displayName 排序
+ *   - REFACTOR-001: 使用 Company 模型，篩選 type=FORWARDER
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -29,6 +30,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { hasPermission } from '@/lib/auth/city-permission';
 import { PERMISSIONS } from '@/types/permissions';
+import { CompanyType, CompanyStatus } from '@prisma/client';
 import type { ForwarderListResponse } from '@/types/forwarder-filter';
 
 /**
@@ -107,9 +109,11 @@ export async function GET(_request: NextRequest) {
     }
 
     // 3. 查詢啟用的 Forwarder（只選擇需要的欄位）
-    const forwarders = await prisma.forwarder.findMany({
+    // REFACTOR-001: 使用 Company 模型，篩選 type=FORWARDER
+    const forwarders = await prisma.company.findMany({
       where: {
-        isActive: true,
+        type: CompanyType.FORWARDER,
+        status: CompanyStatus.ACTIVE,
       },
       select: {
         id: true,

@@ -26,7 +26,8 @@
  * @module src/services/rule-resolver
  * @author Development Team
  * @since Epic 6 - Story 6.5 (Global Rule Sharing)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - 全域規則快取（無城市區分）
@@ -53,10 +54,11 @@ import type { RuleStatus } from '@prisma/client';
 /** 快取 TTL（毫秒）- 5 分鐘 */
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-/** 支援的實體類型 */
+/** 支援的實體類型 (REFACTOR-001: 新增 COMPANIES) */
 export const ENTITY_TYPES = {
   MAPPING_RULES: 'mapping_rules',
-  FORWARDERS: 'forwarders',
+  FORWARDERS: 'forwarders', // 保留向後兼容
+  COMPANIES: 'companies',   // REFACTOR-001: 新增
 } as const;
 
 export type EntityType = (typeof ENTITY_TYPES)[keyof typeof ENTITY_TYPES];
@@ -168,17 +170,18 @@ export class RuleResolver {
   // ============================================================
 
   /**
-   * 取得指定 Forwarder 的所有啟用規則
+   * 取得指定 Company 的所有啟用規則
+   * (REFACTOR-001: 原 getRulesForForwarder)
    *
    * @description
    *   規則是全域共享的，無城市過濾。
    *   首先檢查快取，如果快取過期則從資料庫取得。
    *
-   * @param forwarderId - Forwarder ID
+   * @param companyId - Company ID (REFACTOR-001: 原 forwarderId)
    * @returns 快取的規則列表
    */
-  async getRulesForForwarder(forwarderId: string): Promise<CachedRule[]> {
-    const cacheKey = forwarderId;
+  async getRulesForCompany(companyId: string): Promise<CachedRule[]> {
+    const cacheKey = companyId;
     const now = Date.now();
 
     // 檢查快取
@@ -190,7 +193,7 @@ export class RuleResolver {
     // 從資料庫取得規則
     const rules = await prisma.mappingRule.findMany({
       where: {
-        forwarderId,
+        companyId,
         status: 'ACTIVE',
         isActive: true,
       },
@@ -235,29 +238,31 @@ export class RuleResolver {
 
   /**
    * 取得指定欄位的最佳匹配規則
+   * (REFACTOR-001: 參數從 forwarderId 改為 companyId)
    *
-   * @param forwarderId - Forwarder ID
+   * @param companyId - Company ID (REFACTOR-001: 原 forwarderId)
    * @param fieldName - 欄位名稱
    * @returns 最佳匹配規則或 null
    */
   async getBestRuleForField(
-    forwarderId: string,
+    companyId: string,
     fieldName: string
   ): Promise<CachedRule | null> {
-    const rules = await this.getRulesForForwarder(forwarderId);
+    const rules = await this.getRulesForCompany(companyId);
     return rules.find((r) => r.fieldName === fieldName) || null;
   }
 
   /**
    * 取得按欄位名稱分組的規則
+   * (REFACTOR-001: 參數從 forwarderId 改為 companyId)
    *
-   * @param forwarderId - Forwarder ID
+   * @param companyId - Company ID (REFACTOR-001: 原 forwarderId)
    * @returns 按欄位名稱分組的規則
    */
   async getRulesGroupedByField(
-    forwarderId: string
+    companyId: string
   ): Promise<Map<string, CachedRule[]>> {
-    const rules = await this.getRulesForForwarder(forwarderId);
+    const rules = await this.getRulesForCompany(companyId);
     const grouped = new Map<string, CachedRule[]>();
 
     for (const rule of rules) {
@@ -270,7 +275,8 @@ export class RuleResolver {
   }
 
   /**
-   * 取得所有通用規則（forwarderId = null）
+   * 取得所有通用規則（companyId = null）
+   * (REFACTOR-001: forwarderId 改為 companyId)
    *
    * @returns 通用規則列表
    */
@@ -285,7 +291,7 @@ export class RuleResolver {
 
     const rules = await prisma.mappingRule.findMany({
       where: {
-        forwarderId: null,
+        companyId: null, // REFACTOR-001: 原 forwarderId
         status: 'ACTIVE',
         isActive: true,
       },
@@ -332,18 +338,19 @@ export class RuleResolver {
   // ============================================================
 
   /**
-   * 失效指定 Forwarder 的規則快取
+   * 失效指定 Company 的規則快取
+   * (REFACTOR-001: 原 invalidateForwarderCache)
    *
    * @description
    *   當規則更新時，必須失效快取，確保所有城市取得最新規則。
    *
-   * @param forwarderId - Forwarder ID
+   * @param companyId - Company ID (REFACTOR-001: 原 forwarderId)
    */
-  async invalidateForwarderCache(forwarderId: string): Promise<void> {
-    this.ruleCache.delete(forwarderId);
+  async invalidateCompanyCache(companyId: string): Promise<void> {
+    this.ruleCache.delete(companyId);
 
     // 發布失效事件
-    await this.publishCacheInvalidation(ENTITY_TYPES.MAPPING_RULES, forwarderId);
+    await this.publishCacheInvalidation(ENTITY_TYPES.MAPPING_RULES, companyId);
 
     // 遞增全域版本
     await this.incrementGlobalVersion(ENTITY_TYPES.MAPPING_RULES);
@@ -403,21 +410,22 @@ export class RuleResolver {
 
   /**
    * 取得所有實體類型的版本
+   * (REFACTOR-001: forwarders 改為 companies)
    *
    * @returns 版本資訊
    */
   async getAllVersions(): Promise<{
     mappingRules: number;
-    forwarders: number;
+    companies: number;
   }> {
-    const [mappingRulesVersion, forwardersVersion] = await Promise.all([
+    const [mappingRulesVersion, companiesVersion] = await Promise.all([
       this.getGlobalVersion(ENTITY_TYPES.MAPPING_RULES),
-      this.getGlobalVersion(ENTITY_TYPES.FORWARDERS),
+      this.getGlobalVersion(ENTITY_TYPES.COMPANIES),
     ]);
 
     return {
       mappingRules: mappingRulesVersion,
-      forwarders: forwardersVersion,
+      companies: companiesVersion,
     };
   }
 

@@ -3,7 +3,7 @@
  * @description
  *   提供單一文件的審核詳情查詢功能：
  *   - 文件基本資訊（檔名、URL、頁數）
- *   - Forwarder 資訊
+ *   - Company 資訊 (REFACTOR-001: 原 Forwarder)
  *   - 處理隊列狀態
  *   - 提取欄位結果（含信心度和來源位置）
  *
@@ -13,7 +13,8 @@
  * @module src/app/api/review/[id]/route
  * @author Development Team
  * @since Epic 3 - Story 3.2 (並排 PDF 審核介面)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -152,7 +153,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const document = await prisma.document.findUnique({
       where: { id },
       include: {
-        forwarder: {
+        company: {
           select: { id: true, name: true, code: true },
         },
         extractionResult: true,
@@ -216,11 +217,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         pageCount: document.ocrResult?.pageCount || 1,
         createdAt: document.createdAt.toISOString(),
       },
-      forwarder: document.forwarder
+      company: document.company
         ? {
-            id: document.forwarder.id,
-            name: document.forwarder.name,
-            code: document.forwarder.code,
+            id: document.company.id,
+            name: document.company.name,
+            code: document.company.code,
           }
         : null,
       processingQueue: document.processingQueue
@@ -322,7 +323,7 @@ function convertSource(source: FieldMappingEntry['source']): MappingSource {
     case 'tier1':
       return 'UNIVERSAL'
     case 'tier2':
-      return 'FORWARDER'
+      return 'COMPANY' // REFACTOR-001: 原 FORWARDER
     case 'tier3':
       return 'LLM'
     case 'azure':

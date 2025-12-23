@@ -111,7 +111,8 @@ export function ForwarderMultiSelect({
     return options.filter(
       (option) =>
         option.name.toLowerCase().includes(searchLower) ||
-        option.code.toLowerCase().includes(searchLower) ||
+        // REFACTOR-001: option.code 可能為 null，使用空值合併運算子
+        (option.code ?? '').toLowerCase().includes(searchLower) ||
         option.displayName.toLowerCase().includes(searchLower)
     );
   }, [options, debouncedSearch]);
@@ -292,7 +293,8 @@ export function ForwarderMultiSelect({
                   return (
                     <CommandItem
                       key={option.id}
-                      value={option.code}
+                      // REFACTOR-001: option.code 可能為 null，使用空值合併運算子
+                      value={option.code ?? ''}
                       onSelect={() => handleSelect(option.id)}
                       disabled={isDisabled}
                       className={cn(isDisabled && 'opacity-50')}
@@ -306,7 +308,8 @@ export function ForwarderMultiSelect({
                       <div className="flex flex-col">
                         <span>{option.displayName}</span>
                         <span className="text-xs text-muted-foreground">
-                          {option.code}
+                          {/* REFACTOR-001: 處理 null 的情況 */}
+                          {option.code ?? '無代碼'}
                         </span>
                       </div>
                     </CommandItem>

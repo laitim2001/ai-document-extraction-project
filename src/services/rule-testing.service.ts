@@ -95,7 +95,7 @@ export async function createTestTask(
   const rule = await prisma.mappingRule.findUnique({
     where: { id: ruleId },
     include: {
-      forwarder: { select: { id: true, name: true, code: true } },
+      company: { select: { id: true, name: true, code: true } },
     },
   });
 
@@ -103,12 +103,12 @@ export async function createTestTask(
     throw new Error('找不到指定的規則');
   }
 
-  if (!rule.forwarderId) {
-    throw new Error('此規則沒有關聯的 Forwarder');
+  if (!rule.companyId) {
+    throw new Error('此規則沒有關聯的 Company');
   }
 
   // 2. 計算測試文件數量
-  const documentCount = await getTestableDocumentCount(rule.forwarderId, config);
+  const documentCount = await getTestableDocumentCount(rule.companyId, config);
 
   if (documentCount === 0) {
     throw new Error('沒有找到符合條件的測試文件');
@@ -118,7 +118,7 @@ export async function createTestTask(
   const testTask = await prisma.ruleTestTask.create({
     data: {
       ruleId,
-      forwarderId: rule.forwarderId,
+      companyId: rule.companyId,
       originalPattern: rule.extractionPattern as Prisma.InputJsonValue,
       testPattern: testPattern as Prisma.InputJsonValue,
       config: config as unknown as Prisma.InputJsonValue,
@@ -138,10 +138,10 @@ export async function createTestTask(
       action: 'CREATE',
       resourceType: 'rule-test-task',
       resourceId: testTask.id,
-      description: `Created rule test task for ${rule.forwarder?.name ?? 'Unknown'} forwarder`,
+      description: `Created rule test task for ${rule.company?.name ?? 'Unknown'} company`,
       metadata: {
         ruleId,
-        forwarderId: rule.forwarderId,
+        companyId: rule.companyId,
         documentCount,
         config: config as unknown as Prisma.InputJsonValue,
       },
@@ -208,7 +208,7 @@ export async function executeTest(params: ExecuteTestParams): Promise<void> {
   try {
     // 3. 獲取測試文件列表
     const config = task.config as unknown as TestConfig;
-    const documents = await getTestableDocuments(task.forwarderId, config);
+    const documents = await getTestableDocuments(task.companyId, config);
 
     // 4. 初始化結果計數
     let improved = 0;
@@ -378,7 +378,7 @@ export async function getTestTask(taskId: string): Promise<RuleTestTask> {
           fieldLabel: true,
         },
       },
-      forwarder: {
+      company: {
         select: {
           id: true,
           name: true,
@@ -538,10 +538,10 @@ export async function cancelTestTask(
  * 獲取可測試文件數量
  */
 async function getTestableDocumentCount(
-  forwarderId: string,
+  companyId: string,
   config: TestConfig
 ): Promise<number> {
-  const where = buildDocumentWhereClause(forwarderId, config);
+  const where = buildDocumentWhereClause(companyId, config);
   return prisma.document.count({ where });
 }
 
@@ -549,10 +549,10 @@ async function getTestableDocumentCount(
  * 獲取可測試文件列表
  */
 async function getTestableDocuments(
-  forwarderId: string,
+  companyId: string,
   config: TestConfig
 ): Promise<{ id: string }[]> {
-  const where = buildDocumentWhereClause(forwarderId, config);
+  const where = buildDocumentWhereClause(companyId, config);
   const take = config.maxDocuments ?? 1000;
 
   return prisma.document.findMany({
@@ -567,11 +567,11 @@ async function getTestableDocuments(
  * 構建文件查詢條件
  */
 function buildDocumentWhereClause(
-  forwarderId: string,
+  companyId: string,
   config: TestConfig
 ): Prisma.DocumentWhereInput {
   const where: Prisma.DocumentWhereInput = {
-    forwarderId,
+    companyId,
     status: 'COMPLETED', // 只測試已完成處理的文件
   };
 
@@ -730,7 +730,7 @@ function determineChangeType(
 function formatTestTask(task: {
   id: string;
   ruleId: string;
-  forwarderId: string;
+  companyId: string;
   originalPattern: Prisma.JsonValue;
   testPattern: Prisma.JsonValue;
   config: Prisma.JsonValue;
@@ -745,7 +745,7 @@ function formatTestTask(task: {
   createdById: string;
   createdAt: Date;
   rule: { id: string; fieldName: string; fieldLabel: string };
-  forwarder: { id: string; name: string; code: string };
+  company: { id: string; name: string; code: string | null }; // REFACTOR-001: code 可為 null
   creator: { id: string; name: string | null };
 }): RuleTestTask {
   return {
@@ -756,9 +756,9 @@ function formatTestTask(task: {
       fieldLabel: task.rule.fieldLabel,
     },
     forwarder: {
-      id: task.forwarder.id,
-      name: task.forwarder.name,
-      code: task.forwarder.code,
+      id: task.company.id,
+      name: task.company.name,
+      code: task.company.code ?? '', // REFACTOR-001: code 可為 null
     },
     originalPattern: task.originalPattern,
     testPattern: task.testPattern,

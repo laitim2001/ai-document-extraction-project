@@ -46,11 +46,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+// REFACTOR-001: 使用 company 類型取代 forwarder 類型
 import type {
-  ForwarderListItem,
-  ForwarderSortField,
+  CompanyListItem as ForwarderListItem,
+  CompanySortField as ForwarderSortField,
   SortOrder,
-} from '@/types/forwarder'
+} from '@/types/company'
 import { LEGACY_FORWARDER_STATUS_CONFIG, getForwarderDisplayStatus } from '@/types/forwarder'
 
 // ============================================================

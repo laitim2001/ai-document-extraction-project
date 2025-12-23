@@ -9,7 +9,8 @@
  *
  * @module src/hooks/useRuleList
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - @tanstack/react-query - React Query
@@ -110,8 +111,8 @@ async function fetchRuleList(
   // 構建查詢字串
   const searchParams = new URLSearchParams()
 
-  if (params.forwarderId) {
-    searchParams.set('forwarderId', params.forwarderId)
+  if (params.companyId) {
+    searchParams.set('companyId', params.companyId) // REFACTOR-001: 原 forwarderId
   }
   if (params.fieldName) {
     searchParams.set('fieldName', params.fieldName)
@@ -211,7 +212,7 @@ export function useRuleList(
   const queryKey = [
     'rules',
     {
-      forwarderId: params.forwarderId,
+      companyId: params.companyId, // REFACTOR-001: 原 forwarderId
       fieldName: params.fieldName,
       status: params.status,
       category: params.category,

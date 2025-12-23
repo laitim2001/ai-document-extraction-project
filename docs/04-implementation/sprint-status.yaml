@@ -40,6 +40,21 @@ story_location: docs/04-implementation/stories
 
 development_status:
   # ============================================================
+  # Epic 0: 歷史數據初始化（前置 Epic）
+  # ============================================================
+  epic-0: backlog  # 待開發，需在系統正式運營前完成
+  0-1-batch-file-upload-metadata-detection: backlog  # 批量文件上傳與元數據檢測
+  0-2-intelligent-processing-routing: backlog  # 智能處理路由
+  0-3-just-in-time-company-profile: backlog  # 即時公司 Profile 建立
+  0-4-batch-processing-progress-tracking: backlog  # 批量處理進度追蹤
+  0-5-term-aggregation-initial-rules: backlog  # 術語聚合與初始規則建立
+
+  # ============================================================
+  # REFACTOR: Forwarder → Company 模型重構
+  # ============================================================
+  refactor-001-forwarder-to-company: backlog  # 需在 Story 0-3 前完成
+
+  # ============================================================
   # Epic 1: 用戶認證與存取控制
   # ============================================================
   epic-1: done  # All stories completed 2025-12-18

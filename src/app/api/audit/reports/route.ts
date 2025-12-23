@@ -8,7 +8,8 @@
  *
  * @module src/app/api/audit/reports/route
  * @since Epic 8 - Story 8.5 (審計報告匯出)
- * @lastModified 2025-12-20
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - AC1: 報告配置選項（類型、欄位、日期範圍）
@@ -41,7 +42,7 @@ const createReportSchema = z.object({
   }),
   filters: z.object({
     cityIds: z.array(z.string()).optional(),
-    forwarderIds: z.array(z.string()).optional(),
+    companyIds: z.array(z.string()).optional(), // REFACTOR-001: 原 forwarderIds
     userIds: z.array(z.string()).optional(),
     statuses: z.array(z.string()).optional(),
   }).optional(),

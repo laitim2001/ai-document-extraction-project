@@ -28,8 +28,29 @@ export * from './review'
 // 升級相關 (Story 3.7)
 export * from './escalation'
 
-// Forwarder 管理相關 (Story 5.1)
-export * from './forwarder'
+// Company 管理相關 (REFACTOR-001: Forwarder → Company)
+export * from './company'
+// 保留 forwarder 導出以維持向後相容 (deprecated)
+// REFACTOR-001: 使用命名導出避免與 company.ts 重複
+export {
+  // Status helpers (company.ts 中已有 LEGACY_FORWARDER_STATUS_CONFIG)
+  getForwarderDisplayStatus,
+  // Rule related types (company.ts 中沒有這些)
+  type RuleStatus,
+  type RuleStatusCounts,
+  type RulesResponse,
+  type RecentDocumentItem,
+  RULE_STATUS_CONFIG,
+  // Document processing types
+  type DocumentProcessingStatus,
+  DOCUMENT_PROCESSING_STATUS_CONFIG,
+  // Daily trend
+  type DailyTrendData,
+  // Zod schemas (company.ts 中已有 ForwardersQuerySchema)
+  RuleStatusSchema,
+  RulesQuerySchema,
+  type ValidatedRulesQuery,
+} from './forwarder'
 
 // 規則管理相關 (Story 4.1)
 // 注意：rule.ts 有自己的 ExtractionMethod/ExtractionPattern 定義
@@ -53,6 +74,7 @@ export {
   getRuleStatusConfig,
   getExtractionMethodConfig,
   getStandardFieldConfig,
+  // REFACTOR-001: getDocumentProcessingStatusConfig 已在 company.ts 中定義
 } from './rule'
 
 // 規則變更請求相關 (Story 5.3)
@@ -97,8 +119,11 @@ export * from './dashboard'
 // 日期範圍相關 (Story 7.2)
 export * from './date-range'
 
-// 貨代商篩選相關 (Story 7.3)
-export * from './forwarder-filter'
+// 公司篩選相關 (REFACTOR-001: forwarder-filter → company-filter)
+export * from './company-filter'
+// 保留 forwarder-filter 導出以維持向後相容 (deprecated)
+// 注意：forwarder-filter.ts 與 company-filter.ts 有重複導出，只使用 company-filter
+// export * from './forwarder-filter'  // 已棄用，改用 company-filter
 export * from './dashboard-filter'
 
 // 區域報表相關 (Story 7.5)

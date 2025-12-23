@@ -12,7 +12,8 @@
  *
  * @module src/app/api/escalations/route
  * @since Epic 3 - Story 3.8 (Super User 處理升級案例)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -57,7 +58,7 @@ function isSuperUser(
  * @description
  *   查詢參數：
  *   - status: 過濾狀態 (PENDING | IN_PROGRESS | RESOLVED | CANCELLED)
- *   - reason: 過濾原因 (UNKNOWN_FORWARDER | RULE_NOT_APPLICABLE | POOR_QUALITY | OTHER)
+ *   - reason: 過濾原因 (UNKNOWN_COMPANY | RULE_NOT_APPLICABLE | POOR_QUALITY | OTHER)
  *   - page: 頁碼（從 1 開始）
  *   - pageSize: 每頁數量（預設 20）
  *   - sortBy: 排序欄位 (createdAt | priority)
@@ -136,7 +137,7 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               fileName: true,
-              forwarder: {
+              company: {
                 select: { name: true },
               },
             },
@@ -166,7 +167,7 @@ export async function GET(request: NextRequest) {
       document: {
         id: escalation.document.id,
         fileName: escalation.document.fileName,
-        forwarder: escalation.document.forwarder,
+        company: escalation.document.company,
       },
       escalatedBy: {
         id: escalation.escalator.id,

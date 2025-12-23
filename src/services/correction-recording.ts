@@ -176,11 +176,12 @@ export class CorrectionRecordingService {
     const since = new Date();
     since.setDate(since.getDate() - days);
 
+    // REFACTOR-001: forwarder → company
     // 構建查詢條件
     const baseWhere = {
       createdAt: { gte: since },
       ...(forwarderId && {
-        document: { forwarderId },
+        document: { companyId: forwarderId },
       }),
     };
 
@@ -260,13 +261,14 @@ export class CorrectionRecordingService {
    * @param limit - 返回筆數限制
    * @returns 該欄位的修正歷史
    */
+  // REFACTOR-001: forwarder → company
   async getCorrectionsByField(fieldName: string, forwarderId?: string, limit: number = 100) {
     return prisma.correction.findMany({
       where: {
         fieldName,
         correctionType: 'NORMAL',
         ...(forwarderId && {
-          document: { forwarderId },
+          document: { companyId: forwarderId },
         }),
       },
       include: {
@@ -274,7 +276,7 @@ export class CorrectionRecordingService {
           select: {
             id: true,
             fileName: true,
-            forwarderId: true,
+            companyId: true,
           },
         },
       },

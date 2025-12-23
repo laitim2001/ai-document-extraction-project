@@ -190,7 +190,7 @@ export function NewRuleForm() {
   // --- Handlers ---
   const handleSubmit = (values: FormValues, saveAsDraft: boolean = false) => {
     createRule({
-      forwarderId: values.forwarderId === 'universal' ? '' : values.forwarderId,
+      companyId: values.forwarderId === 'universal' ? '' : values.forwarderId,
       fieldName: values.fieldName,
       extractionType: values.extractionType,
       pattern: values.pattern,

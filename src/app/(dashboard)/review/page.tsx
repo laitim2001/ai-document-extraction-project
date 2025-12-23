@@ -8,7 +8,7 @@
  *   - 點擊進入審核詳情
  *
  *   URL 參數（支援書籤和分享）：
- *   - forwarderId: Forwarder ID
+ *   - companyId: Company ID
  *   - processingPath: 處理路徑
  *   - minConfidence: 最低信心度
  *   - maxConfidence: 最高信心度
@@ -42,7 +42,7 @@ import type { ProcessingPath } from '@prisma/client'
  */
 function parseFiltersFromUrl(searchParams: URLSearchParams): ReviewQueueFilters {
   return {
-    forwarderId: searchParams.get('forwarderId') || undefined,
+    companyId: searchParams.get('companyId') || undefined,
     processingPath:
       (searchParams.get('processingPath') as ProcessingPath) || undefined,
     minConfidence: searchParams.get('minConfidence')
@@ -60,8 +60,8 @@ function parseFiltersFromUrl(searchParams: URLSearchParams): ReviewQueueFilters 
 function filtersToUrlParams(filters: ReviewQueueFilters, page: number): string {
   const params = new URLSearchParams()
 
-  if (filters.forwarderId) {
-    params.set('forwarderId', filters.forwarderId)
+  if (filters.companyId) {
+    params.set('companyId', filters.companyId)
   }
   if (filters.processingPath) {
     params.set('processingPath', filters.processingPath)

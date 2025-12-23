@@ -10,7 +10,8 @@
  *
  * @module src/types/report-export
  * @since Epic 7 - Story 7.4 (費用明細報表匯出)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  */
 
 /**
@@ -20,8 +21,8 @@ export type ExportField =
   | 'invoiceNumber'
   | 'uploadTime'
   | 'processedTime'
-  | 'forwarderCode'
-  | 'forwarderName'
+  | 'companyCode'    // REFACTOR-001: 原 forwarderCode
+  | 'companyName'    // REFACTOR-001: 原 forwarderName
   | 'aiCost'
   | 'reviewDuration'
   | 'status'
@@ -36,8 +37,8 @@ export const EXPORT_FIELD_LABELS: Record<ExportField, string> = {
   invoiceNumber: '發票編號',
   uploadTime: '上傳時間',
   processedTime: '處理時間',
-  forwarderCode: 'Forwarder 代碼',
-  forwarderName: 'Forwarder 名稱',
+  companyCode: 'Company 代碼',    // REFACTOR-001: 原 forwarderCode
+  companyName: 'Company 名稱',    // REFACTOR-001: 原 forwarderName
   aiCost: 'AI 成本',
   reviewDuration: '審核時長',
   status: '狀態',
@@ -53,8 +54,8 @@ export const DEFAULT_EXPORT_FIELDS: ExportField[] = [
   'invoiceNumber',
   'uploadTime',
   'processedTime',
-  'forwarderCode',
-  'forwarderName',
+  'companyCode',   // REFACTOR-001: 原 forwarderCode
+  'companyName',   // REFACTOR-001: 原 forwarderName
   'aiCost',
   'reviewDuration'
 ]
@@ -77,8 +78,8 @@ export interface ExportConfig {
   format: ExportFormat
   /** 選擇的欄位 */
   fields: ExportField[]
-  /** 篩選的 Forwarder IDs */
-  forwarderIds?: string[]
+  /** 篩選的 Company IDs (REFACTOR-001: 原 forwarderIds) */
+  companyIds?: string[]
   /** 篩選的城市代碼 */
   cityCodes?: string[]
 }

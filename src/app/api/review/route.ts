@@ -3,7 +3,7 @@
  * @description
  *   提供待審核發票列表查詢功能：
  *   - 獲取待審核（PENDING）狀態的發票
- *   - 支援 Forwarder、處理路徑、信心度範圍篩選
+ *   - 支援 Company、處理路徑、信心度範圍篩選
  *   - 分頁和排序（優先級優先，最舊優先）
  *
  *   端點：
@@ -12,7 +12,7 @@
  *   查詢參數：
  *   - page: 頁碼（預設 1）
  *   - pageSize: 每頁數量（預設 20）
- *   - forwarderId: Forwarder ID 篩選
+ *   - companyId: Company ID 篩選 (REFACTOR-001: 原 forwarderId)
  *   - processingPath: 處理路徑篩選
  *   - minConfidence: 最低信心度（0-100）
  *   - maxConfidence: 最高信心度（0-100）
@@ -20,7 +20,8 @@
  * @module src/app/api/review/route
  * @author Development Team
  * @since Epic 3 - Story 3.1 (Pending Review Invoice List)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -81,7 +82,7 @@ export async function GET(request: NextRequest) {
 
     const page = parseInt(searchParams.get('page') || '1', 10)
     const pageSize = parseInt(searchParams.get('pageSize') || '20', 10)
-    const forwarderId = searchParams.get('forwarderId')
+    const companyId = searchParams.get('companyId')
     const processingPath = searchParams.get('processingPath') as ProcessingPath | null
     const minConfidence = parseFloat(searchParams.get('minConfidence') || '0')
     const maxConfidence = parseFloat(searchParams.get('maxConfidence') || '100')
@@ -97,9 +98,9 @@ export async function GET(request: NextRequest) {
       processingPath: processingPath || {
         in: [ProcessingPath.QUICK_REVIEW, ProcessingPath.FULL_REVIEW],
       },
-      // Forwarder 篩選
-      ...(forwarderId && {
-        document: { forwarderId },
+      // Company 篩選 (REFACTOR-001)
+      ...(companyId && {
+        document: { companyId },
       }),
     }
 
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
       include: {
         document: {
           include: {
-            forwarder: {
+            company: {
               select: { id: true, name: true, code: true },
             },
             extractionResult: {
@@ -149,11 +150,11 @@ export async function GET(request: NextRequest) {
         fileName: item.document.fileName,
         createdAt: item.document.createdAt.toISOString(),
       },
-      forwarder: item.document.forwarder
+      company: item.document.company
         ? {
-            id: item.document.forwarder.id,
-            name: item.document.forwarder.name,
-            code: item.document.forwarder.code,
+            id: item.document.company.id,
+            name: item.document.company.name,
+            code: item.document.company.code,
           }
         : null,
       processingPath: item.processingPath,

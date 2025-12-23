@@ -93,7 +93,7 @@ export function ReviewQueueTable({
                 </span>
               </TableCell>
               <TableCell>
-                {item.forwarder?.name || (
+                {item.company?.name || (
                   <span className="text-muted-foreground">未識別</span>
                 )}
               </TableCell>

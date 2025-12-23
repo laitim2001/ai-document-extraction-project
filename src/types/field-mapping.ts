@@ -225,7 +225,7 @@ export type UnmappedFieldDetails = Record<string, UnmappedFieldDetail>;
  */
 export interface MappingRuleDTO {
   id: string;
-  forwarderId: string | null;
+  companyId: string | null; // REFACTOR-001: 原 forwarderId
   fieldName: string;
   fieldLabel: string;
   extractionPattern: ExtractionPattern;
@@ -242,7 +242,7 @@ export interface MappingRuleDTO {
  * 建立映射規則請求
  */
 export interface CreateMappingRuleRequest {
-  forwarderId?: string;
+  companyId?: string; // REFACTOR-001: 原 forwarderId
   fieldName: string;
   fieldLabel: string;
   extractionPattern: ExtractionPattern;
@@ -291,7 +291,7 @@ export interface ExtractionStatistics {
 export interface ExtractionResultDTO {
   id: string;
   documentId: string;
-  forwarderId: string | null;
+  companyId: string | null; // REFACTOR-001: 原 forwarderId
   fieldMappings: FieldMappings;
   statistics: ExtractionStatistics;
   status: ExtractionStatus;
@@ -310,7 +310,7 @@ export interface ExtractionResultDTO {
  */
 export interface MapFieldsRequest {
   documentId: string;
-  forwarderId?: string;
+  companyId?: string; // REFACTOR-001: 原 forwarderId
   ocrResultId?: string;
   /** 強制重新處理 */
   force?: boolean;
@@ -329,7 +329,7 @@ export interface MapFieldsResponse {
  */
 export interface BatchMapFieldsRequest {
   documentIds: string[];
-  forwarderId?: string;
+  companyId?: string; // REFACTOR-001: 原 forwarderId
 }
 
 /**
@@ -366,7 +366,7 @@ export interface GetExtractionResultResponse {
  * 取得映射規則請求
  */
 export interface GetMappingRulesRequest {
-  forwarderId?: string;
+  companyId?: string; // REFACTOR-001: 原 forwarderId
   category?: string;
   fieldName?: string;
   isActive?: boolean;

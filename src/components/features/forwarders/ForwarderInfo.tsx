@@ -22,10 +22,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+// REFACTOR-001: 從 company.ts 導入類型（forwarder 類型已棄用）
 import type {
   ForwarderDetailView,
   ForwarderIdentificationPattern,
-} from '@/types/forwarder'
+} from '@/types/company'
 import {
   LEGACY_FORWARDER_STATUS_CONFIG,
   RULE_STATUS_CONFIG,

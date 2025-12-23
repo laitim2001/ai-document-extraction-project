@@ -8,7 +8,8 @@
  *
  * @module src/types/review
  * @since Epic 3 - Story 3.1
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  */
 
 import { ProcessingPath, QueueStatus } from '@prisma/client'
@@ -19,7 +20,7 @@ import { ProcessingPath, QueueStatus } from '@prisma/client'
 
 /**
  * 審核隊列項目
- * 包含文件基本資訊、Forwarder、處理路徑和信心度
+ * 包含文件基本資訊、Company (REFACTOR-001: 原 Forwarder)、處理路徑和信心度
  */
 export interface ReviewQueueItem {
   /** 處理隊列 ID */
@@ -33,14 +34,14 @@ export interface ReviewQueueItem {
     /** 建立時間 (ISO 8601) */
     createdAt: string
   }
-  /** Forwarder 資訊 */
-  forwarder: {
-    /** Forwarder ID */
+  /** Company 資訊 (REFACTOR-001: 原 forwarder) */
+  company: {
+    /** Company ID */
     id: string
-    /** Forwarder 名稱 */
+    /** Company 名稱 */
     name: string
-    /** Forwarder 代碼 */
-    code: string
+    /** Company 代碼 (可為 null) */
+    code: string | null
   } | null
   /** 處理路徑 */
   processingPath: ProcessingPath
@@ -94,8 +95,8 @@ export interface ReviewQueueErrorResponse {
  * 審核隊列篩選參數
  */
 export interface ReviewQueueFilters {
-  /** Forwarder ID */
-  forwarderId?: string
+  /** Company ID (REFACTOR-001: 原 forwarderId) */
+  companyId?: string
   /** 處理路徑 */
   processingPath?: ProcessingPath
   /** 最低信心度 (0-100) */
@@ -155,8 +156,9 @@ export interface FieldSourcePosition {
 
 /**
  * 映射來源類型
+ * REFACTOR-001: FORWARDER → COMPANY
  */
-export type MappingSource = 'UNIVERSAL' | 'FORWARDER' | 'LLM' | null
+export type MappingSource = 'UNIVERSAL' | 'COMPANY' | 'LLM' | null
 
 /**
  * 提取欄位結果
@@ -213,11 +215,11 @@ export interface ReviewDetailData {
     /** 建立時間 (ISO 8601) */
     createdAt: string
   }
-  /** Forwarder 資訊 */
-  forwarder: {
+  /** Company 資訊 (REFACTOR-001: 原 forwarder) */
+  company: {
     id: string
     name: string
-    code: string
+    code: string | null
   } | null
   /** 處理隊列資訊 */
   processingQueue: {
@@ -595,11 +597,11 @@ export interface RuleReviewHistoryItem {
 export interface RuleReviewListItem {
   /** 建議 ID */
   id: string
-  /** Forwarder 資訊 */
-  forwarder: {
+  /** Company 資訊 (REFACTOR-001: 原 forwarder) */
+  company: {
     id: string
     name: string
-    code: string
+    code: string | null
   }
   /** 欄位名稱 */
   fieldName: string

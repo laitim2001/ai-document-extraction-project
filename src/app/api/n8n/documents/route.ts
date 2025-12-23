@@ -20,7 +20,7 @@
  *     "mimeType": "application/pdf",
  *     "fileSize": 1024000,
  *     "cityCode": "TW",
- *     "forwarderCode": "FWD001",
+ *     "companyCode": "COMPANY001",
  *     "workflowId": "workflow-123",
  *     "callbackUrl": "https://n8n.example.com/webhook/callback"
  *   }
@@ -29,7 +29,8 @@
  * @module src/app/api/n8n/documents/route
  * @author Development Team
  * @since Epic 10 - Story 10.1
- * @lastModified 2025-12-20
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -57,7 +58,7 @@ const submitDocumentSchema = z.object({
   workflowExecutionId: z.string().optional(),
   triggerSource: z.enum(['sharepoint', 'outlook', 'manual', 'api']).optional(),
   cityCode: z.string().min(1),
-  forwarderCode: z.string().optional(),
+  companyCode: z.string().optional(), // REFACTOR-001: 原 forwarderCode
   metadata: z.record(z.string(), z.unknown()).optional(),
   callbackUrl: z.string().url().optional(),
   correlationId: z.string().optional(),

@@ -7,7 +7,8 @@
  *
  * @module src/lib/reports/excel-generator
  * @since Epic 5 - Story 5.4 (測試規則變更效果)
- * @lastModified 2025-12-19
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - exceljs - Excel 生成庫
@@ -23,6 +24,7 @@ import type { TestChangeType } from '@prisma/client'
 
 /**
  * 報告數據結構（與 PDF 生成器共用）
+ * @refactor REFACTOR-001 (Forwarder → Company)
  */
 export interface ReportData {
   /** 測試任務資訊 */
@@ -32,9 +34,10 @@ export interface ReportData {
       fieldName: string
       extractionType: string
     }
-    forwarder: {
+    /** Company 資訊 (REFACTOR-001: 原 forwarder) */
+    company: {
       name: string
-      code: string
+      code: string | null
     }
     totalDocuments: number
     startedAt: Date | null
@@ -151,7 +154,7 @@ function formatConfidence(confidence: number | null): string {
  *
  * @example
  *   const excelBuffer = await generateExcelReport({
- *     task: { id: '...', rule: {...}, forwarder: {...}, ... },
+ *     task: { id: '...', rule: {...}, company: {...}, ... },
  *     results: { improved: 10, regressed: 2, ... },
  *     details: [...],
  *     generatedAt: new Date(),
@@ -173,10 +176,11 @@ export async function generateExcelReport(data: ReportData): Promise<Buffer> {
     { header: '值', key: 'value', width: 40 },
   ]
 
+  // REFACTOR-001: Forwarder → Company
   summarySheet.addRows([
     {
-      item: 'Forwarder',
-      value: `${data.task.forwarder.name} (${data.task.forwarder.code})`,
+      item: 'Company',
+      value: `${data.task.company.name}${data.task.company.code ? ` (${data.task.company.code})` : ''}`,
     },
     { item: '欄位名稱', value: data.task.rule.fieldName },
     { item: '提取類型', value: data.task.rule.extractionType },

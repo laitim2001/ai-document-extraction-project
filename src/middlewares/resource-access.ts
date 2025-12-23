@@ -215,12 +215,12 @@ async function getResourceCityCode(
       }
 
       case 'forwarder': {
-        // Forwarder 是全域資源，沒有城市限制
-        const forwarder = await prisma.forwarder.findUnique({
+        // REFACTOR-001: Company 是全域資源，沒有城市限制（原 Forwarder）
+        const company = await prisma.company.findUnique({
           where: { id: resourceId },
           select: { id: true },
         })
-        return { exists: !!forwarder, cityCode: null }
+        return { exists: !!company, cityCode: null }
       }
 
       case 'mappingRule': {

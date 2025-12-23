@@ -18,8 +18,8 @@
  *       "status": "COMPLETED",
  *       "extractedData": { ... },
  *       "confidenceScore": 95.5,
- *       "forwarderCode": "FWD001",
- *       "forwarderName": "Example Forwarder",
+ *       "companyCode": "COMPANY001",
+ *       "companyName": "Example Company",
  *       "reviewStatus": "APPROVED",
  *       "processingDuration": 45000,
  *       "completedAt": "2025-01-01T00:05:00.000Z"
@@ -32,7 +32,8 @@
  * @module src/app/api/n8n/documents/[id]/result/route
  * @author Development Team
  * @since Epic 10 - Story 10.1
- * @lastModified 2025-12-20
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  */
 
 import { NextRequest, NextResponse } from 'next/server';

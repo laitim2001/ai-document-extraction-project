@@ -6,7 +6,8 @@
  *
  * @module src/lib/learning/ruleSuggestionTrigger
  * @since Epic 3 - Story 3.6 (修正類型標記)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @features
  *   - AC4: 觸發規則升級建議
@@ -61,6 +62,7 @@ export interface TriggerResult {
  * @param fieldName - 欄位名稱
  * @param suggestedByUserId - 建議者用戶 ID（可選，用於記錄誰觸發了建議）
  * @returns 觸發結果
+ * @refactor REFACTOR-001: forwarderId → companyId, forwarder → company
  *
  * @example
  * ```typescript
@@ -75,22 +77,22 @@ export async function triggerRuleSuggestionCheck(
   fieldName: string,
   suggestedByUserId?: string
 ): Promise<TriggerResult> {
-  // 獲取文件的 Forwarder
+  // REFACTOR-001: 獲取文件的 Company (原 Forwarder)
   const document = await prisma.document.findUnique({
     where: { id: documentId },
     select: {
-      forwarderId: true,
-      forwarder: { select: { name: true } },
+      companyId: true,
+      company: { select: { name: true } },
     },
   })
 
-  if (!document?.forwarderId) {
-    return { triggered: false, message: 'No forwarder associated' }
+  if (!document?.companyId) {
+    return { triggered: false, message: 'No company associated' }
   }
 
-  // 檢查是否達到閾值
+  // REFACTOR-001: 檢查是否達到閾值 (companyId)
   const shouldTrigger = await checkCorrectionThreshold(
-    document.forwarderId,
+    document.companyId,
     fieldName
   )
 
@@ -98,17 +100,17 @@ export async function triggerRuleSuggestionCheck(
     return { triggered: false, message: 'Threshold not reached' }
   }
 
-  // 獲取最常見的修正模式
-  const pattern = await getMostCommonCorrection(document.forwarderId, fieldName)
+  // REFACTOR-001: 獲取最常見的修正模式 (companyId)
+  const pattern = await getMostCommonCorrection(document.companyId, fieldName)
 
   if (!pattern) {
     return { triggered: false, message: 'No correction pattern found' }
   }
 
-  // 檢查是否已存在相同的建議
+  // REFACTOR-001: 檢查是否已存在相同的建議 (companyId)
   const existingSuggestion = await prisma.ruleSuggestion.findFirst({
     where: {
-      forwarderId: document.forwarderId,
+      companyId: document.companyId,
       fieldName,
       suggestedPattern: pattern.correctedValue,
       status: {
@@ -131,12 +133,12 @@ export async function triggerRuleSuggestionCheck(
     }
   }
 
-  // 如果沒有提供 suggestedByUserId，嘗試從最近的修正中獲取
+  // REFACTOR-001: 如果沒有提供 suggestedByUserId，嘗試從最近的修正中獲取 (companyId)
   let suggesterId = suggestedByUserId
   if (!suggesterId) {
     const latestCorrection = await prisma.correction.findFirst({
       where: {
-        document: { forwarderId: document.forwarderId },
+        document: { companyId: document.companyId },
         fieldName,
       },
       orderBy: { createdAt: 'desc' },
@@ -153,10 +155,10 @@ export async function triggerRuleSuggestionCheck(
     }
   }
 
-  // 創建新的規則建議
+  // REFACTOR-001: 創建新的規則建議 (companyId)
   const suggestion = await prisma.ruleSuggestion.create({
     data: {
-      forwarderId: document.forwarderId,
+      companyId: document.companyId,
       fieldName,
       extractionType: 'KEYWORD', // 預設使用 KEYWORD 類型，後續可透過規則推斷更新
       suggestedPattern: pattern.correctedValue,
@@ -165,15 +167,15 @@ export async function triggerRuleSuggestionCheck(
     },
   })
 
-  // 通知 Super User
+  // REFACTOR-001: 通知 Super User (company.name)
   try {
     await notifySuperUsers({
       type: 'RULE_SUGGESTION',
       title: '新的規則建議',
-      message: `${document.forwarder?.name || 'Unknown'} 的 ${fieldName} 欄位有新的映射建議`,
+      message: `${document.company?.name || 'Unknown'} 的 ${fieldName} 欄位有新的映射建議`,
       data: {
         suggestionId: suggestion.id,
-        forwarderId: document.forwarderId,
+        companyId: document.companyId,
         fieldName,
         suggestedPattern: pattern.correctedValue,
         correctionCount: pattern.count,
@@ -222,20 +224,21 @@ export async function batchTriggerRuleSuggestionCheck(
  * 獲取待審核的規則建議
  *
  * @description
- *   獲取指定 Forwarder 的所有待審核規則建議。
+ *   獲取指定 Company 的所有待審核規則建議。
  *   用於 Epic 4 的規則管理介面。
  *
- * @param forwarderId - Forwarder ID（可選，不傳則獲取所有）
+ * @param companyId - Company ID（可選，不傳則獲取所有）
  * @returns 待審核的規則建議列表
+ * @refactor REFACTOR-001: forwarderId → companyId, forwarder → company
  */
-export async function getPendingRuleSuggestions(forwarderId?: string) {
+export async function getPendingRuleSuggestions(companyId?: string) {
   return prisma.ruleSuggestion.findMany({
     where: {
       status: SuggestionStatus.PENDING,
-      ...(forwarderId && { forwarderId }),
+      ...(companyId && { companyId }),
     },
     include: {
-      forwarder: {
+      company: {
         select: { name: true, code: true },
       },
     },

@@ -35,7 +35,8 @@ import { ForwarderTable } from './ForwarderTable'
 import { ForwarderTableSkeleton } from './ForwarderTableSkeleton'
 import { Pagination } from '@/components/ui/pagination'
 import { Card, CardContent } from '@/components/ui/card'
-import type { ForwarderSortField } from '@/types/forwarder'
+// REFACTOR-001: CompanySortField 取代 ForwarderSortField
+import type { CompanySortField } from '@/types/company'
 
 // ============================================================
 // Component
@@ -66,8 +67,9 @@ export function ForwarderList() {
   const router = useRouter()
 
   // 使用 Forwarder 查詢 Hook
+  // REFACTOR-001: useForwarders 返回 { companies: ... }，不是 { forwarders: ... }
   const {
-    forwarders,
+    companies: forwarders,
     pagination,
     params,
     isLoading,
@@ -102,8 +104,9 @@ export function ForwarderList() {
   /**
    * 處理排序變更
    */
+  // REFACTOR-001: 排序欄位類型改為 CompanySortField
   const handleSort = useCallback(
-    (field: ForwarderSortField) => {
+    (field: CompanySortField) => {
       setSort(field)
     },
     [setSort]

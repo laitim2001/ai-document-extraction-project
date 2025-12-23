@@ -9,8 +9,9 @@
  *
  * @module src/app/api/rules/[id]/preview/route
  * @author Development Team
- * @since Epic 5 - Story 5.3 (編輯 Forwarder 映射規則)
- * @lastModified 2025-12-19
+ * @since Epic 5 - Story 5.3 (編輯 Company 映射規則)
+ * @lastModified 2025-12-22
+ * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -209,7 +210,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const rule = await prisma.mappingRule.findUnique({
       where: { id: ruleId },
       include: {
-        forwarder: { select: { id: true, name: true } },
+        company: { select: { id: true, name: true } }, // REFACTOR-001: 原 forwarder
       },
     })
 
@@ -255,8 +256,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         )
       }
 
-      // 檢查文件是否屬於同一 Forwarder
-      if (document.forwarderId && document.forwarderId !== rule.forwarderId) {
+      // 檢查文件是否屬於同一 Company (REFACTOR-001: 原 Forwarder)
+      if (document.companyId && document.companyId !== rule.companyId) {
         return NextResponse.json(
           {
             success: false,
@@ -264,7 +265,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
               type: 'https://api.example.com/errors/bad-request',
               title: 'Bad Request',
               status: 400,
-              detail: '此文件不屬於此規則的 Forwarder',
+              detail: '此文件不屬於此規則的 Company',
             },
           },
           { status: 400 }

@@ -150,11 +150,11 @@ export function RuleList({ initialFilters }: RuleListProps) {
       {/* 篩選和刷新 */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <RuleFilters
-          forwarderId={filters.forwarderId}
+          forwarderId={filters.companyId}
           fieldName={filters.fieldName}
           status={filters.status}
           category={filters.category}
-          onForwarderChange={(v) => handleFilterChange('forwarderId', v)}
+          onForwarderChange={(v) => handleFilterChange('companyId', v)}
           onFieldNameChange={(v) => handleFilterChange('fieldName', v)}
           onStatusChange={(v) => handleFilterChange('status', v)}
           onCategoryChange={(v) => handleFilterChange('category', v)}
