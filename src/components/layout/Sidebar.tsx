@@ -100,23 +100,23 @@ const navigation: NavSection[] = [
   {
     title: '規則管理',
     items: [
-      { name: '映射規則', href: '/mappings', icon: GitBranch },
+      { name: '映射規則', href: '/rules', icon: GitBranch },
       { name: 'Forwarder 管理', href: '/forwarders', icon: Building2 },
     ],
   },
   {
     title: '報表',
     items: [
-      { name: '分析報表', href: '/reports', icon: BarChart3 },
-      { name: '審計日誌', href: '/audit', icon: History },
-      { name: '文件追蹤', href: '/trace', icon: FileSearch },
+      { name: '分析報表', href: '/reports/monthly', icon: BarChart3 },
+      { name: '審計日誌', href: '/audit/query', icon: History },
+      // { name: '文件追蹤', href: '/trace', icon: FileSearch }, // TODO: 待實現
     ],
   },
   {
     title: '系統管理',
     items: [
-      { name: '系統設定', href: '/settings', icon: Settings },
-      { name: '用戶管理', href: '/users', icon: Users },
+      // { name: '系統設定', href: '/settings', icon: Settings }, // TODO: 待實現
+      { name: '用戶管理', href: '/admin/users', icon: Users },
     ],
   },
 ]

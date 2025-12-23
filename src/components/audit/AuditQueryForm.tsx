@@ -250,9 +250,9 @@ export function AuditQueryForm({
                 <FormLabel>處理狀態</FormLabel>
                 <Select
                   onValueChange={value =>
-                    field.onChange(value ? [value] : [])
+                    field.onChange(value === 'all' ? [] : [value])
                   }
-                  value={field.value?.[0] || ''}
+                  value={field.value?.[0] || 'all'}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -260,7 +260,7 @@ export function AuditQueryForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">全部狀態</SelectItem>
+                    <SelectItem value="all">全部狀態</SelectItem>
                     {STATUS_OPTIONS.map(opt => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}

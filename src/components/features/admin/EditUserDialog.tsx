@@ -280,8 +280,8 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
                 <FormItem>
                   <FormLabel>城市（選填）</FormLabel>
                   <Select
-                    value={field.value || ''}
-                    onValueChange={(value) => field.onChange(value || null)}
+                    value={field.value || '__none__'}
+                    onValueChange={(value) => field.onChange(value === '__none__' ? null : value)}
                     disabled={isLoadingCities}
                   >
                     <FormControl>
@@ -301,7 +301,7 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">不指定城市</SelectItem>
+                      <SelectItem value="__none__">不指定城市</SelectItem>
                       {cities?.map((city) => (
                         <SelectItem key={city.id} value={city.id}>
                           {city.name} ({city.code})

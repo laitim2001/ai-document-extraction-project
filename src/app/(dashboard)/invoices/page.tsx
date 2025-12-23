@@ -158,9 +158,9 @@ export default function InvoicesPage() {
         </div>
 
         <Select
-          value={statusFilter}
+          value={statusFilter || 'all'}
           onValueChange={(value) => {
-            setStatusFilter(value)
+            setStatusFilter(value === 'all' ? '' : value)
             setPage(1)
           }}
         >
@@ -169,7 +169,7 @@ export default function InvoicesPage() {
             <SelectValue placeholder="所有狀態" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">所有狀態</SelectItem>
+            <SelectItem value="all">所有狀態</SelectItem>
             <SelectItem value="UPLOADING">上傳中</SelectItem>
             <SelectItem value="OCR_PROCESSING">OCR 處理中</SelectItem>
             <SelectItem value="MAPPING_PROCESSING">映射中</SelectItem>

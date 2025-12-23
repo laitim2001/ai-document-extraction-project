@@ -343,7 +343,7 @@ export default function RuleReviewPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>建議列表</CardTitle>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter || 'all'} onValueChange={(value) => setStatusFilter(value === 'all' ? '' : value)}>
             <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="篩選狀態" />
             </SelectTrigger>
@@ -352,7 +352,7 @@ export default function RuleReviewPage() {
               <SelectItem value="APPROVED">已批准</SelectItem>
               <SelectItem value="REJECTED">已拒絕</SelectItem>
               <SelectItem value="IMPLEMENTED">已實施</SelectItem>
-              <SelectItem value="">全部</SelectItem>
+              <SelectItem value="all">全部</SelectItem>
             </SelectContent>
           </Select>
         </CardHeader>
