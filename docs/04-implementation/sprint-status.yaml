@@ -46,7 +46,7 @@ development_status:
   0-1-batch-file-upload-metadata-detection: done  # Completed 2025-12-23: BatchFileUploader, HistoricalFileList, file-detection.service, upload/files/bulk APIs, HistoricalBatch/HistoricalFile models
   0-2-intelligent-processing-routing: backlog  # 智能處理路由
   0-3-just-in-time-company-profile: backlog  # 即時公司 Profile 建立
-  0-4-batch-processing-progress-tracking: backlog  # 批量處理進度追蹤
+  0-4-batch-processing-progress-tracking: done  # Completed 2025-12-23: BatchProgressPanel, BatchErrorList, BatchSummaryCard, batch-progress.service, SSE progress API, pause/resume/cancel/retry/skip APIs, PAUSED status, ADMIN permissions
   0-5-term-aggregation-initial-rules: backlog  # 術語聚合與初始規則建立
 
   # ============================================================

@@ -89,6 +89,14 @@ export const PERMISSIONS = {
   AUDIT_VIEW: 'audit:view',
   /** 導出審計日誌 */
   AUDIT_EXPORT: 'audit:export',
+
+  // ===========================================
+  // Admin Operations（管理員操作）
+  // ===========================================
+  /** 查看管理員資源（歷史數據批次等） */
+  ADMIN_VIEW: 'admin:view',
+  /** 管理管理員資源（批次控制等） */
+  ADMIN_MANAGE: 'admin:manage',
 } as const
 
 /**
@@ -164,5 +172,9 @@ export const PERMISSION_GROUPS = {
   audit: {
     label: '審計操作',
     permissions: [PERMISSIONS.AUDIT_VIEW, PERMISSIONS.AUDIT_EXPORT],
+  },
+  admin: {
+    label: '管理員操作',
+    permissions: [PERMISSIONS.ADMIN_VIEW, PERMISSIONS.ADMIN_MANAGE],
   },
 } as const

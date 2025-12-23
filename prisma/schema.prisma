@@ -89,6 +89,7 @@ model User {
   systemLogs                  SystemLog[]               @relation("SystemLogUser") // Story 12-7: 系統日誌
   logExports                  LogExport[]               @relation("LogExportCreator") // Story 12-7: 日誌匯出
   historicalBatchesCreated    HistoricalBatch[]         @relation("HistoricalBatchCreator") // Story 0-1: 歷史數據批量任務
+  companiesCreated            Company[]                 @relation("CompanyCreator") // Story 0-3: 公司創建
 
   @@map("users")
 }
@@ -598,6 +599,76 @@ model ForwarderIdentification {
   @@index([status])
   @@index([confidence])
   @@map("forwarder_identifications")
+}
+
+// =====================
+// Company Management Models (Story 0.3)
+// =====================
+
+model Company {
+  id          String        @id @default(uuid())
+  name        String // 主要名稱
+  code        String?       @unique // 系統代碼（可選）
+  displayName String        @map("display_name")
+  type        CompanyType   @default(UNKNOWN)
+  status      CompanyStatus @default(PENDING)
+  source      CompanySource @default(MANUAL)
+
+  // 名稱變體（用於模糊匹配）
+  nameVariants String[] @map("name_variants")
+
+  // 合併相關（自我關聯）
+  mergedIntoId String?   @map("merged_into_id")
+  mergedInto   Company?  @relation("CompanyMerge", fields: [mergedIntoId], references: [id])
+  mergedFrom   Company[] @relation("CompanyMerge")
+
+  // 首次出現文件
+  firstSeenDocumentId String? @map("first_seen_document_id")
+
+  // 元數據
+  logoUrl      String? @map("logo_url")
+  contactEmail String? @map("contact_email")
+  description  String? @db.Text
+
+  // 創建者追蹤
+  createdById String @map("created_by_id")
+
+  // 時間戳
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  creator User @relation("CompanyCreator", fields: [createdById], references: [id])
+
+  @@index([type])
+  @@index([status])
+  @@index([name])
+  @@index([source])
+  @@index([createdById])
+  @@index([mergedIntoId])
+  @@map("companies")
+}
+
+enum CompanyType {
+  FORWARDER // 貨運代理商
+  EXPORTER // 出口商
+  CARRIER // 承運人
+  CUSTOMS_BROKER // 報關行
+  OTHER // 其他
+  UNKNOWN // 未分類
+}
+
+enum CompanyStatus {
+  ACTIVE // 啟用
+  INACTIVE // 停用
+  PENDING // 待審核
+  MERGED // 已合併
+}
+
+enum CompanySource {
+  MANUAL // 手動建立
+  AUTO_CREATED // 自動建立
+  IMPORTED // 批量匯入
 }
 
 // =====================
@@ -4668,6 +4739,7 @@ model LogExport {
 enum HistoricalBatchStatus {
   PENDING       // 待處理
   PROCESSING    // 處理中
+  PAUSED        // 已暫停 - Story 0.4
   COMPLETED     // 完成
   FAILED        // 失敗
   CANCELLED     // 已取消
@@ -4688,6 +4760,13 @@ enum HistoricalFileStatus {
   PROCESSING    // AI 處理中
   COMPLETED     // 完成
   FAILED        // 失敗
+  SKIPPED       // 已跳過 - Story 0.4
+}
+
+/// 處理方式 - Story 0.2 智能處理路由
+enum ProcessingMethod {
+  AZURE_DI      // Azure Document Intelligence（原生 PDF）
+  GPT_VISION    // GPT-4o Vision（掃描 PDF、圖片）
 }
 
 /// 歷史數據批量處理任務
@@ -4705,6 +4784,14 @@ model HistoricalBatch {
   startedAt      DateTime?              @map("started_at")   // 開始處理時間
   completedAt    DateTime?              @map("completed_at") // 完成時間
   createdBy      String                 @map("created_by")
+
+  // Story 0.4: 進度追蹤相關欄位
+  pausedAt            DateTime?         @map("paused_at")          // 暫停時間
+  currentFileId       String?           @map("current_file_id")    // 當前處理中的文件 ID
+  skippedFiles        Int               @default(0) @map("skipped_files")   // 跳過文件數
+  totalCost           Float             @default(0) @map("total_cost")      // 總處理成本（USD）
+  newCompaniesCount   Int               @default(0) @map("new_companies_count")   // 新發現公司數
+  extractedTermsCount Int               @default(0) @map("extracted_terms_count") // 提取費用項數
 
   // Relations
   creator        User                   @relation("HistoricalBatchCreator", fields: [createdBy], references: [id])
@@ -4734,12 +4821,20 @@ model HistoricalFile {
   detectedAt     DateTime?              @map("detected_at")    // 檢測完成時間
   processedAt    DateTime?              @map("processed_at")   // 處理完成時間
 
+  // Story 0.2: 處理路由相關欄位
+  processingMethod   ProcessingMethod?  @map("processing_method")    // 處理方式
+  processingStartAt  DateTime?          @map("processing_start_at")  // 處理開始時間
+  processingEndAt    DateTime?          @map("processing_end_at")    // 處理結束時間
+  actualCost         Float?             @map("actual_cost")          // 實際處理成本（USD）
+  extractionResult   Json?              @map("extraction_result")    // AI 提取結果
+
   // Relations
   batch          HistoricalBatch        @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   @@index([batchId])
   @@index([status])
   @@index([detectedType])
+  @@index([processingMethod])
   @@map("historical_files")
 }
 

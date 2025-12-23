@@ -58,6 +58,12 @@
  *   | api-key | API Key 管理服務 | Epic 11 Story 11.5 |
  *   | api-audit-log | API 審計日誌服務 | Epic 11 Story 11.5 |
  *   | health-check | 系統健康監控服務 | Epic 12 Story 12.1 |
+ *   | processing-router | 文件處理路由服務 | Epic 0 Story 0.2 |
+ *   | cost-estimation | 處理成本估算服務 | Epic 0 Story 0.2 |
+ *   | batch-processor | 批量處理執行器 | Epic 0 Story 0.2 |
+ *   | gpt-vision | GPT-4o Vision 處理服務 | Epic 0 Story 0.2 |
+ *   | company-matcher | 公司名稱模糊匹配服務 | Epic 0 Story 0.3 |
+ *   | company-auto-create | JIT 公司 Profile 自動建立 | Epic 0 Story 0.3 |
  *
  *   ## 核心設計原則
  *
@@ -88,7 +94,7 @@
  * @module src/services
  * @author Development Team
  * @since Epic 1 - Story 1.0 (Project Init Foundation)
- * @lastModified 2025-12-21
+ * @lastModified 2025-12-23
  *
  * @features
  *   - 統一服務導出入口
@@ -331,6 +337,19 @@ export * from './restore.service'
 
 // Epic 12: System Administration & Monitoring (Story 12-7 - System Log Query)
 export * from './logging'
+
+// Epic 0: Historical Data Initialization (Story 0-1 - Batch File Upload)
+export * from './file-detection.service'
+
+// Epic 0: Historical Data Initialization (Story 0-2 - Intelligent Processing Routing)
+export * from './processing-router.service'
+export * from './cost-estimation.service'
+export * from './batch-processor.service'
+export * from './gpt-vision.service'
+
+// Epic 0: Historical Data Initialization (Story 0-3 - JIT Company Profile)
+export * from './company-matcher.service'
+export * from './company-auto-create.service'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

@@ -140,6 +140,16 @@ export const PERMISSION_INFO_MAP: Record<Permission, Omit<PermissionInfo, 'code'
     name: '匯出審計',
     description: '匯出審計記錄用於稽核',
   },
+
+  // Admin Operations
+  [PERMISSIONS.ADMIN_VIEW]: {
+    name: '查看管理員資源',
+    description: '檢視歷史數據批次和管理功能',
+  },
+  [PERMISSIONS.ADMIN_MANAGE]: {
+    name: '管理管理員資源',
+    description: '執行批次控制和管理操作',
+  },
 }
 
 /**
@@ -213,6 +223,15 @@ export const PERMISSION_CATEGORIES: PermissionCategory[] = [
     permissions: [
       { code: PERMISSIONS.AUDIT_VIEW, ...PERMISSION_INFO_MAP[PERMISSIONS.AUDIT_VIEW] },
       { code: PERMISSIONS.AUDIT_EXPORT, ...PERMISSION_INFO_MAP[PERMISSIONS.AUDIT_EXPORT] },
+    ],
+  },
+  {
+    id: 'admin',
+    label: '管理員操作',
+    description: '管理員專用功能的查看和操作權限',
+    permissions: [
+      { code: PERMISSIONS.ADMIN_VIEW, ...PERMISSION_INFO_MAP[PERMISSIONS.ADMIN_VIEW] },
+      { code: PERMISSIONS.ADMIN_MANAGE, ...PERMISSION_INFO_MAP[PERMISSIONS.ADMIN_MANAGE] },
     ],
   },
 ]
