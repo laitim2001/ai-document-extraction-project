@@ -261,7 +261,7 @@ export function ProcessingConfirmDialog({
           {/* GPT Vision 處理 */}
           <ProcessingMethodCard
             icon={FileImage}
-            title="GPT-4o Vision"
+            title="GPT-5.2 Vision"
             description="掃描 PDF 和圖片 OCR（精確度更高）"
             fileCount={costEstimation.gptVision.fileCount}
             pages={costEstimation.gptVision.estimatedPages}

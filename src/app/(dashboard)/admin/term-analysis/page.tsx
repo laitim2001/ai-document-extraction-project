@@ -256,7 +256,7 @@ export default function TermAnalysisPage() {
       <Alert>
         <Bot className="h-4 w-4" />
         <AlertDescription>
-          AI 分類使用 GPT-4o 模型分析術語，並根據物流行業標準費用類別提供建議。
+          AI 分類使用 GPT-5.2 模型分析術語，並根據物流行業標準費用類別提供建議。
           分類信心度 ≥90% 為高信心（自動通過），70-89% 為中信心（快速審核），&lt;70% 為低信心（完整審核）。
         </AlertDescription>
       </Alert>

@@ -477,7 +477,7 @@ export class ResultRetrievalService {
         : null,
       documentLanguage: 'en',
       ocrEngineVersion: 'Azure Document Intelligence 4.0',
-      aiModelVersion: 'GPT-4o-2024',
+      aiModelVersion: 'GPT-5.2-2025',
     };
   }
 

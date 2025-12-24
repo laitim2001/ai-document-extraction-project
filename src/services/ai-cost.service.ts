@@ -77,15 +77,17 @@ const DEFAULT_PRICING: Record<ApiProviderType, Record<string, { perCall?: number
     'default': { perCall: 0.001 }
   },
   OPENAI: {
+    'gpt-5.2': { perInputToken: 0.00000175, perOutputToken: 0.000014 },
     'gpt-4o': { perInputToken: 0.000005, perOutputToken: 0.000015 },
     'gpt-4o-mini': { perInputToken: 0.00000015, perOutputToken: 0.0000006 },
     'embedding': { perInputToken: 0.00000002 },
-    'default': { perInputToken: 0.000005, perOutputToken: 0.000015 }
+    'default': { perInputToken: 0.00000175, perOutputToken: 0.000014 }
   },
   AZURE_OPENAI: {
+    'gpt-5.2': { perInputToken: 0.00000175, perOutputToken: 0.000014 },
     'gpt-4o': { perInputToken: 0.000005, perOutputToken: 0.000015 },
     'gpt-4o-mini': { perInputToken: 0.00000015, perOutputToken: 0.0000006 },
-    'default': { perInputToken: 0.000005, perOutputToken: 0.000015 }
+    'default': { perInputToken: 0.00000175, perOutputToken: 0.000014 }
   }
 }
 

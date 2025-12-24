@@ -1,8 +1,8 @@
 /**
- * @fileoverview Term Classification Service using GPT-4o
+ * @fileoverview Term Classification Service using GPT-5.2
  * @description
  *   Provides AI-powered term classification for invoice terms:
- *   - Batch classification of terms using GPT-4o
+ *   - Batch classification of terms using GPT-5.2
  *   - Standard charge category suggestions
  *   - Confidence scoring for classifications
  *   - Token-efficient batch processing (50 terms per batch)
@@ -12,7 +12,7 @@
  * @lastModified 2025-12-24
  *
  * @features
- *   - GPT-4o based term classification
+ *   - GPT-5.2 based term classification
  *   - StandardChargeCategory mapping
  *   - Batch processing with token limits
  *   - Confidence-based suggestions
@@ -91,8 +91,8 @@ export interface ClassificationConfig {
 const DEFAULT_CONFIG: ClassificationConfig = {
   endpoint: process.env.AZURE_OPENAI_ENDPOINT,
   apiKey: process.env.AZURE_OPENAI_API_KEY,
-  deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
-  apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
+  deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-5.2',
+  apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2025-03-01-preview',
   batchSize: 50,
   maxRetries: 3,
 };
@@ -243,10 +243,10 @@ function delay(ms: number): Promise<void> {
 // ============================================================================
 
 /**
- * Classifies a batch of terms using GPT-4o
+ * Classifies a batch of terms using GPT-5.2
  *
  * @description
- *   Sends terms to GPT-4o for classification into standard charge categories.
+ *   Sends terms to GPT-5.2 for classification into standard charge categories.
  *   Handles batching, retries, and error recovery.
  *
  * @param terms - Array of terms to classify
@@ -271,7 +271,7 @@ export async function classifyTerms(
   const maxRetries = mergedConfig.maxRetries || 3;
 
   const client = createClient(mergedConfig);
-  const deploymentName = mergedConfig.deploymentName || 'gpt-4o';
+  const deploymentName = mergedConfig.deploymentName || 'gpt-5.2';
 
   const allClassifications: TermClassification[] = [];
   const allErrors: Array<{ term: string; error: string }> = [];
@@ -377,7 +377,7 @@ export async function classifyTerms(
 }
 
 /**
- * Classifies a single term using GPT-4o
+ * Classifies a single term using GPT-5.2
  *
  * @param term - Term to classify
  * @param config - Optional configuration overrides

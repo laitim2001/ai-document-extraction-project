@@ -61,7 +61,7 @@
  *   | processing-router | 文件處理路由服務 | Epic 0 Story 0.2 |
  *   | cost-estimation | 處理成本估算服務 | Epic 0 Story 0.2 |
  *   | batch-processor | 批量處理執行器 | Epic 0 Story 0.2 |
- *   | gpt-vision | GPT-4o Vision 處理服務 | Epic 0 Story 0.2 |
+ *   | gpt-vision | GPT-5.2 Vision 處理服務 | Epic 0 Story 0.2 |
  *   | company-matcher | 公司名稱模糊匹配服務 | Epic 0 Story 0.3 |
  *   | company-auto-create | JIT 公司 Profile 自動建立 | Epic 0 Story 0.3 |
  *
