@@ -351,6 +351,10 @@ export * from './gpt-vision.service'
 export * from './company-matcher.service'
 export * from './company-auto-create.service'
 
+// Epic 0: Historical Data Initialization (Story 0-5 - Term Aggregation & Rules)
+export * from './term-aggregation.service'
+export * from './term-classification.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

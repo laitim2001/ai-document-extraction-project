@@ -4838,3 +4838,43 @@ model HistoricalFile {
   @@map("historical_files")
 }
 
+// ============================================================================
+// Epic 0 - Story 0-5: Term Aggregation & Rule Management
+// ============================================================================
+
+/// Standard charge categories for term classification
+/// Used by AI to suggest mappings for extracted terms
+enum StandardChargeCategory {
+  OCEAN_FREIGHT
+  AIR_FREIGHT
+  HANDLING_FEE
+  CUSTOMS_CLEARANCE
+  DOCUMENTATION_FEE
+  TERMINAL_HANDLING
+  INLAND_TRANSPORT
+  INSURANCE
+  STORAGE
+  FUEL_SURCHARGE
+  SECURITY_FEE
+  OTHER
+}
+
+/// Bulk operation tracking for undo functionality
+/// Records batch operations on mapping rules for reversibility
+model BulkOperation {
+  id            String    @id @default(uuid())
+  operationType String    @map("operation_type") // CREATE, UPDATE, DELETE
+  affectedRules Json      @map("affected_rules") // Rule snapshots for undo
+  metadata      Json?     // Additional operation metadata
+  createdAt     DateTime  @default(now()) @map("created_at")
+  createdBy     String    @map("created_by")
+  isUndone      Boolean   @default(false) @map("is_undone")
+  undoneAt      DateTime? @map("undone_at")
+  undoneBy      String?   @map("undone_by")
+
+  @@index([operationType])
+  @@index([createdAt])
+  @@index([isUndone])
+  @@map("bulk_operations")
+}
+

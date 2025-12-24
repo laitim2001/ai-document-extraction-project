@@ -47,7 +47,7 @@ development_status:
   0-2-intelligent-processing-routing: backlog  # 智能處理路由
   0-3-just-in-time-company-profile: backlog  # 即時公司 Profile 建立
   0-4-batch-processing-progress-tracking: done  # Completed 2025-12-23: BatchProgressPanel, BatchErrorList, BatchSummaryCard, batch-progress.service, SSE progress API, pause/resume/cancel/retry/skip APIs, PAUSED status, ADMIN permissions
-  0-5-term-aggregation-initial-rules: backlog  # 術語聚合與初始規則建立
+  0-5-term-aggregation-initial-rules: done  # Completed 2025-12-24: TermAggregationService, TermClassificationService (GPT-4o), TermTable, TermFilters, BulkRuleActions, RuleCreationPanel, bulk CRUD APIs, undo API, StandardChargeCategory, BulkOperation model
 
   # ============================================================
   # REFACTOR: Forwarder → Company 模型重構

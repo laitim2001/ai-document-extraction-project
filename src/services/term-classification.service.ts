@@ -1,0 +1,461 @@
+/**
+ * @fileoverview Term Classification Service using GPT-4o
+ * @description
+ *   Provides AI-powered term classification for invoice terms:
+ *   - Batch classification of terms using GPT-4o
+ *   - Standard charge category suggestions
+ *   - Confidence scoring for classifications
+ *   - Token-efficient batch processing (50 terms per batch)
+ *
+ * @module src/services/term-classification
+ * @since Epic 0 - Story 0.5 (Term Aggregation and Initial Rules)
+ * @lastModified 2025-12-24
+ *
+ * @features
+ *   - GPT-4o based term classification
+ *   - StandardChargeCategory mapping
+ *   - Batch processing with token limits
+ *   - Confidence-based suggestions
+ *
+ * @dependencies
+ *   - openai - Azure OpenAI SDK
+ *   - @prisma/client - StandardChargeCategory enum
+ */
+
+import { AzureOpenAI } from 'openai';
+import type { StandardChargeCategory } from '@prisma/client';
+
+// ============================================================================
+// Types & Interfaces
+// ============================================================================
+
+/**
+ * Term classification result from AI
+ */
+export interface TermClassification {
+  /** Original term text */
+  term: string;
+  /** Suggested standard category */
+  category: StandardChargeCategory;
+  /** Classification confidence (0-100) */
+  confidence: number;
+  /** Brief reasoning for classification */
+  reason: string;
+}
+
+/**
+ * Batch classification result
+ */
+export interface BatchClassificationResult {
+  /** Successfully classified terms */
+  classifications: TermClassification[];
+  /** Terms that failed to classify */
+  errors: Array<{
+    term: string;
+    error: string;
+  }>;
+  /** Processing statistics */
+  stats: {
+    total: number;
+    successful: number;
+    failed: number;
+    averageConfidence: number;
+  };
+}
+
+/**
+ * Classification service configuration
+ */
+export interface ClassificationConfig {
+  /** Azure OpenAI Endpoint */
+  endpoint?: string;
+  /** API Key */
+  apiKey?: string;
+  /** Deployment name */
+  deploymentName?: string;
+  /** API version */
+  apiVersion?: string;
+  /** Batch size (max terms per API call) */
+  batchSize?: number;
+  /** Maximum retries per batch */
+  maxRetries?: number;
+}
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+/**
+ * Default configuration
+ */
+const DEFAULT_CONFIG: ClassificationConfig = {
+  endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+  apiKey: process.env.AZURE_OPENAI_API_KEY,
+  deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
+  apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
+  batchSize: 50,
+  maxRetries: 3,
+};
+
+/**
+ * Standard charge categories with Chinese descriptions
+ */
+const CATEGORY_DESCRIPTIONS: Record<StandardChargeCategory, string> = {
+  OCEAN_FREIGHT: '海運費 - 海上運輸的主要費用',
+  AIR_FREIGHT: '空運費 - 航空運輸的主要費用',
+  HANDLING_FEE: '操作費 - 貨物搬運、裝卸操作費用',
+  CUSTOMS_CLEARANCE: '清關費 - 海關報關、清關手續費用',
+  DOCUMENTATION_FEE: '文件費 - 提單、發票等文件處理費用',
+  TERMINAL_HANDLING: '碼頭操作費 - 港口/機場碼頭處理費用',
+  INLAND_TRANSPORT: '內陸運輸 - 陸路運輸、拖車費用',
+  INSURANCE: '保險費 - 貨物運輸保險費用',
+  STORAGE: '倉儲費 - 貨物存放、倉庫費用',
+  FUEL_SURCHARGE: '燃油附加費 - 燃料成本附加費',
+  SECURITY_FEE: '安全費 - 安檢、保安相關費用',
+  OTHER: '其他 - 無法歸類的其他費用',
+};
+
+/**
+ * Classification prompt template
+ */
+const CLASSIFICATION_PROMPT = `你是一個物流費用分類專家。
+請將以下發票術語分類到標準費用類別。
+
+標準費用類別包括：
+${Object.entries(CATEGORY_DESCRIPTIONS)
+  .map(([code, desc]) => `- ${code}: ${desc}`)
+  .join('\n')}
+
+分類規則：
+1. 仔細分析術語的含義和常見用途
+2. 選擇最匹配的標準類別
+3. 如果無法確定，選擇 OTHER
+4. 提供 0-100 的信心度分數
+5. 簡短說明分類理由
+
+請為每個術語返回 JSON 格式的陣列：
+[
+  {
+    "term": "原始術語",
+    "category": "標準類別代碼",
+    "confidence": 0-100 的信心度,
+    "reason": "分類理由（簡短）"
+  }
+]
+
+待分類術語：
+{terms}
+
+請只返回 JSON 陣列，不要包含其他文字。`;
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Creates Azure OpenAI client
+ *
+ * @param config - Configuration options
+ * @returns OpenAI client
+ */
+function createClient(config: ClassificationConfig = {}): AzureOpenAI {
+  const mergedConfig = { ...DEFAULT_CONFIG, ...config };
+
+  if (!mergedConfig.endpoint || !mergedConfig.apiKey) {
+    throw new Error('Azure OpenAI endpoint and API key are required');
+  }
+
+  return new AzureOpenAI({
+    endpoint: mergedConfig.endpoint,
+    apiKey: mergedConfig.apiKey,
+    apiVersion: mergedConfig.apiVersion,
+  });
+}
+
+/**
+ * Parses GPT response to extract JSON array
+ *
+ * @param content - GPT response content
+ * @returns Parsed classification array
+ */
+function parseClassificationResponse(content: string): TermClassification[] {
+  // Try direct parse
+  try {
+    const parsed = JSON.parse(content);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+    // Handle wrapped object
+    if (parsed.classifications && Array.isArray(parsed.classifications)) {
+      return parsed.classifications;
+    }
+  } catch {
+    // Try to extract JSON array
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+  }
+
+  throw new Error('Failed to parse classification response as JSON array');
+}
+
+/**
+ * Validates and normalizes a classification result
+ *
+ * @param item - Raw classification item
+ * @returns Validated classification or null if invalid
+ */
+function validateClassification(
+  item: Record<string, unknown>
+): TermClassification | null {
+  if (!item.term || typeof item.term !== 'string') {
+    return null;
+  }
+
+  const category = String(item.category || 'OTHER') as StandardChargeCategory;
+  const validCategories = Object.keys(CATEGORY_DESCRIPTIONS);
+
+  if (!validCategories.includes(category)) {
+    // Default to OTHER if invalid category
+    item.category = 'OTHER';
+  }
+
+  return {
+    term: String(item.term),
+    category: (item.category as StandardChargeCategory) || 'OTHER',
+    confidence: Math.min(100, Math.max(0, Number(item.confidence) || 50)),
+    reason: String(item.reason || ''),
+  };
+}
+
+/**
+ * Delays execution for specified milliseconds
+ *
+ * @param ms - Milliseconds to delay
+ */
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ============================================================================
+// Core Functions
+// ============================================================================
+
+/**
+ * Classifies a batch of terms using GPT-4o
+ *
+ * @description
+ *   Sends terms to GPT-4o for classification into standard charge categories.
+ *   Handles batching, retries, and error recovery.
+ *
+ * @param terms - Array of terms to classify
+ * @param config - Optional configuration overrides
+ * @returns Classification results with statistics
+ *
+ * @example
+ * ```typescript
+ * const result = await classifyTerms([
+ *   'OCEAN FREIGHT',
+ *   'THC - TERMINAL HANDLING',
+ *   'CUSTOMS CLEARANCE FEE'
+ * ]);
+ * ```
+ */
+export async function classifyTerms(
+  terms: string[],
+  config: ClassificationConfig = {}
+): Promise<BatchClassificationResult> {
+  const mergedConfig = { ...DEFAULT_CONFIG, ...config };
+  const batchSize = mergedConfig.batchSize || 50;
+  const maxRetries = mergedConfig.maxRetries || 3;
+
+  const client = createClient(mergedConfig);
+  const deploymentName = mergedConfig.deploymentName || 'gpt-4o';
+
+  const allClassifications: TermClassification[] = [];
+  const allErrors: Array<{ term: string; error: string }> = [];
+
+  // Process in batches
+  for (let i = 0; i < terms.length; i += batchSize) {
+    const batch = terms.slice(i, i + batchSize);
+    let retryCount = 0;
+    let success = false;
+
+    while (!success && retryCount < maxRetries) {
+      try {
+        const prompt = CLASSIFICATION_PROMPT.replace(
+          '{terms}',
+          batch.map((t, idx) => `${idx + 1}. ${t}`).join('\n')
+        );
+
+        const response = await client.chat.completions.create({
+          model: deploymentName,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3, // Lower temperature for more consistent classifications
+          max_tokens: 4000,
+          response_format: { type: 'json_object' },
+        });
+
+        const content = response.choices[0]?.message?.content || '';
+
+        // Parse response - handle both array and object formats
+        let classifications: TermClassification[];
+        try {
+          const parsed = JSON.parse(content);
+          if (Array.isArray(parsed)) {
+            classifications = parsed;
+          } else if (parsed.classifications && Array.isArray(parsed.classifications)) {
+            classifications = parsed.classifications;
+          } else if (parsed.results && Array.isArray(parsed.results)) {
+            classifications = parsed.results;
+          } else {
+            // Try to find any array in the response
+            const values = Object.values(parsed);
+            const arrayValue = values.find(Array.isArray);
+            if (arrayValue) {
+              classifications = arrayValue as TermClassification[];
+            } else {
+              throw new Error('No classification array found in response');
+            }
+          }
+        } catch {
+          classifications = parseClassificationResponse(content);
+        }
+
+        // Validate and add classifications
+        for (const item of classifications) {
+          const validated = validateClassification(
+            item as unknown as Record<string, unknown>
+          );
+          if (validated) {
+            allClassifications.push(validated);
+          }
+        }
+
+        success = true;
+      } catch (error) {
+        retryCount++;
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
+
+        if (retryCount >= maxRetries) {
+          // Add all batch terms as errors
+          for (const term of batch) {
+            allErrors.push({
+              term,
+              error: `Failed after ${maxRetries} retries: ${errorMessage}`,
+            });
+          }
+        } else {
+          // Exponential backoff
+          await delay(1000 * Math.pow(2, retryCount));
+        }
+      }
+    }
+  }
+
+  // Calculate statistics
+  const totalConfidence = allClassifications.reduce(
+    (sum, c) => sum + c.confidence,
+    0
+  );
+
+  return {
+    classifications: allClassifications,
+    errors: allErrors,
+    stats: {
+      total: terms.length,
+      successful: allClassifications.length,
+      failed: allErrors.length,
+      averageConfidence:
+        allClassifications.length > 0
+          ? Math.round(totalConfidence / allClassifications.length)
+          : 0,
+    },
+  };
+}
+
+/**
+ * Classifies a single term using GPT-4o
+ *
+ * @param term - Term to classify
+ * @param config - Optional configuration overrides
+ * @returns Classification result or null if failed
+ */
+export async function classifyTerm(
+  term: string,
+  config: ClassificationConfig = {}
+): Promise<TermClassification | null> {
+  const result = await classifyTerms([term], config);
+  return result.classifications[0] || null;
+}
+
+/**
+ * Gets suggested category for a term based on keyword matching
+ * (Fallback when AI is unavailable)
+ *
+ * @param term - Term to analyze
+ * @returns Suggested category or null if no match
+ */
+export function getSuggestedCategoryFromKeywords(
+  term: string
+): StandardChargeCategory | null {
+  const upperTerm = term.toUpperCase();
+
+  const keywordMap: Record<string, StandardChargeCategory[]> = {
+    OCEAN: ['OCEAN_FREIGHT'],
+    SEA: ['OCEAN_FREIGHT'],
+    'O/F': ['OCEAN_FREIGHT'],
+    AIR: ['AIR_FREIGHT'],
+    'A/F': ['AIR_FREIGHT'],
+    THC: ['TERMINAL_HANDLING'],
+    TERMINAL: ['TERMINAL_HANDLING'],
+    HANDLING: ['HANDLING_FEE', 'TERMINAL_HANDLING'],
+    CUSTOMS: ['CUSTOMS_CLEARANCE'],
+    CLEARANCE: ['CUSTOMS_CLEARANCE'],
+    DOC: ['DOCUMENTATION_FEE'],
+    B: ['DOCUMENTATION_FEE'], // B/L related
+    DOCUMENT: ['DOCUMENTATION_FEE'],
+    TRUCKING: ['INLAND_TRANSPORT'],
+    DRAYAGE: ['INLAND_TRANSPORT'],
+    HAULAGE: ['INLAND_TRANSPORT'],
+    TRANSPORT: ['INLAND_TRANSPORT'],
+    INSURANCE: ['INSURANCE'],
+    CARGO: ['INSURANCE'],
+    STORAGE: ['STORAGE'],
+    DEMURRAGE: ['STORAGE'],
+    WAREHOUSE: ['STORAGE'],
+    FUEL: ['FUEL_SURCHARGE'],
+    BAF: ['FUEL_SURCHARGE'],
+    BUNKER: ['FUEL_SURCHARGE'],
+    SECURITY: ['SECURITY_FEE'],
+    ISPS: ['SECURITY_FEE'],
+  };
+
+  for (const [keyword, categories] of Object.entries(keywordMap)) {
+    if (upperTerm.includes(keyword)) {
+      return categories[0];
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Gets category descriptions for UI display
+ *
+ * @returns Map of category codes to descriptions
+ */
+export function getCategoryDescriptions(): Record<string, string> {
+  return { ...CATEGORY_DESCRIPTIONS };
+}
+
+/**
+ * Gets all valid category codes
+ *
+ * @returns Array of valid StandardChargeCategory values
+ */
+export function getValidCategories(): StandardChargeCategory[] {
+  return Object.keys(CATEGORY_DESCRIPTIONS) as StandardChargeCategory[];
+}
