@@ -8,7 +8,7 @@
  *
  * @module src/services/file-detection.service
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-24
  *
  * @features
  *   - PDF 文字層檢測
@@ -17,11 +17,9 @@
  *   - 批量檢測處理
  *
  * @dependencies
- *   - pdf-parse: PDF 解析與文字提取
+ *   - pdf-parse: PDF 解析與文字提取（使用動態導入）
  */
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdf = require('pdf-parse')
 import { DetectedFileType } from '@prisma/client'
 
 // ============================================================
@@ -172,9 +170,16 @@ export class FileDetectionService {
     fileSize: number
   ): Promise<FileDetectionResult> {
     try {
-      const pdfData = await pdf(buffer)
-      const textLength = pdfData.text?.length || 0
-      const pageCount = pdfData.numpages || 1
+      // 直接導入 pdf-parse 的核心模組，避開 index.js 中的測試文件讀取
+      // pdf-parse 的 index.js 會在載入時嘗試讀取測試文件，導致 ENOENT 錯誤
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const pdfParse = require('pdf-parse/lib/pdf-parse')
+
+      // 使用 pdf-parse v1.x 的函數式 API
+      const data = await pdfParse(buffer)
+
+      const textLength = data.text?.length || 0
+      const pageCount = data.numpages || 1
       const avgCharsPerPage = textLength / pageCount
 
       // 判斷是否為原生 PDF（有足夠的文字內容）

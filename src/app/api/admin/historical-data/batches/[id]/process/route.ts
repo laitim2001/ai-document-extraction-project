@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { HistoricalBatchStatus, HistoricalFileStatus } from '@prisma/client'
+import { processBatch } from '@/services/batch-processor.service'
 
 // ============================================================
 // Types
@@ -147,8 +148,26 @@ export async function POST(request: NextRequest, context: RouteContext) {
       }),
     ])
 
-    // TODO: 觸發 n8n 工作流程或背景任務
-    // 這裡可以呼叫 n8n webhook 或加入任務佇列
+    // 使用 "fire and forget" 模式在背景執行處理
+    // 注意：這不會阻塞 API 響應
+    processBatch(id, {
+      onProgress: (progress) => {
+        console.log(
+          `[Batch ${id}] Progress: ${progress.completed}/${progress.total} ` +
+          `(${progress.percentage}%) - ${progress.currentFile || 'Waiting...'}`
+        )
+      },
+    }).then((result) => {
+      console.log(`[Batch ${id}] Completed:`, {
+        totalFiles: result.totalFiles,
+        successCount: result.successCount,
+        failedCount: result.failedCount,
+        totalCost: result.totalCost,
+        durationMs: result.durationMs,
+      })
+    }).catch((error) => {
+      console.error(`[Batch ${id}] Processing error:`, error)
+    })
 
     return NextResponse.json({
       success: true,
@@ -157,7 +176,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         status: HistoricalBatchStatus.PROCESSING,
         startedAt: now.toISOString(),
         processingFiles: processableFileIds.length,
-        message: '批次處理已開始',
+        message: '批次處理已開始（背景執行中）',
       },
     })
   } catch (error) {

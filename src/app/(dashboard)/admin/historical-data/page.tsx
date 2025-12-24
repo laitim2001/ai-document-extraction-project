@@ -30,7 +30,13 @@ import {
   HistoricalFileList,
   HistoricalBatchList,
   CreateBatchDialog,
+  ProcessingConfirmDialog,
 } from '@/components/features/historical-data'
+import {
+  estimateBatchCost,
+  type BatchCostEstimation,
+  type FileForCostEstimation,
+} from '@/services/cost-estimation.service'
 import {
   useHistoricalBatches,
   useHistoricalBatchDetail,
@@ -39,6 +45,7 @@ import {
   useDeleteFile,
   useUpdateFileType,
   type DetectedFileType,
+  type HistoricalBatch,
 } from '@/hooks/use-historical-data'
 
 // ============================================================
@@ -49,6 +56,12 @@ export default function HistoricalDataPage() {
   const { toast } = useToast()
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'files' | 'upload'>('files')
+
+  // 處理確認對話框狀態
+  const [processingDialogOpen, setProcessingDialogOpen] = useState(false)
+  const [processingBatchId, setProcessingBatchId] = useState<string | null>(null)
+  const [costEstimation, setCostEstimation] = useState<BatchCostEstimation | null>(null)
+  const [isStartingProcess, setIsStartingProcess] = useState(false)
 
   // --- Queries ---
 
@@ -175,6 +188,96 @@ export default function HistoricalDataPage() {
     refetchBatches()
   }, [refetchBatches])
 
+  // --- 開始處理相關 Handlers ---
+
+  /**
+   * 打開處理確認對話框，計算成本估算
+   */
+  const handleStartProcessing = useCallback(
+    async (batchId: string) => {
+      // 找到該批次
+      const batch = batchesData?.data?.find((b: HistoricalBatch) => b.id === batchId)
+      if (!batch) {
+        toast({
+          variant: 'destructive',
+          title: '批次不存在',
+          description: '無法找到該批次',
+        })
+        return
+      }
+
+      // 先獲取批次詳情以計算成本
+      try {
+        const response = await fetch(`/api/admin/historical-data/batches/${batchId}`)
+        if (!response.ok) {
+          throw new Error('無法獲取批次詳情')
+        }
+        const { data } = await response.json()
+        const files: FileForCostEstimation[] = data.files.map((file: { id: string; detectedType: string | null; metadata: { pageCount?: number } | null }) => ({
+          id: file.id,
+          detectedType: file.detectedType,
+          pageCount: file.metadata?.pageCount,
+        }))
+
+        // 計算成本估算
+        const estimation = estimateBatchCost(files)
+
+        // 設置狀態並打開對話框
+        setProcessingBatchId(batchId)
+        setCostEstimation(estimation)
+        setProcessingDialogOpen(true)
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: '獲取詳情失敗',
+          description: error instanceof Error ? error.message : '無法獲取批次詳情',
+        })
+      }
+    },
+    [batchesData, toast]
+  )
+
+  /**
+   * 確認開始處理批次
+   */
+  const handleConfirmProcessing = useCallback(async () => {
+    if (!processingBatchId) return
+
+    setIsStartingProcess(true)
+    try {
+      const response = await fetch(
+        `/api/admin/historical-data/batches/${processingBatchId}/process`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || '啟動處理失敗')
+      }
+
+      toast({
+        title: '處理已啟動',
+        description: '批次處理已開始，請等待處理完成',
+      })
+
+      setProcessingDialogOpen(false)
+      refetchBatches()
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: '啟動處理失敗',
+        description: error instanceof Error ? error.message : '無法啟動批次處理',
+      })
+    } finally {
+      setIsStartingProcess(false)
+    }
+  }, [processingBatchId, refetchBatches, toast])
+
   // --- Render: Batch Detail View ---
 
   if (selectedBatchId) {
@@ -237,7 +340,7 @@ export default function HistoricalDataPage() {
 
   // --- Render: Batch List View ---
 
-  const batches = batchesData?.data?.batches || []
+  const batches = batchesData?.data || []
 
   return (
     <div className="space-y-6">
@@ -260,6 +363,17 @@ export default function HistoricalDataPage() {
         isLoading={isLoadingBatches}
         onSelectBatch={setSelectedBatchId}
         onDeleteBatch={handleDeleteBatch}
+        onStartProcessing={handleStartProcessing}
+      />
+
+      {/* 處理確認對話框 */}
+      <ProcessingConfirmDialog
+        open={processingDialogOpen}
+        onOpenChange={setProcessingDialogOpen}
+        costEstimation={costEstimation}
+        onConfirm={handleConfirmProcessing}
+        isProcessing={isStartingProcess}
+        batchName={batchesData?.data?.find((b: HistoricalBatch) => b.id === processingBatchId)?.name}
       />
     </div>
   )
