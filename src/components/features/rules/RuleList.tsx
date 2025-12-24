@@ -29,6 +29,7 @@ import { Pagination } from '@/components/ui/pagination'
 import { Button } from '@/components/ui/button'
 import { RefreshCw, AlertCircle } from 'lucide-react'
 import type { RulesQueryParams } from '@/types/rule'
+import type { RuleStatus } from '@prisma/client'
 
 // ============================================================
 // Types
@@ -118,6 +119,27 @@ export function RuleList({ initialFilters }: RuleListProps) {
     [router]
   )
 
+  // 包裝篩選回調函數以避免無限循環（RuleFilters useEffect 依賴這些回調）
+  const handleForwarderChange = useCallback(
+    (v: string | undefined) => handleFilterChange('companyId', v),
+    [handleFilterChange]
+  )
+
+  const handleFieldNameChange = useCallback(
+    (v: string | undefined) => handleFilterChange('fieldName', v),
+    [handleFilterChange]
+  )
+
+  const handleStatusChange = useCallback(
+    (v: RuleStatus | undefined) => handleFilterChange('status', v),
+    [handleFilterChange]
+  )
+
+  const handleCategoryChange = useCallback(
+    (v: string | undefined) => handleFilterChange('category', v),
+    [handleFilterChange]
+  )
+
   // --- Loading State ---
   if (isLoading) {
     return <RuleListSkeleton />
@@ -154,10 +176,10 @@ export function RuleList({ initialFilters }: RuleListProps) {
           fieldName={filters.fieldName}
           status={filters.status}
           category={filters.category}
-          onForwarderChange={(v) => handleFilterChange('companyId', v)}
-          onFieldNameChange={(v) => handleFilterChange('fieldName', v)}
-          onStatusChange={(v) => handleFilterChange('status', v)}
-          onCategoryChange={(v) => handleFilterChange('category', v)}
+          onForwarderChange={handleForwarderChange}
+          onFieldNameChange={handleFieldNameChange}
+          onStatusChange={handleStatusChange}
+          onCategoryChange={handleCategoryChange}
         />
         <Button
           variant="outline"

@@ -39,6 +39,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import { auth } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/city-permission'
 import { PERMISSIONS } from '@/types/permissions'
 import { ForwarderList, ForwarderTableSkeleton } from '@/components/features/forwarders'
 import { Button } from '@/components/ui/button'
@@ -68,19 +69,15 @@ export default async function ForwardersPage() {
     redirect('/auth/login')
   }
 
-  // 檢查 FORWARDER_VIEW 權限
-  const hasViewPermission = session.user.roles?.some((role) =>
-    role.permissions.includes(PERMISSIONS.FORWARDER_VIEW)
-  )
+  // 檢查 FORWARDER_VIEW 權限（支援 '*' 通配符）
+  const hasViewPerm = hasPermission(session.user, PERMISSIONS.FORWARDER_VIEW)
 
-  if (!hasViewPermission) {
+  if (!hasViewPerm) {
     redirect('/dashboard?error=access_denied')
   }
 
-  // 檢查 FORWARDER_MANAGE 權限（用於新增按鈕）
-  const hasManagePermission = session.user.roles?.some((role) =>
-    role.permissions.includes(PERMISSIONS.FORWARDER_MANAGE)
-  )
+  // 檢查 FORWARDER_MANAGE 權限（用於新增按鈕，支援 '*' 通配符）
+  const hasManagePerm = hasPermission(session.user, PERMISSIONS.FORWARDER_MANAGE)
 
   return (
     <div className="space-y-6">
@@ -95,7 +92,7 @@ export default async function ForwardersPage() {
           </p>
         </div>
         {/* 新增 Forwarder 按鈕（需要 FORWARDER_MANAGE 權限） */}
-        {hasManagePermission && (
+        {hasManagePerm && (
           <Button asChild>
             <Link href="/forwarders/new">
               <Plus className="mr-2 h-4 w-4" />

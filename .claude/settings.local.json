@@ -96,7 +96,12 @@
       "Bash(curl:*)",
       "Bash(git checkout:*)",
       "Bash(cmd /c \"rmdir /s /q \"\"C:\\\\Users\\\\CLai03\\\\Documents\\\\GitHub\\\\ai-document-extraction-project\\\\ai-document-extraction-project\"\" 2>nul && echo Deleted successfully || echo Some files may remain\")",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "Bash(cmd /C \"taskkill /PID 18236 /F\")",
+      "Bash(cmd /C \"netstat -ano | findstr :3000\")",
+      "Bash(where gh:*)",
+      "Bash(if not exist \"C:\\\\Users\\\\rci.ChrisLai\\\\Documents\\\\GitHub\\\\ai-document-extraction-project\\\\claudedocs\\\\4-changes\\\\bug-fixes\" mkdir \"C:\\\\Users\\\\rci.ChrisLai\\\\Documents\\\\GitHub\\\\ai-document-extraction-project\\\\claudedocs\\\\4-changes\\\\bug-fixes\")"
     ]
   }
 }

@@ -95,9 +95,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // 檢查權限：需要 USER_MANAGE 權限
+    // 檢查權限：需要 USER_MANAGE 權限（支援 wildcard）
     const hasPermission = session.user.roles?.some((role) =>
-      role.permissions.includes(PERMISSIONS.USER_MANAGE)
+      role.permissions.includes('*') || role.permissions.includes(PERMISSIONS.USER_MANAGE)
     )
 
     if (!hasPermission) {

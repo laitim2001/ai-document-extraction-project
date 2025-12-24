@@ -11,7 +11,7 @@
  *
  * @module src/app/(dashboard)/review/[id]/page
  * @since Epic 3 - Story 3.2 (並排 PDF 審核介面)
- * @lastModified 2025-12-18
+ * @lastModified 2025-12-23
  *
  * @dependencies
  *   - @/hooks/useReviewDetail - 審核詳情資料獲取
@@ -31,7 +31,7 @@ import { useApproveReview } from '@/hooks/useApproveReview'
 import { useEscalateReview } from '@/hooks/useEscalateReview'
 import { useReviewStore } from '@/stores/reviewStore'
 import {
-  PdfViewer,
+  DynamicPdfViewer,
   ReviewPanel,
   ReviewDetailLayout,
   ApprovalConfirmDialog,
@@ -444,7 +444,7 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
       <div className="h-[calc(100vh-160px)]">
         <ReviewDetailLayout
           pdfViewer={
-            <PdfViewer
+            <DynamicPdfViewer
               url={data.document.fileUrl}
               pageCount={data.document.pageCount || 1}
             />

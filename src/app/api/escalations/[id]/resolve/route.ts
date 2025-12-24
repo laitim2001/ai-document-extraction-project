@@ -87,12 +87,16 @@ const ResolveRequestSchema = z.object({
 
 /**
  * 檢查用戶是否為 Super User
+ *
+ * @note 支援 wildcard ('*') 權限，開發模式下用戶擁有所有權限
  */
 function isSuperUser(
   roles: { permissions: string[] }[] | undefined
 ): boolean {
   if (!roles) return false
-  return roles.some((r) => r.permissions.includes(PERMISSIONS.RULE_MANAGE))
+  return roles.some((r) =>
+    r.permissions.includes('*') || r.permissions.includes(PERMISSIONS.RULE_MANAGE)
+  )
 }
 
 /**

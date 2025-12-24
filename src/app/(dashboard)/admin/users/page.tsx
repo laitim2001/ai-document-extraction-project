@@ -38,6 +38,7 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/city-permission'
 import { PERMISSIONS } from '@/types/permissions'
 import { UserList, UserListSkeleton, AddUserDialog } from '@/components/features/admin'
 
@@ -68,19 +69,15 @@ export default async function UsersPage() {
     redirect('/auth/login')
   }
 
-  // 檢查 USER_VIEW 權限
-  const hasViewPermission = session.user.roles?.some((role) =>
-    role.permissions.includes(PERMISSIONS.USER_VIEW)
-  )
+  // 檢查 USER_VIEW 權限（支援 '*' 通配符）
+  const hasViewPerm = hasPermission(session.user, PERMISSIONS.USER_VIEW)
 
-  if (!hasViewPermission) {
+  if (!hasViewPerm) {
     redirect('/dashboard?error=access_denied')
   }
 
-  // 檢查 USER_MANAGE 權限（用於新增按鈕）
-  const hasManagePermission = session.user.roles?.some((role) =>
-    role.permissions.includes(PERMISSIONS.USER_MANAGE)
-  )
+  // 檢查 USER_MANAGE 權限（用於新增按鈕，支援 '*' 通配符）
+  const hasManagePerm = hasPermission(session.user, PERMISSIONS.USER_MANAGE)
 
   return (
     <div className="space-y-6">
@@ -95,7 +92,7 @@ export default async function UsersPage() {
           </p>
         </div>
         {/* 新增用戶按鈕（需要 USER_MANAGE 權限） */}
-        {hasManagePermission && <AddUserDialog />}
+        {hasManagePerm && <AddUserDialog />}
       </div>
 
       {/* 用戶列表 */}

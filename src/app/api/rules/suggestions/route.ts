@@ -36,18 +36,26 @@ import type { SuggestionStatus, SuggestionSource, Prisma } from '@prisma/client'
 
 /**
  * 檢查用戶是否有規則查看權限
+ *
+ * @note 支援 wildcard ('*') 權限，開發模式下用戶擁有所有權限
  */
 function hasRuleViewPermission(roles: { permissions: string[] }[] | undefined): boolean {
   if (!roles) return false
-  return roles.some((r) => r.permissions.includes(PERMISSIONS.RULE_VIEW))
+  return roles.some((r) =>
+    r.permissions.includes('*') || r.permissions.includes(PERMISSIONS.RULE_VIEW)
+  )
 }
 
 /**
  * 檢查用戶是否有規則管理權限
+ *
+ * @note 支援 wildcard ('*') 權限，開發模式下用戶擁有所有權限
  */
 function hasRuleManagePermission(roles: { permissions: string[] }[] | undefined): boolean {
   if (!roles) return false
-  return roles.some((r) => r.permissions.includes(PERMISSIONS.RULE_MANAGE))
+  return roles.some((r) =>
+    r.permissions.includes('*') || r.permissions.includes(PERMISSIONS.RULE_MANAGE)
+  )
 }
 
 // ============================================================

@@ -21,6 +21,7 @@
 
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/city-permission'
 import { PERMISSIONS } from '@/types/permissions'
 import { ForwarderForm } from '@/components/features/forwarders'
 import { ChevronLeft } from 'lucide-react'
@@ -52,10 +53,8 @@ export default async function NewForwarderPage() {
     redirect('/auth/login')
   }
 
-  // 檢查 FORWARDER_MANAGE 權限
-  const hasManagePermission = session.user.roles?.some((role) =>
-    role.permissions.includes(PERMISSIONS.FORWARDER_MANAGE)
-  )
+  // 檢查 FORWARDER_MANAGE 權限（支援 '*' 通配符）
+  const hasManagePermission = hasPermission(session.user, PERMISSIONS.FORWARDER_MANAGE)
 
   if (!hasManagePermission) {
     redirect('/forwarders?error=access_denied')

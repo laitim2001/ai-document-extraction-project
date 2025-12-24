@@ -58,10 +58,14 @@ const rejectSchema = z.object({
 
 /**
  * 檢查用戶是否有規則批准權限
+ *
+ * @note 支援 wildcard ('*') 權限，開發模式下用戶擁有所有權限
  */
 function hasRuleApprovePermission(roles: { permissions: string[] }[] | undefined): boolean {
   if (!roles) return false
-  return roles.some((r) => r.permissions.includes(PERMISSIONS.RULE_APPROVE))
+  return roles.some((r) =>
+    r.permissions.includes('*') || r.permissions.includes(PERMISSIONS.RULE_APPROVE)
+  )
 }
 
 // ============================================================

@@ -62,9 +62,9 @@ export async function GET() {
       )
     }
 
-    // 檢查權限：需要 USER_VIEW 權限
+    // 檢查權限：需要 USER_VIEW 權限（支援 wildcard）
     const hasPermission = session.user.roles?.some((role) =>
-      role.permissions.includes(PERMISSIONS.USER_VIEW)
+      role.permissions.includes('*') || role.permissions.includes(PERMISSIONS.USER_VIEW)
     )
 
     if (!hasPermission) {
@@ -150,9 +150,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 檢查權限：需要 USER_MANAGE 權限
+    // 檢查權限：需要 USER_MANAGE 權限（支援 wildcard）
     const hasPermission = session.user.roles?.some((role) =>
-      role.permissions.includes(PERMISSIONS.USER_MANAGE)
+      role.permissions.includes('*') || role.permissions.includes(PERMISSIONS.USER_MANAGE)
     )
 
     if (!hasPermission) {

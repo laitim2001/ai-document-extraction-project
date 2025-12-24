@@ -37,6 +37,7 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/auth/city-permission';
 import { PERMISSIONS } from '@/types/permissions';
 import { HealthDashboard } from '@/components/features/admin/monitoring';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -110,12 +111,11 @@ export default async function HealthMonitoringPage() {
     redirect('/auth/login');
   }
 
-  // 檢查 SYSTEM_MONITOR 權限或管理員角色
-  const hasMonitorPermission = session.user.roles?.some(
-    (role) =>
-      role.permissions.includes(PERMISSIONS.SYSTEM_MONITOR) ||
+  // 檢查 SYSTEM_MONITOR 權限或管理員角色（支援 '*' 通配符）
+  const hasMonitorPermission = hasPermission(session.user, PERMISSIONS.SYSTEM_MONITOR) ||
+    session.user.roles?.some((role) =>
       ['GLOBAL_ADMIN', 'ADMIN', 'SUPER_USER'].includes(role.name)
-  );
+    );
 
   // Global Admin 也可以存取
   const isGlobalAdmin = session.user.isGlobalAdmin;
