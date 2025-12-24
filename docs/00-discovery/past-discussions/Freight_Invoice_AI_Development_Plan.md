@@ -284,7 +284,7 @@ class DocumentPreprocessor:
 │  ┌────────────────────────────────────────────────────────────────┐     │
 │  │ Layer 4: LLM INFERENCE (Confidence: 70-90%)                    │     │
 │  │ ─────────────────────────────────────────────────────────────  │     │
-│  │ • Send invoice image/text to GPT-4o/Claude                      │     │
+│  │ • Send invoice image/text to GPT-5.2/Claude                      │     │
 │  │ • Ask: "Identify the freight forwarder from this invoice"       │     │
 │  │ • Cross-reference with known forwarder list                     │     │
 │  └────────────────────────────────────────────────────────────────┘     │
@@ -486,11 +486,11 @@ Respond in JSON format:
 """
         
         response = self.llm.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.2",
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
-        
+
         result = json.loads(response.choices[0].message.content)
         return {
             'code': result['forwarder_code'],
@@ -777,11 +777,11 @@ Return JSON format:
 """
         
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.2",
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
-        
+
         llm_result = json.loads(response.choices[0].message.content)
         
         # 合併結果
@@ -1003,7 +1003,7 @@ SCM_CATEGORIES = {
 │  ┌─────────────────────────────────────────────────────────────────┐    │
 │  │ LAYER 3: LLM CLASSIFICATION (Confidence: 70-95%)                │    │
 │  │ ─────────────────────────────────────────────────────────────── │    │
-│  │ • Send description + context to GPT-4o/Claude                    │    │
+│  │ • Send description + context to GPT-5.2/Claude                    │    │
 │  │ • Include SCM category list in prompt                            │    │
 │  │ • Ask for classification + confidence + reasoning                │    │
 │  │ • Cross-validate with Layer 2 result                             │    │
@@ -1282,14 +1282,14 @@ Respond in JSON format:
 """
         
         response = self.llm.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.2",
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},
             temperature=0.1  # 低溫度確保一致性
         )
-        
+
         result = json.loads(response.choices[0].message.content)
-        
+
         return {
             'category': result['category'],
             'category_code': result['category_code'],

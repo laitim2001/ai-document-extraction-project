@@ -28,7 +28,7 @@
 
 **Given** 術語列表
 **When** 請求 AI 分類建議
-**Then** GPT-4o 為每個術語建議：
+**Then** GPT-5.2 為每個術語建議：
   - 標準費用類別（Ocean Freight, Handling Fee, etc.）
   - 信心度（0-100%）
   - 建議理由
@@ -74,7 +74,7 @@
 
 - [x] **Task 2: AI 分類服務** (AC: #2) ✅ 2025-12-24
   - [x] 2.1 創建 `src/services/term-classification.service.ts`
-  - [x] 2.2 GPT-4o 分類 Prompt 設計
+  - [x] 2.2 GPT-5.2 分類 Prompt 設計
   - [x] 2.3 批量分類（避免 token 超限）
   - [x] 2.4 信心度解析
 
@@ -265,7 +265,7 @@ export async function classifyTerms(
     );
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-5.2',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
     });
@@ -340,7 +340,7 @@ model BulkOperation {
   - 使用 Levenshtein distance 計算相似度
   - 支援 batchId/dateRange/minFrequency 篩選
 - `src/services/term-classification.service.ts` - AI 分類服務
-  - GPT-4o 批量分類（每批 50 個術語）
+  - GPT-5.2 批量分類（每批 50 個術語）
   - 12 個 StandardChargeCategory 類別
   - 返回類別、信心度、理由
 

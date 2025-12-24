@@ -215,7 +215,7 @@
 
 ## 開發要求
 1. 嚴格遵循 Story 文件中的 Tasks 和 Dev Notes
-2. GPT-4o 分類需注意 token 限制，使用批量處理
+2. GPT-5.2 分類需注意 token 限制，使用批量處理
 3. 新增的元件需更新 component-registry.md
 4. 新增的 API 需更新 api-registry.md
 5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**

@@ -430,6 +430,7 @@ model Document {
   uploadedBy  String  @map("uploaded_by")
   cityCode    String  @map("city_code") // Story 6.1: 必填城市代碼
   forwarderId String? @map("forwarder_id")
+  companyId   String? @map("company_id") // Story 0.3: 公司關聯
 
   // 工作流執行關聯（Story 10.3）
   workflowExecutionId String? @map("workflow_execution_id")
@@ -447,6 +448,7 @@ model Document {
   city                City                      @relation("DocumentCity", fields: [cityCode], references: [code]) // Story 6.1
   ocrResult           OcrResult? // OCR 結果（一對一關聯）
   forwarder           Forwarder?                @relation(fields: [forwarderId], references: [id])
+  company             Company?                  @relation("CompanyDocuments", fields: [companyId], references: [id]) // Story 0.3: 公司關聯
   identifications     ForwarderIdentification[]
   extractionResult    ExtractionResult? // 欄位提取結果（一對一關聯）
   processingQueue     ProcessingQueue? // 處理隊列（一對一關聯）
@@ -468,6 +470,7 @@ model Document {
   @@index([uploadedBy])
   @@index([cityCode])
   @@index([forwarderId])
+  @@index([companyId])
   @@index([createdAt])
   @@index([sourceType])
   @@index([sharepointItemId])
@@ -617,6 +620,9 @@ model Company {
   // 名稱變體（用於模糊匹配）
   nameVariants String[] @map("name_variants")
 
+  // 識別模式（用於自動識別公司）
+  identificationPatterns String[] @map("identification_patterns")
+
   // 合併相關（自我關聯）
   mergedIntoId String?   @map("merged_into_id")
   mergedInto   Company?  @relation("CompanyMerge", fields: [mergedIntoId], references: [id])
@@ -626,9 +632,11 @@ model Company {
   firstSeenDocumentId String? @map("first_seen_document_id")
 
   // 元數據
-  logoUrl      String? @map("logo_url")
-  contactEmail String? @map("contact_email")
-  description  String? @db.Text
+  logoUrl           String? @map("logo_url")
+  contactEmail      String? @map("contact_email")
+  description       String? @db.Text
+  priority          Int     @default(0) // 規則優先級
+  defaultConfidence Float   @default(0.8) @map("default_confidence") // 預設信心度
 
   // 創建者追蹤
   createdById String @map("created_by_id")
@@ -638,7 +646,15 @@ model Company {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  creator User @relation("CompanyCreator", fields: [createdById], references: [id])
+  creator              User                     @relation("CompanyCreator", fields: [createdById], references: [id])
+  documents            Document[]               @relation("CompanyDocuments") // Story 0.3: 公司文件
+  mappingRules         MappingRule[]            @relation("CompanyMappingRules") // Story 4.1: 公司規則
+  correctionPatterns   CorrectionPattern[]      @relation("CompanyCorrectionPatterns") // Story 4.3: 公司修正模式
+  ruleSuggestions      RuleSuggestion[]         @relation("CompanyRuleSuggestions") // Story 4.4: 公司規則建議
+  testTasks            RuleTestTask[]           @relation("CompanyTestTasks") // Story 5.4: 公司測試任務
+  changeRequests       RuleChangeRequest[]      // REFACTOR-001: 公司規則變更請求
+  correctionHistories  FieldCorrectionHistory[] // REFACTOR-001: 公司欄位修正歷史
+  extractionResults    ExtractionResult[]       @relation("CompanyExtractionResults") // REFACTOR-001: 公司提取結果
 
   @@index([type])
   @@index([status])
@@ -756,6 +772,7 @@ enum PatternStatus {
 
 enum EscalationReason {
   UNKNOWN_FORWARDER // 無法識別的 Forwarder
+  UNKNOWN_COMPANY // 無法識別的 Company
   RULE_NOT_APPLICABLE // 規則不適用
   POOR_QUALITY // 文件品質不佳
   OTHER // 其他原因
@@ -800,6 +817,7 @@ enum SharePointFetchStatus {
 model MappingRule {
   id                String  @id @default(uuid())
   forwarderId       String? @map("forwarder_id") // NULL = Universal Rule
+  companyId         String? @map("company_id") // NULL = Universal Rule, Story 0.3
   fieldName         String  @map("field_name") // Standard field identifier
   fieldLabel        String  @map("field_label") // Display label
   extractionPattern Json    @map("extraction_pattern")
@@ -836,6 +854,7 @@ model MappingRule {
 
   // Relations
   forwarder      Forwarder?          @relation(fields: [forwarderId], references: [id])
+  company        Company?            @relation("CompanyMappingRules", fields: [companyId], references: [id]) // Story 0.3
   creator        User?               @relation("RuleCreator", fields: [createdBy], references: [id])
   versions       RuleVersion[] // Story 4.7: 版本歷史
   applications   RuleApplication[] // Story 4.1: 應用記錄
@@ -846,6 +865,7 @@ model MappingRule {
 
   @@unique([forwarderId, fieldName])
   @@index([forwarderId])
+  @@index([companyId])
   @@index([fieldName])
   @@index([category])
   @@index([isActive])
@@ -862,6 +882,7 @@ model ExtractionResult {
   id          String  @id @default(uuid())
   documentId  String  @unique @map("document_id")
   forwarderId String? @map("forwarder_id")
+  companyId   String? @map("company_id") // Story 0.3: 公司關聯
 
   // Extraction Results
   fieldMappings Json @map("field_mappings")
@@ -913,9 +934,11 @@ model ExtractionResult {
   // Relations
   document  Document   @relation(fields: [documentId], references: [id], onDelete: Cascade)
   forwarder Forwarder? @relation(fields: [forwarderId], references: [id])
+  company   Company?   @relation("CompanyExtractionResults", fields: [companyId], references: [id]) // REFACTOR-001
 
   @@index([documentId])
   @@index([forwarderId])
+  @@index([companyId]) // REFACTOR-001
   @@index([status])
   @@index([averageConfidence])
   @@index([createdAt])
@@ -928,7 +951,8 @@ model ExtractionResult {
 
 model FieldCorrectionHistory {
   id          String  @id @default(uuid())
-  forwarderId String? @map("forwarder_id")
+  forwarderId String? @map("forwarder_id") // REFACTOR-001: 可選，遷移至 companyId
+  companyId   String? @map("company_id") // REFACTOR-001: 新增公司關聯
   fieldName   String  @map("field_name")
 
   // Statistics
@@ -946,9 +970,12 @@ model FieldCorrectionHistory {
 
   // Relations
   forwarder Forwarder? @relation(fields: [forwarderId], references: [id], onDelete: SetNull)
+  company   Company?   @relation(fields: [companyId], references: [id], onDelete: SetNull) // REFACTOR-001
 
   @@unique([forwarderId, fieldName, periodStart])
+  @@unique([companyId, fieldName, periodStart])
   @@index([forwarderId])
+  @@index([companyId])
   @@index([fieldName])
   @@index([periodStart])
   @@map("field_correction_history")
@@ -1078,7 +1105,8 @@ model Correction {
 
 model CorrectionPattern {
   id          String        @id @default(uuid())
-  forwarderId String        @map("forwarder_id")
+  forwarderId String?       @map("forwarder_id") // REFACTOR-001: 可選，遷移至 companyId
+  companyId   String?       @map("company_id") // Story 0.3: 公司關聯
   fieldName   String        @map("field_name")
   patternHash String        @unique @map("pattern_hash") // SHA256(forwarderId + fieldName + patterns)
   status      PatternStatus @default(DETECTED)
@@ -1101,10 +1129,12 @@ model CorrectionPattern {
 
   // Relations
   corrections Correction[] // 關聯的修正記錄
-  forwarder   Forwarder       @relation(fields: [forwarderId], references: [id])
+  forwarder   Forwarder?      @relation(fields: [forwarderId], references: [id]) // REFACTOR-001: 可選
+  company     Company?        @relation("CompanyCorrectionPatterns", fields: [companyId], references: [id]) // Story 0.3
   suggestion  RuleSuggestion? // Story 4.4: 生成的規則建議
 
   @@index([forwarderId, fieldName])
+  @@index([companyId])
   @@index([status])
   @@index([occurrenceCount])
   @@index([lastSeenAt])
@@ -1146,7 +1176,8 @@ model PatternAnalysisLog {
 
 model RuleSuggestion {
   id               String           @id @default(uuid())
-  forwarderId      String           @map("forwarder_id")
+  forwarderId      String?          @map("forwarder_id") // REFACTOR-001: 可選，遷移至 companyId
+  companyId        String?          @map("company_id") // Story 0.3: 公司關聯
   fieldName        String           @map("field_name")
   extractionType   ExtractionType   @map("extraction_type")
   currentPattern   String?          @map("current_pattern") // 現有規則（如果有）
@@ -1168,7 +1199,8 @@ model RuleSuggestion {
   reviewedAt       DateTime?        @map("reviewed_at")
 
   // Relations
-  forwarder   Forwarder          @relation(fields: [forwarderId], references: [id])
+  forwarder   Forwarder?         @relation(fields: [forwarderId], references: [id]) // REFACTOR-001: 可選
+  company     Company?           @relation("CompanyRuleSuggestions", fields: [companyId], references: [id]) // Story 0.3
   suggester   User?              @relation("RuleSuggestionSuggester", fields: [suggestedBy], references: [id])
   reviewer    User?              @relation("RuleSuggestionReviewer", fields: [reviewedBy], references: [id])
   escalation  Escalation?        @relation(fields: [escalationId], references: [id])
@@ -1177,6 +1209,7 @@ model RuleSuggestion {
   createdRule MappingRule?       @relation("CreatedFromSuggestion") // Story 4.4: 創建的規則
 
   @@index([forwarderId, fieldName])
+  @@index([companyId])
   @@index([status])
   @@index([source])
   @@index([createdAt])
@@ -1470,7 +1503,8 @@ model RollbackLog {
 model RuleChangeRequest {
   id            String              @id @default(uuid())
   ruleId        String?             @map("rule_id") // NULL for CREATE
-  forwarderId   String              @map("forwarder_id")
+  forwarderId   String?             @map("forwarder_id") // REFACTOR-001: 可選，遷移至 companyId
+  companyId     String?             @map("company_id") // REFACTOR-001: 新增公司關聯
   changeType    ChangeType          @map("change_type")
   beforeContent Json?               @map("before_content") // 變更前內容 (NULL for CREATE)
   afterContent  Json                @map("after_content") // 變更後內容
@@ -1484,11 +1518,13 @@ model RuleChangeRequest {
 
   // Relations
   rule      MappingRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
-  forwarder Forwarder    @relation(fields: [forwarderId], references: [id])
+  forwarder Forwarder?   @relation(fields: [forwarderId], references: [id]) // REFACTOR-001: 可選
+  company   Company?     @relation(fields: [companyId], references: [id]) // REFACTOR-001: 新增
   requester User         @relation("ChangeRequester", fields: [requestedById], references: [id])
   reviewer  User?        @relation("ChangeReviewer", fields: [reviewedById], references: [id])
 
   @@index([forwarderId])
+  @@index([companyId])
   @@index([ruleId])
   @@index([status])
   @@index([requestedById])
@@ -1504,7 +1540,8 @@ model RuleChangeRequest {
 model RuleTestTask {
   id              String         @id @default(uuid())
   ruleId          String         @map("rule_id")
-  forwarderId     String         @map("forwarder_id")
+  forwarderId     String?        @map("forwarder_id") // REFACTOR-001: 可選，遷移至 companyId
+  companyId       String?        @map("company_id") // Story 0.3: 公司關聯
   originalPattern Json?          @map("original_pattern") // 原始提取規則（NULL 表示新規則）
   testPattern     Json           @map("test_pattern") // 測試用的提取規則
   config          Json // 測試配置 { scope, recentCount?, documentIds?, dateRange?, maxDocuments }
@@ -1531,12 +1568,14 @@ model RuleTestTask {
 
   // Relations
   rule      MappingRule      @relation(fields: [ruleId], references: [id], onDelete: Cascade)
-  forwarder Forwarder        @relation(fields: [forwarderId], references: [id])
+  forwarder Forwarder?       @relation(fields: [forwarderId], references: [id]) // REFACTOR-001: 可選
+  company   Company?         @relation("CompanyTestTasks", fields: [companyId], references: [id]) // Story 0.3
   creator   User             @relation("TestTaskCreator", fields: [createdById], references: [id])
   details   RuleTestDetail[] // 詳細測試結果
 
   @@index([ruleId])
   @@index([forwarderId])
+  @@index([companyId])
   @@index([status])
   @@index([createdById])
   @@index([createdAt])
@@ -2093,6 +2132,7 @@ model AuditReportJob {
   dateTo           DateTime           @map("date_to")
   cityIds          String[]           @map("city_ids")
   forwarderIds     String[]           @map("forwarder_ids")
+  companyIds       String[]           @map("company_ids") // Story 0.3: 公司篩選
   includedFields   String[]           @map("included_fields")
   includeChanges   Boolean            @default(true) @map("include_changes")
   includeFiles     Boolean            @default(true) @map("include_files")

@@ -716,7 +716,7 @@ ${invoiceContent ? `發票內容摘要: ${invoiceContent.substring(0, 1000)}` : 
 `;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',  // 使用較便宜的模型
+      model: 'gpt-5.2-mini',  // 使用較便宜的模型
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 200,
       response_format: { type: 'json_object' },

@@ -10,6 +10,12 @@
  * @module src/components/features/term-analysis/TermTable
  * @since Epic 0 - Story 0.5
  * @lastModified 2025-12-24
+ *
+ * @related
+ *   - src/hooks/use-term-analysis.ts - 術語分析數據 Hook
+ *   - src/app/api/admin/term-analysis/route.ts - 術語聚合 API
+ *   - src/components/features/term-analysis/TermFilters.tsx - 篩選控制
+ *   - src/components/features/rules/BulkRuleActions.tsx - 批量規則操作
  */
 
 'use client';

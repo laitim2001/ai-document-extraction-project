@@ -20,7 +20,8 @@
  *   - pdf-parse: PDF 解析與文字提取
  */
 
-import pdf from 'pdf-parse'
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdf = require('pdf-parse')
 import { DetectedFileType } from '@prisma/client'
 
 // ============================================================
@@ -135,7 +136,7 @@ export class FileDetectionService {
       }
 
       // 根據 MIME 類型分流處理
-      if (SUPPORTED_MIME_TYPES.PDF.includes(mimeType)) {
+      if ((SUPPORTED_MIME_TYPES.PDF as readonly string[]).includes(mimeType)) {
         return await this.detectPdfType(buffer, mimeType, fileSize)
       } else if (SUPPORTED_MIME_TYPES.IMAGE.some((type) => mimeType.startsWith(type.split('/')[0]))) {
         return this.detectImageType(buffer, mimeType, fileSize)
@@ -355,8 +356,8 @@ export class FileDetectionService {
    */
   static isSupportedType(mimeType: string): boolean {
     return (
-      SUPPORTED_MIME_TYPES.PDF.includes(mimeType) ||
-      SUPPORTED_MIME_TYPES.IMAGE.some((type) => mimeType === type)
+      (SUPPORTED_MIME_TYPES.PDF as readonly string[]).includes(mimeType) ||
+      (SUPPORTED_MIME_TYPES.IMAGE as readonly string[]).includes(mimeType)
     )
   }
 

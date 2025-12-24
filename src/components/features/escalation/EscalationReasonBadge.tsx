@@ -52,7 +52,8 @@ interface EscalationReasonBadgeProps {
  * 原因對應的圖示組件
  */
 const REASON_ICONS: Record<EscalationReason, React.ElementType> = {
-  UNKNOWN_COMPANY: HelpCircle, // REFACTOR-001: 原 UNKNOWN_FORWARDER
+  UNKNOWN_FORWARDER: HelpCircle, // 保留向後兼容
+  UNKNOWN_COMPANY: HelpCircle, // REFACTOR-001: 新增公司識別
   RULE_NOT_APPLICABLE: FileX,
   POOR_QUALITY: AlertTriangle,
   OTHER: MoreHorizontal,

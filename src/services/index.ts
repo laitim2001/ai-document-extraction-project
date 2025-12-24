@@ -351,6 +351,9 @@ export * from './gpt-vision.service'
 export * from './company-matcher.service'
 export * from './company-auto-create.service'
 
+// Epic 0: Historical Data Initialization (Story 0-4 - Batch Processing Progress Tracking)
+export * from './batch-progress.service'
+
 // Epic 0: Historical Data Initialization (Story 0-5 - Term Aggregation & Rules)
 export * from './term-aggregation.service'
 export * from './term-classification.service'

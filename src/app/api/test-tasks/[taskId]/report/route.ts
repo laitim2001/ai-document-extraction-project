@@ -188,6 +188,19 @@ export async function GET(
       )
     }
 
+    // 5.1 REFACTOR-001: 驗證 company 存在
+    if (!task.company) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/invalid-state',
+          title: 'Invalid State',
+          status: 400,
+          detail: '測試任務沒有關聯的公司',
+        },
+        { status: 400 }
+      )
+    }
+
     // 6. 準備報告資料
     const results = task.results as {
       improved: number

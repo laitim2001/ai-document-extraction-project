@@ -183,7 +183,11 @@ export const ESCALATION_REASON_CONFIG: Record<
   EscalationReason,
   { label: string; icon: string }
 > = {
-  UNKNOWN_COMPANY: { // REFACTOR-001: 原 UNKNOWN_FORWARDER
+  UNKNOWN_FORWARDER: { // 保留向後兼容
+    label: '無法識別轉運商',
+    icon: 'HelpCircle',
+  },
+  UNKNOWN_COMPANY: { // REFACTOR-001: 新增公司識別
     label: '無法識別公司',
     icon: 'HelpCircle',
   },

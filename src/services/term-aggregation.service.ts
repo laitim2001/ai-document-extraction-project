@@ -159,12 +159,14 @@ export function normalizeForAggregation(term: string): string {
 
 /**
  * Calculates Levenshtein distance between two strings
+ * NOTE: Internal helper function. Use `levenshteinDistance` from '@/services/similarity' for external use.
  *
  * @param str1 - First string
  * @param str2 - Second string
  * @returns Edit distance between strings
+ * @internal
  */
-export function levenshteinDistance(str1: string, str2: string): number {
+function levenshteinDistanceInternal(str1: string, str2: string): number {
   const m = str1.length;
   const n = str2.length;
 
@@ -205,7 +207,7 @@ export function calculateSimilarity(str1: string, str2: string): number {
   const maxLength = Math.max(str1.length, str2.length);
   if (maxLength === 0) return 1;
 
-  const distance = levenshteinDistance(str1, str2);
+  const distance = levenshteinDistanceInternal(str1, str2);
   return 1 - distance / maxLength;
 }
 

@@ -27,7 +27,7 @@ import { z } from 'zod'
 import { auth } from '@/lib/auth'
 import { hasPermission } from '@/lib/auth/city-permission'
 import { PERMISSIONS } from '@/types/permissions'
-import { mergeCompanies } from '@/services/company-auto-create.service'
+import { autoMergeCompanies } from '@/services/company-auto-create.service'
 import { prisma } from '@/lib/prisma'
 
 // ============================================================
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 執行合併
-    const mergedCompany = await mergeCompanies(primaryId, secondaryIds)
+    const mergedCompany = await autoMergeCompanies(primaryId, secondaryIds)
 
     return NextResponse.json({
       success: true,

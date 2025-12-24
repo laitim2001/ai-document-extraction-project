@@ -122,7 +122,7 @@ async def _llm_classify(self, term: str, forwarder: str) -> dict:
                   ▼
 ┌─────────────────────────────────────┐
 │ Tier 3: LLM Classification (未實現)  │  剩餘 5-10%
-│ • GPT-4o 智能分類                    │
+│ • GPT-5.2 智能分類                   │
 │ • 處理從未見過的新術語                │
 │ • 輸出信心度評分                      │
 └─────────────────────────────────────┘

@@ -283,12 +283,13 @@ export async function POST(request: NextRequest) {
           // Undo update: restore previous states
           for (const rule of affectedRules) {
             if (rule.previousState) {
+              const prevState = rule.previousState as Record<string, unknown>;
               await tx.mappingRule.update({
                 where: { id: rule.id },
                 data: {
-                  status: rule.previousState.status as string | undefined,
-                  priority: rule.previousState.priority as number | undefined,
-                  isActive: rule.previousState.isActive as boolean | undefined,
+                  status: prevState.status as 'DRAFT' | 'PENDING_REVIEW' | 'ACTIVE' | 'DEPRECATED' | undefined,
+                  priority: prevState.priority as number | undefined,
+                  isActive: prevState.isActive as boolean | undefined,
                   updatedAt: new Date(),
                 },
               });

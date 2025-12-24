@@ -420,7 +420,7 @@ export async function addNameVariant(
 }
 
 /**
- * 合併公司
+ * 合併公司（JIT 自動建立專用）
  *
  * @description
  *   將副公司合併到主公司：
@@ -429,11 +429,14 @@ export async function addNameVariant(
  *   3. 將副公司狀態設為 MERGED
  *   4. 記錄合併關係
  *
+ *   NOTE: 此函數用於 JIT 自動建立流程中的合併操作。
+ *   對於一般公司管理的合併操作，請使用 company.service.ts 的 mergeCompanies。
+ *
  * @param primaryId - 主公司 ID（保留）
  * @param secondaryIds - 副公司 ID 列表（將被合併）
  * @returns 合併後的主公司
  */
-export async function mergeCompanies(
+export async function autoMergeCompanies(
   primaryId: string,
   secondaryIds: string[]
 ): Promise<Company> {

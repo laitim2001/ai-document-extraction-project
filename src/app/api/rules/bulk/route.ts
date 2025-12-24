@@ -476,7 +476,6 @@ export async function DELETE(request: NextRequest) {
           where: { id: { in: ruleIds } },
           data: {
             isActive: false,
-            updatedById: session.user.id,
             updatedAt: new Date(),
           },
         });

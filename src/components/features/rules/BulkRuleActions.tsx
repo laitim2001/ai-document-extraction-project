@@ -15,6 +15,11 @@
  * @dependencies
  *   - @/hooks/use-toast - Toast notifications
  *   - lucide-react - Icons
+ *
+ * @related
+ *   - src/app/api/rules/bulk/route.ts - 批量創建規則 API
+ *   - src/app/api/rules/bulk/undo/route.ts - 撤銷批量操作 API
+ *   - src/components/features/term-analysis/TermTable.tsx - 術語選擇來源
  */
 
 'use client';

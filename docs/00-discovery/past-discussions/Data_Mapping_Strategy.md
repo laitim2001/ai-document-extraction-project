@@ -66,7 +66,7 @@
 │  ┌─────────────────────────────────────────────────────────────────┐    │
 │  │ FALLBACK: LLM CLASSIFICATION (LLM 兜底)                         │    │
 │  │ ════════════════════════════════════                            │    │
-│  │ 當以上都無法匹配時，使用 GPT-4o / Claude 智能分類                 │    │
+│  │ 當以上都無法匹配時，使用 GPT-5.2 / Claude 智能分類                 │    │
 │  │ • 理解語義，不需要精確匹配                                        │    │
 │  │ • 可處理從未見過的術語                                           │    │
 │  └─────────────────────────────────────────────────────────────────┘    │
@@ -179,7 +179,7 @@ def generate_forwarder_mapping(forwarder_code: str, sample_invoices: list):
 │  │ PHASE 2: AI 自動提取術語                                         │   │
 │  │                                                                   │   │
 │  │  1. 使用 Azure Doc Intelligence 提取所有 line items             │   │
-│  │  2. 使用 GPT-4o 識別獨特術語                                     │   │
+│  │  2. 使用 GPT-5.2 識別獨特術語                                     │   │
 │  │  3. 自動生成建議映射                                             │   │
 │  └──────────────────────────────────────────────────────────────────┘   │
 │                              │                                           │
@@ -324,7 +324,7 @@ def generate_forwarder_mapping(forwarder_code: str, sample_invoices: list):
 │  ┌──────────────────────────────────────────────────────────────────┐   │
 │  │ STEP 5: LLM 智能識別 (準確度 80%+)                               │   │
 │  │ ─────────────────────────────────────                            │   │
-│  │ 將發票圖片/文字發送給 GPT-4o                                      │   │
+│  │ 將發票圖片/文字發送給 GPT-5.2                                      │   │
 │  │ 詢問: "這張發票來自哪個貨運代理公司？"                            │   │
 │  │                                                                   │   │
 │  │ 提供已知 Forwarder 列表供參考                                     │   │
@@ -659,13 +659,13 @@ class MappingPreparationAssistant:
         """
         
         response = self.llm.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.2",
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
-        
+
         return json.loads(response.choices[0].message.content)
-    
+
     def _generate_mapping_suggestions(self, forwarder_code: str, 
                                        terms: list) -> list:
         """生成映射建議"""
@@ -701,11 +701,11 @@ class MappingPreparationAssistant:
         """
         
         response = self.llm.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.2",
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
-        
+
         result = json.loads(response.choices[0].message.content)
         return result.get('mappings', result)
     
@@ -773,7 +773,7 @@ class MappingPreparationAssistant:
    - 使用三層架構：通用層 + 特定覆蓋層 + AI 學習層
 
 2. **善用 AI 輔助**
-   - 讓 GPT-4o 分析樣本發票，自動提取術語和建議映射
+   - 讓 GPT-5.2 分析樣本發票，自動提取術語和建議映射
    - 人工只需審核確認，而非從零開始
 
 3. **優先處理高頻 Forwarder**

@@ -109,6 +109,14 @@ export class RuleSuggestionGenerator {
       throw new Error(`Pattern ${patternId} is not in CANDIDATE status`)
     }
 
+    // REFACTOR-001: 驗證 companyId 存在
+    if (!pattern.companyId) {
+      throw new Error(`Pattern ${patternId} has no associated company`)
+    }
+
+    // 類型斷言確保 TypeScript 知道 companyId 不為 null
+    const validatedPattern = pattern as typeof pattern & { companyId: string }
+
     // 檢查是否已有建議
     const existingSuggestion = await prisma.ruleSuggestion.findUnique({
       where: { patternId },
@@ -130,8 +138,8 @@ export class RuleSuggestionGenerator {
     // 3. 獲取現有規則（如果有）
     const existingRule = await prisma.mappingRule.findFirst({
       where: {
-        companyId: pattern.companyId,
-        fieldName: pattern.fieldName,
+        companyId: validatedPattern.companyId,
+        fieldName: validatedPattern.fieldName,
         status: 'ACTIVE',
       },
       select: {
@@ -146,8 +154,8 @@ export class RuleSuggestionGenerator {
 
     // 4. 計算預期影響
     const impact = await this.calculateImpact(
-      pattern.companyId,
-      pattern.fieldName,
+      validatedPattern.companyId,
+      validatedPattern.fieldName,
       inferredRule,
       currentPatternString
     )
@@ -155,8 +163,8 @@ export class RuleSuggestionGenerator {
     // 5. 創建建議記錄
     const suggestion = await prisma.ruleSuggestion.create({
       data: {
-        companyId: pattern.companyId,
-        fieldName: pattern.fieldName,
+        companyId: validatedPattern.companyId,
+        fieldName: validatedPattern.fieldName,
         extractionType: inferredRule.type,
         currentPattern: currentPatternString,
         suggestedPattern: inferredRule.pattern,

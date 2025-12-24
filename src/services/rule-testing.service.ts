@@ -196,6 +196,14 @@ export async function executeTest(params: ExecuteTestParams): Promise<void> {
     throw new Error('任務狀態不正確');
   }
 
+  // REFACTOR-001: 驗證 companyId 存在
+  if (!task.companyId) {
+    throw new Error('測試任務沒有關聯的公司');
+  }
+
+  // 類型斷言確保 TypeScript 知道 companyId 不為 null
+  const validatedTask = task as typeof task & { companyId: string };
+
   // 2. 更新狀態為執行中
   await prisma.ruleTestTask.update({
     where: { id: taskId },
@@ -208,7 +216,7 @@ export async function executeTest(params: ExecuteTestParams): Promise<void> {
   try {
     // 3. 獲取測試文件列表
     const config = task.config as unknown as TestConfig;
-    const documents = await getTestableDocuments(task.companyId, config);
+    const documents = await getTestableDocuments(validatedTask.companyId, config);
 
     // 4. 初始化結果計數
     let improved = 0;
@@ -398,7 +406,18 @@ export async function getTestTask(taskId: string): Promise<RuleTestTask> {
     throw new Error('找不到指定的測試任務');
   }
 
-  return formatTestTask(task);
+  // REFACTOR-001: 驗證 companyId 和 company 存在
+  if (!task.companyId || !task.company) {
+    throw new Error('測試任務沒有關聯的公司');
+  }
+
+  // 類型斷言確保 TypeScript 知道 companyId 和 company 不為 null
+  const validatedTask = task as typeof task & {
+    companyId: string;
+    company: NonNullable<typeof task.company>;
+  };
+
+  return formatTestTask(validatedTask);
 }
 
 /**

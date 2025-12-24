@@ -62,6 +62,17 @@ export class RuleSimulationService {
       throw new Error(`Suggestion ${suggestionId} not found`)
     }
 
+    // REFACTOR-001: 驗證 companyId 和 company 存在
+    if (!suggestion.companyId || !suggestion.company) {
+      throw new Error(`Suggestion ${suggestionId} has no associated company`)
+    }
+
+    // 類型斷言確保 TypeScript 知道這些值不為 null
+    const validatedSuggestion = suggestion as typeof suggestion & {
+      companyId: string
+      company: NonNullable<typeof suggestion.company>
+    }
+
     // 構建日期範圍
     let startDate: Date
     let endDate = new Date()
@@ -76,8 +87,8 @@ export class RuleSimulationService {
 
     // 獲取樣本文件
     const documents = await this.getSampleDocuments(
-      suggestion.companyId,
-      suggestion.fieldName,
+      validatedSuggestion.companyId,
+      validatedSuggestion.fieldName,
       startDate,
       endDate,
       sampleSize,
@@ -88,7 +99,7 @@ export class RuleSimulationService {
     const cases: SimulationCase[] = []
 
     for (const doc of documents) {
-      const simulationCase = this.simulateDocument(doc, suggestion)
+      const simulationCase = this.simulateDocument(doc, validatedSuggestion)
       cases.push(simulationCase)
     }
 
@@ -391,10 +402,11 @@ interface SuggestionData {
   currentPattern: string | null
   suggestedPattern: string
   extractionType: string
+  companyId: string | null // REFACTOR-001: 允許 null
   company: {
     id: string
     name: string
-  }
+  } | null // REFACTOR-001: 允許 null
 }
 
 export const ruleSimulationService = new RuleSimulationService()

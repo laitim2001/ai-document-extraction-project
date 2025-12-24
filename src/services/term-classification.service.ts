@@ -133,20 +133,22 @@ ${Object.entries(CATEGORY_DESCRIPTIONS)
 4. 提供 0-100 的信心度分數
 5. 簡短說明分類理由
 
-請為每個術語返回 JSON 格式的陣列：
-[
-  {
-    "term": "原始術語",
-    "category": "標準類別代碼",
-    "confidence": 0-100 的信心度,
-    "reason": "分類理由（簡短）"
-  }
-]
+請返回 JSON 格式的對象，包含 classifications 陣列：
+{
+  "classifications": [
+    {
+      "term": "原始術語",
+      "category": "標準類別代碼",
+      "confidence": 0-100 的信心度,
+      "reason": "分類理由（簡短）"
+    }
+  ]
+}
 
 待分類術語：
 {terms}
 
-請只返回 JSON 陣列，不要包含其他文字。`;
+請只返回 JSON 對象，不要包含其他文字。`;
 
 // ============================================================================
 // Helper Functions
@@ -300,38 +302,58 @@ export async function classifyTerms(
         const content = response.choices[0]?.message?.content || '';
 
         // Parse response - handle both array and object formats
-        let classifications: TermClassification[];
+        let rawClassifications: unknown[];
         try {
-          const parsed = JSON.parse(content);
+          const parsed = JSON.parse(content) as unknown;
+
+          // 類型安全的陣列提取
           if (Array.isArray(parsed)) {
-            classifications = parsed;
-          } else if (parsed.classifications && Array.isArray(parsed.classifications)) {
-            classifications = parsed.classifications;
-          } else if (parsed.results && Array.isArray(parsed.results)) {
-            classifications = parsed.results;
-          } else {
+            rawClassifications = parsed;
+          } else if (
+            typeof parsed === 'object' &&
+            parsed !== null &&
+            'classifications' in parsed &&
+            Array.isArray((parsed as Record<string, unknown>).classifications)
+          ) {
+            rawClassifications = (parsed as Record<string, unknown>)
+              .classifications as unknown[];
+          } else if (
+            typeof parsed === 'object' &&
+            parsed !== null &&
+            'results' in parsed &&
+            Array.isArray((parsed as Record<string, unknown>).results)
+          ) {
+            rawClassifications = (parsed as Record<string, unknown>)
+              .results as unknown[];
+          } else if (typeof parsed === 'object' && parsed !== null) {
             // Try to find any array in the response
-            const values = Object.values(parsed);
-            const arrayValue = values.find(Array.isArray);
+            const values = Object.values(parsed as Record<string, unknown>);
+            const arrayValue = values.find(
+              (v): v is unknown[] => Array.isArray(v)
+            );
             if (arrayValue) {
-              classifications = arrayValue as TermClassification[];
+              rawClassifications = arrayValue;
             } else {
               throw new Error('No classification array found in response');
             }
+          } else {
+            throw new Error('Invalid response format');
           }
         } catch {
-          classifications = parseClassificationResponse(content);
+          rawClassifications = parseClassificationResponse(content);
         }
 
-        // Validate and add classifications
-        for (const item of classifications) {
-          const validated = validateClassification(
-            item as unknown as Record<string, unknown>
-          );
-          if (validated) {
-            allClassifications.push(validated);
-          }
-        }
+        // 類型安全的分類驗證
+        const classifications: TermClassification[] = rawClassifications
+          .filter(
+            (item): item is Record<string, unknown> =>
+              typeof item === 'object' && item !== null
+          )
+          .map((item) => validateClassification(item))
+          .filter((item): item is TermClassification => item !== null);
+
+        // Add validated classifications (已在上方 pipeline 中驗證過)
+        allClassifications.push(...classifications);
 
         success = true;
       } catch (error) {

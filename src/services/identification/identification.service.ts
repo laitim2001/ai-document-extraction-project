@@ -244,11 +244,11 @@ export class IdentificationService {
     // 確定識別狀態
     const status = this.mapStatusToDb(result.status)
 
-    // REFACTOR-001: 使用 companyIdentification 和 companyId
-    await prisma.companyIdentification.upsert({
+    // 使用 forwarderIdentification 模型（當前 schema 仍使用 forwarderId）
+    await prisma.forwarderIdentification.upsert({
       where: { documentId: result.documentId },
       update: {
-        companyId: result.companyId,
+        forwarderId: result.companyId, // REFACTOR-001: 使用 companyId 值但存入 forwarderId
         confidence: result.confidence,
         matchMethod: result.matchMethod,
         matchedPatterns: result.matchedPatterns,
@@ -259,7 +259,7 @@ export class IdentificationService {
       },
       create: {
         documentId: result.documentId,
-        companyId: result.companyId,
+        forwarderId: result.companyId, // REFACTOR-001: 使用 companyId 值但存入 forwarderId
         confidence: result.confidence,
         matchMethod: result.matchMethod,
         matchedPatterns: result.matchedPatterns,

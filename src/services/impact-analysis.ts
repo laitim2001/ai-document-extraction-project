@@ -53,6 +53,17 @@ export class ImpactAnalysisService {
       throw new Error(`Suggestion ${suggestionId} not found`)
     }
 
+    // REFACTOR-001: 驗證 companyId 和 company 存在
+    if (!suggestion.companyId || !suggestion.company) {
+      throw new Error(`Suggestion ${suggestionId} has no associated company`)
+    }
+
+    // 類型斷言確保 TypeScript 知道這些值不為 null
+    const validatedSuggestion = suggestion as typeof suggestion & {
+      companyId: string
+      company: { id: string; name: string }
+    }
+
     // 獲取最近 90 天的相關文件
     const ninetyDaysAgo = new Date()
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
@@ -60,7 +71,7 @@ export class ImpactAnalysisService {
     // REFACTOR-001: 改用 companyId（替代 forwarderId）
     const documents = await prisma.document.findMany({
       where: {
-        companyId: suggestion.companyId,
+        companyId: validatedSuggestion.companyId,
         createdAt: { gte: ninetyDaysAgo }
       },
       include: {
@@ -71,30 +82,30 @@ export class ImpactAnalysisService {
           select: { fieldMappings: true }
         },
         corrections: {
-          where: { fieldName: suggestion.fieldName }
+          where: { fieldName: validatedSuggestion.fieldName }
         }
       },
       orderBy: { createdAt: 'desc' }
     })
 
     // 計算統計數據
-    const statistics = this.calculateStatistics(documents, suggestion)
+    const statistics = this.calculateStatistics(documents, validatedSuggestion)
 
     // 識別風險案例
-    const riskCases = this.identifyRiskCases(documents, suggestion)
+    const riskCases = this.identifyRiskCases(documents, validatedSuggestion)
 
     // 生成時間軸數據
-    const timeline = this.generateTimeline(documents, suggestion)
+    const timeline = this.generateTimeline(documents, validatedSuggestion)
 
     // REFACTOR-001: 改用 company.name（替代 forwarder.name）
     return {
       suggestion: {
-        id: suggestion.id,
-        fieldName: suggestion.fieldName,
-        forwarderName: suggestion.company.name,
-        currentPattern: suggestion.currentPattern,
-        suggestedPattern: suggestion.suggestedPattern,
-        extractionType: suggestion.extractionType
+        id: validatedSuggestion.id,
+        fieldName: validatedSuggestion.fieldName,
+        forwarderName: validatedSuggestion.company.name,
+        currentPattern: validatedSuggestion.currentPattern,
+        suggestedPattern: validatedSuggestion.suggestedPattern,
+        extractionType: validatedSuggestion.extractionType
       },
       statistics,
       riskCases,
@@ -463,11 +474,11 @@ interface SuggestionWithForwarder {
   currentPattern: string | null
   suggestedPattern: string
   extractionType: string
-  companyId: string
+  companyId: string | null
   company: {
     id: string
     name: string
-  }
+  } | null
 }
 
 export const impactAnalysisService = new ImpactAnalysisService()

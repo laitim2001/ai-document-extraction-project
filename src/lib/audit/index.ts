@@ -65,7 +65,8 @@ export type AuditEntityType =
   | 'MappingRule'
   | 'ReviewRecord'
   | 'ExtractionResult'
-  | 'System';
+  | 'System'
+  | 'BulkOperation'; // Story 4.9: 批次操作審計
 
 /**
  * 舊 action 到新 action 的映射
@@ -102,6 +103,7 @@ const ENTITY_TO_RESOURCE: Record<AuditEntityType, string> = {
   ReviewRecord: 'reviewRecord',
   ExtractionResult: 'extractionResult',
   System: 'system',
+  BulkOperation: 'bulkOperation', // Story 4.9: 批次操作
 };
 
 /**

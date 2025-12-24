@@ -513,6 +513,17 @@ export async function reviewChangeRequest(
     throw new Error('此變更請求已被處理');
   }
 
+  // REFACTOR-001: 驗證 company 存在
+  if (!request.companyId || !request.company) {
+    throw new Error('變更請求沒有關聯的公司');
+  }
+
+  // 類型斷言確保 TypeScript 知道這些值不為 null
+  const validatedRequest = request as typeof request & {
+    companyId: string;
+    company: NonNullable<typeof request.company>;
+  };
+
   // 2. 開始事務處理
   const newStatus =
     action === 'approve'
@@ -533,7 +544,7 @@ export async function reviewChangeRequest(
 
     // 2b. 如果批准，應用變更
     if (action === 'approve') {
-      await applyChangeRequest(tx, request);
+      await applyChangeRequest(tx, validatedRequest);
     }
 
     // 2c. 創建審計日誌
@@ -546,9 +557,9 @@ export async function reviewChangeRequest(
         resourceId: requestId,
         description: `${action === 'approve' ? 'Approved' : 'Rejected'} rule change request`,
         metadata: {
-          changeType: request.changeType,
-          ruleId: request.ruleId,
-          companyId: request.companyId,
+          changeType: validatedRequest.changeType,
+          ruleId: validatedRequest.ruleId,
+          companyId: validatedRequest.companyId,
           notes,
         },
         status: 'SUCCESS',
@@ -558,12 +569,12 @@ export async function reviewChangeRequest(
 
   // 3. 通知申請者
   await notifyRequesterResult({
-    requesterId: request.requestedById,
-    requesterName: request.requester.name ?? 'Unknown',
+    requesterId: validatedRequest.requestedById,
+    requesterName: validatedRequest.requester.name ?? 'Unknown',
     action,
-    changeType: request.changeType,
-    forwarderName: request.company.name,
-    fieldName: (request.afterContent as unknown as RuleChangeContent).fieldName,
+    changeType: validatedRequest.changeType,
+    forwarderName: validatedRequest.company.name,
+    fieldName: (validatedRequest.afterContent as unknown as RuleChangeContent).fieldName,
     notes,
   });
 

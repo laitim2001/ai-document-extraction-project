@@ -1545,7 +1545,7 @@ describe('ResultRetrievalService', () => {
               { name: 'totalAmount', value: 15000, confidence: 0.88, source: 'ai' },
             ],
             ocrEngine: 'azure-ocr',
-            aiModel: 'gpt-4o',
+            aiModel: 'gpt-5.2',
             processingTime: 5200,
           },
         },

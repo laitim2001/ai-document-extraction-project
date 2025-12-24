@@ -349,7 +349,7 @@ CREATE INDEX idx_items_forwarder ON extracted_line_items(forwarder_code);
 │  │  • 不需要轉換                                                   │    │
 │  │  • 支持格式: PDF, JPEG, PNG, BMP, TIFF, HEIF                    │    │
 │  │                                                                  │    │
-│  │  場景 2: GPT-4o / GPT-4 Vision                                  │    │
+│  │  場景 2: GPT-5.2 / GPT-5.2 Vision                                  │    │
 │  │  ─────────────────────────────────                              │    │
 │  │  • 需要轉換成圖像 ⚠️                                            │    │
 │  │  • 支持格式: JPEG, PNG, GIF, WEBP                               │    │
@@ -369,7 +369,7 @@ CREATE INDEX idx_items_forwarder ON extracted_line_items(forwarder_code);
 │  │       │                                                          │    │
 │  │       ├── 成功且高置信度 ──▶ 直接使用結果                       │    │
 │  │       │                                                          │    │
-│  │       └── 失敗或低置信度 ──▶ 轉換成圖像 ──▶ 調用 GPT-4o        │    │
+│  │       └── 失敗或低置信度 ──▶ 轉換成圖像 ──▶ 調用 GPT-5.2        │    │
 │  │                                                                  │    │
 │  │  這樣大部分文件不需要轉換，只有少數需要 AI 輔助的才轉換         │    │
 │  │                                                                  │    │
@@ -404,7 +404,7 @@ def pdf_to_images(pdf_path: str, dpi: int = 200) -> list:
 
 def pdf_to_base64_images(pdf_path: str, dpi: int = 200) -> list:
     """
-    將 PDF 轉換為 Base64 編碼的圖像（用於發送給 GPT-4o）
+    將 PDF 轉換為 Base64 編碼的圖像（用於發送給 GPT-5.2）
     """
     images = convert_from_path(pdf_path, dpi=dpi)
     
@@ -453,13 +453,13 @@ def pdf_to_images_fitz(pdf_path: str, dpi: int = 200) -> list:
     return images
 
 
-# ===== 發送給 GPT-4o 的示例 =====
+# ===== 發送給 GPT-5.2 的示例 =====
 
 from openai import AzureOpenAI
 
 def analyze_invoice_with_gpt4o(pdf_path: str, prompt: str) -> dict:
     """
-    使用 GPT-4o Vision 分析發票
+    使用 GPT-5.2 Vision 分析發票
     """
     client = AzureOpenAI(
         azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
@@ -483,7 +483,7 @@ def analyze_invoice_with_gpt4o(pdf_path: str, prompt: str) -> dict:
         })
     
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-5.2",
         messages=[
             {
                 "role": "user",
@@ -618,7 +618,7 @@ def analyze_invoice_with_gpt4o(pdf_path: str, prompt: str) -> dict:
 │                          │         │   STEP 3b: AI 輔助提取                   │     │
 │                          │         │                                          │     │
 │                          │         │   1. PDF 轉換為圖像 (pdf2image)          │     │
-│                          │         │   2. 發送給 GPT-4o Vision                │     │
+│                          │         │   2. 發送給 GPT-5.2 Vision                │     │
 │                          │         │   3. Prompt: "請提取發票中的所有費用項目" │     │
 │                          │         │   4. 解析 AI 返回的結果                  │     │
 │                          │         └──────────────────────────────────────────┘     │
@@ -849,7 +849,7 @@ CREATE INDEX idx_final_score ON invoices_final(overall_score);
 |------|------|
 | 數據庫 Schema 需要跑兩次嗎？ | **不需要**，Azure 輸出是標準化的 JSON |
 | 如何識別文件類型？ | **從文件名解析** + 查詢 DB 是否有 Mapping |
-| AI 要傳 PDF 還是圖像？ | **Azure Doc Intel 直接傳 PDF**，GPT-4o 需要轉圖像 |
+| AI 要傳 PDF 還是圖像？ | **Azure Doc Intel 直接傳 PDF**，GPT-5.2 需要轉圖像 |
 | 如何轉換 PDF 到圖像？ | 使用 **pdf2image** 或 **PyMuPDF** |
 
 需要我進一步細化哪個部分？

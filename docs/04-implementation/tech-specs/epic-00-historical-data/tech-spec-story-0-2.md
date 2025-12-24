@@ -21,7 +21,7 @@
 
 ## Objective
 
-根據文件類型檢測結果，智能路由到適當的處理引擎（Azure Document Intelligence 或 GPT-4o Vision），實現最佳成本效益的文件處理策略。
+根據文件類型檢測結果，智能路由到適當的處理引擎（Azure Document Intelligence 或 GPT-5.2 Vision），實現最佳成本效益的文件處理策略。
 
 ---
 
@@ -55,7 +55,7 @@
 │    ┌─────┴─────┐                                                │
 │    ▼           ▼                                                │
 │ ┌──────────┐ ┌──────────┐                                      │
-│ │ Azure DI │ │ GPT-4o   │                                      │
+│ │ Azure DI │ │ GPT-5.2  │                                      │
 │ │ Adapter  │ │ Vision   │                                      │
 │ └────┬─────┘ └────┬─────┘                                      │
 │      │            │                                             │
@@ -635,7 +635,7 @@ Create `src/services/gpt-vision.service.ts`:
 
 ```typescript
 /**
- * @fileoverview GPT-4o Vision 服務
+ * @fileoverview GPT-5.2 Vision 服務
  * @description
  *   - 呼叫 OpenAI Vision API
  *   - 使用結構化 Prompt 提取發票資訊
@@ -725,7 +725,7 @@ const EXTRACTION_PROMPT = `你是一個專業的物流發票資料提取專家�
 // ============================================
 
 /**
- * 使用 GPT-4o Vision 處理文件
+ * 使用 GPT-5.2 Vision 處理文件
  */
 export async function processWithGPTVision(storagePath: string): Promise<{
   result: InvoiceExtractionResult;
@@ -743,9 +743,9 @@ export async function processWithGPTVision(storagePath: string): Promise<{
     ? 'image/png'
     : 'image/jpeg';
 
-  // 呼叫 GPT-4o Vision
+  // 呼叫 GPT-5.2 Vision
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-5.2',
     messages: [
       {
         role: 'user',
@@ -1099,10 +1099,10 @@ function estimateProcessingTime(fileCount: number): {
 AZURE_DI_ENDPOINT="https://your-resource.cognitiveservices.azure.com/"
 AZURE_DI_KEY="your-api-key"
 
-# Azure OpenAI (GPT-4o)
+# Azure OpenAI (GPT-5.2)
 AZURE_OPENAI_ENDPOINT="https://your-openai.openai.azure.com/"
 AZURE_OPENAI_API_KEY="your-api-key"
-AZURE_OPENAI_DEPLOYMENT_NAME="gpt-4o"
+AZURE_OPENAI_DEPLOYMENT_NAME="gpt-5.2"
 ```
 
 ---

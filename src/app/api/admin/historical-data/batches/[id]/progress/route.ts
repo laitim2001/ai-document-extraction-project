@@ -166,55 +166,102 @@ export async function GET(
         }
 
         // 設置進度更新定時器
+        // 使用 flag 追蹤 controller 是否已關閉，防止競態條件
+        let isControllerClosed = false
+
         progressIntervalId = setInterval(async () => {
-          if (isConnectionClosed) {
+          // 先檢查連線狀態（預先檢查）
+          if (isConnectionClosed || isControllerClosed) {
             return
           }
 
           try {
             const progress = await getBatchProgress(batchId)
+
+            // 異步操作後再次檢查連線狀態（防止競態條件）
+            if (isConnectionClosed || isControllerClosed) {
+              return
+            }
+
             if (!progress) {
-              controller.enqueue(
-                encoder.encode(
-                  encodeSSEMessage('error', {
-                    message: 'Batch not found',
-                    timestamp: new Date().toISOString(),
-                  })
+              try {
+                controller.enqueue(
+                  encoder.encode(
+                    encodeSSEMessage('error', {
+                      message: 'Batch not found',
+                      timestamp: new Date().toISOString(),
+                    })
+                  )
                 )
-              )
+              } catch {
+                // Controller 可能已關閉，忽略錯誤
+              }
               cleanup()
-              controller.close()
+              if (!isControllerClosed) {
+                isControllerClosed = true
+                try {
+                  controller.close()
+                } catch {
+                  // Controller 可能已關閉
+                }
+              }
               return
             }
 
             // 發送進度更新
-            controller.enqueue(
-              encoder.encode(encodeSSEMessage('progress', progress))
-            )
+            try {
+              controller.enqueue(
+                encoder.encode(encodeSSEMessage('progress', progress))
+              )
+            } catch {
+              // Controller 可能已關閉，進行清理
+              cleanup()
+              return
+            }
 
             // 如果批次已完成，發送完成事件並關閉連線
             if (isBatchCompleted(progress.status)) {
+              try {
+                controller.enqueue(
+                  encoder.encode(
+                    encodeSSEMessage('completed', {
+                      status: progress.status,
+                      timestamp: new Date().toISOString(),
+                    })
+                  )
+                )
+              } catch {
+                // Controller 可能已關閉
+              }
+              cleanup()
+              if (!isControllerClosed) {
+                isControllerClosed = true
+                try {
+                  controller.close()
+                } catch {
+                  // Controller 可能已關閉
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching batch progress:', error)
+            // 再次檢查連線狀態
+            if (isConnectionClosed || isControllerClosed) {
+              return
+            }
+            try {
               controller.enqueue(
                 encoder.encode(
-                  encodeSSEMessage('completed', {
-                    status: progress.status,
+                  encodeSSEMessage('error', {
+                    message: error instanceof Error ? error.message : 'Unknown error',
                     timestamp: new Date().toISOString(),
                   })
                 )
               )
+            } catch {
+              // Controller 可能已關閉
               cleanup()
-              controller.close()
             }
-          } catch (error) {
-            console.error('Error fetching batch progress:', error)
-            controller.enqueue(
-              encoder.encode(
-                encodeSSEMessage('error', {
-                  message: error instanceof Error ? error.message : 'Unknown error',
-                  timestamp: new Date().toISOString(),
-                })
-              )
-            )
           }
         }, PROGRESS_UPDATE_INTERVAL)
 

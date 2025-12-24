@@ -283,7 +283,10 @@ export async function POST(
 
     // 5. 失效規則快取（確保所有城市取得最新規則）
     // REFACTOR-001: 原 invalidateForwarderCache
-    await ruleResolver.invalidateCompanyCache(result.suggestion.companyId)
+    // 只有在 companyId 存在時才失效快取
+    if (result.suggestion.companyId) {
+      await ruleResolver.invalidateCompanyCache(result.suggestion.companyId)
+    }
 
     // 6. 返回成功響應
     return NextResponse.json({

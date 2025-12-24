@@ -91,7 +91,7 @@
  *
  * @dependencies
  *   - prisma - 資料庫訪問
- *   - openai - GPT-4o API 調用
+ *   - openai - GPT-5.2 API 調用
  *   - zod - 輸入驗證
  *
  * @related
@@ -190,7 +190,7 @@ if (!universalResult || universalResult.confidence < threshold) {
 
 // --- Tier 3: LLM Classification (Fallback) ---
 if (needLLMFallback) {
-  // 使用 GPT-4o 進行智能分類
+  // 使用 GPT-5.2 進行智能分類
   // 注意：此操作會產生 API 費用
   const llmResult = await classifyWithLLM(term, context);
 }
@@ -908,7 +908,7 @@ feat(document): add three-tier mapping service
 
 - Implement Universal Mapping layer (Tier 1)
 - Add Forwarder-Specific Override (Tier 2)
-- Integrate GPT-4o for LLM Classification (Tier 3)
+- Integrate GPT-5.2 for LLM Classification (Tier 3)
 - Add confidence score calculation logic
 - Create comprehensive unit tests
 

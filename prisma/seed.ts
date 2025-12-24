@@ -231,6 +231,43 @@ async function main() {
   }
 
   // ===========================================
+  // Create System User for seeding
+  // REFACTOR-001: Required as Company creator
+  // ===========================================
+  console.log('\n👤 Creating system user...\n')
+
+  // Get the System Admin role
+  const systemAdminRole = await prisma.role.findUnique({
+    where: { name: 'System Admin' },
+  })
+
+  if (!systemAdminRole) {
+    throw new Error('System Admin role not found. Roles must be seeded first.')
+  }
+
+  // Create or update system user
+  const systemUser = await prisma.user.upsert({
+    where: { email: 'system@ai-document-extraction.internal' },
+    update: {
+      name: 'System',
+      status: 'ACTIVE',
+    },
+    create: {
+      email: 'system@ai-document-extraction.internal',
+      name: 'System',
+      status: 'ACTIVE',
+      // REFACTOR-001: 透過 UserRole 關聯建立角色（非直接 roleId）
+      roles: {
+        create: {
+          roleId: systemAdminRole.id,
+        },
+      },
+    },
+  })
+
+  console.log(`  ✅ System user ready: ${systemUser.email}`)
+
+  // ===========================================
   // Seed Companies (Forwarder Type)
   // REFACTOR-001: Changed from Forwarder to Company model
   // ===========================================
@@ -244,13 +281,15 @@ async function main() {
       where: { code: forwarder.code },
     })
 
+    // REFACTOR-001: Convert ForwarderIdentificationPatterns to string[] for Company model
+    const patternsAsJson = [JSON.stringify(forwarder.identificationPatterns)]
+
     const result = await prisma.company.upsert({
       where: { code: forwarder.code },
       update: {
         name: forwarder.name,
         displayName: forwarder.displayName,
-        identificationPatterns:
-          forwarder.identificationPatterns as unknown as Prisma.InputJsonValue,
+        identificationPatterns: patternsAsJson,
         priority: forwarder.priority,
       },
       create: {
@@ -258,10 +297,10 @@ async function main() {
         name: forwarder.name,
         displayName: forwarder.displayName,
         type: 'FORWARDER', // REFACTOR-001: Specify company type
-        identificationPatterns:
-          forwarder.identificationPatterns as unknown as Prisma.InputJsonValue,
+        identificationPatterns: patternsAsJson,
         priority: forwarder.priority,
         status: 'ACTIVE',
+        creator: { connect: { id: systemUser.id } }, // REFACTOR-001: Required creator
       },
     })
 

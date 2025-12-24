@@ -13,7 +13,7 @@
 
 ## 目標
 
-從歷史數據處理結果中聚合常見術語，利用 GPT-4o 進行智能分類，並批量建立 Tier 1 Universal Mapping 和 Tier 2 Company-Specific 映射規則，為系統提供初始的費用分類知識庫。
+從歷史數據處理結果中聚合常見術語，利用 GPT-5.2 進行智能分類，並批量建立 Tier 1 Universal Mapping 和 Tier 2 Company-Specific 映射規則，為系統提供初始的費用分類知識庫。
 
 ---
 
@@ -22,7 +22,7 @@
 | AC# | 驗收標準 | 實現方式 |
 |-----|---------|---------|
 | AC1 | 術語聚合分析 | `term-aggregation.service.ts` + `TermAnalysisPage` |
-| AC2 | AI 分類建議 | `term-classification.service.ts` + GPT-4o |
+| AC2 | AI 分類建議 | `term-classification.service.ts` + GPT-5.2 |
 | AC3 | Universal Mapping 建立 | `bulk-rule.service.ts` + Tier 1 規則 API |
 | AC4 | Company-Specific 規則建立 | `bulk-rule.service.ts` + Tier 2 規則 API |
 | AC5 | 規則批量操作 | `BulkRuleActions.tsx` + 撤銷機制 |
@@ -739,7 +739,7 @@ export function isChargeRelatedTerm(term: string): boolean {
 
 ### Phase 2: AI 分類服務
 
-#### 2.1 GPT-4o 術語分類
+#### 2.1 GPT-5.2 術語分類
 
 ```typescript
 // src/services/term-classification.service.ts
@@ -836,7 +836,7 @@ async function classifyTermBatch(terms: string[]): Promise<TermClassification[]>
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-5.2',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
       temperature: 0.3, // 較低溫度以提高一致性
@@ -2000,7 +2000,7 @@ export function TermAnalysisTable({
   - [ ] 相似術語聚類合理
 
 - [ ] **AC2 AI 分類建議**
-  - [ ] GPT-4o 分類調用成功
+  - [ ] GPT-5.2 分類調用成功
   - [ ] 分類結果合理
   - [ ] 信心度計算正確
   - [ ] 批量分類效能良好
@@ -2026,7 +2026,7 @@ export function TermAnalysisTable({
 - [ ] TypeScript 類型檢查通過
 - [ ] ESLint 檢查通過
 - [ ] Prisma Migration 成功
-- [ ] GPT-4o API 調用效能測試
+- [ ] GPT-5.2 API 調用效能測試
 
 ---
 
@@ -2073,19 +2073,19 @@ export function TermAnalysisTable({
 
 ### 外部依賴
 
-- `openai`: GPT-4o API 調用（已在 Story 0.2 安裝）
+- `openai`: GPT-5.2 API 調用（已在 Story 0.2 安裝）
 
 ---
 
 ## 疑難排解
 
-### GPT-4o 分類問題
+### GPT-5.2 分類問題
 
 ```typescript
 // 問題：分類結果不一致
 // 解決：降低 temperature，增加 few-shot examples
 const response = await openai.chat.completions.create({
-  model: 'gpt-4o',
+  model: 'gpt-5.2',
   temperature: 0.1, // 更低的溫度
   messages: [
     { role: 'system', content: CLASSIFICATION_SYSTEM_PROMPT },

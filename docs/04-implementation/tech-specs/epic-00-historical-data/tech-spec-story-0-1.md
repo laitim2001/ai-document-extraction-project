@@ -148,7 +148,7 @@ enum FileProcessingStatus {
 
 enum ProcessingRoute {
   AZURE_DI      // Azure Document Intelligence
-  GPT_VISION    // GPT-4o Vision
+  GPT_VISION    // GPT-5.2 Vision
   MANUAL        // 手動處理
 }
 ```
