@@ -5,23 +5,29 @@
  *   - 並發控制（最多 5 個並發任務）
  *   - 錯誤處理和重試邏輯
  *   - 進度更新和狀態追蹤
+ *   - 整合 Azure Document Intelligence 和 GPT Vision
  *
  * @module src/services/batch-processor
  * @since Epic 0 - Story 0.2
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-24
  *
  * @features
  *   - 並發處理控制
  *   - 處理進度回報
  *   - 錯誤重試機制
  *   - 處理結果記錄
+ *   - Azure DI 原生 PDF 處理
+ *   - GPT Vision 掃描 PDF/圖片處理
  *
  * @dependencies
  *   - Prisma Client - 數據庫操作
  *   - processing-router.service - 路由決策
+ *   - azure-di.service - Azure Document Intelligence
+ *   - gpt-vision.service - GPT Vision
  *
  * @related
  *   - src/services/processing-router.service.ts - 處理路由服務
+ *   - src/services/azure-di.service.ts - Azure DI 服務
  *   - src/services/gpt-vision.service.ts - GPT Vision 服務
  */
 
@@ -33,6 +39,8 @@ import {
 } from '@prisma/client'
 import { determineProcessingMethod } from './processing-router.service'
 import { calculateActualCost } from './cost-estimation.service'
+import { processPdfWithAzureDI } from './azure-di.service'
+import { processImageWithVision } from './gpt-vision.service'
 
 // ============================================================
 // Types
@@ -107,8 +115,8 @@ export interface BatchProcessorOptions {
 // Constants
 // ============================================================
 
-/** 預設最大並發數 */
-const DEFAULT_MAX_CONCURRENCY = 5
+/** 預設最大並發數（開發模式降低以避免 async hooks 溢出） */
+const DEFAULT_MAX_CONCURRENCY = 2
 
 /** 預設最大重試次數 */
 const DEFAULT_MAX_RETRIES = 2
@@ -128,44 +136,71 @@ function delay(ms: number): Promise<void> {
 }
 
 /**
- * 模擬 AI 處理（開發階段使用）
+ * 執行真實的 AI 處理
  *
  * @description
- *   在實際整合 Azure DI 和 GPT Vision 之前，
- *   使用這個模擬函數進行測試。
+ *   根據處理方法調用對應的 Azure 服務：
+ *   - AZURE_DI: 使用 Azure Document Intelligence 處理原生 PDF
+ *   - GPT_VISION: 使用 GPT-5.2 Vision 處理掃描 PDF 和圖片
+ *
+ * @param file - 要處理的歷史文件
+ * @param method - 處理方法（AZURE_DI 或 GPT_VISION）
+ * @returns 提取結果和實際頁數
  */
-async function simulateAIProcessing(
+async function executeAIProcessing(
   file: HistoricalFile,
   method: ProcessingMethod
 ): Promise<{
   extractionResult: Record<string, unknown>
   actualPages: number
 }> {
-  // 模擬處理時間（1-3 秒）
-  const processingTime = 1000 + Math.random() * 2000
-  await delay(processingTime)
+  // 獲取文件路徑（假設 storagePath 包含完整路徑）
+  // 在實際應用中，可能需要從 Azure Blob Storage 下載文件
+  const filePath = file.storagePath || file.originalName
 
-  // 模擬頁數（1-5 頁）
-  const actualPages = Math.floor(Math.random() * 5) + 1
+  console.log(`Processing file: ${file.originalName} with method: ${method}`)
 
-  // 模擬提取結果
-  const extractionResult = {
-    method,
-    fileName: file.originalName,
-    processedAt: new Date().toISOString(),
-    pages: actualPages,
-    // 模擬發票欄位
-    invoiceData: {
-      invoiceNumber: `INV-${Date.now().toString(36).toUpperCase()}`,
-      date: new Date().toISOString().split('T')[0],
-      totalAmount: (Math.random() * 10000).toFixed(2),
-      currency: 'USD',
-      vendor: 'Sample Vendor',
-    },
-    confidence: 0.85 + Math.random() * 0.15,
+  if (method === ProcessingMethod.AZURE_DI) {
+    // 使用 Azure Document Intelligence 處理原生 PDF
+    const result = await processPdfWithAzureDI(filePath)
+
+    if (!result.success) {
+      throw new Error(result.error || 'Azure DI processing failed')
+    }
+
+    return {
+      extractionResult: {
+        method: 'AZURE_DI',
+        fileName: file.originalName,
+        processedAt: new Date().toISOString(),
+        pages: result.pageCount,
+        invoiceData: result.invoiceData,
+        rawText: result.rawText,
+        confidence: result.confidence,
+      },
+      actualPages: result.pageCount,
+    }
+  } else {
+    // 使用 GPT Vision 處理掃描 PDF 或圖片
+    const result = await processImageWithVision(filePath)
+
+    if (!result.success) {
+      throw new Error(result.error || 'GPT Vision processing failed')
+    }
+
+    return {
+      extractionResult: {
+        method: 'GPT_VISION',
+        fileName: file.originalName,
+        processedAt: new Date().toISOString(),
+        pages: result.pageCount,
+        invoiceData: result.invoiceData,
+        rawText: result.rawText,
+        confidence: result.confidence,
+      },
+      actualPages: result.pageCount,
+    }
   }
-
-  return { extractionResult, actualPages }
 }
 
 // ============================================================
@@ -213,9 +248,8 @@ export async function processFile(
   // 重試邏輯
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      // 執行 AI 處理（目前使用模擬）
-      // TODO: 實際整合 Azure DI 和 GPT Vision
-      const { extractionResult, actualPages } = await simulateAIProcessing(file, method)
+      // 執行 AI 處理（Azure DI 或 GPT Vision）
+      const { extractionResult, actualPages } = await executeAIProcessing(file, method)
 
       // 計算實際成本
       const actualCost = calculateActualCost(method, actualPages)
@@ -297,10 +331,12 @@ export async function processBatch(
   const startTime = new Date()
 
   // 獲取所有待處理的文件
+  // 注意：API route 已將文件狀態從 DETECTED 更新為 PROCESSING
+  // 因此這裡查詢 PROCESSING 狀態的文件
   const files = await prisma.historicalFile.findMany({
     where: {
       batchId,
-      status: HistoricalFileStatus.DETECTED,
+      status: HistoricalFileStatus.PROCESSING,
       detectedType: { not: null },
     },
   })
@@ -319,14 +355,8 @@ export async function processBatch(
     }
   }
 
-  // 更新批次狀態為處理中
-  await prisma.historicalBatch.update({
-    where: { id: batchId },
-    data: {
-      status: 'PROCESSING',
-      startedAt: new Date(),
-    },
-  })
+  // 注意：批次狀態已由 API route 更新為 PROCESSING
+  // 這裡不再重複更新，避免覆蓋 startedAt 時間戳
 
   // 處理結果
   const results: FileProcessingResult[] = []

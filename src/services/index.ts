@@ -346,6 +346,7 @@ export * from './processing-router.service'
 export * from './cost-estimation.service'
 export * from './batch-processor.service'
 export * from './gpt-vision.service'
+export * from './azure-di.service'
 
 // Epic 0: Historical Data Initialization (Story 0-3 - JIT Company Profile)
 export * from './company-matcher.service'
