@@ -26,6 +26,23 @@
 
 import { AzureOpenAI } from 'openai'
 import * as fs from 'fs/promises'
+import * as path from 'path'
+import * as os from 'os'
+
+// PDF 轉圖片依賴 - 使用動態導入避免 webpack 問題
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let pdfToImg: any = null
+
+/**
+ * 動態載入 pdf-to-img 模組
+ */
+async function loadPdfToImg() {
+  if (!pdfToImg) {
+    const module = await import('pdf-to-img')
+    pdfToImg = module.pdf
+  }
+  return pdfToImg
+}
 
 // ============================================================
 // Types
@@ -180,6 +197,99 @@ export function getMimeType(filePath: string): string {
 }
 
 /**
+ * 檢查文件是否為 PDF
+ *
+ * @param filePath - 文件路徑
+ * @returns 是否為 PDF 文件
+ */
+export function isPdfFile(filePath: string): boolean {
+  const ext = filePath.toLowerCase().split('.').pop()
+  return ext === 'pdf'
+}
+
+/**
+ * 將 PDF 轉換為圖片 (PNG)
+ *
+ * @description
+ *   使用 pdf-to-img 將 PDF 的每一頁轉換為 PNG 圖片。
+ *   此庫專為 Node.js 設計，可正確處理掃描 PDF 中的嵌入圖片。
+ *   圖片保存在臨時目錄中，需要在使用後清理。
+ *
+ * @param pdfPath - PDF 文件路徑
+ * @returns 轉換後的圖片路徑數組和頁數
+ */
+export async function convertPdfToImages(pdfPath: string): Promise<{
+  imagePaths: string[]
+  pageCount: number
+}> {
+  const imagePaths: string[] = []
+  const tempDir = path.join(os.tmpdir(), `pdf-images-${Date.now()}`)
+
+  // 創建臨時目錄
+  await fs.mkdir(tempDir, { recursive: true })
+
+  try {
+    // 載入 pdf-to-img 模組
+    const pdf = await loadPdfToImg()
+
+    console.log(`[GPT Vision] Converting PDF: ${path.basename(pdfPath)}`)
+
+    // 轉換每一頁為圖片（只處理前 5 頁以避免過長處理時間）
+    const maxPages = 5
+    let pageNum = 0
+
+    // pdf-to-img 使用 async iterator 模式
+    for await (const image of await pdf(pdfPath, { scale: 2 })) {
+      pageNum++
+
+      if (pageNum > maxPages) {
+        console.log(`[GPT Vision] Reached max pages limit (${maxPages}), skipping remaining pages`)
+        break
+      }
+
+      // 保存圖片到臨時目錄
+      const imagePath = path.join(tempDir, `page-${pageNum}.png`)
+      await fs.writeFile(imagePath, image)
+      imagePaths.push(imagePath)
+    }
+
+    console.log(`[GPT Vision] PDF converted: ${imagePaths.length} pages processed`)
+
+    return {
+      imagePaths,
+      pageCount: pageNum,
+    }
+  } catch (error) {
+    // 清理臨時目錄（如果有錯誤）
+    try {
+      await fs.rm(tempDir, { recursive: true, force: true })
+    } catch {
+      // 忽略清理錯誤
+    }
+    throw error
+  }
+}
+
+/**
+ * 清理臨時圖片文件
+ *
+ * @param imagePaths - 圖片路徑數組
+ */
+export async function cleanupTempImages(imagePaths: string[]): Promise<void> {
+  if (imagePaths.length === 0) return
+
+  // 獲取父目錄（臨時目錄）
+  const tempDir = path.dirname(imagePaths[0])
+
+  try {
+    await fs.rm(tempDir, { recursive: true, force: true })
+    console.log(`[GPT Vision] Cleaned up temp directory: ${tempDir}`)
+  } catch (error) {
+    console.warn(`[GPT Vision] Failed to cleanup temp directory: ${tempDir}`, error)
+  }
+}
+
+/**
  * 解析 GPT 回應中的 JSON
  *
  * @param content - GPT 回應內容
@@ -224,12 +334,72 @@ export function createClient(config: GPTVisionConfig = {}): AzureOpenAI {
 }
 
 /**
- * 使用 GPT-5.2 Vision 處理圖片
+ * 使用 GPT-5.2 Vision 處理單張圖片
  *
  * @description
  *   將圖片發送到 GPT-5.2 Vision API 進行發票內容提取。
+ *   此函數僅處理圖片文件，不處理 PDF。
  *
  * @param imagePath - 圖片文件路徑
+ * @param config - 配置選項
+ * @returns 提取結果
+ */
+async function processSingleImage(
+  imagePath: string,
+  config: GPTVisionConfig
+): Promise<InvoiceExtractionResult> {
+  // 讀取並編碼圖片
+  const imageBase64 = await fileToBase64(imagePath)
+  const mimeType = getMimeType(imagePath)
+
+  // 創建客戶端
+  const client = createClient(config)
+
+  // 調用 API
+  const response = await client.chat.completions.create({
+    model: config.deploymentName || 'gpt-5.2',
+    messages: [
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: INVOICE_EXTRACTION_PROMPT },
+          {
+            type: 'image_url',
+            image_url: {
+              url: `data:${mimeType};base64,${imageBase64}`,
+              detail: 'high',
+            },
+          },
+        ],
+      },
+    ],
+    max_completion_tokens: config.maxTokens,
+  })
+
+  // 解析回應
+  const content = response.choices[0]?.message?.content
+  if (!content) {
+    throw new Error('Empty response from GPT-5.2 Vision')
+  }
+
+  const invoiceData = parseGPTResponse(content)
+
+  return {
+    success: true,
+    confidence: 0.9, // GPT-5.2 Vision 通常有較高的信心度
+    invoiceData: invoiceData as InvoiceExtractionResult['invoiceData'],
+    pageCount: 1,
+  }
+}
+
+/**
+ * 使用 GPT-5.2 Vision 處理圖片或 PDF
+ *
+ * @description
+ *   將圖片或 PDF 發送到 GPT-5.2 Vision API 進行發票內容提取。
+ *   如果是 PDF 文件，會先轉換為圖片再處理。
+ *
+ * @param imagePath - 圖片或 PDF 文件路徑
  * @param config - 配置選項
  * @returns 提取結果
  *
@@ -246,6 +416,7 @@ export async function processImageWithVision(
   config: GPTVisionConfig = {}
 ): Promise<InvoiceExtractionResult> {
   const mergedConfig = { ...DEFAULT_CONFIG, ...config }
+  let tempImagePaths: string[] = []
 
   try {
     // 檢查配置
@@ -255,48 +426,29 @@ export async function processImageWithVision(
       return createMockResult(imagePath)
     }
 
-    // 讀取並編碼圖片
-    const imageBase64 = await fileToBase64(imagePath)
-    const mimeType = getMimeType(imagePath)
+    // 檢查是否為 PDF 文件
+    if (isPdfFile(imagePath)) {
+      console.log(`[GPT Vision] Detected PDF file, converting to images: ${path.basename(imagePath)}`)
 
-    // 創建客戶端
-    const client = createClient(mergedConfig)
+      // 將 PDF 轉換為圖片
+      const { imagePaths, pageCount } = await convertPdfToImages(imagePath)
+      tempImagePaths = imagePaths
 
-    // 調用 API
-    const response = await client.chat.completions.create({
-      model: mergedConfig.deploymentName || 'gpt-5.2',
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: INVOICE_EXTRACTION_PROMPT },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:${mimeType};base64,${imageBase64}`,
-                detail: 'high',
-              },
-            },
-          ],
-        },
-      ],
-      max_tokens: mergedConfig.maxTokens,
-    })
+      if (imagePaths.length === 0) {
+        throw new Error('Failed to extract images from PDF')
+      }
 
-    // 解析回應
-    const content = response.choices[0]?.message?.content
-    if (!content) {
-      throw new Error('Empty response from GPT-5.2 Vision')
+      console.log(`[GPT Vision] Processing first page of ${pageCount} pages`)
+
+      // 處理第一頁（通常包含主要發票資訊）
+      const result = await processSingleImage(imagePaths[0], mergedConfig)
+      result.pageCount = pageCount
+
+      return result
     }
 
-    const invoiceData = parseGPTResponse(content)
-
-    return {
-      success: true,
-      confidence: 0.9, // GPT-5.2 Vision 通常有較高的信心度
-      invoiceData: invoiceData as InvoiceExtractionResult['invoiceData'],
-      pageCount: 1,
-    }
+    // 直接處理圖片文件
+    return await processSingleImage(imagePath, mergedConfig)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.error('GPT Vision processing error:', errorMessage)
@@ -306,6 +458,11 @@ export async function processImageWithVision(
       confidence: 0,
       pageCount: 0,
       error: errorMessage,
+    }
+  } finally {
+    // 清理臨時圖片文件
+    if (tempImagePaths.length > 0) {
+      await cleanupTempImages(tempImagePaths)
     }
   }
 }
