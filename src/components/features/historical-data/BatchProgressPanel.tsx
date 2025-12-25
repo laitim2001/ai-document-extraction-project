@@ -91,6 +91,8 @@ function StatusBadge({ status }: { status: HistoricalBatchStatus }) {
     PENDING: { label: '待處理', variant: 'secondary' as const, icon: Clock },
     PROCESSING: { label: '處理中', variant: 'default' as const, icon: Loader2 },
     PAUSED: { label: '已暫停', variant: 'outline' as const, icon: Pause },
+    AGGREGATING: { label: '聚合中', variant: 'default' as const, icon: Loader2 },
+    AGGREGATED: { label: '已聚合', variant: 'default' as const, icon: CheckCircle2 },
     COMPLETED: { label: '已完成', variant: 'default' as const, icon: CheckCircle2 },
     FAILED: { label: '失敗', variant: 'destructive' as const, icon: AlertCircle },
     CANCELLED: { label: '已取消', variant: 'secondary' as const, icon: XCircle },

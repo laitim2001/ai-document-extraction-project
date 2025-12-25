@@ -6,6 +6,7 @@
  *   提供建立新批次的表單對話框，包含：
  *   - 批次基本資訊（名稱、描述）
  *   - 公司識別配置選項（Story 0.6）
+ *   - 術語聚合配置選項（Story 0.7）
  *
  * @module src/components/features/historical-data/CreateBatchDialog
  * @since Epic 0 - Story 0.1
@@ -14,6 +15,7 @@
  * @features
  *   - Story 0.1: 基本批次建立
  *   - Story 0.6: 公司識別配置
+ *   - Story 0.7: 術語聚合配置
  */
 
 import * as React from 'react'
@@ -21,7 +23,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Plus, Loader2, Building2 } from 'lucide-react'
+import { Plus, Loader2, Building2, Hash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -68,6 +70,10 @@ const createBatchSchema = z.object({
   enableCompanyIdentification: z.boolean(),
   fuzzyMatchThreshold: z.number().min(0.5).max(1),
   autoMergeSimilar: z.boolean(),
+  // Story 0.7: 術語聚合配置
+  enableTermAggregation: z.boolean(),
+  termSimilarityThreshold: z.number().min(0.5).max(1),
+  autoClassifyTerms: z.boolean(),
 })
 
 type CreateBatchFormData = z.infer<typeof createBatchSchema>
@@ -86,6 +92,10 @@ export interface CreateBatchData {
   enableCompanyIdentification: boolean
   fuzzyMatchThreshold: number
   autoMergeSimilar: boolean
+  // Story 0.7: 術語聚合配置
+  enableTermAggregation: boolean
+  termSimilarityThreshold: number
+  autoClassifyTerms: boolean
 }
 
 interface CreateBatchDialogProps {
@@ -119,11 +129,17 @@ export function CreateBatchDialog({
       enableCompanyIdentification: true,
       fuzzyMatchThreshold: 0.9,
       autoMergeSimilar: false,
+      // Story 0.7: 術語聚合配置預設值
+      enableTermAggregation: true,
+      termSimilarityThreshold: 0.85,
+      autoClassifyTerms: false,
     },
   })
 
   // 監聽是否啟用公司識別
   const enableCompanyId = form.watch('enableCompanyIdentification')
+  // Story 0.7: 監聽是否啟用術語聚合
+  const enableTermAgg = form.watch('enableTermAggregation')
 
   const handleSubmit = async (data: CreateBatchFormData) => {
     setIsSubmitting(true)
@@ -135,6 +151,10 @@ export function CreateBatchDialog({
         enableCompanyIdentification: data.enableCompanyIdentification,
         fuzzyMatchThreshold: data.fuzzyMatchThreshold,
         autoMergeSimilar: data.autoMergeSimilar,
+        // Story 0.7: 術語聚合配置
+        enableTermAggregation: data.enableTermAggregation,
+        termSimilarityThreshold: data.termSimilarityThreshold,
+        autoClassifyTerms: data.autoClassifyTerms,
       })
       form.reset()
       setOpen(false)
@@ -295,6 +315,115 @@ export function CreateBatchDialog({
                             </FormLabel>
                             <FormDescription className="text-xs">
                               自動將相似的公司名稱合併為同一公司
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              disabled={isSubmitting}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Story 0.7: 術語聚合配置 */}
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full flex items-center justify-between py-2"
+                >
+                  <span className="flex items-center gap-2">
+                    <Hash className="h-4 w-4" />
+                    術語聚合設定
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    展開
+                  </span>
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-2">
+                {/* 啟用術語聚合 */}
+                <FormField
+                  control={form.control}
+                  name="enableTermAggregation"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium">
+                          啟用術語聚合
+                        </FormLabel>
+                        <FormDescription className="text-xs">
+                          批量處理完成後自動聚合術語統計
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isSubmitting}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {/* 術語相似度閾值 - 僅在啟用術語聚合時顯示 */}
+                {enableTermAgg && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="termSimilarityThreshold"
+                      render={({ field }) => (
+                        <FormItem className="rounded-lg border p-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel className="text-sm font-medium">
+                              術語相似度閾值
+                            </FormLabel>
+                            <span className="text-sm text-muted-foreground font-mono">
+                              {(field.value * 100).toFixed(0)}%
+                            </span>
+                          </div>
+                          <FormControl>
+                            <Slider
+                              min={50}
+                              max={100}
+                              step={5}
+                              value={[field.value * 100]}
+                              onValueChange={(values) =>
+                                field.onChange(values[0] / 100)
+                              }
+                              disabled={isSubmitting}
+                              className="mt-2"
+                            />
+                          </FormControl>
+                          <FormDescription className="text-xs mt-1">
+                            相似度達此閾值的術語會被視為相同術語（建議 80-90%）
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* 自動分類術語 */}
+                    <FormField
+                      control={form.control}
+                      name="autoClassifyTerms"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-sm font-medium">
+                              自動分類術語
+                            </FormLabel>
+                            <FormDescription className="text-xs">
+                              使用 AI 自動將術語分類到費用類別
                             </FormDescription>
                           </div>
                           <FormControl>

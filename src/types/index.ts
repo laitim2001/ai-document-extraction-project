@@ -33,6 +33,10 @@ export * from './company'
 
 // Story 0.6: 批量處理公司識別
 export * from './batch-company'
+
+// Story 0.7: 批量處理術語聚合
+export * from './batch-term-aggregation'
+
 // 保留 forwarder 導出以維持向後相容 (deprecated)
 // REFACTOR-001: 使用命名導出避免與 company.ts 重複
 export {

@@ -4781,6 +4781,8 @@ enum HistoricalBatchStatus {
   PENDING       // 待處理
   PROCESSING    // 處理中
   PAUSED        // 已暫停 - Story 0.4
+  AGGREGATING   // 術語聚合中 - Story 0.7
+  AGGREGATED    // 術語聚合完成 - Story 0.7
   COMPLETED     // 完成
   FAILED        // 失敗
   CANCELLED     // 已取消
@@ -4840,9 +4842,17 @@ model HistoricalBatch {
   autoMergeSimilar            Boolean   @default(false) @map("auto_merge_similar")
   companiesIdentified         Int       @default(0) @map("companies_identified") // 已識別公司總數（含新建+匹配）
 
+  // Story 0.7: 術語聚合配置
+  enableTermAggregation   Boolean   @default(true) @map("enable_term_aggregation")     // 是否啟用術語聚合
+  termSimilarityThreshold Float     @default(0.85) @map("term_similarity_threshold")   // 術語相似度閾值
+  autoClassifyTerms       Boolean   @default(false) @map("auto_classify_terms")        // 是否自動分類術語
+  aggregationStartedAt    DateTime? @map("aggregation_started_at")                     // 聚合開始時間
+  aggregationCompletedAt  DateTime? @map("aggregation_completed_at")                   // 聚合完成時間
+
   // Relations
-  creator        User                   @relation("HistoricalBatchCreator", fields: [createdBy], references: [id])
-  files          HistoricalFile[]
+  creator              User                     @relation("HistoricalBatchCreator", fields: [createdBy], references: [id])
+  files                HistoricalFile[]
+  termAggregationResult TermAggregationResult?  // Story 0.7: 術語聚合結果
 
   @@index([status])
   @@index([createdBy])
@@ -4890,6 +4900,34 @@ model HistoricalFile {
   @@index([processingMethod])
   @@index([identifiedCompanyId])
   @@map("historical_files")
+}
+
+/// Story 0.7: 批量處理術語聚合結果
+/// 儲存每個批次的術語聚合統計和詳細結果
+model TermAggregationResult {
+  id                    String   @id @default(uuid())
+  batchId               String   @unique @map("batch_id")
+
+  // 聚合統計
+  totalUniqueTerms      Int      @map("total_unique_terms")       // 唯一術語總數
+  totalOccurrences      Int      @map("total_occurrences")        // 術語出現總次數
+  universalTermsCount   Int      @map("universal_terms_count")    // 通用術語數量
+  companySpecificCount  Int      @map("company_specific_count")   // 公司特定術語數量
+  classifiedTermsCount  Int      @default(0) @map("classified_terms_count") // 已分類術語數量
+
+  // 聚合詳細結果（JSON 格式）
+  resultData            Json     @map("result_data")              // 完整聚合結果
+
+  // 時間戳
+  aggregatedAt          DateTime @default(now()) @map("aggregated_at")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  batch                 HistoricalBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([aggregatedAt])
+  @@map("term_aggregation_results")
 }
 
 // ============================================================================

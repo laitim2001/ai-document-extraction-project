@@ -359,6 +359,9 @@ export * from './batch-progress.service'
 export * from './term-aggregation.service'
 export * from './term-classification.service'
 
+// Epic 0: Historical Data Initialization (Story 0-7 - Batch Term Aggregation Integration)
+export * from './batch-term-aggregation.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

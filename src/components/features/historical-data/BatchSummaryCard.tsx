@@ -31,7 +31,6 @@
 import * as React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import {
   Tooltip,
   TooltipContent,
@@ -178,6 +177,18 @@ function StatusBadge({ status }: { status: HistoricalBatchStatus }) {
       variant: 'outline' as const,
       icon: Clock,
       className: '',
+    },
+    AGGREGATING: {
+      label: '聚合中',
+      variant: 'outline' as const,
+      icon: Clock,
+      className: 'bg-blue-100 text-blue-800 border-blue-200',
+    },
+    AGGREGATED: {
+      label: '已聚合',
+      variant: 'default' as const,
+      icon: CheckCircle2,
+      className: 'bg-indigo-100 text-indigo-800 border-indigo-200',
     },
   }
 

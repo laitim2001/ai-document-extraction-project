@@ -49,7 +49,7 @@ development_status:
   0-4-batch-processing-progress-tracking: done  # Completed 2025-12-23: BatchProgressPanel, BatchErrorList, BatchSummaryCard, batch-progress.service, SSE progress API, pause/resume/cancel/retry/skip APIs, PAUSED status, ADMIN permissions
   0-5-term-aggregation-initial-rules: done  # Completed 2025-12-24: TermAggregationService, TermClassificationService (GPT-5.2), TermTable, TermFilters, BulkRuleActions, RuleCreationPanel, bulk CRUD APIs, undo API, StandardChargeCategory, BulkOperation model
   0-6-batch-company-integration: done  # Completed 2025-12-25: Prisma Schema extensions (HistoricalBatch/HistoricalFile company fields), batch-company.ts types, identifyCompanyForFile helper in batch-processor.service, company-stats API, CreateBatchDialog UI with company identification config (Switch/Slider), use-historical-data hook extensions
-  0-7-batch-term-aggregation-integration: backlog  # Planned 2025-12-25: Integrate term-aggregation.service after batch completion, per-company grouping
+  0-7-batch-term-aggregation-integration: done  # Completed 2025-12-25: BatchTermAggregationService (aggregateTermsForBatch, per-company grouping, universal term detection), TermAggregationResult model, AGGREGATING/AGGREGATED BatchStatus states, term-stats API (GET/POST/DELETE), TermAggregationSummary component, CreateBatchDialog term aggregation config (Switch/Slider), use-term-aggregation hook
   epic-0-retrospective: optional
 
   # ============================================================

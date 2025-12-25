@@ -7,6 +7,7 @@
  *   - 進度更新和狀態追蹤
  *   - 整合 Azure Document Intelligence 和 GPT Vision
  *   - 公司識別整合（Story 0.6）
+ *   - 術語聚合整合（Story 0.7）
  *
  * @module src/services/batch-processor
  * @since Epic 0 - Story 0.2
@@ -21,6 +22,7 @@
  *   - GPT Vision 掃描 PDF/圖片處理
  *   - GC 暫停機制（分塊之間）
  *   - Story 0.6: 公司識別整合（JIT 公司 Profile 建立）
+ *   - Story 0.7: 術語聚合整合（批量完成後自動觸發）
  *
  * @dependencies
  *   - Prisma Client - 數據庫操作
@@ -28,12 +30,14 @@
  *   - azure-di.service - Azure Document Intelligence
  *   - gpt-vision.service - GPT Vision
  *   - company-auto-create.service - 公司自動建立（Story 0.6）
+ *   - batch-term-aggregation.service - 術語聚合服務（Story 0.7）
  *
  * @related
  *   - src/services/processing-router.service.ts - 處理路由服務
  *   - src/services/azure-di.service.ts - Azure DI 服務
  *   - src/services/gpt-vision.service.ts - GPT Vision 服務
  *   - src/services/company-auto-create.service.ts - 公司自動建立服務
+ *   - src/services/batch-term-aggregation.service.ts - 術語聚合服務
  */
 
 import { prisma } from '@/lib/prisma'
@@ -50,11 +54,16 @@ import {
   identifyCompaniesFromExtraction,
   SYSTEM_USER_ID,
 } from './company-auto-create.service'
+import {
+  aggregateTermsForBatch,
+  saveAggregationResult,
+} from './batch-term-aggregation.service'
 import type {
   FileCompanyIdentification,
   BatchCompanyConfig,
   CompanyMatchType,
 } from '@/types/batch-company'
+import type { TermAggregationConfig } from '@/types/batch-term-aggregation'
 
 // ============================================================
 // Types
@@ -482,13 +491,18 @@ export async function processBatch(
 
   const startTime = new Date()
 
-  // Story 0.6: 獲取批次記錄以讀取公司識別配置
+  // Story 0.6 & 0.7: 獲取批次記錄以讀取公司識別和術語聚合配置
   const batch = await prisma.historicalBatch.findUnique({
     where: { id: batchId },
     select: {
+      // Story 0.6: 公司識別配置
       enableCompanyIdentification: true,
       fuzzyMatchThreshold: true,
       autoMergeSimilar: true,
+      // Story 0.7: 術語聚合配置
+      enableTermAggregation: true,
+      termSimilarityThreshold: true,
+      autoClassifyTerms: true,
     },
   })
 
@@ -498,6 +512,15 @@ export async function processBatch(
         enabled: true,
         fuzzyThreshold: batch.fuzzyMatchThreshold,
         autoMergeSimilar: batch.autoMergeSimilar,
+      }
+    : undefined
+
+  // Story 0.7: 建立術語聚合配置
+  const termAggregationConfig: TermAggregationConfig | undefined = batch?.enableTermAggregation
+    ? {
+        enabled: true,
+        similarityThreshold: batch.termSimilarityThreshold,
+        autoClassify: batch.autoClassifyTerms,
       }
     : undefined
 
@@ -620,21 +643,85 @@ export async function processBatch(
     }
   }
 
+  // ============================================================
+  // Story 0.7: 術語聚合階段（在 OCR 處理完成後觸發）
+  // ============================================================
+  let termAggregationCompleted = false
+
+  if (termAggregationConfig?.enabled && successCount > 0) {
+    console.log(`[Batch ${batchId}] Starting term aggregation...`)
+
+    try {
+      // 更新批次狀態為術語聚合中
+      await prisma.historicalBatch.update({
+        where: { id: batchId },
+        data: {
+          status: 'AGGREGATING',
+          aggregationStartedAt: new Date(),
+        },
+      })
+
+      // 執行術語聚合
+      const aggregationResult = await aggregateTermsForBatch(batchId, termAggregationConfig)
+
+      // 保存聚合結果
+      await saveAggregationResult(batchId, aggregationResult)
+
+      // 更新批次狀態為術語聚合完成
+      await prisma.historicalBatch.update({
+        where: { id: batchId },
+        data: {
+          status: 'AGGREGATED',
+          aggregationCompletedAt: new Date(),
+        },
+      })
+
+      termAggregationCompleted = true
+      console.log(
+        `[Batch ${batchId}] Term aggregation complete: ${aggregationResult.stats.totalUniqueTerms} unique terms, ` +
+        `${aggregationResult.stats.universalTermsCount} universal terms across ` +
+        `${aggregationResult.stats.companiesWithTerms} companies`
+      )
+    } catch (aggregationError) {
+      // 術語聚合失敗不影響批次整體完成狀態，只記錄錯誤
+      console.error(
+        `[Batch ${batchId}] Term aggregation failed:`,
+        aggregationError instanceof Error ? aggregationError.message : aggregationError
+      )
+
+      // 恢復批次狀態（跳過 AGGREGATED，直接到 COMPLETED）
+      await prisma.historicalBatch.update({
+        where: { id: batchId },
+        data: {
+          aggregationCompletedAt: new Date(),
+        },
+      })
+    }
+  }
+
   const endTime = new Date()
 
   // 更新批次狀態為完成
+  // 注意：如果術語聚合已完成，狀態應為 AGGREGATED，否則為 COMPLETED 或 FAILED
+  const finalStatus = failedCount === files.length
+    ? 'FAILED'
+    : termAggregationCompleted
+      ? 'AGGREGATED' // 術語聚合已完成
+      : 'COMPLETED'
+
   await prisma.historicalBatch.update({
     where: { id: batchId },
     data: {
-      status: failedCount === files.length ? 'FAILED' : 'COMPLETED',
+      status: finalStatus,
       completedAt: endTime,
     },
   })
 
-  // Story 0.6: 包含公司識別統計
+  // Story 0.6 & 0.7: 包含公司識別和術語聚合統計
   console.log(
     `[Batch ${batchId}] Processing complete: ${successCount} success, ${failedCount} failed, ` +
-    `$${totalCost.toFixed(2)} total cost, ${companiesIdentified} companies identified`
+    `$${totalCost.toFixed(2)} total cost, ${companiesIdentified} companies identified` +
+    (termAggregationCompleted ? `, term aggregation completed` : '')
   )
 
   return {
