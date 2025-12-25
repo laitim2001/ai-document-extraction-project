@@ -3,11 +3,17 @@
 /**
  * @fileoverview 建立批次對話框組件
  * @description
- *   提供建立新批次的表單對話框
+ *   提供建立新批次的表單對話框，包含：
+ *   - 批次基本資訊（名稱、描述）
+ *   - 公司識別配置選項（Story 0.6）
  *
  * @module src/components/features/historical-data/CreateBatchDialog
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-25
+ *
+ * @features
+ *   - Story 0.1: 基本批次建立
+ *   - Story 0.6: 公司識別配置
  */
 
 import * as React from 'react'
@@ -15,7 +21,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Plus, Loader2 } from 'lucide-react'
+import { Plus, Loader2, Building2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -37,6 +43,13 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
+import { Slider } from '@/components/ui/slider'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 
 // ============================================================
 // Schema
@@ -51,6 +64,10 @@ const createBatchSchema = z.object({
     .string()
     .max(500, '描述不能超過 500 個字元')
     .optional(),
+  // Story 0.6: 公司識別配置（不使用 .default()，改用 form 的 defaultValues）
+  enableCompanyIdentification: z.boolean(),
+  fuzzyMatchThreshold: z.number().min(0.5).max(1),
+  autoMergeSimilar: z.boolean(),
 })
 
 type CreateBatchFormData = z.infer<typeof createBatchSchema>
@@ -59,9 +76,21 @@ type CreateBatchFormData = z.infer<typeof createBatchSchema>
 // Types
 // ============================================================
 
+/**
+ * 建立批次表單資料
+ */
+export interface CreateBatchData {
+  name: string
+  description?: string
+  // Story 0.6: 公司識別配置
+  enableCompanyIdentification: boolean
+  fuzzyMatchThreshold: number
+  autoMergeSimilar: boolean
+}
+
 interface CreateBatchDialogProps {
   /** 建立批次回調 */
-  onCreateBatch: (data: { name: string; description?: string }) => Promise<void>
+  onCreateBatch: (data: CreateBatchData) => Promise<void>
   /** 額外的觸發按鈕 props */
   triggerProps?: React.ComponentProps<typeof Button>
 }
@@ -79,14 +108,22 @@ export function CreateBatchDialog({
 }: CreateBatchDialogProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const form = useForm<CreateBatchFormData>({
     resolver: zodResolver(createBatchSchema),
     defaultValues: {
       name: '',
       description: '',
+      // Story 0.6: 公司識別配置預設值
+      enableCompanyIdentification: true,
+      fuzzyMatchThreshold: 0.9,
+      autoMergeSimilar: false,
     },
   })
+
+  // 監聽是否啟用公司識別
+  const enableCompanyId = form.watch('enableCompanyIdentification')
 
   const handleSubmit = async (data: CreateBatchFormData) => {
     setIsSubmitting(true)
@@ -94,6 +131,10 @@ export function CreateBatchDialog({
       await onCreateBatch({
         name: data.name,
         description: data.description || undefined,
+        // Story 0.6: 公司識別配置
+        enableCompanyIdentification: data.enableCompanyIdentification,
+        fuzzyMatchThreshold: data.fuzzyMatchThreshold,
+        autoMergeSimilar: data.autoMergeSimilar,
       })
       form.reset()
       setOpen(false)
@@ -161,6 +202,116 @@ export function CreateBatchDialog({
                 </FormItem>
               )}
             />
+
+            {/* Story 0.6: 公司識別配置 */}
+            <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+              <CollapsibleTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full flex items-center justify-between py-2"
+                >
+                  <span className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    公司識別設定
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {showAdvanced ? '收起' : '展開'}
+                  </span>
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-2">
+                {/* 啟用公司識別 */}
+                <FormField
+                  control={form.control}
+                  name="enableCompanyIdentification"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium">
+                          啟用公司識別
+                        </FormLabel>
+                        <FormDescription className="text-xs">
+                          自動從文件中識別並匹配公司資料
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isSubmitting}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {/* 模糊匹配閾值 - 僅在啟用公司識別時顯示 */}
+                {enableCompanyId && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="fuzzyMatchThreshold"
+                      render={({ field }) => (
+                        <FormItem className="rounded-lg border p-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel className="text-sm font-medium">
+                              模糊匹配閾值
+                            </FormLabel>
+                            <span className="text-sm text-muted-foreground font-mono">
+                              {(field.value * 100).toFixed(0)}%
+                            </span>
+                          </div>
+                          <FormControl>
+                            <Slider
+                              min={50}
+                              max={100}
+                              step={5}
+                              value={[field.value * 100]}
+                              onValueChange={(values) =>
+                                field.onChange(values[0] / 100)
+                              }
+                              disabled={isSubmitting}
+                              className="mt-2"
+                            />
+                          </FormControl>
+                          <FormDescription className="text-xs mt-1">
+                            匹配相似度達此閾值才視為同一公司（建議 85-95%）
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* 自動合併相似公司 */}
+                    <FormField
+                      control={form.control}
+                      name="autoMergeSimilar"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-sm font-medium">
+                              自動合併相似公司
+                            </FormLabel>
+                            <FormDescription className="text-xs">
+                              自動將相似的公司名稱合併為同一公司
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              disabled={isSubmitting}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+
             <DialogFooter>
               <Button
                 type="button"

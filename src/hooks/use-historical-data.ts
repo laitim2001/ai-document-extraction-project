@@ -127,7 +127,20 @@ async function fetchBatchFiles(filters: FileListFilters) {
   return response.json()
 }
 
-async function createBatch(data: { name: string; description?: string }) {
+/**
+ * 建立批次參數
+ * Story 0.6: 新增公司識別配置
+ */
+interface CreateBatchParams {
+  name: string
+  description?: string
+  // Story 0.6: 公司識別配置
+  enableCompanyIdentification?: boolean
+  fuzzyMatchThreshold?: number
+  autoMergeSimilar?: boolean
+}
+
+async function createBatch(data: CreateBatchParams) {
   const response = await fetch('/api/admin/historical-data/batches', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

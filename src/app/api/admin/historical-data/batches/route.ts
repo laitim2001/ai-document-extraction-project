@@ -7,7 +7,11 @@
  *
  * @module src/app/api/admin/historical-data/batches
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-25
+ *
+ * @features
+ *   - Story 0.1: 批次建立和列表
+ *   - Story 0.6: 公司識別配置
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -23,6 +27,10 @@ import { HistoricalBatchStatus } from '@prisma/client'
 const CreateBatchSchema = z.object({
   name: z.string().min(1, '批次名稱不得為空').max(100, '批次名稱不得超過 100 字元'),
   description: z.string().max(500, '描述不得超過 500 字元').optional(),
+  // Story 0.6: 公司識別配置
+  enableCompanyIdentification: z.boolean().default(true),
+  fuzzyMatchThreshold: z.number().min(0.5).max(1).default(0.9),
+  autoMergeSimilar: z.boolean().default(false),
 })
 
 const ListBatchQuerySchema = z.object({
@@ -79,7 +87,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { name, description } = validation.data
+    const {
+      name,
+      description,
+      enableCompanyIdentification,
+      fuzzyMatchThreshold,
+      autoMergeSimilar,
+    } = validation.data
 
     // 建立批次
     const batch = await prisma.historicalBatch.create({
@@ -88,6 +102,10 @@ export async function POST(request: NextRequest) {
         description,
         createdBy: session.user.id,
         status: HistoricalBatchStatus.PENDING,
+        // Story 0.6: 公司識別配置
+        enableCompanyIdentification,
+        fuzzyMatchThreshold,
+        autoMergeSimilar,
       },
       include: {
         creator: {

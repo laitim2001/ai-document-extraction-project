@@ -42,17 +42,20 @@ development_status:
   # ============================================================
   # Epic 0: 歷史數據初始化（前置 Epic）
   # ============================================================
-  epic-0: in-progress  # Epic 0 started 2025-12-23
+  epic-0: in-progress  # Stories 0-1 to 0-5 completed, 0-6 and 0-7 added for batch integration
   0-1-batch-file-upload-metadata-detection: done  # Completed 2025-12-23: BatchFileUploader, HistoricalFileList, file-detection.service, upload/files/bulk APIs, HistoricalBatch/HistoricalFile models
-  0-2-intelligent-processing-routing: backlog  # 智能處理路由
-  0-3-just-in-time-company-profile: backlog  # 即時公司 Profile 建立
+  0-2-intelligent-processing-routing: done  # Completed 2025-12-23: ProcessingMethod enum, processing-router.service, cost-estimation.service, ProcessingConfirmDialog, batch-processor integration, gpt-vision.service, result API
+  0-3-just-in-time-company-profile: done  # Completed 2025-12-23: Company model, company-matcher.service (3-tier matching), company-auto-create.service, CompanyTypeSelector, CompanyMergeDialog, pending/update/merge APIs, admin review page
   0-4-batch-processing-progress-tracking: done  # Completed 2025-12-23: BatchProgressPanel, BatchErrorList, BatchSummaryCard, batch-progress.service, SSE progress API, pause/resume/cancel/retry/skip APIs, PAUSED status, ADMIN permissions
   0-5-term-aggregation-initial-rules: done  # Completed 2025-12-24: TermAggregationService, TermClassificationService (GPT-5.2), TermTable, TermFilters, BulkRuleActions, RuleCreationPanel, bulk CRUD APIs, undo API, StandardChargeCategory, BulkOperation model
+  0-6-batch-company-integration: done  # Completed 2025-12-25: Prisma Schema extensions (HistoricalBatch/HistoricalFile company fields), batch-company.ts types, identifyCompanyForFile helper in batch-processor.service, company-stats API, CreateBatchDialog UI with company identification config (Switch/Slider), use-historical-data hook extensions
+  0-7-batch-term-aggregation-integration: backlog  # Planned 2025-12-25: Integrate term-aggregation.service after batch completion, per-company grouping
+  epic-0-retrospective: optional
 
   # ============================================================
   # REFACTOR: Forwarder → Company 模型重構
   # ============================================================
-  refactor-001-forwarder-to-company: backlog  # 需在 Story 0-3 前完成
+  refactor-001-forwarder-to-company: done  # Completed with Story 0-3: Company model with CompanyType, CompanyStatus, CompanySource enums
 
   # ============================================================
   # Epic 1: 用戶認證與存取控制

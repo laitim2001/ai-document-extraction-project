@@ -31,6 +31,7 @@ import {
   HistoricalBatchList,
   CreateBatchDialog,
   ProcessingConfirmDialog,
+  type CreateBatchData,
 } from '@/components/features/historical-data'
 import {
   estimateBatchCost,
@@ -87,9 +88,16 @@ export default function HistoricalDataPage() {
   // --- Handlers ---
 
   const handleCreateBatch = useCallback(
-    async (data: { name: string; description?: string }) => {
+    async (data: CreateBatchData) => {
       try {
-        const result = await createBatchMutation.mutateAsync(data)
+        const result = await createBatchMutation.mutateAsync({
+          name: data.name,
+          description: data.description,
+          // Story 0.6: 公司識別配置
+          enableCompanyIdentification: data.enableCompanyIdentification,
+          fuzzyMatchThreshold: data.fuzzyMatchThreshold,
+          autoMergeSimilar: data.autoMergeSimilar,
+        })
         toast({
           title: '批次建立成功',
           description: `批次「${data.name}」已建立`,

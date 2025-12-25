@@ -655,6 +655,7 @@ model Company {
   changeRequests       RuleChangeRequest[]      // REFACTOR-001: 公司規則變更請求
   correctionHistories  FieldCorrectionHistory[] // REFACTOR-001: 公司欄位修正歷史
   extractionResults    ExtractionResult[]       @relation("CompanyExtractionResults") // REFACTOR-001: 公司提取結果
+  identifiedHistoricalFiles HistoricalFile[]    @relation("FileIdentifiedCompany") // Story 0.6: 識別的歷史文件
 
   @@index([type])
   @@index([status])
@@ -4833,6 +4834,12 @@ model HistoricalBatch {
   newCompaniesCount   Int               @default(0) @map("new_companies_count")   // 新發現公司數
   extractedTermsCount Int               @default(0) @map("extracted_terms_count") // 提取費用項數
 
+  // Story 0.6: 公司識別配置
+  enableCompanyIdentification Boolean   @default(true) @map("enable_company_identification")
+  fuzzyMatchThreshold         Float     @default(0.9) @map("fuzzy_match_threshold")
+  autoMergeSimilar            Boolean   @default(false) @map("auto_merge_similar")
+  companiesIdentified         Int       @default(0) @map("companies_identified") // 已識別公司總數（含新建+匹配）
+
   // Relations
   creator        User                   @relation("HistoricalBatchCreator", fields: [createdBy], references: [id])
   files          HistoricalFile[]
@@ -4868,6 +4875,12 @@ model HistoricalFile {
   actualCost         Float?             @map("actual_cost")          // 實際處理成本（USD）
   extractionResult   Json?              @map("extraction_result")    // AI 提取結果
 
+  // Story 0.6: 公司識別結果
+  identifiedCompanyId String?           @map("identified_company_id")
+  identifiedCompany   Company?          @relation("FileIdentifiedCompany", fields: [identifiedCompanyId], references: [id])
+  companyMatchType    String?           @map("company_match_type")   // EXACT, VARIANT, FUZZY, NEW
+  companyMatchScore   Float?            @map("company_match_score")
+
   // Relations
   batch          HistoricalBatch        @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
@@ -4875,6 +4888,7 @@ model HistoricalFile {
   @@index([status])
   @@index([detectedType])
   @@index([processingMethod])
+  @@index([identifiedCompanyId])
   @@map("historical_files")
 }
 

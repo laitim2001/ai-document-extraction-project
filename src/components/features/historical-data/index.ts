@@ -6,14 +6,19 @@
  *   - HistoricalFileList: 文件列表組件
  *   - HistoricalBatchList: 批次列表組件
  *   - CreateBatchDialog: 建立批次對話框
+ *   - ProcessingConfirmDialog: 處理確認對話框
  *
  * @module src/components/features/historical-data
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-25
+ *
+ * @features
+ *   - Story 0.1: 批量文件上傳
+ *   - Story 0.6: 公司識別配置（CreateBatchData）
  */
 
 export { BatchFileUploader } from './BatchFileUploader'
 export { HistoricalFileList } from './HistoricalFileList'
 export { HistoricalBatchList } from './HistoricalBatchList'
-export { CreateBatchDialog } from './CreateBatchDialog'
+export { CreateBatchDialog, type CreateBatchData } from './CreateBatchDialog'
 export { ProcessingConfirmDialog } from './ProcessingConfirmDialog'
