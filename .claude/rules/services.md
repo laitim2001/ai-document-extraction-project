@@ -86,6 +86,12 @@ throw new MappingError(
 ```
 
 ## 相關 Epic
-- Epic 6: AI Classification Engine
-- Epic 5: OCR & Document Processing
-- Epic 7: Review Workflow
+
+| Epic | 名稱 | 服務層關聯 |
+|------|------|-----------|
+| Epic 2 | 手動發票上傳與 AI 處理 | OCR 服務、GPT-Vision 服務 |
+| Epic 3 | 發票審核與修正工作流 | 審核路由、任務狀態服務 |
+| Epic 4 | 映射規則管理與自動學習 | 三層映射系統、規則建議服務 |
+| Epic 0 | 歷史數據初始化 | 批次處理、公司識別服務 |
+
+> **注意**: 完整服務分類請參考 `src/services/CLAUDE.md`

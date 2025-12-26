@@ -112,3 +112,14 @@ import { cn } from '@/lib/utils';
 - ✅ 如需自定義，在 `src/components/features/` 建立包裝組件
 - ✅ 組件保持在 300 行以內
 - ✅ 使用 `useMemo` / `useCallback` 優化性能
+
+## 重要變更記錄
+
+### REFACTOR-001: Forwarders → Companies 組件重構
+- **變更日期**: 2025-12-24 (Story 0-3)
+- **說明**: 將 `features/forwarders/` 重構為 `features/companies/`
+- **影響**: 所有涉及 Forwarder 的組件、Props、Hook 均已更新
+- **舊目錄**: `src/components/features/forwarders/`
+- **新目錄**: `src/components/features/companies/`
+
+> **注意**: 完整組件列表請參考 `src/components/CLAUDE.md`

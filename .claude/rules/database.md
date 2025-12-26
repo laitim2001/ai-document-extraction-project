@@ -118,3 +118,14 @@ await prisma.$transaction([
 - Schema: `prisma/schema.prisma`
 - 客戶端: `src/lib/prisma.ts`
 - 遷移: `prisma/migrations/`
+
+## 重要變更記錄
+
+### REFACTOR-001: Forwarder → Company 模型重構
+- **變更日期**: 2025-12-24 (Story 0-3)
+- **說明**: 將 `Forwarder` 模型重構為 `Company` 模型
+- **影響**: 所有涉及 Forwarder 的關聯、欄位、API 均已更新
+- **舊名**: `forwarderId`, `forwarder`
+- **新名**: `companyId`, `company`
+
+> **注意**: 上方範例使用 `Forwarder` 作為模式示例，實際項目已使用 `Company`
