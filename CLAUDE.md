@@ -70,22 +70,52 @@
 
 ```
 ai-document-extraction-project/
-├── .github/                    # GitHub Actions CI/CD
-├── docs/                       # 項目文檔
+│
+├── .claude/                    # 🤖 Claude Code 配置
+│   ├── rules/                  # 開發規範（8 個規則文件）
+│   │   ├── general.md          # 通用開發規範
+│   │   ├── typescript.md       # TypeScript 規範
+│   │   ├── services.md         # 服務層規範
+│   │   ├── api-design.md       # API 設計規範
+│   │   ├── components.md       # 組件開發規範
+│   │   ├── database.md         # 資料庫規範
+│   │   ├── testing.md          # 測試規範
+│   │   └── technical-obstacles.md  # 技術障礙處理
+│   └── settings.local.json     # 本地設定
+│
+├── claudedocs/                 # 📚 AI 助手文檔目錄（見下方詳細說明）
+│   ├── 1-planning/             # 規劃文檔（Epic 架構設計）
+│   ├── 2-sprints/              # Sprint 文檔
+│   ├── 3-progress/             # 進度追蹤（日報/週報）
+│   ├── 4-changes/              # 變更記錄（Bug/Feature）
+│   ├── 5-status/               # 狀態報告
+│   ├── 6-ai-assistant/         # AI 助手相關（情境提示詞）
+│   ├── 7-archive/              # 歸檔文檔
+│   └── CLAUDE.md               # 目錄索引
+│
+├── docs/                       # 📖 項目正式文檔
 │   ├── 00-discovery/           # 產品探索階段
 │   ├── 01-planning/            # 規劃階段 (PRD, UX)
 │   ├── 02-architecture/        # 架構設計
 │   ├── 03-stories/             # 用戶故事
 │   └── 04-implementation/      # 實施文檔
-├── prisma/                     # Prisma Schema 和遷移
+│
+├── python-services/            # 🐍 Python 後端服務
+│   └── (OCR/AI 處理服務)       # Azure DI + GPT Vision
+│
+├── openapi/                    # 📄 OpenAPI 規格
+│   └── (API 規格文檔)          # Swagger/OpenAPI specs
+│
+├── prisma/                     # 🗄️ Prisma Schema 和遷移
 ├── public/                     # 靜態資源
 ├── scripts/                    # 工具腳本
-├── src/                        # 源代碼
-│   ├── app/                    # Next.js App Router 頁面
+│
+├── src/                        # 💻 Next.js 源代碼
+│   ├── app/                    # App Router 頁面
 │   │   ├── (auth)/             # 認證相關頁面
 │   │   ├── (dashboard)/        # 儀表板頁面
-│   │   └── api/                # API 路由
-│   ├── components/             # React 組件
+│   │   └── api/                # API 路由（256+ 端點）
+│   ├── components/             # React 組件（242+ 組件）
 │   │   ├── ui/                 # shadcn/ui 基礎組件
 │   │   ├── features/           # 功能組件
 │   │   └── layouts/            # 佈局組件
@@ -94,20 +124,77 @@ ai-document-extraction-project/
 │   ├── hooks/                  # 自定義 Hooks
 │   ├── jobs/                   # 背景任務和排程
 │   ├── lib/                    # 工具庫
-│   │   ├── api/                # API 客戶端
-│   │   ├── auth/               # 認證邏輯
-│   │   └── utils/              # 通用工具函數
-│   ├── middlewares/            # Express/Next.js 中間件
+│   ├── middlewares/            # 中間件
 │   ├── providers/              # 應用程式提供者
 │   ├── services/               # 業務邏輯服務層（91+ 服務）
 │   ├── stores/                 # Zustand 狀態管理
 │   ├── types/                  # TypeScript 類型定義
 │   └── validations/            # Zod 驗證 Schema
-└── tests/                      # 測試文件
-    ├── unit/                   # 單元測試
-    ├── integration/            # 整合測試
-    └── e2e/                    # 端到端測試
+│
+├── tests/                      # 🧪 測試文件
+│   ├── unit/                   # 單元測試
+│   ├── integration/            # 整合測試
+│   └── e2e/                    # 端到端測試
+│
+├── .github/                    # GitHub Actions CI/CD
+├── .bmad/                      # BMAD 工作流配置
+└── .vscode/                    # VS Code 設定
 ```
+
+---
+
+## 📚 ClaudeDocs - AI 助手文檔目錄
+
+> **完整索引**: `claudedocs/CLAUDE.md`
+
+### 目錄用途
+
+`claudedocs/` 是 AI 助手（Claude）與開發團隊協作產出的項目文檔中心，用於：
+
+| 用途 | 目錄 | 說明 |
+|------|------|------|
+| **規劃文檔** | `1-planning/` | Epic 架構設計、功能規劃 |
+| **Sprint 追蹤** | `2-sprints/` | Sprint 計劃記錄 |
+| **進度報告** | `3-progress/` | 日報/週報、進度追蹤 |
+| **變更管理** | `4-changes/` | Bug 修復、功能變更記錄 |
+| **狀態報告** | `5-status/` | 測試報告、系統狀態 |
+| **AI 協作** | `6-ai-assistant/` | 情境提示詞、工作流程指南 |
+| **歸檔** | `7-archive/` | 舊版文檔、範本 |
+
+### AI 助手情境提示詞 (SITUATION)
+
+開發過程中，AI 助手應根據不同情境使用對應的提示詞：
+
+| 情境 | 文件 | 使用時機 |
+|------|------|----------|
+| **SITUATION-1** | `PROJECT-ONBOARDING.md` | 新會話啟動、項目入門 |
+| **SITUATION-2** | `FEATURE-DEV-PREP.md` | 功能開發前的任務分析 |
+| **SITUATION-3** | `FEATURE-ENHANCEMENT.md` | 功能增強、代碼優化 |
+| **SITUATION-4** | `NEW-FEATURE-DEV.md` | 新功能實作執行 |
+| **SITUATION-5** | `SAVE-PROGRESS.md` | 保存進度、會話結束 |
+
+**路徑**: `claudedocs/6-ai-assistant/prompts/SITUATION-*.md`
+
+### 文檔命名約定
+
+```
+claudedocs/
+├── 1-planning/epics/epic-{N}/     # Epic 規劃 (N: 0-12)
+├── 4-changes/bug-fixes/FIX-{NNN}-*.md       # Bug 修復
+├── 4-changes/feature-changes/CHANGE-{NNN}-*.md  # 功能變更
+├── 3-progress/daily/{YYYY}-{MM}/{YYYY}-{MM}-{DD}.md  # 日報
+└── 3-progress/weekly/{YYYY}-W{WW}.md        # 週報
+```
+
+### 狀態標記
+
+| 標記 | 含義 |
+|------|------|
+| ✅ | 已完成 |
+| 🚧 | 進行中 |
+| ⏸️ | 暫停/待開發 |
+| ❌ | 已取消 |
+| ⚠️ | 有風險/需注意 |
 
 ---
 
