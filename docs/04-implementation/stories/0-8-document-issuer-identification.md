@@ -1,6 +1,6 @@
 # Story 0.8: 文件發行者識別
 
-**Status:** backlog
+**Status:** done
 
 ---
 
@@ -377,4 +377,5 @@ Story 0.8 專注於「文件發行者識別」，為 Story 0.9（文件格式識
 ---
 
 *Story created: 2025-12-25*
-*Status: backlog*
+*Status: done*
+*Completed: 2025-12-26*

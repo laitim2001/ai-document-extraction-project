@@ -1,6 +1,6 @@
 # Story 0.9: 文件格式識別與術語重組
 
-**Status:** backlog
+**Status:** done
 
 ---
 
@@ -377,4 +377,5 @@ export async function aggregateTermsHierarchically(
 ---
 
 *Story created: 2025-12-25*
-*Status: backlog*
+*Status: done*
+*Completed: 2025-12-26*
