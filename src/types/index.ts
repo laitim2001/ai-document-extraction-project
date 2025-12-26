@@ -37,6 +37,9 @@ export * from './batch-company'
 // Story 0.7: 批量處理術語聚合
 export * from './batch-term-aggregation'
 
+// Story 0.8: 文件發行者識別
+export * from './document-issuer'
+
 // 保留 forwarder 導出以維持向後相容 (deprecated)
 // REFACTOR-001: 使用命名導出避免與 company.ts 重複
 export {

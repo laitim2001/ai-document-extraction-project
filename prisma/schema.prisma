@@ -656,6 +656,8 @@ model Company {
   correctionHistories  FieldCorrectionHistory[] // REFACTOR-001: 公司欄位修正歷史
   extractionResults    ExtractionResult[]       @relation("CompanyExtractionResults") // REFACTOR-001: 公司提取結果
   identifiedHistoricalFiles HistoricalFile[]    @relation("FileIdentifiedCompany") // Story 0.6: 識別的歷史文件
+  issuedDocuments           HistoricalFile[]    @relation("FileDocumentIssuer")     // Story 0.8: 發出的文件
+  transactionParticipations FileTransactionParty[] // Story 0.8: 交易參與記錄
 
   @@index([type])
   @@index([status])
@@ -4849,6 +4851,13 @@ model HistoricalBatch {
   aggregationStartedAt    DateTime? @map("aggregation_started_at")                     // 聚合開始時間
   aggregationCompletedAt  DateTime? @map("aggregation_completed_at")                   // 聚合完成時間
 
+  // Story 0.8: 發行者識別配置
+  enableIssuerIdentification Boolean   @default(true) @map("enable_issuer_identification")  // 是否啟用發行者識別
+  issuerConfidenceThreshold  Float     @default(0.7) @map("issuer_confidence_threshold")    // 發行者識別信心度閾值
+  autoCreateIssuerCompany    Boolean   @default(true) @map("auto_create_issuer_company")    // 是否自動建立新發行公司
+  issuerFuzzyThreshold       Float     @default(0.9) @map("issuer_fuzzy_threshold")         // 發行者模糊匹配閾值
+  issuersIdentified          Int       @default(0) @map("issuers_identified")               // 已識別發行者數量
+
   // Relations
   creator              User                     @relation("HistoricalBatchCreator", fields: [createdBy], references: [id])
   files                HistoricalFile[]
@@ -4891,14 +4900,22 @@ model HistoricalFile {
   companyMatchType    String?           @map("company_match_type")   // EXACT, VARIANT, FUZZY, NEW
   companyMatchScore   Float?            @map("company_match_score")
 
+  // Story 0.8: 文件發行者識別
+  documentIssuerId              String?                      @map("document_issuer_id")
+  documentIssuer                Company?                     @relation("FileDocumentIssuer", fields: [documentIssuerId], references: [id])
+  issuerIdentificationMethod    IssuerIdentificationMethod?  @map("issuer_identification_method")
+  issuerConfidence              Float?                       @map("issuer_confidence")
+
   // Relations
-  batch          HistoricalBatch        @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  batch                         HistoricalBatch              @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  transactionParties            FileTransactionParty[]       // Story 0.8: 交易對象多對多關聯
 
   @@index([batchId])
   @@index([status])
   @@index([detectedType])
   @@index([processingMethod])
   @@index([identifiedCompanyId])
+  @@index([documentIssuerId])
   @@map("historical_files")
 }
 
@@ -4928,6 +4945,54 @@ model TermAggregationResult {
 
   @@index([aggregatedAt])
   @@map("term_aggregation_results")
+}
+
+// ============================================================================
+// Epic 0 - Story 0.8: Document Issuer Identification
+// ============================================================================
+
+/// 發行者識別方法 - Story 0.8
+/// 表示從文件哪個區域識別出發行者
+enum IssuerIdentificationMethod {
+  LOGO        // 從公司 Logo 識別
+  HEADER      // 從文件標題區識別
+  LETTERHEAD  // 從信頭紙識別
+  FOOTER      // 從頁尾識別
+  AI_INFERENCE // AI 推斷（無明確視覺線索）
+}
+
+/// 交易對象角色 - Story 0.8
+/// 表示公司在交易中扮演的角色
+enum TransactionPartyRole {
+  VENDOR        // 供應商
+  SHIPPER       // 發貨人
+  CONSIGNEE     // 收貨人
+  CARRIER       // 承運人
+  BUYER         // 買方
+  SELLER        // 賣方
+  NOTIFY_PARTY  // 通知方
+  OTHER         // 其他
+}
+
+/// 交易對象關聯表 - Story 0.8
+/// 記錄文件與公司之間的交易關係（多對多）
+model FileTransactionParty {
+  id        String               @id @default(uuid())
+  fileId    String               @map("file_id")
+  file      HistoricalFile       @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  companyId String               @map("company_id")
+  company   Company              @relation(fields: [companyId], references: [id])
+
+  role      TransactionPartyRole @map("role")
+
+  createdAt DateTime             @default(now()) @map("created_at")
+
+  @@unique([fileId, companyId, role])
+  @@index([fileId])
+  @@index([companyId])
+  @@index([role])
+  @@map("file_transaction_parties")
 }
 
 // ============================================================================

@@ -7,15 +7,17 @@
  *   - 批次基本資訊（名稱、描述）
  *   - 公司識別配置選項（Story 0.6）
  *   - 術語聚合配置選項（Story 0.7）
+ *   - 發行者識別配置選項（Story 0.8）
  *
  * @module src/components/features/historical-data/CreateBatchDialog
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-25
+ * @lastModified 2025-12-26
  *
  * @features
  *   - Story 0.1: 基本批次建立
  *   - Story 0.6: 公司識別配置
  *   - Story 0.7: 術語聚合配置
+ *   - Story 0.8: 發行者識別配置
  */
 
 import * as React from 'react'
@@ -23,7 +25,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Plus, Loader2, Building2, Hash } from 'lucide-react'
+import { Plus, Loader2, Building2, Hash, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -74,6 +76,11 @@ const createBatchSchema = z.object({
   enableTermAggregation: z.boolean(),
   termSimilarityThreshold: z.number().min(0.5).max(1),
   autoClassifyTerms: z.boolean(),
+  // Story 0.8: 發行者識別配置
+  enableIssuerIdentification: z.boolean(),
+  issuerConfidenceThreshold: z.number().min(0.5).max(1),
+  autoCreateIssuerCompany: z.boolean(),
+  issuerFuzzyThreshold: z.number().min(0.5).max(1),
 })
 
 type CreateBatchFormData = z.infer<typeof createBatchSchema>
@@ -96,6 +103,11 @@ export interface CreateBatchData {
   enableTermAggregation: boolean
   termSimilarityThreshold: number
   autoClassifyTerms: boolean
+  // Story 0.8: 發行者識別配置
+  enableIssuerIdentification: boolean
+  issuerConfidenceThreshold: number
+  autoCreateIssuerCompany: boolean
+  issuerFuzzyThreshold: number
 }
 
 interface CreateBatchDialogProps {
@@ -133,6 +145,11 @@ export function CreateBatchDialog({
       enableTermAggregation: true,
       termSimilarityThreshold: 0.85,
       autoClassifyTerms: false,
+      // Story 0.8: 發行者識別配置預設值
+      enableIssuerIdentification: true,
+      issuerConfidenceThreshold: 0.7,
+      autoCreateIssuerCompany: true,
+      issuerFuzzyThreshold: 0.9,
     },
   })
 
@@ -140,6 +157,8 @@ export function CreateBatchDialog({
   const enableCompanyId = form.watch('enableCompanyIdentification')
   // Story 0.7: 監聽是否啟用術語聚合
   const enableTermAgg = form.watch('enableTermAggregation')
+  // Story 0.8: 監聽是否啟用發行者識別
+  const enableIssuerId = form.watch('enableIssuerIdentification')
 
   const handleSubmit = async (data: CreateBatchFormData) => {
     setIsSubmitting(true)
@@ -155,6 +174,11 @@ export function CreateBatchDialog({
         enableTermAggregation: data.enableTermAggregation,
         termSimilarityThreshold: data.termSimilarityThreshold,
         autoClassifyTerms: data.autoClassifyTerms,
+        // Story 0.8: 發行者識別配置
+        enableIssuerIdentification: data.enableIssuerIdentification,
+        issuerConfidenceThreshold: data.issuerConfidenceThreshold,
+        autoCreateIssuerCompany: data.autoCreateIssuerCompany,
+        issuerFuzzyThreshold: data.issuerFuzzyThreshold,
       })
       form.reset()
       setOpen(false)
@@ -424,6 +448,150 @@ export function CreateBatchDialog({
                             </FormLabel>
                             <FormDescription className="text-xs">
                               使用 AI 自動將術語分類到費用類別
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              disabled={isSubmitting}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Story 0.8: 發行者識別配置 */}
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full flex items-center justify-between py-2"
+                >
+                  <span className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    發行者識別設定
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    展開
+                  </span>
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-2">
+                {/* 啟用發行者識別 */}
+                <FormField
+                  control={form.control}
+                  name="enableIssuerIdentification"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium">
+                          啟用發行者識別
+                        </FormLabel>
+                        <FormDescription className="text-xs">
+                          從文件 Logo/Header/Letterhead 識別發行公司
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isSubmitting}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {/* 發行者識別選項 - 僅在啟用時顯示 */}
+                {enableIssuerId && (
+                  <>
+                    {/* 發行者信心度閾值 */}
+                    <FormField
+                      control={form.control}
+                      name="issuerConfidenceThreshold"
+                      render={({ field }) => (
+                        <FormItem className="rounded-lg border p-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel className="text-sm font-medium">
+                              識別信心度閾值
+                            </FormLabel>
+                            <span className="text-sm text-muted-foreground font-mono">
+                              {(field.value * 100).toFixed(0)}%
+                            </span>
+                          </div>
+                          <FormControl>
+                            <Slider
+                              min={50}
+                              max={100}
+                              step={5}
+                              value={[field.value * 100]}
+                              onValueChange={(values) =>
+                                field.onChange(values[0] / 100)
+                              }
+                              disabled={isSubmitting}
+                              className="mt-2"
+                            />
+                          </FormControl>
+                          <FormDescription className="text-xs mt-1">
+                            信心度達此閾值才接受識別結果（建議 60-80%）
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* 發行者模糊匹配閾值 */}
+                    <FormField
+                      control={form.control}
+                      name="issuerFuzzyThreshold"
+                      render={({ field }) => (
+                        <FormItem className="rounded-lg border p-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel className="text-sm font-medium">
+                              公司匹配閾值
+                            </FormLabel>
+                            <span className="text-sm text-muted-foreground font-mono">
+                              {(field.value * 100).toFixed(0)}%
+                            </span>
+                          </div>
+                          <FormControl>
+                            <Slider
+                              min={50}
+                              max={100}
+                              step={5}
+                              value={[field.value * 100]}
+                              onValueChange={(values) =>
+                                field.onChange(values[0] / 100)
+                              }
+                              disabled={isSubmitting}
+                              className="mt-2"
+                            />
+                          </FormControl>
+                          <FormDescription className="text-xs mt-1">
+                            匹配相似度達此閾值才視為同一發行公司（建議 85-95%）
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* 自動建立發行公司 */}
+                    <FormField
+                      control={form.control}
+                      name="autoCreateIssuerCompany"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-sm font-medium">
+                              自動建立發行公司
+                            </FormLabel>
+                            <FormDescription className="text-xs">
+                              未匹配到現有公司時自動建立新公司
                             </FormDescription>
                           </div>
                           <FormControl>

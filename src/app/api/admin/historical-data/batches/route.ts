@@ -7,11 +7,13 @@
  *
  * @module src/app/api/admin/historical-data/batches
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-25
+ * @lastModified 2025-12-26
  *
  * @features
  *   - Story 0.1: 批次建立和列表
  *   - Story 0.6: 公司識別配置
+ *   - Story 0.7: 術語聚合配置
+ *   - Story 0.8: 發行者識別配置
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -31,6 +33,15 @@ const CreateBatchSchema = z.object({
   enableCompanyIdentification: z.boolean().default(true),
   fuzzyMatchThreshold: z.number().min(0.5).max(1).default(0.9),
   autoMergeSimilar: z.boolean().default(false),
+  // Story 0.7: 術語聚合配置
+  enableTermAggregation: z.boolean().default(true),
+  termSimilarityThreshold: z.number().min(0.5).max(1).default(0.85),
+  autoClassifyTerms: z.boolean().default(true),
+  // Story 0.8: 發行者識別配置
+  enableIssuerIdentification: z.boolean().default(true),
+  issuerConfidenceThreshold: z.number().min(0.5).max(1).default(0.7),
+  autoCreateIssuerCompany: z.boolean().default(true),
+  issuerFuzzyThreshold: z.number().min(0.5).max(1).default(0.9),
 })
 
 const ListBatchQuerySchema = z.object({
@@ -90,9 +101,19 @@ export async function POST(request: NextRequest) {
     const {
       name,
       description,
+      // Story 0.6
       enableCompanyIdentification,
       fuzzyMatchThreshold,
       autoMergeSimilar,
+      // Story 0.7
+      enableTermAggregation,
+      termSimilarityThreshold,
+      autoClassifyTerms,
+      // Story 0.8
+      enableIssuerIdentification,
+      issuerConfidenceThreshold,
+      autoCreateIssuerCompany,
+      issuerFuzzyThreshold,
     } = validation.data
 
     // 建立批次
@@ -106,6 +127,15 @@ export async function POST(request: NextRequest) {
         enableCompanyIdentification,
         fuzzyMatchThreshold,
         autoMergeSimilar,
+        // Story 0.7: 術語聚合配置
+        enableTermAggregation,
+        termSimilarityThreshold,
+        autoClassifyTerms,
+        // Story 0.8: 發行者識別配置
+        enableIssuerIdentification,
+        issuerConfidenceThreshold,
+        autoCreateIssuerCompany,
+        issuerFuzzyThreshold,
       },
       include: {
         creator: {

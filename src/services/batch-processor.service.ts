@@ -23,6 +23,7 @@
  *   - GC 暫停機制（分塊之間）
  *   - Story 0.6: 公司識別整合（JIT 公司 Profile 建立）
  *   - Story 0.7: 術語聚合整合（批量完成後自動觸發）
+ *   - Story 0.8: 文件發行者識別（從 Logo/Header/Letterhead/Footer 識別發行公司）
  *
  * @dependencies
  *   - Prisma Client - 數據庫操作
@@ -31,6 +32,7 @@
  *   - gpt-vision.service - GPT Vision
  *   - company-auto-create.service - 公司自動建立（Story 0.6）
  *   - batch-term-aggregation.service - 術語聚合服務（Story 0.7）
+ *   - document-issuer.service - 文件發行者識別服務（Story 0.8）
  *
  * @related
  *   - src/services/processing-router.service.ts - 處理路由服務
@@ -38,6 +40,7 @@
  *   - src/services/gpt-vision.service.ts - GPT Vision 服務
  *   - src/services/company-auto-create.service.ts - 公司自動建立服務
  *   - src/services/batch-term-aggregation.service.ts - 術語聚合服務
+ *   - src/services/document-issuer.service.ts - 文件發行者識別服務
  */
 
 import { prisma } from '@/lib/prisma'
@@ -58,12 +61,20 @@ import {
   aggregateTermsForBatch,
   saveAggregationResult,
 } from './batch-term-aggregation.service'
+import {
+  processFileIssuerIdentification,
+} from './document-issuer.service'
 import type {
   FileCompanyIdentification,
   BatchCompanyConfig,
   CompanyMatchType,
 } from '@/types/batch-company'
 import type { TermAggregationConfig } from '@/types/batch-term-aggregation'
+import type {
+  DocumentIssuerResult,
+  TransactionParty,
+  IssuerIdentificationConfig,
+} from '@/types/document-issuer'
 
 // ============================================================
 // Types
@@ -105,6 +116,10 @@ export interface FileProcessingResult {
   error?: string
   /** Story 0.6: 公司識別結果 */
   companyIdentification?: FileCompanyIdentification
+  /** Story 0.8: 文件發行者識別結果 */
+  documentIssuer?: DocumentIssuerResult | null
+  /** Story 0.8: 交易對象列表 */
+  transactionParties?: TransactionParty[]
 }
 
 /**
@@ -323,7 +338,9 @@ async function executeAIProcessing(
  * 處理單個文件
  *
  * @description
- *   執行 OCR 處理並可選地進行公司識別（Story 0.6）
+ *   執行 OCR 處理並可選地進行：
+ *   - 公司識別（Story 0.6）
+ *   - 文件發行者識別（Story 0.8）
  *
  * @param file - 要處理的文件
  * @param options - 處理選項
@@ -336,12 +353,15 @@ export async function processFile(
     retryDelayMs?: number
     /** Story 0.6: 公司識別配置 */
     companyConfig?: BatchCompanyConfig
+    /** Story 0.8: 發行者識別配置 */
+    issuerConfig?: IssuerIdentificationConfig
   } = {}
 ): Promise<FileProcessingResult> {
   const {
     maxRetries = DEFAULT_MAX_RETRIES,
     retryDelayMs = DEFAULT_RETRY_DELAY_MS,
     companyConfig,
+    issuerConfig,
   } = options
   const startTime = Date.now()
 
@@ -397,7 +417,37 @@ export async function processFile(
         }
       }
 
-      // 更新文件記錄（包含公司識別結果）
+      // Story 0.8: 文件發行者識別（識別發行文件的公司，而非交易對象）
+      let documentIssuer: DocumentIssuerResult | null = null
+      let transactionParties: TransactionParty[] = []
+      if (issuerConfig?.enabled && extractionResult) {
+        try {
+          const issuerResult = await processFileIssuerIdentification(
+            file.id,
+            extractionResult,
+            {
+              createIfNotFound: issuerConfig.createCompanyIfNotFound,
+              source: 'BATCH_PROCESSING',
+              fuzzyThreshold: issuerConfig.fuzzyMatchThreshold,
+              confidenceThreshold: issuerConfig.confidenceThreshold,
+              createdById: SYSTEM_USER_ID,
+            }
+          )
+
+          if (issuerResult.success) {
+            documentIssuer = issuerResult.issuer
+            transactionParties = issuerResult.parties
+          }
+        } catch (issuerError) {
+          // 發行者識別失敗不影響主流程，只記錄警告
+          console.warn(
+            `Document issuer identification failed for file ${file.id}:`,
+            issuerError instanceof Error ? issuerError.message : issuerError
+          )
+        }
+      }
+
+      // 更新文件記錄（包含公司識別和發行者識別結果）
       await prisma.historicalFile.update({
         where: { id: file.id },
         data: {
@@ -412,6 +462,8 @@ export async function processFile(
             companyMatchType: companyIdentification.matchType,
             companyMatchScore: companyIdentification.matchScore,
           }),
+          // Story 0.8: 發行者識別結果（注意：updateFileIssuerResult 已在 processFileIssuerIdentification 中執行）
+          // 這裡無需重複更新 documentIssuerId 等欄位
         },
       })
 
@@ -423,6 +475,8 @@ export async function processFile(
         actualCost,
         processingTime: endTime - startTime,
         companyIdentification,
+        documentIssuer,
+        transactionParties,
       }
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
@@ -491,7 +545,7 @@ export async function processBatch(
 
   const startTime = new Date()
 
-  // Story 0.6 & 0.7: 獲取批次記錄以讀取公司識別和術語聚合配置
+  // Story 0.6, 0.7 & 0.8: 獲取批次記錄以讀取公司識別、術語聚合和發行者識別配置
   const batch = await prisma.historicalBatch.findUnique({
     where: { id: batchId },
     select: {
@@ -503,6 +557,11 @@ export async function processBatch(
       enableTermAggregation: true,
       termSimilarityThreshold: true,
       autoClassifyTerms: true,
+      // Story 0.8: 發行者識別配置
+      enableIssuerIdentification: true,
+      issuerConfidenceThreshold: true,
+      autoCreateIssuerCompany: true,
+      issuerFuzzyThreshold: true,
     },
   })
 
@@ -521,6 +580,17 @@ export async function processBatch(
         enabled: true,
         similarityThreshold: batch.termSimilarityThreshold,
         autoClassify: batch.autoClassifyTerms,
+      }
+    : undefined
+
+  // Story 0.8: 建立發行者識別配置
+  const issuerConfig: IssuerIdentificationConfig | undefined = batch?.enableIssuerIdentification
+    ? {
+        enabled: true,
+        confidenceThreshold: batch.issuerConfidenceThreshold,
+        methodPriority: ['LOGO', 'HEADER', 'LETTERHEAD', 'FOOTER', 'AI_INFERENCE'],
+        createCompanyIfNotFound: batch.autoCreateIssuerCompany,
+        fuzzyMatchThreshold: batch.issuerFuzzyThreshold,
       }
     : undefined
 
@@ -559,6 +629,7 @@ export async function processBatch(
   let totalCost = 0
   let completedCount = 0
   let companiesIdentified = 0 // Story 0.6: 追蹤識別到的公司數量
+  let issuersIdentified = 0 // Story 0.8: 追蹤識別到的發行者數量
 
   // 進度回報
   const reportProgress = (currentFile?: string, processingCount = 0) => {
@@ -587,8 +658,8 @@ export async function processBatch(
       reportProgress(file.originalName, 1)
 
       try {
-        // Story 0.6: 傳遞公司識別配置給 processFile
-        const result = await processFile(file, { maxRetries, retryDelayMs, companyConfig })
+        // Story 0.6 & 0.8: 傳遞公司識別和發行者識別配置給 processFile
+        const result = await processFile(file, { maxRetries, retryDelayMs, companyConfig, issuerConfig })
         results.push(result)
 
         if (result.success) {
@@ -598,6 +669,10 @@ export async function processBatch(
           if (result.companyIdentification) {
             companiesIdentified++
           }
+          // Story 0.8: 追蹤成功識別發行者的文件數
+          if (result.documentIssuer) {
+            issuersIdentified++
+          }
         } else {
           failedCount++
         }
@@ -605,7 +680,7 @@ export async function processBatch(
         completedCount++
         reportProgress(undefined, 0)
 
-        // 更新批次進度（包含公司識別計數）
+        // 更新批次進度（包含公司識別和發行者識別計數）
         await prisma.historicalBatch.update({
           where: { id: batchId },
           data: {
@@ -613,6 +688,10 @@ export async function processBatch(
             failedFiles: result.success ? undefined : { increment: 1 },
             // Story 0.6: 更新識別的公司數量
             companiesIdentified: result.companyIdentification
+              ? { increment: 1 }
+              : undefined,
+            // Story 0.8: 更新識別的發行者數量
+            issuersIdentified: result.documentIssuer
               ? { increment: 1 }
               : undefined,
           },
@@ -717,10 +796,11 @@ export async function processBatch(
     },
   })
 
-  // Story 0.6 & 0.7: 包含公司識別和術語聚合統計
+  // Story 0.6, 0.7 & 0.8: 包含公司識別、術語聚合和發行者識別統計
   console.log(
     `[Batch ${batchId}] Processing complete: ${successCount} success, ${failedCount} failed, ` +
-    `$${totalCost.toFixed(2)} total cost, ${companiesIdentified} companies identified` +
+    `$${totalCost.toFixed(2)} total cost, ${companiesIdentified} companies identified, ` +
+    `${issuersIdentified} issuers identified` +
     (termAggregationCompleted ? `, term aggregation completed` : '')
   )
 

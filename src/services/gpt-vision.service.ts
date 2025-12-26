@@ -38,8 +38,8 @@ let pdfToImg: any = null
  */
 async function loadPdfToImg() {
   if (!pdfToImg) {
-    const module = await import('pdf-to-img')
-    pdfToImg = module.pdf
+    const pdfModule = await import('pdf-to-img')
+    pdfToImg = pdfModule.pdf
   }
   return pdfToImg
 }
@@ -47,6 +47,30 @@ async function loadPdfToImg() {
 // ============================================================
 // Types
 // ============================================================
+
+/**
+ * 發行者識別方法 - Story 0.8
+ */
+export type IssuerIdentificationMethod =
+  | 'LOGO'
+  | 'HEADER'
+  | 'LETTERHEAD'
+  | 'FOOTER'
+  | 'AI_INFERENCE'
+
+/**
+ * 文件發行者資訊 - Story 0.8
+ */
+export interface DocumentIssuerInfo {
+  /** 發行公司名稱（從 Logo/標題識別） */
+  name: string
+  /** 識別方法 */
+  identificationMethod: IssuerIdentificationMethod
+  /** 識別信心度 (0-100) */
+  confidence: number
+  /** 原始文字 */
+  rawText?: string
+}
 
 /**
  * 發票提取結果
@@ -81,6 +105,8 @@ export interface InvoiceExtractionResult {
     totalAmount?: number
     currency?: string
   }
+  /** Story 0.8: 文件發行者識別結果 */
+  documentIssuer?: DocumentIssuerInfo
   /** 原始文字（OCR 結果） */
   rawText?: string
   /** 處理的頁數 */
@@ -114,6 +140,7 @@ export interface GPTVisionConfig {
  */
 const INVOICE_EXTRACTION_PROMPT = `你是一個專業的發票 OCR 和數據提取專家。請仔細分析這張發票圖片，提取以下信息：
 
+## 基本發票信息
 1. 發票號碼 (invoiceNumber)
 2. 發票日期 (invoiceDate) - 格式：YYYY-MM-DD
 3. 付款截止日期 (dueDate) - 格式：YYYY-MM-DD（如有）
@@ -134,6 +161,32 @@ const INVOICE_EXTRACTION_PROMPT = `你是一個專業的發票 OCR 和數據提�
 9. 總金額 (totalAmount)
 10. 貨幣 (currency)
 
+## 文件發行者識別 (Document Issuer Identification) - Story 0.8
+
+【重要】請識別「發出這份文件的公司」，而非交易對象。
+
+發行者（documentIssuer）vs 交易對象（vendor/buyer）的區別：
+- documentIssuer: 創建並發送這份發票的公司（如 DHL、FedEx、Kuehne+Nagel）
+- vendor/buyer: 參與交易的各方（客戶、發貨人、收貨人）
+
+範例：
+- 一份 DHL 發出的運費發票：
+  - documentIssuer: "DHL Express"（發出發票的公司）
+  - vendor: "DHL Express"（可能相同）
+  - buyer: "ABC Trading Co."（客戶）
+
+請依優先順序從以下區域識別文件發行者：
+1. **公司 Logo** - 通常在文件左上角或頂部中央
+2. **文件標題區** - 標題/抬頭區域的公司名稱
+3. **信頭紙** - 官方信頭的公司品牌
+4. **頁尾** - 底部的公司信息
+
+提取文件發行者信息 (documentIssuer):
+- name: 發行公司名稱
+- identificationMethod: 識別方法 ("LOGO" | "HEADER" | "LETTERHEAD" | "FOOTER" | "AI_INFERENCE")
+- confidence: 識別信心度 (0-100)
+- rawText: 在文件上看到的原始文字
+
 請以 JSON 格式回覆，結構如下：
 {
   "invoiceNumber": "...",
@@ -145,7 +198,13 @@ const INVOICE_EXTRACTION_PROMPT = `你是一個專業的發票 OCR 和數據提�
   "subtotal": 100,
   "taxAmount": 10,
   "totalAmount": 110,
-  "currency": "USD"
+  "currency": "USD",
+  "documentIssuer": {
+    "name": "發行公司名稱",
+    "identificationMethod": "LOGO",
+    "confidence": 95,
+    "rawText": "文件上看到的原始公司名稱"
+  }
 }
 
 如果某個欄位無法識別，請設為 null。只回覆 JSON，不要包含其他文字。`
