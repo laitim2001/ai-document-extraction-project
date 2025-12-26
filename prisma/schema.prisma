@@ -658,6 +658,7 @@ model Company {
   identifiedHistoricalFiles HistoricalFile[]    @relation("FileIdentifiedCompany") // Story 0.6: 識別的歷史文件
   issuedDocuments           HistoricalFile[]    @relation("FileDocumentIssuer")     // Story 0.8: 發出的文件
   transactionParticipations FileTransactionParty[] // Story 0.8: 交易參與記錄
+  documentFormats           DocumentFormat[]    // Story 0.9: 公司的文件格式
 
   @@index([type])
   @@index([status])
@@ -4858,6 +4859,12 @@ model HistoricalBatch {
   issuerFuzzyThreshold       Float     @default(0.9) @map("issuer_fuzzy_threshold")         // 發行者模糊匹配閾值
   issuersIdentified          Int       @default(0) @map("issuers_identified")               // 已識別發行者數量
 
+  // Story 0.9: 格式識別配置
+  enableFormatIdentification Boolean   @default(true) @map("enable_format_identification")   // 是否啟用格式識別
+  formatConfidenceThreshold  Float     @default(0.7) @map("format_confidence_threshold")     // 格式識別信心度閾值
+  autoCreateFormat           Boolean   @default(true) @map("auto_create_format")             // 是否自動建立新格式
+  formatsIdentified          Int       @default(0) @map("formats_identified")                // 已識別格式數量
+
   // Relations
   creator              User                     @relation("HistoricalBatchCreator", fields: [createdBy], references: [id])
   files                HistoricalFile[]
@@ -4906,6 +4913,11 @@ model HistoricalFile {
   issuerIdentificationMethod    IssuerIdentificationMethod?  @map("issuer_identification_method")
   issuerConfidence              Float?                       @map("issuer_confidence")
 
+  // Story 0.9: 文件格式識別
+  documentFormatId              String?                      @map("document_format_id")
+  documentFormat                DocumentFormat?              @relation(fields: [documentFormatId], references: [id])
+  formatConfidence              Float?                       @map("format_confidence")   // 格式識別信心度 (0-100)
+
   // Relations
   batch                         HistoricalBatch              @relation(fields: [batchId], references: [id], onDelete: Cascade)
   transactionParties            FileTransactionParty[]       // Story 0.8: 交易對象多對多關聯
@@ -4916,6 +4928,7 @@ model HistoricalFile {
   @@index([processingMethod])
   @@index([identifiedCompanyId])
   @@index([documentIssuerId])
+  @@index([documentFormatId])
   @@map("historical_files")
 }
 
@@ -4993,6 +5006,82 @@ model FileTransactionParty {
   @@index([companyId])
   @@index([role])
   @@map("file_transaction_parties")
+}
+
+// ============================================================================
+// Epic 0 - Story 0.9: Document Format Identification & Term Reorganization
+// ============================================================================
+
+/// 文件類型 - Story 0.9
+/// 用於分類不同的商業文件類型
+enum DocumentType {
+  INVOICE              // 標準發票
+  DEBIT_NOTE           // 借項通知單
+  CREDIT_NOTE          // 貸項通知單
+  STATEMENT            // 對帳單
+  QUOTATION            // 報價單
+  BILL_OF_LADING       // 提單
+  CUSTOMS_DECLARATION  // 報關單
+  OTHER                // 其他
+}
+
+/// 文件子類型 - Story 0.9
+/// 用於分類文件的業務領域
+enum DocumentSubtype {
+  OCEAN_FREIGHT        // 海運
+  AIR_FREIGHT          // 空運
+  LAND_TRANSPORT       // 陸運
+  CUSTOMS_CLEARANCE    // 報關
+  WAREHOUSING          // 倉儲
+  GENERAL              // 一般/混合
+}
+
+/// 文件格式模板 - Story 0.9
+/// 每個公司的每種文件格式只有一個記錄
+/// 建立三層結構：公司 → 文件格式 → 術語
+model DocumentFormat {
+  id              String          @id @default(cuid())
+
+  // 關聯發行公司（來自 Story 0.8）
+  companyId       String          @map("company_id")
+  company         Company         @relation(fields: [companyId], references: [id])
+
+  // 格式識別
+  documentType    DocumentType    @map("document_type")
+  documentSubtype DocumentSubtype @map("document_subtype")
+
+  // 格式名稱（自動生成或用戶自定義）
+  name            String?
+
+  // 格式特徵（JSON）
+  // features 結構: {
+  //   hasLineItems: boolean,
+  //   hasHeaderLogo: boolean,
+  //   currency: string,
+  //   language: string,
+  //   typicalFields: string[],
+  //   layoutPattern: string
+  // }
+  features        Json?           @map("features")
+
+  // 常見術語（用於快速查找和學習）
+  commonTerms     String[]        @map("common_terms")
+
+  // 統計
+  fileCount       Int             @default(0) @map("file_count")
+
+  // 時間戳
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  // 關聯文件
+  files           HistoricalFile[]
+
+  // 唯一約束：每個公司的每種格式類型只有一個記錄
+  @@unique([companyId, documentType, documentSubtype])
+  @@index([companyId])
+  @@index([documentType])
+  @@map("document_formats")
 }
 
 // ============================================================================

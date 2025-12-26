@@ -40,6 +40,9 @@ export * from './batch-term-aggregation'
 // Story 0.8: 文件發行者識別
 export * from './document-issuer'
 
+// Story 0.9: 文件格式識別與三層術語聚合
+export * from './document-format'
+
 // 保留 forwarder 導出以維持向後相容 (deprecated)
 // REFACTOR-001: 使用命名導出避免與 company.ts 重複
 export {

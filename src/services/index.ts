@@ -362,6 +362,13 @@ export * from './term-classification.service'
 // Epic 0: Historical Data Initialization (Story 0-7 - Batch Term Aggregation Integration)
 export * from './batch-term-aggregation.service'
 
+// Epic 0: Historical Data Initialization (Story 0-8 - Document Issuer Identification)
+export * from './document-issuer.service'
+
+// Epic 0: Historical Data Initialization (Story 0-9 - Document Format & Hierarchical Term Aggregation)
+export * from './document-format.service'
+export * from './hierarchical-term-aggregation.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

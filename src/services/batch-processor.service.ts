@@ -8,10 +8,12 @@
  *   - 整合 Azure Document Intelligence 和 GPT Vision
  *   - 公司識別整合（Story 0.6）
  *   - 術語聚合整合（Story 0.7）
+ *   - 文件發行者識別整合（Story 0.8）
+ *   - 格式識別與三層術語聚合整合（Story 0.9）
  *
  * @module src/services/batch-processor
  * @since Epic 0 - Story 0.2
- * @lastModified 2025-12-25
+ * @lastModified 2025-12-26
  *
  * @features
  *   - 分塊順序處理（避免 async hooks 溢出）
@@ -24,6 +26,7 @@
  *   - Story 0.6: 公司識別整合（JIT 公司 Profile 建立）
  *   - Story 0.7: 術語聚合整合（批量完成後自動觸發）
  *   - Story 0.8: 文件發行者識別（從 Logo/Header/Letterhead/Footer 識別發行公司）
+ *   - Story 0.9: 格式識別與三層術語聚合（Company → Format → Terms）
  *
  * @dependencies
  *   - Prisma Client - 數據庫操作
@@ -33,6 +36,7 @@
  *   - company-auto-create.service - 公司自動建立（Story 0.6）
  *   - batch-term-aggregation.service - 術語聚合服務（Story 0.7）
  *   - document-issuer.service - 文件發行者識別服務（Story 0.8）
+ *   - document-format.service - 格式識別服務（Story 0.9）
  *
  * @related
  *   - src/services/processing-router.service.ts - 處理路由服務
@@ -41,6 +45,7 @@
  *   - src/services/company-auto-create.service.ts - 公司自動建立服務
  *   - src/services/batch-term-aggregation.service.ts - 術語聚合服務
  *   - src/services/document-issuer.service.ts - 文件發行者識別服務
+ *   - src/services/document-format.service.ts - 格式識別服務
  */
 
 import { prisma } from '@/lib/prisma'
@@ -64,6 +69,10 @@ import {
 import {
   processFileIssuerIdentification,
 } from './document-issuer.service'
+import {
+  processDocumentFormat,
+  linkFileToFormat,
+} from './document-format.service'
 import type {
   FileCompanyIdentification,
   BatchCompanyConfig,
@@ -75,6 +84,12 @@ import type {
   TransactionParty,
   IssuerIdentificationConfig,
 } from '@/types/document-issuer'
+import type {
+  FormatIdentificationResult,
+  FormatIdentificationConfig,
+  DocumentType,
+  DocumentSubtype,
+} from '@/types/document-format'
 
 // ============================================================
 // Types
@@ -120,6 +135,8 @@ export interface FileProcessingResult {
   documentIssuer?: DocumentIssuerResult | null
   /** Story 0.8: 交易對象列表 */
   transactionParties?: TransactionParty[]
+  /** Story 0.9: 格式識別結果 */
+  formatIdentification?: FormatIdentificationResult | null
 }
 
 /**
@@ -341,6 +358,7 @@ async function executeAIProcessing(
  *   執行 OCR 處理並可選地進行：
  *   - 公司識別（Story 0.6）
  *   - 文件發行者識別（Story 0.8）
+ *   - 格式識別（Story 0.9）
  *
  * @param file - 要處理的文件
  * @param options - 處理選項
@@ -355,6 +373,8 @@ export async function processFile(
     companyConfig?: BatchCompanyConfig
     /** Story 0.8: 發行者識別配置 */
     issuerConfig?: IssuerIdentificationConfig
+    /** Story 0.9: 格式識別配置 */
+    formatConfig?: FormatIdentificationConfig
   } = {}
 ): Promise<FileProcessingResult> {
   const {
@@ -362,6 +382,7 @@ export async function processFile(
     retryDelayMs = DEFAULT_RETRY_DELAY_MS,
     companyConfig,
     issuerConfig,
+    formatConfig,
   } = options
   const startTime = Date.now()
 
@@ -447,6 +468,70 @@ export async function processFile(
         }
       }
 
+      // Story 0.9: 文件格式識別（需要發行者識別完成後執行，因為需要 companyId）
+      let formatIdentification: FormatIdentificationResult | null = null
+      if (formatConfig?.enabled && extractionResult && documentIssuer?.companyId) {
+        try {
+          // 從 extractionResult 中提取格式識別資訊
+          // extractionResult 包含 GPT Vision 提取的 documentType, documentSubtype 等
+          const formatExtractionData = extractionResult as {
+            documentType?: string
+            documentSubtype?: string
+            formatConfidence?: number
+            formatFeatures?: Record<string, unknown>
+          }
+
+          if (formatExtractionData.documentType) {
+            const formatResult = await processDocumentFormat(
+              documentIssuer.companyId,
+              {
+                documentType: formatExtractionData.documentType as DocumentType,
+                documentSubtype: (formatExtractionData.documentSubtype || 'GENERAL') as DocumentSubtype,
+                formatConfidence: formatExtractionData.formatConfidence || 75,
+                formatFeatures: {
+                  hasLineItems: !!formatExtractionData.formatFeatures?.hasLineItems,
+                  hasHeaderLogo: !!formatExtractionData.formatFeatures?.hasHeaderLogo,
+                  currency: formatExtractionData.formatFeatures?.currency as string | undefined,
+                  language: formatExtractionData.formatFeatures?.language as string | undefined,
+                  typicalFields: formatExtractionData.formatFeatures?.typicalFields as string[] | undefined,
+                  layoutPattern: formatExtractionData.formatFeatures?.layoutPattern as string | undefined,
+                },
+              },
+              {
+                enabled: formatConfig.enabled,
+                confidenceThreshold: formatConfig.confidenceThreshold,
+                autoCreateFormat: formatConfig.autoCreateFormat,
+                learnFeatures: formatConfig.learnFeatures ?? true,
+              }
+            )
+
+            if (formatResult) {
+              // 關聯文件與格式
+              await linkFileToFormat(file.id, formatResult.formatId, formatResult.confidence)
+
+              formatIdentification = {
+                fileId: file.id,
+                formatId: formatResult.formatId,
+                documentType: formatResult.documentType,
+                documentSubtype: formatResult.documentSubtype,
+                confidence: formatResult.confidence,
+                isNewFormat: formatResult.isNewFormat,
+              }
+
+              console.log(
+                `[BatchProcessor] Format identified for file ${file.id}: ${formatResult.formatName} (${formatResult.isNewFormat ? 'NEW' : 'EXISTING'})`
+              )
+            }
+          }
+        } catch (formatError) {
+          // 格式識別失敗不影響主流程，只記錄警告
+          console.warn(
+            `Document format identification failed for file ${file.id}:`,
+            formatError instanceof Error ? formatError.message : formatError
+          )
+        }
+      }
+
       // 更新文件記錄（包含公司識別和發行者識別結果）
       await prisma.historicalFile.update({
         where: { id: file.id },
@@ -477,6 +562,7 @@ export async function processFile(
         companyIdentification,
         documentIssuer,
         transactionParties,
+        formatIdentification,
       }
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
@@ -545,7 +631,7 @@ export async function processBatch(
 
   const startTime = new Date()
 
-  // Story 0.6, 0.7 & 0.8: 獲取批次記錄以讀取公司識別、術語聚合和發行者識別配置
+  // Story 0.6, 0.7, 0.8 & 0.9: 獲取批次記錄以讀取公司識別、術語聚合、發行者識別和格式識別配置
   const batch = await prisma.historicalBatch.findUnique({
     where: { id: batchId },
     select: {
@@ -562,6 +648,10 @@ export async function processBatch(
       issuerConfidenceThreshold: true,
       autoCreateIssuerCompany: true,
       issuerFuzzyThreshold: true,
+      // Story 0.9: 格式識別配置
+      enableFormatIdentification: true,
+      formatConfidenceThreshold: true,
+      autoCreateFormat: true,
     },
   })
 
@@ -591,6 +681,16 @@ export async function processBatch(
         methodPriority: ['LOGO', 'HEADER', 'LETTERHEAD', 'FOOTER', 'AI_INFERENCE'],
         createCompanyIfNotFound: batch.autoCreateIssuerCompany,
         fuzzyMatchThreshold: batch.issuerFuzzyThreshold,
+      }
+    : undefined
+
+  // Story 0.9: 建立格式識別配置
+  const formatConfig: FormatIdentificationConfig | undefined = batch?.enableFormatIdentification
+    ? {
+        enabled: true,
+        confidenceThreshold: batch.formatConfidenceThreshold * 100, // 轉換為 0-100 範圍
+        autoCreateFormat: batch.autoCreateFormat,
+        learnFeatures: true, // 預設啟用特徵學習
       }
     : undefined
 
@@ -630,6 +730,7 @@ export async function processBatch(
   let completedCount = 0
   let companiesIdentified = 0 // Story 0.6: 追蹤識別到的公司數量
   let issuersIdentified = 0 // Story 0.8: 追蹤識別到的發行者數量
+  let formatsIdentified = 0 // Story 0.9: 追蹤識別到的格式數量
 
   // 進度回報
   const reportProgress = (currentFile?: string, processingCount = 0) => {
@@ -658,8 +759,8 @@ export async function processBatch(
       reportProgress(file.originalName, 1)
 
       try {
-        // Story 0.6 & 0.8: 傳遞公司識別和發行者識別配置給 processFile
-        const result = await processFile(file, { maxRetries, retryDelayMs, companyConfig, issuerConfig })
+        // Story 0.6, 0.8 & 0.9: 傳遞公司識別、發行者識別和格式識別配置給 processFile
+        const result = await processFile(file, { maxRetries, retryDelayMs, companyConfig, issuerConfig, formatConfig })
         results.push(result)
 
         if (result.success) {
@@ -673,6 +774,10 @@ export async function processBatch(
           if (result.documentIssuer) {
             issuersIdentified++
           }
+          // Story 0.9: 追蹤成功識別格式的文件數
+          if (result.formatIdentification) {
+            formatsIdentified++
+          }
         } else {
           failedCount++
         }
@@ -680,7 +785,7 @@ export async function processBatch(
         completedCount++
         reportProgress(undefined, 0)
 
-        // 更新批次進度（包含公司識別和發行者識別計數）
+        // 更新批次進度（包含公司識別、發行者識別和格式識別計數）
         await prisma.historicalBatch.update({
           where: { id: batchId },
           data: {
@@ -692,6 +797,10 @@ export async function processBatch(
               : undefined,
             // Story 0.8: 更新識別的發行者數量
             issuersIdentified: result.documentIssuer
+              ? { increment: 1 }
+              : undefined,
+            // Story 0.9: 更新識別的格式數量
+            formatsIdentified: result.formatIdentification
               ? { increment: 1 }
               : undefined,
           },
@@ -796,11 +905,11 @@ export async function processBatch(
     },
   })
 
-  // Story 0.6, 0.7 & 0.8: 包含公司識別、術語聚合和發行者識別統計
+  // Story 0.6, 0.7, 0.8 & 0.9: 包含公司識別、術語聚合、發行者識別和格式識別統計
   console.log(
     `[Batch ${batchId}] Processing complete: ${successCount} success, ${failedCount} failed, ` +
     `$${totalCost.toFixed(2)} total cost, ${companiesIdentified} companies identified, ` +
-    `${issuersIdentified} issuers identified` +
+    `${issuersIdentified} issuers identified, ${formatsIdentified} formats identified` +
     (termAggregationCompleted ? `, term aggregation completed` : '')
   )
 

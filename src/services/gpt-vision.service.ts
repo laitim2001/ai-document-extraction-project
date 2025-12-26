@@ -5,29 +5,41 @@
  *   - 圖片轉 Base64 編碼
  *   - GPT-5.2 Vision API 調用
  *   - 發票內容提取和結構化
+ *   - 文件發行者識別 (Story 0.8)
+ *   - 文件格式識別 (Story 0.9)
  *
  * @module src/services/gpt-vision
  * @since Epic 0 - Story 0.2
- * @lastModified 2025-12-24
+ * @lastModified 2025-12-26
  *
  * @features
  *   - 支援 JPG、PNG、TIFF、PDF 圖片
  *   - 結構化發票數據提取
+ *   - 文件發行者識別
+ *   - 文件格式識別與特徵提取
  *   - 錯誤處理和重試
  *
  * @dependencies
  *   - Azure OpenAI Service
  *   - pdf-to-img（PDF 轉圖片）
+ *   - src/lib/prompts - 提示詞模組
  *
  * @related
  *   - src/services/batch-processor.service.ts - 批量處理執行器
  *   - src/services/processing-router.service.ts - 處理路由服務
+ *   - src/lib/prompts/extraction-prompt.ts - 提示詞定義
  */
 
 import { AzureOpenAI } from 'openai'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as os from 'os'
+import { FULL_EXTRACTION_PROMPT, buildExtractionPrompt } from '@/lib/prompts'
+import type {
+  DocumentType,
+  DocumentSubtype,
+  DocumentFormatFeatures,
+} from '@/types/document-format'
 
 // PDF 轉圖片依賴 - 使用動態導入避免 webpack 問題
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,6 +85,34 @@ export interface DocumentIssuerInfo {
 }
 
 /**
+ * 文件格式資訊 - Story 0.9
+ */
+export interface DocumentFormatInfo {
+  /** 文件類型 */
+  documentType: DocumentType
+  /** 文件子類型 */
+  documentSubtype: DocumentSubtype
+  /** 格式識別信心度 (0-100) */
+  formatConfidence: number
+  /** 格式特徵 */
+  formatFeatures?: DocumentFormatFeatures
+}
+
+/**
+ * 提取的術語項目
+ */
+export interface ExtractedTerm {
+  /** 原始術語 */
+  term: string
+  /** 正規化術語 */
+  normalizedTerm: string
+  /** 建議分類 */
+  suggestedCategory: string
+  /** 分類信心度 (0-100) */
+  confidence: number
+}
+
+/**
  * 發票提取結果
  */
 export interface InvoiceExtractionResult {
@@ -107,6 +147,10 @@ export interface InvoiceExtractionResult {
   }
   /** Story 0.8: 文件發行者識別結果 */
   documentIssuer?: DocumentIssuerInfo
+  /** Story 0.9: 文件格式識別結果 */
+  documentFormat?: DocumentFormatInfo
+  /** Story 0.9: 提取的術語列表 */
+  extractedTerms?: ExtractedTerm[]
   /** 原始文字（OCR 結果） */
   rawText?: string
   /** 處理的頁數 */
@@ -136,78 +180,10 @@ export interface GPTVisionConfig {
 // ============================================================
 
 /**
- * 發票提取提示詞
+ * 發票提取提示詞 - 使用完整提取版本（含格式識別 Story 0.9）
+ * @see src/lib/prompts/extraction-prompt.ts
  */
-const INVOICE_EXTRACTION_PROMPT = `你是一個專業的發票 OCR 和數據提取專家。請仔細分析這張發票圖片，提取以下信息：
-
-## 基本發票信息
-1. 發票號碼 (invoiceNumber)
-2. 發票日期 (invoiceDate) - 格式：YYYY-MM-DD
-3. 付款截止日期 (dueDate) - 格式：YYYY-MM-DD（如有）
-4. 供應商信息 (vendor):
-   - 名稱 (name)
-   - 地址 (address)
-   - 稅號 (taxId)
-5. 買方信息 (buyer):
-   - 名稱 (name)
-   - 地址 (address)
-6. 明細項目 (lineItems) - 每個項目包含：
-   - 描述 (description)
-   - 數量 (quantity)
-   - 單價 (unitPrice)
-   - 金額 (amount)
-7. 小計 (subtotal)
-8. 稅額 (taxAmount)
-9. 總金額 (totalAmount)
-10. 貨幣 (currency)
-
-## 文件發行者識別 (Document Issuer Identification) - Story 0.8
-
-【重要】請識別「發出這份文件的公司」，而非交易對象。
-
-發行者（documentIssuer）vs 交易對象（vendor/buyer）的區別：
-- documentIssuer: 創建並發送這份發票的公司（如 DHL、FedEx、Kuehne+Nagel）
-- vendor/buyer: 參與交易的各方（客戶、發貨人、收貨人）
-
-範例：
-- 一份 DHL 發出的運費發票：
-  - documentIssuer: "DHL Express"（發出發票的公司）
-  - vendor: "DHL Express"（可能相同）
-  - buyer: "ABC Trading Co."（客戶）
-
-請依優先順序從以下區域識別文件發行者：
-1. **公司 Logo** - 通常在文件左上角或頂部中央
-2. **文件標題區** - 標題/抬頭區域的公司名稱
-3. **信頭紙** - 官方信頭的公司品牌
-4. **頁尾** - 底部的公司信息
-
-提取文件發行者信息 (documentIssuer):
-- name: 發行公司名稱
-- identificationMethod: 識別方法 ("LOGO" | "HEADER" | "LETTERHEAD" | "FOOTER" | "AI_INFERENCE")
-- confidence: 識別信心度 (0-100)
-- rawText: 在文件上看到的原始文字
-
-請以 JSON 格式回覆，結構如下：
-{
-  "invoiceNumber": "...",
-  "invoiceDate": "YYYY-MM-DD",
-  "dueDate": "YYYY-MM-DD",
-  "vendor": { "name": "...", "address": "...", "taxId": "..." },
-  "buyer": { "name": "...", "address": "..." },
-  "lineItems": [{ "description": "...", "quantity": 1, "unitPrice": 100, "amount": 100 }],
-  "subtotal": 100,
-  "taxAmount": 10,
-  "totalAmount": 110,
-  "currency": "USD",
-  "documentIssuer": {
-    "name": "發行公司名稱",
-    "identificationMethod": "LOGO",
-    "confidence": 95,
-    "rawText": "文件上看到的原始公司名稱"
-  }
-}
-
-如果某個欄位無法識別，請設為 null。只回覆 JSON，不要包含其他文字。`
+const INVOICE_EXTRACTION_PROMPT = FULL_EXTRACTION_PROMPT
 
 /**
  * 預設配置
