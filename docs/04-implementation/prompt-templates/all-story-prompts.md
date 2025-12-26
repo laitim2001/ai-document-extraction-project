@@ -242,6 +242,274 @@
 
 ---
 
+### Story 0-6: 批量處理公司識別整合
+
+```
+# 開發任務：Story 0-6 批量處理公司識別整合
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-6-batch-company-integration.md
+3. docs/04-implementation/tech-specs/epic-00-historical-data/tech-spec-story-0-6.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+- src/services/company-auto-create.service.ts (現有公司識別服務)
+- src/services/company-matcher.service.ts (三層匹配策略)
+- src/services/batch-processor.service.ts (需整合目標)
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 中的整合模式
+2. 在 batch-processor.service.ts 中呼叫現有的 company-auto-create.service
+3. 公司識別失敗不應中斷主處理流程（錯誤降級處理）
+4. 新增的 API 需更新 api-registry.md
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+## 關鍵整合點
+- 修改 `processFile()` 方法，在 OCR 完成後呼叫 `identifyCompaniesFromExtraction()`
+- 擴展 HistoricalBatch 和 HistoricalFile 模型添加公司識別相關欄位
+- 建立 `/api/admin/historical-data/[batchId]/company-stats` API
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] Prisma migration 成功執行
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件
+
+### 3. 功能驗證
+- [ ] 批量處理時自動識別公司（不中斷主流程）
+- [ ] 公司統計 API 正確返回數據
+- [ ] UI 正確顯示公司識別配置選項
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 0-7: 批量處理術語聚合整合
+
+```
+# 開發任務：Story 0-7 批量處理術語聚合整合
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-7-batch-term-aggregation-integration.md
+3. docs/04-implementation/tech-specs/epic-00-historical-data/tech-spec-story-0-7.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+- src/services/term-aggregation.service.ts (現有術語聚合服務)
+- src/services/batch-processor.service.ts (需整合目標)
+- docs/04-implementation/stories/0-6-batch-company-integration.md (前置依賴)
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 中的整合模式
+2. 批量處理完成後自動觸發術語聚合（如果啟用）
+3. 擴展 BatchStatus 枚舉添加 AGGREGATING、AGGREGATED 狀態
+4. 術語需按公司分組統計
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+## 關鍵整合點
+- 建立 `onBatchComplete()` 觸發機制
+- 建立 `TermAggregationResult` Prisma 模型儲存聚合結果
+- 修改 `term-aggregation.service.ts` 支援按公司分組 (`groupByCompany: true`)
+- 建立 `/api/admin/historical-data/[batchId]/term-stats` API
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] Prisma migration 成功執行
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件
+
+### 3. 功能驗證
+- [ ] 批量完成後自動觸發術語聚合
+- [ ] 聚合結果正確按公司分組
+- [ ] UI 正確顯示術語統計摘要
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 0-8: 文件發行者識別
+
+```
+# 開發任務：Story 0-8 文件發行者識別
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-8-document-issuer-identification.md
+3. docs/04-implementation/tech-specs/epic-00-historical-data/tech-spec-story-0-8.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+- src/services/company-matcher.service.ts (公司匹配服務)
+- src/services/batch-processor.service.ts (批量處理服務)
+- docs/04-implementation/stories/0-6-batch-company-integration.md (前置依賴)
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 中的 GPT Vision Prompt 設計
+2. 使用 Azure OpenAI GPT-5.2 Vision 識別文件發行者（從 Logo/標題/頁首）
+3. 區分「文件發行者」與「交易對象」（vendor/shipper/consignee）
+4. 實現三層公司匹配策略（Exact > Variant > Fuzzy）
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+## 關鍵整合點
+- 擴展 GPT Vision Prompt 添加 `DOCUMENT_ISSUER_PROMPT`
+- 創建 `IssuerIdentificationMethod` enum (LOGO, HEADER, LETTERHEAD, FOOTER, AI_INFERENCE)
+- 創建 `FileTransactionParty` 模型（多對多關聯）
+- 擴展 `HistoricalFile` 添加 `documentIssuerId`、`issuerIdentificationMethod`、`issuerConfidence`
+- 創建 `src/services/document-issuer.service.ts`
+
+## 核心邏輯
+文件發行者 ≠ 交易對象
+- documentIssuer: 發出文件的公司（如 DHL 發出的發票，發行者是 DHL）
+- vendor/shipper/consignee: 交易相關方（客戶、托運人、收貨人）
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] Prisma migration 成功執行
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件
+
+### 3. 功能驗證
+- [ ] GPT Vision 正確識別文件發行者（從 Logo/標題）
+- [ ] 發行者與交易對象正確區分儲存
+- [ ] 三層公司匹配策略正確運作
+- [ ] 批量處理整合正確
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 0-9: 文件格式識別與術語重組
+
+```
+# 開發任務：Story 0-9 文件格式識別與術語重組
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-9-document-format-term-reorganization.md
+3. docs/04-implementation/tech-specs/epic-00-historical-data/tech-spec-story-0-9.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+- src/services/batch-term-aggregation.service.ts (現有術語聚合服務)
+- docs/04-implementation/stories/0-7-batch-term-aggregation-integration.md (前置依賴)
+- docs/04-implementation/stories/0-8-document-issuer-identification.md (前置依賴)
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 中的三層聚合架構
+2. 使用 Azure OpenAI GPT-5.2 Vision 識別文件類型和子類型
+3. 使用 GPT-nano 進行術語分類
+4. 建立「公司 → 文件格式 → 術語」三層數據結構
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+## 關鍵整合點
+- 擴展 GPT Vision Prompt 添加 `DOCUMENT_FORMAT_PROMPT`
+- 創建 `DocumentType` enum (INVOICE, DEBIT_NOTE, CREDIT_NOTE, 等)
+- 創建 `DocumentSubtype` enum (OCEAN_FREIGHT, AIR_FREIGHT, 等)
+- 創建 `DocumentFormat` Prisma 模型
+- 擴展 `HistoricalFile` 添加 `documentFormatId`
+- 創建 `src/services/document-format.service.ts`
+- 創建 `src/services/hierarchical-term-aggregation.service.ts`
+
+## 三層聚合結構
+```
+Company (發行公司)
+├── DocumentFormat (文件格式)
+│   ├── Term (術語)
+│   ├── Term
+│   └── ...
+├── DocumentFormat
+│   ├── Term
+│   └── ...
+└── ...
+```
+
+範例：
+```
+DHL Express
+├── Ocean Freight Invoice
+│   ├── BAF (Bunker Adjustment Factor)
+│   ├── THC (Terminal Handling Charge)
+│   └── DOC FEE
+└── Air Freight Invoice
+    ├── AWB FEE
+    ├── FSC (Fuel Surcharge)
+    └── HANDLING FEE
+```
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] Prisma migration 成功執行
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件
+
+### 3. 功能驗證
+- [ ] GPT Vision 正確識別文件類型和子類型
+- [ ] DocumentFormat 記錄正確創建和關聯
+- [ ] 三層術語聚合結構正確
+- [ ] UI 樹狀結構正確顯示
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
 ## Epic 01: 用戶認證與權限管理
 
 ### Story 1-0: 專案初始化

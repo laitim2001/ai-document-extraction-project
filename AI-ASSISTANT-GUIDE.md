@@ -41,8 +41,16 @@
 |------|------|------|
 | PRD | `docs/01-planning/prd/prd.md` | 產品需求文件 |
 | 架構設計 | `docs/02-architecture/` | 系統架構和設計決策 |
-| 用戶故事 | `docs/03-stories/` | Epic 和 Story 文件 |
-| 實施文檔 | `docs/04-implementation/` | 實施進度和技術規格 |
+| Epic 概覽 | `docs/03-epics/` | Epic 結構和故事概覽 |
+| 實施文檔 | `docs/04-implementation/` | **核心開發內容所在** |
+
+### 🔥 核心開發資源（必讀）
+| 類別 | 路徑 | 說明 |
+|------|------|------|
+| **Story 檔案** | `docs/04-implementation/stories/` | 所有 Story 的詳細規格（91 個檔案）|
+| **技術規格** | `docs/04-implementation/tech-specs/` | 各 Epic 的技術設計規格 |
+| **開發 Prompt** | `docs/04-implementation/prompt-templates/all-story-prompts.md` | 各階段開發 Prompt 範本 |
+| **Sprint 狀態** | `docs/04-implementation/sprint-status.yaml` | **項目進度的唯一真實來源** |
 
 ### 執行記錄
 | 類別 | 路徑 | 說明 |
@@ -59,11 +67,12 @@
 ```
 1. 閱讀本文件（AI-ASSISTANT-GUIDE.md）
 2. 查看 PROJECT-INDEX.md 了解項目結構
-3. 查看 claudedocs/3-progress/daily/ 最新日報
-4. 確認開發環境狀態：
+3. 查看 docs/04-implementation/sprint-status.yaml 了解項目進度
+4. 查看 claudedocs/3-progress/daily/ 最新日報
+5. 確認開發環境狀態：
    - Docker 容器運行中
    - 開發伺服器運行中（localhost:3005）
-5. 查看 claudedocs/6-ai-assistant/handoff/ 是否有交接文件
+6. 查看 claudedocs/6-ai-assistant/handoff/ 是否有交接文件
 ```
 
 ### Session 進行中
@@ -120,22 +129,31 @@
 
 ## Epic 進度總覽
 
-| Epic | 名稱 | Stories | 狀態 |
-|------|------|---------|------|
-| 1 | 用戶認證與存取控制 | 7 | ✅ 已完成 |
-| 2 | 手動發票上傳與 AI 處理 | 8 | 🟡 進行中 |
-| 3 | 發票審核與修正工作流 | 7 | ⚪ 待開始 |
-| 4 | 映射規則管理與自動學習 | 8 | ⚪ 待開始 |
-| 5 | Forwarder 配置管理 | 6 | ⚪ 待開始 |
-| 6 | 多城市數據隔離 | 5 | ⚪ 待開始 |
-| 7 | 報表儀表板與成本追蹤 | 8 | ⚪ 待開始 |
-| 8 | 審計追溯與合規 | 7 | ⚪ 待開始 |
-| 9 | 自動化文件獲取 | 7 | ⚪ 待開始 |
-| 10 | n8n 工作流整合 | 6 | ⚪ 待開始 |
-| 11 | 對外 API 服務 | 6 | ⚪ 待開始 |
-| 12 | 系統管理與監控 | 8 | ⚪ 待開始 |
+> **狀態來源**: `docs/04-implementation/sprint-status.yaml`
+> **最後更新**: 2025-12-26
 
-**總計**: 12 個 Epic，83 個 Stories
+| Epic | 名稱 | Stories | 狀態 | 完成日期 |
+|------|------|---------|------|----------|
+| 0 | 歷史數據初始化（前置 Epic） | 7 | ✅ 已完成 | 2025-12-26 |
+| 1 | 用戶認證與存取控制 | 9 | ✅ 已完成 | 2025-12-18 |
+| 2 | 手動發票上傳與 AI 處理 | 7 | ✅ 已完成 | 2025-12-18 |
+| 3 | 發票審核與修正工作流 | 8 | ✅ 已完成 | 2025-12-19 |
+| 4 | 映射規則管理與自動學習 | 8 | ✅ 已完成 | 2025-12-19 |
+| 5 | Forwarder 配置管理 | 5 | ✅ 已完成 | 2025-12-19 |
+| 6 | 多城市數據隔離 | 5 | ✅ 已完成 | 2025-12-19 |
+| 7 | 報表儀表板與成本追蹤 | 10 | ✅ 已完成 | 2025-12-20 |
+| 8 | 審計追溯與合規 | 6 | ✅ 已完成 | 2025-12-20 |
+| 9 | 自動化文件獲取 | 5 | ✅ 已完成 | 2025-12-20 |
+| 10 | n8n 工作流整合 | 7 | ✅ 已完成 | 2025-12-21 |
+| 11 | 對外 API 服務 | 6 | ✅ 已完成 | 2025-12-21 |
+| 12 | 系統管理與監控 | 7 | ✅ 已完成 | 2025-12-21 |
+
+**總計**: 13 個 Epic，90 個 Stories
+
+### 重要重構記錄
+| 重構 | 說明 | 狀態 | 完成 Story |
+|------|------|------|------------|
+| REFACTOR-001 | Forwarder → Company 模型重構 | ✅ 已完成 | Story 0-3 |
 
 ---
 
@@ -194,7 +212,12 @@ npm run index:check    # 檢查 PROJECT-INDEX.md 同步狀態
 ### 文檔導航
 - 📝 [PRD](./docs/01-planning/prd/prd.md) - 產品需求
 - 🏗️ [架構設計](./docs/02-architecture/) - 系統架構
-- 📚 [用戶故事](./docs/03-stories/) - Epic 和 Story
+- 📚 [Epic 概覽](./docs/03-epics/) - Epic 和 Story 結構
+
+### 核心開發資源
+- 📄 [Story 檔案](./docs/04-implementation/stories/) - 所有 Story 規格
+- 🔧 [技術規格](./docs/04-implementation/tech-specs/) - 技術設計文檔
+- 📋 [開發 Prompt](./docs/04-implementation/prompt-templates/all-story-prompts.md) - 開發階段 Prompt
 
 ### 維護工具
 - 🔧 [索引維護指引](./INDEX-MAINTENANCE-GUIDE.md) - 索引更新流程
@@ -231,6 +254,6 @@ npm run index:check    # 檢查 PROJECT-INDEX.md 同步狀態
 
 ---
 
-*文件版本：1.1.0*
+*文件版本：2.0.0*
 *建立日期：2025-12-21*
-*最後更新：2025-12-21*
+*最後更新：2025-12-26*

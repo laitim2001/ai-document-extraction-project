@@ -1,7 +1,7 @@
 # 項目索引 - AI Document Extraction
 
 > 本文件為項目所有重要文件的快速導航索引。
-> 最後同步日期：2025-12-21
+> 最後同步日期：2025-12-26
 
 ---
 
@@ -12,13 +12,21 @@
 |------|------|
 | [AI-ASSISTANT-GUIDE.md](./AI-ASSISTANT-GUIDE.md) | AI 助手開發指引 |
 | [CLAUDE.md](./CLAUDE.md) | 完整開發規範 |
-| [claudedocs/README.md](./claudedocs/README.md) | 執行記錄說明 |
+| [claudedocs/CLAUDE.md](./claudedocs/CLAUDE.md) | 執行記錄說明 |
 
 ### 維護工具
 | 文件 | 說明 |
 |------|------|
 | [INDEX-MAINTENANCE-GUIDE.md](./INDEX-MAINTENANCE-GUIDE.md) | 索引維護指引 |
 | [scripts/check-index-sync.js](./scripts/check-index-sync.js) | 索引同步檢查腳本 |
+
+### 🔥 核心開發資源
+| 文件 | 說明 |
+|------|------|
+| [docs/04-implementation/sprint-status.yaml](./docs/04-implementation/sprint-status.yaml) | **項目進度的唯一真實來源** |
+| [docs/04-implementation/stories/](./docs/04-implementation/stories/) | 所有 Story 檔案（91 個）|
+| [docs/04-implementation/tech-specs/](./docs/04-implementation/tech-specs/) | 技術規格文檔 |
+| [docs/04-implementation/prompt-templates/all-story-prompts.md](./docs/04-implementation/prompt-templates/all-story-prompts.md) | 開發階段 Prompt |
 
 ---
 
@@ -53,7 +61,22 @@
 
 ---
 
-## Epic 索引（12 個 Epic，83 個 Stories）
+## Epic 索引（13 個 Epic，90 個 Stories）
+
+> **狀態來源**: `docs/04-implementation/sprint-status.yaml`
+
+### Epic 0: 歷史數據初始化（前置 Epic）✅
+| Story | 文件 | 狀態 |
+|-------|------|------|
+| 0-1 | [0-1-batch-file-upload-metadata-detection.md](./docs/04-implementation/stories/0-1-batch-file-upload-metadata-detection.md) | ✅ |
+| 0-2 | [0-2-intelligent-processing-routing.md](./docs/04-implementation/stories/0-2-intelligent-processing-routing.md) | ✅ |
+| 0-3 | [0-3-just-in-time-company-profile.md](./docs/04-implementation/stories/0-3-just-in-time-company-profile.md) | ✅ |
+| 0-4 | [0-4-batch-processing-progress-tracking.md](./docs/04-implementation/stories/0-4-batch-processing-progress-tracking.md) | ✅ |
+| 0-5 | [0-5-term-aggregation-initial-rules.md](./docs/04-implementation/stories/0-5-term-aggregation-initial-rules.md) | ✅ |
+| 0-6 | [0-6-batch-company-integration.md](./docs/04-implementation/stories/0-6-batch-company-integration.md) | ✅ |
+| 0-7 | [0-7-batch-term-aggregation-integration.md](./docs/04-implementation/stories/0-7-batch-term-aggregation-integration.md) | ✅ |
+
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-00-historical-data/](./docs/04-implementation/tech-specs/epic-00-historical-data/)
 
 ### Epic 1: 用戶認證與存取控制 ✅
 | Story | 文件 | 狀態 |
@@ -61,64 +84,154 @@
 | 1-0 | [1-0-project-init-foundation.md](./docs/04-implementation/stories/1-0-project-init-foundation.md) | ✅ |
 | 1-1 | [1-1-azure-ad-sso-login.md](./docs/04-implementation/stories/1-1-azure-ad-sso-login.md) | ✅ |
 | 1-2 | [1-2-user-database-role-foundation.md](./docs/04-implementation/stories/1-2-user-database-role-foundation.md) | ✅ |
+| 1-3 | [1-3-user-list-search.md](./docs/04-implementation/stories/1-3-user-list-search.md) | ✅ |
 | 1-4 | [1-4-add-user-role-assignment.md](./docs/04-implementation/stories/1-4-add-user-role-assignment.md) | ✅ |
 | 1-5 | [1-5-modify-user-role-city.md](./docs/04-implementation/stories/1-5-modify-user-role-city.md) | ✅ |
+| 1-6 | [1-6-disable-enable-user-account.md](./docs/04-implementation/stories/1-6-disable-enable-user-account.md) | ✅ |
+| 1-7 | [1-7-custom-role-management.md](./docs/04-implementation/stories/1-7-custom-role-management.md) | ✅ |
+| 1-8 | [1-8-city-manager-user-management.md](./docs/04-implementation/stories/1-8-city-manager-user-management.md) | ✅ |
 
 **Tech Specs**: [docs/04-implementation/tech-specs/epic-01-auth/](./docs/04-implementation/tech-specs/epic-01-auth/)
 
-### Epic 2: 手動發票上傳與 AI 處理 🟡
+### Epic 2: 手動發票上傳與 AI 處理 ✅
 | Story | 文件 | 狀態 |
 |-------|------|------|
 | 2-1 | [2-1-file-upload-interface-validation.md](./docs/04-implementation/stories/2-1-file-upload-interface-validation.md) | ✅ |
 | 2-2 | [2-2-file-ocr-extraction-service.md](./docs/04-implementation/stories/2-2-file-ocr-extraction-service.md) | ✅ |
-| 2-3 | [2-3-forwarder-auto-identification.md](./docs/04-implementation/stories/2-3-forwarder-auto-identification.md) | 🟡 |
-| 2-4 | [2-4-field-mapping-extraction.md](./docs/04-implementation/stories/2-4-field-mapping-extraction.md) | ⚪ |
+| 2-3 | [2-3-forwarder-auto-identification.md](./docs/04-implementation/stories/2-3-forwarder-auto-identification.md) | ✅ |
+| 2-4 | [2-4-field-mapping-extraction.md](./docs/04-implementation/stories/2-4-field-mapping-extraction.md) | ✅ |
+| 2-5 | [2-5-confidence-score-calculation.md](./docs/04-implementation/stories/2-5-confidence-score-calculation.md) | ✅ |
+| 2-6 | [2-6-processing-path-auto-routing.md](./docs/04-implementation/stories/2-6-processing-path-auto-routing.md) | ✅ |
+| 2-7 | [2-7-processing-status-tracking-display.md](./docs/04-implementation/stories/2-7-processing-status-tracking-display.md) | ✅ |
 
 **Tech Specs**: [docs/04-implementation/tech-specs/epic-02-ai-processing/](./docs/04-implementation/tech-specs/epic-02-ai-processing/)
 
-### Epic 3: 發票審核與修正工作流 ⚪
-**文件**: [docs/03-epics/sections/epic-3-invoice-review-correction-workflow.md](./docs/03-epics/sections/epic-3-invoice-review-correction-workflow.md)
-
-### Epic 4: 映射規則管理與自動學習 ⚪
+### Epic 3: 發票審核與修正工作流 ✅
 | Story | 文件 | 狀態 |
 |-------|------|------|
-| 4-4 | [4-4-rule-upgrade-suggestion-generation.md](./docs/04-implementation/stories/4-4-rule-upgrade-suggestion-generation.md) | ⚪ |
+| 3-1 | [3-1-pending-review-invoice-list.md](./docs/04-implementation/stories/3-1-pending-review-invoice-list.md) | ✅ |
+| 3-2 | [3-2-side-by-side-pdf-review-interface.md](./docs/04-implementation/stories/3-2-side-by-side-pdf-review-interface.md) | ✅ |
+| 3-3 | [3-3-confidence-color-coding-display.md](./docs/04-implementation/stories/3-3-confidence-color-coding-display.md) | ✅ |
+| 3-4 | [3-4-confirm-extraction-result.md](./docs/04-implementation/stories/3-4-confirm-extraction-result.md) | ✅ |
+| 3-5 | [3-5-correct-extraction-result.md](./docs/04-implementation/stories/3-5-correct-extraction-result.md) | ✅ |
+| 3-6 | [3-6-correction-type-marking.md](./docs/04-implementation/stories/3-6-correction-type-marking.md) | ✅ |
+| 3-7 | [3-7-escalate-complex-cases.md](./docs/04-implementation/stories/3-7-escalate-complex-cases.md) | ✅ |
+| 3-8 | [3-8-super-user-handle-escalated-cases.md](./docs/04-implementation/stories/3-8-super-user-handle-escalated-cases.md) | ✅ |
 
-**文件**: [docs/03-epics/sections/epic-4-mapping-rules-auto-learning.md](./docs/03-epics/sections/epic-4-mapping-rules-auto-learning.md)
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-03-review-workflow/](./docs/04-implementation/tech-specs/epic-03-review-workflow/)
 
-### Epic 5: Forwarder 配置管理 ⚪
-**文件**: [docs/03-epics/sections/epic-5-forwarder-config-management.md](./docs/03-epics/sections/epic-5-forwarder-config-management.md)
-
-### Epic 6: 多城市數據隔離 ⚪
-**文件**: [docs/03-epics/sections/epic-6-multi-city-data-isolation.md](./docs/03-epics/sections/epic-6-multi-city-data-isolation.md)
-
-### Epic 7: 報表儀表板與成本追蹤 ⚪
-**文件**: [docs/03-epics/sections/epic-7-reports-dashboard-cost-tracking.md](./docs/03-epics/sections/epic-7-reports-dashboard-cost-tracking.md)
-
-### Epic 8: 審計追溯與合規 ⚪
+### Epic 4: 映射規則管理與自動學習 ✅
 | Story | 文件 | 狀態 |
 |-------|------|------|
-| 8-2 | [8-2-data-change-tracking.md](./docs/04-implementation/stories/8-2-data-change-tracking.md) | ⚪ |
+| 4-1 | [4-1-mapping-rule-list-view.md](./docs/04-implementation/stories/4-1-mapping-rule-list-view.md) | ✅ |
+| 4-2 | [4-2-suggest-new-mapping-rule.md](./docs/04-implementation/stories/4-2-suggest-new-mapping-rule.md) | ✅ |
+| 4-3 | [4-3-correction-pattern-recording-analysis.md](./docs/04-implementation/stories/4-3-correction-pattern-recording-analysis.md) | ✅ |
+| 4-4 | [4-4-rule-upgrade-suggestion-generation.md](./docs/04-implementation/stories/4-4-rule-upgrade-suggestion-generation.md) | ✅ |
+| 4-5 | [4-5-rule-impact-scope-analysis.md](./docs/04-implementation/stories/4-5-rule-impact-scope-analysis.md) | ✅ |
+| 4-6 | [4-6-review-learning-rule.md](./docs/04-implementation/stories/4-6-review-learning-rule.md) | ✅ |
+| 4-7 | [4-7-rule-version-history-management.md](./docs/04-implementation/stories/4-7-rule-version-history-management.md) | ✅ |
+| 4-8 | [4-8-rule-auto-rollback.md](./docs/04-implementation/stories/4-8-rule-auto-rollback.md) | ✅ |
 
-**文件**: [docs/03-epics/sections/epic-8-audit-trail-compliance.md](./docs/03-epics/sections/epic-8-audit-trail-compliance.md)
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-04-mapping-rules/](./docs/04-implementation/tech-specs/epic-04-mapping-rules/)
 
-### Epic 9: 自動化文件獲取 ⚪
-**文件**: [docs/03-epics/sections/epic-9-automated-document-retrieval.md](./docs/03-epics/sections/epic-9-automated-document-retrieval.md)
-
-### Epic 10: n8n 工作流整合 ⚪
-**文件**: [docs/03-epics/sections/epic-10-n8n-workflow-integration.md](./docs/03-epics/sections/epic-10-n8n-workflow-integration.md)
-
-### Epic 11: 對外 API 服務 ⚪
+### Epic 5: Forwarder 配置管理 ✅
 | Story | 文件 | 狀態 |
 |-------|------|------|
-| 11-2 | [11-2-api-processing-status-query-endpoint.md](./docs/04-implementation/stories/11-2-api-processing-status-query-endpoint.md) | ⚪ |
-| 11-3 | [11-3-api-processing-result-retrieval-endpoint.md](./docs/04-implementation/stories/11-3-api-processing-result-retrieval-endpoint.md) | ⚪ |
-| 11-4 | [11-4-webhook-notification-service.md](./docs/04-implementation/stories/11-4-webhook-notification-service.md) | ⚪ |
+| 5-1 | [5-1-forwarder-profile-list.md](./docs/04-implementation/stories/5-1-forwarder-profile-list.md) | ✅ |
+| 5-2 | [5-2-forwarder-detail-config-view.md](./docs/04-implementation/stories/5-2-forwarder-detail-config-view.md) | ✅ |
+| 5-3 | [5-3-edit-forwarder-mapping-rules.md](./docs/04-implementation/stories/5-3-edit-forwarder-mapping-rules.md) | ✅ |
+| 5-4 | [5-4-test-rule-change-effect.md](./docs/04-implementation/stories/5-4-test-rule-change-effect.md) | ✅ |
+| 5-5 | [5-5-add-disable-forwarder-profile.md](./docs/04-implementation/stories/5-5-add-disable-forwarder-profile.md) | ✅ |
 
-**文件**: [docs/03-epics/sections/epic-11-external-api-service.md](./docs/03-epics/sections/epic-11-external-api-service.md)
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-05-forwarder-config/](./docs/04-implementation/tech-specs/epic-05-forwarder-config/)
 
-### Epic 12: 系統管理與監控 ⚪
-**文件**: [docs/03-epics/sections/epic-12-system-admin-monitoring.md](./docs/03-epics/sections/epic-12-system-admin-monitoring.md)
+### Epic 6: 多城市數據隔離 ✅
+| Story | 文件 | 狀態 |
+|-------|------|------|
+| 6-1 | [6-1-city-data-model-rls-config.md](./docs/04-implementation/stories/6-1-city-data-model-rls-config.md) | ✅ |
+| 6-2 | [6-2-city-user-data-access-control.md](./docs/04-implementation/stories/6-2-city-user-data-access-control.md) | ✅ |
+| 6-3 | [6-3-regional-manager-cross-city-access.md](./docs/04-implementation/stories/6-3-regional-manager-cross-city-access.md) | ✅ |
+| 6-4 | [6-4-global-admin-full-access.md](./docs/04-implementation/stories/6-4-global-admin-full-access.md) | ✅ |
+| 6-5 | [6-5-global-rule-sharing-mechanism.md](./docs/04-implementation/stories/6-5-global-rule-sharing-mechanism.md) | ✅ |
+
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-06-multi-city/](./docs/04-implementation/tech-specs/epic-06-multi-city/)
+
+### Epic 7: 報表儀表板與成本追蹤 ✅
+| Story | 文件 | 狀態 |
+|-------|------|------|
+| 7-1 | [7-1-processing-statistics-dashboard.md](./docs/04-implementation/stories/7-1-processing-statistics-dashboard.md) | ✅ |
+| 7-2 | [7-2-time-range-filter.md](./docs/04-implementation/stories/7-2-time-range-filter.md) | ✅ |
+| 7-3 | [7-3-forwarder-filter.md](./docs/04-implementation/stories/7-3-forwarder-filter.md) | ✅ |
+| 7-4 | [7-4-expense-detail-report-export.md](./docs/04-implementation/stories/7-4-expense-detail-report-export.md) | ✅ |
+| 7-5 | [7-5-cross-city-summary-report.md](./docs/04-implementation/stories/7-5-cross-city-summary-report.md) | ✅ |
+| 7-6 | [7-6-ai-api-usage-cost-display.md](./docs/04-implementation/stories/7-6-ai-api-usage-cost-display.md) | ✅ |
+| 7-7 | [7-7-city-processing-volume-tracking.md](./docs/04-implementation/stories/7-7-city-processing-volume-tracking.md) | ✅ |
+| 7-8 | [7-8-city-ai-cost-tracking.md](./docs/04-implementation/stories/7-8-city-ai-cost-tracking.md) | ✅ |
+| 7-9 | [7-9-city-cost-report.md](./docs/04-implementation/stories/7-9-city-cost-report.md) | ✅ |
+| 7-10 | [7-10-monthly-cost-allocation-report.md](./docs/04-implementation/stories/7-10-monthly-cost-allocation-report.md) | ✅ |
+
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-07-reports-dashboard/](./docs/04-implementation/tech-specs/epic-07-reports-dashboard/)
+
+### Epic 8: 審計追溯與合規 ✅
+| Story | 文件 | 狀態 |
+|-------|------|------|
+| 8-1 | [8-1-user-operation-log-recording.md](./docs/04-implementation/stories/8-1-user-operation-log-recording.md) | ✅ |
+| 8-2 | [8-2-data-change-tracking.md](./docs/04-implementation/stories/8-2-data-change-tracking.md) | ✅ |
+| 8-3 | [8-3-processing-record-query.md](./docs/04-implementation/stories/8-3-processing-record-query.md) | ✅ |
+| 8-4 | [8-4-original-file-traceability.md](./docs/04-implementation/stories/8-4-original-file-traceability.md) | ✅ |
+| 8-5 | [8-5-audit-report-export.md](./docs/04-implementation/stories/8-5-audit-report-export.md) | ✅ |
+| 8-6 | [8-6-long-term-data-retention.md](./docs/04-implementation/stories/8-6-long-term-data-retention.md) | ✅ |
+
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-08-audit-compliance/](./docs/04-implementation/tech-specs/epic-08-audit-compliance/)
+
+### Epic 9: 自動化文件獲取 ✅
+| Story | 文件 | 狀態 |
+|-------|------|------|
+| 9-1 | [9-1-sharepoint-file-monitoring-api.md](./docs/04-implementation/stories/9-1-sharepoint-file-monitoring-api.md) | ✅ |
+| 9-2 | [9-2-sharepoint-connection-config.md](./docs/04-implementation/stories/9-2-sharepoint-connection-config.md) | ✅ |
+| 9-3 | [9-3-outlook-mail-attachment-extraction-api.md](./docs/04-implementation/stories/9-3-outlook-mail-attachment-extraction-api.md) | ✅ |
+| 9-4 | [9-4-outlook-connection-config.md](./docs/04-implementation/stories/9-4-outlook-connection-config.md) | ✅ |
+| 9-5 | [9-5-auto-retrieval-source-tracking.md](./docs/04-implementation/stories/9-5-auto-retrieval-source-tracking.md) | ✅ |
+
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-09-auto-retrieval/](./docs/04-implementation/tech-specs/epic-09-auto-retrieval/)
+
+### Epic 10: n8n 工作流整合 ✅
+| Story | 文件 | 狀態 |
+|-------|------|------|
+| 10-1 | [10-1-n8n-bidirectional-communication-api.md](./docs/04-implementation/stories/10-1-n8n-bidirectional-communication-api.md) | ✅ |
+| 10-2 | [10-2-webhook-config-management.md](./docs/04-implementation/stories/10-2-webhook-config-management.md) | ✅ |
+| 10-3 | [10-3-workflow-execution-status-view.md](./docs/04-implementation/stories/10-3-workflow-execution-status-view.md) | ✅ |
+| 10-4 | [10-4-manual-trigger-workflow.md](./docs/04-implementation/stories/10-4-manual-trigger-workflow.md) | ✅ |
+| 10-5 | [10-5-workflow-error-detail-view.md](./docs/04-implementation/stories/10-5-workflow-error-detail-view.md) | ✅ |
+| 10-6 | [10-6-document-processing-progress-tracking.md](./docs/04-implementation/stories/10-6-document-processing-progress-tracking.md) | ✅ |
+| 10-7 | [10-7-n8n-connection-status-monitoring.md](./docs/04-implementation/stories/10-7-n8n-connection-status-monitoring.md) | ✅ |
+
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-10-n8n-integration/](./docs/04-implementation/tech-specs/epic-10-n8n-integration/)
+
+### Epic 11: 對外 API 服務 ✅
+| Story | 文件 | 狀態 |
+|-------|------|------|
+| 11-1 | [11-1-api-invoice-submission-endpoint.md](./docs/04-implementation/stories/11-1-api-invoice-submission-endpoint.md) | ✅ |
+| 11-2 | [11-2-api-processing-status-query-endpoint.md](./docs/04-implementation/stories/11-2-api-processing-status-query-endpoint.md) | ✅ |
+| 11-3 | [11-3-api-processing-result-retrieval-endpoint.md](./docs/04-implementation/stories/11-3-api-processing-result-retrieval-endpoint.md) | ✅ |
+| 11-4 | [11-4-webhook-notification-service.md](./docs/04-implementation/stories/11-4-webhook-notification-service.md) | ✅ |
+| 11-5 | [11-5-api-access-control-authentication.md](./docs/04-implementation/stories/11-5-api-access-control-authentication.md) | ✅ |
+| 11-6 | [11-6-api-documentation-developer-support.md](./docs/04-implementation/stories/11-6-api-documentation-developer-support.md) | ✅ |
+
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-11-external-api/](./docs/04-implementation/tech-specs/epic-11-external-api/)
+
+### Epic 12: 系統管理與監控 ✅
+| Story | 文件 | 狀態 |
+|-------|------|------|
+| 12-1 | [12-1-system-health-monitoring-dashboard.md](./docs/04-implementation/stories/12-1-system-health-monitoring-dashboard.md) | ✅ |
+| 12-2 | [12-2-performance-metrics-tracking.md](./docs/04-implementation/stories/12-2-performance-metrics-tracking.md) | ✅ |
+| 12-3 | [12-3-error-alert-configuration.md](./docs/04-implementation/stories/12-3-error-alert-configuration.md) | ✅ |
+| 12-4 | [12-4-system-configuration-management.md](./docs/04-implementation/stories/12-4-system-configuration-management.md) | ✅ |
+| 12-5 | [12-5-data-backup-management.md](./docs/04-implementation/stories/12-5-data-backup-management.md) | ✅ |
+| 12-6 | [12-6-data-recovery-functionality.md](./docs/04-implementation/stories/12-6-data-recovery-functionality.md) | ✅ |
+| 12-7 | [12-7-system-log-query.md](./docs/04-implementation/stories/12-7-system-log-query.md) | ✅ |
+
+**Tech Specs**: [docs/04-implementation/tech-specs/epic-12-system-admin/](./docs/04-implementation/tech-specs/epic-12-system-admin/)
 
 ---
 
@@ -129,12 +242,13 @@
 #### 頁面路由
 | 路徑 | 說明 |
 |------|------|
-| `src/app/(auth)/` | 認證相關頁面（登入） |
+| `src/app/(auth)/` | 認證相關頁面（登入）|
 | `src/app/(dashboard)/` | 儀表板頁面 |
 | `src/app/(dashboard)/forwarders/` | Forwarder 管理 |
 | `src/app/(dashboard)/documents/` | 文件管理 |
 | `src/app/(dashboard)/mappings/` | 映射管理 |
 | `src/app/(dashboard)/admin/` | 管理員功能 |
+| `src/app/(dashboard)/historical-data/` | 歷史數據處理 |
 
 #### API 路由
 | 路徑 | 說明 |
@@ -148,6 +262,9 @@
 | `src/app/api/audit/` | 審計 API |
 | `src/app/api/cost/` | 成本追蹤 API |
 | `src/app/api/dashboard/` | 儀表板統計 API |
+| `src/app/api/upload/` | 批次上傳 API |
+| `src/app/api/companies/` | 公司管理 API |
+| `src/app/api/terms/` | 術語管理 API |
 
 ### src/services/ - 業務邏輯服務
 
@@ -161,6 +278,20 @@
 | [routing.service.ts](./src/services/routing.service.ts) | 信心度路由服務 |
 | [forwarder.service.ts](./src/services/forwarder.service.ts) | Forwarder 服務 |
 | [forwarder-identifier.ts](./src/services/forwarder-identifier.ts) | Forwarder 自動識別 |
+
+#### 批次處理服務（Epic 0）
+| 服務 | 說明 |
+|------|------|
+| [batch-processor.service.ts](./src/services/batch-processor.service.ts) | 批次處理服務 |
+| [company-matcher.service.ts](./src/services/company-matcher.service.ts) | 公司匹配服務（3 層匹配）|
+| [company-auto-create.service.ts](./src/services/company-auto-create.service.ts) | 公司自動創建服務 |
+| [term-aggregation.service.ts](./src/services/term-aggregation.service.ts) | 術語聚合服務 |
+| [term-classification.service.ts](./src/services/term-classification.service.ts) | 術語分類服務 |
+| [processing-router.service.ts](./src/services/processing-router.service.ts) | 處理路由服務 |
+| [cost-estimation.service.ts](./src/services/cost-estimation.service.ts) | 成本估算服務 |
+| [gpt-vision.service.ts](./src/services/gpt-vision.service.ts) | GPT Vision 服務 |
+| [file-detection.service.ts](./src/services/file-detection.service.ts) | 文件偵測服務 |
+| [batch-progress.service.ts](./src/services/batch-progress.service.ts) | 批次進度服務 |
 
 #### 用戶和權限服務
 | 服務 | 說明 |
@@ -252,6 +383,7 @@
 | `src/types/document.ts` | 文件類型 |
 | `src/types/mapping.ts` | 映射類型 |
 | `src/types/user.ts` | 用戶類型 |
+| `src/types/batch-company.ts` | 批次公司類型 |
 
 ### prisma/ - 資料庫
 | 文件 | 說明 |
@@ -265,7 +397,7 @@
 
 | 分類 | 路徑 | 說明 |
 |------|------|------|
-| 規劃 | `claudedocs/1-planning/` | Sprint 規劃和目標 |
+| 規劃 | `claudedocs/1-planning/` | Epic 規劃和目標 |
 | Sprint | `claudedocs/2-sprints/` | Sprint 執行記錄 |
 | 進度 | `claudedocs/3-progress/` | 日報和週報 |
 | 變更 | `claudedocs/4-changes/` | Bug 修復和功能變更 |
@@ -317,6 +449,6 @@
 
 ---
 
-*索引版本：1.0.0*
+*索引版本：2.0.0*
 *建立日期：2025-12-21*
-*最後同步：2025-12-21*
+*最後同步：2025-12-26*

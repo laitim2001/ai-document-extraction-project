@@ -186,12 +186,9 @@ claudedocs/4-changes/
 │   ├── FIX-001-描述.md
 │   ├── FIX-002-描述.md
 │   └── ...
-├── feature-changes/        # 功能變更記錄
-│   ├── CHANGE-001-描述.md
-│   ├── CHANGE-002-描述.md
-│   └── ...
-└── refactors/              # 重構記錄
-    ├── REFACTOR-001-描述.md
+└── feature-changes/        # 功能變更記錄（包含重構）
+    ├── CHANGE-001-描述.md
+    ├── CHANGE-002-描述.md
     └── ...
 ```
 
@@ -231,5 +228,5 @@ claudedocs/4-changes/
 ---
 
 **維護者**: AI 助手 + 開發團隊
-**最後更新**: 2025-12-21
-**版本**: 1.0
+**最後更新**: 2025-12-26
+**版本**: 1.1
