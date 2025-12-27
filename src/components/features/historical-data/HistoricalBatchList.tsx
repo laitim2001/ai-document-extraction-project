@@ -6,11 +6,14 @@
  *   顯示批次列表，支援：
  *   - 批次狀態顯示
  *   - 進度追蹤
- *   - 批次操作（查看詳情、刪除）
+ *   - 批次操作（查看詳情、刪除、匯出術語報告）
  *
  * @module src/components/features/historical-data/HistoricalBatchList
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-27
+ *
+ * @features
+ *   - CHANGE-002: 階層式術語報告匯出按鈕
  */
 
 import * as React from 'react'
@@ -41,6 +44,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { HierarchicalTermsExportButton } from './HierarchicalTermsExportButton'
 
 // ============================================================
 // Types
@@ -280,6 +284,14 @@ export function HistoricalBatchList({
                       開始處理
                     </Button>
                   )}
+                  <HierarchicalTermsExportButton
+                    batchId={batch.id}
+                    batchName={batch.name}
+                    batchStatus={batch.status}
+                    size="sm"
+                    variant="outline"
+                    showLabel={false}
+                  />
                   {canDelete && onDeleteBatch && (
                     <Button
                       variant="ghost"
