@@ -10,10 +10,11 @@
  *   - 術語聚合整合（Story 0.7）
  *   - 文件發行者識別整合（Story 0.8）
  *   - 格式識別與三層術語聚合整合（Story 0.9）
+ *   - Native PDF 雙重處理架構（CHANGE-001）
  *
  * @module src/services/batch-processor
  * @since Epic 0 - Story 0.2
- * @lastModified 2025-12-26
+ * @lastModified 2025-12-27
  *
  * @features
  *   - 分塊順序處理（避免 async hooks 溢出）
@@ -27,6 +28,7 @@
  *   - Story 0.7: 術語聚合整合（批量完成後自動觸發）
  *   - Story 0.8: 文件發行者識別（從 Logo/Header/Letterhead/Footer 識別發行公司）
  *   - Story 0.9: 格式識別與三層術語聚合（Company → Format → Terms）
+ *   - CHANGE-001: Native PDF 雙重處理（GPT Vision 分類 + Azure DI 數據提取）
  *
  * @dependencies
  *   - Prisma Client - 數據庫操作
@@ -57,7 +59,7 @@ import {
 import { determineProcessingMethod } from './processing-router.service'
 import { calculateActualCost } from './cost-estimation.service'
 import { processPdfWithAzureDI } from './azure-di.service'
-import { processImageWithVision } from './gpt-vision.service'
+import { processImageWithVision, classifyDocument } from './gpt-vision.service'
 import {
   identifyCompaniesFromExtraction,
   SYSTEM_USER_ID,
@@ -323,6 +325,58 @@ async function executeAIProcessing(
         confidence: result.confidence,
       },
       actualPages: result.pageCount,
+    }
+  } else if (method === ProcessingMethod.DUAL_PROCESSING) {
+    // CHANGE-001: 雙重處理模式 - Native PDF 專用
+    // 第一階段：GPT Vision 分類（取得 documentIssuer 和 documentFormat）
+    // 第二階段：Azure DI 數據提取（取得發票欄位）
+    console.log(`[DUAL_PROCESSING] Starting dual processing for: ${file.originalName}`)
+
+    // 第一階段：GPT Vision 輕量分類
+    console.log(`[DUAL_PROCESSING] Phase 1: GPT Vision classification...`)
+    const classificationResult = await classifyDocument(filePath)
+
+    if (!classificationResult.success) {
+      console.warn(
+        `[DUAL_PROCESSING] Classification failed for ${file.originalName}: ${classificationResult.error}. ` +
+        `Continuing with Azure DI only.`
+      )
+    } else {
+      console.log(
+        `[DUAL_PROCESSING] Classification complete: ` +
+        `issuer=${classificationResult.documentIssuer?.name || 'unknown'}, ` +
+        `type=${classificationResult.documentFormat?.documentType || 'unknown'}`
+      )
+    }
+
+    // 第二階段：Azure DI 數據提取
+    console.log(`[DUAL_PROCESSING] Phase 2: Azure DI data extraction...`)
+    const dataResult = await processPdfWithAzureDI(filePath)
+
+    if (!dataResult.success) {
+      throw new Error(dataResult.error || 'Azure DI processing failed in dual processing mode')
+    }
+
+    console.log(`[DUAL_PROCESSING] Data extraction complete: ${dataResult.pageCount} pages`)
+
+    // 合併結果
+    return {
+      extractionResult: {
+        method: 'DUAL_PROCESSING',
+        fileName: file.originalName,
+        processedAt: new Date().toISOString(),
+        pages: dataResult.pageCount,
+        invoiceData: dataResult.invoiceData,
+        rawText: dataResult.rawText,
+        confidence: dataResult.confidence,
+        // CHANGE-001: 從 GPT Vision 分類結果中取得 documentIssuer 和 documentFormat
+        documentIssuer: classificationResult.success ? classificationResult.documentIssuer : undefined,
+        documentFormat: classificationResult.success ? classificationResult.documentFormat : undefined,
+        // 標記分類是否成功
+        classificationSuccess: classificationResult.success,
+        classificationError: classificationResult.error,
+      },
+      actualPages: dataResult.pageCount,
     }
   } else {
     // 使用 GPT Vision 處理掃描 PDF 或圖片

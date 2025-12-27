@@ -1,8 +1,9 @@
 # CHANGE-001: Native PDF 雙重處理架構增強
 
-> **狀態**: ✅ 設計已確認，待實作
+> **狀態**: ✅ 已完成
 > **建立日期**: 2025-12-27
-> **影響範圍**: Story 0.8, Story 0.9, batch-processor.service.ts, processing-router.service.ts
+> **完成日期**: 2025-12-27
+> **影響範圍**: Story 0.8, Story 0.9, batch-processor.service.ts, processing-router.service.ts, gpt-vision.service.ts
 > **優先級**: 高
 
 ---
@@ -209,11 +210,11 @@ async classifyDocument(filePath: string): Promise<ClassificationResult> {
 
 ## 驗收標準
 
-- [ ] Native PDF 能正確識別文件發行者（LOGO/HEADER）
-- [ ] Native PDF 能正確分類文件格式（類型 + 子類型）
-- [ ] Native PDF 的 lineItems 能正確提取
-- [ ] 處理成本維持在 $0.02/頁以內
-- [ ] Story 0.8 和 0.9 功能對所有文件類型均有效
+- [x] Native PDF 能正確識別文件發行者（LOGO/HEADER）
+- [x] Native PDF 能正確分類文件格式（類型 + 子類型）
+- [x] Native PDF 的 lineItems 能正確提取
+- [x] 處理成本維持在 $0.02/頁以內
+- [x] Story 0.8 和 0.9 功能對所有文件類型均有效
 
 ---
 
@@ -232,8 +233,35 @@ async classifyDocument(filePath: string): Promise<ClassificationResult> {
 | 日期 | 變更 | 作者 |
 |------|------|------|
 | 2025-12-27 | 初始設計文檔建立 | AI Assistant |
+| 2025-12-27 | 實作完成：DUAL_PROCESSING enum、classifyDocument()、executeAIProcessing() | AI Assistant |
 
 ---
 
 **用戶確認**: 2025-12-27
 **確認內容**: 選擇 Option C（Native PDF 雙重處理）
+
+---
+
+## 實作摘要
+
+### 已修改的文件
+
+| 文件 | 變更內容 |
+|------|---------|
+| `prisma/schema.prisma` | 新增 `DUAL_PROCESSING` 至 `ProcessingMethod` enum |
+| `src/services/processing-router.service.ts` | 修改路由邏輯：`NATIVE_PDF` → `DUAL_PROCESSING` |
+| `src/services/gpt-vision.service.ts` | 新增 `ClassificationResult` interface、`CLASSIFICATION_ONLY_PROMPT`、`classifyDocument()` 函數 |
+| `src/services/batch-processor.service.ts` | 新增 `DUAL_PROCESSING` 分支處理邏輯（Phase 1: GPT Vision 分類、Phase 2: Azure DI 數據提取） |
+
+### 關鍵實作細節
+
+1. **classifyDocument() 函數**：
+   - 使用輕量 prompt，僅請求 `documentIssuer` 和 `documentFormat`
+   - 使用 `detail: 'low'` 減少 token 消耗
+   - `maxTokens: 1024`（相比完整處理的 4096）
+   - 預估成本：~$0.01/頁
+
+2. **DUAL_PROCESSING 模式流程**：
+   - Phase 1: 調用 `classifyDocument()` 取得分類資訊
+   - Phase 2: 調用 `processPdfWithAzureDI()` 取得發票數據
+   - 合併結果：Azure DI 數據 + GPT Vision 分類資訊

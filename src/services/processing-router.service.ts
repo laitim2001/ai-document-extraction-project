@@ -2,18 +2,19 @@
  * @fileoverview 處理路由服務
  * @description
  *   根據文件類型自動選擇最佳 AI 處理方式：
- *   - NATIVE_PDF → Azure Document Intelligence（成本較低，原生 PDF 效果好）
- *   - SCANNED_PDF → GPT-5.2 Vision（圖片識別更準確）
- *   - IMAGE → GPT-5.2 Vision（圖片識別更準確）
+ *   - NATIVE_PDF → DUAL_PROCESSING（GPT Vision 分類 + Azure DI 數據）- CHANGE-001
+ *   - SCANNED_PDF → GPT-4o Vision（完整處理：OCR + 分類 + 提取）
+ *   - IMAGE → GPT-4o Vision（完整處理：OCR + 分類 + 提取）
  *
  * @module src/services/processing-router
  * @since Epic 0 - Story 0.2
- * @lastModified 2025-12-24
+ * @lastModified 2025-12-27
  *
  * @features
  *   - 根據 DetectedFileType 自動路由到對應處理服務
  *   - 支援批量文件路由決策
  *   - 返回處理方式和預估成本
+ *   - CHANGE-001: Native PDF 雙重處理模式
  *
  * @dependencies
  *   - Prisma Client - 數據庫操作
@@ -22,6 +23,7 @@
  * @related
  *   - src/services/cost-estimation.service.ts - 成本估算服務
  *   - src/services/batch-processor.service.ts - 批量處理執行器
+ *   - claudedocs/4-changes/feature-changes/CHANGE-001-native-pdf-dual-processing.md
  */
 
 import { DetectedFileType, ProcessingMethod } from '@prisma/client'
@@ -60,6 +62,11 @@ export interface BatchRoutingResult {
     fileCount: number
     fileIds: string[]
   }
+  /** CHANGE-001: 雙重處理的文件統計 */
+  dualProcessing: {
+    fileCount: number
+    fileIds: string[]
+  }
   /** 總預估成本 */
   totalEstimatedCost: number
 }
@@ -79,6 +86,10 @@ export interface FileForRouting {
 
 /**
  * 成本配置
+ * @description
+ *   - AZURE_DI: 僅數據提取（原生 PDF）
+ *   - GPT_VISION: 完整處理（掃描 PDF、圖片）
+ *   - DUAL_PROCESSING: GPT Vision（分類）+ Azure DI（數據）- CHANGE-001
  */
 export const COST_CONFIG = {
   AZURE_DI: {
@@ -88,7 +99,12 @@ export const COST_CONFIG = {
   },
   GPT_VISION: {
     perPage: 0.03, // USD per page (平均值)
-    description: 'GPT-5.2 Vision',
+    description: 'GPT-4o Vision',
+    avgPagesPerFile: 2, // 預設每個文件的頁數
+  },
+  DUAL_PROCESSING: {
+    perPage: 0.02, // USD per page (GPT Vision 分類 ~$0.01 + Azure DI 數據 ~$0.01)
+    description: 'Dual Processing (GPT Vision + Azure DI)',
     avgPagesPerFile: 2, // 預設每個文件的頁數
   },
 } as const
@@ -101,10 +117,10 @@ export const COST_CONFIG = {
  * 根據文件類型決定處理方式
  *
  * @description
- *   路由規則：
- *   - NATIVE_PDF: 使用 Azure DI（成本低、效果好）
- *   - SCANNED_PDF: 使用 GPT Vision（圖片識別準確）
- *   - IMAGE: 使用 GPT Vision（圖片識別準確）
+ *   路由規則（CHANGE-001 更新）：
+ *   - NATIVE_PDF: 使用 DUAL_PROCESSING（GPT Vision 分類 + Azure DI 數據）
+ *   - SCANNED_PDF: 使用 GPT Vision（完整處理：OCR + 分類 + 提取）
+ *   - IMAGE: 使用 GPT Vision（完整處理：OCR + 分類 + 提取）
  *
  * @param detectedType - 檢測到的文件類型
  * @returns 處理方式
@@ -113,16 +129,20 @@ export const COST_CONFIG = {
  * @example
  * ```typescript
  * const method = determineProcessingMethod('NATIVE_PDF')
- * // Returns: ProcessingMethod.AZURE_DI
+ * // Returns: ProcessingMethod.DUAL_PROCESSING
  * ```
  */
 export function determineProcessingMethod(
   detectedType: DetectedFileType
 ): ProcessingMethod {
   switch (detectedType) {
+    // CHANGE-001: Native PDF 使用雙重處理
+    // 第一階段：GPT Vision 分類（documentIssuer, documentFormat）
+    // 第二階段：Azure DI 數據提取（invoiceData, lineItems）
     case DetectedFileType.NATIVE_PDF:
-      return ProcessingMethod.AZURE_DI
+      return ProcessingMethod.DUAL_PROCESSING
 
+    // 掃描 PDF 和圖片使用 GPT Vision 完整處理
     case DetectedFileType.SCANNED_PDF:
     case DetectedFileType.IMAGE:
       return ProcessingMethod.GPT_VISION
@@ -177,6 +197,7 @@ export function routeFile(file: FileForRouting): ProcessingRoute {
  * @description
  *   遍歷所有文件，根據類型分配處理方式，
  *   並統計各種處理方式的文件數量和成本。
+ *   CHANGE-001: 新增 DUAL_PROCESSING 統計
  *
  * @param files - 文件列表
  * @returns 批量路由結果
@@ -188,8 +209,8 @@ export function routeFile(file: FileForRouting): ProcessingRoute {
  *   { id: '2', detectedType: 'SCANNED_PDF' },
  * ]
  * const result = routeBatch(files)
- * // result.azureDI.fileCount = 1
- * // result.gptVision.fileCount = 1
+ * // result.dualProcessing.fileCount = 1 (NATIVE_PDF)
+ * // result.gptVision.fileCount = 1 (SCANNED_PDF)
  * ```
  */
 export function routeBatch(files: FileForRouting[]): BatchRoutingResult {
@@ -199,6 +220,11 @@ export function routeBatch(files: FileForRouting[]): BatchRoutingResult {
     fileIds: [],
   }
   const gptVision: { fileCount: number; fileIds: string[] } = {
+    fileCount: 0,
+    fileIds: [],
+  }
+  // CHANGE-001: 新增雙重處理統計
+  const dualProcessing: { fileCount: number; fileIds: string[] } = {
     fileCount: 0,
     fileIds: [],
   }
@@ -214,13 +240,20 @@ export function routeBatch(files: FileForRouting[]): BatchRoutingResult {
     routes.push(route)
     totalEstimatedCost += route.estimatedCost
 
-    // 統計分組
-    if (route.method === ProcessingMethod.AZURE_DI) {
-      azureDI.fileCount++
-      azureDI.fileIds.push(file.id)
-    } else {
-      gptVision.fileCount++
-      gptVision.fileIds.push(file.id)
+    // 統計分組（CHANGE-001: 新增 DUAL_PROCESSING）
+    switch (route.method) {
+      case ProcessingMethod.AZURE_DI:
+        azureDI.fileCount++
+        azureDI.fileIds.push(file.id)
+        break
+      case ProcessingMethod.GPT_VISION:
+        gptVision.fileCount++
+        gptVision.fileIds.push(file.id)
+        break
+      case ProcessingMethod.DUAL_PROCESSING:
+        dualProcessing.fileCount++
+        dualProcessing.fileIds.push(file.id)
+        break
     }
   }
 
@@ -228,6 +261,7 @@ export function routeBatch(files: FileForRouting[]): BatchRoutingResult {
     routes,
     azureDI,
     gptVision,
+    dualProcessing,
     totalEstimatedCost,
   }
 }

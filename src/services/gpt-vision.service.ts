@@ -1,16 +1,17 @@
 /**
- * @fileoverview GPT-5.2 Vision 處理服務
+ * @fileoverview GPT-4o Vision 處理服務
  * @description
- *   使用 Azure OpenAI GPT-5.2 模型處理圖片和掃描 PDF：
+ *   使用 Azure OpenAI GPT-4o 模型處理圖片和掃描 PDF：
  *   - 圖片轉 Base64 編碼
- *   - GPT-5.2 Vision API 調用
+ *   - GPT-4o Vision API 調用
  *   - 發票內容提取和結構化
  *   - 文件發行者識別 (Story 0.8)
  *   - 文件格式識別 (Story 0.9)
+ *   - CHANGE-001: 分類專用模式 (classifyDocument)
  *
  * @module src/services/gpt-vision
  * @since Epic 0 - Story 0.2
- * @lastModified 2025-12-26
+ * @lastModified 2025-12-27
  *
  * @features
  *   - 支援 JPG、PNG、TIFF、PDF 圖片
@@ -18,6 +19,7 @@
  *   - 文件發行者識別
  *   - 文件格式識別與特徵提取
  *   - 錯誤處理和重試
+ *   - CHANGE-001: classifyDocument() 輕量分類模式
  *
  * @dependencies
  *   - Azure OpenAI Service
@@ -28,6 +30,7 @@
  *   - src/services/batch-processor.service.ts - 批量處理執行器
  *   - src/services/processing-router.service.ts - 處理路由服務
  *   - src/lib/prompts/extraction-prompt.ts - 提示詞定義
+ *   - claudedocs/4-changes/feature-changes/CHANGE-001-native-pdf-dual-processing.md
  */
 
 import { AzureOpenAI } from 'openai'
@@ -175,6 +178,23 @@ export interface GPTVisionConfig {
   maxTokens?: number
 }
 
+/**
+ * CHANGE-001: 分類結果（輕量模式）
+ * @description 僅包含分類資訊，不含完整發票數據
+ */
+export interface ClassificationResult {
+  /** 分類成功 */
+  success: boolean
+  /** 文件發行者識別結果 */
+  documentIssuer?: DocumentIssuerInfo
+  /** 文件格式識別結果 */
+  documentFormat?: DocumentFormatInfo
+  /** 處理的頁數 */
+  pageCount: number
+  /** 錯誤信息（如果有） */
+  error?: string
+}
+
 // ============================================================
 // Constants
 // ============================================================
@@ -195,6 +215,58 @@ const DEFAULT_CONFIG: GPTVisionConfig = {
   apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2025-03-01-preview',
   maxTokens: 4096,
 }
+
+/**
+ * CHANGE-001: 分類專用提示詞
+ * @description
+ *   輕量級提示詞，只請求文件分類資訊：
+ *   - documentIssuer: 發行者識別（LOGO/HEADER/LETTERHEAD/FOOTER）
+ *   - documentFormat: 文件類型和子類型分類
+ *   不請求完整發票數據，減少 token 使用和成本
+ */
+const CLASSIFICATION_ONLY_PROMPT = `You are an expert document classifier for freight and logistics invoices.
+Analyze this document image and identify ONLY the following classification information.
+Do NOT extract invoice data, line items, or amounts.
+
+Output a JSON object with ONLY these two fields:
+
+{
+  "documentIssuer": {
+    "name": "Company name that issued this document (from logo, header, or letterhead)",
+    "identificationMethod": "LOGO" | "HEADER" | "LETTERHEAD" | "FOOTER" | "AI_INFERENCE",
+    "confidence": 0-100,
+    "rawText": "Raw text found (optional)"
+  },
+  "documentFormat": {
+    "documentType": "INVOICE" | "DEBIT_NOTE" | "CREDIT_NOTE" | "STATEMENT" | "OTHER",
+    "documentSubtype": "OCEAN" | "AIR" | "LAND" | "COURIER" | "WAREHOUSE" | "CUSTOMS" | "GENERAL",
+    "formatConfidence": 0-100
+  }
+}
+
+Rules:
+1. For documentIssuer:
+   - Look for company logos, letterhead, or prominent company names at top of document
+   - Prefer LOGO > HEADER > LETTERHEAD > FOOTER > AI_INFERENCE as identification method
+   - This is the company that ISSUED the document (freight forwarder/carrier), NOT the customer/buyer
+
+2. For documentFormat:
+   - INVOICE: Standard freight invoice with charges
+   - DEBIT_NOTE: Additional charges or adjustments (DN)
+   - CREDIT_NOTE: Refunds or credits (CN)
+   - STATEMENT: Account statement or summary
+   - OTHER: Cannot determine
+
+3. For documentSubtype:
+   - OCEAN: Sea freight, FCL, LCL, ocean shipping
+   - AIR: Air freight, air cargo
+   - LAND: Trucking, rail, land transport
+   - COURIER: Express, courier services
+   - WAREHOUSE: Storage, warehousing
+   - CUSTOMS: Customs clearance, duties
+   - GENERAL: General or mixed services
+
+Return ONLY valid JSON, no additional text.`
 
 // ============================================================
 // Helper Functions
@@ -573,6 +645,154 @@ export async function processMultipleImages(
   result.pageCount = imagePaths.length
 
   return result
+}
+
+/**
+ * CHANGE-001: 文件分類（輕量模式）
+ *
+ * @description
+ *   僅執行文件分類，不提取完整發票數據。
+ *   用於 Native PDF 雙重處理的第一階段：
+ *   - 識別 documentIssuer（LOGO/HEADER/LETTERHEAD/FOOTER）
+ *   - 識別 documentFormat（Invoice/DN/CN + Ocean/Air/Land）
+ *
+ *   此方法比 processImageWithVision 成本更低（~$0.01/頁 vs ~$0.03/頁），
+ *   因為只請求分類資訊，不請求完整發票數據。
+ *
+ * @param filePath - 文件路徑（支援 PDF 和圖片）
+ * @param config - 配置選項
+ * @returns 分類結果
+ *
+ * @example
+ * ```typescript
+ * const result = await classifyDocument('/path/to/invoice.pdf')
+ * if (result.success) {
+ *   console.log('Issuer:', result.documentIssuer?.name)
+ *   console.log('Type:', result.documentFormat?.documentType)
+ * }
+ * ```
+ */
+export async function classifyDocument(
+  filePath: string,
+  config: GPTVisionConfig = {}
+): Promise<ClassificationResult> {
+  const mergedConfig = { ...DEFAULT_CONFIG, ...config }
+  // 使用較少的 tokens 因為只需要分類
+  mergedConfig.maxTokens = 1024
+  let tempImagePaths: string[] = []
+
+  try {
+    // 檢查配置
+    if (!mergedConfig.endpoint || !mergedConfig.apiKey) {
+      console.warn('[GPT Vision] Azure OpenAI not configured, using mock classification')
+      return createMockClassificationResult()
+    }
+
+    let imagePath = filePath
+
+    // 檢查是否為 PDF 文件
+    if (isPdfFile(filePath)) {
+      console.log(`[GPT Vision] Classification: Converting PDF to image: ${path.basename(filePath)}`)
+
+      // 將 PDF 轉換為圖片（只處理第一頁用於分類）
+      const { imagePaths, pageCount } = await convertPdfToImages(filePath)
+      tempImagePaths = imagePaths
+
+      if (imagePaths.length === 0) {
+        throw new Error('Failed to extract images from PDF for classification')
+      }
+
+      console.log(`[GPT Vision] Classification: Using first page of ${pageCount} pages`)
+      imagePath = imagePaths[0]
+    }
+
+    // 讀取並編碼圖片
+    const imageBase64 = await fileToBase64(imagePath)
+    const mimeType = getMimeType(imagePath)
+
+    // 創建客戶端
+    const client = createClient(mergedConfig)
+
+    console.log(`[GPT Vision] Classification: Calling API for document classification`)
+
+    // 調用 API（使用分類專用提示詞）
+    const response = await client.chat.completions.create({
+      model: mergedConfig.deploymentName || 'gpt-5.2',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: CLASSIFICATION_ONLY_PROMPT },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:${mimeType};base64,${imageBase64}`,
+                detail: 'low', // 使用 low detail 減少成本
+              },
+            },
+          ],
+        },
+      ],
+      max_completion_tokens: mergedConfig.maxTokens,
+    })
+
+    // 解析回應
+    const content = response.choices[0]?.message?.content
+    if (!content) {
+      throw new Error('Empty response from GPT Vision for classification')
+    }
+
+    const classificationData = parseGPTResponse(content) as {
+      documentIssuer?: DocumentIssuerInfo
+      documentFormat?: DocumentFormatInfo
+    }
+
+    console.log(`[GPT Vision] Classification successful: ${classificationData.documentIssuer?.name || 'Unknown'} - ${classificationData.documentFormat?.documentType || 'Unknown'}`)
+
+    return {
+      success: true,
+      documentIssuer: classificationData.documentIssuer,
+      documentFormat: classificationData.documentFormat,
+      pageCount: tempImagePaths.length > 0 ? tempImagePaths.length : 1,
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error('[GPT Vision] Classification error:', errorMessage)
+
+    return {
+      success: false,
+      pageCount: 0,
+      error: errorMessage,
+    }
+  } finally {
+    // 清理臨時圖片文件
+    if (tempImagePaths.length > 0) {
+      await cleanupTempImages(tempImagePaths)
+    }
+  }
+}
+
+/**
+ * CHANGE-001: 創建模擬分類結果（用於測試）
+ *
+ * @returns 模擬的分類結果
+ */
+function createMockClassificationResult(): ClassificationResult {
+  return {
+    success: true,
+    documentIssuer: {
+      name: 'Sample Freight Forwarder Ltd.',
+      identificationMethod: 'HEADER',
+      confidence: 85,
+      rawText: 'SAMPLE FREIGHT FORWARDER LTD.',
+    },
+    documentFormat: {
+      documentType: 'INVOICE' as DocumentType,
+      documentSubtype: 'OCEAN' as DocumentSubtype,
+      formatConfidence: 90,
+    },
+    pageCount: 1,
+  }
 }
 
 /**

@@ -4811,8 +4811,9 @@ enum HistoricalFileStatus {
 
 /// 處理方式 - Story 0.2 智能處理路由
 enum ProcessingMethod {
-  AZURE_DI      // Azure Document Intelligence（原生 PDF）
-  GPT_VISION    // GPT-4o Vision（掃描 PDF、圖片）
+  AZURE_DI         // Azure Document Intelligence（原生 PDF 數據提取）
+  GPT_VISION       // GPT-4o Vision（掃描 PDF、圖片 - 完整處理）
+  DUAL_PROCESSING  // 雙重處理：GPT Vision（分類）+ Azure DI（數據）- CHANGE-001
 }
 
 /// 歷史數據批量處理任務
