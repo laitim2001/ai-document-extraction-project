@@ -90,8 +90,17 @@ export interface AutoCreateConfig {
 // Constants
 // ============================================================
 
-/** 系統用戶 ID（用於自動建立） */
-export const SYSTEM_USER_ID = 'system'
+/**
+ * 系統用戶 ID（用於自動建立）
+ *
+ * @description
+ *   此 ID 用於 JIT（Just-in-Time）自動建立公司時的 createdById 欄位。
+ *   必須對應到資料庫中已存在的用戶 ID，否則會觸發 FK 約束錯誤：
+ *   `Foreign key constraint violated on the constraint: companies_created_by_id_fkey`
+ *
+ * @since FIX-002 - 修復公司自動建立 FK 約束問題
+ */
+export const SYSTEM_USER_ID = 'dev-user-1'
 
 // ============================================================
 // Core Functions
