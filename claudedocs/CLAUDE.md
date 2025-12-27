@@ -74,7 +74,12 @@ claudedocs/
 │   └── feature-changes/         # 功能變更記錄
 │
 ├── 5-status/                    # 狀態報告
-│   └── testing/                 # 測試報告
+│   └── testing/                 # 測試文檔
+│       ├── plans/               # 測試計劃 (TEST-PLAN-*)
+│       ├── reports/             # 測試報告 (TEST-REPORT-*)
+│       ├── e2e/                 # E2E 測試文檔
+│       ├── manual/              # 手動測試文檔
+│       └── TESTING-FRAMEWORK.md # 測試框架說明
 │
 ├── 6-ai-assistant/              # AI 助手相關
 │   ├── analysis/                # 分析報告
@@ -197,6 +202,32 @@ claudedocs/3-progress/
 └── weekly/{YYYY}-W{WW}.md                       # 週報
 ```
 
+### 測試文檔 (TEST-PLAN-* / TEST-REPORT-*)
+```
+claudedocs/5-status/testing/
+├── plans/
+│   └── TEST-PLAN-{NNN}-{description}.md     # 測試計劃
+├── reports/
+│   └── TEST-REPORT-{NNN}-{description}.md   # 測試報告
+├── e2e/                                      # E2E 測試文檔
+├── manual/                                   # 手動測試文檔
+└── TESTING-FRAMEWORK.md                      # 框架說明
+```
+
+**標準 TEST-PLAN 文檔結構**:
+```markdown
+# TEST-PLAN-{NNN}: {Title}
+
+> **建立日期**: YYYY-MM-DD
+> **關聯 Epic/Story**: Epic X / Story X.X
+> **狀態**: ✅ 已完成 | 🚧 進行中
+
+## 1. 測試範圍
+## 2. 測試案例
+## 3. 測試環境
+## 4. 執行結果
+```
+
 ### 情境提示詞 (SITUATION-*)
 ```
 claudedocs/6-ai-assistant/prompts/
@@ -274,6 +305,8 @@ claudedocs/6-ai-assistant/prompts/
 | Epic 規劃 | `1-planning/epics/epic-{N}/` |
 | 功能變更 | `4-changes/feature-changes/CHANGE-{NNN}-*` |
 | Bug 修復 | `4-changes/bug-fixes/FIX-{NNN}-*` |
+| 測試計劃 | `5-status/testing/plans/TEST-PLAN-{NNN}-*` |
+| 測試報告 | `5-status/testing/reports/TEST-REPORT-{NNN}-*` |
 | 週報 | `3-progress/weekly/` |
 | AI 工作流程 | `6-ai-assistant/prompts/` |
 | 範本 | `7-archive/templates/` |
@@ -284,12 +317,16 @@ claudedocs/6-ai-assistant/prompts/
    - 新 Epic → `1-planning/epics/epic-{N}/`
    - 功能變更 → `4-changes/feature-changes/`
    - Bug 修復 → `4-changes/bug-fixes/`
+   - 測試計劃 → `5-status/testing/plans/`
+   - 測試報告 → `5-status/testing/reports/`
    - 進度報告 → `3-progress/`
 
 2. **使用正確的命名約定**
    - Epic: `epic-{N}` (0-12)
-   - CHANGE: 下一個可用編號
-   - FIX: 下一個可用編號
+   - CHANGE: `CHANGE-{NNN}-{description}.md`
+   - FIX: `FIX-{NNN}-{description}.md`
+   - TEST-PLAN: `TEST-PLAN-{NNN}-{description}.md`
+   - TEST-REPORT: `TEST-REPORT-{NNN}-{description}.md`
 
 3. **遵循格式範本**
    - 參考 `7-archive/templates/` 下的範本
