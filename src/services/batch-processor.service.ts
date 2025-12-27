@@ -944,12 +944,10 @@ export async function processBatch(
   const endTime = new Date()
 
   // 更新批次狀態為完成
-  // 注意：如果術語聚合已完成，狀態應為 AGGREGATED，否則為 COMPLETED 或 FAILED
-  const finalStatus = failedCount === files.length
-    ? 'FAILED'
-    : termAggregationCompleted
-      ? 'AGGREGATED' // 術語聚合已完成
-      : 'COMPLETED'
+  // FIX-003: 統一使用 COMPLETED 作為最終狀態
+  // 術語聚合是否完成由 aggregationCompletedAt 欄位判斷，而非狀態值
+  // 原邏輯的問題：術語聚合成功 → AGGREGATED，失敗 → COMPLETED，語義矛盾
+  const finalStatus = failedCount === files.length ? 'FAILED' : 'COMPLETED'
 
   await prisma.historicalBatch.update({
     where: { id: batchId },

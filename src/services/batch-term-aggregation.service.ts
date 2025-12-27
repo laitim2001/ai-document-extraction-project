@@ -578,11 +578,12 @@ export async function triggerTermAggregation(
     // 儲存結果
     await saveAggregationResult(batchId, result);
 
-    // 更新狀態為聚合完成
+    // FIX-003: 更新狀態為 COMPLETED（統一終態）
+    // 術語聚合是否完成由 aggregationCompletedAt 欄位判斷
     await prisma.historicalBatch.update({
       where: { id: batchId },
       data: {
-        status: 'AGGREGATED',
+        status: 'COMPLETED',
         aggregationCompletedAt: new Date(),
       },
     });
