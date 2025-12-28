@@ -92,8 +92,11 @@ interface ExtractionResultJson {
     amount?: { amount?: number | null } | null;
   }>;
   invoiceData?: {
-    items?: Array<{
+    lineItems?: Array<{
       description?: string | null;
+      name?: string | null;
+      chargeType?: string | null;
+      amount?: number | null;
     }>;
   };
   extractedData?: {
@@ -124,10 +127,11 @@ function extractTermsFromExtractionResult(
   const result = extractionResult as ExtractionResultJson;
 
   // 嘗試從不同格式中提取
+  // Azure DI 和 GPT Vision 都返回 invoiceData.lineItems 格式
   const items =
     result.lineItems ??
     result.items ??
-    result.invoiceData?.items ??
+    result.invoiceData?.lineItems ??
     result.extractedData?.lineItems ??
     [];
 

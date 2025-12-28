@@ -71,7 +71,7 @@ interface InternalTermData {
 interface ExtractionResultJson {
   lineItems?: Array<{ description?: string | null }>;
   items?: Array<{ description?: string | null }>;
-  invoiceData?: { items?: Array<{ description?: string | null }> };
+  invoiceData?: { lineItems?: Array<{ description?: string | null }> };
   extractedData?: { lineItems?: Array<{ description?: string | null }> };
 }
 
@@ -491,7 +491,7 @@ function extractTermsFromResult(result: ExtractionResultJson | null): string[] {
   const items =
     result.lineItems ??
     result.items ??
-    result.invoiceData?.items ??
+    result.invoiceData?.lineItems ??
     result.extractedData?.lineItems ??
     [];
 
