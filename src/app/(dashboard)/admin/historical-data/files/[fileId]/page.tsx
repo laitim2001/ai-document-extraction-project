@@ -1,0 +1,188 @@
+/**
+ * @fileoverview Historical File Detail Page - 歷史文件詳情頁面
+ * @description
+ *   顯示單一歷史文件的完整詳情，包含：
+ *   - 文件基本資訊卡片
+ *   - 處理時間軸
+ *   - 分頁顯示：提取結果、發行者識別、Line Items、原始 JSON
+ *
+ * @module src/app/(dashboard)/admin/historical-data/files/[fileId]
+ * @since CHANGE-003 - 歷史數據文件詳情頁
+ * @lastModified 2025-12-28
+ */
+
+'use client';
+
+import * as React from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, FileText, Loader2 } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useHistoricalFileDetail } from '@/hooks/use-historical-file-detail';
+import {
+  FileInfoCard,
+  ProcessingTimeline,
+  ExtractionResultPanel,
+  IssuerIdentificationPanel,
+  LineItemsTable,
+  RawJsonViewer,
+} from '@/components/features/historical-data/file-detail';
+
+// ============================================================
+// Status Badge Styling
+// ============================================================
+
+const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  PENDING: { label: '待處理', variant: 'outline' },
+  PROCESSING: { label: '處理中', variant: 'secondary' },
+  COMPLETED: { label: '已完成', variant: 'default' },
+  FAILED: { label: '失敗', variant: 'destructive' },
+  SKIPPED: { label: '已跳過', variant: 'outline' },
+};
+
+// ============================================================
+// Component
+// ============================================================
+
+/**
+ * @component FileDetailPage
+ * @description 歷史文件詳情頁面，整合所有詳情組件
+ */
+export default function FileDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const fileId = params.fileId as string;
+
+  const { data: file, isLoading, error } = useHistoricalFileDetail(fileId);
+
+  // --- Handlers ---
+
+  const handleBack = () => {
+    router.back();
+  };
+
+  // --- Loading State ---
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <p className="text-muted-foreground">載入文件詳情中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // --- Error State ---
+
+  if (error) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="rounded-full bg-destructive/10 p-4">
+            <FileText className="h-8 w-8 text-destructive" />
+          </div>
+          <div>
+            <h3 className="font-semibold">載入失敗</h3>
+            <p className="text-sm text-muted-foreground">
+              {error instanceof Error ? error.message : '無法載入文件詳情'}
+            </p>
+          </div>
+          <Button variant="outline" onClick={handleBack}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            返回列表
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // --- Not Found State ---
+
+  if (!file) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="rounded-full bg-muted p-4">
+            <FileText className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <div>
+            <h3 className="font-semibold">找不到文件</h3>
+            <p className="text-sm text-muted-foreground">
+              文件 ID: {fileId} 不存在或已被刪除
+            </p>
+          </div>
+          <Button variant="outline" onClick={handleBack}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            返回列表
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const statusInfo = statusConfig[file.status] || { label: file.status, variant: 'outline' as const };
+
+  // --- Render ---
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={handleBack}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-semibold">{file.fileName}</h1>
+            {file.batch && (
+              <p className="text-sm text-muted-foreground">
+                批次: {file.batch.name || file.batch.id.substring(0, 8)}
+              </p>
+            )}
+          </div>
+        </div>
+        <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+      </div>
+
+      {/* Info Cards Row */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <FileInfoCard file={file} />
+        <ProcessingTimeline timeline={file.timeline} status={file.status} />
+      </div>
+
+      {/* Tabs Section */}
+      <Tabs defaultValue="extraction" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="extraction">提取結果</TabsTrigger>
+          <TabsTrigger value="issuer">發行者識別</TabsTrigger>
+          <TabsTrigger value="lineitems">Line Items</TabsTrigger>
+          <TabsTrigger value="raw">原始 JSON</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="extraction">
+          <ExtractionResultPanel extractionResult={file.extractionResult} />
+        </TabsContent>
+
+        <TabsContent value="issuer">
+          <IssuerIdentificationPanel
+            issuerIdentification={file.issuerIdentification}
+            documentFormat={file.documentFormat}
+            formatConfidence={file.formatConfidence}
+          />
+        </TabsContent>
+
+        <TabsContent value="lineitems">
+          <LineItemsTable extractionResult={file.extractionResult} />
+        </TabsContent>
+
+        <TabsContent value="raw">
+          <RawJsonViewer data={file} />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

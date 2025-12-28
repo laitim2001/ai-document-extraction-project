@@ -11,7 +11,7 @@
  *
  * @module src/components/features/historical-data/HistoricalFileList
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-28
  */
 
 import * as React from 'react'
@@ -27,7 +27,9 @@ import {
   Trash2,
   RefreshCw,
   ChevronDown,
+  Eye,
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -171,6 +173,7 @@ export function HistoricalFileList({
   onRefresh,
   className,
 }: HistoricalFileListProps) {
+  const router = useRouter()
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [filterType, setFilterType] = useState<DetectedFileType | 'ALL'>('ALL')
   const [filterStatus, setFilterStatus] = useState<HistoricalFileStatus | 'ALL'>('ALL')
@@ -485,6 +488,18 @@ export function HistoricalFileList({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
+                        {/* 查看詳情 - 僅 COMPLETED 狀態可用 */}
+                        {file.status === 'COMPLETED' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => router.push(`/admin/historical-data/files/${file.id}`)}
+                            title="查看詳情"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        )}
                         {file.status === 'FAILED' && onRetryDetection && (
                           <Button
                             variant="ghost"
