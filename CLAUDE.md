@@ -7,9 +7,11 @@
 ## 項目概覽
 
 ### 項目使命
+
 建立一套 AI 驅動的文件內容提取與自動分類系統，專門解決 SCM 部門處理 Freight Invoice 的效率問題。
 
 ### 核心目標
+
 - **年處理量**: 450,000-500,000 張發票（APAC 地區）
 - **自動化率**: 90-95%
 - **準確率**: 90-95%
@@ -35,17 +37,18 @@
 
 ### 信心度路由機制
 
-| 信心度範圍 | 處理方式 | 說明 |
-|-----------|---------|------|
-| ≥ 90% | AUTO_APPROVE | 自動通過，無需人工介入 |
-| 70-89% | QUICK_REVIEW | 快速人工確認（一鍵確認/修正） |
-| < 70% | FULL_REVIEW | 完整人工審核（詳細檢查） |
+| 信心度範圍 | 處理方式     | 說明                          |
+| ---------- | ------------ | ----------------------------- |
+| ≥ 90%      | AUTO_APPROVE | 自動通過，無需人工介入        |
+| 70-89%     | QUICK_REVIEW | 快速人工確認（一鍵確認/修正） |
+| < 70%      | FULL_REVIEW  | 完整人工審核（詳細檢查）      |
 
 ---
 
 ## 技術棧
 
 ### 核心框架
+
 - **前端**: Next.js 15 (App Router) + TypeScript
 - **樣式**: Tailwind CSS + shadcn/ui
 - **資料庫**: PostgreSQL + Prisma ORM
@@ -53,13 +56,15 @@
 - **表單**: React Hook Form + Zod 驗證
 
 ### 外部服務
+
 - **OCR**: Azure Document Intelligence
-- **AI**: Azure OpenAI GPT-4o
+- **AI**: Azure OpenAI GPT-5.2
 - **認證**: Azure AD (Entra ID) SSO
 - **工作流**: n8n
 - **文件來源**: SharePoint / Outlook / Azure Blob Storage
 
 ### 開發工具
+
 - **容器化**: Docker Compose (PostgreSQL + pgAdmin)
 - **代碼品質**: ESLint + Prettier
 - **套件管理**: npm
@@ -151,27 +156,27 @@ ai-document-extraction-project/
 
 `claudedocs/` 是 AI 助手（Claude）與開發團隊協作產出的項目文檔中心，用於：
 
-| 用途 | 目錄 | 說明 |
-|------|------|------|
-| **規劃文檔** | `1-planning/` | Epic 架構設計、功能規劃 |
-| **Sprint 追蹤** | `2-sprints/` | Sprint 計劃記錄 |
-| **進度報告** | `3-progress/` | 日報/週報、進度追蹤 |
-| **變更管理** | `4-changes/` | Bug 修復、功能變更記錄 |
-| **狀態報告** | `5-status/` | 測試報告、系統狀態 |
-| **AI 協作** | `6-ai-assistant/` | 情境提示詞、工作流程指南 |
-| **歸檔** | `7-archive/` | 舊版文檔、範本 |
+| 用途            | 目錄              | 說明                     |
+| --------------- | ----------------- | ------------------------ |
+| **規劃文檔**    | `1-planning/`     | Epic 架構設計、功能規劃  |
+| **Sprint 追蹤** | `2-sprints/`      | Sprint 計劃記錄          |
+| **進度報告**    | `3-progress/`     | 日報/週報、進度追蹤      |
+| **變更管理**    | `4-changes/`      | Bug 修復、功能變更記錄   |
+| **狀態報告**    | `5-status/`       | 測試報告、系統狀態       |
+| **AI 協作**     | `6-ai-assistant/` | 情境提示詞、工作流程指南 |
+| **歸檔**        | `7-archive/`      | 舊版文檔、範本           |
 
 ### AI 助手情境提示詞 (SITUATION)
 
 開發過程中，AI 助手應根據不同情境使用對應的提示詞：
 
-| 情境 | 文件 | 使用時機 |
-|------|------|----------|
-| **SITUATION-1** | `PROJECT-ONBOARDING.md` | 新會話啟動、項目入門 |
-| **SITUATION-2** | `FEATURE-DEV-PREP.md` | 功能開發前的任務分析 |
-| **SITUATION-3** | `FEATURE-ENHANCEMENT.md` | 功能增強、代碼優化 |
-| **SITUATION-4** | `NEW-FEATURE-DEV.md` | 新功能實作執行 |
-| **SITUATION-5** | `SAVE-PROGRESS.md` | 保存進度、會話結束 |
+| 情境            | 文件                     | 使用時機             |
+| --------------- | ------------------------ | -------------------- |
+| **SITUATION-1** | `PROJECT-ONBOARDING.md`  | 新會話啟動、項目入門 |
+| **SITUATION-2** | `FEATURE-DEV-PREP.md`    | 功能開發前的任務分析 |
+| **SITUATION-3** | `FEATURE-ENHANCEMENT.md` | 功能增強、代碼優化   |
+| **SITUATION-4** | `NEW-FEATURE-DEV.md`     | 新功能實作執行       |
+| **SITUATION-5** | `SAVE-PROGRESS.md`       | 保存進度、會話結束   |
 
 **路徑**: `claudedocs/6-ai-assistant/prompts/SITUATION-*.md`
 
@@ -188,13 +193,13 @@ claudedocs/
 
 ### 狀態標記
 
-| 標記 | 含義 |
-|------|------|
-| ✅ | 已完成 |
-| 🚧 | 進行中 |
-| ⏸️ | 暫停/待開發 |
-| ❌ | 已取消 |
-| ⚠️ | 有風險/需注意 |
+| 標記 | 含義          |
+| ---- | ------------- |
+| ✅   | 已完成        |
+| 🚧   | 進行中        |
+| ⏸️   | 暫停/待開發   |
+| ❌   | 已取消        |
+| ⚠️   | 有風險/需注意 |
 
 ---
 
@@ -234,19 +239,19 @@ claudedocs/
 
 ### 適用範圍
 
-| 文件類型 | 是否需要完整頭部 | 說明 |
-|---------|----------------|------|
-| Services (`src/services/`) | ✅ 必須 | 核心業務邏輯 |
-| API Routes (`src/app/api/`) | ✅ 必須 | API 端點 |
-| Hooks (`src/hooks/`) | ✅ 必須 | 自定義 Hooks |
-| Utils (`src/lib/`) | ✅ 必須 | 工具函數 |
-| Feature Components | ✅ 必須 | 功能性組件 |
-| UI Components (`ui/`) | ❌ 不需要 | shadcn/ui 組件 |
-| Type Definitions | ⚠️ 簡化版 | 類型文件 |
+| 文件類型                    | 是否需要完整頭部 | 說明           |
+| --------------------------- | ---------------- | -------------- |
+| Services (`src/services/`)  | ✅ 必須          | 核心業務邏輯   |
+| API Routes (`src/app/api/`) | ✅ 必須          | API 端點       |
+| Hooks (`src/hooks/`)        | ✅ 必須          | 自定義 Hooks   |
+| Utils (`src/lib/`)          | ✅ 必須          | 工具函數       |
+| Feature Components          | ✅ 必須          | 功能性組件     |
+| UI Components (`ui/`)       | ❌ 不需要        | shadcn/ui 組件 |
+| Type Definitions            | ⚠️ 簡化版        | 類型文件       |
 
 ### 函數/方法註釋標準
 
-```typescript
+````typescript
 /**
  * [函數功能簡述]
  *
@@ -259,18 +264,18 @@ claudedocs/
  * const result = functionName(param);
  * ```
  */
-```
+````
 
 ### 命名規範
 
-| 類型 | 規範 | 範例 |
-|------|------|------|
-| 文件名 | kebab-case | `use-document-upload.ts` |
-| 組件 | PascalCase | `DocumentUploadForm.tsx` |
-| 函數 | camelCase | `calculateConfidenceScore` |
-| 常數 | UPPER_SNAKE_CASE | `MAX_FILE_SIZE` |
-| 類型/介面 | PascalCase | `DocumentMetadata` |
-| Enum 值 | UPPER_SNAKE_CASE | `Status.PENDING_REVIEW` |
+| 類型      | 規範             | 範例                       |
+| --------- | ---------------- | -------------------------- |
+| 文件名    | kebab-case       | `use-document-upload.ts`   |
+| 組件      | PascalCase       | `DocumentUploadForm.tsx`   |
+| 函數      | camelCase        | `calculateConfidenceScore` |
+| 常數      | UPPER_SNAKE_CASE | `MAX_FILE_SIZE`            |
+| 類型/介面 | PascalCase       | `DocumentMetadata`         |
+| Enum 值   | UPPER_SNAKE_CASE | `Status.PENDING_REVIEW`    |
 
 ### TypeScript 規範
 
@@ -304,6 +309,7 @@ function process(data: DocumentMetadata) { ... }  // 好
 ## API 設計規範
 
 ### 路由結構
+
 ```
 src/app/api/
 ├── v1/
@@ -322,6 +328,7 @@ src/app/api/
 ### 響應格式
 
 **成功響應：**
+
 ```typescript
 {
   success: true,
@@ -333,6 +340,7 @@ src/app/api/
 ```
 
 **錯誤響應 (RFC 7807)：**
+
 ```typescript
 {
   type: "https://api.example.com/errors/validation",
@@ -370,6 +378,7 @@ model Document {
 ```
 
 ### 遷移命名
+
 ```bash
 # 格式: YYYYMMDDHHMMSS_描述
 npx prisma migrate dev --name add_confidence_score_to_mappings
@@ -421,7 +430,7 @@ export function ComponentName({ prop1, prop2 }: ComponentProps) {
 export const useUIStore = create<UIState>((set) => ({
   sidebarOpen: true,
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-}));
+}))
 
 // 伺服器狀態 - React Query
 // src/hooks/use-documents.ts
@@ -429,7 +438,7 @@ export function useDocuments(filters: DocumentFilters) {
   return useQuery({
     queryKey: ['documents', filters],
     queryFn: () => documentApi.list(filters),
-  });
+  })
 }
 ```
 
@@ -438,6 +447,7 @@ export function useDocuments(filters: DocumentFilters) {
 ## 測試規範
 
 ### 測試文件命名
+
 ```
 tests/
 ├── unit/
@@ -451,6 +461,7 @@ tests/
 ```
 
 ### 測試覆蓋率目標
+
 - **單元測試**: 核心業務邏輯 80%+
 - **整合測試**: API 端點 70%+
 - **E2E 測試**: 關鍵用戶流程
@@ -460,6 +471,7 @@ tests/
 ## Git 規範
 
 ### 分支命名
+
 ```
 main                    # 生產分支
 develop                 # 開發分支
@@ -469,6 +481,7 @@ hotfix/critical-issue   # 緊急修復
 ```
 
 ### Commit Message 格式
+
 ```
 <type>(<scope>): <subject>
 
@@ -478,6 +491,7 @@ hotfix/critical-issue   # 緊急修復
 ```
 
 **類型：**
+
 - `feat`: 新功能
 - `fix`: Bug 修復
 - `docs`: 文檔更新
@@ -487,6 +501,7 @@ hotfix/critical-issue   # 緊急修復
 - `chore`: 構建/工具
 
 **範例：**
+
 ```
 feat(document): add confidence score calculation
 
@@ -571,11 +586,11 @@ npm run test
 
 ### 禁止行為
 
-| 禁止 | 說明 |
-|------|------|
-| ❌ 擅自替換組件 | 安裝失敗不能直接換其他組件 |
-| ❌ 簡化功能 | 遇到困難不能減少功能 |
-| ❌ 隱藏問題 | 不能不告知用戶就使用 workaround |
+| 禁止            | 說明                            |
+| --------------- | ------------------------------- |
+| ❌ 擅自替換組件 | 安裝失敗不能直接換其他組件      |
+| ❌ 簡化功能     | 遇到困難不能減少功能            |
+| ❌ 隱藏問題     | 不能不告知用戶就使用 workaround |
 
 ### 正確處理流程
 
@@ -602,14 +617,16 @@ npm run test
 ### 問題：[問題描述]
 
 ### 已嘗試：
+
 1. [方案 1] → [失敗原因]
 2. [方案 2] → [失敗原因]
 
 ### 替代方案：
-| 選項 | 方案 | 影響 |
-|------|------|------|
-| A | 繼續調查 | 需要更多時間 |
-| B | [替代方案] | [影響說明] |
+
+| 選項 | 方案       | 影響         |
+| ---- | ---------- | ------------ |
+| A    | 繼續調查   | 需要更多時間 |
+| B    | [替代方案] | [影響說明]   |
 
 請問您希望如何處理？
 ```
@@ -642,11 +659,11 @@ npm run test
 
 ### 各文檔更新時機
 
-| 文檔類型 | 更新觸發條件 | 更新頻率 |
-|---------|-------------|---------|
-| **CLAUDE.md** | 技術棧變更、架構調整、目錄重組、Epic 完成 | 低 |
-| **index.ts** | 新增服務、導出變更、常數調整 | 中 |
-| **.claude/rules/*.md** | 新開發模式、踩坑經驗、團隊約定變更 | 中低 |
+| 文檔類型                | 更新觸發條件                              | 更新頻率 |
+| ----------------------- | ----------------------------------------- | -------- |
+| **CLAUDE.md**           | 技術棧變更、架構調整、目錄重組、Epic 完成 | 低       |
+| **index.ts**            | 新增服務、導出變更、常數調整              | 中       |
+| **.claude/rules/\*.md** | 新開發模式、踩坑經驗、團隊約定變更        | 中低     |
 
 ### 開發完成檢查清單
 
@@ -656,17 +673,20 @@ npm run test
 ## 📋 開發完成檢查
 
 ### 代碼品質
+
 - [ ] 通過 TypeScript 類型檢查 (`npm run type-check`)
 - [ ] 通過 ESLint 檢查 (`npm run lint`)
 - [ ] 新增代碼包含標準 JSDoc 註釋
 
 ### 文檔同步
+
 - [ ] 如涉及新模組 → 已更新/建立 index.ts
 - [ ] 如涉及架構變更 → 已更新 CLAUDE.md
 - [ ] 如發現新規範/踩坑 → 已更新 .claude/rules/
 - [ ] 如完成 Story → 已更新項目進度
 
 ### 測試驗證
+
 - [ ] 相關測試通過
 - [ ] 新功能已有對應測試（如適用）
 ```
@@ -708,27 +728,27 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 
 ### Epic 結構（13 個 Epic，90 個 Stories）
 
-| Epic | 名稱 | Stories | 狀態 | 完成日期 |
-|------|------|---------|------|----------|
-| 0 | 歷史數據初始化（前置 Epic） | 7 | ✅ 已完成 | 2025-12-26 |
-| 1 | 用戶認證與存取控制 | 9 | ✅ 已完成 | 2025-12-18 |
-| 2 | 手動發票上傳與 AI 處理 | 7 | ✅ 已完成 | 2025-12-18 |
-| 3 | 發票審核與修正工作流 | 8 | ✅ 已完成 | 2025-12-19 |
-| 4 | 映射規則管理與自動學習 | 8 | ✅ 已完成 | 2025-12-19 |
-| 5 | Forwarder 配置管理 | 5 | ✅ 已完成 | 2025-12-19 |
-| 6 | 多城市數據隔離 | 5 | ✅ 已完成 | 2025-12-19 |
-| 7 | 報表儀表板與成本追蹤 | 10 | ✅ 已完成 | 2025-12-20 |
-| 8 | 審計追溯與合規 | 6 | ✅ 已完成 | 2025-12-20 |
-| 9 | 自動化文件獲取 | 5 | ✅ 已完成 | 2025-12-20 |
-| 10 | n8n 工作流整合 | 7 | ✅ 已完成 | 2025-12-21 |
-| 11 | 對外 API 服務 | 6 | ✅ 已完成 | 2025-12-21 |
-| 12 | 系統管理與監控 | 7 | ✅ 已完成 | 2025-12-21 |
+| Epic | 名稱                        | Stories | 狀態      | 完成日期   |
+| ---- | --------------------------- | ------- | --------- | ---------- |
+| 0    | 歷史數據初始化（前置 Epic） | 7       | ✅ 已完成 | 2025-12-26 |
+| 1    | 用戶認證與存取控制          | 9       | ✅ 已完成 | 2025-12-18 |
+| 2    | 手動發票上傳與 AI 處理      | 7       | ✅ 已完成 | 2025-12-18 |
+| 3    | 發票審核與修正工作流        | 8       | ✅ 已完成 | 2025-12-19 |
+| 4    | 映射規則管理與自動學習      | 8       | ✅ 已完成 | 2025-12-19 |
+| 5    | Forwarder 配置管理          | 5       | ✅ 已完成 | 2025-12-19 |
+| 6    | 多城市數據隔離              | 5       | ✅ 已完成 | 2025-12-19 |
+| 7    | 報表儀表板與成本追蹤        | 10      | ✅ 已完成 | 2025-12-20 |
+| 8    | 審計追溯與合規              | 6       | ✅ 已完成 | 2025-12-20 |
+| 9    | 自動化文件獲取              | 5       | ✅ 已完成 | 2025-12-20 |
+| 10   | n8n 工作流整合              | 7       | ✅ 已完成 | 2025-12-21 |
+| 11   | 對外 API 服務               | 6       | ✅ 已完成 | 2025-12-21 |
+| 12   | 系統管理與監控              | 7       | ✅ 已完成 | 2025-12-21 |
 
 ### 重要重構記錄
 
-| 重構 | 說明 | 狀態 | 完成 Story |
-|------|------|------|------------|
-| REFACTOR-001 | Forwarder → Company 模型重構 | ✅ 已完成 | Story 0-3 |
+| 重構         | 說明                         | 狀態      | 完成 Story |
+| ------------ | ---------------------------- | --------- | ---------- |
+| REFACTOR-001 | Forwarder → Company 模型重構 | ✅ 已完成 | Story 0-3  |
 
 ---
 
@@ -750,11 +770,11 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 
 ### 更新記錄
 
-| 版本 | 日期 | 變更內容 |
-|------|------|----------|
+| 版本  | 日期       | 變更內容                                                                         |
+| ----- | ---------- | -------------------------------------------------------------------------------- |
 | 2.0.0 | 2025-12-26 | 重大更新：全部 13 個 Epic 已完成、新增 Epic 0、更新目錄結構、Story 數量更正為 90 |
-| 1.4.0 | 2025-12-18 | Story 2-2 完成：OCR 提取服務（Python FastAPI + Next.js API） |
-| 1.3.0 | 2025-12-18 | Story 2-1 完成，Epic 2 開始進行 |
-| 1.2.0 | 2025-12-18 | Epic 1 完成，更新項目進度和 Epic 名稱（中文化） |
-| 1.1.0 | 2025-12-18 | 新增「開發後文檔更新檢查」章節 |
-| 1.0.0 | 2025-12-17 | 初始版本 |
+| 1.4.0 | 2025-12-18 | Story 2-2 完成：OCR 提取服務（Python FastAPI + Next.js API）                     |
+| 1.3.0 | 2025-12-18 | Story 2-1 完成，Epic 2 開始進行                                                  |
+| 1.2.0 | 2025-12-18 | Epic 1 完成，更新項目進度和 Epic 名稱（中文化）                                  |
+| 1.1.0 | 2025-12-18 | 新增「開發後文檔更新檢查」章節                                                   |
+| 1.0.0 | 2025-12-17 | 初始版本                                                                         |
