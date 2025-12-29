@@ -28,6 +28,8 @@ import {
   XCircle,
   AlertTriangle,
   Play,
+  PauseCircle,
+  Layers,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -101,6 +103,9 @@ const STATUS_CONFIG: Record<
 > = {
   PENDING: { label: '待處理', icon: Clock, variant: 'secondary', color: 'text-yellow-500' },
   PROCESSING: { label: '處理中', icon: Loader2, variant: 'outline', color: 'text-blue-500' },
+  PAUSED: { label: '已暫停', icon: PauseCircle, variant: 'secondary', color: 'text-orange-500' },
+  AGGREGATING: { label: '聚合中', icon: Layers, variant: 'outline', color: 'text-purple-500' },
+  AGGREGATED: { label: '聚合完成', icon: Layers, variant: 'default', color: 'text-indigo-500' },
   COMPLETED: { label: '已完成', icon: CheckCircle2, variant: 'default', color: 'text-green-500' },
   FAILED: { label: '失敗', icon: XCircle, variant: 'destructive', color: 'text-red-500' },
   CANCELLED: { label: '已取消', icon: AlertTriangle, variant: 'secondary', color: 'text-gray-500' },
