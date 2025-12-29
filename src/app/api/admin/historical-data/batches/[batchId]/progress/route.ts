@@ -6,9 +6,9 @@
  *   - 處理速率更新
  *   - 錯誤事件通知
  *
- * @module src/app/api/admin/historical-data/batches/[id]/progress
+ * @module src/app/api/admin/historical-data/batches/[batchId]/progress
  * @since Epic 0 - Story 0.4
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-27
  *
  * @features
  *   - SSE 即時推送
@@ -47,7 +47,7 @@ const MAX_CONNECTION_TIME = 5 * 60 * 1000
 // ============================================================
 
 interface RouteContext {
-  params: Promise<{ id: string }>
+  params: Promise<{ batchId: string }>
 }
 
 // ============================================================
@@ -119,7 +119,7 @@ export async function GET(
     }
 
     // 獲取批次 ID
-    const { id: batchId } = await context.params
+    const { batchId } = await context.params
 
     // 確認批次存在
     const initialProgress = await getBatchProgress(batchId)

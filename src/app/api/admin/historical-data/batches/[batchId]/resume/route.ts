@@ -6,9 +6,9 @@
  *   - 清除暫停時間
  *   - 繼續處理剩餘文件
  *
- * @module src/app/api/admin/historical-data/batches/[id]/resume
+ * @module src/app/api/admin/historical-data/batches/[batchId]/resume
  * @since Epic 0 - Story 0.4
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-27
  *
  * @features
  *   - 恢復批量處理
@@ -19,7 +19,7 @@
  *   - auth - 認證
  *
  * @related
- *   - src/app/api/admin/historical-data/batches/[id]/pause/route.ts - 暫停處理
+ *   - src/app/api/admin/historical-data/batches/[batchId]/pause/route.ts - 暫停處理
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -34,7 +34,7 @@ import { HistoricalBatchStatus } from '@prisma/client'
 // ============================================================
 
 interface RouteContext {
-  params: Promise<{ id: string }>
+  params: Promise<{ batchId: string }>
 }
 
 // ============================================================
@@ -42,7 +42,7 @@ interface RouteContext {
 // ============================================================
 
 /**
- * POST /api/admin/historical-data/batches/[id]/resume
+ * POST /api/admin/historical-data/batches/[batchId]/resume
  *
  * @description 恢復暫停的批量處理
  */
@@ -70,7 +70,7 @@ export async function POST(
     }
 
     // 獲取批次 ID
-    const { id: batchId } = await context.params
+    const { batchId } = await context.params
 
     // 查詢批次
     const batch = await prisma.historicalBatch.findUnique({

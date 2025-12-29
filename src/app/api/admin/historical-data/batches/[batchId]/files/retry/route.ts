@@ -1,19 +1,19 @@
 /**
- * @fileoverview 批量文件跳過 API
+ * @fileoverview 批量文件重試 API
  * @description
- *   批量跳過失敗的文件：
+ *   批量重試失敗的文件：
  *   - 接收多個文件 ID
- *   - 批量更新文件狀態為 SKIPPED
+ *   - 批量重置文件狀態
  *   - 更新批次統計
  *
- * @module src/app/api/admin/historical-data/batches/[id]/files/skip
+ * @module src/app/api/admin/historical-data/batches/[batchId]/files/retry
  * @since Epic 0 - Story 0.4
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-27
  *
  * @features
- *   - 批量文件跳過
+ *   - 批量文件重試
+ *   - 重試次數限制
  *   - 權限驗證
- *   - 批次統計更新
  *
  * @dependencies
  *   - prisma - 數據庫操作
@@ -21,7 +21,7 @@
  *   - zod - 輸入驗證
  *
  * @related
- *   - src/app/api/admin/historical-data/files/[id]/skip/route.ts - 單文件跳過
+ *   - src/app/api/admin/historical-data/files/[id]/retry/route.ts - 單文件重試
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -36,6 +36,9 @@ import { HistoricalFileStatus } from '@prisma/client'
 // Constants
 // ============================================================
 
+/** 最大重試次數 */
+const MAX_RETRY_COUNT = 5
+
 /** 單次批量操作最大文件數 */
 const MAX_BATCH_SIZE = 100
 
@@ -44,14 +47,14 @@ const MAX_BATCH_SIZE = 100
 // ============================================================
 
 interface RouteContext {
-  params: Promise<{ id: string }>
+  params: Promise<{ batchId: string }>
 }
 
 // ============================================================
 // Validation Schema
 // ============================================================
 
-const batchSkipSchema = z.object({
+const batchRetrySchema = z.object({
   fileIds: z.array(z.string().cuid()).min(1).max(MAX_BATCH_SIZE),
 })
 
@@ -60,9 +63,9 @@ const batchSkipSchema = z.object({
 // ============================================================
 
 /**
- * POST /api/admin/historical-data/batches/[id]/files/skip
+ * POST /api/admin/historical-data/batches/[batchId]/files/retry
  *
- * @description 批量跳過失敗的文件
+ * @description 批量重試失敗的文件
  * @body { fileIds: string[] }
  */
 export async function POST(
@@ -89,11 +92,11 @@ export async function POST(
     }
 
     // 獲取批次 ID
-    const { id: batchId } = await context.params
+    const { batchId } = await context.params
 
     // 解析和驗證輸入
     const body = await request.json()
-    const parseResult = batchSkipSchema.safeParse(body)
+    const parseResult = batchRetrySchema.safeParse(body)
 
     if (!parseResult.success) {
       return NextResponse.json(
@@ -121,48 +124,90 @@ export async function POST(
       )
     }
 
-    // 使用事務批量更新
-    const result = await prisma.$transaction(async (tx) => {
-      // 更新文件狀態
-      const updateResult = await tx.historicalFile.updateMany({
-        where: {
-          id: { in: fileIds },
-          batchId,
-          status: HistoricalFileStatus.FAILED,
+    // 查詢符合條件的文件
+    const files = await prisma.historicalFile.findMany({
+      where: {
+        id: { in: fileIds },
+        batchId,
+        status: HistoricalFileStatus.FAILED,
+      },
+      select: {
+        id: true,
+        metadata: true,
+      },
+    })
+
+    if (files.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'No valid files found for retry',
         },
-        data: {
-          status: HistoricalFileStatus.SKIPPED,
-          errorMessage: 'Skipped by user (batch operation)',
-        },
-      })
+        { status: 400 }
+      )
+    }
+
+    // 過濾超過重試次數的文件
+    const eligibleFiles = files.filter((file) => {
+      const metadata = (file.metadata as Record<string, unknown>) || {}
+      const retryCount = (metadata.retryCount as number) || 0
+      return retryCount < MAX_RETRY_COUNT
+    })
+
+    const skippedCount = files.length - eligibleFiles.length
+
+    // 批量更新文件
+    const results = await prisma.$transaction(async (tx) => {
+      const updates = await Promise.all(
+        eligibleFiles.map(async (file) => {
+          const metadata = (file.metadata as Record<string, unknown>) || {}
+          const currentRetryCount = (metadata.retryCount as number) || 0
+
+          return tx.historicalFile.update({
+            where: { id: file.id },
+            data: {
+              status: HistoricalFileStatus.DETECTED,
+              errorMessage: null,
+              processedAt: null,
+              metadata: {
+                ...metadata,
+                retryCount: currentRetryCount + 1,
+                lastRetryAt: new Date().toISOString(),
+              },
+            },
+            select: { id: true },
+          })
+        })
+      )
 
       // 更新批次統計
-      if (updateResult.count > 0) {
+      if (updates.length > 0) {
         await tx.historicalBatch.update({
           where: { id: batchId },
           data: {
-            failedFiles: { decrement: updateResult.count },
-            skippedFiles: { increment: updateResult.count },
+            failedFiles: { decrement: updates.length },
           },
         })
       }
 
-      return updateResult.count
+      return updates
     })
 
     return NextResponse.json({
       success: true,
       data: {
-        skippedCount: result,
+        retriedCount: results.length,
+        skippedCount,
+        fileIds: results.map((r) => r.id),
       },
-      message: `${result} files skipped successfully`,
+      message: `${results.length} files queued for retry. ${skippedCount} files skipped due to max retry limit.`,
     })
   } catch (error) {
-    console.error('Error batch skipping files:', error)
+    console.error('Error batch retrying files:', error)
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to batch skip files',
+        error: 'Failed to batch retry files',
       },
       { status: 500 }
     )

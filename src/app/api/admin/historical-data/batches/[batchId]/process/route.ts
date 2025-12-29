@@ -4,9 +4,9 @@
  *   提供批次處理的控制：
  *   - POST: 開始處理批次
  *
- * @module src/app/api/admin/historical-data/batches/[id]/process
+ * @module src/app/api/admin/historical-data/batches/[batchId]/process
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-27
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -20,11 +20,11 @@ import { processBatch } from '@/services/batch-processor.service'
 // ============================================================
 
 interface RouteContext {
-  params: Promise<{ id: string }>
+  params: Promise<{ batchId: string }>
 }
 
 // ============================================================
-// POST /api/admin/historical-data/batches/[id]/process
+// POST /api/admin/historical-data/batches/[batchId]/process
 // ============================================================
 
 /**
@@ -52,11 +52,11 @@ export async function POST(request: NextRequest, context: RouteContext) {
       )
     }
 
-    const { id } = await context.params
+    const { batchId } = await context.params
 
     // 取得批次資訊
     const batch = await prisma.historicalBatch.findUnique({
-      where: { id },
+      where: { id: batchId },
       include: {
         _count: {
           select: { files: true },
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     await prisma.$transaction([
       // 更新批次狀態
       prisma.historicalBatch.update({
-        where: { id },
+        where: { id: batchId },
         data: {
           status: HistoricalBatchStatus.PROCESSING,
           startedAt: now,
@@ -150,15 +150,15 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     // 使用 "fire and forget" 模式在背景執行處理
     // 注意：這不會阻塞 API 響應
-    processBatch(id, {
+    processBatch(batchId, {
       onProgress: (progress) => {
         console.log(
-          `[Batch ${id}] Progress: ${progress.completed}/${progress.total} ` +
+          `[Batch ${batchId}] Progress: ${progress.completed}/${progress.total} ` +
           `(${progress.percentage}%) - ${progress.currentFile || 'Waiting...'}`
         )
       },
     }).then((result) => {
-      console.log(`[Batch ${id}] Completed:`, {
+      console.log(`[Batch ${batchId}] Completed:`, {
         totalFiles: result.totalFiles,
         successCount: result.successCount,
         failedCount: result.failedCount,
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         durationMs: result.durationMs,
       })
     }).catch((error) => {
-      console.error(`[Batch ${id}] Processing error:`, error)
+      console.error(`[Batch ${batchId}] Processing error:`, error)
     })
 
     return NextResponse.json({
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       },
     })
   } catch (error) {
-    console.error('[POST /api/admin/historical-data/batches/[id]/process] Error:', error)
+    console.error('[POST /api/admin/historical-data/batches/[batchId]/process] Error:', error)
     return NextResponse.json(
       {
         type: 'https://api.example.com/errors/internal',

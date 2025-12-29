@@ -6,9 +6,9 @@
  *   - PATCH: 更新批次資訊
  *   - DELETE: 刪除批次及其所有文件
  *
- * @module src/app/api/admin/historical-data/batches/[id]
+ * @module src/app/api/admin/historical-data/batches/[batchId]
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-23
+ * @lastModified 2025-12-27
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -22,7 +22,7 @@ import { HistoricalBatchStatus } from '@prisma/client'
 // ============================================================
 
 interface RouteContext {
-  params: Promise<{ id: string }>
+  params: Promise<{ batchId: string }>
 }
 
 // ============================================================
@@ -36,7 +36,7 @@ const UpdateBatchSchema = z.object({
 })
 
 // ============================================================
-// GET /api/admin/historical-data/batches/[id]
+// GET /api/admin/historical-data/batches/[batchId]
 // ============================================================
 
 /**
@@ -59,10 +59,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
       )
     }
 
-    const { id } = await context.params
+    const { batchId } = await context.params
 
     const batch = await prisma.historicalBatch.findUnique({
-      where: { id },
+      where: { id: batchId },
       include: {
         creator: {
           select: {
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       },
     })
   } catch (error) {
-    console.error('[GET /api/admin/historical-data/batches/[id]] Error:', error)
+    console.error('[GET /api/admin/historical-data/batches/[batchId]] Error:', error)
     return NextResponse.json(
       {
         type: 'https://api.example.com/errors/internal',
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 }
 
 // ============================================================
-// PATCH /api/admin/historical-data/batches/[id]
+// PATCH /api/admin/historical-data/batches/[batchId]
 // ============================================================
 
 /**
@@ -197,7 +197,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       )
     }
 
-    const { id } = await context.params
+    const { batchId } = await context.params
     const body = await request.json()
     const validation = UpdateBatchSchema.safeParse(body)
 
@@ -216,7 +216,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     // 檢查批次是否存在
     const existingBatch = await prisma.historicalBatch.findUnique({
-      where: { id },
+      where: { id: batchId },
     })
 
     if (!existingBatch) {
@@ -245,7 +245,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     const batch = await prisma.historicalBatch.update({
-      where: { id },
+      where: { id: batchId },
       data: validation.data,
       include: {
         creator: {
@@ -269,7 +269,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       },
     })
   } catch (error) {
-    console.error('[PATCH /api/admin/historical-data/batches/[id]] Error:', error)
+    console.error('[PATCH /api/admin/historical-data/batches/[batchId]] Error:', error)
     return NextResponse.json(
       {
         type: 'https://api.example.com/errors/internal',
@@ -283,7 +283,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 }
 
 // ============================================================
-// DELETE /api/admin/historical-data/batches/[id]
+// DELETE /api/admin/historical-data/batches/[batchId]
 // ============================================================
 
 /**
@@ -306,11 +306,11 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       )
     }
 
-    const { id } = await context.params
+    const { batchId } = await context.params
 
     // 檢查批次是否存在
     const existingBatch = await prisma.historicalBatch.findUnique({
-      where: { id },
+      where: { id: batchId },
       include: {
         _count: {
           select: { files: true },
@@ -347,19 +347,19 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     // 刪除批次（級聯刪除文件記錄）
     await prisma.historicalBatch.delete({
-      where: { id },
+      where: { id: batchId },
     })
 
     return NextResponse.json({
       success: true,
       data: {
-        id,
+        id: batchId,
         deletedFilesCount: existingBatch._count.files,
         message: '批次已成功刪除',
       },
     })
   } catch (error) {
-    console.error('[DELETE /api/admin/historical-data/batches/[id]] Error:', error)
+    console.error('[DELETE /api/admin/historical-data/batches/[batchId]] Error:', error)
     return NextResponse.json(
       {
         type: 'https://api.example.com/errors/internal',
