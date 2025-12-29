@@ -380,10 +380,31 @@ async function executeAIProcessing(
     }
   } else {
     // 使用 GPT Vision 處理掃描 PDF 或圖片
-    const result = await processImageWithVision(filePath)
+    // FIX-005: 同時執行 OCR 提取和文件分類，以獲取 documentIssuer 和 documentFormat
+    console.log(`[GPT_VISION] Starting processing for: ${file.originalName}`)
 
-    if (!result.success) {
-      throw new Error(result.error || 'GPT Vision processing failed')
+    // 並行執行 OCR 提取和分類
+    const [visionResult, classificationResult] = await Promise.all([
+      processImageWithVision(filePath),
+      classifyDocument(filePath),
+    ])
+
+    if (!visionResult.success) {
+      throw new Error(visionResult.error || 'GPT Vision processing failed')
+    }
+
+    // 分類失敗不影響主流程，只記錄警告
+    if (!classificationResult.success) {
+      console.warn(
+        `[GPT_VISION] Classification failed for ${file.originalName}: ${classificationResult.error}. ` +
+        `Continuing with OCR result only.`
+      )
+    } else {
+      console.log(
+        `[GPT_VISION] Classification complete: ` +
+        `issuer=${classificationResult.documentIssuer?.name || 'unknown'}, ` +
+        `type=${classificationResult.documentFormat?.documentType || 'unknown'}`
+      )
     }
 
     return {
@@ -391,12 +412,18 @@ async function executeAIProcessing(
         method: 'GPT_VISION',
         fileName: file.originalName,
         processedAt: new Date().toISOString(),
-        pages: result.pageCount,
-        invoiceData: result.invoiceData,
-        rawText: result.rawText,
-        confidence: result.confidence,
+        pages: visionResult.pageCount,
+        invoiceData: visionResult.invoiceData,
+        rawText: visionResult.rawText,
+        confidence: visionResult.confidence,
+        // FIX-005: 從 GPT Vision 分類結果中取得 documentIssuer 和 documentFormat
+        documentIssuer: classificationResult.success ? classificationResult.documentIssuer : undefined,
+        documentFormat: classificationResult.success ? classificationResult.documentFormat : undefined,
+        // 標記分類是否成功
+        classificationSuccess: classificationResult.success,
+        classificationError: classificationResult.error,
       },
-      actualPages: result.pageCount,
+      actualPages: visionResult.pageCount,
     }
   }
 }

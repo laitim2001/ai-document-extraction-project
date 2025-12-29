@@ -50,10 +50,18 @@ function formatIdentificationMethod(method: string | null): { label: string; var
 
 /**
  * 格式化信心度為百分比字串
+ * @description
+ *   FIX-005: 修復信心度顯示問題
+ *   資料庫存儲格式：整數 (如 96 表示 96%)
+ *   需要判斷數值範圍來決定是否需要轉換：
+ *   - 如果 > 1，視為百分比整數（如 96），直接顯示
+ *   - 如果 <= 1，視為小數（如 0.96），乘以 100 顯示
  */
 function formatConfidenceValue(confidence: number | null): string {
   if (confidence === null) return '-';
-  return `${(confidence * 100).toFixed(1)}%`;
+  // FIX-005: 判斷是整數百分比還是小數
+  const percentValue = confidence > 1 ? confidence : confidence * 100;
+  return `${percentValue.toFixed(1)}%`;
 }
 
 /**
