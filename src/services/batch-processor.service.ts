@@ -553,16 +553,19 @@ export async function processFile(
       let formatIdentification: FormatIdentificationResult | null = null
       if (formatConfig?.enabled && extractionResult && documentIssuer?.companyId) {
         try {
-          // 從 extractionResult 中提取格式識別資訊
-          // extractionResult 包含 GPT Vision 提取的 documentType, documentSubtype 等
-          const formatExtractionData = extractionResult as {
-            documentType?: string
-            documentSubtype?: string
-            formatConfidence?: number
-            formatFeatures?: Record<string, unknown>
+          // 從 extractionResult.documentFormat 中提取格式識別資訊
+          // FIX-006: GPT Vision 返回的格式資訊在 documentFormat 嵌套物件中
+          const extractionWithFormat = extractionResult as {
+            documentFormat?: {
+              documentType?: string
+              documentSubtype?: string
+              formatConfidence?: number
+              formatFeatures?: Record<string, unknown>
+            }
           }
+          const formatExtractionData = extractionWithFormat.documentFormat
 
-          if (formatExtractionData.documentType) {
+          if (formatExtractionData?.documentType) {
             const formatResult = await processDocumentFormat(
               documentIssuer.companyId,
               {
