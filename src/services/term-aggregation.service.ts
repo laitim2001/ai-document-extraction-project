@@ -169,6 +169,19 @@ const LOCATION_NAMES = [
 ];
 
 /**
+ * Currency codes that indicate the term is a price/charge line item
+ * If a term contains any of these codes, it should NOT be filtered out
+ * even if it matches ADDRESS_PATTERNS (e.g., postal code pattern matching exchange rates)
+ * @since FIX-005.1 - Currency code exception for price lines
+ */
+const CURRENCY_CODES = [
+  // Major currencies used in freight invoices
+  'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'HKD', 'SGD', 'THB',
+  'MYR', 'IDR', 'PHP', 'VND', 'TWD', 'KRW', 'INR', 'AUD',
+  'NZD', 'CAD', 'CHF', 'AED', 'SAR', 'KWD', 'BHD', 'QAR',
+];
+
+/**
  * Patterns that indicate an address-like term
  * @since FIX-005 - Address term filtering
  */
@@ -218,24 +231,50 @@ export function normalizeForAggregation(term: string): string {
 }
 
 /**
+ * Checks if a term contains any currency code
+ * Used to identify price/charge line items that should not be filtered out
+ *
+ * @param term - Term to check (should be uppercase)
+ * @returns true if the term contains a currency code
+ * @since FIX-005.1 - Currency code exception for price lines
+ */
+function containsCurrencyCode(term: string): boolean {
+  for (const code of CURRENCY_CODES) {
+    // Use word boundary to match exact currency codes
+    const pattern = new RegExp(`\\b${code}\\b`, 'i');
+    if (pattern.test(term)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Checks if a term appears to be an address rather than a charge description
  * Used to filter out address-like content from term extraction
  *
  * @param term - Normalized term to check (should be uppercase)
  * @returns true if the term appears to be an address, false otherwise
  * @since FIX-005 - Address term filtering
+ * @since FIX-005.1 - Added currency code exception for price lines
  *
  * @example
  * isAddressLikeTerm('EXPRESS WORLDWIDE NONDOC') // false - valid charge term
  * isAddressLikeTerm('BO STREET WARD 13 DISTRICT 4') // true - address
  * isAddressLikeTerm('HO CHI MINH CITY VIETNAM') // true - location
+ * isAddressLikeTerm('FREIGHT CHARGES USD 65.00 7.881487') // false - price line with currency
  */
 export function isAddressLikeTerm(term: string): boolean {
   if (!term) return false;
 
   const upperTerm = term.toUpperCase();
 
+  // FIX-005.1: Check if term contains currency code
+  // If it does, this is likely a price/charge line item, not an address
+  const hasCurrency = containsCurrencyCode(upperTerm);
+
   // Check for address keywords (with word boundary matching)
+  // These are checked regardless of currency presence
   for (const keyword of ADDRESS_KEYWORDS) {
     // Create a regex pattern with word boundaries
     const pattern = new RegExp(`\\b${keyword}\\b`, 'i');
@@ -245,22 +284,29 @@ export function isAddressLikeTerm(term: string): boolean {
   }
 
   // Check for location names
+  // These are checked regardless of currency presence
   for (const location of LOCATION_NAMES) {
     if (upperTerm.includes(location)) {
       return true;
     }
   }
 
-  // Check for address-like patterns
-  for (const pattern of ADDRESS_PATTERNS) {
-    if (pattern.test(upperTerm)) {
-      return true;
+  // FIX-005.1: Skip ADDRESS_PATTERNS check if term contains currency code
+  // This prevents price lines like "FREIGHT CHARGES USD 65.00 7.881487" from being
+  // incorrectly filtered by the postal code pattern matching "881487"
+  if (!hasCurrency) {
+    // Check for address-like patterns only if no currency code is present
+    for (const pattern of ADDRESS_PATTERNS) {
+      if (pattern.test(upperTerm)) {
+        return true;
+      }
     }
   }
 
   // Check if the term is too long (addresses tend to be verbose)
   // Valid charge terms are usually concise (< 60 chars)
-  if (upperTerm.length > 80) {
+  // Skip this check if term contains currency (price lines can be longer)
+  if (!hasCurrency && upperTerm.length > 80) {
     return true;
   }
 
