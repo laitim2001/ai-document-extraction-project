@@ -9,13 +9,14 @@
  *
  * @module src/services/batch-term-aggregation
  * @since Epic 0 - Story 0.7 (批量處理術語聚合整合)
- * @lastModified 2025-12-25
+ * @lastModified 2025-12-30
  *
  * @features
  *   - 批量處理後自動觸發術語聚合
  *   - 按公司分組的術語統計
  *   - 通用術語識別（出現在 2+ 公司）
  *   - 聚合結果持久化
+ *   - FIX-005: 地址類術語過濾
  *
  * @dependencies
  *   - @prisma/client - 資料庫存取
@@ -34,6 +35,7 @@ import {
   normalizeForAggregation,
   calculateSimilarity,
   extractTermsFromResult,
+  isAddressLikeTerm,
 } from './term-aggregation.service';
 import type {
   BatchTermAggregationResult,
@@ -141,7 +143,8 @@ function extractTermsFromExtractionResult(
       'description' in item ? item.description : null;
     if (description) {
       const normalized = normalizeForAggregation(description);
-      if (normalized.length >= 2) {
+      // FIX-005: 過濾地址類術語
+      if (normalized.length >= 2 && !isAddressLikeTerm(normalized)) {
         terms.push(normalized);
       }
     }
@@ -149,7 +152,8 @@ function extractTermsFromExtractionResult(
     // 提取 name（如果有）
     if ('name' in item && item.name) {
       const normalized = normalizeForAggregation(item.name as string);
-      if (normalized.length >= 2) {
+      // FIX-005: 過濾地址類術語
+      if (normalized.length >= 2 && !isAddressLikeTerm(normalized)) {
         terms.push(normalized);
       }
     }
@@ -157,7 +161,8 @@ function extractTermsFromExtractionResult(
     // 提取 chargeType（如果有）
     if ('chargeType' in item && item.chargeType) {
       const normalized = normalizeForAggregation(item.chargeType as string);
-      if (normalized.length >= 2) {
+      // FIX-005: 過濾地址類術語
+      if (normalized.length >= 2 && !isAddressLikeTerm(normalized)) {
         terms.push(normalized);
       }
     }

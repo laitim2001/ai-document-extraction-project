@@ -7,13 +7,15 @@
  *   - Aggregates term frequency and company distribution
  *   - Clusters similar terms using Levenshtein distance
  *   - Supports filtering by batch, company, date range
+ *   - Filters out address-like content from term extraction
  *
  * @module src/services/term-aggregation
  * @since Epic 0 - Story 0.5 (Term Aggregation and Initial Rules)
- * @lastModified 2025-12-24
+ * @lastModified 2025-12-30
  *
  * @features
  *   - Term extraction from JSON extraction results
+ *   - Address-like term filtering (FIX-005)
  *   - Frequency counting with company distribution
  *   - Similar term clustering using string similarity
  *   - Configurable similarity threshold
@@ -130,6 +132,64 @@ const MIN_TERM_LENGTH = 2;
 /** Maximum terms to return by default */
 const DEFAULT_TERM_LIMIT = 500;
 
+/**
+ * Address-related keywords to filter out from term extraction
+ * These patterns indicate the term is likely an address rather than a charge description
+ * @since FIX-005 - Address term filtering
+ */
+const ADDRESS_KEYWORDS = [
+  // English address components
+  'STREET', 'ROAD', 'AVENUE', 'BOULEVARD', 'LANE', 'DRIVE', 'COURT',
+  'PLACE', 'SQUARE', 'WARD', 'DISTRICT', 'PROVINCE', 'CITY', 'COUNTY',
+  'STATE', 'COUNTRY', 'FLOOR', 'BUILDING', 'TOWER', 'BLOCK', 'UNIT',
+  'SUITE', 'APARTMENT', 'ROOM', 'HIGHWAY', 'EXPRESSWAY',
+  // Vietnamese address components
+  'DUONG', 'PHO', 'QUAN', 'PHUONG', 'TINH', 'THANH PHO', 'HUYEN', 'XA',
+  'TANG', 'TOA NHA', 'CAN HO', 'PHONG', 'KHU', 'KHU PHO', 'AP',
+  // Common abbreviations
+  'ST', 'RD', 'AVE', 'BLVD', 'FLR', 'BLDG', 'BLK', 'APT',
+];
+
+/**
+ * Country and major city names to filter out
+ * @since FIX-005 - Address term filtering
+ */
+const LOCATION_NAMES = [
+  // Countries
+  'VIETNAM', 'VIET NAM', 'CHINA', 'HONG KONG', 'SINGAPORE', 'THAILAND',
+  'MALAYSIA', 'INDONESIA', 'PHILIPPINES', 'TAIWAN', 'JAPAN', 'KOREA',
+  'INDIA', 'AUSTRALIA', 'UNITED STATES', 'UNITED KINGDOM', 'GERMANY', 'FRANCE',
+  // Major cities
+  'HO CHI MINH', 'HOCHIMINH', 'SAIGON', 'HANOI', 'HA NOI', 'DA NANG',
+  'HAI PHONG', 'CAN THO', 'NHA TRANG', 'VUNG TAU', 'BIEN HOA',
+  'BINH DUONG', 'DONG NAI', 'LONG AN', 'BAC NINH', 'QUANG NINH',
+  'SHANGHAI', 'BEIJING', 'SHENZHEN', 'GUANGZHOU', 'KOWLOON', 'TSIM SHA TSUI',
+  'BANGKOK', 'KUALA LUMPUR', 'JAKARTA', 'MANILA', 'TAIPEI',
+  'TOKYO', 'OSAKA', 'SEOUL', 'MUMBAI', 'NEW DELHI', 'SYDNEY', 'MELBOURNE',
+];
+
+/**
+ * Patterns that indicate an address-like term
+ * @since FIX-005 - Address term filtering
+ */
+const ADDRESS_PATTERNS = [
+  // Floor/level patterns: "12F", "FLOOR 5", "5/F", "TANG 3"
+  /\b\d+\s*(?:F|\/F|FL|FLR|FLOOR|TANG)\b/i,
+  /\b(?:F|\/F|FL|FLR|FLOOR|TANG)\s*\d+\b/i,
+  // Building number patterns: "NO. 123", "NO 45", "SO 78"
+  /\b(?:NO\.?|SO)\s*\d+/i,
+  // Street number patterns: "123 STREET", "45A ROAD"
+  /^\d+[A-Z]?\s+(?:STREET|ROAD|DUONG|PHO)/i,
+  // Postal/zip code patterns
+  /\b\d{5,6}\b/,
+  // Multiple comma-separated parts (typical address format): "A, B, C, D"
+  /^[^,]+,[^,]+,[^,]+/,
+  // Phone number patterns
+  /\b(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}\b/,
+  // Email patterns
+  /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
+];
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
@@ -155,6 +215,56 @@ export function normalizeForAggregation(term: string): string {
     .replace(/[^\w\s\-\/\.&]/g, '') // Keep alphanumeric, spaces, hyphens, slashes, dots, ampersands
     .replace(/\s+/g, ' ') // Collapse multiple spaces
     .trim();
+}
+
+/**
+ * Checks if a term appears to be an address rather than a charge description
+ * Used to filter out address-like content from term extraction
+ *
+ * @param term - Normalized term to check (should be uppercase)
+ * @returns true if the term appears to be an address, false otherwise
+ * @since FIX-005 - Address term filtering
+ *
+ * @example
+ * isAddressLikeTerm('EXPRESS WORLDWIDE NONDOC') // false - valid charge term
+ * isAddressLikeTerm('BO STREET WARD 13 DISTRICT 4') // true - address
+ * isAddressLikeTerm('HO CHI MINH CITY VIETNAM') // true - location
+ */
+export function isAddressLikeTerm(term: string): boolean {
+  if (!term) return false;
+
+  const upperTerm = term.toUpperCase();
+
+  // Check for address keywords (with word boundary matching)
+  for (const keyword of ADDRESS_KEYWORDS) {
+    // Create a regex pattern with word boundaries
+    const pattern = new RegExp(`\\b${keyword}\\b`, 'i');
+    if (pattern.test(upperTerm)) {
+      return true;
+    }
+  }
+
+  // Check for location names
+  for (const location of LOCATION_NAMES) {
+    if (upperTerm.includes(location)) {
+      return true;
+    }
+  }
+
+  // Check for address-like patterns
+  for (const pattern of ADDRESS_PATTERNS) {
+    if (pattern.test(upperTerm)) {
+      return true;
+    }
+  }
+
+  // Check if the term is too long (addresses tend to be verbose)
+  // Valid charge terms are usually concise (< 60 chars)
+  if (upperTerm.length > 80) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -243,9 +353,11 @@ export function clusterSimilarTerms(
 
 /**
  * Extracts terms from an extraction result JSON
+ * Filters out address-like content to only return valid charge terms
  *
  * @param extractionResult - JSON extraction result from HistoricalFile
- * @returns Array of extracted term strings
+ * @returns Array of extracted term strings (filtered, no addresses)
+ * @since Updated in FIX-005 to filter address-like terms
  */
 export function extractTermsFromResult(
   extractionResult: Prisma.JsonValue
@@ -262,7 +374,8 @@ export function extractTermsFromResult(
     for (const item of result.invoiceData.items) {
       if (item.description) {
         const normalized = normalizeForAggregation(item.description);
-        if (normalized.length >= MIN_TERM_LENGTH) {
+        // Apply address filter (FIX-005)
+        if (normalized.length >= MIN_TERM_LENGTH && !isAddressLikeTerm(normalized)) {
           terms.push(normalized);
         }
       }
@@ -274,13 +387,15 @@ export function extractTermsFromResult(
     for (const item of result.extractedData.lineItems) {
       if (item.description) {
         const normalized = normalizeForAggregation(item.description);
-        if (normalized.length >= MIN_TERM_LENGTH) {
+        // Apply address filter (FIX-005)
+        if (normalized.length >= MIN_TERM_LENGTH && !isAddressLikeTerm(normalized)) {
           terms.push(normalized);
         }
       }
       if (item.chargeType) {
         const normalized = normalizeForAggregation(item.chargeType);
-        if (normalized.length >= MIN_TERM_LENGTH) {
+        // Apply address filter (FIX-005)
+        if (normalized.length >= MIN_TERM_LENGTH && !isAddressLikeTerm(normalized)) {
           terms.push(normalized);
         }
       }

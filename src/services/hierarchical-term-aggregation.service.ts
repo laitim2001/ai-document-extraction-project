@@ -11,13 +11,14 @@
  *
  * @module src/services/hierarchical-term-aggregation
  * @since Epic 0 - Story 0.9
- * @lastModified 2025-12-26
+ * @lastModified 2025-12-30
  *
  * @features
  *   - 三層術語聚合結構
  *   - 按公司、格式分組統計
  *   - 術語頻率排序
  *   - 可選的 AI 術語分類
+ *   - FIX-005: 地址類術語過濾
  *
  * @dependencies
  *   - prisma - 資料庫操作
@@ -39,7 +40,7 @@ import type {
   DocumentType,
   DocumentSubtype,
 } from '@/types/document-format';
-import { normalizeForAggregation } from './term-aggregation.service';
+import { normalizeForAggregation, isAddressLikeTerm } from './term-aggregation.service';
 
 // ============================================================================
 // Types
@@ -192,6 +193,8 @@ export async function aggregateTermsHierarchically(
 
       const normalizedTerm = normalizeForAggregation(description);
       if (!normalizedTerm || normalizedTerm.length < 2) continue;
+      // FIX-005: 過濾地址類術語
+      if (isAddressLikeTerm(normalizedTerm)) continue;
 
       const existing = formatNode.terms.get(normalizedTerm);
       if (existing) {
@@ -332,7 +335,8 @@ export async function getCompanyTermAggregation(
       for (const description of descriptions) {
         if (!description) continue;
         const normalized = normalizeForAggregation(description);
-        if (normalized && normalized.length >= 2) {
+        // FIX-005: 過濾地址類術語
+        if (normalized && normalized.length >= 2 && !isAddressLikeTerm(normalized)) {
           termMap.set(normalized, (termMap.get(normalized) || 0) + 1);
         }
       }
@@ -401,6 +405,8 @@ export async function getFormatTermAggregation(
       if (!description) continue;
       const normalized = normalizeForAggregation(description);
       if (!normalized || normalized.length < 2) continue;
+      // FIX-005: 過濾地址類術語
+      if (isAddressLikeTerm(normalized)) continue;
 
       const existing = termMap.get(normalized);
       if (existing) {
