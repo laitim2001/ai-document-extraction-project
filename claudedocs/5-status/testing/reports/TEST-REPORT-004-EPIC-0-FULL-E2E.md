@@ -73,10 +73,12 @@
 
 | 指標 | 數值 |
 |------|------|
-| **唯一術語數** | 386 |
-| **術語總出現次數** | 526 |
-| **平均術語/公司** | 7.3 |
+| **唯一術語數** | 354 (FIX-005.2 過濾後) |
+| **術語總出現次數** | 484 (FIX-005.2 過濾後) |
+| **平均術語/公司** | 6.7 |
 | **通用術語數** | 0 |
+
+> **注意**: 原始提取為 386 個術語 / 526 次出現。經 FIX-005.2 地址過濾後減少 32 個術語 (8.3%)
 
 ---
 
@@ -138,9 +140,10 @@
 | 項目 | 結果 |
 |------|------|
 | **狀態** | ✅ 通過 |
-| **唯一術語** | 386 |
-| **總出現次數** | 526 |
+| **唯一術語** | 354 (過濾後) |
+| **總出現次數** | 484 (過濾後) |
 | **聚合時間** | < 1 秒 |
+| **地址過濾** | 32 個術語被 FIX-005.2 過濾 |
 
 ### TC-006: 報告導出
 | 項目 | 結果 |
@@ -163,6 +166,7 @@
 | FIX-004 | Term aggregation field name error (items → lineItems) | ✅ 已修復 |
 | FIX-005 | Term aggregation address filtering | ✅ 已修復 |
 | FIX-005.1 | Currency code exception for filtering | ✅ 已修復 |
+| FIX-005.2 | Export script address filtering | ✅ 已修復 |
 
 ### 測試中發現
 
@@ -175,12 +179,13 @@
 ## 附件
 
 ### 導出報告
-- **檔案名稱**: `TEST-PLAN-004-hierarchical-terms-2025-12-30.xlsx`
+- **原始報告**: `TEST-PLAN-004-hierarchical-terms-2025-12-30.xlsx` (386 術語, 無過濾)
+- **過濾後報告**: `TEST-PLAN-004-hierarchical-terms-2025-12-31-filtered.xlsx` (354 術語, FIX-005.2)
 - **位置**: `claudedocs/5-status/testing/reports/`
 - **工作表**:
   - Summary: 批次統計摘要
   - Companies: 53 個公司詳細資訊
-  - Terms: 386 個術語及其頻率
+  - Terms: 354 個術語及其頻率 (過濾後)
 
 ### 原始日誌
 - **批次處理日誌**: Background task `bc2bbe1` (1.9MB)

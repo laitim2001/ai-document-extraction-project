@@ -2,6 +2,11 @@
  * @fileoverview 階層式術語報告匯出腳本
  * @description 直接調用服務層生成 Excel 報告，繞過 API 認證
  * @since Epic 0 - TEST-PLAN-002
+ * @lastModified 2025-12-31
+ *
+ * @changes
+ *   - FIX-005.2: 添加地址過濾邏輯 (isAddressLikeTerm)
+ *     匯出腳本現在與服務層使用相同的過濾規則
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -26,6 +31,137 @@ const prisma = new PrismaClient({
 
 // Excel.js for creating Excel files
 import ExcelJS from 'exceljs';
+
+// ============================================================================
+// FIX-005.2: Address Filtering Logic (copied from term-aggregation.service.ts)
+// ============================================================================
+
+/**
+ * Address-related keywords to filter out from term extraction
+ * @since FIX-005
+ */
+const ADDRESS_KEYWORDS = [
+  // English address components
+  'STREET', 'ROAD', 'AVENUE', 'BOULEVARD', 'LANE', 'DRIVE', 'COURT',
+  'PLACE', 'SQUARE', 'WARD', 'DISTRICT', 'PROVINCE', 'CITY', 'COUNTY',
+  'STATE', 'COUNTRY', 'FLOOR', 'BUILDING', 'TOWER', 'BLOCK', 'UNIT',
+  'SUITE', 'APARTMENT', 'ROOM', 'HIGHWAY', 'EXPRESSWAY',
+  // Vietnamese address components
+  'DUONG', 'PHO', 'QUAN', 'PHUONG', 'TINH', 'THANH PHO', 'HUYEN', 'XA',
+  'TANG', 'TOA NHA', 'CAN HO', 'PHONG', 'KHU', 'KHU PHO', 'AP',
+  // Common abbreviations
+  'ST', 'RD', 'AVE', 'BLVD', 'FLR', 'BLDG', 'BLK', 'APT',
+];
+
+/**
+ * Country and major city names to filter out
+ * @since FIX-005
+ */
+const LOCATION_NAMES = [
+  // Countries
+  'VIETNAM', 'VIET NAM', 'CHINA', 'HONG KONG', 'SINGAPORE', 'THAILAND',
+  'MALAYSIA', 'INDONESIA', 'PHILIPPINES', 'TAIWAN', 'JAPAN', 'KOREA',
+  'INDIA', 'AUSTRALIA', 'UNITED STATES', 'UNITED KINGDOM', 'GERMANY', 'FRANCE',
+  // Major cities
+  'HO CHI MINH', 'HOCHIMINH', 'SAIGON', 'HANOI', 'HA NOI', 'DA NANG',
+  'HAI PHONG', 'CAN THO', 'NHA TRANG', 'VUNG TAU', 'BIEN HOA',
+  'BINH DUONG', 'DONG NAI', 'LONG AN', 'BAC NINH', 'QUANG NINH',
+  'SHANGHAI', 'BEIJING', 'SHENZHEN', 'GUANGZHOU', 'KOWLOON', 'TSIM SHA TSUI',
+  'BANGKOK', 'KUALA LUMPUR', 'JAKARTA', 'MANILA', 'TAIPEI',
+  'TOKYO', 'OSAKA', 'SEOUL', 'MUMBAI', 'NEW DELHI', 'SYDNEY', 'MELBOURNE',
+];
+
+/**
+ * Currency codes - terms containing these should NOT be filtered
+ * @since FIX-005.1
+ */
+const CURRENCY_CODES = [
+  'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'HKD', 'SGD', 'THB',
+  'MYR', 'IDR', 'PHP', 'VND', 'TWD', 'KRW', 'INR', 'AUD',
+  'NZD', 'CAD', 'CHF', 'AED', 'SAR', 'KWD', 'BHD', 'QAR',
+];
+
+/**
+ * Patterns that indicate an address-like term
+ * @since FIX-005
+ */
+const ADDRESS_PATTERNS = [
+  // Floor/level patterns
+  /\b\d+\s*(?:F|\/F|FL|FLR|FLOOR|TANG)\b/i,
+  /\b(?:F|\/F|FL|FLR|FLOOR|TANG)\s*\d+\b/i,
+  // Building number patterns
+  /\b(?:NO\.?|SO)\s*\d+/i,
+  // Street number patterns
+  /^\d+[A-Z]?\s+(?:STREET|ROAD|DUONG|PHO)/i,
+  // Postal/zip code patterns
+  /\b\d{5,6}\b/,
+  // Multiple comma-separated parts
+  /^[^,]+,[^,]+,[^,]+/,
+  // Phone number patterns
+  /\b(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}\b/,
+  // Email patterns
+  /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
+];
+
+/**
+ * Checks if a term contains any currency code
+ * @since FIX-005.1
+ */
+function containsCurrencyCode(term: string): boolean {
+  for (const code of CURRENCY_CODES) {
+    const pattern = new RegExp(`\\b${code}\\b`, 'i');
+    if (pattern.test(term)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Checks if a term appears to be an address rather than a charge description
+ * @since FIX-005, FIX-005.1, FIX-005.2
+ */
+function isAddressLikeTerm(term: string): boolean {
+  if (!term) return false;
+
+  const upperTerm = term.toUpperCase();
+  const hasCurrency = containsCurrencyCode(upperTerm);
+
+  // Check for address keywords
+  for (const keyword of ADDRESS_KEYWORDS) {
+    const pattern = new RegExp(`\\b${keyword}\\b`, 'i');
+    if (pattern.test(upperTerm)) {
+      return true;
+    }
+  }
+
+  // Check for location names
+  for (const location of LOCATION_NAMES) {
+    if (upperTerm.includes(location)) {
+      return true;
+    }
+  }
+
+  // FIX-005.1: Skip patterns if term contains currency code
+  if (!hasCurrency) {
+    for (const pattern of ADDRESS_PATTERNS) {
+      if (pattern.test(upperTerm)) {
+        return true;
+      }
+    }
+  }
+
+  // Check if term is too long (addresses tend to be verbose)
+  if (!hasCurrency && upperTerm.length > 80) {
+    return true;
+  }
+
+  return false;
+}
+
+// ============================================================================
+// End of Address Filtering Logic
+// ============================================================================
 
 interface TermData {
   term: string;
@@ -130,7 +266,8 @@ async function main() {
 
       for (const item of extractionResult.invoiceData.lineItems) {
         const term = item.description || item.productCode || 'Unknown';
-        if (term && term !== 'Unknown') {
+        // FIX-005.2: 應用地址過濾邏輯
+        if (term && term !== 'Unknown' && !isAddressLikeTerm(term)) {
           const formatTerms = companyTerms.get(companyId)!.get(formatName)!;
           formatTerms.set(term, (formatTerms.get(term) || 0) + 1);
         }
