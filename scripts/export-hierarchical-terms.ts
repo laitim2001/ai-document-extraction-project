@@ -51,7 +51,8 @@ interface FormatData {
 async function main() {
   console.log('=== 階層式術語報告匯出 ===\n');
 
-  const batchId = 'fec633d9-1e14-45fd-b215-d85527750c62';
+  // Use command line argument or default batch
+  const batchId = process.argv[2] || 'fec633d9-1e14-45fd-b215-d85527750c62';
 
   // 1. 獲取批次資訊
   const batch = await prisma.historicalBatch.findUnique({
