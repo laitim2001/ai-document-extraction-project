@@ -153,19 +153,50 @@ const ADDRESS_KEYWORDS = [
 /**
  * Country and major city names to filter out
  * @since FIX-005 - Address term filtering
+ * @since FIX-006 - Added more cities and airport codes
  */
 const LOCATION_NAMES = [
   // Countries
   'VIETNAM', 'VIET NAM', 'CHINA', 'HONG KONG', 'SINGAPORE', 'THAILAND',
   'MALAYSIA', 'INDONESIA', 'PHILIPPINES', 'TAIWAN', 'JAPAN', 'KOREA',
   'INDIA', 'AUSTRALIA', 'UNITED STATES', 'UNITED KINGDOM', 'GERMANY', 'FRANCE',
-  // Major cities
+  // Major cities - Southeast Asia
   'HO CHI MINH', 'HOCHIMINH', 'SAIGON', 'HANOI', 'HA NOI', 'DA NANG',
   'HAI PHONG', 'CAN THO', 'NHA TRANG', 'VUNG TAU', 'BIEN HOA',
   'BINH DUONG', 'DONG NAI', 'LONG AN', 'BAC NINH', 'QUANG NINH',
-  'SHANGHAI', 'BEIJING', 'SHENZHEN', 'GUANGZHOU', 'KOWLOON', 'TSIM SHA TSUI',
   'BANGKOK', 'KUALA LUMPUR', 'JAKARTA', 'MANILA', 'TAIPEI',
-  'TOKYO', 'OSAKA', 'SEOUL', 'MUMBAI', 'NEW DELHI', 'SYDNEY', 'MELBOURNE',
+  // Major cities - China
+  'SHANGHAI', 'BEIJING', 'SHENZHEN', 'GUANGZHOU', 'KOWLOON', 'TSIM SHA TSUI',
+  // Major cities - India (FIX-006)
+  'BANGALORE', 'BENGALURU', 'CHENNAI', 'HYDERABAD', 'KOLKATA', 'PUNE',
+  'AHMEDABAD', 'JAIPUR', 'LUCKNOW', 'KANPUR', 'NAGPUR', 'INDORE', 'THANE',
+  'BHOPAL', 'VISAKHAPATNAM', 'PATNA', 'VADODARA', 'GHAZIABAD', 'LUDHIANA',
+  'AGRA', 'NASHIK', 'FARIDABAD', 'MEERUT', 'RAJKOT', 'VARANASI', 'SRINAGAR',
+  // Major cities - Other Asia
+  'TOKYO', 'OSAKA', 'SEOUL', 'BUSAN', 'MUMBAI', 'NEW DELHI', 'DELHI',
+  'SYDNEY', 'MELBOURNE', 'BRISBANE', 'PERTH', 'AUCKLAND',
+];
+
+/**
+ * Common airport/city codes (IATA codes) to filter out
+ * These 3-letter codes often appear at the start of address blocks
+ * @since FIX-006 - Airport code filtering
+ */
+const AIRPORT_CODES = [
+  // China & Hong Kong
+  'HKG', 'PEK', 'PVG', 'SHA', 'CAN', 'SZX', 'CTU', 'KMG', 'XIY', 'HGH',
+  // Southeast Asia
+  'SIN', 'BKK', 'KUL', 'CGK', 'MNL', 'SGN', 'HAN', 'DAD', 'CXR', 'PQC',
+  // India
+  'BLR', 'DEL', 'BOM', 'MAA', 'CCU', 'HYD', 'COK', 'AMD', 'GOI', 'PNQ',
+  // Japan & Korea
+  'NRT', 'HND', 'KIX', 'ICN', 'GMP', 'PUS', 'CJU',
+  // Australia
+  'SYD', 'MEL', 'BNE', 'PER', 'ADL', 'CBR',
+  // Taiwan
+  'TPE', 'KHH', 'RMQ',
+  // Others
+  'DXB', 'DOH', 'AUH', 'SVO', 'CDG', 'LHR', 'FRA', 'AMS', 'JFK', 'LAX',
 ];
 
 /**
@@ -257,12 +288,16 @@ function containsCurrencyCode(term: string): boolean {
  * @returns true if the term appears to be an address, false otherwise
  * @since FIX-005 - Address term filtering
  * @since FIX-005.1 - Added currency code exception for price lines
+ * @since FIX-006 - Added airport code, person name, and company name filtering
  *
  * @example
  * isAddressLikeTerm('EXPRESS WORLDWIDE NONDOC') // false - valid charge term
  * isAddressLikeTerm('BO STREET WARD 13 DISTRICT 4') // true - address
  * isAddressLikeTerm('HO CHI MINH CITY VIETNAM') // true - location
  * isAddressLikeTerm('FREIGHT CHARGES USD 65.00 7.881487') // false - price line with currency
+ * isAddressLikeTerm('HKG, HONG KONG') // true - airport code pattern (FIX-006)
+ * isAddressLikeTerm('KATHY LAM') // true - person name (FIX-006)
+ * isAddressLikeTerm('RICOH ASIA PACIFIC OPERATIONS LIMITED') // true - company name (FIX-006)
  */
 export function isAddressLikeTerm(term: string): boolean {
   if (!term) return false;
@@ -287,6 +322,84 @@ export function isAddressLikeTerm(term: string): boolean {
   // These are checked regardless of currency presence
   for (const location of LOCATION_NAMES) {
     if (upperTerm.includes(location)) {
+      return true;
+    }
+  }
+
+  // FIX-006: Check if term starts with airport code (e.g., "HKG, HONG KONG", "BLR, BANGALORE")
+  // Airport codes at the start typically indicate address blocks, not charge descriptions
+  for (const code of AIRPORT_CODES) {
+    // Check if term starts with airport code followed by comma, space, or newline
+    const startsWithCode = new RegExp(`^${code}(?:[,\\s\\n]|$)`, 'i');
+    if (startsWithCode.test(upperTerm)) {
+      return true;
+    }
+  }
+
+  // FIX-006: Check for person name patterns
+  // Person names are typically 2-3 words, all letters, no numbers or special freight terms
+  const words = upperTerm.split(/\s+/).filter((w) => w.length > 1);
+  if (words.length >= 2 && words.length <= 4) {
+    const allWordsAreNames = words.every((word) => {
+      // Each word should be all letters (allowing hyphens for double names)
+      return /^[A-Z]+(?:-[A-Z]+)?$/i.test(word);
+    });
+    // Check if this looks like a name (no freight-related keywords)
+    const freightKeywords = [
+      'FREIGHT',
+      'CHARGE',
+      'FEE',
+      'SURCHARGE',
+      'HANDLING',
+      'CUSTOMS',
+      'DUTY',
+      'TAX',
+      'IMPORT',
+      'EXPORT',
+      'CLEARANCE',
+      'DOCUMENT',
+      'EXPRESS',
+      'DELIVERY',
+      'SHIPPING',
+      'TRANSPORT',
+      'CARGO',
+      'AIR',
+      'SEA',
+      'OCEAN',
+      'FUEL',
+      'SECURITY',
+      'INSURANCE',
+      'PICKUP',
+      'COLLECT',
+      'PREPAID',
+    ];
+    const hasFreightKeyword = words.some((w) => freightKeywords.includes(w));
+    if (allWordsAreNames && !hasFreightKeyword && upperTerm.length < 30) {
+      return true;
+    }
+  }
+
+  // FIX-006: Check for company/building name patterns often extracted incorrectly
+  // Patterns like "E.TOWN CENTRAL", "RICOH ASIA PACIFIC OPERATIONS LIMITED"
+  const companyPatterns = [
+    /\bLIMITED\b/i,
+    /\bLTD\b/i,
+    /\bCO\.\s*LTD\b/i,
+    /\bCORP(?:ORATION)?\b/i,
+    /\bINC(?:ORPORATED)?\b/i,
+    /\bPTE\b/i,
+    /\bPVT\b/i,
+    /\bGMBH\b/i,
+    /\bSDN\s*BHD\b/i,
+    /\bS\.?A\.?\b/,
+    /\bOPERATIONS\b/i,
+    /\bCENTRAL\b/i,
+    /\bPLAZA\b/i,
+    /\bCENTRE\b/i,
+    /\bCENTER\b/i,
+  ];
+  for (const pattern of companyPatterns) {
+    if (pattern.test(upperTerm)) {
       return true;
     }
   }
