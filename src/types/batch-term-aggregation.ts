@@ -29,6 +29,8 @@ export interface TermAggregationConfig {
   similarityThreshold: number;
   /** 是否自動分類術語 */
   autoClassify: boolean;
+  /** 是否啟用 AI 術語驗證（預設 false） */
+  aiValidationEnabled?: boolean;
 }
 
 /**
@@ -114,6 +116,19 @@ export interface BatchTermAggregationStats {
   classifiedTermsCount: number;
   /** 含有術語的公司數量 */
   companiesWithTerms: number;
+  /** AI 驗證統計（可選） */
+  aiValidation?: {
+    /** 驗證前術語數 */
+    termsBeforeValidation: number;
+    /** 驗證後術語數（有效術語） */
+    termsAfterValidation: number;
+    /** 被過濾的術語數 */
+    filteredTermsCount: number;
+    /** AI 驗證成本（USD） */
+    validationCost: number;
+    /** 驗證耗時（毫秒） */
+    validationTimeMs: number;
+  };
 }
 
 /**
@@ -219,6 +234,7 @@ export const DEFAULT_TERM_AGGREGATION_CONFIG: TermAggregationConfig = {
   enabled: true,
   similarityThreshold: 0.85,
   autoClassify: false,
+  aiValidationEnabled: false,
 };
 
 /**

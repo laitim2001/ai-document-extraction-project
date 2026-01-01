@@ -369,6 +369,9 @@ export * from './document-issuer.service'
 export * from './document-format.service'
 export * from './hierarchical-term-aggregation.service'
 
+// Epic 0: Historical Data Initialization (Story 0-10 - AI Term Validation Service)
+export * from './ai-term-validator.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

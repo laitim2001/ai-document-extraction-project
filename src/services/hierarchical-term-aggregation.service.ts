@@ -39,8 +39,10 @@ import type {
   AggregationSummary,
   DocumentType,
   DocumentSubtype,
+  HierarchicalAIValidationStats,
 } from '@/types/document-format';
 import { normalizeForAggregation, isAddressLikeTerm } from './term-aggregation.service';
+import { aiTermValidator } from './ai-term-validator.service';
 
 // ============================================================================
 // Types
@@ -56,6 +58,8 @@ export interface HierarchicalAggregationOptions {
   minTermFrequency?: number;
   /** 每個格式最大術語數（預設 500） */
   maxTermsPerFormat?: number;
+  /** 是否啟用 AI 術語驗證（預設 false）- Story 0-10 */
+  aiValidationEnabled?: boolean;
 }
 
 /**
@@ -129,7 +133,11 @@ export async function aggregateTermsHierarchically(
     includeClassification = false,
     minTermFrequency = 1,
     maxTermsPerFormat = 500,
+    aiValidationEnabled = false,
   } = options;
+
+  // Story 0-10: AI 驗證統計追蹤
+  let aiValidationStats: HierarchicalAIValidationStats | undefined;
 
   // 1. 獲取所有已處理文件（包含發行者和格式資訊）
   const files = await prisma.historicalFile.findMany({
@@ -208,6 +216,67 @@ export async function aggregateTermsHierarchically(
           examples: [description],
         });
       }
+    }
+  }
+
+  // 3.5 Story 0-10: AI 術語驗證（如果啟用）
+  if (aiValidationEnabled) {
+    // 收集所有唯一術語
+    const allUniqueTerms = new Set<string>();
+    for (const companyData of companyMap.values()) {
+      for (const formatData of companyData.formats.values()) {
+        for (const term of formatData.terms.keys()) {
+          allUniqueTerms.add(term);
+        }
+      }
+    }
+
+    const termsBeforeValidation = allUniqueTerms.size;
+    const validationStartTime = Date.now();
+
+    try {
+      console.log(
+        `[HierarchicalAggregation] Starting AI validation for ${termsBeforeValidation} unique terms...`
+      );
+
+      // 執行 AI 驗證
+      const allTermsArray = Array.from(allUniqueTerms);
+      const validTermsSet = new Set(
+        await aiTermValidator.filterValidTerms(allTermsArray, batchId)
+      );
+
+      // 從三層結構中移除無效術語
+      for (const companyData of companyMap.values()) {
+        for (const formatData of companyData.formats.values()) {
+          for (const term of formatData.terms.keys()) {
+            if (!validTermsSet.has(term)) {
+              formatData.terms.delete(term);
+            }
+          }
+        }
+      }
+
+      const validationEndTime = Date.now();
+      const termsAfterValidation = validTermsSet.size;
+      const costRecords = aiTermValidator.getCostRecords({ batchId });
+      const validationCost = costRecords.reduce((sum, r) => sum + r.estimatedCost, 0);
+
+      aiValidationStats = {
+        termsBeforeValidation,
+        termsAfterValidation,
+        filteredTermsCount: termsBeforeValidation - termsAfterValidation,
+        validationCost,
+        validationTimeMs: validationEndTime - validationStartTime,
+      };
+
+      console.log(
+        `[HierarchicalAggregation] AI validation completed: ` +
+          `${termsBeforeValidation} → ${termsAfterValidation} terms ` +
+          `(${aiValidationStats.filteredTermsCount} filtered, $${validationCost.toFixed(4)})`
+      );
+    } catch (error) {
+      console.error('[HierarchicalAggregation] AI validation failed:', error);
+      // 驗證失敗時繼續使用原有術語（fallback 到 isAddressLikeTerm 已在提取時應用）
     }
   }
 
@@ -291,6 +360,7 @@ export async function aggregateTermsHierarchically(
   return {
     companies,
     summary,
+    aiValidation: aiValidationStats,
   };
 }
 

@@ -37,6 +37,7 @@ import {
   extractTermsFromResult,
   isAddressLikeTerm,
 } from './term-aggregation.service';
+import { aiTermValidator } from './ai-term-validator.service';
 import type {
   BatchTermAggregationResult,
   BatchTermAggregationStats,
@@ -238,6 +239,7 @@ function mergeSimilarTerms(
  * @description
  *   從指定批次的所有已完成文件中提取術語，
  *   按公司分組統計，識別通用術語，並返回完整的聚合結果。
+ *   可選擇使用 AI 驗證過濾非費用術語。
  *
  * @param batchId - 批次 ID
  * @param config - 聚合配置
@@ -248,6 +250,7 @@ function mergeSimilarTerms(
  * const result = await aggregateTermsForBatch('batch-123', {
  *   similarityThreshold: 0.85,
  *   autoClassify: false,
+ *   aiValidationEnabled: true,
  * });
  * ```
  */
@@ -256,6 +259,7 @@ export async function aggregateTermsForBatch(
   config: Omit<TermAggregationConfig, 'enabled'> = {
     similarityThreshold: DEFAULT_SIMILARITY_THRESHOLD,
     autoClassify: false,
+    aiValidationEnabled: false,
   }
 ): Promise<BatchTermAggregationResult> {
   // 1. 獲取所有處理完成的文件及其公司關聯
@@ -278,6 +282,7 @@ export async function aggregateTermsForBatch(
   // 2. 建立術語 → 公司 → 頻率 的映射
   const termCompanyMap = new Map<string, Map<string, TermCompanyData>>();
   let totalOccurrences = 0;
+  const allUniqueTermsBeforeValidation = new Set<string>();
 
   for (const file of files) {
     if (!file.extractionResult) continue;
@@ -292,6 +297,7 @@ export async function aggregateTermsForBatch(
       if (!term) continue;
 
       totalOccurrences++;
+      allUniqueTermsBeforeValidation.add(term);
 
       if (!termCompanyMap.has(term)) {
         termCompanyMap.set(term, new Map());
@@ -302,6 +308,60 @@ export async function aggregateTermsForBatch(
         companyMap.set(companyId, { companyName, frequency: 0 });
       }
       companyMap.get(companyId)!.frequency++;
+    }
+  }
+
+  // 2.5 AI 術語驗證（如果啟用）
+  let aiValidationStats: BatchTermAggregationStats['aiValidation'] | undefined;
+
+  if (config.aiValidationEnabled) {
+    const termsBeforeValidation = allUniqueTermsBeforeValidation.size;
+    const validationStartTime = Date.now();
+
+    try {
+      // 獲取所有唯一術語
+      const allTerms = Array.from(allUniqueTermsBeforeValidation);
+
+      // 使用 AI 驗證過濾無效術語
+      const validTermsSet = new Set(
+        await aiTermValidator.filterValidTerms(allTerms, batchId)
+      );
+
+      // 從 termCompanyMap 中移除無效術語
+      for (const term of termCompanyMap.keys()) {
+        if (!validTermsSet.has(term)) {
+          // 從總出現次數中減去該術語的出現次數
+          const companyMap = termCompanyMap.get(term)!;
+          for (const data of companyMap.values()) {
+            totalOccurrences -= data.frequency;
+          }
+          termCompanyMap.delete(term);
+        }
+      }
+
+      const validationEndTime = Date.now();
+      const termsAfterValidation = termCompanyMap.size;
+
+      // 獲取成本資訊
+      const costRecords = aiTermValidator.getCostRecords({ batchId });
+      const validationCost = costRecords.reduce((sum, r) => sum + r.estimatedCost, 0);
+
+      aiValidationStats = {
+        termsBeforeValidation,
+        termsAfterValidation,
+        filteredTermsCount: termsBeforeValidation - termsAfterValidation,
+        validationCost,
+        validationTimeMs: validationEndTime - validationStartTime,
+      };
+
+      console.log(
+        `[BatchTermAggregation] AI validation completed: ` +
+        `${termsBeforeValidation} → ${termsAfterValidation} terms ` +
+        `(${aiValidationStats.filteredTermsCount} filtered, $${validationCost.toFixed(4)})`
+      );
+    } catch (error) {
+      console.error('[BatchTermAggregation] AI validation failed:', error);
+      // 驗證失敗時繼續使用原有術語（fallback 到 isAddressLikeTerm 已在提取時應用）
     }
   }
 
@@ -381,6 +441,7 @@ export async function aggregateTermsForBatch(
     companySpecificCount: termCompanyMap.size - universalTerms.length,
     classifiedTermsCount: 0, // AI 分類暫未實現
     companiesWithTerms: companyTermsMap.size,
+    aiValidation: aiValidationStats, // AI 術語驗證統計（Story 0-10）
   };
 
   return {

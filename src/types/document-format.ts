@@ -210,6 +210,24 @@ export interface HierarchicalTermAggregation {
   companies: CompanyTermNode[];
   /** 聚合摘要 */
   summary: AggregationSummary;
+  /** AI 術語驗證統計（Story 0-10，可選） */
+  aiValidation?: HierarchicalAIValidationStats;
+}
+
+/**
+ * AI 術語驗證統計 (Story 0-10)
+ */
+export interface HierarchicalAIValidationStats {
+  /** 驗證前術語數 */
+  termsBeforeValidation: number;
+  /** 驗證後術語數 */
+  termsAfterValidation: number;
+  /** 被過濾的術語數 */
+  filteredTermsCount: number;
+  /** 驗證成本（USD） */
+  validationCost: number;
+  /** 驗證耗時（毫秒） */
+  validationTimeMs: number;
 }
 
 /**
