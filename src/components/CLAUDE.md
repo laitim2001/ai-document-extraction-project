@@ -279,6 +279,17 @@ src/components/
 | `SDKExamplesContent.tsx` | SDK 範例內容 |
 | `SwaggerUIWrapper.tsx` | Swagger UI 包裝器 |
 
+#### 2.24 文件預覽組件 (`features/document-preview/`) - Epic 13
+
+| 組件 | 說明 |
+|------|------|
+| `PDFViewer.tsx` | PDF 預覽器主組件 (react-pdf 整合) |
+| `DynamicPDFViewer.tsx` | SSR 安全的動態載入版本 |
+| `PDFControls.tsx` | 導航和縮放控制工具列 |
+| `FieldHighlightOverlay.tsx` | 欄位高亮覆蓋層 (座標轉換 + 信心度色碼) |
+| `PDFLoadingSkeleton.tsx` | 載入骨架屏 |
+| `PDFErrorDisplay.tsx` | 錯誤顯示組件 |
+
 ### 3. 佈局組件
 
 #### 3.1 Layout (`layout/`)

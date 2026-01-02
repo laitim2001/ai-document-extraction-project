@@ -219,8 +219,8 @@ development_status:
   # ============================================================
   # Epic 13: 文件預覽與欄位映射
   # ============================================================
-  epic-13: backlog  # 5 stories drafted
-  13-1-document-preview-field-highlight: drafted  # 文件預覽組件與欄位高亮：PDFViewer with react-pdf, FieldHighlightOverlay with bounding boxes, zoom/pan/navigation, field click interaction
+  epic-13: in-progress  # Story 13-1 in progress
+  13-1-document-preview-field-highlight: in-progress  # In Progress 2025-01-02: PDFViewer (react-pdf), FieldHighlightOverlay (bounding box → screen coordinate), PDFControls (zoom/navigation), DynamicPDFViewer (SSR-safe), usePdfPreload hook, coordinate-transform utilities
   13-2-extracted-fields-panel: drafted  # 欄位提取結果面板：ExtractedFieldsPanel, FieldCard with confidence display, FieldValueEditor inline editing, search/filter/sort capabilities
   13-3-field-mapping-config-ui: drafted  # 欄位映射配置介面：MappingConfigPanel, SourceFieldSelector, TargetFieldSelector, MappingRuleList with drag-drop reordering
   13-4-mapping-config-api: drafted  # 映射配置 API：FieldMappingConfig/FieldMappingRule models, CRUD APIs, test endpoint, export/import support
