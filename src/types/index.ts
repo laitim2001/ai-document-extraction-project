@@ -16,7 +16,76 @@ export * from './user'
 export * from './extraction'
 
 // 欄位映射相關
-export * from './field-mapping'
+// 注意：field-mapping.ts 的 ConfigScope 與 @prisma/client 的 ConfigScope 衝突
+// 使用命名導出，將 field-mapping 的 ConfigScope 重命名為 MappingConfigScope
+export {
+  // Constants
+  EXTRACTION_METHODS,
+  CONFIDENCE_SOURCES,
+  CONFIDENCE_THRESHOLDS,
+  REVIEW_TYPES,
+  TRANSFORM_TYPE_OPTIONS,
+  CONFIG_SCOPE_OPTIONS,
+  // Types
+  type ExtractionMethod,
+  type ConfidenceSource,
+  type ReviewType,
+  type RegexExtractionPattern,
+  type KeywordExtractionPattern,
+  type PositionExtractionPattern,
+  type AzureFieldExtractionPattern,
+  type ExtractionPattern,
+  type FieldPosition,
+  type FieldMappingResult,
+  type FieldMappings,
+  type UnmappedFieldDetail,
+  type UnmappedFieldDetails,
+  type MappingRuleDTO,
+  type CreateMappingRuleRequest,
+  type UpdateMappingRuleRequest,
+  type ExtractionStatistics,
+  type ExtractionResultDTO,
+  type MapFieldsRequest,
+  type MapFieldsResponse,
+  type BatchMapFieldsRequest,
+  type BatchMapFieldsResponse,
+  type GetExtractionResultRequest,
+  type GetExtractionResultResponse,
+  type GetMappingRulesRequest,
+  type GetMappingRulesResponse,
+  type PythonMapFieldsRequest,
+  type PythonMappingRule,
+  type PythonMapFieldsResponse,
+  type NormalizationOptions,
+  type ValidationResult,
+  type FieldMappingSummary,
+  type TransformType,
+  type ConfigScope as MappingConfigScope,
+  type TransformParams,
+  type VisualMappingRule,
+  type VisualMappingConfig,
+  type SourceFieldDefinition,
+  type TargetFieldDefinition,
+  type RuleEditorFormState,
+  type MappingPreviewResult,
+  type RuleEditorValidationResult,
+  // Zod Schemas
+  TransformParamsSchema,
+  VisualMappingRuleSchema,
+  VisualMappingConfigSchema,
+  RuleEditorFormSchema,
+  // Functions
+  getReviewType,
+  isTransformType,
+  isConfigScope as isMappingConfigScope,
+  isVisualMappingRule,
+  isVisualMappingConfig,
+  getTransformTypeLabel,
+  getConfigScopeLabel as getMappingConfigScopeLabel,
+  createDefaultTransformParams,
+  createEmptyVisualRule,
+  executeTransform,
+} from './field-mapping'
 export * from './invoice-fields'
 
 // 信心度相關
