@@ -660,6 +660,7 @@ model Company {
   transactionParticipations FileTransactionParty[] // Story 0.8: 交易參與記錄
   documentFormats           DocumentFormat[]    // Story 0.9: 公司的文件格式
   fieldMappingConfigs       FieldMappingConfig[] // Story 13.4: 欄位映射配置
+  promptConfigs             PromptConfig[]       // Story 14.1: Prompt 配置
 
   @@index([type])
   @@index([status])
@@ -5081,6 +5082,7 @@ model DocumentFormat {
 
   // 欄位映射配置
   fieldMappingConfigs FieldMappingConfig[] // Story 13.4: 格式專屬的欄位映射配置
+  promptConfigs       PromptConfig[]       // Story 14.1: 格式專屬的 Prompt 配置
 
   // 唯一約束：每個公司的每種格式類型只有一個記錄
   @@unique([companyId, documentType, documentSubtype])
@@ -5223,5 +5225,121 @@ model FieldMappingRule {
   @@index([priority])
   @@index([isActive])
   @@map("field_mapping_rules")
+}
+
+// ============================================================================
+// Epic 14 - Story 14-1: Prompt 配置模型與 API
+// ============================================================================
+
+/// Prompt types for different AI processing scenarios
+/// Used to categorize prompt configurations by their purpose
+enum PromptType {
+  ISSUER_IDENTIFICATION // 發行方識別
+  TERM_CLASSIFICATION   // 術語分類
+  FIELD_EXTRACTION      // 欄位提取
+  VALIDATION            // 驗證
+
+  @@map("prompt_type")
+}
+
+/// Prompt scope levels for hierarchical configuration
+/// Supports: GLOBAL → COMPANY → FORMAT override chain
+enum PromptScope {
+  GLOBAL  // 全域配置，適用於所有
+  COMPANY // 公司專屬配置，覆蓋全域
+  FORMAT  // 格式專屬配置，覆蓋公司配置
+
+  @@map("prompt_scope")
+}
+
+/// Merge strategies for combining prompt configurations
+/// Defines how child scope prompts interact with parent scope prompts
+enum MergeStrategy {
+  OVERRIDE // 完全覆蓋父層配置
+  APPEND   // 附加到父層配置末尾
+  PREPEND  // 插入到父層配置開頭
+
+  @@map("merge_strategy")
+}
+
+/// Prompt Configuration Model
+/// Stores AI prompt templates with hierarchical scope support
+/// Supports: GLOBAL → COMPANY → FORMAT configuration override
+model PromptConfig {
+  id               String          @id @default(cuid())
+
+  // 範圍設定
+  promptType       PromptType      @map("prompt_type")
+  scope            PromptScope     @default(GLOBAL)
+
+  // 配置基本資訊
+  name             String          @db.VarChar(100)
+  description      String?         @db.Text
+
+  // 關聯（可選，依據 scope）
+  companyId        String?         @map("company_id")
+  company          Company?        @relation(fields: [companyId], references: [id])
+  documentFormatId String?         @map("document_format_id")
+  documentFormat   DocumentFormat? @relation(fields: [documentFormatId], references: [id])
+
+  // Prompt 內容
+  systemPrompt      String         @map("system_prompt") @db.Text
+  userPromptTemplate String        @map("user_prompt_template") @db.Text
+
+  // 合併策略
+  mergeStrategy    MergeStrategy   @default(OVERRIDE) @map("merge_strategy")
+
+  // 變數定義（JSON Array）
+  // 結構: [{ name: string, displayName: string, variableType: string, defaultValue?: string, dataSource?: string, isRequired: boolean }]
+  variables        Json?           @default("[]")
+
+  // 狀態與版本控制
+  isActive         Boolean         @default(true) @map("is_active")
+  version          Int             @default(1) // 樂觀鎖版本號
+
+  // 時間戳
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  // 創建者追蹤
+  createdBy        String?         @map("created_by")
+  updatedBy        String?         @map("updated_by")
+
+  // 唯一約束：每個範圍組合只能有一個配置
+  @@unique([promptType, scope, companyId, documentFormatId], name: "unique_prompt_config")
+  @@index([promptType])
+  @@index([scope])
+  @@index([companyId])
+  @@index([documentFormatId])
+  @@index([isActive])
+  @@map("prompt_configs")
+}
+
+/// Prompt Variable Definition Model
+/// Stores reusable variable definitions for prompt templates
+/// Variables can be referenced in prompts using {{variableName}} syntax
+model PromptVariable {
+  id              String   @id @default(cuid())
+
+  // 變數識別
+  name            String   @unique @db.VarChar(50)
+  displayName     String   @map("display_name") @db.VarChar(100)
+  description     String?  @db.Text
+
+  // 變數類型：string, number, boolean, array, object
+  variableType    String   @map("variable_type") @db.VarChar(20)
+
+  // 預設值與數據來源
+  defaultValue    String?  @map("default_value") @db.Text
+  dataSource      String?  @map("data_source") @db.VarChar(100)
+
+  // 是否必填
+  isRequired      Boolean  @default(false) @map("is_required")
+
+  // 時間戳
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("prompt_variables")
 }
 

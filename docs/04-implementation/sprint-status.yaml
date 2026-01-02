@@ -230,8 +230,8 @@ development_status:
   # ============================================================
   # Epic 14: Prompt 配置與動態生成
   # ============================================================
-  epic-14: backlog  # 4 stories drafted
-  14-1-prompt-config-model-api: drafted  # Prompt 配置模型與 API：PromptConfig/PromptTemplate models, 4-tier hierarchy (Global→Company→Format→Specific), CRUD APIs, version management
+  epic-14: in-progress  # 4 stories (Story 14-1 done)
+  14-1-prompt-config-model-api: done  # Completed 2026-01-02: PromptConfig model (PromptType/PromptScope/MergeStrategy enums), 3-tier scope hierarchy (GLOBAL→COMPANY→FORMAT), CRUD APIs (/v1/prompt-configs), Zod validation schemas, optimistic locking (version field), unique constraint, RFC 7807 error responses
   14-2-prompt-config-management-ui: drafted  # Prompt 配置管理介面：PromptConfigList, PromptEditor with Monaco, PromptPreview, variable insertion toolbar, hierarchy navigation
   14-3-prompt-resolution-merge-service: drafted  # Prompt 解析與合併服務：PromptResolutionService (chain resolution), PromptMergeService (OVERRIDE/APPEND/PREPEND), PromptVariableService, PromptEngineService
   14-4-gpt-vision-service-integration: drafted  # GPT Vision 服務整合：PromptIntegrationService, 4 processing stages, context variable injection, GPTVisionService with dynamic prompts

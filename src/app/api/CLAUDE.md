@@ -1,6 +1,6 @@
 # API 目錄 - Next.js API Routes
 
-> **端點數量**: 268+ API 端點
+> **端點數量**: 273+ API 端點
 > **最後更新**: 2026-01-02
 > **版本**: 1.1.0
 
@@ -280,7 +280,7 @@
 | `/workflow-executions/` | 執行記錄 |
 | `/workflow-errors/` | 錯誤記錄 |
 
-### 32. V1 API（版本化端點） - Epic 0, 11, 13
+### 32. V1 API（版本化端點） - Epic 0, 11, 13, 14
 
 | 路徑 | 說明 | Epic |
 |------|------|------|
@@ -289,6 +289,7 @@
 | `/v1/invoices/` | 發票 API | Epic 11 |
 | `/v1/webhooks/` | Webhook 管理 | Epic 11 |
 | `/v1/field-mapping-configs/` | 欄位映射配置 | Epic 13 |
+| `/v1/prompt-configs/` | Prompt 配置管理 | Epic 14 |
 
 ### 33. 欄位映射配置 API (Field Mapping Configs) - Epic 13
 
@@ -330,6 +331,51 @@ GLOBAL → COMPANY → FORMAT（越具體優先級越高）
 | SPLIT | 分割取值 | `{ separator: "-", index: 0 }` |
 | LOOKUP | 查表映射 | `{ mapping: { "A": "Alpha" } }` |
 | CUSTOM | 自定義表達式 | `{ expression: "..." }` |
+
+### 34. Prompt 配置 API (Prompt Configs) - Epic 14
+
+> **Story 14-1**: Prompt 配置模型與 API - 三層範圍繼承系統（GLOBAL → COMPANY → FORMAT）
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/prompt-configs/` | GET | 配置列表（支援 promptType, scope, companyId, documentFormatId 篩選）|
+| `/v1/prompt-configs/` | POST | 創建新配置（唯一約束：promptType + scope + companyId + documentFormatId）|
+| `/v1/prompt-configs/[id]/` | GET | 配置詳情（含 systemPrompt, userPromptTemplate, variables）|
+| `/v1/prompt-configs/[id]/` | PATCH | 更新配置（樂觀鎖 version 控制）|
+| `/v1/prompt-configs/[id]/` | DELETE | 刪除配置 |
+
+#### Prompt 類型（PromptType）
+
+| 類型 | 說明 |
+|------|------|
+| ISSUER_IDENTIFICATION | 發行方識別 - 用於識別文件發行方 |
+| TERM_CLASSIFICATION | 術語分類 - 用於分類提取的術語 |
+| FIELD_EXTRACTION | 欄位提取 - 用於從文件中提取特定欄位 |
+| VALIDATION | 驗證 - 用於驗證提取結果的準確性 |
+
+#### 範圍優先級（PromptScope）
+
+```
+GLOBAL → COMPANY → FORMAT（越具體優先級越高）
+```
+
+| Scope | 說明 | 必要關聯 |
+|-------|------|----------|
+| GLOBAL | 全域配置（所有文件適用）| 無 |
+| COMPANY | 公司特定配置 | companyId |
+| FORMAT | 文件格式特定配置 | companyId + documentFormatId |
+
+#### 合併策略（MergeStrategy）
+
+| 策略 | 說明 |
+|------|------|
+| OVERRIDE | 完全覆蓋父層配置 |
+| APPEND | 附加到父層配置末尾 |
+| PREPEND | 插入到父層配置開頭 |
+
+#### 變數插值
+
+支援 `{{variableName}}` 語法在 systemPrompt 和 userPromptTemplate 中進行變數插值。
 
 ---
 

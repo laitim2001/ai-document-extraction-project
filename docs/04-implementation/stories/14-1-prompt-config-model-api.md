@@ -3,7 +3,7 @@
 > **Epic**: Epic 14 - Company + DocumentFormat Prompt 配置
 > **Story Points**: 5
 > **Priority**: High
-> **Status**: 📋 Backlog
+> **Status**: ✅ Done (2026-01-02)
 
 ---
 
