@@ -184,6 +184,15 @@
 | RestoreList | `features/admin/restore/RestoreList.tsx` | 恢復記錄列表（含篩選、分頁、取消操作） | 12-6 |
 | LogViewer | `admin/log-viewer.tsx` | 日誌檢視器 | 12-7 |
 
+### Prompt 配置管理 (Epic 14)
+| 元件名稱 | 檔案路徑 | 描述 | 相關 Story |
+|----------|----------|------|------------|
+| PromptConfigList | `features/prompt-config/PromptConfigList.tsx` | 配置列表（按類型分組） | 14-2 |
+| PromptConfigFilters | `features/prompt-config/PromptConfigFilters.tsx` | 配置篩選器 | 14-2 |
+| PromptEditor | `features/prompt-config/PromptEditor.tsx` | Prompt 編輯器（支援變數插入） | 14-2 |
+| PromptTester | `features/prompt-config/PromptTester.tsx` | Prompt 測試器（文件上傳+結果顯示） | 14-2 |
+| PromptConfigForm | `features/prompt-config/PromptConfigForm.tsx` | 配置表單（完整 CRUD） | 14-2 |
+
 ---
 
 ## 待實作元件

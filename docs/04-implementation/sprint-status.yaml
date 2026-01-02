@@ -232,7 +232,7 @@ development_status:
   # ============================================================
   epic-14: in-progress  # 4 stories (Story 14-1 done)
   14-1-prompt-config-model-api: done  # Completed 2026-01-02: PromptConfig model (PromptType/PromptScope/MergeStrategy enums), 3-tier scope hierarchy (GLOBAL→COMPANY→FORMAT), CRUD APIs (/v1/prompt-configs), Zod validation schemas, optimistic locking (version field), unique constraint, RFC 7807 error responses
-  14-2-prompt-config-management-ui: drafted  # Prompt 配置管理介面：PromptConfigList, PromptEditor with Monaco, PromptPreview, variable insertion toolbar, hierarchy navigation
+  14-2-prompt-config-management-ui: done  # Completed 2026-01-02: PromptConfigList (按類型分組), PromptConfigForm (react-hook-form + zod), PromptEditor (語法高亮), PromptTester (文件上傳測試), PromptConfigFilters, prompt-config-ui.ts types, use-prompt-configs.ts hooks, page routes (list/new/edit)
   14-3-prompt-resolution-merge-service: drafted  # Prompt 解析與合併服務：PromptResolutionService (chain resolution), PromptMergeService (OVERRIDE/APPEND/PREPEND), PromptVariableService, PromptEngineService
   14-4-gpt-vision-service-integration: drafted  # GPT Vision 服務整合：PromptIntegrationService, 4 processing stages, context variable injection, GPTVisionService with dynamic prompts
   epic-14-retrospective: optional

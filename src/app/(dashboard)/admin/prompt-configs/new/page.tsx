@@ -1,0 +1,102 @@
+/**
+ * @fileoverview Prompt 配置新增頁
+ * @description
+ *   建立新的 Prompt 配置：
+ *   - 基本資訊表單（名稱、描述、類型、範圍）
+ *   - Prompt 編輯器（System / User Prompt）
+ *   - 變數插入功能
+ *
+ * @module src/app/(dashboard)/admin/prompt-configs/new
+ * @since Epic 14 - Story 14.2
+ * @lastModified 2026-01-02
+ */
+
+'use client';
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Settings2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { PromptConfigForm } from '@/components/features/prompt-config';
+import {
+  useCreatePromptConfig,
+  useCompaniesForPromptConfig,
+  useDocumentFormatsForPromptConfig,
+} from '@/hooks/use-prompt-configs';
+import type { CreatePromptConfigRequest } from '@/types/prompt-config';
+
+// ============================================================================
+// Page Component
+// ============================================================================
+
+export default function NewPromptConfigPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  // --- Queries ---
+  const { data: companies = [] } = useCompaniesForPromptConfig();
+  // Note: Document formats currently fetched without company filter
+  // Future: Add form onChange to track company selection
+  const { data: documentFormats = [] } = useDocumentFormatsForPromptConfig(
+    undefined
+  );
+
+  const createMutation = useCreatePromptConfig();
+
+  // --- Handlers ---
+
+  const handleGoBack = React.useCallback(() => {
+    router.push('/admin/prompt-configs');
+  }, [router]);
+
+  const handleSubmit = React.useCallback(
+    async (data: CreatePromptConfigRequest) => {
+      try {
+        const result = await createMutation.mutateAsync(data);
+        toast({
+          title: '建立成功',
+          description: `已成功建立配置「${result.data.name}」`,
+        });
+        router.push('/admin/prompt-configs');
+      } catch (err) {
+        toast({
+          variant: 'destructive',
+          title: '建立失敗',
+          description: err instanceof Error ? err.message : '未知錯誤',
+        });
+      }
+    },
+    [createMutation, toast, router]
+  );
+
+  // --- Render ---
+
+  return (
+    <div className="container mx-auto py-6 space-y-6">
+      {/* Page Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={handleGoBack}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <Settings2 className="h-6 w-6" />
+            新增 Prompt 配置
+          </h1>
+          <p className="text-muted-foreground">
+            建立新的 AI Prompt 配置
+          </p>
+        </div>
+      </div>
+
+      {/* Form */}
+      <PromptConfigForm
+        companies={companies}
+        documentFormats={documentFormats}
+        onSubmit={handleSubmit}
+        isSubmitting={createMutation.isPending}
+      />
+    </div>
+  );
+}
