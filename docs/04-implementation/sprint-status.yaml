@@ -219,11 +219,11 @@ development_status:
   # ============================================================
   # Epic 13: 文件預覽與欄位映射
   # ============================================================
-  epic-13: in-progress  # Story 13-1, 13-2 completed
+  epic-13: in-progress  # Story 13-1, 13-2, 13-4 completed (3/5)
   13-1-document-preview-field-highlight: done  # Completed 2026-01-02: PDFViewer (react-pdf), FieldHighlightOverlay (bounding box → screen coordinate), PDFControls (zoom/navigation), DynamicPDFViewer (SSR-safe), PDFLoadingSkeleton, PDFErrorDisplay, usePdfPreload hook, coordinate-transform utilities
   13-2-extracted-fields-panel: done  # Completed 2026-01-02: ExtractedFieldsPanel (field list with filtering/sorting/grouping), FieldCard (confidence color coding, inline editing, source labels), FieldFilters (search/confidence/source/sort controls), extracted-field.ts types (ExtractedField, FieldSource, ConfidenceLevel, FieldCategory, FieldFilterState)
   13-3-field-mapping-config-ui: drafted  # 欄位映射配置介面：MappingConfigPanel, SourceFieldSelector, TargetFieldSelector, MappingRuleList with drag-drop reordering
-  13-4-mapping-config-api: drafted  # 映射配置 API：FieldMappingConfig/FieldMappingRule models, CRUD APIs, test endpoint, export/import support
+  13-4-mapping-config-api: done  # Completed 2026-01-02: FieldMappingConfig/FieldMappingRule Prisma models (3-scope hierarchy: GLOBAL→COMPANY→FORMAT), 5 transform types (DIRECT/CONCAT/SPLIT/LOOKUP/CUSTOM), 12 API endpoints (CRUD configs, CRUD rules, reorder, test, export/import), optimistic locking with version field, cascade delete, RFC 7807 error responses
   13-5-dynamic-field-mapping-integration: drafted  # 動態欄位映射服務整合：FieldMappingEngine, DynamicMappingService, result caching, processing pipeline integration
   epic-13-retrospective: optional
 

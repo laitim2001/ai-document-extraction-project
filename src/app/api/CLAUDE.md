@@ -1,8 +1,8 @@
 # API 目錄 - Next.js API Routes
 
-> **端點數量**: 256+ API 端點
-> **最後更新**: 2025-12-26
-> **版本**: 1.0.0
+> **端點數量**: 268+ API 端點
+> **最後更新**: 2026-01-02
+> **版本**: 1.1.0
 
 ---
 
@@ -280,7 +280,7 @@
 | `/workflow-executions/` | 執行記錄 |
 | `/workflow-errors/` | 錯誤記錄 |
 
-### 32. V1 API（版本化端點） - Epic 0, 11
+### 32. V1 API（版本化端點） - Epic 0, 11, 13
 
 | 路徑 | 說明 | Epic |
 |------|------|------|
@@ -288,6 +288,48 @@
 | `/v1/formats/` | 文件格式 | Epic 0 |
 | `/v1/invoices/` | 發票 API | Epic 11 |
 | `/v1/webhooks/` | Webhook 管理 | Epic 11 |
+| `/v1/field-mapping-configs/` | 欄位映射配置 | Epic 13 |
+
+### 33. 欄位映射配置 API (Field Mapping Configs) - Epic 13
+
+> **Story 13-4**: 映射配置 API - 三層範圍優先級系統（GLOBAL → COMPANY → FORMAT）
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/field-mapping-configs/` | GET | 配置列表（支援 scope, companyId, formatId 篩選）|
+| `/v1/field-mapping-configs/` | POST | 創建新配置 |
+| `/v1/field-mapping-configs/[id]/` | GET | 配置詳情（含規則列表）|
+| `/v1/field-mapping-configs/[id]/` | PATCH | 更新配置（樂觀鎖 version 控制）|
+| `/v1/field-mapping-configs/[id]/` | DELETE | 刪除配置（級聯刪除規則）|
+| `/v1/field-mapping-configs/[id]/rules/` | POST | 創建映射規則 |
+| `/v1/field-mapping-configs/[id]/rules/[ruleId]/` | PATCH | 更新規則 |
+| `/v1/field-mapping-configs/[id]/rules/[ruleId]/` | DELETE | 刪除規則 |
+| `/v1/field-mapping-configs/[id]/rules/reorder/` | POST | 批次重排序規則優先級 |
+| `/v1/field-mapping-configs/[id]/test/` | POST | 測試配置映射 |
+| `/v1/field-mapping-configs/[id]/export/` | GET | 導出配置為 JSON |
+| `/v1/field-mapping-configs/import/` | POST | 導入配置 JSON |
+
+#### 範圍優先級說明
+
+```
+GLOBAL → COMPANY → FORMAT（越具體優先級越高）
+```
+
+| Scope | 說明 | 關聯欄位 |
+|-------|------|----------|
+| GLOBAL | 通用映射（所有文件適用）| 無 |
+| COMPANY | 公司特定映射 | companyId |
+| FORMAT | 文件格式特定映射 | documentFormatId |
+
+#### Transform 類型
+
+| 類型 | 說明 | 參數範例 |
+|------|------|----------|
+| DIRECT | 直接映射 | 無 |
+| CONCAT | 多欄位連接 | `{ separator: " " }` |
+| SPLIT | 分割取值 | `{ separator: "-", index: 0 }` |
+| LOOKUP | 查表映射 | `{ mapping: { "A": "Alpha" } }` |
+| CUSTOM | 自定義表達式 | `{ expression: "..." }` |
 
 ---
 
@@ -453,5 +495,5 @@ GET /api/documents?page=1&limit=20&sortBy=createdAt&sortOrder=desc
 ---
 
 **維護者**: Development Team
-**最後更新**: 2025-12-26
-**版本**: 1.0.0
+**最後更新**: 2026-01-02
+**版本**: 1.1.0

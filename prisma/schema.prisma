@@ -659,6 +659,7 @@ model Company {
   issuedDocuments           HistoricalFile[]    @relation("FileDocumentIssuer")     // Story 0.8: 發出的文件
   transactionParticipations FileTransactionParty[] // Story 0.8: 交易參與記錄
   documentFormats           DocumentFormat[]    // Story 0.9: 公司的文件格式
+  fieldMappingConfigs       FieldMappingConfig[] // Story 13.4: 欄位映射配置
 
   @@index([type])
   @@index([status])
@@ -5078,6 +5079,9 @@ model DocumentFormat {
   // 關聯文件
   files           HistoricalFile[]
 
+  // 欄位映射配置
+  fieldMappingConfigs FieldMappingConfig[] // Story 13.4: 格式專屬的欄位映射配置
+
   // 唯一約束：每個公司的每種格式類型只有一個記錄
   @@unique([companyId, documentType, documentSubtype])
   @@index([companyId])
@@ -5123,5 +5127,101 @@ model BulkOperation {
   @@index([createdAt])
   @@index([isUndone])
   @@map("bulk_operations")
+}
+
+// ============================================================================
+// Epic 13 - Story 13-4: Field Mapping Configuration API
+// ============================================================================
+
+/// Scope types for field mapping configuration
+/// Controls the hierarchy override logic: GLOBAL → COMPANY → FORMAT
+enum FieldMappingScope {
+  GLOBAL // 全域配置，適用於所有公司
+  COMPANY // 公司專屬配置，覆蓋全域
+  FORMAT // 格式專屬配置，覆蓋公司配置
+}
+
+/// Transform types for field mapping rules
+/// Defines how source fields are transformed to target fields
+enum FieldTransformType {
+  DIRECT // 直接映射，無轉換
+  CONCAT // 字串合併
+  SPLIT // 字串分割
+  LOOKUP // 查表轉換
+  CUSTOM // 自定義轉換（JavaScript 表達式）
+}
+
+/// Field Mapping Configuration
+/// Stores configuration sets for different scopes (Global/Company/Format)
+/// Supports hierarchy override: GLOBAL → COMPANY → FORMAT
+model FieldMappingConfig {
+  id               String            @id @default(cuid())
+
+  // 範圍設定
+  scope            FieldMappingScope @default(GLOBAL)
+  companyId        String?           @map("company_id")
+  company          Company?          @relation(fields: [companyId], references: [id])
+  documentFormatId String?           @map("document_format_id")
+  documentFormat   DocumentFormat?   @relation(fields: [documentFormatId], references: [id])
+
+  // 配置基本資訊
+  name             String            @db.VarChar(100)
+  description      String?           @db.Text
+
+  // 狀態與版本控制
+  isActive         Boolean           @default(true) @map("is_active")
+  version          Int               @default(1) // 樂觀鎖版本號
+
+  // 時間戳
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  // 創建者追蹤
+  createdBy        String?           @map("created_by")
+
+  // 關聯
+  rules            FieldMappingRule[]
+
+  // 唯一約束：每個範圍組合只能有一個配置
+  @@unique([scope, companyId, documentFormatId])
+  @@index([companyId])
+  @@index([documentFormatId])
+  @@index([scope])
+  @@index([isActive])
+  @@map("field_mapping_configs")
+}
+
+/// Field Mapping Rule
+/// Individual mapping rules within a configuration
+/// Defines how source fields map to target fields with transformation
+model FieldMappingRule {
+  id               String             @id @default(cuid())
+
+  // 關聯配置
+  configId         String             @map("config_id")
+  config           FieldMappingConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+
+  // 映射定義
+  sourceFields     Json               @map("source_fields") // Array of source field names
+  targetField      String             @map("target_field") @db.VarChar(100)
+
+  // 轉換設定
+  transformType    FieldTransformType @default(DIRECT) @map("transform_type")
+  transformParams  Json?              @map("transform_params") // Transform-specific parameters
+
+  // 規則控制
+  priority         Int                @default(0) // 執行優先級（數值越高越優先）
+  isActive         Boolean            @default(true) @map("is_active")
+  description      String?            @db.VarChar(500)
+
+  // 時間戳
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+
+  @@index([configId])
+  @@index([targetField])
+  @@index([priority])
+  @@index([isActive])
+  @@map("field_mapping_rules")
 }
 
