@@ -510,6 +510,195 @@ DHL Express
 
 ---
 
+### Story 0-10: AI 術語驗證服務
+
+```
+# 開發任務：Story 0-10 AI 術語驗證服務
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-10-ai-term-validation-service.md
+3. docs/04-implementation/tech-specs/epic-00-historical-data/tech-spec-story-0-10.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+- src/services/batch-term-aggregation.service.ts (現有術語聚合服務)
+- src/services/hierarchical-term-aggregation.service.ts (階層式術語聚合)
+- src/services/ai-cost.service.ts (AI 成本追蹤)
+- claudedocs/4-changes/bug-fixes/FIX-005-*.md (地址過濾問題)
+- claudedocs/4-changes/bug-fixes/FIX-006-*.md (人名過濾問題)
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 中的 AI 術語驗證 Prompt 設計
+2. 使用 Azure OpenAI GPT-4o 進行批次術語驗證（50-100 術語/批次）
+3. 實現術語分類：FREIGHT_CHARGE, SURCHARGE, SERVICE_FEE, DUTY_TAX (有效) / ADDRESS, PERSON_NAME, COMPANY_NAME 等 (無效)
+4. 整合成本追蹤機制（~$0.11/批次）
+5. 保留現有 `isAddressLikeTerm` 作為回退機制
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+## 關鍵整合點
+- 創建 `src/services/ai-term-validator.service.ts`
+- 創建 `src/types/term-validation.ts` (TermValidationResult, TermCategory, TermValidationStats)
+- 修改 `batch-term-aggregation.service.ts` 整合 AI 驗證
+- 修改 `hierarchical-term-aggregation.service.ts` 整合 AI 驗證
+- 創建 API: `POST /api/v1/admin/terms/validate`
+- 創建 API: `GET /api/v1/admin/costs/term-validation`
+
+## 核心邏輯
+```
+術語聚合結果 → AI 批次驗證 (GPT-4o) → 過濾後的有效術語
+                    ↓
+              50-100 術語/批次
+              最多 3 個並行批次
+              成本約 $0.11/批次
+```
+
+## 術語分類邏輯
+✅ 有效術語類型：
+- FREIGHT_CHARGE (運費): AIR FREIGHT, OCEAN FREIGHT
+- SURCHARGE (附加費): FUEL SURCHARGE, BAF, CAF
+- SERVICE_FEE (服務費): HANDLING FEE, DOC FEE
+- DUTY_TAX (關稅/稅項): IMPORT DUTY, VAT
+
+❌ 無效術語類型（需過濾）：
+- ADDRESS: 地址相關
+- PERSON_NAME: 人名
+- COMPANY_NAME: 公司名
+- BUILDING_NAME: 建築物名
+- AIRPORT_CODE: 機場代碼 + 城市 (如 "HKG, HONG KONG")
+- REFERENCE: 參考編號
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件
+
+### 3. 功能驗證
+- [ ] AI 術語驗證服務正確分類術語
+- [ ] 批次處理機制正常（50-100 術語/批次）
+- [ ] 成本追蹤正確記錄 token 使用量和費用
+- [ ] 回退機制正常運作（當 AI 服務失敗時）
+- [ ] 術語聚合流程正確整合 AI 驗證
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 0-11: GPT Vision Prompt 優化
+
+```
+# 開發任務：Story 0-11 GPT Vision Prompt 優化
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/0-11-gpt-vision-prompt-optimization.md
+3. docs/04-implementation/tech-specs/epic-00-historical-data/tech-spec-story-0-11.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/03-epics/sections/epic-0-historical-data-initialization.md
+- src/services/gpt-vision.service.ts (現有 GPT Vision 服務)
+- claudedocs/4-changes/bug-fixes/FIX-005-*.md (地址過濾問題的錯誤模式)
+- claudedocs/4-changes/bug-fixes/FIX-006-*.md (人名過濾問題的錯誤模式)
+- docs/04-implementation/stories/0-10-ai-term-validation-service.md (雙層防護機制)
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 中的優化 Prompt 設計（5 步驟結構）
+2. 實現區域識別指引（Header / Line Items / Footer）
+3. 整合負面範例（FIX-005 ~ FIX-006 發現的錯誤模式）
+4. 實現自我驗證邏輯
+5. 添加 Prompt 版本管理機制
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+## 關鍵整合點
+- 修改 `src/services/gpt-vision.service.ts` 的 `LINE_ITEMS_EXTRACTION_PROMPT`
+- 添加 `PROMPT_VERSION` 常數（版本管理）
+- 添加 `ExcludedItem` 介面（追蹤被排除的項目）
+- 可選：添加 A/B 測試機制
+
+## 優化 Prompt 結構（5 步驟）
+```
+1. ROLE DEFINITION (角色定義)
+   └─ 明確 AI 的專業角色和任務目標
+
+2. REGION IDENTIFICATION (區域識別)
+   └─ Header: 公司資訊、發票編號、日期 → 不提取
+   └─ Line Items: 費用明細表格 → 提取
+   └─ Footer: 總計、付款資訊 → 不提取
+
+3. EXTRACTION RULES (提取規則)
+   ✅ 提取: FREIGHT CHARGES, SURCHARGES, SERVICE FEES, DUTY/TAX
+   ❌ 排除: 地址、人名、公司名、機場代碼+城市
+
+4. NEGATIVE EXAMPLES (負面範例)
+   ❌ "HKG, HONG KONG" - 機場代碼+城市，不是運費
+   ❌ "KATHY LAM" - 人名，不是運費
+   ❌ "DHL EXPRESS PTE LTD" - 公司名，不是運費
+
+5. SELF-VERIFICATION (自我驗證)
+   □ 是否來自 Line Items 區域？
+   □ 是否描述運費/附加費/服務費？
+   □ 是否有關聯金額？
+   □ 不是地址/人名/公司名？
+```
+
+## 與 Story 0-10 的關係（雙層防護機制）
+```
+Story 0-11 (源頭過濾) → 在提取階段減少 60-70% 錯誤
+        ↓
+Story 0-10 (終端驗證) → 捕獲剩餘 20-30% 錯誤
+        ↓
+最終錯誤率 < 5%
+```
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件
+
+### 3. 功能驗證
+- [ ] 優化 Prompt 正確識別發票區域
+- [ ] 負面範例有效排除錯誤內容
+- [ ] 自我驗證邏輯正常運作
+- [ ] Prompt 版本管理機制正常
+- [ ] 效果測試：錯誤提取率下降 50%+
+
+### 4. A/B 測試（可選）
+- [ ] 準備 20+ 測試文件
+- [ ] 執行舊 Prompt vs 新 Prompt 對比
+- [ ] 統計並記錄效果差異
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
 ## Epic 01: 用戶認證與權限管理
 
 ### Story 1-0: 專案初始化
@@ -5085,6 +5274,715 @@ DHL Express
   - Status 改為 `done`
   - 所有 Tasks 打勾 `[x]`
   - 添加 Implementation Notes
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+## Epic 13: 文件預覽與欄位映射
+
+> **說明**：此 Epic 提供文件預覽、欄位高亮、提取結果顯示及動態欄位映射配置功能。
+
+### Story 13-1: 文件預覽組件與欄位高亮
+
+```
+# 開發任務：Story 13-1 文件預覽組件與欄位高亮
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/component-registry.md
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 使用 PDF.js 實現 PDF 預覽功能
+3. 實現欄位高亮顯示與互動
+4. 新增的元件需更新 component-registry.md
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶（詳見 .claude/rules/technical-obstacles.md）
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。Context 中斷時，新 session 必須優先完成這些步驟。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如有架構變更 → 更新 CLAUDE.md
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 13-2: 欄位提取結果面板
+
+```
+# 開發任務：Story 13-2 欄位提取結果面板
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/component-registry.md
+- docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-1.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現結構化欄位顯示面板
+3. 實現欄位與 PDF 預覽的雙向互動
+4. 新增的元件需更新 component-registry.md
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 13-3: 欄位映射配置介面
+
+```
+# 開發任務：Story 13-3 欄位映射配置介面
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/component-registry.md
+- docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-4.md（依賴：映射 API）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現視覺化映射規則編輯器
+3. 支援拖放式映射配置
+4. 實現規則預覽與驗證
+5. 新增的元件需更新 component-registry.md
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 13-4: 映射配置 API
+
+```
+# 開發任務：Story 13-4 映射配置 API
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/api-registry.md
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現 FieldMappingConfig Prisma 模型
+3. 實現映射配置 CRUD API
+4. 支援層級覆蓋邏輯（Global → Company → Specific）
+5. 新增的 API 需更新 api-registry.md
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 13-5: 動態欄位映射服務整合
+
+```
+# 開發任務：Story 13-5 動態欄位映射服務整合
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-4.md（依賴：映射 API）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現 DynamicMappingService 服務
+3. 實現映射規則解析與應用
+4. 整合到文件處理流程
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+## Epic 14: Prompt 配置系統
+
+> **說明**：此 Epic 提供 GPT Vision Prompt 的可配置化管理，支援層級覆蓋與動態解析。
+
+### Story 14-1: Prompt 配置模型與 API
+
+```
+# 開發任務：Story 14-1 Prompt 配置模型與 API
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-14-prompt-config/tech-spec-story-14-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/api-registry.md
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現 PromptConfig Prisma 模型
+3. 實現四層配置結構（Global, Company, Format, Specific）
+4. 實現配置 CRUD API 端點
+5. 新增的 API 需更新 api-registry.md
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 14-2: Prompt 配置管理介面
+
+```
+# 開發任務：Story 14-2 Prompt 配置管理介面
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-14-prompt-config/tech-spec-story-14-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/component-registry.md
+- docs/04-implementation/tech-specs/epic-14-prompt-config/tech-spec-story-14-1.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現 Prompt 配置列表與編輯器
+3. 實現配置預覽與語法高亮
+4. 支援變數插入與驗證
+5. 新增的元件需更新 component-registry.md
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 14-3: Prompt 解析與合併服務
+
+```
+# 開發任務：Story 14-3 Prompt 解析與合併服務
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-14-prompt-config/tech-spec-story-14-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-14-prompt-config/tech-spec-story-14-1.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現 PromptResolverService 服務
+3. 實現層級優先級解析（Specific > Format > Company > Global）
+4. 實現變數替換與條件渲染
+5. 實現 Prompt 合併策略（Replace, Append, Merge）
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 14-4: GPT Vision 服務整合
+
+```
+# 開發任務：Story 14-4 GPT Vision 服務整合
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-14-prompt-config/tech-spec-story-14-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-14-prompt-config/tech-spec-story-14-1.md（依賴）
+- docs/04-implementation/tech-specs/epic-14-prompt-config/tech-spec-story-14-3.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 重構現有 GPT Vision 服務使用動態 Prompt
+3. 整合 PromptResolver 服務
+4. 實現 Prompt 版本追蹤
+5. 維護向後兼容性
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+## Epic 15: 統一處理架構
+
+> **說明**：此 Epic 將 Epic 0 的歷史數據處理能力整合到日常文件處理流程，實現統一的 11 步處理管道。
+
+### Story 15-1: 處理流程重構 - 統一入口
+
+```
+# 開發任務：Story 15-1 處理流程重構 - 統一入口
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/services/batch-processor.service.ts（現有處理邏輯）
+- src/services/processing-router.service.ts（現有路由邏輯）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現 UnifiedDocumentProcessor 核心服務
+3. 實現 ProcessingContext 和 ProcessingResult 類型
+4. 實現 11 步處理管道基礎架構
+5. 實現 Feature Flag 控制漸進式部署
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 15-2: 發行者識別整合
+
+```
+# 開發任務：Story 15-2 發行者識別整合
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/services/document-issuer.service.ts（Epic 0 服務）
+- docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-1.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現 IssuerIdentifierAdapter 適配器
+3. 整合 Epic 0 Story 0-8 的發行者識別功能
+4. 實現 Step 4（發行者識別）和 Step 5（公司匹配）
+5. 維護向後兼容性
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 15-3: 格式匹配與動態配置
+
+```
+# 開發任務：Story 15-3 格式匹配與動態配置
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/services/document-format.service.ts（Epic 0 服務）
+- docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-2.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現 FormatMatcherAdapter 適配器
+3. 實現 ConfigFetcherAdapter 適配器
+4. 整合 Epic 0 Story 0-9 的格式匹配功能
+5. 實現 Step 6（格式匹配）和 Step 7（配置獲取）
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 15-4: 持續術語學習
+
+```
+# 開發任務：Story 15-4 持續術語學習
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/services/hierarchical-term-aggregation.service.ts（Epic 0 服務）
+- src/services/ai-term-validation.service.ts（Epic 0 服務）
+- docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-3.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現 TermRecorderAdapter 適配器
+3. 整合 Epic 0 Story 0-9/0-10 的術語聚合與驗證功能
+4. 實現 Step 9（術語記錄）
+5. 支援增量術語學習和統計更新
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 15-5: 信心度計算增強
+
+```
+# 開發任務：Story 15-5 信心度計算增強
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-2.md（依賴：發行者識別）
+- docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-3.md（依賴：格式匹配）
+- docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-4.md（依賴：術語學習）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 實現 ConfidenceCalculatorService 服務（7 維度計算）
+3. 實現 RoutingDecisionService 服務（AUTO_APPROVE/QUICK_REVIEW/FULL_REVIEW）
+4. 實現 Step 10（信心度計算）和 Step 11（路由決策）
+5. 支援可配置的維度權重和閾值
+6. 實現 ConfidenceDetailsPanel UI 組件
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
 
 ### 3. 附加文檔（如適用）
 - [ ] 如有新模組 → 更新/建立對應 index.ts
