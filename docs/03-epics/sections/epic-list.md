@@ -159,3 +159,42 @@
 | **說明** | 健康狀態儀表板，Azure 服務監控，告警通知 |
 
 ---
+
+## Epic 13: 文件預覽與欄位映射
+
+**用戶成果**：審核人員可以在預覽 PDF 時看到欄位高亮，管理員可以配置靈活的欄位映射規則
+
+| 項目 | 內容 |
+|------|------|
+| **FRs** | FR9, FR10（審核相關），擴展 Epic 2 處理流程 |
+| **NFRs** | PDF 載入 <2 秒，高亮渲染 <100ms，映射執行 <50ms |
+| **依賴** | Epic 0（DocumentFormat 模型）, Epic 2, Epic 3 |
+| **說明** | react-pdf 預覽，bounding box 高亮，動態映射配置（Format > Company > Global） |
+
+---
+
+## Epic 14: Prompt 配置與動態生成
+
+**用戶成果**：管理員可以為不同 Company 和 DocumentFormat 配置專屬的 GPT Prompt，實現更精準的識別
+
+| 項目 | 內容 |
+|------|------|
+| **FRs** | 擴展 FR5, FR6（AI 處理相關） |
+| **NFRs** | 術語分類準確率 ≥92%，API 響應 <200ms |
+| **依賴** | Epic 0（Story 0-8 發行者識別、Story 0-9 格式分類） |
+| **說明** | 三層 Prompt 配置（Global → Company → Format），支援變數替換和合併策略 |
+
+---
+
+## Epic 15: 統一 3 層機制到日常處理流程
+
+**用戶成果**：日常上傳的發票可以享受與歷史數據初始化相同的智能識別和分類功能
+
+| 項目 | 內容 |
+|------|------|
+| **FRs** | 統一 FR1~FR8（文件處理），擴展 Epic 2 流程 |
+| **NFRs** | 自動通過率 ≥85%，處理延遲增加 <500ms，新術語學習覆蓋率 ≥95% |
+| **依賴** | Epic 0, Epic 13, Epic 14 |
+| **說明** | UnifiedDocumentProcessor 統一入口，11 步處理管道，信心度路由（AUTO_APPROVE/QUICK_REVIEW/FULL_REVIEW） |
+
+---
