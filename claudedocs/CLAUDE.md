@@ -55,7 +55,7 @@ claudedocs/
 │   ├── architecture/            # 架構設計文檔
 │   │   ├── THREE-TIER-MAPPING-SYSTEM.md   # 三層映射系統設計
 │   │   └── CONFIDENCE-ROUTING.md          # 信心度路由機制
-│   ├── epics/                   # Epic 規劃 (Epic 0-12)
+│   ├── epics/                   # Epic 規劃 (Epic 0-15)
 │   │   ├── epic-0/              # 歷史數據初始化
 │   │   ├── epic-1/              # 用戶認證與存取控制
 │   │   └── ... (epic-2 ~ epic-12)
@@ -101,7 +101,7 @@ claudedocs/
 
 ## 📊 項目進度追蹤
 
-### Epic 完成狀態 (2025-12-26)
+### Epic 完成狀態 (2026-01-02)
 
 | Epic | 名稱 | 狀態 | 完成日期 |
 |------|------|------|----------|
@@ -118,6 +118,9 @@ claudedocs/
 | Epic 10 | n8n 工作流整合 | ✅ 已完成 | 2025-12-21 |
 | Epic 11 | 對外 API 服務 | ✅ 已完成 | 2025-12-21 |
 | Epic 12 | 系統管理與監控 | ✅ 已完成 | 2025-12-21 |
+| Epic 13 | 文件預覽與欄位映射 | ⏸️ 規劃中 | - |
+| Epic 14 | Prompt 配置與動態生成 | ⏸️ 規劃中 | - |
+| Epic 15 | 統一 3 層機制到日常處理流程 | ⏸️ 規劃中 | - |
 
 ### Epic 0 詳細進度 (歷史數據初始化)
 
@@ -155,7 +158,7 @@ claudedocs/1-planning/epics/
 │   └── progress.md              # 進度追蹤
 ```
 
-**Epic 編號**: 0-12 (共 13 個 Epic)
+**Epic 編號**: 0-15 (共 16 個 Epic)
 
 ### 功能變更 (CHANGE-*)
 ```
@@ -292,6 +295,14 @@ claudedocs/6-ai-assistant/prompts/
 |----------|------|
 | `6-ai-assistant/analysis/ANALYSIS-001-HISTORICAL-DATA-FLOW.md` | Epic 0 歷史數據初始化 7 階段流程架構分析 |
 
+### 測試計劃
+
+| 文檔路徑 | 用途 |
+|----------|------|
+| `5-status/testing/plans/TEST-PLAN-001-dual-processing.md` | CHANGE-001 雙重處理專用測試 |
+| `5-status/testing/plans/TEST-PLAN-002-EPIC-0-COMPLETE.md` | Epic 0 Stories 0-1~0-9 測試（舊版） |
+| `5-status/testing/plans/TEST-PLAN-003-EPIC-0-FULL-FEATURE.md` | Epic 0 完整功能測試（含 Stories 0-10, 0-11） |
+
 ### 核心文檔
 
 | 文檔路徑 | 用途 |
@@ -386,4 +397,4 @@ claudedocs/6-ai-assistant/prompts/
 
 **維護者**: AI 助手 + 開發團隊
 **最後更新**: 2026-01-02
-**文檔版本**: 1.3.0
+**文檔版本**: 1.5.0
