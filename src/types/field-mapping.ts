@@ -1067,3 +1067,471 @@ export function executeTransform(
     };
   }
 }
+
+// ============================================================================
+// Story 13.5 - 動態欄位映射服務整合 類型定義
+// ============================================================================
+
+/**
+ * 邊界框座標（用於 OCR 提取欄位定位）
+ * @since Epic 13 - Story 13.5
+ */
+export interface BoundingBox {
+  /** 左上角 X 座標 */
+  x: number;
+  /** 左上角 Y 座標 */
+  y: number;
+  /** 寬度 */
+  width: number;
+  /** 高度 */
+  height: number;
+  /** 所在頁碼（從 1 開始）*/
+  page?: number;
+}
+
+/**
+ * 從文件提取的原始欄位值
+ * @since Epic 13 - Story 13.5
+ */
+export interface ExtractedFieldValue {
+  /** 欄位名稱（來源欄位名）*/
+  fieldName: string;
+  /** 欄位值 */
+  value: string | number | null;
+  /** 欄位在文件中的位置 */
+  boundingBox?: BoundingBox;
+  /** 提取信心度 (0-1) */
+  confidence?: number;
+  /** 來源（OCR/Manual/AI）*/
+  source?: 'OCR' | 'MANUAL' | 'AI';
+}
+
+/**
+ * 映射後的欄位值
+ * @since Epic 13 - Story 13.5
+ */
+export interface MappedFieldValue {
+  /** 目標欄位名稱 */
+  targetField: string;
+  /** 映射後的值 */
+  value: string | number | null;
+  /** 原始來源欄位 */
+  sourceFields: string[];
+  /** 原始值 */
+  originalValues: (string | number | null)[];
+  /** 使用的轉換類型 */
+  transformType: TransformType;
+  /** 是否成功映射 */
+  success: boolean;
+  /** 錯誤訊息（如失敗）*/
+  error?: string;
+  /** 套用的規則 ID */
+  ruleId?: string;
+  /** 套用的配置資訊 */
+  appliedConfig?: AppliedConfigInfo;
+}
+
+/**
+ * 套用的配置資訊（用於追蹤）
+ * @since Epic 13 - Story 13.5
+ */
+export interface AppliedConfigInfo {
+  /** 配置 ID */
+  configId: string;
+  /** 配置名稱 */
+  configName: string;
+  /** 配置範圍 */
+  scope: ConfigScope;
+  /** 規則 ID */
+  ruleId: string;
+  /** 規則優先級 */
+  priority: number;
+}
+
+/**
+ * 映射上下文（提供給映射引擎的上下文資訊）
+ * @since Epic 13 - Story 13.5
+ */
+export interface MappingContext {
+  /** 公司 ID（可選，用於 COMPANY scope 配置查找）*/
+  companyId?: string;
+  /** 文件格式 ID（可選，用於 FORMAT scope 配置查找）*/
+  documentFormatId?: string;
+  /** 用戶 ID（用於審計追蹤）*/
+  userId?: string;
+  /** 文件 ID（用於日誌和追蹤）*/
+  documentId?: string;
+  /** 是否啟用快取 */
+  enableCache?: boolean;
+  /** 是否強制刷新快取 */
+  forceRefresh?: boolean;
+}
+
+/**
+ * 映射結果
+ * @since Epic 13 - Story 13.5
+ */
+export interface MappingResult {
+  /** 是否成功 */
+  success: boolean;
+  /** 映射後的欄位值列表 */
+  mappedFields: MappedFieldValue[];
+  /** 未映射的欄位（沒有找到匹配規則）*/
+  unmappedFields: string[];
+  /** 錯誤訊息（如整體失敗）*/
+  error?: string;
+  /** 執行時間（毫秒）*/
+  executionTimeMs?: number;
+  /** 使用的配置數量 */
+  configsUsed?: number;
+  /** 套用的規則數量 */
+  rulesApplied?: number;
+}
+
+// ============================================================================
+// Story 13.5 - 轉換參數類型（Discriminated Union）
+// ============================================================================
+
+/**
+ * DIRECT 轉換參數（直接映射，無需參數）
+ * @since Epic 13 - Story 13.5
+ */
+export interface DirectTransformParams {
+  type: 'DIRECT';
+}
+
+/**
+ * CONCAT 轉換參數（多欄位連接）
+ * @since Epic 13 - Story 13.5
+ */
+export interface ConcatTransformParams {
+  type: 'CONCAT';
+  /** 連接分隔符 */
+  separator: string;
+}
+
+/**
+ * SPLIT 轉換參數（分割取值）
+ * @since Epic 13 - Story 13.5
+ */
+export interface SplitTransformParams {
+  type: 'SPLIT';
+  /** 分割分隔符 */
+  separator: string;
+  /** 取值索引 */
+  index: number;
+}
+
+/**
+ * LOOKUP 轉換參數（查表映射）
+ * @since Epic 13 - Story 13.5
+ */
+export interface LookupTransformParams {
+  type: 'LOOKUP';
+  /** 映射表 */
+  mapping: Record<string, string>;
+  /** 預設值（查無時使用）*/
+  defaultValue?: string;
+}
+
+/**
+ * CUSTOM 轉換參數（自定義表達式）
+ * @since Epic 13 - Story 13.5
+ */
+export interface CustomTransformParams {
+  type: 'CUSTOM';
+  /** 表達式字串 */
+  expression: string;
+}
+
+/**
+ * 轉換參數聯合類型（帶類型識別）
+ * @since Epic 13 - Story 13.5
+ */
+export type DiscriminatedTransformParams =
+  | DirectTransformParams
+  | ConcatTransformParams
+  | SplitTransformParams
+  | LookupTransformParams
+  | CustomTransformParams;
+
+// ============================================================================
+// Story 13.5 - 快取與解析類型
+// ============================================================================
+
+/**
+ * 快取鍵（用於標識快取項目）
+ * @since Epic 13 - Story 13.5
+ */
+export interface CacheKey {
+  /** 快取類型 */
+  type: 'config' | 'resolved';
+  /** 配置範圍 */
+  scope: ConfigScope;
+  /** 公司 ID（COMPANY/FORMAT scope）*/
+  companyId?: string;
+  /** 文件格式 ID（FORMAT scope）*/
+  documentFormatId?: string;
+}
+
+/**
+ * 快取的配置項目
+ * @since Epic 13 - Story 13.5
+ */
+export interface CachedConfig {
+  /** 配置資料 */
+  config: ResolvedConfig;
+  /** 快取時間戳 */
+  cachedAt: number;
+  /** 過期時間戳 */
+  expiresAt: number;
+}
+
+/**
+ * 解析後的配置（含有效規則）
+ * @since Epic 13 - Story 13.5
+ */
+export interface ResolvedConfig {
+  /** 配置 ID */
+  id: string;
+  /** 配置名稱 */
+  name: string;
+  /** 配置範圍 */
+  scope: ConfigScope;
+  /** 公司 ID（如適用）*/
+  companyId?: string;
+  /** 文件格式 ID（如適用）*/
+  documentFormatId?: string;
+  /** 是否啟用 */
+  isActive: boolean;
+  /** 有效規則列表（按優先級排序）*/
+  rules: EffectiveRule[];
+  /** 版本號（樂觀鎖）*/
+  version: number;
+}
+
+/**
+ * 有效的映射規則（從 Prisma 模型解析）
+ * @since Epic 13 - Story 13.5
+ */
+export interface EffectiveRule {
+  /** 規則 ID */
+  id: string;
+  /** 所屬配置 ID */
+  configId: string;
+  /** 來源欄位列表 */
+  sourceFields: string[];
+  /** 目標欄位 */
+  targetField: string;
+  /** 轉換類型 */
+  transformType: TransformType;
+  /** 轉換參數 */
+  transformParams: TransformParams | null;
+  /** 優先級 */
+  priority: number;
+  /** 是否啟用 */
+  isActive: boolean;
+  /** 描述 */
+  description?: string;
+}
+
+// ============================================================================
+// Story 13.5 - Pipeline 整合類型
+// ============================================================================
+
+/**
+ * 處理上下文（Pipeline 步驟共享）
+ * @since Epic 13 - Story 13.5
+ */
+export interface ProcessingContext {
+  /** 文件 ID */
+  documentId: string;
+  /** 公司 ID */
+  companyId?: string;
+  /** 文件格式 ID */
+  documentFormatId?: string;
+  /** 用戶 ID */
+  userId?: string;
+  /** 是否為批次處理 */
+  isBatchProcessing?: boolean;
+  /** 批次 ID */
+  batchId?: string;
+  /** 額外元數據 */
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Pipeline 步驟介面（供映射步驟實現）
+ * @since Epic 13 - Story 13.5
+ */
+export interface PipelineStep<TInput, TOutput> {
+  /** 步驟名稱 */
+  readonly name: string;
+  /** 執行步驟 */
+  execute(input: TInput, context: ProcessingContext): Promise<TOutput>;
+  /** 是否可跳過 */
+  canSkip?(input: TInput, context: ProcessingContext): boolean;
+  /** 回滾操作（如支援）*/
+  rollback?(context: ProcessingContext): Promise<void>;
+}
+
+/**
+ * 映射 Pipeline 輸入
+ * @since Epic 13 - Story 13.5
+ */
+export interface MappingPipelineInput {
+  /** 提取的欄位值列表 */
+  extractedFields: ExtractedFieldValue[];
+  /** 映射上下文 */
+  context: MappingContext;
+}
+
+/**
+ * 映射 Pipeline 輸出
+ * @since Epic 13 - Story 13.5
+ */
+export interface MappingPipelineOutput {
+  /** 映射結果 */
+  result: MappingResult;
+  /** 原始提取欄位（保留供參考）*/
+  originalFields: ExtractedFieldValue[];
+}
+
+// ============================================================================
+// Story 13.5 - 服務介面定義
+// ============================================================================
+
+/**
+ * 配置解析器介面
+ * @since Epic 13 - Story 13.5
+ */
+export interface IConfigResolver {
+  /**
+   * 解析有效配置（按優先級合併）
+   * @param context 映射上下文
+   * @returns 解析後的配置列表（按優先級排序）
+   */
+  resolveConfigs(context: MappingContext): Promise<ResolvedConfig[]>;
+
+  /**
+   * 獲取全域配置
+   * @returns 全域配置（如存在）
+   */
+  fetchGlobalConfig(): Promise<ResolvedConfig | null>;
+
+  /**
+   * 獲取公司配置
+   * @param companyId 公司 ID
+   * @returns 公司配置（如存在）
+   */
+  fetchCompanyConfig(companyId: string): Promise<ResolvedConfig | null>;
+
+  /**
+   * 獲取文件格式配置
+   * @param documentFormatId 文件格式 ID
+   * @returns 文件格式配置（如存在）
+   */
+  fetchFormatConfig(documentFormatId: string): Promise<ResolvedConfig | null>;
+}
+
+/**
+ * 轉換執行器介面
+ * @since Epic 13 - Story 13.5
+ */
+export interface ITransformExecutor {
+  /**
+   * 執行轉換
+   * @param sourceValues 來源欄位值映射
+   * @param rule 要套用的規則
+   * @returns 轉換後的值
+   */
+  execute(
+    sourceValues: Record<string, string | number | null>,
+    rule: EffectiveRule
+  ): string | number | null;
+}
+
+/**
+ * 映射引擎介面
+ * @since Epic 13 - Story 13.5
+ */
+export interface IFieldMappingEngine {
+  /**
+   * 套用映射規則
+   * @param extractedFields 提取的欄位
+   * @param configs 解析後的配置列表
+   * @returns 映射後的欄位值列表
+   */
+  applyRules(
+    extractedFields: ExtractedFieldValue[],
+    configs: ResolvedConfig[]
+  ): MappedFieldValue[];
+}
+
+/**
+ * 映射快取介面
+ * @since Epic 13 - Story 13.5
+ */
+export interface IMappingCache {
+  /**
+   * 獲取快取的配置
+   * @param key 快取鍵
+   * @returns 快取的配置（如存在且未過期）
+   */
+  get(key: CacheKey): CachedConfig | null;
+
+  /**
+   * 設定快取
+   * @param key 快取鍵
+   * @param config 配置
+   * @param ttlMs TTL（毫秒）
+   */
+  set(key: CacheKey, config: ResolvedConfig, ttlMs?: number): void;
+
+  /**
+   * 刪除快取
+   * @param key 快取鍵
+   */
+  delete(key: CacheKey): void;
+
+  /**
+   * 清空所有快取
+   */
+  clear(): void;
+
+  /**
+   * 使特定範圍的快取失效
+   * @param scope 配置範圍
+   * @param id 相關 ID（companyId 或 documentFormatId）
+   */
+  invalidate(scope: ConfigScope, id?: string): void;
+}
+
+/**
+ * 動態映射服務介面
+ * @since Epic 13 - Story 13.5
+ */
+export interface IDynamicMappingService {
+  /**
+   * 執行欄位映射
+   * @param extractedFields 提取的欄位
+   * @param context 映射上下文
+   * @returns 映射結果
+   */
+  mapFields(
+    extractedFields: ExtractedFieldValue[],
+    context: MappingContext
+  ): Promise<MappingResult>;
+
+  /**
+   * 使快取失效
+   * @param scope 配置範圍
+   * @param id 相關 ID
+   */
+  invalidateCache(scope: ConfigScope, id?: string): void;
+
+  /**
+   * 清空所有快取
+   */
+  clearCache(): void;
+}
