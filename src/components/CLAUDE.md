@@ -1,7 +1,7 @@
 # Components 目錄 - React 組件庫
 
-> **組件數量**: 242+ 組件文件
-> **最後更新**: 2025-12-26
+> **組件數量**: 245+ 組件文件
+> **最後更新**: 2026-01-02
 > **版本**: 1.0.0
 
 ---
@@ -281,6 +281,8 @@ src/components/
 
 #### 2.24 文件預覽組件 (`features/document-preview/`) - Epic 13
 
+**Story 13-1: PDF 預覽與欄位高亮**
+
 | 組件 | 說明 |
 |------|------|
 | `PDFViewer.tsx` | PDF 預覽器主組件 (react-pdf 整合) |
@@ -289,6 +291,14 @@ src/components/
 | `FieldHighlightOverlay.tsx` | 欄位高亮覆蓋層 (座標轉換 + 信心度色碼) |
 | `PDFLoadingSkeleton.tsx` | 載入骨架屏 |
 | `PDFErrorDisplay.tsx` | 錯誤顯示組件 |
+
+**Story 13-2: 欄位提取結果面板**
+
+| 組件 | 說明 |
+|------|------|
+| `FieldCard.tsx` | 欄位卡片組件 (內聯編輯、信心度色碼、來源標籤) |
+| `FieldFilters.tsx` | 過濾器組件 (搜尋、篩選、排序控制) |
+| `ExtractedFieldsPanel.tsx` | 欄位提取結果主面板 (統計、分組、過濾)
 
 ### 3. 佈局組件
 
@@ -478,5 +488,5 @@ import { cn } from '@/lib/utils';
 ---
 
 **維護者**: Development Team
-**最後更新**: 2025-12-26
-**版本**: 1.0.0
+**最後更新**: 2026-01-02
+**版本**: 1.1.0

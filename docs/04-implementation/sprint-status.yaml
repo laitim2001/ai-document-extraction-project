@@ -219,9 +219,9 @@ development_status:
   # ============================================================
   # Epic 13: 文件預覽與欄位映射
   # ============================================================
-  epic-13: in-progress  # Story 13-1 in progress
-  13-1-document-preview-field-highlight: in-progress  # In Progress 2025-01-02: PDFViewer (react-pdf), FieldHighlightOverlay (bounding box → screen coordinate), PDFControls (zoom/navigation), DynamicPDFViewer (SSR-safe), usePdfPreload hook, coordinate-transform utilities
-  13-2-extracted-fields-panel: drafted  # 欄位提取結果面板：ExtractedFieldsPanel, FieldCard with confidence display, FieldValueEditor inline editing, search/filter/sort capabilities
+  epic-13: in-progress  # Story 13-1, 13-2 completed
+  13-1-document-preview-field-highlight: done  # Completed 2026-01-02: PDFViewer (react-pdf), FieldHighlightOverlay (bounding box → screen coordinate), PDFControls (zoom/navigation), DynamicPDFViewer (SSR-safe), PDFLoadingSkeleton, PDFErrorDisplay, usePdfPreload hook, coordinate-transform utilities
+  13-2-extracted-fields-panel: done  # Completed 2026-01-02: ExtractedFieldsPanel (field list with filtering/sorting/grouping), FieldCard (confidence color coding, inline editing, source labels), FieldFilters (search/confidence/source/sort controls), extracted-field.ts types (ExtractedField, FieldSource, ConfidenceLevel, FieldCategory, FieldFilterState)
   13-3-field-mapping-config-ui: drafted  # 欄位映射配置介面：MappingConfigPanel, SourceFieldSelector, TargetFieldSelector, MappingRuleList with drag-drop reordering
   13-4-mapping-config-api: drafted  # 映射配置 API：FieldMappingConfig/FieldMappingRule models, CRUD APIs, test endpoint, export/import support
   13-5-dynamic-field-mapping-integration: drafted  # 動態欄位映射服務整合：FieldMappingEngine, DynamicMappingService, result caching, processing pipeline integration
