@@ -39,6 +39,10 @@
 | 0-5 | 術語聚合與初始規則 | 從提取結果聚合術語，建議映射規則 | ✅ |
 | 0-6 | 批次公司識別整合 | 整合公司識別到批次處理流程 | ✅ |
 | 0-7 | 批次術語聚合整合 | 整合術語聚合到批次處理 UI | ✅ |
+| 0-8 | 文件發行者識別 | GPT Vision 識別文件 Logo/標題中的發行公司 | ✅ |
+| 0-9 | 文件格式術語重組 | 建立 Company → DocumentFormat → Terms 三層聚合結構 | ✅ |
+| 0-10 | AI 術語驗證服務 | GPT-5.2 批量術語分類，過濾無效術語 (7 類別) | ✅ |
+| 0-11 | GPT Vision Prompt 優化 | 5 步驟結構化 Prompt，源頭過濾 60-70% 錯誤 | ✅ |
 
 ### 排除功能（Out of Scope）
 - 即時發票處理（屬於 Epic 2）
@@ -55,28 +59,77 @@
 
 ## 3. 技術架構概覽
 
-### 核心組件
+### 7 階段處理流程
+
+> **詳細分析**: 參見 `claudedocs/6-ai-assistant/analysis/ANALYSIS-001-HISTORICAL-DATA-FLOW.md`
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    批次處理流程                                  │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  [文件上傳] → [元數據偵測] → [智能路由] → [OCR 提取]            │
-│       ↓                                                         │
-│  [公司識別] → [術語聚合] → [規則建議] → [進度追蹤]              │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      歷史數據初始化處理流程 (7 階段)                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   Phase 1: 文件上傳與類型檢測                                                │
+│       │                                                                     │
+│       ▼                                                                     │
+│   Phase 2: 智能處理路由                                                      │
+│   ┌─────────────────────┬─────────────────────┐                             │
+│   │ Native PDF          │ Scanned PDF/Image   │                             │
+│   │ → DUAL_PROCESSING   │ → GPT_VISION        │                             │
+│   └─────────────────────┴─────────────────────┘                             │
+│       │                                                                     │
+│       ▼                                                                     │
+│   Phase 3: 發行者識別                                                        │
+│       │                                                                     │
+│       ▼                                                                     │
+│   Phase 4: 格式識別                                                          │
+│       │                                                                     │
+│       ▼                                                                     │
+│   Phase 5: 數據提取                    ◄─── Story 0-11 (5 步驟 Prompt)       │
+│       │                                                                     │
+│       ▼                                                                     │
+│   Phase 6: 術語聚合                    ◄─── Story 0-10 (AI 術語驗證)         │
+│       │                                                                     │
+│       ▼                                                                     │
+│   Phase 7: 報告輸出                                                          │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 雙層錯誤過濾機制 (Stories 0-10 + 0-11)
+
+```
+原始術語輸入 (100% 錯誤可能性)
+        │
+        ▼
+┌───────────────────────────────┐
+│ 第一層: Story 0-11 (Phase 5) │
+│ 5 步驟結構化 Prompt          │
+│ → 過濾 60-70% 錯誤           │
+└───────────────────────────────┘
+        │ (剩餘 30-40%)
+        ▼
+┌───────────────────────────────┐
+│ 第二層: Story 0-10 (Phase 6) │
+│ AI 術語驗證服務 (7 類別)     │
+│ → 捕獲剩餘 20-30%            │
+└───────────────────────────────┘
+        │
+        ▼
+最終輸出: < 5% 錯誤率
 ```
 
 ### 關鍵服務
 
-| 服務 | 檔案位置 | 功能 |
-|------|---------|------|
-| BatchProcessingService | `src/services/batch-processing.service.ts` | 批次處理協調 |
-| CompanyIdentificationService | `src/services/company-identification.service.ts` | 公司自動識別 |
-| TermAggregationService | `src/services/term-aggregation.service.ts` | 術語聚合分析 |
-| HierarchicalTermAggregationService | `src/services/hierarchical-term-aggregation.service.ts` | 三層聚合 |
+| 服務 | 檔案位置 | 功能 | Story |
+|------|---------|------|-------|
+| BatchProcessingService | `src/services/batch-processor.service.ts` | 批次處理協調 | 0-1~0-4 |
+| ProcessingRouterService | `src/services/processing-router.service.ts` | 智能處理路由 | 0-2 |
+| DocumentIssuerService | `src/services/document-issuer.service.ts` | 發行者識別 | 0-8 |
+| DocumentFormatService | `src/services/document-format.service.ts` | 格式識別與管理 | 0-9 |
+| GptVisionService | `src/services/gpt-vision.service.ts` | GPT Vision 數據提取 | 0-11 |
+| AiTermValidatorService | `src/services/ai-term-validator.service.ts` | AI 術語驗證 | 0-10 |
+| HierarchicalTermAggregationService | `src/services/hierarchical-term-aggregation.service.ts` | 三層術語聚合 | 0-5~0-7, 0-9 |
+| CompanyAutoCreateService | `src/services/company-auto-create.service.ts` | JIT 公司建立 | 0-3 |
 
 ### 資料模型
 
@@ -114,13 +167,19 @@ model BatchFile {
 | Phase 2 | 2025-12-24 | 公司配置與進度追蹤 (Story 0-3, 0-4) | ✅ |
 | Phase 3 | 2025-12-25 | 術語聚合 (Story 0-5) | ✅ |
 | Phase 4 | 2025-12-26 | 整合優化 (Story 0-6, 0-7) | ✅ |
+| Phase 5 | 2025-12-26 | 發行者與格式識別 (Story 0-8, 0-9) | ✅ |
+| Phase 6 | 2025-12-31 | AI 術語驗證 (Story 0-10) | ✅ |
+| Phase 7 | 2026-01-01 | Prompt 優化 (Story 0-11) | ✅ |
 
 ### 里程碑
 
 - ✅ M1: 批次上傳 MVP (2025-12-23)
 - ✅ M2: 智能路由完成 (2025-12-24)
 - ✅ M3: 術語聚合完成 (2025-12-25)
-- ✅ M4: Epic 完成 (2025-12-26)
+- ✅ M4: 基礎整合完成 (2025-12-26)
+- ✅ M5: 發行者/格式識別完成 (2025-12-26)
+- ✅ M6: AI 術語驗證完成 (2025-12-31)
+- ✅ M7: Prompt 優化完成，Epic 完成 (2026-01-01)
 
 ---
 
@@ -174,11 +233,22 @@ model BatchFile {
 - 架構設計: `docs/02-architecture/architecture.md`
 - API 文檔: `docs/02-architecture/api-design.md`
 
+### 分析文檔
+- **流程架構分析**: `claudedocs/6-ai-assistant/analysis/ANALYSIS-001-HISTORICAL-DATA-FLOW.md`
+  - 7 階段處理流程詳細說明
+  - Stories 0-10/0-11 增強分析
+  - 雙層錯誤過濾機制說明
+
 ### 實施文檔
 - Sprint 狀態: `docs/04-implementation/sprint-status.yaml`
 - 故事列表: `docs/03-stories/`
+- Story 0-10: `docs/04-implementation/stories/0-10-ai-term-validation.md`
+- Story 0-11: `docs/04-implementation/stories/0-11-gpt-vision-prompt-optimization.md`
+
+### Prompt 文檔
+- 優化版提取 Prompt: `src/lib/prompts/optimized-extraction-prompt.ts`
 
 ---
 
 **維護者**: Development Team
-**最後更新**: 2025-12-26
+**最後更新**: 2026-01-02

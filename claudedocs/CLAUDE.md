@@ -132,6 +132,8 @@ claudedocs/
 | 0-7 | 批次術語聚合整合 | ✅ 已完成 |
 | 0-8 | 文件發行者識別 | ✅ 已完成 |
 | 0-9 | 文件格式術語重組 | ✅ 已完成 |
+| 0-10 | AI 術語驗證服務 | ✅ 已完成 |
+| 0-11 | GPT Vision Prompt 優化 | ✅ 已完成 |
 
 ### 進行中的功能變更
 
@@ -284,6 +286,12 @@ claudedocs/6-ai-assistant/prompts/
 | `6-ai-assistant/prompts/SITUATION-4-NEW-FEATURE-DEV.md` | 新功能開發、實作執行 |
 | `6-ai-assistant/prompts/SITUATION-5-SAVE-PROGRESS.md` | 保存進度、會話結束 |
 
+### 分析報告
+
+| 文檔路徑 | 用途 |
+|----------|------|
+| `6-ai-assistant/analysis/ANALYSIS-001-HISTORICAL-DATA-FLOW.md` | Epic 0 歷史數據初始化 7 階段流程架構分析 |
+
 ### 核心文檔
 
 | 文檔路徑 | 用途 |
@@ -377,5 +385,5 @@ claudedocs/6-ai-assistant/prompts/
 ---
 
 **維護者**: AI 助手 + 開發團隊
-**最後更新**: 2025-12-27
-**文檔版本**: 1.2.0
+**最後更新**: 2026-01-02
+**文檔版本**: 1.3.0
