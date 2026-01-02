@@ -215,3 +215,35 @@ development_status:
   12-6-data-recovery-functionality: done  # Completed 2025-12-21: RestoreRecord/RestoreDrill/RestoreLog models, RestoreService, 8 API routes (list/create/detail/cancel/logs/rollback/preview/stats), useRestore hooks, RestoreManagement/RestoreDialog/RestoreDetailDialog/RestoreList UI components
   12-7-system-log-query: done  # Completed 2025-12-21: SystemLog/LogRetentionPolicy/LogExport models, LogQueryService, LoggerService (async context), 8 API routes (list/detail/related/stats/export/stream/retention), use-logs hooks (SSE streaming), LogViewer/LogDetailDialog/LogExportDialog/LogStreamPanel UI components
   epic-12-retrospective: optional
+
+  # ============================================================
+  # Epic 13: 文件預覽與欄位映射
+  # ============================================================
+  epic-13: backlog  # 5 stories drafted
+  13-1-document-preview-field-highlight: drafted  # 文件預覽組件與欄位高亮：PDFViewer with react-pdf, FieldHighlightOverlay with bounding boxes, zoom/pan/navigation, field click interaction
+  13-2-extracted-fields-panel: drafted  # 欄位提取結果面板：ExtractedFieldsPanel, FieldCard with confidence display, FieldValueEditor inline editing, search/filter/sort capabilities
+  13-3-field-mapping-config-ui: drafted  # 欄位映射配置介面：MappingConfigPanel, SourceFieldSelector, TargetFieldSelector, MappingRuleList with drag-drop reordering
+  13-4-mapping-config-api: drafted  # 映射配置 API：FieldMappingConfig/FieldMappingRule models, CRUD APIs, test endpoint, export/import support
+  13-5-dynamic-field-mapping-integration: drafted  # 動態欄位映射服務整合：FieldMappingEngine, DynamicMappingService, result caching, processing pipeline integration
+  epic-13-retrospective: optional
+
+  # ============================================================
+  # Epic 14: Prompt 配置與動態生成
+  # ============================================================
+  epic-14: backlog  # 4 stories drafted
+  14-1-prompt-config-model-api: drafted  # Prompt 配置模型與 API：PromptConfig/PromptTemplate models, 4-tier hierarchy (Global→Company→Format→Specific), CRUD APIs, version management
+  14-2-prompt-config-management-ui: drafted  # Prompt 配置管理介面：PromptConfigList, PromptEditor with Monaco, PromptPreview, variable insertion toolbar, hierarchy navigation
+  14-3-prompt-resolution-merge-service: drafted  # Prompt 解析與合併服務：PromptResolutionService (chain resolution), PromptMergeService (OVERRIDE/APPEND/PREPEND), PromptVariableService, PromptEngineService
+  14-4-gpt-vision-service-integration: drafted  # GPT Vision 服務整合：PromptIntegrationService, 4 processing stages, context variable injection, GPTVisionService with dynamic prompts
+  epic-14-retrospective: optional
+
+  # ============================================================
+  # Epic 15: 統一 3 層機制到日常處理流程
+  # ============================================================
+  epic-15: backlog  # 5 stories drafted
+  15-1-unified-processor-entry: drafted  # 處理流程重構 - 統一入口：UnifiedDocumentProcessor, ProcessingContext, ProcessingPipelineOrchestrator, 5-stage pipeline (detect→identify→match→extract→calculate)
+  15-2-issuer-identification-integration: drafted  # 發行者識別整合：IssuerIdentificationStage, IssuerMatchingService, company profile linking, issuer cache management
+  15-3-format-matching-dynamic-config: drafted  # 格式匹配與動態配置：FormatMatchingStage, DynamicConfigResolver, format-specific field extraction, config cache with TTL
+  15-4-continuous-term-learning: drafted  # 持續術語學習：TermDetectorService, TermRecorderService, TermSuggesterService, Levenshtein similarity, 10 StandardChargeCategories
+  15-5-enhanced-confidence-calculation: drafted  # 信心度計算增強：ConfidenceCalculatorService, 6 FactorProviders, RoutingDecisionService, AUTO_APPROVE/QUICK_REVIEW/FULL_REVIEW routing
+  epic-15-retrospective: optional
