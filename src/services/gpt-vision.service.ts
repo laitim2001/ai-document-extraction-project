@@ -8,10 +8,11 @@
  *   - 文件發行者識別 (Story 0.8)
  *   - 文件格式識別 (Story 0.9)
  *   - CHANGE-001: 分類專用模式 (classifyDocument)
+ *   - Story 0-11: 優化版 Prompt 與版本管理
  *
  * @module src/services/gpt-vision
  * @since Epic 0 - Story 0.2
- * @lastModified 2025-12-27
+ * @lastModified 2026-01-01
  *
  * @features
  *   - 支援 JPG、PNG、TIFF、PDF 圖片
@@ -20,6 +21,9 @@
  *   - 文件格式識別與特徵提取
  *   - 錯誤處理和重試
  *   - CHANGE-001: classifyDocument() 輕量分類模式
+ *   - Story 0-11: 5 步驟結構化 Prompt（Region/Extract/Exclude/Examples/Verify）
+ *   - Story 0-11: Prompt 版本管理（V1 Legacy / V2 Optimized）
+ *   - Story 0-11: ExcludedItem 追蹤（被排除項目記錄）
  *
  * @dependencies
  *   - Azure OpenAI Service
@@ -29,7 +33,8 @@
  * @related
  *   - src/services/batch-processor.service.ts - 批量處理執行器
  *   - src/services/processing-router.service.ts - 處理路由服務
- *   - src/lib/prompts/extraction-prompt.ts - 提示詞定義
+ *   - src/lib/prompts/extraction-prompt.ts - 原始提示詞定義
+ *   - src/lib/prompts/optimized-extraction-prompt.ts - 優化版提示詞（Story 0-11）
  *   - claudedocs/4-changes/feature-changes/CHANGE-001-native-pdf-dual-processing.md
  */
 
@@ -37,7 +42,15 @@ import { AzureOpenAI } from 'openai'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as os from 'os'
-import { FULL_EXTRACTION_PROMPT, buildExtractionPrompt } from '@/lib/prompts'
+import {
+  // Story 0-11: 優化版 Prompt 導入
+  getActiveExtractionPrompt,
+  getPromptByVersion,
+  isPromptVersionExists,
+  getActivePromptVersion,
+  type ExcludedItem,
+  type OptimizedExtractionMetadata,
+} from '@/lib/prompts'
 import type {
   DocumentType,
   DocumentSubtype,
@@ -102,6 +115,17 @@ export interface DocumentFormatInfo {
 }
 
 /**
+ * Story 0-11: 處理選項
+ * @description 控制 Prompt 版本和結果包含選項
+ */
+export interface ProcessingOptions {
+  /** Prompt 版本號（如 '1.0.0', '2.0.0'） */
+  promptVersion?: string
+  /** 是否包含排除項列表（預設 true） */
+  includeExcludedItems?: boolean
+}
+
+/**
  * 提取的術語項目
  */
 export interface ExtractedTerm {
@@ -154,6 +178,10 @@ export interface InvoiceExtractionResult {
   documentFormat?: DocumentFormatInfo
   /** Story 0.9: 提取的術語列表 */
   extractedTerms?: ExtractedTerm[]
+  /** Story 0-11: 被排除的項目列表（用於調試和分析） */
+  excludedItems?: ExcludedItem[]
+  /** Story 0-11: 提取元數據 */
+  extractionMetadata?: OptimizedExtractionMetadata
   /** 原始文字（OCR 結果） */
   rawText?: string
   /** 處理的頁數 */
@@ -200,10 +228,29 @@ export interface ClassificationResult {
 // ============================================================
 
 /**
- * 發票提取提示詞 - 使用完整提取版本（含格式識別 Story 0.9）
- * @see src/lib/prompts/extraction-prompt.ts
+ * Story 0-11: 獲取提取 Prompt（支援版本管理）
+ *
+ * @description
+ *   根據指定版本或活動版本獲取對應的提取 Prompt。
+ *   - 版本 1.0.0：原始 Legacy Prompt（基本發票提取）
+ *   - 版本 2.0.0：優化版 Prompt（5 步驟結構：Region/Extract/Exclude/Examples/Verify）
+ *
+ * @param version - 可選的版本號
+ * @returns 對應版本的 Prompt 內容
  */
-const INVOICE_EXTRACTION_PROMPT = FULL_EXTRACTION_PROMPT
+const getExtractionPrompt = (version?: string): string => {
+  if (version && isPromptVersionExists(version)) {
+    console.log(`[GPT Vision] Using prompt version: ${version}`)
+    return getPromptByVersion(version)
+  }
+  const activeVersion = getActivePromptVersion()
+  console.log(`[GPT Vision] Using active prompt version: ${activeVersion.version}`)
+  return activeVersion.prompt
+}
+
+// Story 0-11: 移除舊版 INVOICE_EXTRACTION_PROMPT 常數
+// 現在使用 getExtractionPrompt(version?) 函數獲取版本管理的 Prompt
+// @see src/lib/prompts/optimized-extraction-prompt.ts
 
 /**
  * 預設配置
@@ -447,13 +494,17 @@ export function createClient(config: GPTVisionConfig = {}): AzureOpenAI {
  *   將圖片發送到 GPT-5.2 Vision API 進行發票內容提取。
  *   此函數僅處理圖片文件，不處理 PDF。
  *
+ *   Story 0-11: 支援 Prompt 版本管理和排除項追蹤
+ *
  * @param imagePath - 圖片文件路徑
- * @param config - 配置選項
- * @returns 提取結果
+ * @param config - GPT Vision 配置選項
+ * @param options - 處理選項（版本管理等）
+ * @returns 提取結果（含排除項和元數據）
  */
 async function processSingleImage(
   imagePath: string,
-  config: GPTVisionConfig
+  config: GPTVisionConfig,
+  options?: ProcessingOptions
 ): Promise<InvoiceExtractionResult> {
   // 讀取並編碼圖片
   const imageBase64 = await fileToBase64(imagePath)
@@ -462,6 +513,9 @@ async function processSingleImage(
   // 創建客戶端
   const client = createClient(config)
 
+  // Story 0-11: 使用版本管理的 Prompt
+  const extractionPrompt = getExtractionPrompt(options?.promptVersion)
+
   // 調用 API
   const response = await client.chat.completions.create({
     model: config.deploymentName || 'gpt-5.2',
@@ -469,7 +523,7 @@ async function processSingleImage(
       {
         role: 'user',
         content: [
-          { type: 'text', text: INVOICE_EXTRACTION_PROMPT },
+          { type: 'text', text: extractionPrompt },
           {
             type: 'image_url',
             image_url: {
@@ -489,13 +543,94 @@ async function processSingleImage(
     throw new Error('Empty response from GPT-5.2 Vision')
   }
 
-  const invoiceData = parseGPTResponse(content)
+  // Story 0-11: 解析完整回應（含排除項和元數據）
+  const parsedResponse = parseGPTResponseWithMetadata(content, options)
 
   return {
     success: true,
-    confidence: 0.9, // GPT-5.2 Vision 通常有較高的信心度
-    invoiceData: invoiceData as InvoiceExtractionResult['invoiceData'],
+    confidence: parsedResponse.confidence,
+    invoiceData: parsedResponse.invoiceData as InvoiceExtractionResult['invoiceData'],
     pageCount: 1,
+    excludedItems: parsedResponse.excludedItems,
+    extractionMetadata: parsedResponse.extractionMetadata,
+  }
+}
+
+/**
+ * 解析 GPT 回應並提取元數據（Story 0-11）
+ *
+ * @description
+ *   從 GPT-5.2 Vision 回應中解析發票數據、排除項和元數據。
+ *   支援優化版 Prompt 的新輸出格式。
+ *
+ * @param content - GPT 回應內容
+ * @param options - 處理選項
+ * @returns 解析後的結果
+ */
+function parseGPTResponseWithMetadata(
+  content: string,
+  options?: ProcessingOptions
+): {
+  invoiceData: Record<string, unknown>
+  confidence: number
+  excludedItems?: ExcludedItem[]
+  extractionMetadata?: OptimizedExtractionMetadata
+} {
+  // 基本解析
+  const invoiceData = parseGPTResponse(content)
+
+  // 嘗試解析完整 JSON（包含 metadata 和 excludedItems）
+  try {
+    // 提取 JSON 部分
+    const jsonMatch = content.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      const fullResponse = JSON.parse(jsonMatch[0])
+
+      // 提取信心度
+      let confidence = 0.9 // 預設值
+      if (fullResponse.invoiceMetadata?.extractionConfidence) {
+        confidence = fullResponse.invoiceMetadata.extractionConfidence
+      }
+
+      // 提取排除項（如果啟用）
+      let excludedItems: ExcludedItem[] | undefined
+      if (options?.includeExcludedItems !== false && fullResponse.excludedItems) {
+        const parsedExcludedItems: ExcludedItem[] = fullResponse.excludedItems.map(
+          (item: { text: string; reason: string; region?: string }) => ({
+            text: item.text,
+            reason: item.reason,
+            region: (item.region || 'unknown') as 'header' | 'lineItems' | 'footer' | 'unknown',
+          })
+        )
+        excludedItems = parsedExcludedItems
+        console.log(`[GPT Vision] Excluded ${parsedExcludedItems.length} items from extraction`)
+      }
+
+      // 構建元數據
+      const extractionMetadata: OptimizedExtractionMetadata = {
+        regionsIdentified: fullResponse.invoiceMetadata?.regionsIdentified || [],
+        lineItemsTableFound: fullResponse.invoiceMetadata?.lineItemsTableFound ?? true,
+        extractionConfidence: confidence,
+        promptVersion: getActivePromptVersion().version,
+        excludedItems,
+      }
+
+      return {
+        invoiceData,
+        confidence,
+        excludedItems,
+        extractionMetadata,
+      }
+    }
+  } catch (_parseError) {
+    // Story 0-11: 捕獲解析錯誤但不使用（使用 _ 前綴標記）
+    console.warn('[GPT Vision] Could not parse full metadata, using basic extraction')
+  }
+
+  // 回退到基本解析結果
+  return {
+    invoiceData,
+    confidence: 0.9,
   }
 }
 
@@ -506,21 +641,34 @@ async function processSingleImage(
  *   將圖片或 PDF 發送到 GPT-5.2 Vision API 進行發票內容提取。
  *   如果是 PDF 文件，會先轉換為圖片再處理。
  *
+ *   Story 0-11: 支援 Prompt 版本管理和排除項追蹤
+ *
  * @param imagePath - 圖片或 PDF 文件路徑
- * @param config - 配置選項
- * @returns 提取結果
+ * @param config - GPT Vision 配置選項
+ * @param options - 處理選項（版本管理、排除項等）
+ * @returns 提取結果（含排除項和元數據）
  *
  * @example
  * ```typescript
+ * // 使用預設活動版本
  * const result = await processImageWithVision('/path/to/invoice.jpg')
+ *
+ * // 使用指定 Prompt 版本
+ * const result = await processImageWithVision('/path/to/invoice.jpg', {}, {
+ *   promptVersion: '2.0.0',
+ *   includeExcludedItems: true
+ * })
+ *
  * if (result.success) {
  *   console.log(result.invoiceData)
+ *   console.log('Excluded items:', result.excludedItems)
  * }
  * ```
  */
 export async function processImageWithVision(
   imagePath: string,
-  config: GPTVisionConfig = {}
+  config: GPTVisionConfig = {},
+  options?: ProcessingOptions
 ): Promise<InvoiceExtractionResult> {
   const mergedConfig = { ...DEFAULT_CONFIG, ...config }
   let tempImagePaths: string[] = []
@@ -547,15 +695,15 @@ export async function processImageWithVision(
 
       console.log(`[GPT Vision] Processing first page of ${pageCount} pages`)
 
-      // 處理第一頁（通常包含主要發票資訊）
-      const result = await processSingleImage(imagePaths[0], mergedConfig)
+      // 處理第一頁（通常包含主要發票資訊）- Story 0-11: 傳遞 options
+      const result = await processSingleImage(imagePaths[0], mergedConfig, options)
       result.pageCount = pageCount
 
       return result
     }
 
-    // 直接處理圖片文件
-    return await processSingleImage(imagePath, mergedConfig)
+    // 直接處理圖片文件 - Story 0-11: 傳遞 options
+    return await processSingleImage(imagePath, mergedConfig, options)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.error('GPT Vision processing error:', errorMessage)

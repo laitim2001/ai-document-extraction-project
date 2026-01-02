@@ -42,7 +42,7 @@ development_status:
   # ============================================================
   # Epic 0: 歷史數據初始化（前置 Epic）
   # ============================================================
-  epic-0: in-progress  # Stories 0-1 to 0-10 completed, 0-11 pending (GPT Vision prompt optimization)
+  epic-0: done  # All 11 stories completed (0-1 to 0-11)
   0-1-batch-file-upload-metadata-detection: done  # Completed 2025-12-23: BatchFileUploader, HistoricalFileList, file-detection.service, upload/files/bulk APIs, HistoricalBatch/HistoricalFile models
   0-2-intelligent-processing-routing: done  # Completed 2025-12-23: ProcessingMethod enum, processing-router.service, cost-estimation.service, ProcessingConfirmDialog, batch-processor integration, gpt-vision.service, result API
   0-3-just-in-time-company-profile: done  # Completed 2025-12-23: Company model, company-matcher.service (3-tier matching), company-auto-create.service, CompanyTypeSelector, CompanyMergeDialog, pending/update/merge APIs, admin review page
@@ -53,7 +53,7 @@ development_status:
   0-8-document-issuer-identification: done  # Completed 2025-12-26: document-issuer.service.ts (extractDocumentIssuer, matchIssuerToCompany, processTransactionParties), document-issuer.ts types (DocumentIssuerResult, TransactionParty), IssuerIdentificationMethod enum, FileTransactionParty model, METHOD_PRIORITY_WEIGHTS, 三層匹配策略
   0-9-document-format-term-reorganization: done  # Completed 2025-12-26: document-format.service.ts (processDocumentFormat, matchOrCreateFormat), hierarchical-term-aggregation.service.ts (aggregateTermsHierarchically, Company→Format→Terms三層結構), DocumentType/DocumentSubtype enums, DocumentFormat model, HierarchicalTermAggregation types
   0-10-ai-term-validation-service: done  # Completed 2025-01-01: ai-term-validator.service.ts (GPT-5.2 semantic validation, 11 TermCategory enum, batch processing 50/batch, maxConcurrency: 3), term-validation.ts types, integrated into batch/hierarchical-term-aggregation services, POST/GET /api/v1/admin/terms/validate, GET /api/v1/admin/costs/term-validation, in-memory cost tracking, 8 story points
-  0-11-gpt-vision-prompt-optimization: drafted  # Created 2025-01-01, Tech Spec 2025-01-01: Optimize GPT Vision extraction prompt to exclude addresses/names at source, reduce false positives, 5 story points
+  0-11-gpt-vision-prompt-optimization: done  # Completed 2025-01-02: 5-step Prompt structure (Region/Extract/Exclude/Negative/Verify), Prompt version management (V1.0.0/V2.0.0), ExcludedItem tracking, getExtractionPrompt() function, 5 story points
   epic-0-retrospective: optional
 
   # ============================================================
