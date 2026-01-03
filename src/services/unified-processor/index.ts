@@ -17,6 +17,7 @@
  *   - IStepHandler, BaseStepHandler - 步驟處理器介面
  *   - StepHandlerFactory - 步驟工廠
  *   - LegacyProcessorAdapter - Legacy 適配器
+ *   - IssuerIdentifierAdapter - 發行者識別適配器 (Story 15.2)
  */
 
 // ============================================================================
@@ -58,6 +59,11 @@ export {
   LegacyProcessorAdapter,
   legacyProcessorAdapter,
 } from './adapters/legacy-processor.adapter';
+
+export {
+  IssuerIdentifierAdapter,
+  issuerIdentifierAdapter,
+} from './adapters/issuer-identifier-adapter';
 
 // ============================================================================
 // 步驟處理器（如需直接使用）

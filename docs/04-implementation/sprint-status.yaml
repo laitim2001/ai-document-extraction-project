@@ -240,9 +240,9 @@ development_status:
   # ============================================================
   # Epic 15: 統一 3 層機制到日常處理流程
   # ============================================================
-  epic-15: in-progress  # 1/5 stories completed
+  epic-15: in-progress  # 2/5 stories completed
   15-1-unified-processor-entry: done  # Completed 2026-01-03: UnifiedDocumentProcessor (11-step pipeline), ProcessingContext/ProcessingResult types, BaseStepHandler (Template Method), 11 step implementations (FILE_TYPE_DETECTION→ROUTING_DECISION), UnifiedProcessorFlags (8 feature flags for gradual rollout), LegacyProcessorAdapter for backward compatibility
-  15-2-issuer-identification-integration: drafted  # 發行者識別整合：IssuerIdentificationStage, IssuerMatchingService, company profile linking, issuer cache management
+  15-2-issuer-identification-integration: done  # Completed 2026-01-03: IssuerIdentifierAdapter (封裝 document-issuer.service.ts), IssuerIdentificationStep (Step 4), issuer-identification.ts types (IssuerIdentificationRequest/Result/Options, IdentificationMethod/CompanyStatus/MatchType enums, convertLegacyResult), Parameters<typeof fn> type inference pattern, methodMapping for type conversion, backward compatible with legacy service
   15-3-format-matching-dynamic-config: drafted  # 格式匹配與動態配置：FormatMatchingStage, DynamicConfigResolver, format-specific field extraction, config cache with TTL
   15-4-continuous-term-learning: drafted  # 持續術語學習：TermDetectorService, TermRecorderService, TermSuggesterService, Levenshtein similarity, 10 StandardChargeCategories
   15-5-enhanced-confidence-calculation: drafted  # 信心度計算增強：ConfidenceCalculatorService, 6 FactorProviders, RoutingDecisionService, AUTO_APPROVE/QUICK_REVIEW/FULL_REVIEW routing

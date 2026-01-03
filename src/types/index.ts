@@ -491,3 +491,29 @@ export * from './prompt-resolution'
 
 // 統一處理流程相關 (Epic 15: Story 15.1)
 export * from './unified-processor'
+
+// 發行者識別相關 (Epic 15: Story 15.2)
+// 注意：CompanyStatus 與 ./company 衝突，IssuerIdentificationResult 與 ./unified-processor 衝突
+// 使用命名導出並添加前綴以區分
+export {
+  // 枚舉（添加前綴避免衝突）
+  IdentificationMethod as IssuerIdentificationMethod,
+  CompanyStatus as IssuerCompanyStatus,
+  MatchType as IssuerMatchType,
+  // 請求/結果類型（添加前綴避免衝突）
+  type IssuerIdentificationRequest,
+  type ExtractionResultForIssuer,
+  type IssuerIdentificationOptions,
+  type IssuerIdentificationResult as AdapterIssuerIdentificationResult,
+  type CompanyMatchResult as IssuerCompanyMatchResult,
+  // 轉換函數
+  convertLegacyMethod,
+  convertLegacyMatchType,
+  convertLegacyResult,
+  // 類型守衛
+  isValidIdentificationMethod,
+  isValidCompanyStatus as isValidIssuerCompanyStatus,
+  hasCompanyMatch,
+  // 預設值
+  DEFAULT_IDENTIFICATION_OPTIONS,
+} from './issuer-identification'
