@@ -1,0 +1,360 @@
+/**
+ * @fileoverview 靜態 Prompt 定義
+ * @description
+ *   定義所有類型的靜態 Prompt 模板，作為動態 Prompt 的備援。
+ *   當動態 Prompt 功能未啟用或解析失敗時，使用這些靜態版本。
+ *
+ *   Prompt 類型:
+ *   - ISSUER_IDENTIFICATION: 文件發行者識別
+ *   - TERM_CLASSIFICATION: 術語分類
+ *   - FIELD_EXTRACTION: 欄位提取
+ *   - VALIDATION: 驗證
+ *
+ * @module src/services/static-prompts
+ * @since Epic 14 - Story 14-4 (GPT Vision 服務整合)
+ * @lastModified 2026-01-03
+ *
+ * @features
+ *   - 完整的靜態 Prompt 模板
+ *   - 類型安全的 Prompt 存取
+ *   - 變數插值支援
+ *   - 版本資訊追蹤
+ *
+ * @dependencies
+ *   - src/types/prompt-config.ts - PromptType enum
+ *   - src/lib/prompts - 現有 Prompt 定義
+ *
+ * @related
+ *   - src/services/hybrid-prompt-provider.service.ts - Prompt 提供者
+ *   - src/services/gpt-vision.service.ts - 使用者
+ */
+
+import { PromptType } from '@/types/prompt-config';
+import type { PromptResult, PromptVersionInfo } from './prompt-provider.interface';
+
+// ============================================================================
+// Static Prompt Templates
+// ============================================================================
+
+/**
+ * 發行者識別 System Prompt
+ * @description 用於識別文件發行者（物流公司、供應商等）
+ */
+const ISSUER_IDENTIFICATION_SYSTEM_PROMPT = `你是一位專業的文件分析專家，專門識別貨運和物流發票的發行者。
+你的任務是從文件圖片中識別發行公司的名稱和識別方式。
+
+識別規則：
+1. 優先順序：LOGO > HEADER > LETTERHEAD > FOOTER > AI_INFERENCE
+2. 發行者是「開立」文件的公司（通常是物流公司/貨運代理），不是客戶/買方
+3. 尋找：公司 Logo、信頭、顯著的公司名稱
+4. 信心度評分：0-100（越高越確定）`;
+
+/**
+ * 發行者識別 User Prompt 模板
+ */
+const ISSUER_IDENTIFICATION_USER_PROMPT = `請分析這張文件圖片，識別文件發行者。
+
+輸出 JSON 格式：
+{
+  "documentIssuer": {
+    "name": "發行公司名稱（從 Logo/標題識別）",
+    "identificationMethod": "LOGO" | "HEADER" | "LETTERHEAD" | "FOOTER" | "AI_INFERENCE",
+    "confidence": 0-100,
+    "rawText": "識別到的原始文字（可選）"
+  }
+}
+
+只輸出有效的 JSON，不要有其他文字。`;
+
+/**
+ * 術語分類 System Prompt
+ * @description 用於分類提取的術語到標準類別
+ */
+const TERM_CLASSIFICATION_SYSTEM_PROMPT = `你是一位專業的物流術語分類專家。
+你的任務是將發票中的費用項目術語分類到標準類別。
+
+標準類別：
+- FREIGHT: 運費相關（海運費、空運費、陸運費）
+- HANDLING: 處理費用（裝卸、理貨、打盤）
+- CUSTOMS: 報關相關（報關費、關稅、檢驗費）
+- DOCUMENTATION: 文件費用（提單費、文件費）
+- STORAGE: 倉儲相關（倉租、存放費）
+- SURCHARGE: 附加費（燃油附加費、旺季附加費）
+- INSURANCE: 保險費用
+- OTHER: 其他費用
+
+分類規則：
+1. 優先匹配最具體的類別
+2. 考慮術語的中英文變體
+3. 信心度評分：0-100`;
+
+/**
+ * 術語分類 User Prompt 模板
+ */
+const TERM_CLASSIFICATION_USER_PROMPT = `請分類以下費用術語：
+
+{{terms}}
+
+輸出 JSON 格式：
+{
+  "classifications": [
+    {
+      "term": "原始術語",
+      "normalizedTerm": "正規化術語",
+      "category": "標準類別",
+      "confidence": 0-100
+    }
+  ]
+}
+
+只輸出有效的 JSON，不要有其他文字。`;
+
+/**
+ * 欄位提取 System Prompt
+ * @description 用於從文件中提取特定欄位
+ */
+const FIELD_EXTRACTION_SYSTEM_PROMPT = `你是一位專業的發票數據提取專家。
+你的任務是從貨運和物流發票圖片中提取結構化數據。
+
+提取規則：
+1. 發票基本資訊：發票號碼、日期、到期日
+2. 供應商資訊：名稱、地址、稅號
+3. 買方資訊：名稱、地址
+4. 費用明細：項目描述、數量、單價、金額
+5. 金額彙總：小計、稅額、總額、幣別
+
+注意事項：
+- 日期格式：YYYY-MM-DD
+- 金額保留兩位小數
+- 如無法識別某欄位，設為 null
+- 信心度評分：0-1（越高越確定）`;
+
+/**
+ * 欄位提取 User Prompt 模板
+ */
+const FIELD_EXTRACTION_USER_PROMPT = `請從這張發票圖片中提取以下資訊：
+
+輸出 JSON 格式：
+{
+  "success": true,
+  "confidence": 0.0-1.0,
+  "invoiceData": {
+    "invoiceNumber": "發票號碼",
+    "invoiceDate": "YYYY-MM-DD",
+    "dueDate": "YYYY-MM-DD 或 null",
+    "vendor": {
+      "name": "供應商名稱",
+      "address": "供應商地址",
+      "taxId": "稅號"
+    },
+    "buyer": {
+      "name": "買方名稱",
+      "address": "買方地址"
+    },
+    "lineItems": [
+      {
+        "description": "項目描述",
+        "quantity": 1,
+        "unitPrice": 0.00,
+        "amount": 0.00
+      }
+    ],
+    "subtotal": 0.00,
+    "taxAmount": 0.00,
+    "totalAmount": 0.00,
+    "currency": "USD/TWD/CNY/etc"
+  }
+}
+
+只輸出有效的 JSON，不要有其他文字。`;
+
+/**
+ * 驗證 System Prompt
+ * @description 用於驗證提取結果的準確性
+ */
+const VALIDATION_SYSTEM_PROMPT = `你是一位專業的數據驗證專家。
+你的任務是驗證發票提取結果的準確性和一致性。
+
+驗證規則：
+1. 金額加總驗證：明細金額加總 ≈ 小計
+2. 稅額驗證：小計 + 稅額 ≈ 總額
+3. 日期邏輯：發票日期 ≤ 到期日
+4. 格式驗證：日期、金額格式正確
+5. 完整性檢查：必要欄位是否有值`;
+
+/**
+ * 驗證 User Prompt 模板
+ */
+const VALIDATION_USER_PROMPT = `請驗證以下發票提取結果：
+
+{{extractionResult}}
+
+輸出 JSON 格式：
+{
+  "isValid": true/false,
+  "confidence": 0-100,
+  "issues": [
+    {
+      "field": "問題欄位",
+      "issue": "問題描述",
+      "severity": "ERROR" | "WARNING" | "INFO"
+    }
+  ],
+  "suggestions": ["改進建議"]
+}
+
+只輸出有效的 JSON，不要有其他文字。`;
+
+// ============================================================================
+// Static Prompt Registry
+// ============================================================================
+
+/**
+ * 靜態 Prompt 註冊表
+ * @description 存儲所有類型的靜態 Prompt
+ */
+interface StaticPromptEntry {
+  systemPrompt: string;
+  userPrompt: string;
+  version: string;
+}
+
+const STATIC_PROMPTS: Record<PromptType, StaticPromptEntry> = {
+  [PromptType.ISSUER_IDENTIFICATION]: {
+    systemPrompt: ISSUER_IDENTIFICATION_SYSTEM_PROMPT,
+    userPrompt: ISSUER_IDENTIFICATION_USER_PROMPT,
+    version: '1.0.0',
+  },
+  [PromptType.TERM_CLASSIFICATION]: {
+    systemPrompt: TERM_CLASSIFICATION_SYSTEM_PROMPT,
+    userPrompt: TERM_CLASSIFICATION_USER_PROMPT,
+    version: '1.0.0',
+  },
+  [PromptType.FIELD_EXTRACTION]: {
+    systemPrompt: FIELD_EXTRACTION_SYSTEM_PROMPT,
+    userPrompt: FIELD_EXTRACTION_USER_PROMPT,
+    version: '1.0.0',
+  },
+  [PromptType.VALIDATION]: {
+    systemPrompt: VALIDATION_SYSTEM_PROMPT,
+    userPrompt: VALIDATION_USER_PROMPT,
+    version: '1.0.0',
+  },
+};
+
+// ============================================================================
+// Public API
+// ============================================================================
+
+/**
+ * 獲取指定類型的靜態 Prompt
+ *
+ * @description
+ *   從靜態 Prompt 註冊表中獲取對應類型的 Prompt。
+ *   返回格式與動態 Prompt 一致，便於統一處理。
+ *
+ * @param promptType - Prompt 類型
+ * @returns 靜態 Prompt 結果
+ *
+ * @example
+ * ```typescript
+ * const result = getStaticPrompt(PromptType.ISSUER_IDENTIFICATION);
+ * console.log(result.systemPrompt);
+ * console.log(result.source); // 'static'
+ * ```
+ */
+export function getStaticPrompt(promptType: PromptType): PromptResult {
+  const entry = STATIC_PROMPTS[promptType];
+
+  if (!entry) {
+    throw new Error(`Unsupported prompt type: ${promptType}`);
+  }
+
+  const versionInfo: PromptVersionInfo = {
+    versionId: `static-${promptType.toLowerCase()}-${entry.version}`,
+    versionNumber: parseFloat(entry.version),
+    timestamp: new Date('2026-01-03'),
+  };
+
+  return {
+    systemPrompt: entry.systemPrompt,
+    userPrompt: entry.userPrompt,
+    source: 'static',
+    appliedLayers: ['STATIC'],
+    version: versionInfo,
+  };
+}
+
+/**
+ * 檢查是否支援指定的 Prompt 類型
+ *
+ * @param promptType - Prompt 類型
+ * @returns 是否有對應的靜態 Prompt
+ */
+export function hasStaticPrompt(promptType: PromptType): boolean {
+  return promptType in STATIC_PROMPTS;
+}
+
+/**
+ * 獲取所有支援的靜態 Prompt 類型
+ *
+ * @returns 支援的 Prompt 類型列表
+ */
+export function getSupportedStaticPromptTypes(): PromptType[] {
+  return Object.keys(STATIC_PROMPTS) as PromptType[];
+}
+
+/**
+ * 獲取靜態 Prompt 的版本資訊
+ *
+ * @param promptType - Prompt 類型
+ * @returns 版本字串
+ */
+export function getStaticPromptVersion(promptType: PromptType): string {
+  const entry = STATIC_PROMPTS[promptType];
+  return entry?.version ?? 'unknown';
+}
+
+/**
+ * 變數替換工具函數
+ *
+ * @description
+ *   將 Prompt 模板中的 {{variable}} 佔位符替換為實際值
+ *
+ * @param template - Prompt 模板
+ * @param variables - 變數值映射
+ * @returns 替換後的 Prompt
+ *
+ * @example
+ * ```typescript
+ * const result = interpolatePrompt(
+ *   'Hello {{name}}!',
+ *   { name: 'World' }
+ * );
+ * // result: 'Hello World!'
+ * ```
+ */
+export function interpolatePrompt(
+  template: string,
+  variables: Record<string, string | number | boolean>
+): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+    const value = variables[varName];
+    return value !== undefined ? String(value) : match;
+  });
+}
+
+// ============================================================================
+// Re-exports for convenience
+// ============================================================================
+
+export {
+  ISSUER_IDENTIFICATION_SYSTEM_PROMPT,
+  ISSUER_IDENTIFICATION_USER_PROMPT,
+  TERM_CLASSIFICATION_SYSTEM_PROMPT,
+  TERM_CLASSIFICATION_USER_PROMPT,
+  FIELD_EXTRACTION_SYSTEM_PROMPT,
+  FIELD_EXTRACTION_USER_PROMPT,
+  VALIDATION_SYSTEM_PROMPT,
+  VALIDATION_USER_PROMPT,
+};

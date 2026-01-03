@@ -9,10 +9,11 @@
  *   - 文件格式識別 (Story 0.9)
  *   - CHANGE-001: 分類專用模式 (classifyDocument)
  *   - Story 0-11: 優化版 Prompt 與版本管理
+ *   - Story 14-4: 動態 Prompt 整合（HybridPromptProvider）
  *
  * @module src/services/gpt-vision
  * @since Epic 0 - Story 0.2
- * @lastModified 2026-01-01
+ * @lastModified 2026-01-03
  *
  * @features
  *   - 支援 JPG、PNG、TIFF、PDF 圖片
@@ -24,17 +25,22 @@
  *   - Story 0-11: 5 步驟結構化 Prompt（Region/Extract/Exclude/Examples/Verify）
  *   - Story 0-11: Prompt 版本管理（V1 Legacy / V2 Optimized）
  *   - Story 0-11: ExcludedItem 追蹤（被排除項目記錄）
+ *   - Story 14-4: 動態 Prompt 支援（Feature Flag 驅動）
+ *   - Story 14-4: 自動降級機制（動態失敗時使用靜態 Prompt）
+ *   - Story 14-4: Prompt 度量追蹤
  *
  * @dependencies
  *   - Azure OpenAI Service
  *   - pdf-to-img（PDF 轉圖片）
  *   - src/lib/prompts - 提示詞模組
+ *   - src/services/hybrid-prompt-provider.service.ts - 動態 Prompt 提供者
  *
  * @related
  *   - src/services/batch-processor.service.ts - 批量處理執行器
  *   - src/services/processing-router.service.ts - 處理路由服務
  *   - src/lib/prompts/extraction-prompt.ts - 原始提示詞定義
  *   - src/lib/prompts/optimized-extraction-prompt.ts - 優化版提示詞（Story 0-11）
+ *   - src/services/hybrid-prompt-provider.service.ts - 混合 Prompt 提供者
  *   - claudedocs/4-changes/feature-changes/CHANGE-001-native-pdf-dual-processing.md
  */
 
@@ -56,6 +62,17 @@ import type {
   DocumentSubtype,
   DocumentFormatFeatures,
 } from '@/types/document-format'
+
+// Story 14-4: 動態 Prompt 整合導入
+import { PromptType } from '@/types/prompt-config'
+import {
+  createHybridPromptProvider,
+  createStaticOnlyProvider,
+  type HybridPromptProvider,
+} from './hybrid-prompt-provider.service'
+import type { PromptResult, PromptSource } from './prompt-provider.interface'
+import { shouldUseDynamicPrompt, getFeatureFlags } from '@/config/feature-flags'
+import { getGlobalPromptMetricsCollector } from '@/lib/metrics'
 
 // PDF 轉圖片依賴 - 使用動態導入避免 webpack 問題
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,14 +132,22 @@ export interface DocumentFormatInfo {
 }
 
 /**
- * Story 0-11: 處理選項
- * @description 控制 Prompt 版本和結果包含選項
+ * Story 0-11 + Story 14-4: 處理選項
+ * @description 控制 Prompt 版本、結果包含選項和動態 Prompt 設置
  */
 export interface ProcessingOptions {
-  /** Prompt 版本號（如 '1.0.0', '2.0.0'） */
+  /** Prompt 版本號（如 '1.0.0', '2.0.0'）- Story 0-11 */
   promptVersion?: string
-  /** 是否包含排除項列表（預設 true） */
+  /** 是否包含排除項列表（預設 true）- Story 0-11 */
   includeExcludedItems?: boolean
+  /** Story 14-4: 公司 ID（用於動態 Prompt 解析） */
+  companyId?: string
+  /** Story 14-4: 文件格式 ID（用於動態 Prompt 解析） */
+  documentFormatId?: string
+  /** Story 14-4: 文件 ID（用於追蹤） */
+  documentId?: string
+  /** Story 14-4: 是否強制使用靜態 Prompt（覆蓋 Feature Flag） */
+  forceStaticPrompt?: boolean
 }
 
 /**
@@ -224,8 +249,63 @@ export interface ClassificationResult {
 }
 
 // ============================================================
-// Constants
+// Constants & Singleton Instances
 // ============================================================
+
+/**
+ * Story 14-4: 全域 HybridPromptProvider 實例（懶加載）
+ * @description
+ *   用於動態/靜態 Prompt 切換的全域提供者。
+ *   首次調用時自動初始化，支援度量收集。
+ */
+let globalPromptProvider: HybridPromptProvider | null = null
+
+/**
+ * Story 14-4: 獲取或創建全域 Prompt 提供者
+ *
+ * @description
+ *   懶加載模式創建 HybridPromptProvider。
+ *   當 Feature Flag 啟用動態 Prompt 時，會嘗試創建帶有 PromptResolver 的提供者；
+ *   否則返回僅靜態模式的提供者。
+ *
+ * @returns HybridPromptProvider 實例
+ */
+function getPromptProvider(): HybridPromptProvider {
+  if (!globalPromptProvider) {
+    // 檢查是否需要動態 Prompt
+    const featureFlags = getFeatureFlags()
+
+    if (featureFlags.dynamicPromptEnabled) {
+      // 創建帶度量收集的混合提供者
+      // 注意：這裡傳入 null 作為 dynamicResolver，因為需要異步創建
+      // 實際的動態解析會在 getPrompt 調用時處理
+      globalPromptProvider = createHybridPromptProvider(null, {
+        enableMetrics: true,
+        enableDebugLogging: process.env.NODE_ENV === 'development',
+        dynamicResolutionTimeoutMs: 5000,
+      })
+
+      // 設置度量收集器
+      globalPromptProvider.setMetricsCollector(getGlobalPromptMetricsCollector())
+
+      console.log('[GPT Vision] Initialized HybridPromptProvider with metrics collector')
+    } else {
+      // 僅靜態模式
+      globalPromptProvider = createStaticOnlyProvider()
+      console.log('[GPT Vision] Initialized static-only PromptProvider')
+    }
+  }
+
+  return globalPromptProvider
+}
+
+/**
+ * Story 14-4: 重置全域 Prompt 提供者
+ * @description 主要用於測試環境
+ */
+export function resetPromptProvider(): void {
+  globalPromptProvider = null
+}
 
 /**
  * Story 0-11: 獲取提取 Prompt（支援版本管理）
@@ -318,6 +398,136 @@ Return ONLY valid JSON, no additional text.`
 // ============================================================
 // Helper Functions
 // ============================================================
+
+/**
+ * Story 14-4: 獲取動態或靜態 Prompt
+ *
+ * @description
+ *   透過 HybridPromptProvider 獲取適當的 Prompt。
+ *   根據 Feature Flag 和選項決定使用動態或靜態 Prompt。
+ *   如果強制使用靜態 Prompt 或動態解析失敗，會自動降級。
+ *
+ * @param promptType - Prompt 類型（ISSUER_IDENTIFICATION, TERM_CLASSIFICATION 等）
+ * @param options - 處理選項（公司 ID、文件格式 ID 等）
+ * @returns Prompt 結果（包含 systemPrompt, userPrompt, source 等）
+ */
+async function getPromptForType(
+  promptType: PromptType,
+  options?: ProcessingOptions
+): Promise<PromptResult> {
+  const provider = getPromptProvider()
+
+  // 如果強制使用靜態 Prompt，直接使用靜態提供者
+  if (options?.forceStaticPrompt) {
+    const staticProvider = createStaticOnlyProvider()
+    return staticProvider.getPrompt({
+      promptType,
+      companyId: options?.companyId,
+      documentFormatId: options?.documentFormatId,
+      documentId: options?.documentId,
+    })
+  }
+
+  // 使用混合提供者
+  return provider.getPrompt({
+    promptType,
+    companyId: options?.companyId,
+    documentFormatId: options?.documentFormatId,
+    documentId: options?.documentId,
+  })
+}
+
+/**
+ * Story 14-4: 獲取分類 Prompt（ISSUER_IDENTIFICATION）
+ *
+ * @description
+ *   專門用於 classifyDocument 的 Prompt 獲取。
+ *   優先使用動態 Prompt，失敗時降級到靜態 CLASSIFICATION_ONLY_PROMPT。
+ *
+ * @param options - 處理選項
+ * @returns Prompt 內容和來源資訊
+ */
+async function getClassificationPrompt(options?: ProcessingOptions): Promise<{
+  prompt: string
+  source: PromptSource
+}> {
+  try {
+    const result = await getPromptForType(PromptType.ISSUER_IDENTIFICATION, options)
+
+    // 合併 systemPrompt 和 userPrompt
+    const combinedPrompt = result.systemPrompt
+      ? `${result.systemPrompt}\n\n${result.userPrompt}`
+      : result.userPrompt
+
+    console.log(`[GPT Vision] Classification using ${result.source} prompt`)
+
+    return {
+      prompt: combinedPrompt,
+      source: result.source,
+    }
+  } catch (error) {
+    // 降級到靜態分類 Prompt
+    console.warn(
+      `[GPT Vision] Failed to get dynamic classification prompt, using static: ${(error as Error).message}`
+    )
+    return {
+      prompt: CLASSIFICATION_ONLY_PROMPT,
+      source: 'fallback',
+    }
+  }
+}
+
+/**
+ * Story 14-4: 獲取提取 Prompt（FIELD_EXTRACTION）
+ *
+ * @description
+ *   專門用於 processSingleImage 的 Prompt 獲取。
+ *   支援版本管理（Story 0-11）和動態 Prompt（Story 14-4）。
+ *
+ * @param options - 處理選項（包含 promptVersion）
+ * @returns Prompt 內容和來源資訊
+ */
+async function getExtractionPromptWithSource(options?: ProcessingOptions): Promise<{
+  prompt: string
+  source: PromptSource
+}> {
+  // 如果指定了版本，使用版本管理的靜態 Prompt（Story 0-11 行為）
+  if (options?.promptVersion) {
+    console.log(`[GPT Vision] Using specified prompt version: ${options.promptVersion}`)
+    return {
+      prompt: getExtractionPrompt(options.promptVersion),
+      source: 'static',
+    }
+  }
+
+  // 嘗試使用動態 Prompt（Story 14-4）
+  if (shouldUseDynamicPrompt(PromptType.FIELD_EXTRACTION)) {
+    try {
+      const result = await getPromptForType(PromptType.FIELD_EXTRACTION, options)
+
+      const combinedPrompt = result.systemPrompt
+        ? `${result.systemPrompt}\n\n${result.userPrompt}`
+        : result.userPrompt
+
+      console.log(`[GPT Vision] Extraction using ${result.source} prompt`)
+
+      return {
+        prompt: combinedPrompt,
+        source: result.source,
+      }
+    } catch (error) {
+      console.warn(
+        `[GPT Vision] Failed to get dynamic extraction prompt, using static: ${(error as Error).message}`
+      )
+    }
+  }
+
+  // 降級到靜態 Prompt（Story 0-11 版本管理）
+  return {
+    prompt: getExtractionPrompt(),
+    source: 'static',
+  }
+}
 
 /**
  * 將文件轉換為 Base64
@@ -513,8 +723,9 @@ async function processSingleImage(
   // 創建客戶端
   const client = createClient(config)
 
-  // Story 0-11: 使用版本管理的 Prompt
-  const extractionPrompt = getExtractionPrompt(options?.promptVersion)
+  // Story 14-4: 使用動態 Prompt（如果啟用）或降級到靜態 Prompt
+  const { prompt: extractionPrompt, source: promptSource } = await getExtractionPromptWithSource(options)
+  console.log(`[GPT Vision] processSingleImage using ${promptSource} prompt`)
 
   // 調用 API
   const response = await client.chat.completions.create({
@@ -822,7 +1033,8 @@ export async function processMultipleImages(
  */
 export async function classifyDocument(
   filePath: string,
-  config: GPTVisionConfig = {}
+  config: GPTVisionConfig = {},
+  options?: ProcessingOptions
 ): Promise<ClassificationResult> {
   const mergedConfig = { ...DEFAULT_CONFIG, ...config }
   // 使用較少的 tokens 因為只需要分類
@@ -861,7 +1073,9 @@ export async function classifyDocument(
     // 創建客戶端
     const client = createClient(mergedConfig)
 
-    console.log(`[GPT Vision] Classification: Calling API for document classification`)
+    // Story 14-4: 使用動態 Prompt（如果啟用）或降級到靜態 Prompt
+    const { prompt: classificationPrompt, source: promptSource } = await getClassificationPrompt(options)
+    console.log(`[GPT Vision] Classification: Using ${promptSource} prompt for document classification`)
 
     // 調用 API（使用分類專用提示詞）
     const response = await client.chat.completions.create({
@@ -870,7 +1084,7 @@ export async function classifyDocument(
         {
           role: 'user',
           content: [
-            { type: 'text', text: CLASSIFICATION_ONLY_PROMPT },
+            { type: 'text', text: classificationPrompt },
             {
               type: 'image_url',
               image_url: {

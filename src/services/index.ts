@@ -379,6 +379,11 @@ export * from './prompt-merge-engine.service'
 export * from './prompt-variable-engine.service'
 export * from './prompt-cache.service'
 
+// Epic 14: Prompt Configuration & Dynamic Generation (Story 14.4 - GPT Vision Integration)
+export * from './prompt-provider.interface'
+export * from './static-prompts'
+export * from './hybrid-prompt-provider.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';
