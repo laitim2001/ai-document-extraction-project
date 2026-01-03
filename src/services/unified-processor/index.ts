@@ -5,7 +5,8 @@
  *   - 主服務：UnifiedDocumentProcessorService
  *   - 步驟處理器介面和基類
  *   - 步驟工廠
- *   - 適配器（Legacy, IssuerIdentifier, FormatMatcher, ConfigFetcher, TermRecorder）
+ *   - 適配器（Legacy, IssuerIdentifier, FormatMatcher, ConfigFetcher, TermRecorder,
+ *            ConfidenceCalculator, RoutingDecision）
  *
  * @module src/services/unified-processor
  * @since Epic 15 - Story 15.1
@@ -21,6 +22,8 @@
  *   - FormatMatcherAdapter - 格式匹配適配器 (Story 15.3)
  *   - ConfigFetcherAdapter - 配置獲取適配器 (Story 15.3)
  *   - TermRecorderAdapter - 術語記錄適配器 (Story 15.4)
+ *   - ConfidenceCalculatorAdapter - 信心度計算適配器 (Story 15.5)
+ *   - RoutingDecisionAdapter - 路由決策適配器 (Story 15.5)
  */
 
 // ============================================================================
@@ -82,6 +85,19 @@ export {
   TermRecorderAdapter,
   termRecorderAdapter,
 } from './adapters/term-recorder-adapter';
+
+export {
+  ConfidenceCalculatorAdapter,
+  confidenceCalculatorAdapter,
+  type ConfidenceCalculatorOptions,
+} from './adapters/confidence-calculator-adapter';
+
+export {
+  RoutingDecisionAdapter,
+  routingDecisionAdapter,
+  createRoutingDecisionAdapter,
+  type RoutingDecisionOptions,
+} from './adapters/routing-decision-adapter';
 
 // ============================================================================
 // 步驟處理器（如需直接使用）

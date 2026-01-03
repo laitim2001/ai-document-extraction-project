@@ -517,3 +517,38 @@ export {
   // 預設值
   DEFAULT_IDENTIFICATION_OPTIONS,
 } from './issuer-identification'
+
+// 格式匹配相關 (Epic 15: Story 15.3)
+export * from './format-matching'
+
+// 動態配置相關 (Epic 15: Story 15.3)
+// 注意: ConfigSource 已從 confidence.ts 導出，這裡排除以避免重複
+export {
+  // Enums (excluding ConfigSource which is exported from confidence.ts)
+  ConfigResolutionStrategy,
+  // Interfaces
+  type DynamicConfigContext,
+  type UnifiedDynamicConfig,
+  type ConfigResolutionMetadata,
+  type AppliedConfigLayer,
+  type ResolvedPromptConfig,
+  type PromptAppliedLayer,
+  type ConfigReplacedVariable,
+  type ResolvedFieldMappingConfig,
+  type FieldMappingRule,
+  type FieldTransformType,
+  type ConfigFetchRequest,
+  type ConfigFetchOptions,
+  type ConfigFetchResult,
+  type ConfigCacheEntry,
+  type ConfigCacheStats,
+  // Constants
+  DEFAULT_CONFIG_FETCH_OPTIONS,
+  // Functions
+  buildConfigCacheKey,
+  getSourcePriority,
+  createEmptyDynamicConfig,
+} from './dynamic-config'
+
+// 術語學習相關 (Epic 15: Story 15.4)
+export * from './term-learning'

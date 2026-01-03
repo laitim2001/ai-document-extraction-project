@@ -240,10 +240,10 @@ development_status:
   # ============================================================
   # Epic 15: 統一 3 層機制到日常處理流程
   # ============================================================
-  epic-15: in-progress  # 4/5 stories completed
+  epic-15: done  # 5/5 stories completed
   15-1-unified-processor-entry: done  # Completed 2026-01-03: UnifiedDocumentProcessor (11-step pipeline), ProcessingContext/ProcessingResult types, BaseStepHandler (Template Method), 11 step implementations (FILE_TYPE_DETECTION→ROUTING_DECISION), UnifiedProcessorFlags (8 feature flags for gradual rollout), LegacyProcessorAdapter for backward compatibility
   15-2-issuer-identification-integration: done  # Completed 2026-01-03: IssuerIdentifierAdapter (封裝 document-issuer.service.ts), IssuerIdentificationStep (Step 4), issuer-identification.ts types (IssuerIdentificationRequest/Result/Options, IdentificationMethod/CompanyStatus/MatchType enums, convertLegacyResult), Parameters<typeof fn> type inference pattern, methodMapping for type conversion, backward compatible with legacy service
   15-3-format-matching-dynamic-config: done  # Completed 2026-01-03: FormatMatchingStep (Step 5), ConfigFetchingStep (Step 6), FormatMatcherAdapter (封裝 document-format.service.ts), ConfigFetcherAdapter (整合 prompt-resolver + field-mapping 配置), format-matching.ts types, dynamic-config.ts types, 三層配置解析 (Format→Company→Global), ResolutionVariableType 轉換
   15-4-continuous-term-learning: done  # Completed 2026-01-03: TermRecordingStep (Step 9), TermRecorderAdapter (整合 hierarchical-term-aggregation.service), term-learning.ts types (DetectedTerm/MatchedTerm/NewTerm/SynonymCandidate, TermStatus/TermSource/TermMatchMethod enums, FreightChargeCategory), Levenshtein similarity 85% threshold, address-like term filtering, flags.enableTermRecording feature flag
-  15-5-enhanced-confidence-calculation: drafted  # 信心度計算增強：ConfidenceCalculatorService, 6 FactorProviders, RoutingDecisionService, AUTO_APPROVE/QUICK_REVIEW/FULL_REVIEW routing
+  15-5-enhanced-confidence-calculation: done  # Completed 2026-01-03: ConfidenceCalculationStep (Step 10), RoutingDecisionStep (Step 11), ConfidenceCalculatorAdapter (7-dimension weighted: EXTRACTION 25%, ISSUER 15%, FORMAT 15%, CONFIG 10%, HISTORY 15%, FIELD 10%, TERM 10%), RoutingDecisionAdapter (AUTO_APPROVE≥90%, QUICK_REVIEW 70-89%, FULL_REVIEW<70%), ConfigSource加成 (SPECIFIC+10%, COMPANY+5%, FORMAT+3%), ConfidenceLevelEnum (VERY_HIGH/HIGH/MEDIUM/LOW/VERY_LOW), confidence.ts types
   epic-15-retrospective: optional
