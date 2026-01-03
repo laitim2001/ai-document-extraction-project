@@ -13,9 +13,11 @@
  *   - 當前路徑高亮
  *   - 用戶資訊顯示
  *   - 響應式設計
+ *   - 歷史數據初始化入口 (Epic 0)
+ *   - 文件預覽測試入口 (Epic 13)
  *
  * @since CHANGE-001 - Dashboard Layout Redesign
- * @lastModified 2025-12-21
+ * @lastModified 2026-01-03
  *
  * @dependencies
  *   - next/navigation: 路由導航
@@ -44,6 +46,8 @@ import {
   ChevronLeft,
   ChevronRight,
   FileSearch,
+  Database,
+  Layers,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -117,6 +121,8 @@ const navigation: NavSection[] = [
     items: [
       // { name: '系統設定', href: '/settings', icon: Settings }, // TODO: 待實現
       { name: '用戶管理', href: '/admin/users', icon: Users },
+      { name: '歷史數據初始化', href: '/admin/historical-data', icon: Database },
+      { name: '文件預覽測試', href: '/admin/document-preview-test', icon: Layers },
     ],
   },
 ]
