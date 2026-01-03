@@ -219,12 +219,13 @@ development_status:
   # ============================================================
   # Epic 13: 文件預覽與欄位映射
   # ============================================================
-  epic-13: in-progress  # Story 13-1, 13-2, 13-4, 13-5 completed (4/5)
+  epic-13: done  # All 6 stories completed 2026-01-03
   13-1-document-preview-field-highlight: done  # Completed 2026-01-02: PDFViewer (react-pdf), FieldHighlightOverlay (bounding box → screen coordinate), PDFControls (zoom/navigation), DynamicPDFViewer (SSR-safe), PDFLoadingSkeleton, PDFErrorDisplay, usePdfPreload hook, coordinate-transform utilities
   13-2-extracted-fields-panel: done  # Completed 2026-01-02: ExtractedFieldsPanel (field list with filtering/sorting/grouping), FieldCard (confidence color coding, inline editing, source labels), FieldFilters (search/confidence/source/sort controls), extracted-field.ts types (ExtractedField, FieldSource, ConfidenceLevel, FieldCategory, FieldFilterState)
-  13-3-field-mapping-config-ui: drafted  # 欄位映射配置介面：MappingConfigPanel, SourceFieldSelector, TargetFieldSelector, MappingRuleList with drag-drop reordering
+  13-3-field-mapping-config-ui: done  # Completed 2026-01-03: MappingConfigPanel (主面板), ConfigSelector (GLOBAL/COMPANY/FORMAT 3層), SortableRuleItem (@dnd-kit draggable), MappingRuleList (drag-drop sorting), SourceFieldSelector (多選), TargetFieldSelector (單選), TransformConfigPanel (5種轉換), RuleEditor (編輯對話框), MappingPreview (即時預覽), index.ts exports
   13-4-mapping-config-api: done  # Completed 2026-01-02: FieldMappingConfig/FieldMappingRule Prisma models (3-scope hierarchy: GLOBAL→COMPANY→FORMAT), 5 transform types (DIRECT/CONCAT/SPLIT/LOOKUP/CUSTOM), 12 API endpoints (CRUD configs, CRUD rules, reorder, test, export/import), optimistic locking with version field, cascade delete, RFC 7807 error responses
   13-5-dynamic-field-mapping-integration: done  # Completed 2026-01-02: DynamicMappingService (主服務入口，整合所有映射組件), ConfigResolver (3-layer priority: FORMAT>COMPANY>GLOBAL), TransformExecutor (Strategy Pattern, 5 transform types), FieldMappingEngine (規則套用引擎), MappingCache (TTL快取, LRU eviction), MappingPipelineStep (管線步驟整合), field-mapping.ts types
+  13-6-document-preview-integration-page: done  # Completed 2026-01-03: 整合測試頁面 - 整合 PDFViewer, ExtractedFieldsPanel, MappingConfigPanel 到單一 admin 頁面 (/admin/document-preview-test)，Zustand 狀態管理 (document-preview-test-store.ts)，TestFileUploader/TestToolbar 組件，ResizablePanelGroup 三欄佈局，13 story points
   epic-13-retrospective: optional
 
   # ============================================================
