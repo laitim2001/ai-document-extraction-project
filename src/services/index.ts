@@ -64,6 +64,7 @@
  *   | gpt-vision | GPT-5.2 Vision 處理服務 | Epic 0 Story 0.2 |
  *   | company-matcher | 公司名稱模糊匹配服務 | Epic 0 Story 0.3 |
  *   | company-auto-create | JIT 公司 Profile 自動建立 | Epic 0 Story 0.3 |
+ *   | unified-processor | 11 步統一處理管道 | Epic 15 Story 15.1 |
  *
  *   ## 核心設計原則
  *
@@ -94,7 +95,7 @@
  * @module src/services
  * @author Development Team
  * @since Epic 1 - Story 1.0 (Project Init Foundation)
- * @lastModified 2025-12-23
+ * @lastModified 2026-01-03
  *
  * @features
  *   - 統一服務導出入口
@@ -112,6 +113,7 @@
  *   - Webhook 通知服務（Story 11.4）
  *   - API 存取控制與認證（Story 11.5）
  *   - 系統健康監控服務（Story 12.1）
+ *   - 11 步統一處理管道（Story 15.1）
  *
  * @related
  *   - src/app/api/ - API 路由層（調用服務）
@@ -383,6 +385,9 @@ export * from './prompt-cache.service'
 export * from './prompt-provider.interface'
 export * from './static-prompts'
 export * from './hybrid-prompt-provider.service'
+
+// Epic 15: Unified Processing Pipeline (Story 15.1 - Processing Flow Refactoring)
+export * from './unified-processor'
 
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';

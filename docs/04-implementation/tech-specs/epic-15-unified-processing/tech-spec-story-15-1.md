@@ -1,5 +1,8 @@
 # Tech Spec: Story 15.1 - 處理流程重構 - 統一入口
 
+> **Status**: ✅ Done (2026-01-03)
+> **Implementation**: `src/services/unified-processor/`
+
 ## 概述
 
 建立 UnifiedDocumentProcessor 統一文件處理管道，整合 Epic 0 的 3 層機制到日常處理流程。
