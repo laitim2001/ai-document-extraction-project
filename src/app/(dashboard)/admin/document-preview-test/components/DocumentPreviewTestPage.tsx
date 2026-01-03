@@ -258,10 +258,10 @@ export function DocumentPreviewTestPage() {
             </div>
           </ResizablePanel>
 
-          <ResizableHandle withHandle />
+          <ResizableHandle withHandle className="w-2 bg-border hover:bg-primary/20 transition-colors" />
 
           {/* Center Panel - PDF Preview */}
-          <ResizablePanel defaultSize={50} minSize={30}>
+          <ResizablePanel defaultSize={50} minSize={30} maxSize={60}>
             <div className="h-full flex flex-col">
               <PanelHeader
                 icon={<Layers className="h-4 w-4" />}
@@ -279,8 +279,10 @@ export function DocumentPreviewTestPage() {
                   <>
                     <DynamicPDFViewer
                       file={currentFile.url}
-                      initialPage={currentPage}
-                      initialScale={zoomLevel}
+                      page={currentPage}
+                      scale={zoomLevel}
+                      onPageChange={handlePageChange}
+                      onScaleChange={handleZoomChange}
                       onLoadSuccess={handleDocumentLoadSuccess}
                       boundingBoxes={boundingBoxes}
                       selectedFieldId={selectedFieldId ?? undefined}
@@ -326,7 +328,7 @@ export function DocumentPreviewTestPage() {
             </div>
           </ResizablePanel>
 
-          <ResizableHandle withHandle />
+          <ResizableHandle withHandle className="w-2 bg-border hover:bg-primary/20 transition-colors" />
 
           {/* Right Panel - Mapping Config */}
           <ResizablePanel defaultSize={30} minSize={20} maxSize={40}>

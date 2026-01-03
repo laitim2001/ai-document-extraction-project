@@ -17,12 +17,16 @@
  *   - SSR 安全 (worker 延遲初始化)
  *
  * @dependencies
- *   - react-pdf v7.x
- *   - pdfjs-dist v3.x
+ *   - react-pdf v10.x (實際: 10.2.0)
+ *   - pdfjs-dist v5.x (實際: 5.4.296)
  *
  * @bugfix FIX-008 (2026-01-03)
  *   修復 pdfjs-dist 在 Next.js 環境下的 "Object.defineProperty called on non-object" 錯誤。
  *   將 worker 設定從模組頂層移至 useEffect，確保僅在客戶端執行。
+ *
+ * @bugfix FIX-011 (2026-01-03)
+ *   新增受控模式支援 (page, scale props)。修復外部工具列按鈕無法控制 PDF 頁面的問題。
+ *   當傳入 page/scale props 時，組件會同步外部狀態到內部狀態。
  */
 
 'use client'
@@ -43,6 +47,13 @@ import { FieldHighlightOverlay } from './FieldHighlightOverlay'
 // PDF.js Worker 設定
 // ============================================================
 
+/**
+ * @bugfix FIX-010 (2026-01-03)
+ *   修復 react-pdf v10 + pdfjs-dist v5 的 worker 配置。
+ *   舊配置使用 CDN 路徑，但 v5 的模組結構已改變。
+ *   新配置使用 import.meta.url 動態解析本地 worker 路徑。
+ */
+
 // Worker 初始化標記，避免重複設定
 let workerInitialized = false
 
@@ -50,8 +61,9 @@ let workerInitialized = false
  * 初始化 PDF.js worker (延遲執行，僅客戶端)
  *
  * @description
- *   將 worker 設定從模組頂層移至此函數，
- *   避免在 SSR 或 Next.js bundling 階段執行導致錯誤。
+ *   使用 import.meta.url 動態解析 worker 路徑，
+ *   確保與安裝的 pdfjs-dist 版本匹配。
+ *   react-pdf v10 需要此配置方式。
  */
 function initializePdfWorker(): void {
   if (workerInitialized || typeof window === 'undefined') {
@@ -59,8 +71,12 @@ function initializePdfWorker(): void {
   }
 
   try {
-    pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`
+    // react-pdf v10 + pdfjs-dist v5 的配置
+    // 使用 CDN 路徑指向正確版本的 worker
+    // 注意: v5 使用 /build/ 而非 /legacy/build/
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
     workerInitialized = true
+    console.log('[PDFViewer] Worker initialized with version:', pdfjs.version)
   } catch (error) {
     console.error('[PDFViewer] Failed to initialize PDF.js worker:', error)
   }
@@ -85,10 +101,16 @@ interface PDFViewerProps {
   onLoadError?: (error: Error) => void
   /** 頁面變更回調 */
   onPageChange?: (page: number) => void
-  /** 初始頁碼 */
+  /** 縮放變更回調 */
+  onScaleChange?: (scale: number) => void
+  /** 初始頁碼（非受控模式）*/
   initialPage?: number
-  /** 初始縮放倍率 */
+  /** 初始縮放倍率（非受控模式）*/
   initialScale?: number
+  /** 受控頁碼（優先於 initialPage）*/
+  page?: number
+  /** 受控縮放倍率（優先於 initialScale）*/
+  scale?: number
   /** 自定義 CSS 類名 */
   className?: string
   /** 是否顯示控制工具列 */
@@ -130,17 +152,25 @@ export function PDFViewer({
   onLoadSuccess,
   onLoadError,
   onPageChange,
+  onScaleChange,
   initialPage = DEFAULT_PAGE,
   initialScale = DEFAULT_SCALE,
+  page: controlledPage,
+  scale: controlledScale,
   className,
   showControls = true,
   showHighlights = true,
 }: PDFViewerProps) {
   const containerRef = React.useRef<HTMLDivElement>(null)
+
+  // 判斷是否為受控模式
+  const isPageControlled = controlledPage !== undefined
+  const isScaleControlled = controlledScale !== undefined
+
   const [state, setState] = React.useState<PDFViewerState>({
     numPages: 0,
-    currentPage: initialPage,
-    scale: initialScale,
+    currentPage: controlledPage ?? initialPage,
+    scale: controlledScale ?? initialScale,
     pageDimensions: { width: 0, height: 0 },
     isLoading: true,
     error: null,
@@ -151,6 +181,20 @@ export function PDFViewer({
   React.useEffect(() => {
     initializePdfWorker()
   }, [])
+
+  // --- 受控模式同步 (FIX-011) ---
+  // 當外部傳入 page 或 scale 時，同步內部狀態
+  React.useEffect(() => {
+    if (isPageControlled && controlledPage !== state.currentPage) {
+      setState((prev) => ({ ...prev, currentPage: controlledPage }))
+    }
+  }, [controlledPage, isPageControlled, state.currentPage])
+
+  React.useEffect(() => {
+    if (isScaleControlled && controlledScale !== state.scale) {
+      setState((prev) => ({ ...prev, scale: controlledScale }))
+    }
+  }, [controlledScale, isScaleControlled, state.scale])
 
   // --- Document Handlers ---
 

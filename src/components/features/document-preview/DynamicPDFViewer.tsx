@@ -33,8 +33,15 @@ interface PDFViewerProps {
   onLoadSuccess?: (numPages: number) => void
   onLoadError?: (error: Error) => void
   onPageChange?: (page: number) => void
+  onScaleChange?: (scale: number) => void
+  /** 初始頁碼（非受控模式）*/
   initialPage?: number
+  /** 初始縮放倍率（非受控模式）*/
   initialScale?: number
+  /** 受控頁碼（優先於 initialPage）*/
+  page?: number
+  /** 受控縮放倍率（優先於 initialScale）*/
+  scale?: number
   className?: string
   showControls?: boolean
   showHighlights?: boolean
