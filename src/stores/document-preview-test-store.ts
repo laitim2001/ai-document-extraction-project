@@ -15,10 +15,16 @@
  *   - 整合 PDF 預覽、欄位面板、映射配置三大區塊的狀態
  *   - 支援欄位選中與 PDF 高亮的雙向聯動
  *   - 支援三層映射配置範圍切換
+ *
+ * @bugfix FIX-009 (2026-01-03)
+ *   修復 Zustand selectors 在 Next.js 15 中導致的 "Maximum update depth exceeded" 錯誤。
+ *   Selector hooks 返回的物件在每次 render 時都是新引用，導致 React useSyncExternalStore 無限循環。
+ *   解決方案：使用 useShallow 進行淺比較，避免不必要的重新渲染。
  */
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import type { ExtractedField, FieldFilterState, DEFAULT_FILTER_STATE } from '@/types/extracted-field';
 import type { VisualMappingRule, ConfigScope } from '@/types/field-mapping';
 
@@ -402,42 +408,54 @@ export const useDocumentPreviewTestStore = create<DocumentPreviewTestState>()(
 
 /**
  * 選取文件狀態
+ * @bugfix FIX-009 使用 useShallow 避免無限循環
  */
 export const useFileState = () =>
-  useDocumentPreviewTestStore((state) => ({
-    currentFile: state.currentFile,
-    processingStatus: state.processingStatus,
-    processingProgress: state.processingProgress,
-    error: state.error,
-  }));
+  useDocumentPreviewTestStore(
+    useShallow((state) => ({
+      currentFile: state.currentFile,
+      processingStatus: state.processingStatus,
+      processingProgress: state.processingProgress,
+      error: state.error,
+    }))
+  );
 
 /**
  * 選取提取欄位狀態
+ * @bugfix FIX-009 使用 useShallow 避免無限循環
  */
 export const useFieldsState = () =>
-  useDocumentPreviewTestStore((state) => ({
-    extractedFields: state.extractedFields,
-    selectedFieldId: state.selectedFieldId,
-    fieldFilters: state.fieldFilters,
-  }));
+  useDocumentPreviewTestStore(
+    useShallow((state) => ({
+      extractedFields: state.extractedFields,
+      selectedFieldId: state.selectedFieldId,
+      fieldFilters: state.fieldFilters,
+    }))
+  );
 
 /**
  * 選取映射配置狀態
+ * @bugfix FIX-009 使用 useShallow 避免無限循環
  */
 export const useMappingState = () =>
-  useDocumentPreviewTestStore((state) => ({
-    currentScope: state.currentScope,
-    selectedCompanyId: state.selectedCompanyId,
-    selectedFormatId: state.selectedFormatId,
-    mappingRules: state.mappingRules,
-  }));
+  useDocumentPreviewTestStore(
+    useShallow((state) => ({
+      currentScope: state.currentScope,
+      selectedCompanyId: state.selectedCompanyId,
+      selectedFormatId: state.selectedFormatId,
+      mappingRules: state.mappingRules,
+    }))
+  );
 
 /**
  * 選取 PDF 狀態
+ * @bugfix FIX-009 使用 useShallow 避免無限循環
  */
 export const usePdfState = () =>
-  useDocumentPreviewTestStore((state) => ({
-    currentPage: state.currentPage,
-    totalPages: state.totalPages,
-    zoomLevel: state.zoomLevel,
-  }));
+  useDocumentPreviewTestStore(
+    useShallow((state) => ({
+      currentPage: state.currentPage,
+      totalPages: state.totalPages,
+      zoomLevel: state.zoomLevel,
+    }))
+  );

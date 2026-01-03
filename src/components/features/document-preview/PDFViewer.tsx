@@ -6,7 +6,7 @@
  *
  * @module src/components/features/document-preview
  * @since Epic 13 - Story 13.1 (文件預覽組件與欄位高亮)
- * @lastModified 2025-01-02
+ * @lastModified 2026-01-03
  *
  * @features
  *   - PDF 渲染 (使用 react-pdf)
@@ -14,10 +14,15 @@
  *   - 欄位高亮層整合
  *   - 載入和錯誤狀態處理
  *   - 效能優化 (Worker 分離)
+ *   - SSR 安全 (worker 延遲初始化)
  *
  * @dependencies
  *   - react-pdf v7.x
  *   - pdfjs-dist v3.x
+ *
+ * @bugfix FIX-008 (2026-01-03)
+ *   修復 pdfjs-dist 在 Next.js 環境下的 "Object.defineProperty called on non-object" 錯誤。
+ *   將 worker 設定從模組頂層移至 useEffect，確保僅在客戶端執行。
  */
 
 'use client'
@@ -38,8 +43,28 @@ import { FieldHighlightOverlay } from './FieldHighlightOverlay'
 // PDF.js Worker 設定
 // ============================================================
 
-// 設定 PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`
+// Worker 初始化標記，避免重複設定
+let workerInitialized = false
+
+/**
+ * 初始化 PDF.js worker (延遲執行，僅客戶端)
+ *
+ * @description
+ *   將 worker 設定從模組頂層移至此函數，
+ *   避免在 SSR 或 Next.js bundling 階段執行導致錯誤。
+ */
+function initializePdfWorker(): void {
+  if (workerInitialized || typeof window === 'undefined') {
+    return
+  }
+
+  try {
+    pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`
+    workerInitialized = true
+  } catch (error) {
+    console.error('[PDFViewer] Failed to initialize PDF.js worker:', error)
+  }
+}
 
 // ============================================================
 // Types
@@ -121,6 +146,11 @@ export function PDFViewer({
     error: null,
     hoveredFieldId: undefined,
   })
+
+  // --- Worker 初始化 (FIX-008) ---
+  React.useEffect(() => {
+    initializePdfWorker()
+  }, [])
 
   // --- Document Handlers ---
 
