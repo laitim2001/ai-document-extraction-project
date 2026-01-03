@@ -5,7 +5,7 @@
  *   - 主服務：UnifiedDocumentProcessorService
  *   - 步驟處理器介面和基類
  *   - 步驟工廠
- *   - Legacy 適配器
+ *   - 適配器（Legacy, IssuerIdentifier, FormatMatcher, ConfigFetcher）
  *
  * @module src/services/unified-processor
  * @since Epic 15 - Story 15.1
@@ -18,6 +18,8 @@
  *   - StepHandlerFactory - 步驟工廠
  *   - LegacyProcessorAdapter - Legacy 適配器
  *   - IssuerIdentifierAdapter - 發行者識別適配器 (Story 15.2)
+ *   - FormatMatcherAdapter - 格式匹配適配器 (Story 15.3)
+ *   - ConfigFetcherAdapter - 配置獲取適配器 (Story 15.3)
  */
 
 // ============================================================================
@@ -64,6 +66,16 @@ export {
   IssuerIdentifierAdapter,
   issuerIdentifierAdapter,
 } from './adapters/issuer-identifier-adapter';
+
+export {
+  FormatMatcherAdapter,
+  formatMatcherAdapter,
+} from './adapters/format-matcher-adapter';
+
+export {
+  ConfigFetcherAdapter,
+  configFetcherAdapter,
+} from './adapters/config-fetcher-adapter';
 
 // ============================================================================
 // 步驟處理器（如需直接使用）
