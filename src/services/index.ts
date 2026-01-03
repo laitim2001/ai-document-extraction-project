@@ -372,6 +372,13 @@ export * from './hierarchical-term-aggregation.service'
 // Epic 0: Historical Data Initialization (Story 0-10 - AI Term Validation Service)
 export * from './ai-term-validator.service'
 
+// Epic 14: Prompt Configuration & Dynamic Generation (Story 14.3 - Prompt Resolution Service)
+export * from './prompt-resolver.factory'
+export * from './prompt-resolver.service'
+export * from './prompt-merge-engine.service'
+export * from './prompt-variable-engine.service'
+export * from './prompt-cache.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';
