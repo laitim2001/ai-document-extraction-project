@@ -3,8 +3,8 @@
  * @description
  *   根據文件類型自動選擇最佳 AI 處理方式：
  *   - NATIVE_PDF → DUAL_PROCESSING（GPT Vision 分類 + Azure DI 數據）- CHANGE-001
- *   - SCANNED_PDF → GPT-4o Vision（完整處理：OCR + 分類 + 提取）
- *   - IMAGE → GPT-4o Vision（完整處理：OCR + 分類 + 提取）
+ *   - SCANNED_PDF → GPT-5.2 Vision（完整處理：OCR + 分類 + 提取）
+ *   - IMAGE → GPT-5.2 Vision（完整處理：OCR + 分類 + 提取）
  *
  * @module src/services/processing-router
  * @since Epic 0 - Story 0.2
@@ -99,7 +99,7 @@ export const COST_CONFIG = {
   },
   GPT_VISION: {
     perPage: 0.03, // USD per page (平均值)
-    description: 'GPT-4o Vision',
+    description: 'GPT-5.2 Vision',
     avgPagesPerFile: 2, // 預設每個文件的頁數
   },
   DUAL_PROCESSING: {

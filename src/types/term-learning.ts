@@ -50,7 +50,7 @@ export enum TermSource {
   DAILY_AUTO = 'DAILY_AUTO',
   /** 人工審核添加 - 審核員手動添加 */
   MANUAL_REVIEW = 'MANUAL_REVIEW',
-  /** AI 建議 - GPT-4o 分類建議 */
+  /** AI 建議 - GPT-5.2 分類建議 */
   AI_SUGGESTION = 'AI_SUGGESTION',
   /** 系統預設 - 系統內建 */
   SYSTEM_DEFAULT = 'SYSTEM_DEFAULT',

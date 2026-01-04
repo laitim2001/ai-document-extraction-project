@@ -1,9 +1,9 @@
 /**
- * @fileoverview GPT-4o Vision 處理服務
+ * @fileoverview GPT-5.2 Vision 處理服務
  * @description
- *   使用 Azure OpenAI GPT-4o 模型處理圖片和掃描 PDF：
+ *   使用 Azure OpenAI GPT-5.2 模型處理圖片和掃描 PDF：
  *   - 圖片轉 Base64 編碼
- *   - GPT-4o Vision API 調用
+ *   - GPT-5.2 Vision API 調用
  *   - 發票內容提取和結構化
  *   - 文件發行者識別 (Story 0.8)
  *   - 文件格式識別 (Story 0.9)

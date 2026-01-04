@@ -223,7 +223,7 @@ const costRecords: TermValidationCostRecord[] = []
  * AI 術語驗證服務
  *
  * @description
- *   使用 GPT-4o 進行智能術語分類，區分有效費用術語和無效內容。
+ *   使用 GPT-5.2 進行智能術語分類，區分有效費用術語和無效內容。
  *   提供批次處理、快取、成本追蹤和 fallback 機制。
  */
 export class AiTermValidatorService {
@@ -345,7 +345,7 @@ export class AiTermValidatorService {
       const termsText = terms.map((t, i) => `${i + 1}. "${t}"`).join('\n')
       const prompt = TERM_VALIDATION_PROMPT.replace('{TERMS}', termsText)
 
-      // 呼叫 GPT-4o
+      // 呼叫 GPT-5.2
       const response = await this.client!.chat.completions.create({
         model: AZURE_OPENAI_DEPLOYMENT,
         messages: [
@@ -366,7 +366,7 @@ export class AiTermValidatorService {
       // 解析回應
       const content = response.choices[0]?.message?.content
       if (!content) {
-        throw new Error('Empty response from GPT-4o')
+        throw new Error('Empty response from GPT-5.2')
       }
 
       const parsed = JSON.parse(content) as GPTValidationResponse
@@ -389,7 +389,7 @@ export class AiTermValidatorService {
       return results
     } catch (error) {
       errorMessage = error instanceof Error ? error.message : String(error)
-      console.error('[AiTermValidator] GPT-4o call failed:', errorMessage)
+      console.error('[AiTermValidator] GPT-5.2 call failed:', errorMessage)
 
       // 記錄失敗成本
       this.recordCost({

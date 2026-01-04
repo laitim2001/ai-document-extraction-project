@@ -37,7 +37,7 @@
 
 | 服務 | 說明 | Epic |
 |------|------|------|
-| `gpt-vision.service.ts` | GPT-4o Vision 處理 | Epic 2 |
+| `gpt-vision.service.ts` | GPT-5.2 Vision 處理 | Epic 2 |
 | `azure-di.service.ts` | Azure Document Intelligence | Epic 2 |
 | `confidence.service.ts` | 信心度計算 | Epic 2 |
 | `term-classification.service.ts` | 術語分類（Tier 3） | Epic 4 |
@@ -269,7 +269,7 @@ export const exampleService = new ExampleService();
 │ → mapping.service.ts (companyMappings)                          │
 ├─────────────────────────────────────────────────────────────────┤
 │ Tier 3: LLM Classification                                      │
-│ → term-classification.service.ts (GPT-4o)                       │
+│ → term-classification.service.ts (GPT-5.2)                      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

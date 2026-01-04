@@ -94,7 +94,7 @@ export const INVALID_TERM_CATEGORIES: ReadonlySet<TermCategory> = new Set([
 
 /**
  * 單一術語驗證結果
- * @description GPT-4o 對單一術語的驗證結果
+ * @description GPT-5.2 對單一術語的驗證結果
  */
 export interface TermValidationResult {
   /** 原始術語文字 */
@@ -117,8 +117,8 @@ export interface TermValidationResult {
 }
 
 /**
- * GPT-4o API 返回的單一術語結構
- * @description 對應 GPT-4o 結構化輸出的格式
+ * GPT-5.2 API 返回的單一術語結構
+ * @description 對應 GPT-5.2 結構化輸出的格式
  */
 export interface GPTTermClassification {
   /** 原始術語 */
@@ -135,7 +135,7 @@ export interface GPTTermClassification {
 }
 
 /**
- * GPT-4o API 完整回應結構
+ * GPT-5.2 API 完整回應結構
  * @description 對應 response_format 的 JSON Schema
  */
 export interface GPTValidationResponse {

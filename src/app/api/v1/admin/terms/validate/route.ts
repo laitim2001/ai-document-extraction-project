@@ -1,7 +1,7 @@
 /**
  * @fileoverview AI 術語驗證 API 端點
  * @description
- *   提供術語驗證功能，使用 GPT-4o 進行智能分類：
+ *   提供術語驗證功能，使用 GPT-5.2 進行智能分類：
  *   - 批次驗證術語（50-100 術語/批次）
  *   - 區分有效費用術語 vs 無效地址/名稱術語
  *   - 返回分類結果、信心度和統計
@@ -71,7 +71,7 @@ export type TermValidationRequestBody = z.infer<typeof TermValidationRequestSche
 /**
  * POST /api/v1/admin/terms/validate
  *
- * @description 批次驗證術語，使用 GPT-4o 進行智能分類
+ * @description 批次驗證術語，使用 GPT-5.2 進行智能分類
  *
  * @requestBody {TermValidationRequestBody}
  *   - terms: string[] - 要驗證的術語列表
