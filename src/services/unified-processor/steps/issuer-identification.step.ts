@@ -1,26 +1,36 @@
 /**
- * @fileoverview Step 4: 發行者識別
+ * @fileoverview Step 3: 發行者識別
  * @description
  *   識別文件發行者（Document Issuer）並匹配公司：
+ *   - 使用 GPT Vision classifyDocument() 進行輕量級分類
  *   - 從 Header 區域識別
  *   - 從 Logo 識別
- *   - OCR 文字匹配
  *   - AI 推斷識別
  *   - 自動創建公司（如果 autoCreateCompany 啟用）
+ *
+ *   CHANGE-005: 將發行者識別移至 Azure DI 提取之前（Step 3），
+ *   實現「先識別公司 → 再依配置動態提取」的流程。
  *
  *   整合 Epic 0 Story 0.8 的發行者識別功能，
  *   透過 IssuerIdentifierAdapter 適配現有服務。
  *
  * @module src/services/unified-processor/steps
  * @since Epic 15 - Story 15.1 (整合 Story 0.8)
- * @lastModified 2026-01-03
+ * @lastModified 2026-01-05
+ *
+ * @changes
+ *   - 2026-01-05 (CHANGE-005): 改用 classifyDocument() 進行發行者識別
  *
  * @related
+ *   - src/services/gpt-vision.service.ts - classifyDocument() 輕量分類
  *   - src/services/document-issuer.service.ts - 被適配的現有服務
  *   - src/services/unified-processor/adapters/issuer-identifier-adapter.ts - 適配器
  *   - src/types/issuer-identification.ts - 類型定義
  */
 
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import * as os from 'os';
 import {
   ProcessingStep,
   StepPriority,
@@ -31,6 +41,10 @@ import {
 } from '@/types/unified-processor';
 import { BaseStepHandler } from '../interfaces/step-handler.interface';
 import { issuerIdentifierAdapter } from '../adapters/issuer-identifier-adapter';
+import {
+  classifyDocument,
+  type ClassificationResult,
+} from '@/services/gpt-vision.service';
 import type {
   ExtractionResultForIssuer,
   IssuerIdentificationResult,
@@ -51,6 +65,9 @@ export class IssuerIdentificationStep extends BaseStepHandler {
 
   /**
    * 檢查是否應該執行
+   * @description
+   *   CHANGE-005: 不再依賴 Azure DI 提取結果，
+   *   改為檢查是否有可用的文件進行 GPT Vision 分類
    */
   shouldExecute(
     context: UnifiedProcessingContext,
@@ -65,26 +82,52 @@ export class IssuerIdentificationStep extends BaseStepHandler {
       return false;
     }
 
-    // 檢查是否有提取結果可供識別
-    const extractionResult = this.buildExtractionResultForIssuer(context);
-    return issuerIdentifierAdapter.canIdentify(extractionResult);
+    // CHANGE-005: 檢查是否有文件可供 GPT Vision 分類
+    // 不再依賴 extractedData（Azure DI 結果）
+    const hasFileBuffer = !!context.input?.fileBuffer;
+    const hasFileName = !!context.input?.fileName;
+
+    return hasFileBuffer && hasFileName;
   }
 
   /**
    * 執行發行者識別
+   * @description
+   *   CHANGE-005: 使用 GPT Vision classifyDocument() 進行輕量級分類，
+   *   而非依賴 Azure DI 提取結果（因為此時 Azure DI 尚未執行）
    */
   protected async doExecute(
     context: UnifiedProcessingContext,
     flags: UnifiedProcessorFlags
   ): Promise<StepResult> {
     const startTime = Date.now();
+    let tempFilePath: string | null = null;
 
     try {
-      // 構建識別請求
-      const extractionResult = this.buildExtractionResultForIssuer(context);
+      // CHANGE-005: Step 1 - 將文件 Buffer 保存為臨時文件
+      tempFilePath = await this.saveBufferToTempFile(
+        context.input.fileBuffer,
+        context.input.fileName
+      );
+
+      console.log(`[IssuerIdentification] Step 3: Classifying document: ${context.input.fileName}`);
+
+      // CHANGE-005: Step 2 - 調用 GPT Vision classifyDocument() 進行輕量分類
+      const classificationResult = await classifyDocument(tempFilePath, {}, {
+        companyId: context.companyId,
+        documentFormatId: context.documentFormatId,
+        documentId: context.input.fileId,
+      });
+
+      // CHANGE-005: Step 3 - 從分類結果構建發行者識別輸入
+      const extractionResult = this.buildExtractionResultFromClassification(
+        classificationResult,
+        context
+      );
+
       const options = this.buildIdentificationOptions(flags);
 
-      // 調用適配器進行識別
+      // CHANGE-005: Step 4 - 調用適配器進行公司匹配
       const issuerResult = await issuerIdentifierAdapter.identifyFromExtraction(
         extractionResult,
         options
@@ -92,6 +135,8 @@ export class IssuerIdentificationStep extends BaseStepHandler {
 
       // 更新上下文
       this.updateContextWithResult(context, issuerResult);
+
+      console.log(`[IssuerIdentification] Step 3: Identified issuer: ${issuerResult.issuerName || 'Unknown'} (method: ${issuerResult.identificationMethod || 'N/A'}, confidence: ${issuerResult.confidence})`);
 
       // 返回步驟結果
       return this.createSuccessResult(
@@ -105,6 +150,9 @@ export class IssuerIdentificationStep extends BaseStepHandler {
           matchType: issuerResult.matchType,
           matchScore: issuerResult.matchScore,
           processingTimeMs: issuerResult.processingTimeMs,
+          // CHANGE-005: 額外記錄分類結果
+          classificationSuccess: classificationResult.success,
+          classificationPageCount: classificationResult.pageCount,
         },
         startTime
       );
@@ -117,39 +165,118 @@ export class IssuerIdentificationStep extends BaseStepHandler {
         timestamp: new Date().toISOString(),
       });
       return this.createFailedResult(startTime, err);
+    } finally {
+      // CHANGE-005: 清理臨時文件
+      if (tempFilePath) {
+        await this.cleanupTempFile(tempFilePath);
+      }
     }
   }
 
   /**
-   * 從處理上下文構建發行者識別輸入
+   * 將文件 Buffer 保存為臨時文件
+   * @param buffer - 文件 Buffer
+   * @param fileName - 原始文件名（用於確定擴展名）
+   * @returns 臨時文件路徑
    */
-  private buildExtractionResultForIssuer(
+  private async saveBufferToTempFile(
+    buffer: Buffer,
+    fileName: string
+  ): Promise<string> {
+    const ext = path.extname(fileName) || '.pdf';
+    const tempDir = os.tmpdir();
+    const tempFileName = `issuer-id-${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
+    const tempFilePath = path.join(tempDir, tempFileName);
+
+    await fs.writeFile(tempFilePath, buffer);
+    return tempFilePath;
+  }
+
+  /**
+   * 清理臨時文件
+   * @param filePath - 臨時文件路徑
+   */
+  private async cleanupTempFile(filePath: string): Promise<void> {
+    try {
+      await fs.unlink(filePath);
+    } catch {
+      // 忽略清理失敗（文件可能已被刪除）
+      console.warn(`[IssuerIdentification] Failed to cleanup temp file: ${filePath}`);
+    }
+  }
+
+  /**
+   * 從 GPT Vision 分類結果構建發行者識別輸入
+   * @description CHANGE-005: 新方法，取代 buildExtractionResultForIssuer
+   * @param classificationResult - GPT Vision classifyDocument() 結果
+   * @param context - 處理上下文
+   * @returns 發行者識別輸入
+   */
+  private buildExtractionResultFromClassification(
+    classificationResult: ClassificationResult,
     context: UnifiedProcessingContext
   ): ExtractionResultForIssuer {
-    // 從上下文中提取已有的 AI 處理結果
-    const extractedData = context.extractedData ?? {};
+    const issuer = classificationResult.documentIssuer;
 
-    // 從 documentIssuer 推斷 issuerIdentification 資訊
-    const documentIssuer = extractedData.documentIssuer;
-    const issuerIdentification = documentIssuer
+    // 從 classifyDocument 結果構建 issuerIdentification
+    const issuerIdentification = issuer
       ? {
-          name: documentIssuer.companyName,
-          method: documentIssuer.method,
-          confidence: documentIssuer.confidence,
+          name: issuer.name,
+          method: this.mapIdentificationMethod(issuer.identificationMethod),
+          confidence: issuer.confidence,
+          rawText: issuer.rawText,
         }
       : undefined;
 
-    // 推斷 Logo 偵測結果
-    const logoDetected = documentIssuer?.method === 'LOGO';
+    // Logo 偵測：如果識別方法是 LOGO 則為 true
+    const logoDetected = issuer?.identificationMethod === 'LOGO';
 
     return {
-      invoiceData: extractedData.invoiceData as ExtractionResultForIssuer['invoiceData'],
+      // CHANGE-005: 此時 invoiceData 為空（Azure DI 尚未執行）
+      invoiceData: undefined,
       issuerIdentification,
       metadata: {
         documentType: context.fileType,
         logoDetected,
       },
     };
+  }
+
+  /**
+   * 映射識別方法到 ExtractionResultForIssuer 期望的類型
+   */
+  private mapIdentificationMethod(
+    method?: string
+  ): 'LOGO' | 'HEADER' | 'TEXT_MATCH' | 'AI_INFERENCE' | undefined {
+    if (!method) return undefined;
+
+    const mapping: Record<string, 'LOGO' | 'HEADER' | 'TEXT_MATCH' | 'AI_INFERENCE'> = {
+      LOGO: 'LOGO',
+      HEADER: 'HEADER',
+      LETTERHEAD: 'HEADER', // 映射 LETTERHEAD 到 HEADER
+      FOOTER: 'HEADER', // 映射 FOOTER 到 HEADER
+      TEXT_MATCH: 'TEXT_MATCH',
+      AI_INFERENCE: 'AI_INFERENCE',
+    };
+
+    return mapping[method.toUpperCase()];
+  }
+
+  /**
+   * @deprecated CHANGE-005: 此方法已被 buildExtractionResultFromClassification 取代
+   * 保留用於向後兼容，但不再使用
+   *
+   * 從處理上下文構建發行者識別輸入（舊版：依賴 Azure DI 結果）
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private buildExtractionResultForIssuer(
+    _context: UnifiedProcessingContext
+  ): ExtractionResultForIssuer {
+    // CHANGE-005: 此方法已棄用，不再使用
+    // 現在使用 buildExtractionResultFromClassification 從 GPT Vision 分類結果構建
+    throw new Error(
+      'buildExtractionResultForIssuer is deprecated. Use buildExtractionResultFromClassification instead.'
+    );
   }
 
   /**

@@ -1,14 +1,22 @@
 /**
- * @fileoverview Step 6: 配置獲取
+ * @fileoverview Step 5: 配置獲取
  * @description
  *   獲取處理所需的動態配置：
  *   - Prompt 配置（三層解析：Format → Company → Global）
  *   - 欄位映射配置（三層優先級）
  *   - 支援並行獲取以優化效能
  *
+ *   CHANGE-005 調整（2026-01-05）：
+ *   步驟順序從 Step 6 調整為 Step 5。
+ *   現在執行順序：發行者識別(Step 3) → 格式匹配(Step 4) → 配置獲取(Step 5) → Azure DI(Step 6)
+ *   此步驟在 Azure DI 提取之前執行，提供後續步驟所需的配置。
+ *
  * @module src/services/unified-processor/steps
  * @since Epic 15 - Story 15.3 (整合 Story 14.3, 13.5)
- * @lastModified 2026-01-03
+ * @lastModified 2026-01-05
+ *
+ * @changes
+ *   - 2026-01-05 (CHANGE-005): 步驟順序從 Step 6 調整為 Step 5
  *
  * @related
  *   - src/services/unified-processor/adapters/config-fetcher-adapter.ts - 配置獲取適配器

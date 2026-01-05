@@ -6,9 +6,13 @@
  *   - 超時設定和重試次數
  *   - 預設 Feature Flags 配置
  *
+ *   CHANGE-005 調整（2026-01-05）：
+ *   將 ISSUER_IDENTIFICATION 移至 AZURE_DI_EXTRACTION 之前，
+ *   實現「先識別公司 → 再依配置動態提取」的流程。
+ *
  * @module src/constants/processing-steps
  * @since Epic 15 - Story 15.1 (處理流程重構 - 統一入口)
- * @lastModified 2026-01-03
+ * @lastModified 2026-01-05
  *
  * @features
  *   - 11 步處理管道配置
@@ -55,15 +59,8 @@ export const DEFAULT_STEP_CONFIGS: StepConfig[] = [
     retryCount: 0,
     enabled: true,
   },
-  // Step 3: Azure DI 提取（必要）
-  {
-    step: ProcessingStep.AZURE_DI_EXTRACTION,
-    priority: StepPriority.REQUIRED,
-    timeout: 120000, // 2 分鐘
-    retryCount: 2,
-    enabled: true,
-  },
-  // Step 4: 發行者識別（可選）
+  // Step 3: 發行者識別（可選）- CHANGE-005: 移至 Step 3
+  // 使用 GPT Vision classifyDocument 進行輕量級分類
   {
     step: ProcessingStep.ISSUER_IDENTIFICATION,
     priority: StepPriority.OPTIONAL,
@@ -71,7 +68,7 @@ export const DEFAULT_STEP_CONFIGS: StepConfig[] = [
     retryCount: 1,
     enabled: true,
   },
-  // Step 5: 格式匹配（可選）
+  // Step 4: 格式匹配（可選）- CHANGE-005: 移至 Step 4
   {
     step: ProcessingStep.FORMAT_MATCHING,
     priority: StepPriority.OPTIONAL,
@@ -79,12 +76,22 @@ export const DEFAULT_STEP_CONFIGS: StepConfig[] = [
     retryCount: 1,
     enabled: true,
   },
-  // Step 6: 配置獲取（可選）
+  // Step 5: 配置獲取（可選）- CHANGE-005: 移至 Step 5
+  // 獲取欄位映射和 Prompt 配置，含 QueryFields
   {
     step: ProcessingStep.CONFIG_FETCHING,
     priority: StepPriority.OPTIONAL,
     timeout: 5000,
     retryCount: 1,
+    enabled: true,
+  },
+  // Step 6: Azure DI 提取（必要）- CHANGE-005: 移至 Step 6
+  // 依據 Step 5 獲取的 QueryFields 配置進行動態欄位提取
+  {
+    step: ProcessingStep.AZURE_DI_EXTRACTION,
+    priority: StepPriority.REQUIRED,
+    timeout: 120000, // 2 分鐘
+    retryCount: 2,
     enabled: true,
   },
   // Step 7: GPT 增強提取（可選）
@@ -216,19 +223,33 @@ export const STEP_DESCRIPTIONS: Record<ProcessingStep, string> = {
 /**
  * 處理步驟順序
  * @description 按照處理流程的正確順序排列
+ *
+ * CHANGE-005 調整：將 ISSUER_IDENTIFICATION 移至 AZURE_DI_EXTRACTION 之前
+ * 新順序：
+ *   1. FILE_TYPE_DETECTION - 文件類型檢測
+ *   2. SMART_ROUTING - 智能路由決策
+ *   3. ISSUER_IDENTIFICATION - 發行者識別（使用 GPT Vision classifyDocument）
+ *   4. FORMAT_MATCHING - 格式匹配
+ *   5. CONFIG_FETCHING - 配置獲取（含 QueryFields）
+ *   6. AZURE_DI_EXTRACTION - Azure DI 提取（依據配置動態提取）
+ *   7. GPT_ENHANCED_EXTRACTION - GPT 增強提取
+ *   8. FIELD_MAPPING - 欄位映射
+ *   9. TERM_RECORDING - 術語記錄
+ *   10. CONFIDENCE_CALCULATION - 信心度計算
+ *   11. ROUTING_DECISION - 路由決策
  */
 export const PROCESSING_STEP_ORDER: ProcessingStep[] = [
-  ProcessingStep.FILE_TYPE_DETECTION,
-  ProcessingStep.SMART_ROUTING,
-  ProcessingStep.AZURE_DI_EXTRACTION,
-  ProcessingStep.ISSUER_IDENTIFICATION,
-  ProcessingStep.FORMAT_MATCHING,
-  ProcessingStep.CONFIG_FETCHING,
-  ProcessingStep.GPT_ENHANCED_EXTRACTION,
-  ProcessingStep.FIELD_MAPPING,
-  ProcessingStep.TERM_RECORDING,
-  ProcessingStep.CONFIDENCE_CALCULATION,
-  ProcessingStep.ROUTING_DECISION,
+  ProcessingStep.FILE_TYPE_DETECTION,      // Step 1
+  ProcessingStep.SMART_ROUTING,            // Step 2
+  ProcessingStep.ISSUER_IDENTIFICATION,    // Step 3 (moved from Step 4)
+  ProcessingStep.FORMAT_MATCHING,          // Step 4 (moved from Step 5)
+  ProcessingStep.CONFIG_FETCHING,          // Step 5 (moved from Step 6)
+  ProcessingStep.AZURE_DI_EXTRACTION,      // Step 6 (moved from Step 3)
+  ProcessingStep.GPT_ENHANCED_EXTRACTION,  // Step 7
+  ProcessingStep.FIELD_MAPPING,            // Step 8
+  ProcessingStep.TERM_RECORDING,           // Step 9
+  ProcessingStep.CONFIDENCE_CALCULATION,   // Step 10
+  ProcessingStep.ROUTING_DECISION,         // Step 11
 ];
 
 // ============================================================================

@@ -7,9 +7,16 @@
  *   - 提供統一的錯誤處理
  *   - 支援向後兼容
  *
+ *   CHANGE-005 修改（2026-01-05）：
+ *   修正 convertToLegacyRequest() 欄位映射，將 issuerIdentification 正確映射到
+ *   extractDocumentIssuer 期望的 documentIssuer 欄位。
+ *
  * @module src/services/unified-processor/adapters
  * @since Epic 15 - Story 15.2
- * @lastModified 2026-01-03
+ * @lastModified 2026-01-05
+ *
+ * @changes
+ *   - 2026-01-05 (CHANGE-005): 修正 issuerIdentification → documentIssuer 欄位映射
  *
  * @related
  *   - src/services/document-issuer.service.ts - 被適配的現有服務
@@ -101,24 +108,30 @@ export class IssuerIdentifierAdapter {
    * 轉換為 Legacy 請求格式
    * @description 將統一格式轉換為現有服務可接受的格式
    *
-   * 注意：extractDocumentIssuer 接受的內部類型 ExtractionResultWithIssuer
-   *       與我們的 ExtractionResultForIssuer 結構相容
+   * CHANGE-005 修復：
+   *   extractDocumentIssuer 接受的 ExtractionResultWithIssuer 期望 `documentIssuer` 欄位，
+   *   而非 `issuerIdentification`。此處進行正確的欄位名稱映射。
    */
   private convertToLegacyRequest(
     extractionResult: ExtractionResultForIssuer
   ): Parameters<typeof extractDocumentIssuer>[0] {
-    // 從統一格式構建 Legacy 格式
-    // 使用 Parameters 類型推斷確保與 extractDocumentIssuer 參數相容
+    // CHANGE-005: 將 issuerIdentification 映射到 documentIssuer
+    // extractDocumentIssuer 期望的欄位名稱是 documentIssuer，不是 issuerIdentification
+    // 注意：documentIssuer.name 是必填欄位，只有當 issuerIdentification.name 存在時才創建物件
+    const issuerInfo = extractionResult.issuerIdentification;
+    const documentIssuer =
+      issuerInfo?.name
+        ? {
+            name: issuerInfo.name,
+            identificationMethod: issuerInfo.method,
+            confidence: issuerInfo.confidence,
+            rawText: issuerInfo.rawText,
+          }
+        : undefined;
+
     return {
       invoiceData: extractionResult.invoiceData ?? {},
-      issuerIdentification: extractionResult.issuerIdentification
-        ? {
-            name: extractionResult.issuerIdentification.name,
-            method: extractionResult.issuerIdentification.method,
-            confidence: extractionResult.issuerIdentification.confidence,
-            rawText: extractionResult.issuerIdentification.rawText,
-          }
-        : undefined,
+      documentIssuer,
       metadata: extractionResult.metadata,
     };
   }

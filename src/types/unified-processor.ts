@@ -43,13 +43,13 @@ export enum ProcessingStep {
   FILE_TYPE_DETECTION = 'FILE_TYPE_DETECTION',
   /** 步驟 2: 智能路由（決定處理方法） */
   SMART_ROUTING = 'SMART_ROUTING',
-  /** 步驟 3: Azure DI 提取 */
+  /** 步驟 6: Azure DI 提取（依據配置的 QueryFields 動態提取） */
   AZURE_DI_EXTRACTION = 'AZURE_DI_EXTRACTION',
-  /** 步驟 4: 發行者識別（辨識文件發行公司） */
+  /** 步驟 3: 發行者識別（辨識文件發行公司，使用 GPT Vision classifyDocument） */
   ISSUER_IDENTIFICATION = 'ISSUER_IDENTIFICATION',
-  /** 步驟 5: 格式匹配（匹配文件格式模板） */
+  /** 步驟 4: 格式匹配（匹配文件格式模板） */
   FORMAT_MATCHING = 'FORMAT_MATCHING',
-  /** 步驟 6: 配置獲取（取得欄位映射和 Prompt 配置） */
+  /** 步驟 5: 配置獲取（取得欄位映射和 Prompt 配置，含 QueryFields） */
   CONFIG_FETCHING = 'CONFIG_FETCHING',
   /** 步驟 7: GPT 增強提取 */
   GPT_ENHANCED_EXTRACTION = 'GPT_ENHANCED_EXTRACTION',
@@ -341,27 +341,27 @@ export interface UnifiedProcessingContext {
   fileType?: UnifiedFileType;
   /** 步驟 2: 處理方法 */
   processingMethod?: UnifiedProcessingMethod;
-  /** 步驟 3: 提取的資料 */
+  /** 步驟 6: 提取的資料（Azure DI 提取） */
   extractedData: ExtractedDocumentData;
-  /** 步驟 4: 公司 ID */
+  /** 步驟 3: 公司 ID（發行者識別） */
   companyId?: string;
-  /** 步驟 4: 公司名稱 */
+  /** 步驟 3: 公司名稱（發行者識別） */
   companyName?: string;
-  /** 步驟 4: 是否為新建公司 */
+  /** 步驟 3: 是否為新建公司（發行者識別） */
   isNewCompany?: boolean;
-  /** 步驟 5: 文件格式 ID */
+  /** 步驟 4: 文件格式 ID（格式匹配） */
   documentFormatId?: string;
-  /** 步驟 5: 文件格式名稱 */
+  /** 步驟 4: 文件格式名稱（格式匹配） */
   documentFormatName?: string;
-  /** 步驟 5: 是否為新建格式 */
+  /** 步驟 4: 是否為新建格式（格式匹配） */
   isNewFormat?: boolean;
-  /** 步驟 6a: 欄位映射配置 */
+  /** 步驟 5a: 欄位映射配置（配置獲取） */
   fieldMappingConfig?: VisualMappingConfig;
-  /** 步驟 6a: 映射配置（別名） */
+  /** 步驟 5a: 映射配置（別名） */
   mappingConfig?: VisualMappingConfig;
-  /** 步驟 6b: Prompt 配置 */
+  /** 步驟 5b: Prompt 配置（配置獲取） */
   promptConfig?: ResolvedPromptResult;
-  /** 步驟 6b: 解析後的 Prompt（別名） */
+  /** 步驟 5b: 解析後的 Prompt（別名） */
   resolvedPrompt?: ResolvedPromptResult;
   /** 步驟 8: 映射後的欄位 */
   mappedFields?: MappedFieldValue[];
@@ -505,11 +505,11 @@ export interface ProcessingWarning {
 export interface UnifiedProcessorFlags {
   /** 啟用統一處理器（主開關，false 時使用舊版處理器） */
   enableUnifiedProcessor: boolean;
-  /** 啟用發行者識別（步驟 4） */
+  /** 啟用發行者識別（步驟 3） */
   enableIssuerIdentification: boolean;
-  /** 啟用格式匹配（步驟 5） */
+  /** 啟用格式匹配（步驟 4） */
   enableFormatMatching: boolean;
-  /** 啟用動態配置（步驟 6） */
+  /** 啟用動態配置（步驟 5） */
   enableDynamicConfig: boolean;
   /** 啟用術語記錄（步驟 9） */
   enableTermRecording: boolean;
