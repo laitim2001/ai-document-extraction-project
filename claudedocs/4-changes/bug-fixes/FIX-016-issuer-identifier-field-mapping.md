@@ -1,4 +1,4 @@
-# FIX-005: IssuerIdentifierAdapter 欄位映射錯誤
+# FIX-016: IssuerIdentifierAdapter 欄位映射錯誤
 
 > **日期**: 2026-01-05
 > **狀態**: ✅ 已修復

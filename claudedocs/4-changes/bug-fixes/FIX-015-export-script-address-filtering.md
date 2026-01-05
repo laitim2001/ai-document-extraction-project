@@ -1,9 +1,10 @@
-# FIX-005.2: Export Script Address Filtering
+# FIX-015: Export Script Address Filtering
 
+> **Bug ID**: FIX-015
 > **建立日期**: 2025-12-31
 > **完成日期**: 2025-12-31
 > **狀態**: ✅ 已完成
-> **關聯**: FIX-005, FIX-005.1
+> **關聯**: FIX-013, FIX-014
 
 ---
 

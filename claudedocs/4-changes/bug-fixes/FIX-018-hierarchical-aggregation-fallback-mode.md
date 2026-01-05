@@ -1,5 +1,6 @@
-# FIX-006: Hierarchical Term Aggregation Fallback Mode
+# FIX-018: Hierarchical Term Aggregation Fallback Mode
 
+> **Bug ID**: FIX-018
 > **狀態**: ✅ 已修復
 > **修復日期**: 2026-01-05
 > **影響範圍**: Term Export 功能
@@ -61,7 +62,7 @@ const files = await prisma.historicalFile.findMany({
 
 ## 修復方案
 
-### FIX-006: 實作 Fallback 模式
+### FIX-018: 實作 Fallback 模式
 
 當沒有文件具有 `documentFormatId` 時，fallback 到只使用 `documentIssuerId` 進行聚合。
 
@@ -70,7 +71,7 @@ const files = await prisma.historicalFile.findMany({
 **`src/services/hierarchical-term-aggregation.service.ts`**
 
 ```typescript
-// FIX-006: 先嘗試標準查詢
+// FIX-018: 先嘗試標準查詢
 let files = await prisma.historicalFile.findMany({
   where: {
     batchId,
@@ -81,7 +82,7 @@ let files = await prisma.historicalFile.findMany({
   include: { documentIssuer: true, documentFormat: true },
 });
 
-// FIX-006: 如果沒有文件有 documentFormatId，則 fallback
+// FIX-018: 如果沒有文件有 documentFormatId，則 fallback
 const useFallbackMode = files.length === 0;
 if (useFallbackMode) {
   console.log(`[HierarchicalAggregation] Using fallback mode (no documentFormatId)`);
@@ -95,7 +96,7 @@ if (useFallbackMode) {
   });
 }
 
-// FIX-006: 建立虛擬格式物件
+// FIX-018: 建立虛擬格式物件
 const DEFAULT_FORMAT_PREFIX = 'default-format-';
 const formatId = file.documentFormatId || `${DEFAULT_FORMAT_PREFIX}${issuerId}`;
 const formatData = file.documentFormat || {
@@ -132,12 +133,12 @@ Step 1: 標準查詢 (有兩個 ID): 0 個檔案
 Step 2: Fallback 查詢 (只有 IssuerId): 131 個檔案
         使用 Fallback 模式: ✅ 是
 
-📊 FIX-006 Fallback 聚合結果預覽:
+📊 FIX-018 Fallback 聚合結果預覽:
   公司數: 56
   唯一術語數: 319
   術語出現總次數: 521
 
-✅ FIX-006 驗證結果:
+✅ FIX-018 驗證結果:
   🎉 成功！Fallback 模式能夠提取術語
 ```
 
