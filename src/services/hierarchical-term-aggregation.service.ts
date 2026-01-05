@@ -11,7 +11,7 @@
  *
  * @module src/services/hierarchical-term-aggregation
  * @since Epic 0 - Story 0.9
- * @lastModified 2025-12-30
+ * @lastModified 2026-01-05
  *
  * @features
  *   - 三層術語聚合結構
@@ -19,6 +19,7 @@
  *   - 術語頻率排序
  *   - 可選的 AI 術語分類
  *   - FIX-005: 地址類術語過濾
+ *   - FIX-006: 支援僅有 documentIssuerId 的文件（fallback 到 Company → Terms 結構）
  *
  * @dependencies
  *   - prisma - 資料庫操作
@@ -139,8 +140,9 @@ export async function aggregateTermsHierarchically(
   // Story 0-10: AI 驗證統計追蹤
   let aiValidationStats: HierarchicalAIValidationStats | undefined;
 
-  // 1. 獲取所有已處理文件（包含發行者和格式資訊）
-  const files = await prisma.historicalFile.findMany({
+  // FIX-006: 嘗試獲取有 documentFormatId 的文件，如果沒有則 fallback 到只有 documentIssuerId 的文件
+  // 1. 先嘗試獲取完整三層結構的文件
+  let files = await prisma.historicalFile.findMany({
     where: {
       batchId,
       status: 'COMPLETED',
@@ -152,6 +154,25 @@ export async function aggregateTermsHierarchically(
       documentFormat: true,
     },
   });
+
+  // FIX-006: 如果沒有文件有 documentFormatId，則 fallback 到只需要 documentIssuerId
+  const useFallbackMode = files.length === 0;
+  if (useFallbackMode) {
+    console.log(
+      `[HierarchicalAggregation] No files with documentFormatId found, using fallback mode (Company → Terms)`
+    );
+    files = await prisma.historicalFile.findMany({
+      where: {
+        batchId,
+        status: 'COMPLETED',
+        documentIssuerId: { not: null },
+      },
+      include: {
+        documentIssuer: true,
+        documentFormat: true, // 會是 null，但需要保持類型一致
+      },
+    });
+  }
 
   // 2. 建立三層結構的 Map
   type CompanyMapValue = {
@@ -167,10 +188,14 @@ export async function aggregateTermsHierarchically(
 
   const companyMap = new Map<string, CompanyMapValue>();
 
+  // FIX-006: 用於 fallback 模式的預設格式 ID 前綴
+  const DEFAULT_FORMAT_PREFIX = 'default-format-';
+
   // 3. 遍歷文件，組織數據
   for (const file of files) {
     const issuerId = file.documentIssuerId!;
-    const formatId = file.documentFormatId!;
+    // FIX-006: 如果沒有 documentFormatId，使用預設格式 ID（基於公司 ID）
+    const formatId = file.documentFormatId || `${DEFAULT_FORMAT_PREFIX}${issuerId}`;
 
     // 確保公司節點存在
     if (!companyMap.has(issuerId)) {
@@ -184,8 +209,17 @@ export async function aggregateTermsHierarchically(
 
     // 確保格式節點存在
     if (!companyNode.formats.has(formatId)) {
+      // FIX-006: 如果是 fallback 模式，創建虛擬格式物件
+      const formatData = file.documentFormat || {
+        id: formatId,
+        documentType: 'INVOICE',
+        documentSubtype: 'GENERAL',
+        name: 'Default Format',
+        fileCount: 0,
+      };
+
       companyNode.formats.set(formatId, {
-        format: file.documentFormat!,
+        format: formatData as NonNullable<(typeof files)[0]['documentFormat']>,
         terms: new Map(),
       });
     }
@@ -356,6 +390,14 @@ export async function aggregateTermsHierarchically(
     totalUniqueTerms,
     totalTermOccurrences,
   };
+
+  // FIX-006: 記錄聚合模式
+  if (useFallbackMode) {
+    console.log(
+      `[HierarchicalAggregation] Fallback mode completed: ` +
+        `${companies.length} companies, ${totalUniqueTerms} unique terms, ${totalTermOccurrences} occurrences`
+    );
+  }
 
   return {
     companies,
