@@ -3,24 +3,27 @@
  * @description
  *   持續術語學習步驟：
  *   - 從提取數據中檢測術語（invoiceData.lineItems, otherCharges）
+ *   - CHANGE-006: 從 gptExtraction 提取額外術語（extraCharges, typeOfService）
  *   - 使用 Levenshtein 距離匹配現有術語（85% 相似度閾值）
  *   - 記錄新術語並更新現有術語頻率
  *   - 識別同義詞候選
  *
  * @module src/services/unified-processor/steps
  * @since Epic 15 - Story 15.4 (持續術語學習)
- * @lastModified 2026-01-03
+ * @lastModified 2026-01-06
  *
  * @features
  *   - 自動術語檢測與規範化
  *   - 模糊匹配（Levenshtein 距離）
  *   - 同義詞候選識別
  *   - 地址類術語過濾
+ *   - CHANGE-006: GPT 額外欄位術語提取（extraCharges → Terms）
  *
  * @related
  *   - src/services/unified-processor/adapters/term-recorder-adapter.ts - 術語記錄適配器
  *   - src/types/term-learning.ts - 類型定義
  *   - src/services/hierarchical-term-aggregation.service.ts - 術語聚合服務
+ *   - claudedocs/4-changes/feature-changes/CHANGE-006-gpt-vision-dynamic-config-extraction.md
  */
 
 import {

@@ -6,10 +6,11 @@
  *   - 整合 hierarchical-term-aggregation.service（三層聚合）
  *   - 整合 ai-term-validator.service（AI 術語驗證）
  *   - 提供統一的術語檢測與記錄介面
+ *   - CHANGE-006: 支援從 gptExtraction.extraCharges 提取術語
  *
  * @module src/services/unified-processor/adapters
  * @since Epic 15 - Story 15.4 (持續術語學習)
- * @lastModified 2026-01-03
+ * @lastModified 2026-01-06
  *
  * @related
  *   - src/services/term-aggregation.service.ts - 術語正規化、相似度計算
@@ -17,6 +18,7 @@
  *   - src/services/ai-term-validator.service.ts - AI 術語驗證
  *   - src/types/term-learning.ts - 類型定義
  *   - src/services/unified-processor/steps/term-recording.step.ts - 使用此適配器
+ *   - claudedocs/4-changes/feature-changes/CHANGE-006-gpt-vision-dynamic-config-extraction.md
  */
 
 import { prisma } from '@/lib/prisma';
@@ -87,6 +89,23 @@ interface LineItemData {
   chargeType?: string | null;
   amount?: number | null;
   currency?: string | null;
+}
+
+/**
+ * CHANGE-006: GPT 額外提取的欄位結構
+ * @description 定義 gptExtraction 中可能包含的欄位
+ */
+interface GptExtractionFields {
+  /** 額外費用（如 DHL 的 Analysis of Extra Charges） */
+  extraCharges?: Array<{
+    description?: string;
+    amount?: number;
+    currency?: string;
+  }>;
+  /** 服務類型 */
+  typeOfService?: string;
+  /** 其他動態欄位 */
+  [key: string]: unknown;
 }
 
 // ============================================================================
@@ -209,6 +228,11 @@ export class TermRecorderAdapter {
    *   從 UnifiedProcessingContext.extractedData 中提取術語，
    *   用於 TermRecordingStep 的輸入準備。
    *
+   *   CHANGE-006: 新增從 gptExtraction 提取術語
+   *   - extraCharges 的 description 會被記錄為術語
+   *   - typeOfService 會被記錄為術語
+   *   - 來源標記為 'gptExtraction'
+   *
    * @param extractedData - AI 提取的數據
    * @param options - 檢測選項
    * @returns 檢測到的術語列表
@@ -251,12 +275,72 @@ export class TermRecorderAdapter {
       }
     }
 
+    // CHANGE-006: 從 gptExtraction 提取術語
+    const gptExtraction = extractedData?.gptExtraction as GptExtractionFields | undefined;
+    if (gptExtraction) {
+      this.processGptExtraction(gptExtraction, termCountMap, {
+        minTermLength,
+        maxTermLength,
+        filterInvalidTerms,
+      });
+    }
+
     // 轉換為數組
     for (const term of termCountMap.values()) {
       detectedTerms.push(term);
     }
 
     return detectedTerms;
+  }
+
+  /**
+   * 從 GPT 額外提取的數據中處理術語
+   * @description CHANGE-006: 處理 gptExtraction 中的 extraCharges 和 typeOfService
+   */
+  private processGptExtraction(
+    gptExtraction: GptExtractionFields,
+    termCountMap: Map<string, DetectedTerm>,
+    options: { minTermLength: number; maxTermLength: number; filterInvalidTerms: boolean }
+  ): void {
+    // 處理 extraCharges
+    if (Array.isArray(gptExtraction.extraCharges)) {
+      for (let i = 0; i < gptExtraction.extraCharges.length; i++) {
+        const charge = gptExtraction.extraCharges[i];
+        if (charge && typeof charge.description === 'string') {
+          this.processTermString(
+            charge.description,
+            'gptExtraction.extraCharges',
+            i,
+            termCountMap,
+            options
+          );
+        }
+      }
+    }
+
+    // 處理 typeOfService
+    if (typeof gptExtraction.typeOfService === 'string') {
+      this.processTermString(
+        gptExtraction.typeOfService,
+        'gptExtraction.typeOfService',
+        undefined,
+        termCountMap,
+        options
+      );
+    }
+
+    // 處理其他以 extra_ 開頭的動態欄位
+    for (const [key, value] of Object.entries(gptExtraction)) {
+      if (key.startsWith('extra_') && typeof value === 'string') {
+        this.processTermString(
+          value,
+          `gptExtraction.${key}`,
+          undefined,
+          termCountMap,
+          options
+        );
+      }
+    }
   }
 
   /**
@@ -646,6 +730,9 @@ export class TermRecorderAdapter {
 
   /**
    * 檢查是否可以執行術語記錄
+   * @description
+   *   CHANGE-006: 新增檢查 gptExtraction.extraCharges
+   *
    * @param extractedData - 提取數據
    * @returns 是否有足夠資訊進行術語記錄
    */
@@ -655,6 +742,17 @@ export class TermRecorderAdapter {
     // 檢查是否有 lineItems
     const lineItems = extractedData?.invoiceData?.lineItems;
     if (lineItems && Array.isArray(lineItems) && lineItems.length > 0) {
+      return true;
+    }
+
+    // CHANGE-006: 檢查是否有 gptExtraction.extraCharges
+    const gptExtraction = extractedData?.gptExtraction as GptExtractionFields | undefined;
+    if (gptExtraction?.extraCharges && Array.isArray(gptExtraction.extraCharges) && gptExtraction.extraCharges.length > 0) {
+      return true;
+    }
+
+    // CHANGE-006: 檢查是否有 typeOfService
+    if (gptExtraction?.typeOfService && typeof gptExtraction.typeOfService === 'string') {
       return true;
     }
 
