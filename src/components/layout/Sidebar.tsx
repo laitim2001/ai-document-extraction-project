@@ -48,6 +48,9 @@ import {
   FileSearch,
   Database,
   Layers,
+  ArrowRightLeft,
+  MessageSquareCode,
+  Tags,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -123,6 +126,9 @@ const navigation: NavSection[] = [
       { name: '用戶管理', href: '/admin/users', icon: Users },
       { name: '歷史數據初始化', href: '/admin/historical-data', icon: Database },
       { name: '文件預覽測試', href: '/admin/document-preview-test', icon: Layers },
+      { name: '欄位映射配置', href: '/admin/field-mapping-configs', icon: ArrowRightLeft },
+      { name: 'Prompt 配置', href: '/admin/prompt-configs', icon: MessageSquareCode },
+      { name: '術語分析', href: '/admin/term-analysis', icon: Tags },
     ],
   },
 ]
