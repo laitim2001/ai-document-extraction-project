@@ -545,7 +545,8 @@ export function useDocumentFormatsForFieldMapping(companyId?: string) {
       }
 
       const data = await res.json();
-      return data.data || [];
+      // API 返回 { data: { formats: [...], pagination: {...} } }
+      return data.data?.formats || [];
     },
     enabled: true,
   });
