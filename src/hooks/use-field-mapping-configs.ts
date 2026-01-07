@@ -514,7 +514,7 @@ export function useCompaniesForFieldMapping() {
   return useQuery({
     queryKey: ['companies', 'field-mapping-select'],
     queryFn: async (): Promise<Array<{ id: string; name: string }>> => {
-      const res = await fetch('/api/v1/companies?limit=100&sortBy=name');
+      const res = await fetch('/api/companies?limit=100&sortBy=name');
 
       if (!res.ok) {
         throw new Error('載入公司列表失敗');
