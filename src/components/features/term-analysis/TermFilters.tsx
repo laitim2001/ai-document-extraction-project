@@ -63,7 +63,8 @@ export function TermFilters({
     (key: keyof TermAnalysisFilters, value: string | number | undefined) => {
       onFiltersChange({
         ...filters,
-        [key]: value === '' ? undefined : value,
+        // "__all__" 代表清除該篩選條件
+        [key]: value === '' || value === '__all__' ? undefined : value,
       });
     },
     [filters, onFiltersChange]
@@ -104,14 +105,14 @@ export function TermFilters({
         <div className="space-y-2">
           <Label htmlFor="batch-filter">Batch</Label>
           <Select
-            value={filters.batchId || ''}
+            value={filters.batchId || '__all__'}
             onValueChange={(value) => handleFilterChange('batchId', value)}
           >
             <SelectTrigger id="batch-filter">
               <SelectValue placeholder="All batches" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All batches</SelectItem>
+              <SelectItem value="__all__">All batches</SelectItem>
               {batches.map((batch) => (
                 <SelectItem key={batch.id} value={batch.id}>
                   {batch.name}
@@ -125,14 +126,14 @@ export function TermFilters({
         <div className="space-y-2">
           <Label htmlFor="company-filter">Company</Label>
           <Select
-            value={filters.companyId || ''}
+            value={filters.companyId || '__all__'}
             onValueChange={(value) => handleFilterChange('companyId', value)}
           >
             <SelectTrigger id="company-filter">
               <SelectValue placeholder="All companies" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All companies</SelectItem>
+              <SelectItem value="__all__">All companies</SelectItem>
               {companies.map((company) => (
                 <SelectItem key={company.id} value={company.id}>
                   {company.name}
@@ -164,16 +165,16 @@ export function TermFilters({
         <div className="space-y-2">
           <Label htmlFor="limit">Result Limit</Label>
           <Select
-            value={filters.limit?.toString() || ''}
+            value={filters.limit?.toString() || '__all__'}
             onValueChange={(value) =>
-              handleFilterChange('limit', value ? parseInt(value) : undefined)
+              handleFilterChange('limit', value && value !== '__all__' ? parseInt(value) : undefined)
             }
           >
             <SelectTrigger id="limit">
               <SelectValue placeholder="500 (default)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">500 (default)</SelectItem>
+              <SelectItem value="__all__">500 (default)</SelectItem>
               <SelectItem value="100">100</SelectItem>
               <SelectItem value="250">250</SelectItem>
               <SelectItem value="500">500</SelectItem>
