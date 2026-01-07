@@ -259,7 +259,7 @@ export function useDocumentFormatsForPromptConfig(companyId?: string) {
         params.set('companyId', companyId);
       }
 
-      const res = await fetch(`/api/v1/document-formats?${params}`);
+      const res = await fetch(`/api/v1/formats?${params}`);
 
       if (!res.ok) {
         throw new Error('載入文件格式列表失敗');
