@@ -19,7 +19,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { getAuthSession } from '@/lib/auth'
 import { HistoricalBatchStatus, HistoricalFileStatus } from '@prisma/client'
 import {
   FileDetectionService,
@@ -82,8 +82,8 @@ function isValidFileType(fileName: string, mimeType: string): boolean {
  */
 export async function POST(request: NextRequest) {
   try {
-    // 驗證用戶身份
-    const session = await auth()
+    // 驗證用戶身份（支援開發模式 X-Dev-Bypass-Auth header）
+    const session = await getAuthSession(request)
     if (!session?.user?.id) {
       return NextResponse.json(
         {

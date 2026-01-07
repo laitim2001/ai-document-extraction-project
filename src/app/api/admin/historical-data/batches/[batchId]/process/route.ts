@@ -11,7 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { getAuthSession } from '@/lib/auth'
 import { HistoricalBatchStatus, HistoricalFileStatus } from '@prisma/client'
 import { processBatch } from '@/services/batch-processor.service'
 
@@ -39,7 +39,8 @@ interface RouteContext {
  */
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    const session = await auth()
+    // 支援開發模式 X-Dev-Bypass-Auth header
+    const session = await getAuthSession(request)
     if (!session?.user?.id) {
       return NextResponse.json(
         {

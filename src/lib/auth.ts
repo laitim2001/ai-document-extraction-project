@@ -47,6 +47,7 @@
 
 import NextAuth from 'next-auth'
 import { PrismaAdapter } from '@auth/prisma-adapter'
+import type { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import type { SessionRole } from '@/types/role'
 import { DEFAULT_ROLE } from '@/types/role-permissions'
@@ -301,3 +302,63 @@ export const {
     },
   },
 })
+
+/**
+ * 開發模式的模擬 Session
+ * 用於腳本測試時繞過認證
+ */
+const DEV_MOCK_SESSION = {
+  user: {
+    id: 'dev-user-1',
+    name: 'Development User',
+    email: 'dev@example.com',
+    status: 'ACTIVE' as const,
+    roles: [{
+      id: 'dev-role-1',
+      name: 'Administrator',
+      permissions: ['*'],
+    }],
+    cityCodes: ['*'],
+    primaryCityCode: 'HKG',
+    isGlobalAdmin: true,
+    isRegionalManager: false,
+  },
+  expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+}
+
+/**
+ * 獲取 Session（支援開發模式繞過）
+ *
+ * @description
+ *   用於 API Routes 中獲取認證 Session。
+ *   在開發模式下，如果請求包含 `X-Dev-Bypass-Auth: true` header，
+ *   將返回模擬的管理員 Session，方便腳本測試。
+ *
+ * @param request - Next.js Request 物件（可選）
+ * @returns Session 物件或 null
+ *
+ * @example
+ * ```typescript
+ * // 在 API Route 中使用
+ * export async function GET(request: NextRequest) {
+ *   const session = await getAuthSession(request)
+ *   if (!session?.user?.id) {
+ *     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+ *   }
+ *   // ...
+ * }
+ * ```
+ */
+export async function getAuthSession(request?: NextRequest) {
+  // 檢查開發模式繞過
+  if (isDevelopmentMode && request) {
+    const bypassHeader = request.headers.get('X-Dev-Bypass-Auth')
+    if (bypassHeader === 'true') {
+      console.log('[Auth] Development mode bypass enabled via X-Dev-Bypass-Auth header')
+      return DEV_MOCK_SESSION
+    }
+  }
+
+  // 正常認證流程
+  return auth()
+}

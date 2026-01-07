@@ -11,10 +11,11 @@
  *   - 文件發行者識別整合（Story 0.8）
  *   - 格式識別與三層術語聚合整合（Story 0.9）
  *   - Native PDF 雙重處理架構（CHANGE-001）
+ *   - 整合 UnifiedDocumentProcessor 11 步管道（CHANGE-006）
  *
  * @module src/services/batch-processor
  * @since Epic 0 - Story 0.2
- * @lastModified 2025-12-27
+ * @lastModified 2026-01-06
  *
  * @features
  *   - 分塊順序處理（避免 async hooks 溢出）
@@ -29,6 +30,7 @@
  *   - Story 0.8: 文件發行者識別（從 Logo/Header/Letterhead/Footer 識別發行公司）
  *   - Story 0.9: 格式識別與三層術語聚合（Company → Format → Terms）
  *   - CHANGE-001: Native PDF 雙重處理（GPT Vision 分類 + Azure DI 數據提取）
+ *   - CHANGE-006: 整合 UnifiedDocumentProcessor 11 步管道（包含 GPT Enhanced Extraction）
  *
  * @dependencies
  *   - Prisma Client - 數據庫操作
@@ -39,6 +41,7 @@
  *   - batch-term-aggregation.service - 術語聚合服務（Story 0.7）
  *   - document-issuer.service - 文件發行者識別服務（Story 0.8）
  *   - document-format.service - 格式識別服務（Story 0.9）
+ *   - unified-processor - UnifiedDocumentProcessor 11 步管道（CHANGE-006）
  *
  * @related
  *   - src/services/processing-router.service.ts - 處理路由服務
@@ -50,6 +53,7 @@
  *   - src/services/document-format.service.ts - 格式識別服務
  */
 
+import * as fs from 'fs/promises'
 import { prisma } from '@/lib/prisma'
 import {
   HistoricalFile,
@@ -75,6 +79,15 @@ import {
   processDocumentFormat,
   linkFileToFormat,
 } from './document-format.service'
+// CHANGE-006: 導入 UnifiedDocumentProcessor 以使用 11 步處理管道
+import {
+  getUnifiedDocumentProcessor,
+  type ProcessOptions,
+} from './unified-processor'
+import type {
+  ProcessFileInput,
+  UnifiedProcessingResult,
+} from '@/types/unified-processor'
 import type {
   FileCompanyIdentification,
   BatchCompanyConfig,
@@ -190,6 +203,24 @@ const DEFAULT_CHUNK_SIZE = 5
 /** 預設分塊延遲（毫秒） */
 const DEFAULT_CHUNK_DELAY_MS = 2000
 
+// CHANGE-006: 是否使用 UnifiedProcessor（Feature Flag）
+// 設置為 true 以啟用 11 步處理管道，包含 GPT Enhanced Extraction
+const USE_UNIFIED_PROCESSOR = true
+
+/**
+ * CHANGE-006: 根據文件類型獲取 MIME 類型
+ */
+function getMimeType(detectedType: string): string {
+  const mimeTypeMap: Record<string, string> = {
+    NATIVE_PDF: 'application/pdf',
+    SCANNED_PDF: 'application/pdf',
+    IMAGE_JPG: 'image/jpeg',
+    IMAGE_PNG: 'image/png',
+    IMAGE_TIFF: 'image/tiff',
+  }
+  return mimeTypeMap[detectedType] || 'application/octet-stream'
+}
+
 // ============================================================
 // Helper Functions
 // ============================================================
@@ -199,6 +230,104 @@ const DEFAULT_CHUNK_DELAY_MS = 2000
  */
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * CHANGE-006: 使用 UnifiedDocumentProcessor 處理文件
+ * @description 調用 11 步處理管道，包含 GPT Enhanced Extraction
+ */
+async function executeWithUnifiedProcessor(
+  file: HistoricalFile
+): Promise<{
+  result: UnifiedProcessingResult
+  extractionResult: Record<string, unknown>
+  actualPages: number
+}> {
+  // 讀取文件 Buffer
+  const filePath = file.storagePath || file.originalName
+  let fileBuffer: Buffer
+
+  try {
+    fileBuffer = await fs.readFile(filePath)
+  } catch (readError) {
+    throw new Error(`Failed to read file: ${filePath} - ${readError instanceof Error ? readError.message : 'Unknown error'}`)
+  }
+
+  // 準備 ProcessFileInput
+  const input: ProcessFileInput = {
+    fileId: file.id,
+    batchId: file.batchId,
+    fileName: file.originalName,
+    fileBuffer,
+    mimeType: getMimeType(file.detectedType || 'NATIVE_PDF'),
+    userId: SYSTEM_USER_ID,
+  }
+
+  // 獲取 UnifiedDocumentProcessor 單例並處理
+  const processor = getUnifiedDocumentProcessor({
+    enableUnifiedProcessor: true,
+    enableIssuerIdentification: true,
+    enableFormatMatching: true,
+    enableDynamicConfig: true,
+    enableTermRecording: true,
+    enableEnhancedConfidence: true,
+    autoCreateCompany: true,
+    autoCreateFormat: true,
+  })
+
+  console.log(`[UnifiedProcessor] Processing file: ${file.originalName}`)
+  const result = await processor.processFile(input)
+
+  if (!result.success) {
+    throw new Error(result.error || 'UnifiedProcessor processing failed')
+  }
+
+  // 轉換為與舊版兼容的 extractionResult 格式
+  const extractedData = result.extractedData || {}
+  const extractionResult: Record<string, unknown> = {
+    method: result.processingMethod || 'DUAL_PROCESSING',
+    fileName: file.originalName,
+    processedAt: new Date().toISOString(),
+    pages: extractedData.pageCount || 1,
+    invoiceData: extractedData.invoiceData || {},
+    rawText: extractedData.rawText || '',
+    confidence: result.overallConfidence ? result.overallConfidence * 100 : 75,
+    // CHANGE-006: 保存 gptExtraction 結果（這是關鍵！）
+    gptExtraction: extractedData.gptExtraction,
+    // 發行者識別結果
+    documentIssuer: extractedData.documentIssuer,
+    // 分類是否成功
+    classificationSuccess: !!result.companyId,
+    // 文件格式
+    documentFormat: result.documentFormatName ? {
+      documentType: 'INVOICE',
+      documentSubtype: 'GENERAL',
+    } : undefined,
+    // 新增：步驟執行信息（用於調試）
+    _unifiedProcessorInfo: {
+      usedLegacyProcessor: result.usedLegacyProcessor,
+      stepResults: result.stepResults?.map(s => ({
+        step: s.step,
+        success: s.success,
+        skipped: s.skipped,
+        durationMs: s.durationMs,
+        // CHANGE-006 Fix: 保留 data 和 error 欄位以便調試
+        data: s.data,
+        error: s.error,
+      })),
+      warnings: result.warnings,
+    },
+  }
+
+  // 計算頁數
+  const actualPages = extractedData.pageCount || 1
+
+  console.log(
+    `[UnifiedProcessor] Processing complete for ${file.originalName}: ` +
+    `confidence=${result.overallConfidence}, gptExtraction=${!!extractedData.gptExtraction}`
+  )
+
+  return { result, extractionResult, actualPages }
 }
 
 /**
@@ -494,127 +623,208 @@ export async function processFile(
   // 重試邏輯
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      // 執行 AI 處理（Azure DI 或 GPT Vision）
-      const { extractionResult, actualPages } = await executeAIProcessing(file, method)
+      // CHANGE-006: 根據 Feature Flag 選擇處理器
+      // 使用 UnifiedProcessor 時會執行 11 步管道，包含 GPT Enhanced Extraction
+      let extractionResult: Record<string, unknown>
+      let actualPages: number
+      let unifiedResult: UnifiedProcessingResult | undefined
+
+      if (USE_UNIFIED_PROCESSOR) {
+        console.log(`[BatchProcessor] Using UnifiedProcessor for file: ${file.originalName}`)
+        const unifiedOutput = await executeWithUnifiedProcessor(file)
+        extractionResult = unifiedOutput.extractionResult
+        actualPages = unifiedOutput.actualPages
+        unifiedResult = unifiedOutput.result
+      } else {
+        // 舊版處理邏輯
+        const legacyOutput = await executeAIProcessing(file, method)
+        extractionResult = legacyOutput.extractionResult
+        actualPages = legacyOutput.actualPages
+      }
 
       // 計算實際成本
       const actualCost = calculateActualCost(method, actualPages)
       const endTime = Date.now()
 
-      // Story 0.6: 公司識別（在 OCR 完成後執行）
+      // CHANGE-006: 公司識別和發行者識別邏輯
+      // 當使用 UnifiedProcessor 時，這些步驟已在 11 步管道中完成
       let companyIdentification: FileCompanyIdentification | undefined
-      if (companyConfig?.enabled && extractionResult) {
-        try {
-          companyIdentification = await identifyCompanyForFile(
-            file.id,
-            extractionResult,
-            companyConfig.fuzzyThreshold
-          )
-        } catch (companyError) {
-          // 公司識別失敗不影響主流程，只記錄警告
-          console.warn(
-            `Company identification failed for file ${file.id}:`,
-            companyError instanceof Error ? companyError.message : companyError
-          )
-        }
-      }
-
-      // Story 0.8: 文件發行者識別（識別發行文件的公司，而非交易對象）
       let documentIssuer: DocumentIssuerResult | null = null
       let transactionParties: TransactionParty[] = []
-      if (issuerConfig?.enabled && extractionResult) {
-        try {
-          const issuerResult = await processFileIssuerIdentification(
-            file.id,
-            extractionResult,
-            {
-              createIfNotFound: issuerConfig.createCompanyIfNotFound,
-              source: 'BATCH_PROCESSING',
-              fuzzyThreshold: issuerConfig.fuzzyMatchThreshold,
-              confidenceThreshold: issuerConfig.confidenceThreshold,
-              createdById: SYSTEM_USER_ID,
-            }
-          )
+      let formatIdentification: FormatIdentificationResult | null = null
 
-          if (issuerResult.success) {
-            documentIssuer = issuerResult.issuer
-            transactionParties = issuerResult.parties
+      if (USE_UNIFIED_PROCESSOR && unifiedResult) {
+        // 從 UnifiedProcessor 結果中獲取已處理的識別結果
+        if (unifiedResult.companyId) {
+          companyIdentification = {
+            fileId: file.id,
+            companyId: unifiedResult.companyId,
+            companyName: unifiedResult.companyName || '',
+            matchType: unifiedResult.isNewCompany ? 'NEW' : 'EXACT',
+            matchScore: 1.0,
+            isNew: unifiedResult.isNewCompany || false,
           }
-        } catch (issuerError) {
-          // 發行者識別失敗不影響主流程，只記錄警告
-          console.warn(
-            `Document issuer identification failed for file ${file.id}:`,
-            issuerError instanceof Error ? issuerError.message : issuerError
+
+          // 設置 documentIssuer（從 UnifiedProcessor 的發行者識別結果）
+          documentIssuer = {
+            name: unifiedResult.companyName || '',
+            identificationMethod: 'LOGO',
+            confidence: unifiedResult.overallConfidence ? unifiedResult.overallConfidence * 100 : 75,
+            companyId: unifiedResult.companyId,
+          }
+        }
+
+        // 從 UnifiedProcessor 結果中獲取格式識別結果
+        if (unifiedResult.documentFormatId) {
+          formatIdentification = {
+            fileId: file.id,
+            formatId: unifiedResult.documentFormatId,
+            documentType: 'INVOICE' as DocumentType,
+            documentSubtype: 'GENERAL' as DocumentSubtype,
+            confidence: unifiedResult.overallConfidence ? unifiedResult.overallConfidence * 100 : 75,
+            isNewFormat: unifiedResult.isNewFormat || false,
+          }
+          console.log(
+            `[BatchProcessor/Unified] Format from UnifiedProcessor: ${unifiedResult.documentFormatName} (${unifiedResult.isNewFormat ? 'NEW' : 'EXISTING'})`
           )
         }
-      }
 
-      // Story 0.9: 文件格式識別（需要發行者識別完成後執行，因為需要 companyId）
-      let formatIdentification: FormatIdentificationResult | null = null
-      if (formatConfig?.enabled && extractionResult && documentIssuer?.companyId) {
-        try {
-          // 從 extractionResult.documentFormat 中提取格式識別資訊
-          // FIX-006: GPT Vision 返回的格式資訊在 documentFormat 嵌套物件中
-          const extractionWithFormat = extractionResult as {
-            documentFormat?: {
-              documentType?: string
-              documentSubtype?: string
-              formatConfidence?: number
-              formatFeatures?: Record<string, unknown>
-            }
+        console.log(
+          `[BatchProcessor/Unified] Using UnifiedProcessor results: ` +
+          `companyId=${unifiedResult.companyId}, formatId=${unifiedResult.documentFormatId}`
+        )
+      } else {
+        // 舊版處理邏輯：分別調用各識別服務
+
+        // Story 0.6: 公司識別（在 OCR 完成後執行）
+        if (companyConfig?.enabled && extractionResult) {
+          try {
+            companyIdentification = await identifyCompanyForFile(
+              file.id,
+              extractionResult,
+              companyConfig.fuzzyThreshold
+            )
+          } catch (companyError) {
+            // 公司識別失敗不影響主流程，只記錄警告
+            console.warn(
+              `Company identification failed for file ${file.id}:`,
+              companyError instanceof Error ? companyError.message : companyError
+            )
           }
-          const formatExtractionData = extractionWithFormat.documentFormat
+        }
 
-          if (formatExtractionData?.documentType) {
-            const formatResult = await processDocumentFormat(
-              documentIssuer.companyId,
+        // Story 0.8: 文件發行者識別（識別發行文件的公司，而非交易對象）
+        if (issuerConfig?.enabled && extractionResult) {
+          try {
+            const issuerResult = await processFileIssuerIdentification(
+              file.id,
+              extractionResult,
               {
-                documentType: formatExtractionData.documentType as DocumentType,
-                documentSubtype: (formatExtractionData.documentSubtype || 'GENERAL') as DocumentSubtype,
-                formatConfidence: formatExtractionData.formatConfidence || 75,
-                formatFeatures: {
-                  hasLineItems: !!formatExtractionData.formatFeatures?.hasLineItems,
-                  hasHeaderLogo: !!formatExtractionData.formatFeatures?.hasHeaderLogo,
-                  currency: formatExtractionData.formatFeatures?.currency as string | undefined,
-                  language: formatExtractionData.formatFeatures?.language as string | undefined,
-                  typicalFields: formatExtractionData.formatFeatures?.typicalFields as string[] | undefined,
-                  layoutPattern: formatExtractionData.formatFeatures?.layoutPattern as string | undefined,
-                },
-              },
-              {
-                enabled: formatConfig.enabled,
-                confidenceThreshold: formatConfig.confidenceThreshold,
-                autoCreateFormat: formatConfig.autoCreateFormat,
-                learnFeatures: formatConfig.learnFeatures ?? true,
+                createIfNotFound: issuerConfig.createCompanyIfNotFound,
+                source: 'BATCH_PROCESSING',
+                fuzzyThreshold: issuerConfig.fuzzyMatchThreshold,
+                confidenceThreshold: issuerConfig.confidenceThreshold,
+                createdById: SYSTEM_USER_ID,
               }
             )
 
-            if (formatResult) {
-              // 關聯文件與格式
-              await linkFileToFormat(file.id, formatResult.formatId, formatResult.confidence)
-
-              formatIdentification = {
-                fileId: file.id,
-                formatId: formatResult.formatId,
-                documentType: formatResult.documentType,
-                documentSubtype: formatResult.documentSubtype,
-                confidence: formatResult.confidence,
-                isNewFormat: formatResult.isNewFormat,
-              }
-
-              console.log(
-                `[BatchProcessor] Format identified for file ${file.id}: ${formatResult.formatName} (${formatResult.isNewFormat ? 'NEW' : 'EXISTING'})`
-              )
+            if (issuerResult.success) {
+              documentIssuer = issuerResult.issuer
+              transactionParties = issuerResult.parties
             }
+          } catch (issuerError) {
+            // 發行者識別失敗不影響主流程，只記錄警告
+            console.warn(
+              `Document issuer identification failed for file ${file.id}:`,
+              issuerError instanceof Error ? issuerError.message : issuerError
+            )
           }
-        } catch (formatError) {
-          // 格式識別失敗不影響主流程，只記錄警告
-          console.warn(
-            `Document format identification failed for file ${file.id}:`,
-            formatError instanceof Error ? formatError.message : formatError
-          )
+        }
+
+        // Story 0.9: 文件格式識別（需要發行者識別完成後執行，因為需要 companyId）
+        if (formatConfig?.enabled && extractionResult && documentIssuer?.companyId) {
+          try {
+            // 從 extractionResult.documentFormat 中提取格式識別資訊
+            // FIX-006: GPT Vision 返回的格式資訊在 documentFormat 嵌套物件中
+            const extractionWithFormat = extractionResult as {
+              documentFormat?: {
+                documentType?: string
+                documentSubtype?: string
+                formatConfidence?: number
+                formatFeatures?: Record<string, unknown>
+              }
+            }
+            const formatExtractionData = extractionWithFormat.documentFormat
+
+            if (formatExtractionData?.documentType) {
+              const formatResult = await processDocumentFormat(
+                documentIssuer.companyId,
+                {
+                  documentType: formatExtractionData.documentType as DocumentType,
+                  documentSubtype: (formatExtractionData.documentSubtype || 'GENERAL') as DocumentSubtype,
+                  formatConfidence: formatExtractionData.formatConfidence || 75,
+                  formatFeatures: {
+                    hasLineItems: !!formatExtractionData.formatFeatures?.hasLineItems,
+                    hasHeaderLogo: !!formatExtractionData.formatFeatures?.hasHeaderLogo,
+                    currency: formatExtractionData.formatFeatures?.currency as string | undefined,
+                    language: formatExtractionData.formatFeatures?.language as string | undefined,
+                    typicalFields: formatExtractionData.formatFeatures?.typicalFields as string[] | undefined,
+                    layoutPattern: formatExtractionData.formatFeatures?.layoutPattern as string | undefined,
+                  },
+                },
+                {
+                  enabled: formatConfig.enabled,
+                  confidenceThreshold: formatConfig.confidenceThreshold,
+                  autoCreateFormat: formatConfig.autoCreateFormat,
+                  learnFeatures: formatConfig.learnFeatures ?? true,
+                }
+              )
+
+              if (formatResult) {
+                // 關聯文件與格式
+                await linkFileToFormat(file.id, formatResult.formatId, formatResult.confidence)
+
+                formatIdentification = {
+                  fileId: file.id,
+                  formatId: formatResult.formatId,
+                  documentType: formatResult.documentType,
+                  documentSubtype: formatResult.documentSubtype,
+                  confidence: formatResult.confidence,
+                  isNewFormat: formatResult.isNewFormat,
+                }
+
+                console.log(
+                  `[BatchProcessor] Format identified for file ${file.id}: ${formatResult.formatName} (${formatResult.isNewFormat ? 'NEW' : 'EXISTING'})`
+                )
+              }
+            }
+          } catch (formatError) {
+            // 格式識別失敗不影響主流程，只記錄警告
+            console.warn(
+              `Document format identification failed for file ${file.id}:`,
+              formatError instanceof Error ? formatError.message : formatError
+            )
+          }
         }
       }
+
+      // FIX-023: 從統一處理流程結果中提取發行者識別結果
+      // 當使用 UnifiedProcessor 時，ISSUER_IDENTIFICATION 步驟的結果存在於 extractionResult._unifiedProcessorInfo
+      const unifiedProcessorInfo = (extractionResult as Record<string, unknown>)._unifiedProcessorInfo as {
+        stepResults?: Array<{
+          step: string
+          data?: {
+            matchedCompanyId?: string
+            identificationMethod?: string
+            confidence?: number
+          }
+        }>
+      } | undefined
+
+      const issuerStepResult = unifiedProcessorInfo?.stepResults?.find(
+        (s) => s.step === 'ISSUER_IDENTIFICATION'
+      )
+      const issuerData = issuerStepResult?.data
 
       // 更新文件記錄（包含公司識別和發行者識別結果）
       await prisma.historicalFile.update({
@@ -631,8 +841,16 @@ export async function processFile(
             companyMatchType: companyIdentification.matchType,
             companyMatchScore: companyIdentification.matchScore,
           }),
-          // Story 0.8: 發行者識別結果（注意：updateFileIssuerResult 已在 processFileIssuerIdentification 中執行）
-          // 這裡無需重複更新 documentIssuerId 等欄位
+          // FIX-023: 從統一處理流程結果同步發行者識別欄位
+          // 當使用 UnifiedProcessor 時，從 stepResults 中提取 ISSUER_IDENTIFICATION 結果
+          ...(issuerData?.matchedCompanyId && {
+            documentIssuerId: issuerData.matchedCompanyId,
+            issuerIdentificationMethod: issuerData.identificationMethod || null,
+            issuerConfidence: issuerData.confidence || null,
+          }),
+          // Story 0.8: 發行者識別結果（舊版：updateFileIssuerResult 已在 processFileIssuerIdentification 中執行）
+          // 當使用舊版處理流程時，documentIssuerId 等欄位在 processFileIssuerIdentification 中更新
+          // 當使用 UnifiedProcessor 時，上方的 issuerData 展開會處理這些欄位
         },
       })
 

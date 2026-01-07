@@ -226,7 +226,7 @@ export function DocumentPreviewTestPage() {
 
       {/* Main Content - Three Column Layout */}
       <div className="flex-1 overflow-hidden">
-        <ResizablePanelGroup orientation="horizontal" className="h-full">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
           {/* Left Panel - Extracted Fields */}
           <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
             <div className="h-full flex flex-col border-r">
@@ -302,26 +302,24 @@ export function DocumentPreviewTestPage() {
                     </div>
                   </>
                 ) : (
-                  <div className="h-full p-4">
-                    <Card className="h-full flex items-center justify-center">
-                      <CardContent className="text-center">
-                        {isProcessing ? (
-                          <div className="flex flex-col items-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4" />
-                            <p className="text-muted-foreground">處理中...</p>
-                          </div>
-                        ) : hasError ? (
-                          <div className="text-destructive">
-                            <p className="font-medium">{error?.message}</p>
-                            {error?.details && (
-                              <p className="text-sm mt-2">{error.details}</p>
-                            )}
-                          </div>
-                        ) : (
-                          <TestFileUploader />
-                        )}
-                      </CardContent>
-                    </Card>
+                  <div className="h-full flex items-center justify-center p-4">
+                    {isProcessing ? (
+                      <div className="flex flex-col items-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4" />
+                        <p className="text-muted-foreground">處理中...</p>
+                      </div>
+                    ) : hasError ? (
+                      <Card className="w-full max-w-md">
+                        <CardContent className="p-6 text-center text-destructive">
+                          <p className="font-medium">{error?.message}</p>
+                          {error?.details && (
+                            <p className="text-sm mt-2">{error.details}</p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <TestFileUploader />
+                    )}
                   </div>
                 )}
               </div>

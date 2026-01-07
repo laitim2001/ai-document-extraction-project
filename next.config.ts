@@ -40,11 +40,14 @@ const nextConfig: NextConfig = {
       }
     }
 
-    // Mark canvas as external for server to avoid bundling issues
+    // Mark native modules and PDF libraries as external for server to avoid bundling issues
+    // This prevents webpack from bundling these modules, which fixes ESM compatibility issues
     if (isServer) {
       config.externals = config.externals || []
       config.externals.push({
         canvas: 'commonjs canvas',
+        'pdf-to-img': 'commonjs pdf-to-img',
+        'pdfjs-dist': 'commonjs pdfjs-dist',
       })
     }
 

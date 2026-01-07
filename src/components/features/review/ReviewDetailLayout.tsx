@@ -128,7 +128,7 @@ export function ReviewDetailLayout({
   // --- 桌面版：並排可調整面板 ---
   return (
     <ResizablePanelGroup
-      orientation="horizontal"
+      direction="horizontal"
       className="h-full rounded-lg border"
       data-testid="layout-resizable"
     >

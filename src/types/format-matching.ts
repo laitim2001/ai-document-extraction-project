@@ -289,6 +289,35 @@ function convertLegacyStatus(status: string): FormatStatus {
 // ============================================================================
 
 /**
+ * 有效的 DocumentType 枚舉值
+ * @description 用於驗證和映射 documentType
+ */
+const VALID_DOCUMENT_TYPES = [
+  'INVOICE',
+  'DEBIT_NOTE',
+  'CREDIT_NOTE',
+  'STATEMENT',
+  'QUOTATION',
+  'BILL_OF_LADING',
+  'CUSTOMS_DECLARATION',
+  'OTHER',
+] as const;
+
+/**
+ * 將 documentType 映射為有效的 Prisma 枚舉值
+ * @description 處理 'UNKNOWN' 和其他無效值，映射為 'OTHER'
+ */
+function normalizeDocumentType(documentType?: string): string {
+  if (!documentType) return 'OTHER';
+  const upperType = documentType.toUpperCase();
+  if (VALID_DOCUMENT_TYPES.includes(upperType as typeof VALID_DOCUMENT_TYPES[number])) {
+    return upperType;
+  }
+  // 'UNKNOWN' 和其他無效值映射為 'OTHER'
+  return 'OTHER';
+}
+
+/**
  * 從提取結果建構文件特徵
  * @param extractedData - 統一處理上下文中的提取數據
  * @returns 文件特徵
@@ -313,7 +342,8 @@ export function buildDocumentCharacteristics(
     hasTables: metadata.hasTables ?? false,
     hasLogo: metadata.logoDetected ?? false,
     layoutType: convertOrientation(metadata.orientation),
-    documentType: extractedData?.documentType ?? 'UNKNOWN',
+    // CHANGE-006: 將 'UNKNOWN' 和無效值映射為 'OTHER' 以避免 Prisma 枚舉錯誤
+    documentType: normalizeDocumentType(extractedData?.documentType),
     documentSubtype: extractedData?.documentSubtype,
   };
 }

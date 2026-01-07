@@ -38,5 +38,45 @@ coverage/
 *.tmp
 *.temp
 nul
+temp_check.txt
+batch-result.json
+processingSteps
 
+# Generated/Export files
 /generated/prisma
+uploads/
+exports/
+
+# Test artifacts
+test-page-*.png
+*.test.xlsx
+FIX-*-report.xlsx
+hierarchical-terms-report.xlsx
+
+# Playwright MCP cache
+.playwright-mcp/
+
+# Sample/Archive folders
+claudedocs_sample/
+docs/Doc Sample/
+
+# Debug/Test scripts (temporary)
+scripts/analyze-*
+scripts/check-*
+scripts/debug-*
+scripts/test-*
+scripts/run-*
+scripts/validate-*
+scripts/verify-*
+scripts/create-*
+scripts/export-*
+scripts/list-*
+scripts/query-*
+scripts/reaggregate-*
+scripts/reset-*
+scripts/e2e-*
+
+# Corrupted filenames (Windows encoding issues)
+*執行日期*
+*批次*
+*批次名稱*

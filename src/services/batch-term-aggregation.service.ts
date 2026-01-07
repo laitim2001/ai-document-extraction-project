@@ -9,7 +9,7 @@
  *
  * @module src/services/batch-term-aggregation
  * @since Epic 0 - Story 0.7 (批量處理術語聚合整合)
- * @lastModified 2025-12-30
+ * @lastModified 2026-01-02
  *
  * @features
  *   - 批量處理後自動觸發術語聚合
@@ -17,6 +17,7 @@
  *   - 通用術語識別（出現在 2+ 公司）
  *   - 聚合結果持久化
  *   - FIX-005: 地址類術語過濾
+ *   - FIX-007: 使用 documentIssuerId（Story 0.8）替代 identifiedCompanyId（Story 0.6）
  *
  * @dependencies
  *   - @prisma/client - 資料庫存取
@@ -272,8 +273,8 @@ export async function aggregateTermsForBatch(
     select: {
       id: true,
       extractionResult: true,
-      identifiedCompanyId: true,
-      identifiedCompany: {
+      documentIssuerId: true,
+      documentIssuer: {
         select: { id: true, name: true },
       },
     },
@@ -287,8 +288,8 @@ export async function aggregateTermsForBatch(
   for (const file of files) {
     if (!file.extractionResult) continue;
 
-    const companyId = file.identifiedCompanyId ?? 'UNKNOWN';
-    const companyName = file.identifiedCompany?.name ?? '未識別';
+    const companyId = file.documentIssuerId ?? 'UNKNOWN';
+    const companyName = file.documentIssuer?.name ?? '未識別';
 
     // 提取術語
     const terms = extractTermsFromExtractionResult(file.extractionResult);

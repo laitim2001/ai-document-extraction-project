@@ -5,10 +5,16 @@
  * @description
  *   提供拖放式文件上傳功能，整合 react-dropzone。
  *   支援 PDF、PNG、JPG 格式。
+ *   上傳後調用 GPT Vision API 進行實際 OCR 提取。
  *
  * @module src/app/(dashboard)/admin/document-preview-test/components
  * @since Epic 13 - Story 13.6 (文件預覽整合測試頁面)
  * @lastModified 2026-01-03
+ *
+ * @features
+ *   - 拖放式文件上傳（react-dropzone）
+ *   - 調用 /api/admin/document-preview-test/extract 進行實際提取
+ *   - 處理狀態進度顯示
  */
 
 import * as React from 'react';
@@ -20,7 +26,6 @@ import { cn } from '@/lib/utils';
 import { useDocumentPreviewTestStore } from '@/stores/document-preview-test-store';
 
 // Types
-import type { ExtractedField, ConfidenceLevel, FieldSource } from '@/types/extracted-field';
 import type { FileRejection } from 'react-dropzone';
 
 // ============================================================
@@ -36,69 +41,6 @@ const ACCEPTED_FILE_TYPES = {
 
 /** 最大文件大小 (20MB) */
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
-
-/**
- * 範例提取欄位數據（用於測試上傳後的模擬處理）
- */
-const SAMPLE_EXTRACTED_FIELDS: ExtractedField[] = [
-  {
-    id: 'field-1',
-    fieldName: 'invoiceNumber',
-    displayName: 'Invoice Number',
-    value: 'INV-2024-001234',
-    rawValue: 'INV-2024-001234',
-    confidence: 0.95,
-    confidenceLevel: 'HIGH' as ConfidenceLevel,
-    source: 'AZURE_DI' as FieldSource,
-    isEdited: false,
-    category: 'invoice',
-    boundingBox: {
-      page: 1,
-      x: 100,
-      y: 50,
-      width: 150,
-      height: 20,
-    },
-  },
-  {
-    id: 'field-2',
-    fieldName: 'invoiceDate',
-    displayName: 'Invoice Date',
-    value: '2024-12-25',
-    rawValue: '2024-12-25',
-    confidence: 0.92,
-    confidenceLevel: 'HIGH' as ConfidenceLevel,
-    source: 'AZURE_DI' as FieldSource,
-    isEdited: false,
-    category: 'invoice',
-    boundingBox: {
-      page: 1,
-      x: 100,
-      y: 80,
-      width: 120,
-      height: 20,
-    },
-  },
-  {
-    id: 'field-3',
-    fieldName: 'totalAmount',
-    displayName: 'Total Amount',
-    value: '$12,500.00',
-    rawValue: '$12,500.00',
-    confidence: 0.97,
-    confidenceLevel: 'HIGH' as ConfidenceLevel,
-    source: 'AZURE_DI' as FieldSource,
-    isEdited: false,
-    category: 'amounts',
-    boundingBox: {
-      page: 1,
-      x: 400,
-      y: 500,
-      width: 100,
-      height: 25,
-    },
-  },
-];
 
 // ============================================================
 // Component
@@ -133,12 +75,6 @@ export function TestFileUploader() {
       setProcessingProgress(0);
 
       try {
-        // Simulate upload progress
-        for (let i = 0; i <= 100; i += 20) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-          setProcessingProgress(i);
-        }
-
         // Create object URL for preview
         const url = URL.createObjectURL(file);
 
@@ -151,23 +87,36 @@ export function TestFileUploader() {
           uploadedAt: new Date().toISOString(),
         });
 
+        setProcessingProgress(50);
+
         // Start processing
         setProcessingStatus('processing');
         setProcessingProgress(0);
 
-        // Simulate OCR processing
-        for (let i = 0; i <= 100; i += 10) {
-          await new Promise((resolve) => setTimeout(resolve, 150));
-          setProcessingProgress(i);
+        // Call actual extraction API
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/admin/document-preview-test/extract', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || '提取失敗');
         }
 
-        // Set sample extracted fields for demo
-        setExtractedFields(SAMPLE_EXTRACTED_FIELDS);
-        setTotalPages(file.type === 'application/pdf' ? 2 : 1);
+        // Use real extracted fields from API
+        setExtractedFields(result.fields);
+        setTotalPages(result.pageCount || 1);
 
         // Complete
         setProcessingStatus('completed');
         setProcessingProgress(100);
+
+        console.log(`[TestFileUploader] Extraction successful: ${result.fields.length} fields`);
       } catch (error) {
         console.error('File processing error:', error);
         setProcessingStatus('error');

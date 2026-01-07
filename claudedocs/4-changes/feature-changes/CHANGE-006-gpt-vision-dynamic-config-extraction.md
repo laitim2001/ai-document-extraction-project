@@ -1,10 +1,12 @@
 # CHANGE-006: GPT Vision 動態配置提取與 Term 記錄
 
-> **狀態**: ✅ 已完成
+> **狀態**: 🚧 進行中 - 需要建立 PromptConfig
 > **類型**: Feature Enhancement
 > **影響範圍**: Epic 14/15 - PromptConfig 系統與統一處理管道
 > **建立日期**: 2026-01-06
-> **完成日期**: 2026-01-06
+> **完成日期**: -
+> **補充修復日期**: 2026-01-06
+> **E2E 測試日期**: 2026-01-06
 > **優先級**: High
 
 ---
@@ -326,3 +328,191 @@ private extractTermsFromGptExtraction(
 | 日期 | 審核者 | 決定 | 備註 |
 |------|--------|------|------|
 | 2026-01-06 | User | ✅ 已批准 | 用戶確認計劃可行 |
+| 2026-01-06 | User | ✅ 補充修復批准 | E2E 測試發現 DUAL_PROCESSING 模式遺漏 |
+
+---
+
+## 補充修復記錄 (2026-01-06)
+
+### 問題發現
+
+E2E 測試時發現：處理 DHL 發票後，`extractionResult` 中缺少 `gptExtraction` 欄位，導致 Term 聚合為 0。
+
+### 根因分析
+
+Step 7 在 `DUAL_PROCESSING` 模式下只執行 `performClassification()`，該方法僅提取 `documentIssuer` 和 `documentFormat`，沒有填充 `extraCharges` 等額外欄位。
+
+**問題代碼** (`gpt-enhanced-extraction.step.ts:114-120`):
+```typescript
+// 原邏輯 ❌
+if (processingMethod === UnifiedProcessingMethod.DUAL_PROCESSING) {
+  gptResult = await this.performClassification(context);  // 只提取分類
+} else {
+  gptResult = await this.performFullExtraction(context);  // 提取完整數據
+}
+```
+
+**DHL (Native PDF) 執行路徑**:
+```
+NATIVE_PDF → DUAL_PROCESSING → performClassification() → 只有 { documentIssuer, documentFormat }
+↓
+gptExtraction 缺少 extraCharges → Step 9 無法記錄 Terms → Terms 聚合 = 0
+```
+
+### 修復方案
+
+**方案 B**：當有 `resolvedPrompt` 配置時，DUAL_PROCESSING 模式也執行 `performFullExtraction()`
+
+**修復代碼** (`gpt-enhanced-extraction.step.ts:114-129`):
+```typescript
+// 修復後邏輯 ✅
+if (processingMethod === UnifiedProcessingMethod.DUAL_PROCESSING) {
+  // CHANGE-006 補充: 如果有動態 Prompt 配置，執行完整提取以獲取額外欄位
+  if (context.resolvedPrompt?.userPromptTemplate) {
+    console.log(`[Step 7] DUAL_PROCESSING with dynamic prompt: using full extraction for extra fields`);
+    gptResult = await this.performFullExtraction(context);
+  } else {
+    // 沒有 Prompt 配置，只分類
+    gptResult = await this.performClassification(context);
+  }
+} else {
+  gptResult = await this.performFullExtraction(context);
+}
+```
+
+### 影響的文件
+
+| 文件 | 變更 |
+|------|------|
+| `gpt-enhanced-extraction.step.ts` | Line 114-129: 修改 DUAL_PROCESSING 執行邏輯 |
+
+### 驗證標準
+
+- [ ] DUAL_PROCESSING 模式下有 Prompt 配置時執行 performFullExtraction()
+- [ ] gptExtraction 包含 extraCharges 欄位
+- [ ] Step 9 能讀取 gptExtraction 並記錄 Terms
+- [ ] Terms 聚合數量 > 0
+
+---
+
+## E2E 測試結果 (2026-01-06)
+
+### 測試批次資訊
+
+| 項目 | 值 |
+|------|-----|
+| 批次名稱 | CHANGE-006-UnifiedProcessor-Test-2026-01-06 |
+| 批次 ID | 52dd5638-abcf-463c-ab5a-c13af102a1ec |
+| 文件 | DHL_HEX240522_41293.pdf |
+| 文件 ID | 71c2d926-fd28-4668-aa42-1bae7a149e16 |
+| 處理狀態 | ✅ COMPLETED |
+| 處理方法 | DUAL_PROCESSING |
+| 處理成本 | $0.02 |
+
+### UnifiedProcessor 執行確認
+
+**✅ 成功使用 UnifiedProcessor**：
+- `usedLegacyProcessor: false`
+- 執行了完整 11 步管道
+
+**11 步執行結果**：
+
+| Step | 名稱 | 結果 | 耗時 |
+|------|------|------|------|
+| 1 | FILE_TYPE_DETECTION | ✅ success | 1ms |
+| 2 | SMART_ROUTING | ✅ success | 0ms |
+| 3 | ISSUER_IDENTIFICATION | ✅ success | 9,212ms |
+| 4 | FORMAT_MATCHING | ❌ failed | 7ms |
+| 5 | CONFIG_FETCHING | ✅ success | 165ms |
+| 6 | AZURE_DI_EXTRACTION | ✅ success | 14,671ms |
+| 7 | GPT_ENHANCED_EXTRACTION | ✅ success | 6,569ms |
+| 8 | FIELD_MAPPING | ✅ success | 52ms |
+| 9 | TERM_RECORDING | ⏭️ skipped | 0ms |
+| 10 | CONFIDENCE_CALCULATION | ✅ success | 34ms |
+| 11 | ROUTING_DECISION | ✅ success | 10ms |
+
+### extraCharges 提取結果
+
+**❌ extraCharges 未被提取**
+
+**gptExtraction 實際內容**：
+```json
+{
+  "documentIssuer": {
+    "name": "DHL Express",
+    "rawText": "DHL Express INVOICE",
+    "confidence": 97,
+    "identificationMethod": "LOGO"
+  }
+}
+```
+
+### 根本原因分析
+
+1. **FORMAT_MATCHING 失敗** (Step 4)
+   - 錯誤：`Invalid value for argument 'documentType'. Expected DocumentType.`
+   - 原因：`documentType: "UNKNOWN"` 不是有效的 Prisma 枚舉值
+
+2. **沒有 PromptConfig**
+   - CONFIG_FETCHING 成功執行，但由於沒有匹配的 DocumentFormat
+   - 無法獲取到有效的 PromptConfig 配置
+
+3. **執行 performClassification() 而非 performFullExtraction()**
+   - 關鍵判斷（gpt-enhanced-extraction.step.ts:118-126）：
+   ```typescript
+   if (context.resolvedPrompt?.userPromptTemplate) {
+     gptResult = await this.performFullExtraction(context);  // ← 提取 extraCharges
+   } else {
+     gptResult = await this.performClassification(context);  // ← 只提取 documentIssuer
+   }
+   ```
+   - `context.resolvedPrompt` 為空 → 執行 `performClassification()`
+   - `performClassification()` 只提取 documentIssuer，不提取 extraCharges
+
+### 結論
+
+**代碼層面**：
+- ✅ batch-processor.service.ts 已正確整合 UnifiedProcessor
+- ✅ gpt-enhanced-extraction.step.ts 邏輯正確
+- ✅ 11 步管道執行正常
+
+**配置層面**：
+- ❌ 缺少 DHL 的 PromptConfig 配置
+- ❌ FORMAT_MATCHING 因 documentType 枚舉問題失敗
+
+---
+
+## 下一步行動
+
+### 必要條件（讓 extraCharges 提取正常運作）
+
+1. **修復 FORMAT_MATCHING 枚舉問題**
+   - 確保 documentType 使用有效的 DocumentType 枚舉值
+   - 或修改 FORMAT_MATCHING 步驟處理 UNKNOWN 類型
+
+2. **建立 DHL PromptConfig**
+   - 通過 UI `/admin/prompt-configs/new` 建立
+   - 或通過 API/腳本建立
+   - 配置內容應包含提取 extraCharges 的指令
+
+### PromptConfig 建議配置
+
+```json
+{
+  "name": "DHL Invoice Extra Charges",
+  "promptType": "FIELD_EXTRACTION",
+  "scope": "COMPANY",
+  "companyId": "<DHL Company ID>",
+  "userPromptTemplate": "從這份 DHL 發票中提取以下資訊：\n1. Analysis of Extra Charges（包含 description 和 amount）\n2. Type of Service\n\n請以 JSON 格式返回 extraCharges 數組和 typeOfService 字串。"
+}
+```
+
+---
+
+## 狀態更新
+
+| 日期 | 狀態 | 說明 |
+|------|------|------|
+| 2026-01-06 | 🚧 代碼完成 | Step 7 + Step 9 代碼修改完成 |
+| 2026-01-06 | 🚧 整合完成 | batch-processor 整合 UnifiedProcessor |
+| 2026-01-06 | ⚠️ 待配置 | 需要建立 PromptConfig 才能提取 extraCharges |

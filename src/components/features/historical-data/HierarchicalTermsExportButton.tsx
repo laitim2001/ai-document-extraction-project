@@ -8,7 +8,7 @@
  *
  * @module src/components/features/historical-data/HierarchicalTermsExportButton
  * @since Epic 0 - CHANGE-002
- * @lastModified 2025-12-27
+ * @lastModified 2026-01-05
  *
  * @features
  *   - 一鍵下載 Excel 報告
@@ -89,12 +89,22 @@ export function HierarchicalTermsExportButton({
           `/api/v1/batches/${batchId}/hierarchical-terms/export`,
           {
             method: 'GET',
+            credentials: 'include', // 確保認證 cookies 被發送
           }
         )
 
         if (!response.ok) {
           const errorData = await response.json()
           throw new Error(errorData.error || '匯出失敗')
+        }
+
+        // 檢查 Content-Type 確保是 Excel 格式
+        // 修正 FIX-019: 認證失敗時會重導向到登入頁面，返回 HTML 而非 Excel
+        const contentType = response.headers.get('Content-Type') || ''
+        if (!contentType.includes('spreadsheetml') && !contentType.includes('application/octet-stream')) {
+          // 可能是被重導向到登入頁面
+          console.error('[Export] Unexpected content type:', contentType)
+          throw new Error('認證已過期，請重新登入後再試')
         }
 
         // 獲取文件名

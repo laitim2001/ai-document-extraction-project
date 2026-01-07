@@ -8,13 +8,14 @@
  *
  * @module src/services/unified-processor/steps
  * @since Epic 15 - Story 15.1 (整合 Story 14.4)
- * @lastModified 2026-01-06
+ * @lastModified 2026-01-06 (CHANGE-006 補充修復)
  *
  * @features
  *   - 雙重處理模式：GPT 分類 + Azure DI 提取
  *   - 完整提取模式：GPT Vision 完整提取
  *   - 動態 Prompt 支援：讀取 context.resolvedPrompt
  *   - 額外欄位提取：extraCharges, typeOfService 等
+ *   - CHANGE-006 補充：DUAL_PROCESSING 模式下有 Prompt 配置時執行完整提取
  *
  * @related
  *   - src/services/gpt-vision.service.ts - GPT Vision 服務
@@ -112,8 +113,17 @@ export class GptEnhancedExtractionStep extends BaseStepHandler {
       };
 
       if (processingMethod === UnifiedProcessingMethod.DUAL_PROCESSING) {
-        // 雙重處理模式：僅分類識別
-        gptResult = await this.performClassification(context);
+        // CHANGE-006 補充: 如果有動態 Prompt 配置，執行完整提取以獲取額外欄位 (extraCharges, typeOfService)
+        // 否則只執行輕量級分類（issuer, format）
+        if (context.resolvedPrompt?.userPromptTemplate) {
+          console.log(
+            `[Step 7] DUAL_PROCESSING with dynamic prompt: using full extraction for extra fields`
+          );
+          gptResult = await this.performFullExtraction(context);
+        } else {
+          // 沒有 Prompt 配置，只分類
+          gptResult = await this.performClassification(context);
+        }
       } else {
         // GPT Vision Only：完整提取
         gptResult = await this.performFullExtraction(context);

@@ -227,7 +227,7 @@ export class ConfigFetchingStep extends BaseStepHandler {
     return {
       fetchPromptConfig: flags.enableDynamicConfig,
       fetchMappingConfig: flags.enableDynamicConfig,
-      promptType: 'DATA_EXTRACTION' as PromptType, // 默認使用資料提取 Prompt
+      promptType: 'FIELD_EXTRACTION' as PromptType, // 默認使用欄位提取 Prompt
     };
   }
 

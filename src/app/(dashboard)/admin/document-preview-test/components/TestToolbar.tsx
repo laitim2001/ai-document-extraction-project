@@ -253,15 +253,29 @@ export function TestToolbar() {
 
         setProcessingStatus('processing');
 
-        // Simulate processing delay
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // Call actual extraction API
+        const formData = new FormData();
+        formData.append('file', file);
 
-        // Load sample extracted fields for demo
-        setExtractedFields(SAMPLE_EXTRACTED_FIELDS);
-        setTotalPages(2);
+        const response = await fetch('/api/admin/document-preview-test/extract', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || '提取失敗');
+        }
+
+        // Use real extracted fields from API
+        setExtractedFields(result.fields);
+        setTotalPages(result.pageCount || 1);
         setProcessingStatus('completed');
+
+        console.log(`[TestToolbar] Extraction successful: ${result.fields.length} fields`);
       } catch (error) {
-        console.error('Upload error:', error);
+        console.error('Upload/extraction error:', error);
         setProcessingStatus('error');
       }
 

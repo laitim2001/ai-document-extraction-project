@@ -12,7 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { getAuthSession } from '@/lib/auth'
 import { DetectedFileType, HistoricalFileStatus } from '@prisma/client'
 
 // ============================================================
@@ -43,7 +43,8 @@ const ListFilesQuerySchema = z.object({
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
+    // 支援開發模式 X-Dev-Bypass-Auth header
+    const session = await getAuthSession(request)
     if (!session?.user?.id) {
       return NextResponse.json(
         {
