@@ -5537,6 +5537,186 @@ Story 0-10 (終端驗證) → 捕獲剩餘 20-30% 錯誤
 
 ---
 
+### Story 13-6: 文件預覽整合測試頁面
+
+```
+# 開發任務：Story 13-6 文件預覽整合測試頁面
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/13-6-document-preview-integration-page.md
+3. docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-6.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/components/features/document-preview/index.ts（Story 13-1, 13-2 組件）
+- src/components/features/mapping-config/index.ts（Story 13-3 組件）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立 `/admin/document-preview-test` 頁面路由
+3. 實現三欄佈局：欄位面板 | PDF 預覽 | 映射配置
+4. 整合現有組件：
+   - DynamicPDFViewer, FieldHighlightOverlay (Story 13-1)
+   - ExtractedFieldsPanel (Story 13-2)
+   - MappingConfigPanel (Story 13-3)
+5. 建立 Zustand store 管理頁面狀態
+6. 實現文件上傳與處理觸發
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 現有組件索引
+
+### 文件預覽組件
+- PDFViewer, DynamicPDFViewer, PDFControls
+- FieldHighlightOverlay
+- ExtractedFieldsPanel, FieldCard, FieldFilters
+
+### 映射配置組件
+- MappingConfigPanel, ConfigSelector
+- SourceFieldSelector, TargetFieldSelector
+- MappingRuleList, RuleEditor, MappingPreview
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 頁面可正常訪問 `/admin/document-preview-test`
+- [ ] 非 ADMIN 用戶被正確重定向
+- [ ] PDF 預覽正確顯示
+- [ ] 欄位面板與 PDF 高亮聯動正常
+- [ ] 映射配置面板功能正常
+
+### 3. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Tech Spec 文件：Status 改為 `done`
+
+### 4. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 13-7: Field Mapping 後台管理頁面
+
+```
+# 開發任務：Story 13-7 Field Mapping 後台管理頁面
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/13-7-field-mapping-admin-page.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/hooks/use-prompt-configs.ts（Hooks 模式參考）
+- src/app/(dashboard)/admin/prompt-configs/page.tsx（列表頁模式參考）
+- src/components/features/mapping-config/MappingConfigPanel.tsx（核心 UI 組件）
+- src/types/field-mapping.ts（類型定義）
+- src/app/api/v1/field-mapping-configs/route.ts（API 端點）
+
+## 開發要求
+1. 嚴格遵循 Story 文件中的 Tasks 和 Dev Notes
+2. 建立 React Query Hooks（參考 use-prompt-configs.ts 模式）：
+   - 查詢：useFieldMappingConfigs, useFieldMappingConfig
+   - 變更：useCreateFieldMappingConfig, useUpdateFieldMappingConfig, useDeleteFieldMappingConfig
+   - 規則：useCreateFieldMappingRule, useUpdateFieldMappingRule, useDeleteFieldMappingRule, useReorderFieldMappingRules
+   - 測試：useTestFieldMappingConfig
+3. 建立三個後台頁面：
+   - `/admin/field-mapping-configs`（列表頁）
+   - `/admin/field-mapping-configs/new`（新增頁）
+   - `/admin/field-mapping-configs/[id]`（編輯頁）
+4. 複用現有 MappingConfigPanel 組件
+5. 實現規則同步邏輯（編輯頁：新增/更新/刪除規則比對）
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 現有組件索引
+
+### 映射配置組件（直接複用）
+- MappingConfigPanel - 核心配置面板
+- ConfigSelector - 配置範圍選擇器
+- MappingRuleList - 規則列表
+- SortableRuleItem - 可排序規則項
+- RuleEditor - 規則編輯器
+- SourceFieldSelector, TargetFieldSelector - 欄位選擇器
+- TransformConfigPanel - 轉換設定面板
+- MappingPreview - 映射預覽
+
+### API 端點（已存在）
+- GET/POST /api/v1/field-mapping-configs - 列表/創建
+- GET/PATCH/DELETE /api/v1/field-mapping-configs/[id] - 單一配置 CRUD
+- POST /api/v1/field-mapping-configs/[id]/rules - 創建規則
+- PATCH/DELETE /api/v1/field-mapping-configs/[id]/rules/[ruleId] - 規則 CRUD
+- POST /api/v1/field-mapping-configs/[id]/rules/reorder - 規則排序
+- POST /api/v1/field-mapping-configs/[id]/test - 測試配置
+
+## 數據格式轉換（關鍵）
+```typescript
+// API → UI 轉換
+function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingConfig {
+  return {
+    id: apiData.id,
+    scope: apiData.scope as ConfigScope,
+    companyId: apiData.companyId,
+    documentFormatId: apiData.documentFormatId,
+    name: apiData.name,
+    description: apiData.description,
+    rules: apiData.rules.map(transformToVisualRule),
+    isActive: apiData.isActive,
+    version: apiData.version,
+  };
+}
+```
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 頁面可正常訪問 `/admin/field-mapping-configs`
+- [ ] 列表頁篩選功能正常（範圍/公司/格式/狀態）
+- [ ] 新增配置流程正常（含規則批量創建）
+- [ ] 編輯配置流程正常（含規則同步：新增/更新/刪除）
+- [ ] 刪除配置功能正常（含確認對話框）
+- [ ] Toast 提示正確顯示（成功/錯誤）
+
+### 3. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`docs/04-implementation/stories/13-7-*.md`)：Status 改為 `done`
+
+### 4. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
 ## Epic 14: Prompt 配置系統
 
 > **說明**：此 Epic 提供 GPT Vision Prompt 的可配置化管理，支援層級覆蓋與動態解析。
