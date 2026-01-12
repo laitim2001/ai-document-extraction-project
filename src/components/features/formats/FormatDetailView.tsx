@@ -8,6 +8,7 @@
  *   - 常見術語 Tab（術語列表）
  *   - 文件列表 Tab（關聯文件）
  *   - 識別規則 Tab（Story 16.3）
+ *   - 專屬配置 Tab（Story 16.4）
  *   支援編輯格式名稱。
  *
  * @module src/components/features/formats
@@ -21,13 +22,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Edit, FileText, RefreshCw, AlertCircle, ScanSearch } from 'lucide-react';
+import { ArrowLeft, Edit, FileText, RefreshCw, AlertCircle, ScanSearch, Settings2 } from 'lucide-react';
 import { useFormatDetail } from '@/hooks/use-format-detail';
 import { FormatBasicInfo } from './FormatBasicInfo';
 import { FormatTermsTable } from './FormatTermsTable';
 import { FormatFilesTable } from './FormatFilesTable';
 import { FormatForm } from './FormatForm';
 import { IdentificationRulesEditor } from './IdentificationRulesEditor';
+import { FormatConfigPanel } from './FormatConfigPanel';
 import {
   DOCUMENT_TYPE_LABELS_ZH,
   DOCUMENT_SUBTYPE_LABELS_ZH,
@@ -238,7 +240,10 @@ export function FormatDetailView({ companyId, formatId }: FormatDetailViewProps)
             <ScanSearch className="h-4 w-4 mr-1" />
             識別規則
           </TabsTrigger>
-          {/* Story 16-4: <TabsTrigger value="configs">專屬配置</TabsTrigger> */}
+          <TabsTrigger value="configs">
+            <Settings2 className="h-4 w-4 mr-1" />
+            專屬配置
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="basic">
@@ -258,6 +263,13 @@ export function FormatDetailView({ companyId, formatId }: FormatDetailViewProps)
             formatId={formatId}
             initialRules={format.identificationRules}
             onSuccess={refetch}
+          />
+        </TabsContent>
+
+        <TabsContent value="configs">
+          <FormatConfigPanel
+            formatId={formatId}
+            companyId={companyId}
           />
         </TabsContent>
       </Tabs>
