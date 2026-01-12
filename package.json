@@ -88,6 +88,7 @@
     "openai": "^6.15.0",
     "pdf-parse": "^1.1.1",
     "pdf-to-img": "^5.0.0",
+    "pdfjs-dist": "^4.10.38",
     "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
     "react": "^18.3.0",
@@ -95,7 +96,7 @@
     "react-dom": "^18.3.0",
     "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.68.0",
-    "react-pdf": "^10.2.0",
+    "react-pdf": "^9.2.1",
     "react-resizable-panels": "^2.1.7",
     "react-syntax-highlighter": "^16.1.0",
     "recharts": "^3.6.0",
@@ -110,9 +111,6 @@
   },
   "prisma": {
     "seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
-  },
-  "overrides": {
-    "pdfjs-dist": "5.4.296"
   },
   "devDependencies": {
     "@prisma/client": "^7.2.0",

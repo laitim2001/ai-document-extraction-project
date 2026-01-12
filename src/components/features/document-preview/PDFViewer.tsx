@@ -17,8 +17,8 @@
  *   - SSR 安全 (worker 延遲初始化)
  *
  * @dependencies
- *   - react-pdf v10.x (實際: 10.2.0)
- *   - pdfjs-dist v5.x (實際: 5.4.296)
+ *   - react-pdf v9.x (實際: 9.2.1) - FIX-026 降級以避免 ESM 問題
+ *   - pdfjs-dist v4.x (由 react-pdf 管理)
  *
  * @bugfix FIX-008 (2026-01-03)
  *   修復 pdfjs-dist 在 Next.js 環境下的 "Object.defineProperty called on non-object" 錯誤。
@@ -49,9 +49,11 @@ import { FieldHighlightOverlay } from './FieldHighlightOverlay'
 
 /**
  * @bugfix FIX-010 (2026-01-03)
- *   修復 react-pdf v10 + pdfjs-dist v5 的 worker 配置。
- *   舊配置使用 CDN 路徑，但 v5 的模組結構已改變。
- *   新配置使用 import.meta.url 動態解析本地 worker 路徑。
+ *   修復 react-pdf + pdfjs-dist 的 worker 配置。
+ *
+ * @bugfix FIX-026 (2026-01-12)
+ *   降級到 react-pdf v9 + pdfjs-dist v4，避免 v5.4.x 的 ESM 問題。
+ *   pdfjs-dist v5.4.x 的 ESM 模組與 webpack eval-based source maps 不兼容。
  */
 
 // Worker 初始化標記，避免重複設定
@@ -61,9 +63,8 @@ let workerInitialized = false
  * 初始化 PDF.js worker (延遲執行，僅客戶端)
  *
  * @description
- *   使用 import.meta.url 動態解析 worker 路徑，
- *   確保與安裝的 pdfjs-dist 版本匹配。
- *   react-pdf v10 需要此配置方式。
+ *   使用 CDN 加載 PDF.js worker，確保版本匹配。
+ *   react-pdf v9 使用 pdfjs-dist v4.x。
  */
 function initializePdfWorker(): void {
   if (workerInitialized || typeof window === 'undefined') {
@@ -71,9 +72,8 @@ function initializePdfWorker(): void {
   }
 
   try {
-    // react-pdf v10 + pdfjs-dist v5 的配置
-    // 使用 CDN 路徑指向正確版本的 worker
-    // 注意: v5 使用 /build/ 而非 /legacy/build/
+    // react-pdf v9 + pdfjs-dist v4 的 worker 配置
+    // 使用 CDN 確保版本匹配
     pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
     workerInitialized = true
     console.log('[PDFViewer] Worker initialized with version:', pdfjs.version)
