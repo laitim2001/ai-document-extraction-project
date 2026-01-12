@@ -138,7 +138,7 @@ export function ForwarderInfo({ forwarder }: ForwarderInfoProps) {
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">規則總數</span>
               <span className="text-2xl font-bold">
-                {forwarder.rulesSummary.total}
+                {forwarder.rulesSummary?.total ?? 0}
               </span>
             </div>
 
@@ -149,7 +149,7 @@ export function ForwarderInfo({ forwarder }: ForwarderInfoProps) {
                   {RULE_STATUS_CONFIG.ACTIVE.label}
                 </Badge>
                 <p className="mt-1 text-xl font-semibold">
-                  {forwarder.rulesSummary.byStatus.active}
+                  {forwarder.rulesSummary?.byStatus?.active ?? 0}
                 </p>
               </div>
               <div className="rounded-lg border p-3">
@@ -157,7 +157,7 @@ export function ForwarderInfo({ forwarder }: ForwarderInfoProps) {
                   {RULE_STATUS_CONFIG.DRAFT.label}
                 </Badge>
                 <p className="mt-1 text-xl font-semibold">
-                  {forwarder.rulesSummary.byStatus.draft}
+                  {forwarder.rulesSummary?.byStatus?.draft ?? 0}
                 </p>
               </div>
               <div className="rounded-lg border p-3">
@@ -165,7 +165,7 @@ export function ForwarderInfo({ forwarder }: ForwarderInfoProps) {
                   {RULE_STATUS_CONFIG.PENDING_REVIEW.label}
                 </Badge>
                 <p className="mt-1 text-xl font-semibold">
-                  {forwarder.rulesSummary.byStatus.pendingReview}
+                  {forwarder.rulesSummary?.byStatus?.pendingReview ?? 0}
                 </p>
               </div>
               <div className="rounded-lg border p-3">
@@ -173,7 +173,7 @@ export function ForwarderInfo({ forwarder }: ForwarderInfoProps) {
                   {RULE_STATUS_CONFIG.DEPRECATED.label}
                 </Badge>
                 <p className="mt-1 text-xl font-semibold">
-                  {forwarder.rulesSummary.byStatus.deprecated}
+                  {forwarder.rulesSummary?.byStatus?.deprecated ?? 0}
                 </p>
               </div>
             </div>

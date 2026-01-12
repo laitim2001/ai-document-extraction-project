@@ -83,8 +83,20 @@ function StatCard({ title, value, icon, description }: StatCardProps) {
  *   顯示處理統計和趨勢圖表
  */
 export function ForwarderStatsPanel({ stats }: ForwarderStatsPanelProps) {
+  // 空值保護：如果 stats 未定義，顯示空狀態
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center py-16 text-center">
+        <div className="text-muted-foreground">
+          <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <p>暫無統計資料</p>
+        </div>
+      </div>
+    )
+  }
+
   // 格式化趨勢資料用於圖表
-  const chartData = stats.dailyTrend.map((item: DailyTrendData) => ({
+  const chartData = (stats.dailyTrend ?? []).map((item: DailyTrendData) => ({
     date: item.date.slice(5), // 只顯示 MM-DD
     全部: item.count,
     成功: item.successCount,
