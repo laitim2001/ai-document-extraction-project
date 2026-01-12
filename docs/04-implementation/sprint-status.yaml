@@ -249,3 +249,13 @@ development_status:
   15-4-continuous-term-learning: done  # Completed 2026-01-03: TermRecordingStep (Step 9), TermRecorderAdapter (整合 hierarchical-term-aggregation.service), term-learning.ts types (DetectedTerm/MatchedTerm/NewTerm/SynonymCandidate, TermStatus/TermSource/TermMatchMethod enums, FreightChargeCategory), Levenshtein similarity 85% threshold, address-like term filtering, flags.enableTermRecording feature flag
   15-5-enhanced-confidence-calculation: done  # Completed 2026-01-03: ConfidenceCalculationStep (Step 10), RoutingDecisionStep (Step 11), ConfidenceCalculatorAdapter (7-dimension weighted: EXTRACTION 25%, ISSUER 15%, FORMAT 15%, CONFIG 10%, HISTORY 15%, FIELD 10%, TERM 10%), RoutingDecisionAdapter (AUTO_APPROVE≥90%, QUICK_REVIEW 70-89%, FULL_REVIEW<70%), ConfigSource加成 (SPECIFIC+10%, COMPANY+5%, FORMAT+3%), ConfidenceLevelEnum (VERY_HIGH/HIGH/MEDIUM/LOW/VERY_LOW), confidence.ts types
   epic-15-retrospective: optional
+
+  # ============================================================
+  # Epic 16: 文件格式管理
+  # ============================================================
+  epic-16: in-progress  # 4 stories planned
+  16-1-format-list-tab: done  # Completed 2026-01-12: FormatList/FormatCard/FormatFilters components, useCompanyFormats hook, ForwarderDetailView「格式」Tab, document-format types extension (FormatFiltersState, DOCUMENT_TYPE/SUBTYPE_OPTIONS)
+  16-2-format-detail-edit: backlog  # 格式詳情與編輯
+  16-3-identification-rules-config: backlog  # 識別規則配置
+  16-4-linked-config-panel: backlog  # 專屬配置關聯
+  epic-16-retrospective: optional

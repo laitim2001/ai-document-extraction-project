@@ -370,6 +370,51 @@ export interface DocumentFormatSummary {
 }
 
 /**
+ * 格式列表項目（含配置狀態）
+ * @description 用於 Story 16-1 格式列表 Tab 顯示
+ * @since Epic 16 - Story 16.1
+ */
+export interface DocumentFormatListItem extends DocumentFormatSummary {
+  /** 是否有專屬 Prompt 配置 */
+  hasPromptConfig?: boolean;
+  /** 是否有專屬映射配置 */
+  hasMappingConfig?: boolean;
+}
+
+/**
+ * 格式列表篩選狀態
+ * @since Epic 16 - Story 16.1
+ */
+export interface FormatFiltersState {
+  /** 文件類型篩選 */
+  documentType: DocumentType | null;
+  /** 文件子類型篩選 */
+  documentSubtype: DocumentSubtype | null;
+  /** 排序欄位 */
+  sortBy: 'fileCount' | 'updatedAt';
+  /** 排序方向 */
+  sortOrder: 'asc' | 'desc';
+}
+
+/**
+ * 文件類型選項（用於下拉選單）
+ */
+export const DOCUMENT_TYPE_OPTIONS: Array<{ value: DocumentType; label: string }> =
+  ALL_DOCUMENT_TYPES.map((type) => ({
+    value: type,
+    label: DOCUMENT_TYPE_LABELS_ZH[type],
+  }));
+
+/**
+ * 文件子類型選項（用於下拉選單）
+ */
+export const DOCUMENT_SUBTYPE_OPTIONS: Array<{ value: DocumentSubtype; label: string }> =
+  ALL_DOCUMENT_SUBTYPES.map((subtype) => ({
+    value: subtype,
+    label: DOCUMENT_SUBTYPE_LABELS_ZH[subtype],
+  }));
+
+/**
  * 三層聚合 API 響應
  */
 export interface HierarchicalAggregationResponse {

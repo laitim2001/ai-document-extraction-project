@@ -11,7 +11,10 @@
  * @module src/components/features/forwarders/ForwarderDetailView
  * @author Development Team
  * @since Epic 5 - Story 5.2 (Forwarder Detail Config View)
- * @lastModified 2025-12-19
+ * @lastModified 2026-01-12
+ *
+ * @changelog
+ *   - 2026-01-12 (Story 16-1): 新增「格式」Tab，顯示公司文件格式列表
  *
  * @dependencies
  *   - @/hooks/use-forwarder-detail - 數據獲取
@@ -28,6 +31,7 @@ import { ForwarderInfo } from './ForwarderInfo'
 import { ForwarderStatsPanel } from './ForwarderStatsPanel'
 import { ForwarderRulesTable } from './ForwarderRulesTable'
 import { RecentDocumentsTable } from './RecentDocumentsTable'
+import { FormatList } from '@/components/features/formats'
 // REFACTOR-001: 從 company.ts 導入 ForwarderDetailView 類型（已棄用的 forwarder 類型）
 import type { ForwarderDetailView } from '@/types/company'
 import {
@@ -210,9 +214,10 @@ export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
 
       {/* Tabs 導航 */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full max-w-md grid-cols-4">
+        <TabsList className="grid w-full max-w-xl grid-cols-5">
           <TabsTrigger value="overview">總覽</TabsTrigger>
           <TabsTrigger value="rules">規則</TabsTrigger>
+          <TabsTrigger value="formats">格式</TabsTrigger>
           <TabsTrigger value="stats">統計</TabsTrigger>
           <TabsTrigger value="documents">文件</TabsTrigger>
         </TabsList>
@@ -225,6 +230,11 @@ export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
         {/* 規則 Tab */}
         <TabsContent value="rules" className="space-y-4">
           <ForwarderRulesTable forwarderId={forwarderId} />
+        </TabsContent>
+
+        {/* 格式 Tab (Story 16-1) */}
+        <TabsContent value="formats" className="space-y-4">
+          <FormatList companyId={forwarderId} />
         </TabsContent>
 
         {/* 統計 Tab */}
