@@ -1,11 +1,11 @@
 /**
- * @fileoverview Forwarder 管理頁面
+ * @fileoverview 公司管理頁面
  * @description
- *   顯示 Forwarder 列表的管理介面。
- *   提供 Forwarder 查看、搜尋、篩選和排序功能。
+ *   顯示公司列表的管理介面。
+ *   提供公司查看、搜尋、篩選和排序功能。
  *
  *   功能特點：
- *   - 分頁 Forwarder 列表（每頁 10 筆）
+ *   - 分頁公司列表（每頁 10 筆）
  *   - 名稱/代碼搜尋（300ms debounce）
  *   - 狀態篩選（全部/啟用/停用）
  *   - 多欄位排序（預設：更新時間降序）
@@ -15,10 +15,10 @@
  *   - FORWARDER_VIEW 權限（查看列表）
  *   - FORWARDER_MANAGE 權限（編輯功能，未來實作）
  *
- * @module src/app/(dashboard)/forwarders/page
+ * @module src/app/(dashboard)/companies/page
  * @author Development Team
- * @since Epic 5 - Story 5.1 (Forwarder Profile List)
- * @lastModified 2025-12-19
+ * @since Epic 5 - Story 5.1 (Company Profile List)
+ * @lastModified 2026-01-12
  *
  * @features
  *   - 伺服器端權限檢查
@@ -27,11 +27,11 @@
  *
  * @dependencies
  *   - @/lib/auth - 認證和權限檢查
- *   - @/components/features/forwarders - Forwarder 組件
+ *   - @/components/features/forwarders - Company 組件
  *
  * @related
- *   - src/app/api/forwarders/route.ts - Forwarder API
- *   - src/hooks/use-forwarders.ts - Forwarder 查詢 Hook
+ *   - src/app/api/companies/route.ts - Company API
+ *   - src/hooks/use-companies.ts - Company 查詢 Hook
  */
 
 import { Suspense } from 'react'
@@ -45,23 +45,23 @@ import { ForwarderList, ForwarderTableSkeleton } from '@/components/features/for
 import { Button } from '@/components/ui/button'
 
 export const metadata = {
-  title: 'Forwarder 管理 | AI Document Extraction',
-  description: '管理貨運代理商檔案和映射規則',
+  title: '公司管理 | AI Document Extraction',
+  description: '管理公司檔案和映射規則',
 }
 
 /**
- * Forwarder 管理頁面
+ * 公司管理頁面
  *
  * @description
- *   提供 Forwarder 資料的管理介面。
+ *   提供公司資料的管理介面。
  *   需要 FORWARDER_VIEW 權限才能存取。
  *
  *   頁面流程：
  *   1. 伺服器端驗證認證狀態
  *   2. 檢查 FORWARDER_VIEW 權限
- *   3. 渲染 Forwarder 列表（帶 Suspense）
+ *   3. 渲染公司列表（帶 Suspense）
  */
-export default async function ForwardersPage() {
+export default async function CompaniesPage() {
   // 驗證認證狀態
   const session = await auth()
 
@@ -85,24 +85,24 @@ export default async function ForwardersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Forwarder 管理
+            公司管理
           </h1>
           <p className="text-muted-foreground">
-            管理貨運代理商檔案、映射規則和優先級設定
+            管理公司檔案、映射規則和優先級設定
           </p>
         </div>
-        {/* 新增 Forwarder 按鈕（需要 FORWARDER_MANAGE 權限） */}
+        {/* 新增公司按鈕（需要 FORWARDER_MANAGE 權限） */}
         {hasManagePerm && (
           <Button asChild>
-            <Link href="/forwarders/new">
+            <Link href="/companies/new">
               <Plus className="mr-2 h-4 w-4" />
-              新增貨代商
+              新增公司
             </Link>
           </Button>
         )}
       </div>
 
-      {/* Forwarder 列表 */}
+      {/* 公司列表 */}
       <Suspense fallback={<ForwarderTableSkeleton rows={10} />}>
         <ForwarderList />
       </Suspense>

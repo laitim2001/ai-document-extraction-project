@@ -108,7 +108,7 @@ const navigation: NavSection[] = [
     title: '規則管理',
     items: [
       { name: '映射規則', href: '/rules', icon: GitBranch },
-      { name: 'Forwarder 管理', href: '/forwarders', icon: Building2 },
+      { name: '公司管理', href: '/companies', icon: Building2 },
     ],
   },
   {

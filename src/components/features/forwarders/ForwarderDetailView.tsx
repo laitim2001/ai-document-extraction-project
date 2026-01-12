@@ -91,7 +91,7 @@ function ErrorDisplay({ message }: { message: string }) {
       </div>
       <h2 className="text-lg font-semibold mb-2">無法載入 Forwarder 資料</h2>
       <p className="text-muted-foreground mb-4">{message}</p>
-      <Link href="/forwarders">
+      <Link href="/companies">
         <Button variant="outline">
           <ArrowLeft className="mr-2 h-4 w-4" />
           返回列表
@@ -114,7 +114,7 @@ function NotFoundDisplay() {
       <p className="text-muted-foreground mb-4">
         該 Forwarder 可能已被刪除或您沒有權限存取
       </p>
-      <Link href="/forwarders">
+      <Link href="/companies">
         <Button variant="outline">
           <ArrowLeft className="mr-2 h-4 w-4" />
           返回列表
@@ -168,7 +168,7 @@ export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           {/* 返回按鈕 */}
-          <Link href="/forwarders">
+          <Link href="/companies">
             <Button variant="ghost" size="icon">
               <ArrowLeft className="h-5 w-5" />
             </Button>

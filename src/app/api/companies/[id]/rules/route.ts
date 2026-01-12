@@ -1,12 +1,12 @@
 /**
- * @fileoverview Forwarder 規則列表 API 端點
+ * @fileoverview Company 規則列表 API 端點
  * @description
- *   提供 Forwarder 相關規則的分頁查詢和創建 API。
+ *   提供 Company 相關規則的分頁查詢和創建 API。
  *   需要認證和相應權限才能存取。
  *
  *   端點：
- *   - GET /api/forwarders/[id]/rules - 獲取規則列表（支援分頁、篩選、排序）
- *   - POST /api/forwarders/[id]/rules - 創建新規則（變更請求）
+ *   - GET /api/companies/[id]/rules - 獲取規則列表（支援分頁、篩選、排序）
+ *   - POST /api/companies/[id]/rules - 創建新規則（變更請求）
  *
  *   GET 查詢參數：
  *   - status: 規則狀態篩選 (DRAFT/PENDING_REVIEW/ACTIVE/DEPRECATED)
@@ -16,15 +16,15 @@
  *   - sortBy: 排序欄位 (fieldName/status/confidence/matchCount/updatedAt)
  *   - sortOrder: 排序方向 (asc/desc，預設 desc)
  *
- * @module src/app/api/forwarders/[id]/rules/route
+ * @module src/app/api/companies/[id]/rules/route
  * @author Development Team
- * @since Epic 5 - Story 5.2 (Forwarder Detail Config View)
- * @lastModified 2025-12-19
+ * @since Epic 5 - Story 5.2 (Company Detail Config View)
+ * @lastModified 2026-01-12
  *
  * @dependencies
  *   - next/server - Next.js API 處理
  *   - @/lib/auth - NextAuth 認證
- *   - @/services/forwarder.service - Forwarder 服務
+ *   - @/services/forwarder.service - Company 服務
  *   - @/services/rule-change.service - 規則變更服務
  *   - @/types/forwarder - 類型定義
  *   - @/types/change-request - 變更請求類型
@@ -62,11 +62,11 @@ const CreateRuleRequestSchema = z.object({
 })
 
 /**
- * GET /api/forwarders/[id]/rules
- * 獲取 Forwarder 的規則列表
+ * GET /api/companies/[id]/rules
+ * 獲取 Company 的規則列表
  *
  * @description
- *   獲取指定 Forwarder 的映射規則列表，支援：
+ *   獲取指定 Company 的映射規則列表，支援：
  *   - 狀態篩選
  *   - 欄位名稱搜尋
  *   - 分頁
@@ -79,8 +79,8 @@ const CreateRuleRequestSchema = z.object({
  * @returns 規則列表和分頁資訊
  *
  * @example
- *   GET /api/forwarders/cuid123/rules
- *   GET /api/forwarders/cuid123/rules?status=ACTIVE&page=1&limit=10
+ *   GET /api/companies/cuid123/rules
+ *   GET /api/companies/cuid123/rules?status=ACTIVE&page=1&limit=10
  *
  *   Response:
  *   {
@@ -140,7 +140,7 @@ export async function GET(
             type: 'https://api.example.com/errors/forbidden',
             title: 'Forbidden',
             status: 403,
-            detail: 'You do not have permission to view forwarder rules',
+            detail: 'You do not have permission to view company rules',
           },
         },
         { status: 403 }
@@ -159,7 +159,7 @@ export async function GET(
             type: 'https://api.example.com/errors/validation',
             title: 'Validation Error',
             status: 400,
-            detail: 'Invalid forwarder ID',
+            detail: 'Invalid company ID',
             errors: idValidation.error.flatten().fieldErrors,
           },
         },
@@ -167,7 +167,7 @@ export async function GET(
       )
     }
 
-    // 4. 檢查 Forwarder 是否存在
+    // 4. 檢查 Company 是否存在
     const exists = await forwarderExists(idValidation.data.id)
     if (!exists) {
       return NextResponse.json(
@@ -177,8 +177,8 @@ export async function GET(
             type: 'https://api.example.com/errors/not-found',
             title: 'Not Found',
             status: 404,
-            detail: `Forwarder with ID '${idValidation.data.id}' not found`,
-            instance: `/api/forwarders/${idValidation.data.id}/rules`,
+            detail: `Company with ID '${idValidation.data.id}' not found`,
+            instance: `/api/companies/${idValidation.data.id}/rules`,
           },
         },
         { status: 404 }
@@ -226,7 +226,7 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('Get forwarder rules error:', error)
+    console.error('Get company rules error:', error)
 
     return NextResponse.json(
       {
@@ -235,7 +235,7 @@ export async function GET(
           type: 'https://api.example.com/errors/internal-server-error',
           title: 'Internal Server Error',
           status: 500,
-          detail: 'Failed to fetch forwarder rules',
+          detail: 'Failed to fetch company rules',
         },
       },
       { status: 500 }
@@ -244,11 +244,11 @@ export async function GET(
 }
 
 // ============================================================
-// POST /api/forwarders/[id]/rules
+// POST /api/companies/[id]/rules
 // ============================================================
 
 /**
- * POST /api/forwarders/[id]/rules
+ * POST /api/companies/[id]/rules
  * 創建新規則（變更請求）
  *
  * @description
@@ -262,7 +262,7 @@ export async function GET(
  * @returns 變更請求資訊
  *
  * @example
- *   POST /api/forwarders/cuid123/rules
+ *   POST /api/companies/cuid123/rules
  *   Body: {
  *     "fieldName": "shipperName",
  *     "fieldLabel": "發貨人名稱",
@@ -333,7 +333,7 @@ export async function POST(
             type: 'https://api.example.com/errors/validation',
             title: 'Validation Error',
             status: 400,
-            detail: '無效的 Forwarder ID 格式',
+            detail: '無效的 Company ID 格式',
             errors: idValidation.error.flatten().fieldErrors,
           },
         },

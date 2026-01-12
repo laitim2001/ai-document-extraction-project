@@ -16,8 +16,8 @@
  *   - @/types/change-request - 變更請求類型
  *
  * @related
- *   - src/app/api/forwarders/[id]/rules/route.ts - 創建規則 API
- *   - src/app/api/forwarders/[id]/rules/[ruleId]/route.ts - 更新規則 API
+ *   - src/app/api/companies/[id]/rules/route.ts - 創建規則 API
+ *   - src/app/api/companies/[id]/rules/[ruleId]/route.ts - 更新規則 API
  *   - src/services/rule-change.service.ts - 規則變更服務
  */
 
@@ -152,7 +152,7 @@ async function updateRule(
 ): Promise<ChangeRequestResponse['data']> {
   const { forwarderId, ruleId, updates, reason } = request
 
-  const response = await fetch(`/api/forwarders/${forwarderId}/rules/${ruleId}`, {
+  const response = await fetch(`/api/companies/${forwarderId}/rules/${ruleId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ async function createRule(
 ): Promise<ChangeRequestResponse['data']> {
   const { forwarderId, ...ruleData } = request
 
-  const response = await fetch(`/api/forwarders/${forwarderId}/rules`, {
+  const response = await fetch(`/api/companies/${forwarderId}/rules`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

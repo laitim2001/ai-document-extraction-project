@@ -107,7 +107,7 @@ function DeactivateDialog({
     setError(null)
 
     try {
-      const response = await fetch(`/api/forwarders/${forwarderId}/deactivate`, {
+      const response = await fetch(`/api/companies/${forwarderId}/deactivate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -250,7 +250,7 @@ function ActivateDialog({
     setError(null)
 
     try {
-      const response = await fetch(`/api/forwarders/${forwarderId}/activate`, {
+      const response = await fetch(`/api/companies/${forwarderId}/activate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

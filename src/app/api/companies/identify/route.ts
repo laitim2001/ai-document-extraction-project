@@ -1,21 +1,21 @@
 /**
- * @fileoverview Forwarder 識別 API 端點
+ * @fileoverview Company 識別 API 端點
  * @description
- *   提供 Forwarder 自動識別功能的 RESTful API。
- *   從 OCR 文本識別對應的 Forwarder。
+ *   提供 Company 自動識別功能的 RESTful API。
+ *   從 OCR 文本識別對應的 Company。
  *
  *   端點：
- *   - POST /api/forwarders/identify - 識別 Forwarder
+ *   - POST /api/companies/identify - 識別 Company
  *
  *   信心度路由規則：
  *   - >= 80%: IDENTIFIED（自動識別，關聯文件）
  *   - 50-79%: NEEDS_REVIEW（需要人工審核）
  *   - < 50%: UNIDENTIFIED（無法識別）
  *
- * @module src/app/api/forwarders/identify/route
+ * @module src/app/api/companies/identify/route
  * @author Development Team
- * @since Epic 2 - Story 2.3 (Forwarder Auto-Identification)
- * @lastModified 2025-12-18
+ * @since Epic 2 - Story 2.3 (Company Auto-Identification)
+ * @lastModified 2026-01-12
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -46,14 +46,14 @@ const IdentifyRequestSchema = z.object({
 // ============================================================
 
 /**
- * POST /api/forwarders/identify
- * 從 OCR 文本識別 Forwarder
+ * POST /api/companies/identify
+ * 從 OCR 文本識別 Company
  *
  * @param request - HTTP 請求
  * @returns 識別結果
  *
  * @example
- *   POST /api/forwarders/identify
+ *   POST /api/companies/identify
  *   Content-Type: application/json
  *
  *   {
@@ -66,9 +66,9 @@ const IdentifyRequestSchema = z.object({
  *     "success": true,
  *     "data": {
  *       "documentId": "xxx-xxx-xxx",
- *       "forwarderId": "xxx",
- *       "forwarderCode": "DHL",
- *       "forwarderName": "DHL Express",
+ *       "companyId": "xxx",
+ *       "companyCode": "DHL",
+ *       "companyName": "DHL Express",
  *       "confidence": 85.5,
  *       "matchMethod": "name",
  *       "matchedPatterns": ["name:DHL Express", "keyword:waybill"],
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
             type: 'https://api.example.com/errors/identification-failed',
             title: 'Identification Failed',
             status: 500,
-            detail: result.errorMessage || 'Failed to identify forwarder',
+            detail: result.errorMessage || 'Failed to identify company',
           },
         },
         { status: 500 }
@@ -146,9 +146,9 @@ export async function POST(request: NextRequest) {
       success: true,
       data: {
         documentId: result.documentId,
-        forwarderId: result.forwarderId,
-        forwarderCode: result.forwarderCode,
-        forwarderName: result.forwarderName,
+        companyId: result.forwarderId,
+        companyCode: result.forwarderCode,
+        companyName: result.forwarderName,
         confidence: result.confidence,
         matchMethod: result.matchMethod,
         matchedPatterns: result.matchedPatterns,
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Identify forwarder error:', error)
+    console.error('Identify company error:', error)
 
     // 檢查是否為 JSON 解析錯誤
     if (error instanceof SyntaxError) {
@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
           type: 'https://api.example.com/errors/internal-server-error',
           title: 'Internal Server Error',
           status: 500,
-          detail: 'Failed to identify forwarder',
+          detail: 'Failed to identify company',
         },
       },
       { status: 500 }

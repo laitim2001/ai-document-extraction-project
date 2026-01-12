@@ -11,7 +11,7 @@
  *   4. 瀏覽詳細比較結果
  *   5. 下載測試報告
  *
- * @module src/app/(dashboard)/forwarders/[id]/rules/[ruleId]/test/page
+ * @module src/app/(dashboard)/companies/[id]/rules/[ruleId]/test/page
  * @since Epic 5 - Story 5.4 (測試規則變更效果)
  * @lastModified 2025-12-19
  *

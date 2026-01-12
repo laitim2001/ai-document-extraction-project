@@ -6,7 +6,7 @@
  *   整合搜尋、篩選、表格和分頁的 Forwarder 管理列表。
  *   使用 URL 參數管理狀態，支援書籤和分享。
  *
- * @module src/components/features/forwarders/ForwarderList
+ * @module src/components/features/companies/ForwarderList
  * @author Development Team
  * @since Epic 5 - Story 5.1 (Forwarder Profile List)
  * @lastModified 2025-12-19
@@ -24,7 +24,7 @@
  *   - next/navigation - URL 路由
  *
  * @related
- *   - src/app/(dashboard)/forwarders/page.tsx - Forwarder 列表頁面
+ *   - src/app/(dashboard)/companies/page.tsx - Forwarder 列表頁面
  */
 
 import { useCallback } from 'react'
@@ -127,7 +127,7 @@ export function ForwarderList() {
    */
   const handleView = useCallback(
     (id: string) => {
-      router.push(`/forwarders/${id}`)
+      router.push(`/companies/${id}`)
     },
     [router]
   )
@@ -137,7 +137,7 @@ export function ForwarderList() {
    */
   const handleEdit = useCallback(
     (id: string) => {
-      router.push(`/forwarders/${id}/edit`)
+      router.push(`/companies/${id}/edit`)
     },
     [router]
   )

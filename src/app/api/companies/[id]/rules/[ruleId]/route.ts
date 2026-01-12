@@ -1,16 +1,16 @@
 /**
- * @fileoverview Forwarder 規則更新 API 端點
+ * @fileoverview Company 規則更新 API 端點
  * @description
  *   提供單一規則的更新功能（通過變更請求流程）。
  *   需要認證和 RULE_MANAGE 權限才能存取。
  *
  *   端點：
- *   - PUT /api/forwarders/[id]/rules/[ruleId] - 更新現有規則（創建變更請求）
+ *   - PUT /api/companies/[id]/rules/[ruleId] - 更新現有規則（創建變更請求）
  *
- * @module src/app/api/forwarders/[id]/rules/[ruleId]/route
+ * @module src/app/api/companies/[id]/rules/[ruleId]/route
  * @author Development Team
- * @since Epic 5 - Story 5.3 (編輯 Forwarder 映射規則)
- * @lastModified 2025-12-19
+ * @since Epic 5 - Story 5.3 (編輯 Company 映射規則)
+ * @lastModified 2026-01-12
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -35,7 +35,7 @@ import { ExtractionType } from '@prisma/client'
  * 路由參數 Schema
  */
 const RouteParamsSchema = z.object({
-  id: z.string().min(1, 'Forwarder ID is required'),
+  id: z.string().min(1, 'Company ID is required'),
   ruleId: z.string().min(1, 'Rule ID is required'),
 })
 
@@ -60,11 +60,11 @@ interface RouteParams {
 }
 
 // ============================================================
-// PUT /api/forwarders/[id]/rules/[ruleId]
+// PUT /api/companies/[id]/rules/[ruleId]
 // ============================================================
 
 /**
- * PUT /api/forwarders/[id]/rules/[ruleId]
+ * PUT /api/companies/[id]/rules/[ruleId]
  * 更新現有規則（創建變更請求）
  *
  * @description
@@ -78,7 +78,7 @@ interface RouteParams {
  * @returns 變更請求資訊
  *
  * @example
- *   PUT /api/forwarders/fwd123/rules/rule456
+ *   PUT /api/companies/cmp123/rules/rule456
  *   Body: {
  *     "extractionType": "REGEX",
  *     "pattern": { "expression": "Invoice:\\s*(\\d+)" },
@@ -156,7 +156,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const { id: forwarderId, ruleId } = paramsValidation.data
+    const { id: companyId, ruleId } = paramsValidation.data
 
     // 4. 解析並驗證請求內容
     let body: unknown
@@ -201,7 +201,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // 5. 創建變更請求
     const changeRequest = await createUpdateRequest({
       ruleId,
-      forwarderId,
+      forwarderId: companyId,
       requesterId: session.user.id,
       updates: {
         extractionType,

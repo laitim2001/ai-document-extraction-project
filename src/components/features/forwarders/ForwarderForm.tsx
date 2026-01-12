@@ -156,7 +156,7 @@ export function ForwarderForm({
     setCodeCheck({ status: 'checking' })
 
     try {
-      const response = await fetch(`/api/forwarders/check-code?code=${encodeURIComponent(code)}`)
+      const response = await fetch(`/api/companies/check-code?code=${encodeURIComponent(code)}`)
       const data = await response.json()
 
       if (data.success && data.data.available) {
@@ -227,7 +227,7 @@ export function ForwarderForm({
         formData.append('removeLogo', 'true')
       }
 
-      const url = isEditMode ? `/api/forwarders/${initialData.id}` : '/api/forwarders'
+      const url = isEditMode ? `/api/companies/${initialData.id}` : '/api/companies'
       const method = isEditMode ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
@@ -242,7 +242,7 @@ export function ForwarderForm({
       }
 
       // 成功後跳轉
-      router.push('/forwarders')
+      router.push('/companies')
       router.refresh()
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : '操作失敗，請稍後重試')

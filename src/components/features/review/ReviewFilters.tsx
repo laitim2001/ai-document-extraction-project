@@ -69,7 +69,7 @@ function useForwarders() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/forwarders?active=true')
+    fetch('/api/companies?active=true')
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
