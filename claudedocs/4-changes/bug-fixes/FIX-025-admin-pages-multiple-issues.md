@@ -105,9 +105,10 @@ A <Select.Item /> must have a value prop that is not an empty string.
 
 ## 待辦事項
 
-- [ ] **Prompt Test API**: 整合實際 GPT Vision 服務進行真實測試
-  - 當前為模擬模式，返回測試數據結構但不調用 AI 服務
-  - 需要連接 `gpt-vision.service.ts` 進行實際文件處理
+- [x] **Prompt Test API**: 整合實際 GPT Vision 服務進行真實測試 ✅ (2026-01-07)
+  - 已整合 Azure OpenAI GPT-5.2 Vision 服務
+  - 支援 PDF 和圖片文件測試
+  - 返回真實的提取結果、Token 使用量、執行時間
 
 ---
 
