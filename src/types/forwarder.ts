@@ -535,9 +535,10 @@ export type ValidatedRulesQuery = z.infer<typeof RulesQuerySchema>
 
 /**
  * Forwarder ID 參數驗證 Schema
+ * @description 使用 uuid 驗證（Prisma Company model 使用 @default(uuid())）
  */
 export const ForwarderIdSchema = z.object({
-  id: z.string().cuid(),
+  id: z.string().uuid(),
 })
 
 // ============================================================
