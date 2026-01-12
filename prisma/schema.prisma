@@ -5067,6 +5067,15 @@ model DocumentFormat {
   // }
   features        Json?           @map("features")
 
+  // 識別規則（JSON）- Story 16.3
+  // identificationRules 結構: {
+  //   logoPatterns: [{ position: "top-left", description: "DHL Logo" }],
+  //   keywords: ["Ocean Freight", "B/L No", "Shipper"],
+  //   layoutHints: "表格式發票，表頭包含公司資訊",
+  //   priority: 100
+  // }
+  identificationRules Json?       @map("identification_rules")
+
   // 常見術語（用於快速查找和學習）
   commonTerms     String[]        @map("common_terms")
 

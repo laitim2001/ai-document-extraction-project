@@ -3,7 +3,7 @@
  * @description
  *   提供單一格式的詳情查詢和更新功能。
  *   - GET: 獲取格式詳情（含公司資訊和統計）
- *   - PATCH: 更新格式名稱和特徵
+ *   - PATCH: 更新格式名稱、特徵和識別規則
  *
  * @module src/app/api/v1/formats/[id]
  * @since Epic 16 - Story 16.2
@@ -16,33 +16,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
+import { updateFormatSchema } from '@/validations/document-format';
 import type {
   DocumentType,
   DocumentSubtype,
   DocumentFormatFeatures,
+  IdentificationRules,
 } from '@/types/document-format';
-
-// ============================================================================
-// Schema 驗證
-// ============================================================================
-
-/**
- * 更新格式 Schema
- */
-const updateFormatSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  features: z
-    .object({
-      hasLineItems: z.boolean().optional(),
-      hasHeaderLogo: z.boolean().optional(),
-      currency: z.string().optional(),
-      language: z.string().optional(),
-      typicalFields: z.array(z.string()).optional(),
-      layoutPattern: z.string().optional(),
-    })
-    .optional(),
-});
 
 // ============================================================================
 // API Handlers
@@ -108,6 +88,7 @@ export async function GET(
       documentSubtype: format.documentSubtype as DocumentSubtype,
       name: format.name,
       features: format.features as DocumentFormatFeatures | null,
+      identificationRules: format.identificationRules as IdentificationRules | null,
       commonTerms: format.commonTerms,
       fileCount: format._count.files,
       createdAt: format.createdAt.toISOString(),
@@ -205,6 +186,11 @@ export async function PATCH(
       };
     }
 
+    if (validated.identificationRules !== undefined) {
+      // 直接替換識別規則
+      updateData.identificationRules = validated.identificationRules;
+    }
+
     // 執行更新
     const updatedFormat = await prisma.documentFormat.update({
       where: { id },
@@ -233,6 +219,7 @@ export async function PATCH(
       documentSubtype: updatedFormat.documentSubtype as DocumentSubtype,
       name: updatedFormat.name,
       features: updatedFormat.features as DocumentFormatFeatures | null,
+      identificationRules: updatedFormat.identificationRules as IdentificationRules | null,
       commonTerms: updatedFormat.commonTerms,
       fileCount: updatedFormat._count.files,
       createdAt: updatedFormat.createdAt.toISOString(),

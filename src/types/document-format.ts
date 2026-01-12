@@ -420,6 +420,8 @@ export interface DocumentFormatDetail {
   name: string | null;
   /** 格式特徵 */
   features: DocumentFormatFeatures | null;
+  /** 識別規則 (Story 16.3) */
+  identificationRules: IdentificationRules | null;
   /** 常見術語 */
   commonTerms: string[];
   /** 文件數量 */
@@ -563,3 +565,64 @@ export function getFormatDisplayName(
   }
   return `${DOCUMENT_SUBTYPE_LABELS[documentSubtype]} ${DOCUMENT_TYPE_LABELS[documentType]}`;
 }
+
+// ============================================================================
+// 識別規則類型 (Story 16.3)
+// ============================================================================
+
+/**
+ * Logo 位置類型
+ */
+export type LogoPosition =
+  | 'top-left'
+  | 'top-right'
+  | 'top-center'
+  | 'bottom-left'
+  | 'bottom-right'
+  | 'center';
+
+/**
+ * Logo 特徵
+ */
+export interface LogoPattern {
+  /** Logo 位置 */
+  position: LogoPosition;
+  /** Logo 描述 */
+  description: string;
+}
+
+/**
+ * 識別規則
+ */
+export interface IdentificationRules {
+  /** Logo 特徵列表 */
+  logoPatterns: LogoPattern[];
+  /** 關鍵字列表 */
+  keywords: string[];
+  /** 版面特徵提示 */
+  layoutHints: string;
+  /** 識別優先級 (0-100) */
+  priority: number;
+}
+
+/**
+ * Logo 位置選項（用於下拉選單）
+ */
+export const LOGO_POSITION_OPTIONS: Array<{ value: LogoPosition; label: string }> = [
+  { value: 'top-left', label: '左上角' },
+  { value: 'top-right', label: '右上角' },
+  { value: 'top-center', label: '頂部中央' },
+  { value: 'bottom-left', label: '左下角' },
+  { value: 'bottom-right', label: '右下角' },
+  { value: 'center', label: '中央' },
+];
+
+/**
+ * 預設識別規則
+ */
+export const DEFAULT_IDENTIFICATION_RULES: IdentificationRules = {
+  logoPatterns: [],
+  keywords: [],
+  layoutHints: '',
+  priority: 50,
+};
