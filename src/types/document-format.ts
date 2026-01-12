@@ -397,6 +397,71 @@ export interface FormatFiltersState {
 }
 
 /**
+ * 格式詳情（包含完整資訊）
+ * @description 用於格式詳情頁顯示
+ * @since Epic 16 - Story 16.2
+ */
+export interface DocumentFormatDetail {
+  /** 格式 ID */
+  id: string;
+  /** 公司 ID */
+  companyId: string;
+  /** 公司資訊 */
+  company: {
+    id: string;
+    name: string;
+    code: string;
+  };
+  /** 文件類型 */
+  documentType: DocumentType;
+  /** 文件子類型 */
+  documentSubtype: DocumentSubtype;
+  /** 格式名稱 */
+  name: string | null;
+  /** 格式特徵 */
+  features: DocumentFormatFeatures | null;
+  /** 常見術語 */
+  commonTerms: string[];
+  /** 文件數量 */
+  fileCount: number;
+  /** 創建時間 */
+  createdAt: string;
+  /** 更新時間 */
+  updatedAt: string;
+}
+
+/**
+ * 格式關聯文件
+ * @since Epic 16 - Story 16.2
+ */
+export interface FormatLinkedFile {
+  /** 文件 ID */
+  id: string;
+  /** 原始文件名 */
+  originalName: string;
+  /** 文件狀態 */
+  status: string;
+  /** 格式識別信心度 */
+  formatConfidence: number | null;
+  /** 上傳時間 */
+  uploadedAt: string;
+}
+
+/**
+ * 格式文件列表響應
+ * @since Epic 16 - Story 16.2
+ */
+export interface FormatFilesResponse {
+  files: FormatLinkedFile[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+/**
  * 文件類型選項（用於下拉選單）
  */
 export const DOCUMENT_TYPE_OPTIONS: Array<{ value: DocumentType; label: string }> =

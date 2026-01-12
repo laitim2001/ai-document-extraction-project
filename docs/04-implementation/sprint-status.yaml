@@ -255,7 +255,7 @@ development_status:
   # ============================================================
   epic-16: in-progress  # 4 stories planned
   16-1-format-list-tab: done  # Completed 2026-01-12: FormatList/FormatCard/FormatFilters components, useCompanyFormats hook, ForwarderDetailView「格式」Tab, document-format types extension (FormatFiltersState, DOCUMENT_TYPE/SUBTYPE_OPTIONS)
-  16-2-format-detail-edit: backlog  # 格式詳情與編輯
+  16-2-format-detail-edit: done  # Completed 2026-01-12: FormatDetailView Tabs (basic/terms/files), FormatBasicInfo, FormatForm, FormatTermsTable, FormatFilesTable, useFormatDetail/useFormatFiles hooks, GET/PATCH /api/v1/formats/[id], /api/v1/formats/[id]/files, DocumentFormatDetail type
   16-3-identification-rules-config: backlog  # 識別規則配置
   16-4-linked-config-panel: backlog  # 專屬配置關聯
   epic-16-retrospective: optional
