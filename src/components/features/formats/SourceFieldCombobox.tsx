@@ -42,6 +42,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
+// 直接從 source-field.service 導入，避免觸發服務器端代碼的 barrel import
 import {
   getGroupedSourceFields,
   searchFields,
@@ -50,7 +51,7 @@ import {
   CATEGORY_LABELS,
   type SourceFieldOption,
   type GroupedSourceFields,
-} from '@/services/mapping';
+} from '@/services/mapping/source-field.service';
 
 // ============================================================================
 // Types
