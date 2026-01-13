@@ -25,6 +25,11 @@
 
 import type { VisualMappingConfig, MappedFieldValue } from './field-mapping';
 import type { ResolvedPromptResult } from './prompt-resolution';
+import type {
+  DocumentType,
+  DocumentSubtype,
+  IdentificationRules,
+} from './document-format';
 
 // 重新導出常用類型
 export type { MappedFieldValue } from './field-mapping';
@@ -305,6 +310,28 @@ export interface RecordedTerm {
 }
 
 // ============================================================================
+// Format Identification Rules (Story 16.5)
+// ============================================================================
+
+/**
+ * 格式識別規則（用於 Prompt 注入）
+ * @description 將 DocumentFormat.identificationRules 整合到 GPT Vision Prompt
+ * @since Epic 16 - Story 16.5
+ */
+export interface FormatIdentificationRule {
+  /** 格式 ID */
+  formatId: string;
+  /** 格式名稱 */
+  formatName: string;
+  /** 文件類型 */
+  documentType: DocumentType;
+  /** 文件子類型 */
+  documentSubtype: DocumentSubtype;
+  /** 識別規則 */
+  rules: IdentificationRules;
+}
+
+// ============================================================================
 // Processing Context Status
 // ============================================================================
 
@@ -363,6 +390,8 @@ export interface UnifiedProcessingContext {
   promptConfig?: ResolvedPromptResult;
   /** 步驟 5b: 解析後的 Prompt（別名） */
   resolvedPrompt?: ResolvedPromptResult;
+  /** 步驟 5c: 格式識別規則列表（Story 16.5） */
+  formatIdentificationRules?: FormatIdentificationRule[];
   /** 步驟 8: 映射後的欄位 */
   mappedFields?: MappedFieldValue[];
   /** 步驟 8: 未映射的欄位 */

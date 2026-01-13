@@ -32,7 +32,14 @@ import {
   StepResult,
   UnifiedProcessingContext,
   UnifiedProcessorFlags,
+  type FormatIdentificationRule,
 } from '@/types/unified-processor';
+import type {
+  DocumentType,
+  DocumentSubtype,
+  IdentificationRules,
+} from '@/types/document-format';
+import { prisma } from '@/lib/prisma';
 import { BaseStepHandler } from '../interfaces/step-handler.interface';
 import { configFetcherAdapter } from '../adapters/config-fetcher-adapter';
 import {
@@ -68,6 +75,8 @@ interface ConfigFetchingStepOutput {
   resolutionTimeMs: number;
   /** 是否使用快取 */
   cached: boolean;
+  /** 格式識別規則數量（Story 16.5） */
+  formatRulesCount: number;
   /** Index signature for Record<string, unknown> compatibility */
   [key: string]: unknown;
 }
@@ -146,8 +155,22 @@ export class ConfigFetchingStep extends BaseStepHandler {
       // 更新上下文
       this.updateContext(context, fetchResult.config);
 
+      // === 新增: 讀取識別規則 (Story 16.5) ===
+      if (context.companyId) {
+        const formatRules = await this.fetchFormatIdentificationRules(
+          context.companyId
+        );
+        context.formatIdentificationRules = formatRules;
+        console.log(
+          `[Step 5] Loaded ${formatRules.length} format identification rules for company ${context.companyId}`
+        );
+      }
+
       // 構建輸出數據
-      const outputData = this.buildOutputData(fetchResult.config);
+      const outputData = this.buildOutputData(
+        fetchResult.config,
+        context.formatIdentificationRules?.length || 0
+      );
 
       // 添加配置來源信息到日誌
       this.logConfigResolution(context, fetchResult.config);
@@ -323,8 +346,13 @@ export class ConfigFetchingStep extends BaseStepHandler {
 
   /**
    * 構建輸出數據
+   * @param config 統一動態配置
+   * @param formatRulesCount 格式識別規則數量（Story 16.5）
    */
-  private buildOutputData(config: UnifiedDynamicConfig): ConfigFetchingStepOutput {
+  private buildOutputData(
+    config: UnifiedDynamicConfig,
+    formatRulesCount: number = 0
+  ): ConfigFetchingStepOutput {
     const configSources = config.metadata.appliedLayers.map((layer) => layer.source);
     const uniqueSources = [...new Set(configSources)];
 
@@ -336,6 +364,7 @@ export class ConfigFetchingStep extends BaseStepHandler {
       configSources: uniqueSources,
       resolutionTimeMs: config.metadata.resolutionTimeMs,
       cached: config.metadata.cached,
+      formatRulesCount,
     };
   }
 
@@ -351,6 +380,7 @@ export class ConfigFetchingStep extends BaseStepHandler {
       configSources: [],
       resolutionTimeMs: processingTimeMs,
       cached: false,
+      formatRulesCount: 0,
     };
   }
 
@@ -373,5 +403,40 @@ export class ConfigFetchingStep extends BaseStepHandler {
         timestamp: new Date().toISOString(),
       });
     }
+  }
+
+  /**
+   * 讀取公司下所有格式的識別規則
+   * @description Story 16.5: 從 DocumentFormat 讀取 identificationRules
+   * @param companyId 公司 ID
+   * @returns 格式識別規則列表
+   */
+  private async fetchFormatIdentificationRules(
+    companyId: string
+  ): Promise<FormatIdentificationRule[]> {
+    // 先獲取所有格式，然後在應用層過濾有 identificationRules 的
+    const formats = await prisma.documentFormat.findMany({
+      where: {
+        companyId,
+      },
+      select: {
+        id: true,
+        name: true,
+        documentType: true,
+        documentSubtype: true,
+        identificationRules: true,
+      },
+    });
+
+    // 過濾有識別規則的格式並轉換類型
+    return formats
+      .filter((f) => f.identificationRules !== null)
+      .map((f) => ({
+        formatId: f.id,
+        formatName: f.name || `${f.documentType} - ${f.documentSubtype}`,
+        documentType: f.documentType as DocumentType,
+        documentSubtype: f.documentSubtype as DocumentSubtype,
+        rules: f.identificationRules as unknown as IdentificationRules,
+      }));
   }
 }

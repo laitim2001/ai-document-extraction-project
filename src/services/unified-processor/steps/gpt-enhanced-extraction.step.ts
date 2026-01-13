@@ -45,6 +45,12 @@ import {
   type InvoiceExtractionResult,
 } from '@/services/gpt-vision.service';
 
+// Story 16.5: 導入識別規則 Prompt 生成器
+import {
+  buildIdentificationRulesPrompt,
+  hasValidIdentificationRules,
+} from '@/services/prompt/identification-rules-prompt-builder';
+
 /**
  * GPT 額外提取的欄位結構
  * @description CHANGE-006: 定義 GPT 可提取的額外欄位
@@ -170,7 +176,7 @@ export class GptEnhancedExtractionStep extends BaseStepHandler {
     confidence: number;
     mode: 'classification';
   }> {
-    const { input, resolvedPrompt, companyId, documentFormatId } = context;
+    const { input, resolvedPrompt, companyId, documentFormatId, formatIdentificationRules } = context;
 
     // 準備臨時圖片文件
     const tempFilePath = await this.prepareImageFromBuffer(
@@ -179,6 +185,15 @@ export class GptEnhancedExtractionStep extends BaseStepHandler {
     );
 
     try {
+      // === Story 16.5: 構建識別規則 Prompt ===
+      let identificationRulesPrompt = '';
+      if (hasValidIdentificationRules(formatIdentificationRules)) {
+        identificationRulesPrompt = buildIdentificationRulesPrompt(formatIdentificationRules!);
+        console.log(
+          `[Step 7] Injecting identification rules for ${formatIdentificationRules!.length} formats`
+        );
+      }
+
       // 構建處理選項
       const options: ProcessingOptions = {
         companyId,
@@ -186,10 +201,12 @@ export class GptEnhancedExtractionStep extends BaseStepHandler {
         documentId: input.fileId,
         // 如果有動態 Prompt 配置，則不強制使用靜態
         forceStaticPrompt: !resolvedPrompt?.userPromptTemplate,
+        // Story 16.5: 傳遞識別規則 Prompt
+        identificationRulesPrompt,
       };
 
       console.log(
-        `[Step 7] performClassification: fileId=${input.fileId}, hasResolvedPrompt=${!!resolvedPrompt}`
+        `[Step 7] performClassification: fileId=${input.fileId}, hasResolvedPrompt=${!!resolvedPrompt}, hasIdentificationRules=${!!identificationRulesPrompt}`
       );
 
       // 調用 GPT Vision 分類服務

@@ -132,7 +132,7 @@ export interface DocumentFormatInfo {
 }
 
 /**
- * Story 0-11 + Story 14-4: 處理選項
+ * Story 0-11 + Story 14-4 + Story 16.5: 處理選項
  * @description 控制 Prompt 版本、結果包含選項和動態 Prompt 設置
  */
 export interface ProcessingOptions {
@@ -148,6 +148,8 @@ export interface ProcessingOptions {
   documentId?: string
   /** Story 14-4: 是否強制使用靜態 Prompt（覆蓋 Feature Flag） */
   forceStaticPrompt?: boolean
+  /** Story 16.5: 識別規則 Prompt（由 identification-rules-prompt-builder 生成） */
+  identificationRulesPrompt?: string
 }
 
 /**
@@ -438,11 +440,12 @@ async function getPromptForType(
 }
 
 /**
- * Story 14-4: 獲取分類 Prompt（ISSUER_IDENTIFICATION）
+ * Story 14-4 + Story 16.5: 獲取分類 Prompt（ISSUER_IDENTIFICATION）
  *
  * @description
  *   專門用於 classifyDocument 的 Prompt 獲取。
  *   優先使用動態 Prompt，失敗時降級到靜態 CLASSIFICATION_ONLY_PROMPT。
+ *   Story 16.5: 支援注入識別規則 Prompt。
  *
  * @param options - 處理選項
  * @returns Prompt 內容和來源資訊
@@ -455,9 +458,15 @@ async function getClassificationPrompt(options?: ProcessingOptions): Promise<{
     const result = await getPromptForType(PromptType.ISSUER_IDENTIFICATION, options)
 
     // 合併 systemPrompt 和 userPrompt
-    const combinedPrompt = result.systemPrompt
+    let combinedPrompt = result.systemPrompt
       ? `${result.systemPrompt}\n\n${result.userPrompt}`
       : result.userPrompt
+
+    // Story 16.5: 注入識別規則 Prompt
+    if (options?.identificationRulesPrompt) {
+      combinedPrompt = `${combinedPrompt}\n\n${options.identificationRulesPrompt}`
+      console.log(`[GPT Vision] Classification prompt injected with identification rules`)
+    }
 
     console.log(`[GPT Vision] Classification using ${result.source} prompt`)
 
@@ -470,8 +479,16 @@ async function getClassificationPrompt(options?: ProcessingOptions): Promise<{
     console.warn(
       `[GPT Vision] Failed to get dynamic classification prompt, using static: ${(error as Error).message}`
     )
+
+    // Story 16.5: 即使降級到靜態 Prompt，也注入識別規則
+    let fallbackPrompt = CLASSIFICATION_ONLY_PROMPT
+    if (options?.identificationRulesPrompt) {
+      fallbackPrompt = `${fallbackPrompt}\n\n${options.identificationRulesPrompt}`
+      console.log(`[GPT Vision] Fallback prompt injected with identification rules`)
+    }
+
     return {
-      prompt: CLASSIFICATION_ONLY_PROMPT,
+      prompt: fallbackPrompt,
       source: 'fallback',
     }
   }
