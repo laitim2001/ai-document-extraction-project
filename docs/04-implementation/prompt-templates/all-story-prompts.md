@@ -6177,6 +6177,223 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
+## Epic 16: 文件格式管理
+
+> **說明**：此 Epic 提供文件格式的可視化管理和識別規則配置，讓用戶可以查看、編輯和配置每個公司的文件格式。
+
+### Story 16-1: 格式列表 Tab
+
+```
+# 開發任務：Story 16-1 格式列表 Tab
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/16-1-format-list-tab.md
+- src/services/document-format.service.ts（現有服務）
+- src/app/api/v1/formats/route.ts（現有 API）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 修改 ForwarderDetailView 新增「格式」Tab
+3. 實現 FormatList 和 FormatCard 組件
+4. 實現 FormatFilters 篩選組件
+5. 實現 useCompanyFormats Hook
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 16-2: 格式詳情與編輯
+
+```
+# 開發任務：Story 16-2 格式詳情與編輯
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/16-2-format-detail-edit.md
+- docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-1.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 新增 API: GET/PATCH /api/v1/formats/[id]
+3. 實現 FormatDetailView 組件（Tabs 結構）
+4. 實現 FormatBasicInfo、FormatTermsTable、FormatFilesTable 組件
+5. 實現 FormatForm 編輯表單
+6. 實現 useFormatDetail Hook
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 16-3: 識別規則配置
+
+```
+# 開發任務：Story 16-3 識別規則配置
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/16-3-identification-rules-config.md
+- docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-2.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 新增 Prisma 欄位: identificationRules (Json)
+3. 執行 Prisma 遷移
+4. 定義 IdentificationRules 類型和 Zod 驗證 schema
+5. 實現 IdentificationRulesEditor 組件
+6. 實現 LogoPatternEditor 和 KeywordTagInput 子組件
+7. 更新 PATCH API 支援識別規則
+8. 整合到 FormatDetailView 的識別規則 Tab
+9. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 3. 資料庫變更
+- [ ] Prisma 遷移已成功執行
+- [ ] 遷移腳本已提交到版本控制
+
+### 4. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 16-4: 專屬配置關聯
+
+```
+# 開發任務：Story 16-4 專屬配置關聯
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/16-4-linked-config-panel.md
+- docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-2.md（依賴）
+- src/types/prompt-config.ts（類型定義）
+- src/types/field-mapping.ts（類型定義）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 新增 API: GET /api/v1/formats/[id]/configs
+3. 實現 FormatConfigPanel 組件
+4. 實現 LinkedPromptConfig 組件（顯示/創建 Prompt 配置）
+5. 實現 LinkedMappingConfig 組件（顯示/創建映射配置）
+6. 實現 ConfigInheritanceInfo 組件（繼承關係說明）
+7. 整合到 FormatDetailView 的專屬配置 Tab
+8. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
 ## 使用說明
 
 ### 如何使用這些提示
