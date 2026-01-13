@@ -471,6 +471,126 @@ async function main() {
   }
 
   // ===========================================
+  // Seed Data Templates (Story 16-7)
+  // ===========================================
+  console.log('\n📋 Creating data templates...\n')
+
+  interface DataTemplateField {
+    name: string
+    label: string
+    dataType: 'string' | 'number' | 'date' | 'currency' | 'boolean' | 'array'
+    isRequired: boolean
+    order: number
+    description?: string
+  }
+
+  interface DataTemplateSeed {
+    id: string
+    name: string
+    description: string
+    scope: 'GLOBAL' | 'COMPANY'
+    isSystem: boolean
+    fields: DataTemplateField[]
+  }
+
+  const dataTemplateSeedData: DataTemplateSeed[] = [
+    {
+      id: 'erp-standard-import',
+      name: 'ERP 標準匯入格式',
+      description: '適用於大多數 ERP 系統的標準發票匯入格式',
+      scope: 'GLOBAL',
+      isSystem: true,
+      fields: [
+        { name: 'invoice_number', label: '發票號碼', dataType: 'string', isRequired: true, order: 1 },
+        { name: 'invoice_date', label: '發票日期', dataType: 'date', isRequired: true, order: 2 },
+        { name: 'vendor_code', label: '供應商代碼', dataType: 'string', isRequired: true, order: 3 },
+        { name: 'vendor_name', label: '供應商名稱', dataType: 'string', isRequired: false, order: 4 },
+        { name: 'currency', label: '幣別', dataType: 'string', isRequired: true, order: 5 },
+        { name: 'subtotal', label: '小計', dataType: 'currency', isRequired: false, order: 6 },
+        { name: 'tax_amount', label: '稅額', dataType: 'currency', isRequired: false, order: 7 },
+        { name: 'total_amount', label: '總金額', dataType: 'currency', isRequired: true, order: 8 },
+        { name: 'due_date', label: '付款到期日', dataType: 'date', isRequired: false, order: 9 },
+        { name: 'po_number', label: '採購單號', dataType: 'string', isRequired: false, order: 10 },
+        { name: 'tracking_number', label: '追蹤號碼', dataType: 'string', isRequired: false, order: 11 },
+        { name: 'description', label: '說明', dataType: 'string', isRequired: false, order: 12 },
+      ],
+    },
+    {
+      id: 'expense-report-format',
+      name: '費用報表格式',
+      description: '用於管理報表匯出的精簡格式',
+      scope: 'GLOBAL',
+      isSystem: true,
+      fields: [
+        { name: 'invoice_number', label: '發票號碼', dataType: 'string', isRequired: true, order: 1 },
+        { name: 'invoice_date', label: '發票日期', dataType: 'date', isRequired: true, order: 2 },
+        { name: 'vendor_name', label: '供應商', dataType: 'string', isRequired: true, order: 3 },
+        { name: 'category', label: '費用類別', dataType: 'string', isRequired: false, order: 4 },
+        { name: 'currency', label: '幣別', dataType: 'string', isRequired: true, order: 5 },
+        { name: 'amount', label: '金額', dataType: 'currency', isRequired: true, order: 6 },
+        { name: 'department', label: '部門', dataType: 'string', isRequired: false, order: 7 },
+        { name: 'cost_center', label: '成本中心', dataType: 'string', isRequired: false, order: 8 },
+      ],
+    },
+    {
+      id: 'logistics-tracking-format',
+      name: '物流追蹤格式',
+      description: '專為物流發票設計的追蹤格式',
+      scope: 'GLOBAL',
+      isSystem: true,
+      fields: [
+        { name: 'tracking_number', label: '追蹤號碼', dataType: 'string', isRequired: true, order: 1 },
+        { name: 'invoice_number', label: '發票號碼', dataType: 'string', isRequired: true, order: 2 },
+        { name: 'ship_date', label: '發貨日期', dataType: 'date', isRequired: false, order: 3 },
+        { name: 'delivery_date', label: '交付日期', dataType: 'date', isRequired: false, order: 4 },
+        { name: 'origin', label: '起運地', dataType: 'string', isRequired: false, order: 5 },
+        { name: 'destination', label: '目的地', dataType: 'string', isRequired: false, order: 6 },
+        { name: 'carrier', label: '承運商', dataType: 'string', isRequired: true, order: 7 },
+        { name: 'service_type', label: '服務類型', dataType: 'string', isRequired: false, order: 8 },
+        { name: 'weight', label: '重量', dataType: 'number', isRequired: false, order: 9 },
+        { name: 'freight_charge', label: '運費', dataType: 'currency', isRequired: true, order: 10 },
+        { name: 'total_amount', label: '總金額', dataType: 'currency', isRequired: true, order: 11 },
+      ],
+    },
+  ]
+
+  let templateCreatedCount = 0
+  let templateUpdatedCount = 0
+
+  for (const template of dataTemplateSeedData) {
+    const existingTemplate = await prisma.dataTemplate.findUnique({
+      where: { id: template.id },
+    })
+
+    if (existingTemplate) {
+      await prisma.dataTemplate.update({
+        where: { id: template.id },
+        data: {
+          name: template.name,
+          description: template.description,
+          fields: template.fields as unknown as Prisma.InputJsonValue,
+        },
+      })
+      templateUpdatedCount++
+      console.log(`  🔄 Updated: ${template.name}`)
+    } else {
+      await prisma.dataTemplate.create({
+        data: {
+          id: template.id,
+          name: template.name,
+          description: template.description,
+          scope: template.scope,
+          isSystem: template.isSystem,
+          isActive: true,
+          fields: template.fields as unknown as Prisma.InputJsonValue,
+        },
+      })
+      templateCreatedCount++
+      console.log(`  ✅ Created: ${template.name}`)
+    }
+  }
+
+  // ===========================================
   // Summary
   // ===========================================
   const roleCount = await prisma.role.count()
@@ -480,6 +600,7 @@ async function main() {
   const companyCount = await prisma.company.count()
   const mappingRuleCount = await prisma.mappingRule.count()
   const systemConfigCount = await prisma.systemConfig.count()
+  const dataTemplateCount = await prisma.dataTemplate.count()
 
   console.log('\n========================================')
   console.log('✨ Seed completed successfully!')
@@ -496,6 +617,8 @@ async function main() {
   console.log(`  Mapping rules updated: ${ruleUpdatedCount}`)
   console.log(`  System configs created: ${configCreatedCount}`)
   console.log(`  System configs updated: ${configUpdatedCount}`)
+  console.log(`  Data templates created: ${templateCreatedCount}`)
+  console.log(`  Data templates updated: ${templateUpdatedCount}`)
   console.log('----------------------------------------')
   console.log(`  Total roles: ${roleCount}`)
   console.log(`  Total regions: ${regionCount}`)
@@ -503,6 +626,7 @@ async function main() {
   console.log(`  Total companies: ${companyCount}`)
   console.log(`  Total mapping rules: ${mappingRuleCount}`)
   console.log(`  Total system configs: ${systemConfigCount}`)
+  console.log(`  Total data templates: ${dataTemplateCount}`)
   console.log(`  Total users: ${userCount}`)
   console.log('========================================\n')
 }

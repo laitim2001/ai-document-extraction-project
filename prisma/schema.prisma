@@ -661,6 +661,7 @@ model Company {
   documentFormats           DocumentFormat[]    // Story 0.9: 公司的文件格式
   fieldMappingConfigs       FieldMappingConfig[] // Story 13.4: 欄位映射配置
   promptConfigs             PromptConfig[]       // Story 14.1: Prompt 配置
+  dataTemplates             DataTemplate[]       // Story 16.7: 數據模版
 
   @@index([type])
   @@index([status])
@@ -5193,12 +5194,17 @@ model FieldMappingConfig {
   // 關聯
   rules            FieldMappingRule[]
 
+  // Story 16-7: 數據模版關聯
+  dataTemplateId   String?           @map("data_template_id")
+  dataTemplate     DataTemplate?     @relation(fields: [dataTemplateId], references: [id])
+
   // 唯一約束：每個範圍組合只能有一個配置
   @@unique([scope, companyId, documentFormatId])
   @@index([companyId])
   @@index([documentFormatId])
   @@index([scope])
   @@index([isActive])
+  @@index([dataTemplateId])
   @@map("field_mapping_configs")
 }
 
@@ -5350,5 +5356,64 @@ model PromptVariable {
   updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@map("prompt_variables")
+}
+
+// ============================================================================
+// Epic 16 - Story 16-7: 數據模版管理
+// ============================================================================
+
+/// Data Template Scope
+/// Controls visibility and applicability of templates
+enum DataTemplateScope {
+  GLOBAL  // 全局模版，所有公司可用
+  COMPANY // 公司專屬模版
+}
+
+/// Data Template
+/// Defines target field structure for data export/import
+/// Supports ERP import formats, report formats, etc.
+model DataTemplate {
+  id              String            @id @default(cuid())
+
+  // 基本資訊
+  name            String            @db.VarChar(200)
+  description     String?           @db.Text
+
+  // 範圍設定
+  scope           DataTemplateScope @default(GLOBAL)
+  companyId       String?           @map("company_id")
+  company         Company?          @relation(fields: [companyId], references: [id])
+
+  // 欄位定義 (JSON)
+  // 結構: DataTemplateField[]
+  // {
+  //   name: string,
+  //   label: string,
+  //   dataType: 'string' | 'number' | 'date' | 'currency' | 'boolean' | 'array',
+  //   isRequired: boolean,
+  //   defaultValue?: string | number | boolean | null,
+  //   validation?: { pattern?, min?, max?, maxLength?, minLength?, allowedValues? },
+  //   description?: string,
+  //   order: number
+  // }[]
+  fields          Json
+
+  // 狀態
+  isActive        Boolean           @default(true) @map("is_active")
+  isSystem        Boolean           @default(false) @map("is_system")
+
+  // 關聯
+  fieldMappingConfigs FieldMappingConfig[]
+
+  // 時間戳
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  createdBy       String?           @map("created_by")
+
+  @@index([scope])
+  @@index([companyId])
+  @@index([isActive])
+  @@index([isSystem])
+  @@map("data_templates")
 }
 

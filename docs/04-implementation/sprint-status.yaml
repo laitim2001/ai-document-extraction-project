@@ -253,12 +253,12 @@ development_status:
   # ============================================================
   # Epic 16: 文件格式管理
   # ============================================================
-  epic-16: in-progress  # Stories 16-1 to 16-4 completed, 16-5 to 16-7 in progress
+  epic-16: done  # All 7 stories completed 2026-01-13
   16-1-format-list-tab: done  # Completed 2026-01-12: FormatList/FormatCard/FormatFilters components, useCompanyFormats hook, ForwarderDetailView「格式」Tab, document-format types extension (FormatFiltersState, DOCUMENT_TYPE/SUBTYPE_OPTIONS)
   16-2-format-detail-edit: done  # Completed 2026-01-12: FormatDetailView Tabs (basic/terms/files), FormatBasicInfo, FormatForm, FormatTermsTable, FormatFilesTable, useFormatDetail/useFormatFiles hooks, GET/PATCH /api/v1/formats/[id], /api/v1/formats/[id]/files, DocumentFormatDetail type
   16-3-identification-rules-config: done  # Completed 2026-01-12: IdentificationRulesEditor/LogoPatternEditor/KeywordTagInput components, identificationRules Json field in DocumentFormat, Zod validation schema, PATCH API update, FormatDetailView 識別規則 Tab
   16-4-linked-config-panel: done  # Completed 2026-01-12: FormatConfigPanel/LinkedPromptConfig/LinkedMappingConfig/ConfigInheritanceInfo components, GET /api/v1/formats/[id]/configs API, FormatDetailView 專屬配置 Tab
   16-5-identification-rules-prompt-integration: done  # Completed 2026-01-13: FormatIdentificationRule type, identification-rules-prompt-builder.ts, ConfigFetchingStep reads rules, GptEnhancedExtractionStep passes rules, gpt-vision.service.ts injects prompt
   16-6-dynamic-field-mapping: done  # Completed 2026-01-13: source-field.service.ts (標準欄位+動態提取欄位), GET /api/v1/formats/[id]/extracted-fields API, field-mapping.step.ts applyThreeTierMapping (整合 DynamicMappingService), SourceFieldCombobox.tsx (分組顯示+搜尋+自訂欄位)
-  16-7-data-template-management: drafted  # 數據模版管理 (8 points)
+  16-7-data-template-management: done  # Completed 2026-01-13: DataTemplate Prisma model, data-template.ts types, data-template.ts Zod schema, data-template.service.ts CRUD, /api/v1/data-templates CRUD API, /admin/data-templates UI (列表/新增/編輯), DataTemplateFieldEditor 欄位編輯器, 3 system templates seeded (ERP/費用報表/物流追蹤)
   epic-16-retrospective: optional
