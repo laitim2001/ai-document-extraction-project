@@ -109,9 +109,9 @@ export function LinkedMappingConfig({
           尚未配置格式專屬的欄位映射
         </p>
         {effectiveLevel !== 'NONE' && (
-          <p className="text-xs text-muted-foreground mb-4">
+          <div className="text-xs text-muted-foreground mb-4">
             目前使用 <Badge variant="outline" className="text-xs">{effectiveLevel}</Badge> 級別配置
-          </p>
+          </div>
         )}
         {effectiveLevel === 'NONE' && (
           <p className="text-xs text-muted-foreground mb-4">
