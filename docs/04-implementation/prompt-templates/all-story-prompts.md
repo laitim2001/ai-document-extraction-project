@@ -6394,6 +6394,172 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
+### Story 16-5: 識別規則 Prompt 整合
+
+```
+# 開發任務：Story 16-5 識別規則 Prompt 整合
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-3.md（依賴）
+- src/services/unified-processor/steps/config-fetching.step.ts
+- src/services/unified-processor/steps/gpt-enhanced-extraction.step.ts
+- src/services/gpt-vision.service.ts
+- src/types/document-format.ts（IdentificationRules 類型）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 新增 FormatIdentificationRule 類型到 unified-processor.ts
+3. 新增 identification-rules-prompt-builder.ts 服務
+4. 擴展 ConfigFetchingStep 讀取公司下所有格式的識別規則
+5. 修改 GptEnhancedExtractionStep 傳遞識別規則到 GPT
+6. 修改 gpt-vision.service.ts 注入識別規則 Prompt
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Epic 16 overview：Story 16-5 狀態改為 ✅ 已完成
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 16-6: 動態欄位映射配置
+
+```
+# 開發任務：Story 16-6 動態欄位映射配置
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-6.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-7.md（依賴）
+- src/types/invoice-fields.ts（90+ 標準欄位定義）
+- src/services/unified-processor/steps/field-mapping.step.ts（需完成 stub）
+- src/services/dynamic-field-mapping.service.ts
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 新增 source-field.service.ts（來源欄位服務）
+3. 新增 GET /api/v1/formats/[id]/extracted-fields API
+4. 完成 field-mapping.step.ts 的 applyThreeTierMapping 方法
+5. 新增 SourceFieldCombobox.tsx 組件
+6. 整合標準欄位（invoice-fields.ts）+ 動態提取欄位
+7. 支援自訂欄位名稱輸入
+8. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Epic 16 overview：Story 16-6 狀態改為 ✅ 已完成
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 16-7: 數據模版管理
+
+```
+# 開發任務：Story 16-7 數據模版管理
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-7.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- prisma/schema.prisma（需新增 DataTemplate 模型）
+- src/types/field-mapping.ts（FieldMappingConfig 關聯）
+- src/validations/（Zod schema 參考）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 新增 DataTemplate Prisma 模型並執行遷移
+3. 新增 data-template.ts 類型定義
+4. 新增 data-template.ts Zod 驗證 Schema
+5. 新增 data-template.service.ts 服務層
+6. 新增 CRUD API: /api/v1/data-templates
+7. 新增 UI: /admin/data-templates 管理頁面
+8. 新增 DataTemplateFieldEditor 欄位編輯器組件
+9. 執行 Seed 創建系統預設模版
+10. 更新 FieldMappingConfig 關聯 dataTemplateId
+11. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npx prisma migrate dev` 確認遷移成功
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Epic 16 overview：Story 16-7 狀態改為 ✅ 已完成
+
+### 3. 附加文檔（如適用）
+- [ ] 更新 CLAUDE.md 的 Prisma 模型清單
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
 ## 使用說明
 
 ### 如何使用這些提示
