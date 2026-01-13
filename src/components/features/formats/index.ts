@@ -34,3 +34,6 @@ export type { FormatBasicInfoProps } from './FormatBasicInfo';
 export type { FormatFormProps } from './FormatForm';
 export type { FormatTermsTableProps } from './FormatTermsTable';
 export type { FormatFilesTableProps } from './FormatFilesTable';
+
+// Story 16-6: 來源欄位選擇器
+export { SourceFieldCombobox } from './SourceFieldCombobox';

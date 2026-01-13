@@ -8,7 +8,11 @@
  *
  * @module src/services/unified-processor/steps
  * @since Epic 15 - Story 15.1 (整合 Story 13.5)
- * @lastModified 2026-01-03
+ * @lastModified 2026-01-13
+ *
+ * @updated Epic 16 - Story 16.6
+ *   - 整合 DynamicMappingService
+ *   - 完成 applyThreeTierMapping 方法實作
  */
 
 import {
@@ -22,9 +26,8 @@ import {
   UnmappedField,
 } from '@/types/unified-processor';
 import { BaseStepHandler } from '../interfaces/step-handler.interface';
-
-// 導入現有服務
-// import { applyFieldMapping } from '@/services/dynamic-field-mapping.service';
+import { dynamicMappingService } from '@/services/mapping';
+import type { ExtractedFieldValue, MappingContext } from '@/types/field-mapping';
 
 /**
  * 欄位映射步驟
@@ -77,7 +80,8 @@ export class FieldMappingStep extends BaseStepHandler {
       const mappingResult = await this.applyThreeTierMapping(
         rawData,
         context.mappingConfig,
-        context.companyId
+        context.companyId,
+        context.documentFormatId
       );
 
       // 更新上下文
@@ -107,12 +111,18 @@ export class FieldMappingStep extends BaseStepHandler {
 
   /**
    * 執行三層欄位映射
-   * @description 暫時實現，後續整合 dynamic-field-mapping.service.ts
+   * @description 整合 DynamicMappingService 執行三層配置優先級映射
+   * @param rawData 原始提取數據
+   * @param mappingConfig 映射配置（來自 context）
+   * @param companyId 公司 ID
+   * @param documentFormatId 文件格式 ID
+   * @returns 映射結果
    */
   private async applyThreeTierMapping(
     rawData: Record<string, unknown>,
     mappingConfig: UnifiedProcessingContext['mappingConfig'],
-    companyId?: string
+    companyId?: string,
+    documentFormatId?: string
   ): Promise<{
     mappedFields: MappedFieldValue[];
     unmappedFields: UnmappedField[];
@@ -122,30 +132,110 @@ export class FieldMappingStep extends BaseStepHandler {
       tier3: number;
     };
   }> {
-    // TODO: 整合現有的 dynamic-field-mapping.service.ts
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    // 1. 將原始數據轉換為 ExtractedFieldValue 格式
+    const extractedFields: ExtractedFieldValue[] = this.convertToExtractedFields(rawData);
 
-    // 將原始數據轉換為 MappedFieldValue 格式
-    // 使用現有的 MappedFieldValue 結構（from src/types/field-mapping.ts）
-    const mappedFields: MappedFieldValue[] = Object.entries(rawData).map(
-      ([key, value]) => ({
-        targetField: key,
-        value: typeof value === 'string' || typeof value === 'number' ? value : null,
-        sourceFields: [key],
-        originalValues: [typeof value === 'string' || typeof value === 'number' ? value : null],
-        transformType: 'DIRECT' as const,
-        success: true,
-      })
-    );
+    // 2. 如果沒有提取的欄位，返回空結果
+    if (extractedFields.length === 0) {
+      return {
+        mappedFields: [],
+        unmappedFields: [],
+        stats: { tier1: 0, tier2: 0, tier3: 0 },
+      };
+    }
+
+    // 3. 準備映射上下文
+    const mappingContext: MappingContext = {
+      companyId,
+      documentFormatId,
+      enableCache: true,
+    };
+
+    // 4. 調用 DynamicMappingService 執行映射
+    const result = await dynamicMappingService.mapFields(extractedFields, mappingContext);
+
+    // 5. 轉換未映射欄位為 UnmappedField 格式
+    const unmappedFields: UnmappedField[] = result.unmappedFields.map((fieldName) => ({
+      fieldName,
+      originalValue: rawData[fieldName],
+      reason: '未找到匹配的映射規則',
+    }));
+
+    // 6. 計算統計（根據 appliedConfig 的 scope 分類）
+    const stats = this.calculateMappingStats(result.mappedFields);
 
     return {
-      mappedFields,
-      unmappedFields: [],
-      stats: {
-        tier1: mappedFields.length,
-        tier2: 0,
-        tier3: 0,
-      },
+      mappedFields: result.mappedFields,
+      unmappedFields,
+      stats,
     };
+  }
+
+  /**
+   * 將原始數據轉換為 ExtractedFieldValue 格式
+   * @description 將 GPT/Azure DI 提取的 Record 轉換為 ExtractedFieldValue[]
+   */
+  private convertToExtractedFields(
+    rawData: Record<string, unknown>
+  ): ExtractedFieldValue[] {
+    const fields: ExtractedFieldValue[] = [];
+
+    for (const [key, value] of Object.entries(rawData)) {
+      // 跳過 null/undefined
+      if (value === null || value === undefined) {
+        continue;
+      }
+
+      // 跳過系統內部欄位
+      if (key.startsWith('_') || key === 'confidence' || key === 'rawResponse') {
+        continue;
+      }
+
+      // 跳過複雜物件（lineItems 等）
+      if (typeof value === 'object' && !Array.isArray(value)) {
+        continue;
+      }
+
+      // 轉換為 ExtractedFieldValue
+      fields.push({
+        fieldName: key,
+        value: typeof value === 'string' || typeof value === 'number' ? value : null,
+        source: 'AI',
+      });
+    }
+
+    return fields;
+  }
+
+  /**
+   * 計算映射統計
+   * @description 根據 appliedConfig 的 scope 統計各層級的映射數量
+   */
+  private calculateMappingStats(
+    mappedFields: MappedFieldValue[]
+  ): { tier1: number; tier2: number; tier3: number } {
+    const stats = { tier1: 0, tier2: 0, tier3: 0 };
+
+    for (const field of mappedFields) {
+      if (!field.success || !field.appliedConfig) {
+        continue;
+      }
+
+      switch (field.appliedConfig.scope) {
+        case 'GLOBAL':
+          stats.tier1++;
+          break;
+        case 'COMPANY':
+          stats.tier2++;
+          break;
+        case 'FORMAT':
+          stats.tier3++;
+          break;
+        default:
+          stats.tier1++; // 預設計入 tier1
+      }
+    }
+
+    return stats;
   }
 }

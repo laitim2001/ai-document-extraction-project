@@ -64,6 +64,30 @@ export {
 } from './dynamic-mapping.service';
 
 // ============================================================================
+// 來源欄位服務（Story 16.6）
+// ============================================================================
+
+export {
+  // Functions
+  getStandardSourceFields,
+  getAvailableSourceFields,
+  getGroupedSourceFields,
+  formatExtractedFieldLabel,
+  searchFields,
+  isValidFieldName,
+  createCustomFieldOption,
+  findFieldByName,
+  getFieldStatistics,
+  // Constants
+  CATEGORY_LABELS,
+  CATEGORY_ORDER,
+  // Types
+  type SourceFieldOption,
+  type GroupedSourceFields,
+  type ExtractedFieldInfo,
+} from './source-field.service';
+
+// ============================================================================
 // 常數定義
 // ============================================================================
 

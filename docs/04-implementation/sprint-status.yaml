@@ -259,6 +259,6 @@ development_status:
   16-3-identification-rules-config: done  # Completed 2026-01-12: IdentificationRulesEditor/LogoPatternEditor/KeywordTagInput components, identificationRules Json field in DocumentFormat, Zod validation schema, PATCH API update, FormatDetailView 識別規則 Tab
   16-4-linked-config-panel: done  # Completed 2026-01-12: FormatConfigPanel/LinkedPromptConfig/LinkedMappingConfig/ConfigInheritanceInfo components, GET /api/v1/formats/[id]/configs API, FormatDetailView 專屬配置 Tab
   16-5-identification-rules-prompt-integration: done  # Completed 2026-01-13: FormatIdentificationRule type, identification-rules-prompt-builder.ts, ConfigFetchingStep reads rules, GptEnhancedExtractionStep passes rules, gpt-vision.service.ts injects prompt
-  16-6-dynamic-field-mapping: drafted  # 動態欄位映射配置 (8 points)
+  16-6-dynamic-field-mapping: done  # Completed 2026-01-13: source-field.service.ts (標準欄位+動態提取欄位), GET /api/v1/formats/[id]/extracted-fields API, field-mapping.step.ts applyThreeTierMapping (整合 DynamicMappingService), SourceFieldCombobox.tsx (分組顯示+搜尋+自訂欄位)
   16-7-data-template-management: drafted  # 數據模版管理 (8 points)
   epic-16-retrospective: optional
