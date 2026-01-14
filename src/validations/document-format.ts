@@ -4,13 +4,15 @@
  *   提供文件格式相關的 Zod 驗證 schema：
  *   - 識別規則驗證
  *   - 格式更新驗證
+ *   - 格式建立驗證 (Story 16-8)
  *
  * @module src/validations/document-format
  * @since Epic 16 - Story 16.3
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-14
  */
 
 import { z } from 'zod';
+import { DocumentType, DocumentSubtype } from '@prisma/client';
 
 // ============================================================================
 // Logo 特徵驗證
@@ -84,3 +86,33 @@ export const updateFormatSchema = z.object({
 });
 
 export type UpdateFormatInput = z.infer<typeof updateFormatSchema>;
+
+// ============================================================================
+// 格式建立驗證 (Story 16-8)
+// ============================================================================
+
+/**
+ * 自動配置選項 Schema
+ */
+export const autoCreateConfigsSchema = z.object({
+  fieldMapping: z.boolean().default(false),
+  promptConfig: z.boolean().default(false),
+});
+
+/**
+ * 建立文件格式 Schema
+ * @since Story 16-8
+ */
+export const createDocumentFormatSchema = z.object({
+  companyId: z.string().cuid({ message: '無效的公司 ID' }),
+  documentType: z.nativeEnum(DocumentType, {
+    message: '請選擇文件類型',
+  }),
+  documentSubtype: z.nativeEnum(DocumentSubtype, {
+    message: '請選擇文件子類型',
+  }),
+  name: z.string().min(1).max(200).optional(),
+  autoCreateConfigs: autoCreateConfigsSchema.optional(),
+});
+
+export type CreateDocumentFormatInput = z.infer<typeof createDocumentFormatSchema>;

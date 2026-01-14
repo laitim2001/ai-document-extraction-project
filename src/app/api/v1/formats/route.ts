@@ -1,25 +1,29 @@
 /**
  * @fileoverview 文件格式 API 端點
  * @description
- *   提供文件格式的列表查詢功能。
+ *   提供文件格式的列表查詢和手動建立功能。
  *   支援按公司、類型、子類型進行過濾。
  *
  * @module src/app/api/v1/formats
  * @since Epic 0 - Story 0.9
- * @lastModified 2025-12-26
+ * @lastModified 2026-01-14
  *
  * @features
  *   - 格式列表查詢（分頁）
  *   - 按公司/類型/子類型過濾
+ *   - 手動建立格式（Story 16-8）
  *
  * @dependencies
  *   - prisma - 資料庫操作
  *   - zod - 參數驗證
+ *   - document-format.service - 格式服務
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { createDocumentFormatSchema } from '@/validations/document-format';
+import { createDocumentFormatManually } from '@/services/document-format.service';
 
 // ============================================================================
 // Schema 驗證
@@ -121,6 +125,123 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       { success: false, error: 'Failed to fetch formats' },
+      { status: 500 }
+    );
+  }
+}
+
+// ============================================================================
+// POST - 手動建立格式 (Story 16-8)
+// ============================================================================
+
+/**
+ * POST /api/v1/formats
+ * 手動建立文件格式
+ *
+ * @description
+ *   允許用戶在公司詳情頁面主動建立文件格式。
+ *   可選擇是否自動建立關聯的 FieldMappingConfig 和 PromptConfig。
+ *
+ * @param request - Next.js 請求物件
+ * @returns 新建立的格式及相關配置
+ *
+ * @since Story 16-8
+ *
+ * @example
+ * ```
+ * POST /api/v1/formats
+ * {
+ *   "companyId": "company-id",
+ *   "documentType": "INVOICE",
+ *   "documentSubtype": "OCEAN_FREIGHT",
+ *   "name": "自定義名稱",
+ *   "autoCreateConfigs": { "fieldMapping": true }
+ * }
+ * ```
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const input = createDocumentFormatSchema.parse(body);
+
+    const result = await createDocumentFormatManually({
+      companyId: input.companyId,
+      documentType: input.documentType,
+      documentSubtype: input.documentSubtype,
+      name: input.name,
+      autoCreateConfigs: input.autoCreateConfigs,
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: result,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('[API] Error creating format:', error);
+
+    // 業務邏輯錯誤
+    if (error instanceof Error) {
+      if (error.message === 'COMPANY_NOT_FOUND') {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              type: 'https://api.example.com/errors/not-found',
+              title: 'Company Not Found',
+              status: 404,
+              detail: '指定的公司不存在',
+            },
+          },
+          { status: 404 }
+        );
+      }
+
+      if (error.message === 'FORMAT_ALREADY_EXISTS') {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              type: 'https://api.example.com/errors/conflict',
+              title: 'Format Already Exists',
+              status: 409,
+              detail: '此公司已存在相同類型的格式',
+            },
+          },
+          { status: 409 }
+        );
+      }
+    }
+
+    // Zod 驗證錯誤
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'https://api.example.com/errors/validation',
+            title: 'Validation Error',
+            status: 400,
+            detail: '請求資料驗證失敗',
+            issues: error.issues,
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          type: 'https://api.example.com/errors/internal',
+          title: 'Internal Server Error',
+          status: 500,
+          detail: '建立格式時發生錯誤',
+        },
+      },
       { status: 500 }
     );
   }

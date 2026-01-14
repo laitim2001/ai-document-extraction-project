@@ -5,9 +5,10 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.1
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-14
  *
  * @changelog
+ *   - 2026-01-14 (Story 16-8): 新增 CreateFormatDialog 手動建立格式對話框
  *   - 2026-01-12 (Story 16-2): 新增詳情視圖、編輯表單、術語表格、文件列表組件
  */
 
@@ -15,6 +16,9 @@
 export { FormatCard } from './FormatCard';
 export { FormatFilters } from './FormatFilters';
 export { FormatList } from './FormatList';
+
+// Story 16-8: 手動建立格式
+export { CreateFormatDialog } from './CreateFormatDialog';
 
 // Story 16-2: 格式詳情與編輯
 export { FormatDetailView } from './FormatDetailView';

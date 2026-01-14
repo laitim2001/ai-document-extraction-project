@@ -1,6 +1,6 @@
 # Epic 16: 文件格式管理
 
-**Status:** 🚧 進行中
+**Status:** ✅ 已完成
 
 ---
 
@@ -108,10 +108,11 @@ GPT Vision 初步識別
 | 16-3 | 識別規則配置 | 8 | ✅ 已完成 |
 | 16-4 | 專屬配置關聯 | 5 | ✅ 已完成 |
 | 16-5 | 識別規則 Prompt 整合 | 5 | ✅ 已完成 |
-| 16-6 | 動態欄位映射配置 | 8 | 🚧 規劃中 |
-| 16-7 | 數據模版管理 | 8 | 🚧 規劃中 |
+| 16-6 | 動態欄位映射配置 | 8 | ✅ 已完成 |
+| 16-7 | 數據模版管理 | 8 | ✅ 已完成 |
+| 16-8 | 手動建立格式 | 5 | ✅ 已完成 |
 
-**總估點**: 44 點
+**總估點**: 49 點
 
 ---
 
@@ -153,7 +154,7 @@ GPT Vision 初步識別
 - `LinkedPromptConfig` 組件
 - `LinkedMappingConfig` 組件
 
-### Story 16-5: 識別規則 Prompt 整合 🆕
+### Story 16-5: 識別規則 Prompt 整合 ✅
 
 將 `identificationRules` 注入到 GPT Vision Prompt，讓 AI 能夠根據配置的規則更準確地識別文件格式。
 
@@ -167,7 +168,7 @@ GPT Vision 初步識別
 - 按優先級排序，注入到 GPT Prompt
 - 支援 Logo 特徵、關鍵字、版面特徵
 
-### Story 16-6: 動態欄位映射配置 🆕
+### Story 16-6: 動態欄位映射配置 ✅
 
 1. 動態來源欄位：從 GPT 結果 + invoice-fields.ts 合併
 2. 完成 field-mapping.step.ts 的 stub 實現
@@ -182,7 +183,7 @@ GPT Vision 初步識別
 - 支援自訂欄位名稱
 - 三層映射正確執行
 
-### Story 16-7: 數據模版管理 🆕
+### Story 16-7: 數據模版管理 ✅
 
 新增 `DataTemplate` 模型，定義目標欄位結構（如 ERP 匯入格式、報表格式）。
 
@@ -196,6 +197,28 @@ GPT Vision 初步識別
 - 支援 GLOBAL/COMPANY 範圍
 - 系統內建預設模版
 - FieldMappingConfig 可關聯模版
+
+### Story 16-8: 手動建立格式 ✅
+
+允許用戶在公司詳情頁面主動建立文件格式，而不需要等待文件上傳後自動識別。
+
+**問題背景**:
+- 目前格式只能在文件上傳時自動建立
+- 格式 Tab 顯示「尚無已識別的格式」時無法操作
+- 用戶無法提前配置格式的識別規則
+
+**關鍵產出**:
+- `POST /api/v1/formats` API 端點
+- `createDocumentFormatManually()` 服務方法
+- `CreateFormatDialog` 組件
+- 自動配置選項（FieldMappingConfig / PromptConfig）
+
+**驗收條件**:
+- 格式 Tab 顯示「建立格式」按鈕
+- 可選擇文件類型和子類型
+- 可輸入自定義格式名稱
+- 可選擇是否自動建立關聯配置
+- 重複格式顯示友善錯誤提示（409）
 
 ---
 
@@ -252,6 +275,8 @@ model DocumentFormat {
 
 | 方法 | 路徑 | 說明 | Story |
 |------|------|------|-------|
+| `GET` | `/api/v1/formats` | 格式列表 | 16-1 |
+| `POST` | `/api/v1/formats` | 手動建立格式 | 16-8 |
 | `GET` | `/api/v1/formats/[id]` | 詳情 | 16-2 |
 | `PATCH` | `/api/v1/formats/[id]` | 更新 | 16-2 |
 | `GET` | `/api/v1/formats/[id]/configs` | 關聯配置 | 16-4 |
@@ -268,6 +293,7 @@ model DocumentFormat {
 src/components/features/formats/
 ├── FormatList.tsx                    # 格式列表 (16-1)
 ├── FormatCard.tsx                    # 格式卡片 (16-1)
+├── CreateFormatDialog.tsx            # 手動建立格式對話框 (16-8)
 ├── FormatDetailView.tsx              # 格式詳情視圖 (16-2)
 ├── FormatForm.tsx                    # 格式表單 (16-2)
 ├── FormatBasicInfo.tsx               # 基本資訊 Tab (16-2)
@@ -299,14 +325,16 @@ src/components/features/data-template/
 - [x] 能配置識別規則
 - [x] 能查看關聯的配置
 - [x] 識別規則影響 GPT 格式識別（Story 16-5）
-- [ ] 欄位映射正確執行
-- [ ] 能創建和管理數據模版
+- [x] 欄位映射正確執行（Story 16-6）
+- [x] 能創建和管理數據模版（Story 16-7）
+- [x] 能手動建立格式（Story 16-8）
 
 ### 技術驗收
 - [x] 所有 API 返回正確的響應格式
 - [x] 識別規則注入 GPT Prompt（Story 16-5）
-- [ ] field-mapping.step.ts 不再是 stub
-- [ ] DataTemplate 模型正確運作
+- [x] field-mapping.step.ts 完成實作（Story 16-6）
+- [x] DataTemplate 模型正確運作（Story 16-7）
+- [x] POST /api/v1/formats 手動建立格式（Story 16-8）
 - [x] 組件通過 TypeScript 類型檢查
 - [x] 通過 ESLint 檢查
 
@@ -328,5 +356,5 @@ src/components/features/data-template/
 ---
 
 **建立日期**: 2026-01-12
-**最後更新**: 2026-01-13
-**狀態**: 進行中
+**最後更新**: 2026-01-14
+**狀態**: ✅ 已完成（所有 8 個 Stories 完成）

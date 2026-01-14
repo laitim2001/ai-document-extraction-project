@@ -551,3 +551,198 @@ export async function getGlobalFormatStats() {
     })),
   };
 }
+
+// ============================================================================
+// 手動建立格式 (Story 16-8)
+// ============================================================================
+
+/**
+ * 手動建立格式輸入參數
+ */
+interface CreateFormatManuallyInput {
+  companyId: string;
+  documentType: DocumentType;
+  documentSubtype: DocumentSubtype;
+  name?: string;
+  autoCreateConfigs?: {
+    fieldMapping?: boolean;
+    promptConfig?: boolean;
+  };
+}
+
+/**
+ * 手動建立格式結果
+ */
+interface CreateFormatManuallyResult {
+  format: {
+    id: string;
+    companyId: string;
+    documentType: DocumentType;
+    documentSubtype: DocumentSubtype;
+    name: string | null;
+    createdAt: Date;
+  };
+  createdConfigs?: {
+    fieldMappingConfig?: { id: string; name: string };
+    promptConfigs?: Array<{ id: string; name: string; promptType: string }>;
+  };
+}
+
+/**
+ * 手動建立文件格式
+ *
+ * @description
+ *   允許用戶在公司詳情頁面主動建立文件格式。
+ *   可選擇是否自動建立關聯的 FieldMappingConfig 和 PromptConfig。
+ *
+ * @param input - 建立參數
+ * @returns 新建立的格式及相關配置
+ * @throws Error('COMPANY_NOT_FOUND') - 公司不存在
+ * @throws Error('FORMAT_ALREADY_EXISTS') - 格式已存在
+ *
+ * @since Story 16-8
+ *
+ * @example
+ * ```typescript
+ * const result = await createDocumentFormatManually({
+ *   companyId: 'company-id',
+ *   documentType: 'INVOICE',
+ *   documentSubtype: 'OCEAN_FREIGHT',
+ *   autoCreateConfigs: { fieldMapping: true }
+ * });
+ * ```
+ */
+export async function createDocumentFormatManually(
+  input: CreateFormatManuallyInput
+): Promise<CreateFormatManuallyResult> {
+  const { companyId, documentType, documentSubtype, name, autoCreateConfigs } = input;
+
+  // 1. 驗證公司存在
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: { id: true, name: true },
+  });
+
+  if (!company) {
+    throw new Error('COMPANY_NOT_FOUND');
+  }
+
+  // 2. 檢查格式是否已存在
+  const existingFormat = await prisma.documentFormat.findUnique({
+    where: {
+      companyId_documentType_documentSubtype: {
+        companyId,
+        documentType,
+        documentSubtype,
+      },
+    },
+  });
+
+  if (existingFormat) {
+    throw new Error('FORMAT_ALREADY_EXISTS');
+  }
+
+  // 3. 生成格式名稱
+  const formatName = name || generateFormatNameWithCompany(company.name, documentType, documentSubtype);
+
+  // 4. 使用事務建立格式和配置
+  return await prisma.$transaction(async (tx) => {
+    // 建立格式
+    const format = await tx.documentFormat.create({
+      data: {
+        companyId,
+        documentType,
+        documentSubtype,
+        name: formatName,
+        features: {},
+        identificationRules: {
+          logoPatterns: [],
+          keywords: [],
+          layoutHints: '',
+          priority: 50,
+        },
+        commonTerms: [],
+        fileCount: 0,
+      },
+    });
+
+    const result: CreateFormatManuallyResult = {
+      format: {
+        id: format.id,
+        companyId: format.companyId,
+        documentType: format.documentType as DocumentType,
+        documentSubtype: format.documentSubtype as DocumentSubtype,
+        name: format.name,
+        createdAt: format.createdAt,
+      },
+    };
+
+    // 建立自動配置
+    if (autoCreateConfigs?.fieldMapping) {
+      const fieldMappingConfig = await tx.fieldMappingConfig.create({
+        data: {
+          scope: 'FORMAT',
+          companyId,
+          documentFormatId: format.id,
+          name: `${formatName} - 欄位映射`,
+          description: `自動建立的 ${formatName} 格式專屬映射配置`,
+          isActive: true,
+          version: 1,
+        },
+      });
+
+      result.createdConfigs = {
+        ...result.createdConfigs,
+        fieldMappingConfig: {
+          id: fieldMappingConfig.id,
+          name: fieldMappingConfig.name,
+        },
+      };
+    }
+
+    if (autoCreateConfigs?.promptConfig) {
+      const promptConfig = await tx.promptConfig.create({
+        data: {
+          promptType: 'FIELD_EXTRACTION',
+          scope: 'FORMAT',
+          companyId,
+          documentFormatId: format.id,
+          name: `${formatName} - 欄位提取`,
+          description: `自動建立的 ${formatName} 格式專屬 Prompt`,
+          systemPrompt: '你是一個專業的文件提取助手，負責從發票和單據中準確提取欄位資訊。',
+          userPromptTemplate: '請從以下文件中提取相關欄位，以 JSON 格式返回結果。',
+          mergeStrategy: 'OVERRIDE',
+          isActive: true,
+          version: 1,
+        },
+      });
+
+      result.createdConfigs = {
+        ...result.createdConfigs,
+        promptConfigs: [{
+          id: promptConfig.id,
+          name: promptConfig.name,
+          promptType: promptConfig.promptType,
+        }],
+      };
+    }
+
+    return result;
+  });
+}
+
+/**
+ * 生成包含公司名稱的格式名稱
+ *
+ * @param companyName - 公司名稱
+ * @param documentType - 文件類型
+ * @param documentSubtype - 文件子類型
+ * @returns 格式名稱
+ */
+function generateFormatNameWithCompany(
+  companyName: string,
+  documentType: DocumentType,
+  documentSubtype: DocumentSubtype
+): string {
+  return `${companyName} - ${DOCUMENT_SUBTYPE_LABELS[documentSubtype]}${DOCUMENT_TYPE_LABELS[documentType]}`;
+}

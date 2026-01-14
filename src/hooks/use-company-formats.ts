@@ -1,19 +1,21 @@
 /**
  * @fileoverview 公司格式列表 Hook
  * @description
- *   提供獲取公司文件格式列表的功能，支援篩選和排序。
- *   用於 Story 16-1 格式列表 Tab。
+ *   提供獲取公司文件格式列表和建立格式的功能。
+ *   用於 Story 16-1 格式列表 Tab 和 Story 16-8 手動建立格式。
  *
  * @module src/hooks/use-company-formats
  * @since Epic 16 - Story 16.1
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-14
  *
  * @dependencies
  *   - @tanstack/react-query - 數據獲取和緩存
  *   - @/types/document-format - 類型定義
+ *   - @/hooks/use-toast - Toast 通知
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
 import type {
   DocumentFormatListItem,
   DocumentType,
@@ -166,4 +168,113 @@ export function useCompanyFormats(
     refetch: query.refetch,
     isFetching: query.isFetching,
   };
+}
+
+// ============================================================================
+// 建立格式 Hook (Story 16-8)
+// ============================================================================
+
+/**
+ * 建立格式的輸入參數
+ */
+export interface CreateFormatInput {
+  documentType: DocumentType;
+  documentSubtype: DocumentSubtype;
+  name?: string;
+  autoCreateConfigs?: {
+    fieldMapping?: boolean;
+    promptConfig?: boolean;
+  };
+}
+
+/**
+ * 建立格式的結果
+ */
+export interface CreateFormatResult {
+  format: {
+    id: string;
+    companyId: string;
+    documentType: DocumentType;
+    documentSubtype: DocumentSubtype;
+    name: string | null;
+    createdAt: string;
+  };
+  createdConfigs?: {
+    fieldMappingConfig?: { id: string; name: string };
+    promptConfigs?: Array<{ id: string; name: string; promptType: string }>;
+  };
+}
+
+/**
+ * 建立格式 API
+ */
+async function createFormat(
+  companyId: string,
+  input: CreateFormatInput
+): Promise<CreateFormatResult> {
+  const response = await fetch('/api/v1/formats', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...input, companyId }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error?.detail || '建立格式失敗');
+  }
+
+  if (!data.success) {
+    throw new Error(data.error?.detail || '建立格式失敗');
+  }
+
+  return data.data as CreateFormatResult;
+}
+
+/**
+ * 建立格式的 Hook
+ *
+ * @description
+ *   使用 React Query Mutation 建立新的文件格式。
+ *   成功後自動刷新格式列表。
+ *
+ * @param companyId - 公司 ID
+ * @returns Mutation 狀態和方法
+ *
+ * @since Story 16-8
+ *
+ * @example
+ * ```tsx
+ * const { mutate: createFormat, isPending } = useCreateFormat('company-123');
+ *
+ * createFormat({
+ *   documentType: 'INVOICE',
+ *   documentSubtype: 'OCEAN_FREIGHT',
+ *   autoCreateConfigs: { fieldMapping: true }
+ * });
+ * ```
+ */
+export function useCreateFormat(companyId: string) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: (input: CreateFormatInput) => createFormat(companyId, input),
+    onSuccess: (data) => {
+      // 刷新格式列表
+      queryClient.invalidateQueries({ queryKey: ['formats', 'company', companyId] });
+
+      toast({
+        title: '格式已建立',
+        description: `「${data.format.name || '新格式'}」已成功建立`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: 'destructive',
+        title: '建立失敗',
+        description: error.message,
+      });
+    },
+  });
 }

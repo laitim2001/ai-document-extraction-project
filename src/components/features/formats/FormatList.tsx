@@ -5,20 +5,23 @@
  * @description
  *   顯示公司的文件格式列表，整合篩選、排序和分頁功能。
  *   作為公司詳情頁「格式」Tab 的主要內容組件。
+ *   支援手動建立格式（Story 16-8）。
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.1
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-14
  *
  * @dependencies
  *   - @/hooks/use-company-formats - 數據獲取
  *   - FormatCard - 格式卡片
  *   - FormatFilters - 篩選控件
+ *   - CreateFormatDialog - 建立格式對話框 (Story 16-8)
  */
 
 import * as React from 'react';
 import { FormatCard } from './FormatCard';
 import { FormatFilters } from './FormatFilters';
+import { CreateFormatDialog } from './CreateFormatDialog';
 import { useCompanyFormats } from '@/hooks/use-company-formats';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -65,16 +68,27 @@ function FormatListSkeleton() {
 /**
  * 空狀態顯示
  */
-function FormatListEmpty() {
+function FormatListEmpty({
+  companyId,
+  onSuccess,
+}: {
+  companyId: string;
+  onSuccess?: () => void;
+}) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="rounded-full bg-muted p-4 mb-4">
         <FileText className="h-8 w-8 text-muted-foreground" />
       </div>
       <h3 className="text-lg font-medium mb-2">尚無已識別的格式</h3>
-      <p className="text-sm text-muted-foreground max-w-md">
-        上傳文件後系統會自動識別格式。每個公司的文件格式會根據文件類型和子類型自動分類。
+      <p className="text-sm text-muted-foreground max-w-md mb-4">
+        上傳文件後系統會自動識別格式，或者您可以手動建立格式。
       </p>
+      <CreateFormatDialog
+        companyId={companyId}
+        triggerVariant="default"
+        onSuccess={onSuccess}
+      />
     </div>
   );
 }
@@ -191,7 +205,7 @@ export function FormatList({ companyId, className }: FormatListProps) {
 
   // --- 空狀態（無格式） ---
   if (!formats.length && !hasFilters) {
-    return <FormatListEmpty />;
+    return <FormatListEmpty companyId={companyId} onSuccess={refetch} />;
   }
 
   // --- 無符合篩選條件 ---
@@ -210,9 +224,16 @@ export function FormatList({ companyId, className }: FormatListProps) {
       {/* 篩選器 */}
       <FormatFilters value={filters} onChange={setFilters} className="mb-4" />
 
-      {/* 統計資訊 */}
-      <div className="mb-4 text-sm text-muted-foreground">
-        共 {pagination.total} 個格式
+      {/* 統計資訊和建立按鈕 */}
+      <div className="mb-4 flex items-center justify-between">
+        <span className="text-sm text-muted-foreground">
+          共 {pagination.total} 個格式
+        </span>
+        <CreateFormatDialog
+          companyId={companyId}
+          triggerVariant="outline"
+          onSuccess={refetch}
+        />
       </div>
 
       {/* 格式卡片網格 */}
