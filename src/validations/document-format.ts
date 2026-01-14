@@ -104,7 +104,7 @@ export const autoCreateConfigsSchema = z.object({
  * @since Story 16-8
  */
 export const createDocumentFormatSchema = z.object({
-  companyId: z.string().cuid({ message: '無效的公司 ID' }),
+  companyId: z.string().uuid({ message: '無效的公司 ID' }),
   documentType: z.nativeEnum(DocumentType, {
     message: '請選擇文件類型',
   }),

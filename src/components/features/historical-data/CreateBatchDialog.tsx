@@ -131,6 +131,8 @@ export function CreateBatchDialog({
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [showTermAggregation, setShowTermAggregation] = useState(false)
+  const [showIssuerIdentification, setShowIssuerIdentification] = useState(false)
 
   const form = useForm<CreateBatchFormData>({
     resolver: zodResolver(createBatchSchema),
@@ -357,7 +359,7 @@ export function CreateBatchDialog({
             </Collapsible>
 
             {/* Story 0.7: 術語聚合配置 */}
-            <Collapsible>
+            <Collapsible open={showTermAggregation} onOpenChange={setShowTermAggregation}>
               <CollapsibleTrigger asChild>
                 <Button
                   type="button"
@@ -370,7 +372,7 @@ export function CreateBatchDialog({
                     術語聚合設定
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    展開
+                    {showTermAggregation ? '收起' : '展開'}
                   </span>
                 </Button>
               </CollapsibleTrigger>
@@ -466,7 +468,7 @@ export function CreateBatchDialog({
             </Collapsible>
 
             {/* Story 0.8: 發行者識別配置 */}
-            <Collapsible>
+            <Collapsible open={showIssuerIdentification} onOpenChange={setShowIssuerIdentification}>
               <CollapsibleTrigger asChild>
                 <Button
                   type="button"
@@ -479,7 +481,7 @@ export function CreateBatchDialog({
                     發行者識別設定
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    展開
+                    {showIssuerIdentification ? '收起' : '展開'}
                   </span>
                 </Button>
               </CollapsibleTrigger>

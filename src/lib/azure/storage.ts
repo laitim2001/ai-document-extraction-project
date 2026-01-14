@@ -9,13 +9,14 @@
  *
  * @module src/lib/azure/storage
  * @since Epic 2 - Story 2.1 (File Upload Interface)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-14
  *
  * @features
  *   - 文件上傳到 Azure Blob Storage
  *   - 生成臨時訪問 URL (SAS)
  *   - 文件刪除和存在檢查
  *   - 容器自動創建
+ *   - 開發環境使用 Azurite 模擬器
  *
  * @dependencies
  *   - @azure/storage-blob - Azure Blob SDK
@@ -77,6 +78,7 @@ const containerName = process.env.AZURE_STORAGE_CONTAINER || 'documents';
 
 let blobServiceClient: BlobServiceClient | null = null;
 let containerClient: ContainerClient | null = null;
+let containerEnsured = false; // 追蹤容器是否已確保存在
 
 /**
  * 獲取 BlobServiceClient (延遲初始化)
@@ -94,8 +96,9 @@ function getBlobServiceClient(): BlobServiceClient {
         );
       } else {
         throw new Error(
-          'Azure Storage is not configured. ' +
-            'Please set AZURE_STORAGE_CONNECTION_STRING in .env file, or use mock storage for development.'
+          'Azure Storage 未配置。\n' +
+            '開發環境請執行: docker-compose up -d azurite\n' +
+            '並確保 .env 中已設置 AZURE_STORAGE_CONNECTION_STRING（Azurite 連接字符串）'
         );
       }
     }
@@ -121,7 +124,7 @@ function getContainerClient(): ContainerClient {
 /**
  * 確保容器存在 (啟動時調用一次)
  *
- * @description 創建容器 (如果不存在)
+ * @description 創建 Azure 容器 (如果不存在)
  * @throws {Error} 如果創建失敗
  */
 export async function ensureContainer(): Promise<void> {
@@ -134,7 +137,8 @@ export async function ensureContainer(): Promise<void> {
 /**
  * 上傳文件到 Azure Blob Storage
  *
- * @description 將文件緩衝區上傳到指定的 Blob 容器
+ * @description 將文件緩衝區上傳到指定的 Blob 容器。
+ *   開發環境使用 Azurite 模擬器，生產環境使用 Azure Blob Storage。
  * @param buffer - 文件緩衝區
  * @param fileName - 原始文件名
  * @param options - 上傳選項 (contentType, metadata, folder)
@@ -157,6 +161,12 @@ export async function uploadFile(
   options: UploadOptions
 ): Promise<UploadResult> {
   const { contentType, metadata, folder } = options;
+
+  // 確保容器存在 (只在首次上傳時執行)
+  if (!containerEnsured) {
+    await ensureContainer();
+    containerEnsured = true;
+  }
 
   // 生成唯一的 blob 名稱 (timestamp + sanitized filename)
   const timestamp = Date.now();
@@ -284,10 +294,10 @@ export async function getFileProperties(blobName: string) {
 // ===========================================
 
 /**
- * 檢查 Azure Storage 是否已配置
+ * 檢查存儲服務是否可用
  *
- * @description 用於開發環境檢查配置狀態
- * @returns true 如果已配置連接字符串
+ * @description 檢查 Azure Storage 是否已配置（開發環境使用 Azurite）
+ * @returns true 如果存儲服務已配置
  */
 export function isStorageConfigured(): boolean {
   return Boolean(connectionString);

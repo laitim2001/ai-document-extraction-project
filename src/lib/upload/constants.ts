@@ -129,7 +129,12 @@ export function getExtensionFromMime(mimeType: string): string {
  * formatFileSize(1024 * 1024); // '1.0 MB'
  * ```
  */
-export function formatFileSize(bytes: number): string {
+export function formatFileSize(bytes: number | undefined | null): string {
+  // 防禦性檢查：處理 undefined、null、NaN 的情況
+  if (bytes === undefined || bytes === null || isNaN(bytes)) {
+    return '未知大小';
+  }
+  if (bytes < 0) return '0 B';
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;

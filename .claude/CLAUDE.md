@@ -9,11 +9,12 @@
 ### 快速啟動檢查清單
 
 ```bash
-# Step 1: 檢查 Docker 資料庫狀態
-docker-compose ps
-
-# Step 2: 如果資料庫未運行，啟動它
+# Step 1: 啟動所有 Docker 服務（含 Azurite）
 docker-compose up -d
+
+# Step 2: 確認服務運行中
+docker-compose ps
+# 應該看到: postgres, pgadmin, azurite 都在運行
 
 # Step 3: 檢查端口佔用情況
 netstat -ano | findstr :3000 | findstr LISTENING
@@ -24,6 +25,16 @@ npm run dev
 # Step 4b: 如果 port 3000 被佔用，使用其他端口
 npm run dev -- -p 3200
 ```
+
+### Docker 服務端口
+
+| 服務 | 端口 | 說明 |
+|------|------|------|
+| PostgreSQL | 5433 | 資料庫 |
+| pgAdmin | 5050 | 資料庫管理 UI |
+| Azurite (Blob) | 10010 | Azure Blob Storage 模擬器 |
+| Azurite (Queue) | 10011 | Azure Queue Storage 模擬器 |
+| Azurite (Table) | 10012 | Azure Table Storage 模擬器 |
 
 ### 端口佔用處理（Windows）
 
@@ -101,19 +112,38 @@ TaskOutput(task_id, block=false)
 Bash(command, timeout=120000)
 ```
 
+### 問題 4: Azure Storage 未配置
+
+**症狀**: `Azure Storage 未配置` 錯誤
+
+**解決方案**:
+```bash
+# 1. 確認 Azurite 服務運行中
+docker-compose ps | grep azurite
+
+# 2. 如未運行，啟動它
+docker-compose up -d azurite
+
+# 3. 確認 .env 中已設置連接字符串
+# AZURE_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10010/devstoreaccount1;"
+```
+
+**注意**: 開發環境使用 Azurite 模擬 Azure Blob Storage。確保 Azurite 在上傳文件前已啟動。
+
 ---
 
 ## 📋 AI 助手工作模式
 
 ### 啟動服務的標準流程
 
-1. **檢查端口** → `netstat -ano | findstr :3000 | findstr LISTENING`
-2. **如被佔用** → 選擇備用端口 (3200 推薦)
-3. **檢查 Docker** → `docker-compose ps`
-4. **啟動服務** → `npm run dev -- -p 3200`
-5. **等待就緒** → 等待 30-45 秒
-6. **驗證服務** → `netstat` 確認端口監聽
-7. **瀏覽器導航** → Playwright 導航到 localhost
+1. **啟動 Docker 服務** → `docker-compose up -d`（含 Azurite）
+2. **確認服務運行** → `docker-compose ps`
+3. **檢查端口** → `netstat -ano | findstr :3000 | findstr LISTENING`
+4. **如被佔用** → 選擇備用端口 (3200 推薦)
+5. **啟動服務** → `npm run dev -- -p 3200`
+6. **等待就緒** → 等待 30-45 秒
+7. **驗證服務** → `netstat` 確認端口監聽
+8. **瀏覽器導航** → Playwright 導航到 localhost
 
 ### E2E 測試標準流程
 
@@ -162,4 +192,4 @@ Bash(command, timeout=120000)
 ---
 
 *文件建立日期: 2026-01-06*
-*最後更新: 2026-01-06*
+*最後更新: 2026-01-14*

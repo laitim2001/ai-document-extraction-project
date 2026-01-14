@@ -101,9 +101,12 @@ export function checkCityManagePermission(
     }
   }
 
-  // 檢查是否有全域管理權限
+  // 檢查是否有 wildcard 或全域管理權限
   const hasGlobalPermission = user.roles.some((role) =>
-    role.permissions.includes(PERMISSIONS.USER_MANAGE)
+    Array.isArray(role.permissions) && (
+      role.permissions.includes('*') ||
+      role.permissions.includes(PERMISSIONS.USER_MANAGE)
+    )
   )
 
   if (hasGlobalPermission) {
@@ -293,6 +296,7 @@ export function getCityFilter(
  * @description
  *   檢查用戶是否有檢視用戶列表的權限。
  *   需要 USER_VIEW 或 USER_MANAGE 或 USER_MANAGE_CITY 權限之一。
+ *   支援 '*' 通配符表示所有權限（開發模式）。
  *
  * @param user - Session 用戶資訊
  * @returns 是否有檢視權限
@@ -306,9 +310,12 @@ export function hasViewPermission(
 
   return user.roles.some(
     (role) =>
-      role.permissions.includes(PERMISSIONS.USER_VIEW) ||
-      role.permissions.includes(PERMISSIONS.USER_MANAGE) ||
-      role.permissions.includes(PERMISSIONS.USER_MANAGE_CITY)
+      Array.isArray(role.permissions) && (
+        role.permissions.includes('*') ||
+        role.permissions.includes(PERMISSIONS.USER_VIEW) ||
+        role.permissions.includes(PERMISSIONS.USER_MANAGE) ||
+        role.permissions.includes(PERMISSIONS.USER_MANAGE_CITY)
+      )
   )
 }
 
@@ -329,9 +336,12 @@ export function getManagedCityIds(
     return []
   }
 
-  // 檢查是否有全域管理權限
+  // 檢查是否有 wildcard 或全域管理權限
   const hasGlobalPermission = user.roles.some((role) =>
-    role.permissions.includes(PERMISSIONS.USER_MANAGE)
+    Array.isArray(role.permissions) && (
+      role.permissions.includes('*') ||
+      role.permissions.includes(PERMISSIONS.USER_MANAGE)
+    )
   )
 
   if (hasGlobalPermission) {

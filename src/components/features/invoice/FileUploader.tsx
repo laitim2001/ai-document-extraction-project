@@ -64,10 +64,22 @@ import {
 
 /**
  * 帶狀態的文件對象
+ *
+ * @description
+ *   不再繼承 File 類型，因為 File 的原生 getter 屬性（如 size, name, type）
+ *   在使用 spread operator 時會丟失。改為顯式保存所有需要的屬性。
  */
-interface FileWithStatus extends File {
+interface FileWithStatus {
   /** 唯一識別碼 */
   id: string
+  /** 文件名稱 */
+  name: string
+  /** 文件大小 (bytes) */
+  size: number
+  /** 文件 MIME 類型 */
+  type: string
+  /** 原始 File 對象（用於上傳） */
+  file: File
   /** 預覽 URL (圖片用) */
   preview?: string
   /** 上傳狀態 */
@@ -129,15 +141,18 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
       }
 
       // 添加接受的文件
-      const newFiles: FileWithStatus[] = acceptedFiles.map((file) =>
-        Object.assign(file, {
-          id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-          preview: file.type.startsWith('image/')
-            ? URL.createObjectURL(file)
-            : undefined,
-          status: 'pending' as const,
-        })
-      )
+      // 顯式複製 File 屬性，避免 spread operator 丟失原生 getter
+      const newFiles: FileWithStatus[] = acceptedFiles.map((file) => ({
+        id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        file: file, // 保留原始 File 對象用於上傳
+        preview: file.type.startsWith('image/')
+          ? URL.createObjectURL(file)
+          : undefined,
+        status: 'pending' as const,
+      }))
 
       setFiles((prev) => [...prev, ...newFiles])
 
@@ -194,10 +209,11 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
    * 上傳 Mutation
    */
   const uploadMutation = useMutation({
-    mutationFn: async (filesToUpload: File[]): Promise<UploadResult> => {
+    mutationFn: async (filesToUpload: FileWithStatus[]): Promise<UploadResult> => {
       const formData = new FormData()
-      filesToUpload.forEach((file) => {
-        formData.append('files', file)
+      filesToUpload.forEach((fileItem) => {
+        // 使用保存的原始 File 對象
+        formData.append('files', fileItem.file)
       })
       if (cityCode) {
         formData.append('cityCode', cityCode)
@@ -296,7 +312,10 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
   /**
    * 獲取文件圖標
    */
-  const getFileIcon = (type: string) => {
+  const getFileIcon = (type: string | undefined) => {
+    if (!type) {
+      return <FileIcon className="h-8 w-8 text-gray-500" />
+    }
     if (type === 'application/pdf') {
       return <FileText className="h-8 w-8 text-red-500" />
     }
