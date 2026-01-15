@@ -206,6 +206,20 @@ export interface CreateFormatResult {
 }
 
 /**
+ * 格式已存在錯誤類別
+ */
+export class FormatExistsError extends Error {
+  constructor(
+    message: string,
+    public documentType: string,
+    public documentSubtype: string
+  ) {
+    super(message);
+    this.name = 'FormatExistsError';
+  }
+}
+
+/**
  * 建立格式 API
  */
 async function createFormat(
@@ -221,6 +235,14 @@ async function createFormat(
   const data = await response.json();
 
   if (!response.ok) {
+    // 409 Conflict - 格式已存在
+    if (response.status === 409) {
+      throw new FormatExistsError(
+        data.error?.detail || '此公司已存在相同類型的格式',
+        input.documentType,
+        input.documentSubtype
+      );
+    }
     throw new Error(data.error?.detail || '建立格式失敗');
   }
 
@@ -254,6 +276,32 @@ async function createFormat(
  * });
  * ```
  */
+/**
+ * 文件類型標籤
+ */
+const DOCUMENT_TYPE_LABELS: Record<string, string> = {
+  INVOICE: '發票',
+  DEBIT_NOTE: '借項通知單',
+  CREDIT_NOTE: '貸項通知單',
+  STATEMENT: '對帳單',
+  QUOTATION: '報價單',
+  BILL_OF_LADING: '提單',
+  CUSTOMS_DECLARATION: '報關單',
+  OTHER: '其他',
+};
+
+/**
+ * 文件子類型標籤
+ */
+const DOCUMENT_SUBTYPE_LABELS: Record<string, string> = {
+  OCEAN_FREIGHT: '海運',
+  AIR_FREIGHT: '空運',
+  LAND_TRANSPORT: '陸運',
+  CUSTOMS_CLEARANCE: '報關',
+  WAREHOUSING: '倉儲',
+  GENERAL: '一般',
+};
+
 export function useCreateFormat(companyId: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -270,6 +318,20 @@ export function useCreateFormat(companyId: string) {
       });
     },
     onError: (error: Error) => {
+      // 處理格式已存在錯誤
+      if (error instanceof FormatExistsError) {
+        const typeLabel = DOCUMENT_TYPE_LABELS[error.documentType] || error.documentType;
+        const subtypeLabel = DOCUMENT_SUBTYPE_LABELS[error.documentSubtype] || error.documentSubtype;
+
+        toast({
+          variant: 'destructive',
+          title: '格式已存在',
+          description: `此公司已存在「${typeLabel} - ${subtypeLabel}」格式，請選擇其他類型組合或編輯現有格式。`,
+        });
+        return;
+      }
+
+      // 其他錯誤
       toast({
         variant: 'destructive',
         title: '建立失敗',
