@@ -20,6 +20,8 @@
  *   - 可選的 AI 術語分類
  *   - FIX-005: 地址類術語過濾
  *   - FIX-006: 支援僅有 documentIssuerId 的文件（fallback 到 Company → Terms 結構）
+ *   - FIX-027: 支援沒有 documentIssuerId 的文件（fallback 到虛擬「未識別公司」）
+ *   - FIX-027: 新增 gptExtraction.invoiceData.lineItems 路徑支援
  *
  * @dependencies
  *   - prisma - 資料庫操作
@@ -73,12 +75,16 @@ interface InternalTermData {
 
 /**
  * 提取結果 JSON 結構
+ * FIX: 新增 gptExtraction 路徑支援
  */
 interface ExtractionResultJson {
   lineItems?: Array<{ description?: string | null }>;
   items?: Array<{ description?: string | null }>;
   invoiceData?: { lineItems?: Array<{ description?: string | null }> };
   extractedData?: { lineItems?: Array<{ description?: string | null }> };
+  gptExtraction?: {
+    invoiceData?: { lineItems?: Array<{ description?: string | null }> };
+  };
 }
 
 // ============================================================================
@@ -141,6 +147,7 @@ export async function aggregateTermsHierarchically(
   let aiValidationStats: HierarchicalAIValidationStats | undefined;
 
   // FIX-006: 嘗試獲取有 documentFormatId 的文件，如果沒有則 fallback 到只有 documentIssuerId 的文件
+  // FIX-027: 添加第三層 fallback，支援沒有 documentIssuerId 的文件
   // 1. 先嘗試獲取完整三層結構的文件
   let files = await prisma.historicalFile.findMany({
     where: {
@@ -156,10 +163,12 @@ export async function aggregateTermsHierarchically(
   });
 
   // FIX-006: 如果沒有文件有 documentFormatId，則 fallback 到只需要 documentIssuerId
-  const useFallbackMode = files.length === 0;
+  let useFallbackMode = files.length === 0;
+  let useUnidentifiedFallback = false;
+
   if (useFallbackMode) {
     console.log(
-      `[HierarchicalAggregation] No files with documentFormatId found, using fallback mode (Company → Terms)`
+      `[HierarchicalAggregation] No files with documentFormatId found, trying fallback mode (Company → Terms)`
     );
     files = await prisma.historicalFile.findMany({
       where: {
@@ -170,6 +179,24 @@ export async function aggregateTermsHierarchically(
       include: {
         documentIssuer: true,
         documentFormat: true, // 會是 null，但需要保持類型一致
+      },
+    });
+  }
+
+  // FIX-027: 如果連 documentIssuerId 都沒有，則 fallback 到所有 COMPLETED 文件
+  if (files.length === 0) {
+    console.log(
+      `[HierarchicalAggregation] No files with documentIssuerId found, using unidentified fallback mode`
+    );
+    useUnidentifiedFallback = true;
+    files = await prisma.historicalFile.findMany({
+      where: {
+        batchId,
+        status: 'COMPLETED',
+      },
+      include: {
+        documentIssuer: true,
+        documentFormat: true,
       },
     });
   }
@@ -190,17 +217,27 @@ export async function aggregateTermsHierarchically(
 
   // FIX-006: 用於 fallback 模式的預設格式 ID 前綴
   const DEFAULT_FORMAT_PREFIX = 'default-format-';
+  // FIX-027: 用於未識別公司的虛擬 ID
+  const UNIDENTIFIED_COMPANY_ID = 'unidentified-company';
+  const UNIDENTIFIED_COMPANY_NAME = '未識別公司';
 
   // 3. 遍歷文件，組織數據
   for (const file of files) {
-    const issuerId = file.documentIssuerId!;
+    // FIX-027: 如果沒有 documentIssuerId，使用虛擬公司 ID
+    const issuerId = file.documentIssuerId || UNIDENTIFIED_COMPANY_ID;
     // FIX-006: 如果沒有 documentFormatId，使用預設格式 ID（基於公司 ID）
     const formatId = file.documentFormatId || `${DEFAULT_FORMAT_PREFIX}${issuerId}`;
 
     // 確保公司節點存在
     if (!companyMap.has(issuerId)) {
+      // FIX-027: 如果是未識別公司，創建虛擬公司物件
+      const companyData = file.documentIssuer || {
+        id: UNIDENTIFIED_COMPANY_ID,
+        name: UNIDENTIFIED_COMPANY_NAME,
+        nameVariants: [],
+      };
       companyMap.set(issuerId, {
-        company: file.documentIssuer!,
+        company: companyData as NonNullable<(typeof files)[0]['documentIssuer']>,
         formats: new Map(),
       });
     }
@@ -391,8 +428,13 @@ export async function aggregateTermsHierarchically(
     totalTermOccurrences,
   };
 
-  // FIX-006: 記錄聚合模式
-  if (useFallbackMode) {
+  // FIX-006 & FIX-027: 記錄聚合模式
+  if (useUnidentifiedFallback) {
+    console.log(
+      `[HierarchicalAggregation] Unidentified fallback mode completed: ` +
+        `${companies.length} companies, ${totalUniqueTerms} unique terms, ${totalTermOccurrences} occurrences`
+    );
+  } else if (useFallbackMode) {
     console.log(
       `[HierarchicalAggregation] Fallback mode completed: ` +
         `${companies.length} companies, ${totalUniqueTerms} unique terms, ${totalTermOccurrences} occurrences`
@@ -599,6 +641,9 @@ export async function getGlobalTermStats(): Promise<AggregationSummary> {
  *
  * @param result - JSON 提取結果
  * @returns 描述列表
+ *
+ * FIX: 新增 gptExtraction.invoiceData.lineItems 路徑支援
+ * 舊的 Unified Processor 會將 GPT Vision 結果放在 gptExtraction 內
  */
 function extractTermsFromResult(result: ExtractionResultJson | null): string[] {
   if (!result) return [];
@@ -606,11 +651,13 @@ function extractTermsFromResult(result: ExtractionResultJson | null): string[] {
   const descriptions: string[] = [];
 
   // 嘗試從不同格式中提取
+  // FIX: 新增 gptExtraction.invoiceData.lineItems 路徑
   const items =
     result.lineItems ??
     result.items ??
     result.invoiceData?.lineItems ??
     result.extractedData?.lineItems ??
+    result.gptExtraction?.invoiceData?.lineItems ??
     [];
 
   for (const item of items) {
