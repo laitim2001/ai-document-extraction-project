@@ -347,6 +347,6 @@ export const DEFAULT_IDENTIFICATION_OPTIONS: Required<IssuerIdentificationOption
   source: 'unified-processor',
   fuzzyThreshold: 0.8,
   minConfidenceThreshold: 0.5,
-  createdById: 'system',
+  createdById: 'dev-user-1', // FIX-028: 使用有效的系統用戶 ID
   skipCompanyMatching: false,
 };
