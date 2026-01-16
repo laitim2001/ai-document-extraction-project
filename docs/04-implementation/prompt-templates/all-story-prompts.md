@@ -6560,6 +6560,375 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
+### Story 16-8: 手動新增格式
+
+```
+# 開發任務：Story 16-8 手動新增格式
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-8.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-16-format-management/16-8-manual-format-creation.md
+- src/services/document-format.service.ts（現有服務）
+- src/components/features/format/FormatList.tsx（整合點）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 新增 POST /api/v1/formats API（支援 Prisma transaction）
+3. 新增 createDocumentFormatSchema Zod 驗證
+4. 新增 useCreateFormat mutation hook
+5. 新增 CreateFormatDialog 組件（進階選項展開）
+6. 整合到 FormatList（空狀態、統計資訊旁）
+7. 支援自動建立 FieldMappingConfig/PromptConfig 選項
+8. 處理 409 duplicate format 錯誤
+9. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+## Epic 17: 國際化 (i18n)
+
+> **說明**：此 Epic 為系統添加多語言支援，使用 next-intl 框架實現國際化。支援語言：zh-TW（繁體中文）、en（英文，預設）、zh-CN（簡體中文）。
+
+### Story 17-1: i18n 基礎架構設置
+
+```
+# 開發任務：Story 17-1 i18n 基礎架構設置
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-17-i18n/17-1-i18n-infrastructure-setup.md
+- https://next-intl-docs.vercel.app/（next-intl 官方文檔）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 安裝 next-intl 套件
+3. 建立 src/i18n/ 配置檔案（config.ts, request.ts, routing.ts）
+4. 建立 messages/{locale}/common.json 翻譯檔案（zh-TW, en, zh-CN）
+5. 建立 src/app/[locale]/layout.tsx 語言感知佈局
+6. 更新 src/middleware.ts 實現語言偵測和重定向
+7. 更新 next.config.ts 添加 next-intl plugin
+8. 移動現有 (auth) 和 (dashboard) 路由到 [locale]/ 下
+9. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run build` 確認建置成功
+
+### 2. 路由驗證
+- [ ] 訪問 `/` 重定向到 `/en`
+- [ ] 訪問 `/invoices` 重定向到 `/en/invoices`
+- [ ] 訪問 `/zh-TW/invoices` 正常顯示
+- [ ] 訪問 `/en/invoices` 正常顯示
+
+### 3. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 4. 附加文檔
+- [ ] 更新 CLAUDE.md 技術棧（新增 next-intl）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 17-2: 核心 UI 文字國際化
+
+```
+# 開發任務：Story 17-2 核心 UI 文字國際化
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-17-i18n/17-2-core-ui-text-internationalization.md
+- docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-1.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立翻譯檔案命名空間：
+   - messages/{locale}/common.json（通用文字 ~150 字串）
+   - messages/{locale}/navigation.json（導航 ~30 字串）
+   - messages/{locale}/invoices.json（發票模組 ~100 字串）
+   - messages/{locale}/review.json（審核模組 ~80 字串）
+3. 更新 src/i18n/request.ts 支援多命名空間載入
+4. 重構發票列表頁（/invoices）使用 useTranslations
+5. 重構審核頁面（/review）使用 useTranslations
+6. 重構導航組件和側邊欄使用翻譯
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 翻譯驗證
+- [ ] 訪問 `/zh-TW/invoices` 顯示繁體中文
+- [ ] 訪問 `/en/invoices` 顯示英文
+- [ ] 導航欄在兩種語言下正確顯示
+
+### 3. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 4. 附加文檔（如適用）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 17-3: 驗證訊息與錯誤處理國際化
+
+```
+# 開發任務：Story 17-3 驗證訊息與錯誤處理國際化
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-17-i18n/17-3-validation-error-internationalization.md
+- docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-1.md（依賴）
+- src/validations/（現有 Zod schemas）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立翻譯檔案：
+   - messages/{locale}/validation.json（驗證訊息）
+   - messages/{locale}/errors.json（API 錯誤、Toast）
+3. 建立 src/lib/i18n-zod.ts（Zod 錯誤訊息映射）
+4. 建立 useLocalizedZod hook（整合 Zod 4.x 內建 locales）
+5. 建立 useLocalizedToast hook
+6. 建立 createLocalizedError 工具函數
+7. 更新現有 Zod Schema 使用國際化訊息
+8. 更新 API 路由返回國際化錯誤響應
+9. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 表單驗證錯誤以當前語言顯示
+- [ ] API 錯誤響應以當前語言返回
+- [ ] Toast 通知以當前語言顯示
+
+### 3. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 4. 附加文檔（如適用）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 17-4: 日期、數字與貨幣格式化
+
+```
+# 開發任務：Story 17-4 日期、數字與貨幣格式化
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-17-i18n/17-4-date-number-currency-formatting.md
+- docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-1.md（依賴）
+- src/components/ui/date-range-picker.tsx（需更新）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立 src/lib/i18n-date.ts：
+   - 整合 date-fns 多語言 locale（zhTW, enUS, zhCN）
+   - formatLocalizedDate, formatRelativeTime 函數
+3. 建立 src/lib/i18n-number.ts：
+   - formatNumber, formatPercent 函數
+   - 使用 Intl.NumberFormat
+4. 建立 src/lib/i18n-currency.ts：
+   - formatCurrency 函數
+   - 支援多貨幣（USD, TWD, CNY, HKD）
+5. 建立相關 hooks（useLocalizedDate, useLocalizedNumber）
+6. 更新 DateRangePicker 組件
+7. 更新 StatCard 和表格數字顯示
+8. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 格式化驗證
+- [ ] 日期在 zh-TW 顯示為「2026年1月16日」格式
+- [ ] 日期在 en 顯示為「January 16, 2026」格式
+- [ ] 數字千位分隔符正確顯示
+- [ ] 貨幣格式正確顯示（NT$、US$）
+
+### 3. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 4. 附加文檔（如適用）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 17-5: 語言偏好設置與切換 UI
+
+```
+# 開發任務：Story 17-5 語言偏好設置與切換 UI
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-17-i18n/17-5-language-preference-settings.md
+- docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-1.md（依賴）
+- prisma/schema.prisma（需擴展 User model）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立 LocaleSwitcher.tsx 組件（Dropdown 顯示語言選項）
+3. 整合 LocaleSwitcher 到 Header 組件
+4. 建立 useLocalePreference hook（LocalStorage 持久化）
+5. 擴展 User model 添加 preferredLocale 欄位
+6. 執行 Prisma 遷移
+7. 建立 PATCH /api/v1/users/me/locale API
+8. 實作語言偏好優先級邏輯：
+   - 資料庫偏好 > LocalStorage > 瀏覽器語言 > 預設語言
+9. 更新 [locale]/layout.tsx 添加 hreflang 標籤
+10. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npx prisma migrate dev` 確認遷移成功
+
+### 2. 功能驗證
+- [ ] LocaleSwitcher 組件正確顯示在 Header
+- [ ] 切換語言後頁面即時更新
+- [ ] 重新訪問網站自動載入上次選擇的語言
+- [ ] 登入後載入資料庫中的語言偏好
+
+### 3. SEO 驗證
+- [ ] HTML lang 屬性正確設置
+- [ ] hreflang 標籤正確生成
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+- [ ] 更新 sprint-status.yaml 將 epic-17 狀態改為 `done`
+
+### 5. 附加文檔
+- [ ] 更新 CLAUDE.md 的 Prisma 模型清單
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 6. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
 ## 使用說明
 
 ### 如何使用這些提示
@@ -6582,3 +6951,4 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 - **Epic 02**: 依賴 Epic 01 的認證基礎
 - **Epic 03**: 依賴 Epic 02 的處理結果
 - **Epic 06**: 多城市功能可能需要回頭調整早期 Story
+- **Epic 17**: Story 17-1 是 i18n 基礎，必須先完成；其他 Stories 可平行開發
