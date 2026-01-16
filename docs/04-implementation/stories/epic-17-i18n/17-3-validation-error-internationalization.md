@@ -275,7 +275,7 @@ export async function createLocalizedError(
 | Story ID | 17.3 |
 | Story Key | 17-3-validation-error-internationalization |
 | Epic | Epic 17: i18n 國際化 |
-| Estimated Effort | Medium (6-10h) |
+| Estimated Effort | Large (10-14h) |
 | Dependencies | Story 17.1 |
 | Blocking | 無 |
 

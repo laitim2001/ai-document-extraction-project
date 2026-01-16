@@ -1,7 +1,8 @@
 # Story 17-2: 核心 UI 文字國際化 - Technical Specification
 
-**Version:** 1.0
+**Version:** 1.1
 **Created:** 2026-01-16
+**Updated:** 2026-01-16
 **Status:** Ready for Development
 **Story Key:** 17-2-core-ui-text-internationalization
 
@@ -13,7 +14,7 @@
 |-------|-------|
 | Story ID | 17.2 |
 | Epic | Epic 17: i18n 國際化 |
-| Estimated Effort | Large (12-16h) |
+| Estimated Effort | X-Large (20-28h) |
 | Dependencies | Story 17.1 |
 | Blocking | Story 17.5 |
 
@@ -21,7 +22,23 @@
 
 ## Objective
 
-將核心用戶介面的硬編碼文字替換為國際化翻譯，包括發票列表頁、審核頁面、導航組件和通用 UI 元素。預計處理約 400-500 個翻譯字串，涵蓋 P0 優先級的所有用戶可見文字。
+將核心用戶介面的硬編碼文字替換為國際化翻譯，涵蓋所有主要功能模組。預計處理約 **1000-1200 個翻譯字串**，包括：
+
+| 模組 | 預估字串數 | 優先級 |
+|------|-----------|--------|
+| invoices | 50-60 | P0 |
+| review | 40-50 | P0 |
+| navigation | 30-40 | P0 |
+| dialogs | 30-40 | P0 |
+| **admin** | 150-200 | P1 |
+| **auth** | 30-40 | P1 |
+| **companies** | 100-120 | P1 |
+| **rules** | 120-150 | P1 |
+| **reports** | 100-130 | P1 |
+| **formats** | 60-80 | P2 |
+| **dashboard** | 40-60 | P2 |
+
+> **Version 1.1 更新**：根據深度覆蓋分析，新增 admin、auth、companies、rules、reports、formats、dashboard 模組。
 
 ---
 
@@ -34,6 +51,11 @@
 | AC3 | 審核頁面國際化 | 建立 `review.json`、更新審核相關組件 |
 | AC4 | 導航和佈局國際化 | 建立 `navigation.json`、更新 Sidebar/Header |
 | AC5 | 對話框和表單國際化 | 建立 `dialogs.json`、更新通用對話框組件 |
+| **AC6** | **管理員頁面國際化** | 建立 `admin.json`、更新用戶/角色/系統配置頁面 |
+| **AC7** | **認證頁面國際化** | 建立 `auth.json`、更新登入/登出/權限提示 |
+| **AC8** | **公司管理國際化** | 建立 `companies.json`、更新公司 CRUD 頁面 |
+| **AC9** | **映射規則國際化** | 建立 `rules.json`、更新規則管理頁面 |
+| **AC10** | **報表分析國際化** | 建立 `reports.json`、更新統計/成本/審計報表 |
 
 ---
 
@@ -666,6 +688,1044 @@ export function Sidebar() {
 
 ---
 
+### Phase 5: 管理員模組翻譯 (60 min) - **NEW**
+
+#### Step 5.1: 建立管理員翻譯檔案
+
+Create `messages/zh-TW/admin.json`:
+
+```json
+{
+  "page": {
+    "title": "系統管理",
+    "description": "管理用戶、角色和系統配置"
+  },
+  "users": {
+    "title": "用戶管理",
+    "description": "管理系統用戶帳號",
+    "table": {
+      "name": "姓名",
+      "email": "電郵",
+      "role": "角色",
+      "city": "城市",
+      "status": "狀態",
+      "lastLogin": "最後登入",
+      "actions": "操作"
+    },
+    "status": {
+      "active": "啟用",
+      "inactive": "停用",
+      "pending": "待審核"
+    },
+    "actions": {
+      "create": "新增用戶",
+      "edit": "編輯",
+      "delete": "刪除",
+      "activate": "啟用",
+      "deactivate": "停用",
+      "resetPassword": "重設密碼"
+    },
+    "form": {
+      "name": "姓名",
+      "email": "電郵",
+      "password": "密碼",
+      "confirmPassword": "確認密碼",
+      "role": "角色",
+      "city": "城市",
+      "department": "部門"
+    },
+    "dialog": {
+      "createTitle": "新增用戶",
+      "editTitle": "編輯用戶",
+      "deleteTitle": "確認刪除",
+      "deleteMessage": "確定要刪除用戶「{name}」嗎？此操作無法復原。",
+      "resetPasswordTitle": "重設密碼",
+      "resetPasswordMessage": "確定要重設用戶「{name}」的密碼嗎？"
+    }
+  },
+  "roles": {
+    "title": "角色管理",
+    "description": "管理用戶角色和權限",
+    "table": {
+      "name": "角色名稱",
+      "description": "描述",
+      "permissions": "權限數量",
+      "users": "用戶數量",
+      "actions": "操作"
+    },
+    "actions": {
+      "create": "新增角色",
+      "edit": "編輯",
+      "delete": "刪除",
+      "viewPermissions": "查看權限"
+    },
+    "form": {
+      "name": "角色名稱",
+      "description": "描述",
+      "permissions": "權限"
+    },
+    "permissions": {
+      "read": "讀取",
+      "write": "寫入",
+      "delete": "刪除",
+      "admin": "管理"
+    }
+  },
+  "config": {
+    "title": "系統配置",
+    "description": "配置系統參數和設定",
+    "sections": {
+      "general": "一般設定",
+      "security": "安全設定",
+      "notifications": "通知設定",
+      "integrations": "整合設定"
+    },
+    "general": {
+      "systemName": "系統名稱",
+      "defaultLanguage": "預設語言",
+      "timezone": "時區",
+      "dateFormat": "日期格式"
+    },
+    "security": {
+      "sessionTimeout": "會話逾時（分鐘）",
+      "passwordPolicy": "密碼政策",
+      "mfaRequired": "強制雙因素認證",
+      "loginAttempts": "登入嘗試次數上限"
+    }
+  },
+  "monitoring": {
+    "title": "系統監控",
+    "description": "監控系統健康狀態和效能",
+    "metrics": {
+      "cpu": "CPU 使用率",
+      "memory": "記憶體使用率",
+      "disk": "磁碟使用率",
+      "requests": "請求數/秒"
+    },
+    "status": {
+      "healthy": "健康",
+      "warning": "警告",
+      "critical": "嚴重"
+    }
+  },
+  "logs": {
+    "title": "系統日誌",
+    "description": "查看系統事件和錯誤日誌",
+    "filters": {
+      "level": "日誌級別",
+      "source": "來源",
+      "dateRange": "日期範圍"
+    },
+    "levels": {
+      "info": "資訊",
+      "warning": "警告",
+      "error": "錯誤",
+      "debug": "除錯"
+    }
+  },
+  "backup": {
+    "title": "備份管理",
+    "description": "管理系統資料備份",
+    "actions": {
+      "createBackup": "建立備份",
+      "restore": "還原",
+      "download": "下載",
+      "delete": "刪除"
+    },
+    "status": {
+      "completed": "已完成",
+      "inProgress": "進行中",
+      "failed": "失敗"
+    }
+  }
+}
+```
+
+Create `messages/en/admin.json`:
+
+```json
+{
+  "page": {
+    "title": "System Administration",
+    "description": "Manage users, roles, and system configuration"
+  },
+  "users": {
+    "title": "User Management",
+    "description": "Manage system user accounts",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "city": "City",
+      "status": "Status",
+      "lastLogin": "Last Login",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending"
+    },
+    "actions": {
+      "create": "Add User",
+      "edit": "Edit",
+      "delete": "Delete",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "resetPassword": "Reset Password"
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "role": "Role",
+      "city": "City",
+      "department": "Department"
+    },
+    "dialog": {
+      "createTitle": "Add User",
+      "editTitle": "Edit User",
+      "deleteTitle": "Confirm Deletion",
+      "deleteMessage": "Are you sure you want to delete user \"{name}\"? This action cannot be undone.",
+      "resetPasswordTitle": "Reset Password",
+      "resetPasswordMessage": "Are you sure you want to reset the password for user \"{name}\"?"
+    }
+  },
+  "roles": {
+    "title": "Role Management",
+    "description": "Manage user roles and permissions",
+    "table": {
+      "name": "Role Name",
+      "description": "Description",
+      "permissions": "Permission Count",
+      "users": "User Count",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "Add Role",
+      "edit": "Edit",
+      "delete": "Delete",
+      "viewPermissions": "View Permissions"
+    },
+    "form": {
+      "name": "Role Name",
+      "description": "Description",
+      "permissions": "Permissions"
+    },
+    "permissions": {
+      "read": "Read",
+      "write": "Write",
+      "delete": "Delete",
+      "admin": "Admin"
+    }
+  },
+  "config": {
+    "title": "System Configuration",
+    "description": "Configure system parameters and settings",
+    "sections": {
+      "general": "General Settings",
+      "security": "Security Settings",
+      "notifications": "Notification Settings",
+      "integrations": "Integration Settings"
+    },
+    "general": {
+      "systemName": "System Name",
+      "defaultLanguage": "Default Language",
+      "timezone": "Timezone",
+      "dateFormat": "Date Format"
+    },
+    "security": {
+      "sessionTimeout": "Session Timeout (minutes)",
+      "passwordPolicy": "Password Policy",
+      "mfaRequired": "Require Two-Factor Authentication",
+      "loginAttempts": "Maximum Login Attempts"
+    }
+  },
+  "monitoring": {
+    "title": "System Monitoring",
+    "description": "Monitor system health and performance",
+    "metrics": {
+      "cpu": "CPU Usage",
+      "memory": "Memory Usage",
+      "disk": "Disk Usage",
+      "requests": "Requests/sec"
+    },
+    "status": {
+      "healthy": "Healthy",
+      "warning": "Warning",
+      "critical": "Critical"
+    }
+  },
+  "logs": {
+    "title": "System Logs",
+    "description": "View system events and error logs",
+    "filters": {
+      "level": "Log Level",
+      "source": "Source",
+      "dateRange": "Date Range"
+    },
+    "levels": {
+      "info": "Info",
+      "warning": "Warning",
+      "error": "Error",
+      "debug": "Debug"
+    }
+  },
+  "backup": {
+    "title": "Backup Management",
+    "description": "Manage system data backups",
+    "actions": {
+      "createBackup": "Create Backup",
+      "restore": "Restore",
+      "download": "Download",
+      "delete": "Delete"
+    },
+    "status": {
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "failed": "Failed"
+    }
+  }
+}
+```
+
+---
+
+### Phase 6: 認證模組翻譯 (20 min) - **NEW**
+
+#### Step 6.1: 建立認證翻譯檔案
+
+Create `messages/zh-TW/auth.json`:
+
+```json
+{
+  "login": {
+    "title": "登入",
+    "subtitle": "登入以繼續使用系統",
+    "email": "電郵",
+    "password": "密碼",
+    "rememberMe": "記住我",
+    "forgotPassword": "忘記密碼？",
+    "submit": "登入",
+    "submitting": "登入中...",
+    "ssoButton": "使用 Azure AD 登入",
+    "orDivider": "或"
+  },
+  "logout": {
+    "title": "登出",
+    "message": "您確定要登出嗎？",
+    "confirm": "確認登出",
+    "cancel": "取消"
+  },
+  "session": {
+    "expired": "您的登入已過期",
+    "expiredMessage": "請重新登入以繼續。",
+    "refreshing": "正在更新登入狀態...",
+    "relogin": "重新登入"
+  },
+  "errors": {
+    "invalidCredentials": "電郵或密碼錯誤",
+    "accountLocked": "帳戶已被鎖定，請聯繫管理員",
+    "accountDisabled": "帳戶已被停用",
+    "sessionExpired": "登入已過期，請重新登入",
+    "networkError": "網路錯誤，請檢查連線",
+    "serverError": "伺服器錯誤，請稍後再試"
+  },
+  "permissions": {
+    "denied": "存取被拒",
+    "deniedMessage": "您沒有權限存取此頁面",
+    "contactAdmin": "請聯繫管理員獲取存取權限",
+    "goBack": "返回",
+    "goHome": "回到首頁"
+  }
+}
+```
+
+Create `messages/en/auth.json`:
+
+```json
+{
+  "login": {
+    "title": "Sign In",
+    "subtitle": "Sign in to continue using the system",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "submit": "Sign In",
+    "submitting": "Signing in...",
+    "ssoButton": "Sign in with Azure AD",
+    "orDivider": "or"
+  },
+  "logout": {
+    "title": "Sign Out",
+    "message": "Are you sure you want to sign out?",
+    "confirm": "Sign Out",
+    "cancel": "Cancel"
+  },
+  "session": {
+    "expired": "Your session has expired",
+    "expiredMessage": "Please sign in again to continue.",
+    "refreshing": "Refreshing session...",
+    "relogin": "Sign In Again"
+  },
+  "errors": {
+    "invalidCredentials": "Invalid email or password",
+    "accountLocked": "Account is locked. Please contact administrator",
+    "accountDisabled": "Account has been disabled",
+    "sessionExpired": "Session expired. Please sign in again",
+    "networkError": "Network error. Please check your connection",
+    "serverError": "Server error. Please try again later"
+  },
+  "permissions": {
+    "denied": "Access Denied",
+    "deniedMessage": "You do not have permission to access this page",
+    "contactAdmin": "Please contact your administrator for access",
+    "goBack": "Go Back",
+    "goHome": "Go to Home"
+  }
+}
+```
+
+---
+
+### Phase 7: 公司管理模組翻譯 (45 min) - **NEW**
+
+#### Step 7.1: 建立公司管理翻譯檔案
+
+Create `messages/zh-TW/companies.json`:
+
+```json
+{
+  "page": {
+    "title": "公司管理",
+    "description": "管理 Forwarder 公司資料和配置"
+  },
+  "list": {
+    "searchPlaceholder": "搜尋公司名稱...",
+    "filters": {
+      "status": "狀態",
+      "city": "城市",
+      "allStatus": "所有狀態",
+      "allCities": "所有城市"
+    }
+  },
+  "table": {
+    "columns": {
+      "name": "公司名稱",
+      "code": "公司代碼",
+      "city": "城市",
+      "formats": "格式數量",
+      "rules": "規則數量",
+      "status": "狀態",
+      "createdAt": "建立時間",
+      "actions": "操作"
+    },
+    "empty": "沒有找到公司資料",
+    "emptyDescription": "建立新公司開始設定"
+  },
+  "status": {
+    "active": "啟用",
+    "inactive": "停用",
+    "pending": "待設定"
+  },
+  "actions": {
+    "create": "新增公司",
+    "edit": "編輯",
+    "delete": "刪除",
+    "activate": "啟用",
+    "deactivate": "停用",
+    "viewFormats": "查看格式",
+    "viewRules": "查看規則"
+  },
+  "form": {
+    "basic": "基本資訊",
+    "name": "公司名稱",
+    "namePlaceholder": "輸入公司名稱",
+    "code": "公司代碼",
+    "codePlaceholder": "輸入唯一識別代碼",
+    "city": "城市",
+    "cityPlaceholder": "選擇城市",
+    "description": "描述",
+    "descriptionPlaceholder": "輸入公司描述（選填）",
+    "contact": "聯絡資訊",
+    "contactPerson": "聯絡人",
+    "contactEmail": "聯絡電郵",
+    "contactPhone": "聯絡電話",
+    "settings": "設定",
+    "autoApproveThreshold": "自動通過閾值",
+    "defaultCurrency": "預設貨幣"
+  },
+  "dialog": {
+    "createTitle": "新增公司",
+    "editTitle": "編輯公司",
+    "deleteTitle": "確認刪除",
+    "deleteMessage": "確定要刪除公司「{name}」嗎？相關的格式和規則也會被刪除。",
+    "deleteWarning": "此操作無法復原"
+  },
+  "detail": {
+    "overview": "概覽",
+    "formats": "發票格式",
+    "rules": "映射規則",
+    "history": "處理歷史",
+    "stats": {
+      "totalInvoices": "總發票數",
+      "processedThisMonth": "本月處理",
+      "autoApproveRate": "自動通過率",
+      "avgConfidence": "平均信心度"
+    }
+  }
+}
+```
+
+Create `messages/en/companies.json`:
+
+```json
+{
+  "page": {
+    "title": "Company Management",
+    "description": "Manage Forwarder company data and configurations"
+  },
+  "list": {
+    "searchPlaceholder": "Search company name...",
+    "filters": {
+      "status": "Status",
+      "city": "City",
+      "allStatus": "All Status",
+      "allCities": "All Cities"
+    }
+  },
+  "table": {
+    "columns": {
+      "name": "Company Name",
+      "code": "Company Code",
+      "city": "City",
+      "formats": "Format Count",
+      "rules": "Rule Count",
+      "status": "Status",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "empty": "No companies found",
+    "emptyDescription": "Create a new company to get started"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending Setup"
+  },
+  "actions": {
+    "create": "Add Company",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "viewFormats": "View Formats",
+    "viewRules": "View Rules"
+  },
+  "form": {
+    "basic": "Basic Information",
+    "name": "Company Name",
+    "namePlaceholder": "Enter company name",
+    "code": "Company Code",
+    "codePlaceholder": "Enter unique identifier code",
+    "city": "City",
+    "cityPlaceholder": "Select city",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter company description (optional)",
+    "contact": "Contact Information",
+    "contactPerson": "Contact Person",
+    "contactEmail": "Contact Email",
+    "contactPhone": "Contact Phone",
+    "settings": "Settings",
+    "autoApproveThreshold": "Auto-Approve Threshold",
+    "defaultCurrency": "Default Currency"
+  },
+  "dialog": {
+    "createTitle": "Add Company",
+    "editTitle": "Edit Company",
+    "deleteTitle": "Confirm Deletion",
+    "deleteMessage": "Are you sure you want to delete company \"{name}\"? Related formats and rules will also be deleted.",
+    "deleteWarning": "This action cannot be undone"
+  },
+  "detail": {
+    "overview": "Overview",
+    "formats": "Invoice Formats",
+    "rules": "Mapping Rules",
+    "history": "Processing History",
+    "stats": {
+      "totalInvoices": "Total Invoices",
+      "processedThisMonth": "Processed This Month",
+      "autoApproveRate": "Auto-Approve Rate",
+      "avgConfidence": "Average Confidence"
+    }
+  }
+}
+```
+
+---
+
+### Phase 8: 映射規則模組翻譯 (45 min) - **NEW**
+
+#### Step 8.1: 建立映射規則翻譯檔案
+
+Create `messages/zh-TW/rules.json`:
+
+```json
+{
+  "page": {
+    "title": "映射規則",
+    "description": "管理發票欄位映射規則"
+  },
+  "tabs": {
+    "universal": "通用規則",
+    "companySpecific": "公司特定規則",
+    "learned": "學習規則"
+  },
+  "tier": {
+    "universal": "通用層",
+    "companyOverride": "公司覆蓋層",
+    "llmClassification": "AI 智能分類"
+  },
+  "list": {
+    "searchPlaceholder": "搜尋規則...",
+    "filters": {
+      "tier": "規則層級",
+      "company": "公司",
+      "chargeType": "費用類型",
+      "status": "狀態",
+      "allTiers": "所有層級",
+      "allCompanies": "所有公司",
+      "allTypes": "所有類型"
+    }
+  },
+  "table": {
+    "columns": {
+      "sourceText": "來源文字",
+      "chargeType": "費用類型",
+      "tier": "層級",
+      "company": "公司",
+      "confidence": "信心度",
+      "usageCount": "使用次數",
+      "status": "狀態",
+      "actions": "操作"
+    },
+    "empty": "沒有找到映射規則",
+    "emptyDescription": "建立新規則開始設定"
+  },
+  "status": {
+    "active": "啟用",
+    "inactive": "停用",
+    "pending": "待驗證",
+    "rejected": "已拒絕"
+  },
+  "actions": {
+    "create": "新增規則",
+    "edit": "編輯",
+    "delete": "刪除",
+    "activate": "啟用",
+    "deactivate": "停用",
+    "approve": "批准",
+    "reject": "拒絕",
+    "test": "測試規則",
+    "bulkImport": "批量匯入",
+    "export": "匯出"
+  },
+  "form": {
+    "sourceText": "來源文字",
+    "sourceTextPlaceholder": "輸入發票上的文字（支援正則表達式）",
+    "chargeType": "費用類型",
+    "chargeTypePlaceholder": "選擇或輸入費用類型",
+    "tier": "規則層級",
+    "company": "適用公司",
+    "companyPlaceholder": "選擇公司（通用規則留空）",
+    "format": "適用格式",
+    "formatPlaceholder": "選擇格式（選填）",
+    "isRegex": "使用正則表達式",
+    "caseSensitive": "區分大小寫",
+    "priority": "優先級",
+    "notes": "備註"
+  },
+  "dialog": {
+    "createTitle": "新增映射規則",
+    "editTitle": "編輯映射規則",
+    "deleteTitle": "確認刪除",
+    "deleteMessage": "確定要刪除此映射規則嗎？",
+    "testTitle": "測試規則",
+    "testInput": "輸入測試文字",
+    "testResult": "匹配結果",
+    "bulkImportTitle": "批量匯入規則",
+    "bulkImportDescription": "上傳 CSV 檔案匯入多個規則"
+  },
+  "test": {
+    "inputPlaceholder": "輸入要測試的文字...",
+    "matched": "匹配成功",
+    "notMatched": "未匹配",
+    "matchedRule": "匹配規則",
+    "confidence": "信心度"
+  },
+  "chargeTypes": {
+    "oceanFreight": "海運費",
+    "airFreight": "空運費",
+    "documentFee": "文件費",
+    "customsClearance": "報關費",
+    "handling": "手續費",
+    "insurance": "保險費",
+    "storage": "倉儲費",
+    "delivery": "派送費",
+    "other": "其他費用"
+  },
+  "learning": {
+    "title": "規則學習",
+    "description": "從人工修正中學習的規則",
+    "pendingApproval": "待批准",
+    "approved": "已批准",
+    "rejected": "已拒絕",
+    "source": "學習來源",
+    "learnedFrom": "學習自",
+    "corrections": "次修正"
+  }
+}
+```
+
+Create `messages/en/rules.json`:
+
+```json
+{
+  "page": {
+    "title": "Mapping Rules",
+    "description": "Manage invoice field mapping rules"
+  },
+  "tabs": {
+    "universal": "Universal Rules",
+    "companySpecific": "Company-Specific Rules",
+    "learned": "Learned Rules"
+  },
+  "tier": {
+    "universal": "Universal Tier",
+    "companyOverride": "Company Override Tier",
+    "llmClassification": "AI Classification"
+  },
+  "list": {
+    "searchPlaceholder": "Search rules...",
+    "filters": {
+      "tier": "Rule Tier",
+      "company": "Company",
+      "chargeType": "Charge Type",
+      "status": "Status",
+      "allTiers": "All Tiers",
+      "allCompanies": "All Companies",
+      "allTypes": "All Types"
+    }
+  },
+  "table": {
+    "columns": {
+      "sourceText": "Source Text",
+      "chargeType": "Charge Type",
+      "tier": "Tier",
+      "company": "Company",
+      "confidence": "Confidence",
+      "usageCount": "Usage Count",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": "No mapping rules found",
+    "emptyDescription": "Create a new rule to get started"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending Verification",
+    "rejected": "Rejected"
+  },
+  "actions": {
+    "create": "Add Rule",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "approve": "Approve",
+    "reject": "Reject",
+    "test": "Test Rule",
+    "bulkImport": "Bulk Import",
+    "export": "Export"
+  },
+  "form": {
+    "sourceText": "Source Text",
+    "sourceTextPlaceholder": "Enter text from invoice (regex supported)",
+    "chargeType": "Charge Type",
+    "chargeTypePlaceholder": "Select or enter charge type",
+    "tier": "Rule Tier",
+    "company": "Applicable Company",
+    "companyPlaceholder": "Select company (leave empty for universal)",
+    "format": "Applicable Format",
+    "formatPlaceholder": "Select format (optional)",
+    "isRegex": "Use Regular Expression",
+    "caseSensitive": "Case Sensitive",
+    "priority": "Priority",
+    "notes": "Notes"
+  },
+  "dialog": {
+    "createTitle": "Add Mapping Rule",
+    "editTitle": "Edit Mapping Rule",
+    "deleteTitle": "Confirm Deletion",
+    "deleteMessage": "Are you sure you want to delete this mapping rule?",
+    "testTitle": "Test Rule",
+    "testInput": "Enter test text",
+    "testResult": "Match Result",
+    "bulkImportTitle": "Bulk Import Rules",
+    "bulkImportDescription": "Upload a CSV file to import multiple rules"
+  },
+  "test": {
+    "inputPlaceholder": "Enter text to test...",
+    "matched": "Matched",
+    "notMatched": "Not Matched",
+    "matchedRule": "Matched Rule",
+    "confidence": "Confidence"
+  },
+  "chargeTypes": {
+    "oceanFreight": "Ocean Freight",
+    "airFreight": "Air Freight",
+    "documentFee": "Document Fee",
+    "customsClearance": "Customs Clearance",
+    "handling": "Handling Fee",
+    "insurance": "Insurance",
+    "storage": "Storage",
+    "delivery": "Delivery",
+    "other": "Other"
+  },
+  "learning": {
+    "title": "Rule Learning",
+    "description": "Rules learned from manual corrections",
+    "pendingApproval": "Pending Approval",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "source": "Learning Source",
+    "learnedFrom": "Learned From",
+    "corrections": "corrections"
+  }
+}
+```
+
+---
+
+### Phase 9: 報表分析模組翻譯 (45 min) - **NEW**
+
+#### Step 9.1: 建立報表分析翻譯檔案
+
+Create `messages/zh-TW/reports.json`:
+
+```json
+{
+  "page": {
+    "title": "報表分析",
+    "description": "查看處理統計和成本分析"
+  },
+  "tabs": {
+    "dashboard": "統計儀表板",
+    "costs": "成本報表",
+    "audit": "審計報告",
+    "performance": "效能分析"
+  },
+  "dashboard": {
+    "title": "處理統計",
+    "period": {
+      "today": "今日",
+      "thisWeek": "本週",
+      "thisMonth": "本月",
+      "thisQuarter": "本季",
+      "thisYear": "今年",
+      "custom": "自訂範圍"
+    },
+    "metrics": {
+      "totalProcessed": "總處理數",
+      "autoApproved": "自動通過",
+      "quickReview": "快速審核",
+      "fullReview": "完整審核",
+      "failed": "處理失敗",
+      "avgProcessingTime": "平均處理時間",
+      "avgConfidence": "平均信心度"
+    },
+    "charts": {
+      "processingTrend": "處理趨勢",
+      "statusDistribution": "狀態分佈",
+      "confidenceDistribution": "信心度分佈",
+      "companyComparison": "公司比較"
+    }
+  },
+  "costs": {
+    "title": "成本分析",
+    "summary": {
+      "totalCost": "總成本",
+      "avgCostPerInvoice": "平均每張成本",
+      "savingsEstimate": "預估節省",
+      "manualHoursSaved": "節省人時"
+    },
+    "breakdown": {
+      "byCompany": "按公司",
+      "byChargeType": "按費用類型",
+      "byMonth": "按月份"
+    },
+    "export": {
+      "exportReport": "匯出報表",
+      "format": "格式",
+      "dateRange": "日期範圍"
+    }
+  },
+  "audit": {
+    "title": "審計報告",
+    "filters": {
+      "user": "操作用戶",
+      "action": "操作類型",
+      "dateRange": "日期範圍"
+    },
+    "actions": {
+      "approve": "批准",
+      "reject": "拒絕",
+      "correct": "修正",
+      "escalate": "提交上級"
+    },
+    "table": {
+      "timestamp": "時間",
+      "user": "用戶",
+      "action": "操作",
+      "document": "文件",
+      "changes": "變更",
+      "reason": "原因"
+    }
+  },
+  "performance": {
+    "title": "效能分析",
+    "metrics": {
+      "ocrAccuracy": "OCR 準確率",
+      "mappingAccuracy": "映射準確率",
+      "processingSpeed": "處理速度",
+      "throughput": "吞吐量"
+    },
+    "comparison": {
+      "vsLastPeriod": "較上期",
+      "vsTarget": "較目標",
+      "trend": "趨勢"
+    }
+  },
+  "common": {
+    "noData": "暫無數據",
+    "loading": "載入中...",
+    "refresh": "重新整理",
+    "export": "匯出",
+    "print": "列印"
+  }
+}
+```
+
+Create `messages/en/reports.json`:
+
+```json
+{
+  "page": {
+    "title": "Reports & Analytics",
+    "description": "View processing statistics and cost analysis"
+  },
+  "tabs": {
+    "dashboard": "Statistics Dashboard",
+    "costs": "Cost Reports",
+    "audit": "Audit Reports",
+    "performance": "Performance Analysis"
+  },
+  "dashboard": {
+    "title": "Processing Statistics",
+    "period": {
+      "today": "Today",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "thisQuarter": "This Quarter",
+      "thisYear": "This Year",
+      "custom": "Custom Range"
+    },
+    "metrics": {
+      "totalProcessed": "Total Processed",
+      "autoApproved": "Auto Approved",
+      "quickReview": "Quick Review",
+      "fullReview": "Full Review",
+      "failed": "Failed",
+      "avgProcessingTime": "Avg Processing Time",
+      "avgConfidence": "Avg Confidence"
+    },
+    "charts": {
+      "processingTrend": "Processing Trend",
+      "statusDistribution": "Status Distribution",
+      "confidenceDistribution": "Confidence Distribution",
+      "companyComparison": "Company Comparison"
+    }
+  },
+  "costs": {
+    "title": "Cost Analysis",
+    "summary": {
+      "totalCost": "Total Cost",
+      "avgCostPerInvoice": "Avg Cost Per Invoice",
+      "savingsEstimate": "Estimated Savings",
+      "manualHoursSaved": "Manual Hours Saved"
+    },
+    "breakdown": {
+      "byCompany": "By Company",
+      "byChargeType": "By Charge Type",
+      "byMonth": "By Month"
+    },
+    "export": {
+      "exportReport": "Export Report",
+      "format": "Format",
+      "dateRange": "Date Range"
+    }
+  },
+  "audit": {
+    "title": "Audit Reports",
+    "filters": {
+      "user": "User",
+      "action": "Action Type",
+      "dateRange": "Date Range"
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "correct": "Correct",
+      "escalate": "Escalate"
+    },
+    "table": {
+      "timestamp": "Timestamp",
+      "user": "User",
+      "action": "Action",
+      "document": "Document",
+      "changes": "Changes",
+      "reason": "Reason"
+    }
+  },
+  "performance": {
+    "title": "Performance Analysis",
+    "metrics": {
+      "ocrAccuracy": "OCR Accuracy",
+      "mappingAccuracy": "Mapping Accuracy",
+      "processingSpeed": "Processing Speed",
+      "throughput": "Throughput"
+    },
+    "comparison": {
+      "vsLastPeriod": "vs Last Period",
+      "vsTarget": "vs Target",
+      "trend": "Trend"
+    }
+  },
+  "common": {
+    "noData": "No data available",
+    "loading": "Loading...",
+    "refresh": "Refresh",
+    "export": "Export",
+    "print": "Print"
+  }
+}
+```
+
+---
+
 ## Verification Checklist
 
 ### Translation Loading Verification
@@ -693,6 +1753,8 @@ export function Sidebar() {
 
 ## File List (Expected Output)
 
+### P0 - 核心模組翻譯檔案
+
 | File Path | Description |
 |-----------|-------------|
 | `messages/zh-TW/invoices.json` | 發票模組繁體中文翻譯 |
@@ -701,8 +1763,34 @@ export function Sidebar() {
 | `messages/en/review.json` | 審核模組英文翻譯 |
 | `messages/zh-TW/navigation.json` | 導航繁體中文翻譯 |
 | `messages/en/navigation.json` | 導航英文翻譯 |
+| `messages/zh-TW/dialogs.json` | 對話框繁體中文翻譯 |
+| `messages/en/dialogs.json` | 對話框英文翻譯 |
+
+### P1 - 擴展模組翻譯檔案 (NEW)
+
+| File Path | Description |
+|-----------|-------------|
+| `messages/zh-TW/admin.json` | 管理員模組繁體中文翻譯 |
+| `messages/en/admin.json` | 管理員模組英文翻譯 |
+| `messages/zh-TW/auth.json` | 認證模組繁體中文翻譯 |
+| `messages/en/auth.json` | 認證模組英文翻譯 |
+| `messages/zh-TW/companies.json` | 公司管理繁體中文翻譯 |
+| `messages/en/companies.json` | 公司管理英文翻譯 |
+| `messages/zh-TW/rules.json` | 映射規則繁體中文翻譯 |
+| `messages/en/rules.json` | 映射規則英文翻譯 |
+| `messages/zh-TW/reports.json` | 報表分析繁體中文翻譯 |
+| `messages/en/reports.json` | 報表分析英文翻譯 |
+
+### 代碼檔案更新
+
+| File Path | Description |
+|-----------|-------------|
 | `src/i18n/request.ts` | 更新：支援多命名空間 |
 | `src/app/[locale]/(dashboard)/invoices/page.tsx` | 更新：使用 i18n |
+| `src/app/[locale]/(dashboard)/admin/*` | 更新：管理員頁面 i18n |
+| `src/app/[locale]/(dashboard)/companies/*` | 更新：公司管理頁面 i18n |
+| `src/app/[locale]/(dashboard)/rules/*` | 更新：映射規則頁面 i18n |
+| `src/app/[locale]/(dashboard)/reports/*` | 更新：報表分析頁面 i18n |
 | `src/components/layouts/Sidebar.tsx` | 更新：使用 i18n |
 
 ---
@@ -710,8 +1798,8 @@ export function Sidebar() {
 ## Next Steps
 
 完成 Story 17-2 後：
-1. 繼續擴展其他模組的翻譯（admin, reports, companies）
-2. 進入 **Story 17-3**（驗證訊息與錯誤處理國際化）
+1. 進入 **Story 17-3**（驗證訊息與錯誤處理國際化）
+2. 進入 **Story 17-4**（日期、數字與貨幣格式化）
 3. 進入 **Story 17-5**（語言偏好設置與切換 UI）
 
 ---
