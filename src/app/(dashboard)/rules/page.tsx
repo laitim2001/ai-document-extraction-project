@@ -3,7 +3,8 @@
 /**
  * @fileoverview 映射規則列表頁面
  * @description
- *   映射規則管理頁面，提供：
+ *   映射規則管理頁面，採用與公司列表和發票列表一致的樣式。
+ *   提供：
  *   - 規則列表顯示（支援多維度篩選）
  *   - 狀態統計摘要卡片
  *   - 分頁功能
@@ -11,7 +12,7 @@
  *
  * @module src/app/(dashboard)/rules/page
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-15
  *
  * @dependencies
  *   - @/components/features/rules/RuleList - 規則列表組件
@@ -34,13 +35,13 @@ import Link from 'next/link'
  */
 export default function RulesPage() {
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* 頁面標題 */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">映射規則管理</h1>
-          <p className="text-muted-foreground mt-1">
-            管理文件欄位提取的映射規則，配置 Forwarder 特定或通用提取模式
+          <p className="text-gray-500">
+            管理文件欄位提取的映射規則，配置公司特定或通用提取模式
           </p>
         </div>
         <Button asChild>
