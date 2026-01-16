@@ -1,0 +1,144 @@
+{
+  "page": {
+    "title": "System Administration",
+    "description": "Manage users, roles, and system configuration"
+  },
+  "users": {
+    "title": "User Management",
+    "description": "Manage system user accounts",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "city": "City",
+      "status": "Status",
+      "lastLogin": "Last Login",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending"
+    },
+    "actions": {
+      "create": "Add User",
+      "edit": "Edit",
+      "delete": "Delete",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "resetPassword": "Reset Password"
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "role": "Role",
+      "city": "City",
+      "department": "Department"
+    },
+    "dialog": {
+      "createTitle": "Add User",
+      "editTitle": "Edit User",
+      "deleteTitle": "Confirm Deletion",
+      "deleteMessage": "Are you sure you want to delete user \"{name}\"? This action cannot be undone.",
+      "resetPasswordTitle": "Reset Password",
+      "resetPasswordMessage": "Are you sure you want to reset the password for user \"{name}\"?"
+    }
+  },
+  "roles": {
+    "title": "Role Management",
+    "description": "Manage user roles and permissions",
+    "table": {
+      "name": "Role Name",
+      "description": "Description",
+      "permissions": "Permission Count",
+      "users": "User Count",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "Add Role",
+      "edit": "Edit",
+      "delete": "Delete",
+      "viewPermissions": "View Permissions"
+    },
+    "form": {
+      "name": "Role Name",
+      "description": "Description",
+      "permissions": "Permissions"
+    },
+    "permissions": {
+      "read": "Read",
+      "write": "Write",
+      "delete": "Delete",
+      "admin": "Admin"
+    }
+  },
+  "config": {
+    "title": "System Configuration",
+    "description": "Configure system parameters and settings",
+    "sections": {
+      "general": "General Settings",
+      "security": "Security Settings",
+      "notifications": "Notification Settings",
+      "integrations": "Integration Settings"
+    },
+    "general": {
+      "systemName": "System Name",
+      "defaultLanguage": "Default Language",
+      "timezone": "Timezone",
+      "dateFormat": "Date Format"
+    },
+    "security": {
+      "sessionTimeout": "Session Timeout (minutes)",
+      "passwordPolicy": "Password Policy",
+      "mfaRequired": "Require Two-Factor Authentication",
+      "loginAttempts": "Maximum Login Attempts"
+    }
+  },
+  "monitoring": {
+    "title": "System Monitoring",
+    "description": "Monitor system health and performance",
+    "metrics": {
+      "cpu": "CPU Usage",
+      "memory": "Memory Usage",
+      "disk": "Disk Usage",
+      "requests": "Requests/sec"
+    },
+    "status": {
+      "healthy": "Healthy",
+      "warning": "Warning",
+      "critical": "Critical"
+    }
+  },
+  "logs": {
+    "title": "System Logs",
+    "description": "View system events and error logs",
+    "filters": {
+      "level": "Log Level",
+      "source": "Source",
+      "dateRange": "Date Range"
+    },
+    "levels": {
+      "info": "Info",
+      "warning": "Warning",
+      "error": "Error",
+      "debug": "Debug"
+    }
+  },
+  "backup": {
+    "title": "Backup Management",
+    "description": "Manage system data backups",
+    "actions": {
+      "createBackup": "Create Backup",
+      "restore": "Restore",
+      "download": "Download",
+      "delete": "Delete"
+    },
+    "status": {
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "failed": "Failed"
+    }
+  }
+}

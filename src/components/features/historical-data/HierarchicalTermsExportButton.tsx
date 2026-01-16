@@ -27,6 +27,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useToast } from '@/hooks/use-toast'
+import { HistoricalBatchStatus } from '@prisma/client'
 
 // ============================================================
 // Types
@@ -38,7 +39,7 @@ interface HierarchicalTermsExportButtonProps {
   /** 批次名稱（用於文件命名提示） */
   batchName?: string
   /** 批次狀態 */
-  batchStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED'
+  batchStatus: HistoricalBatchStatus
   /** 按鈕尺寸 */
   size?: 'default' | 'sm' | 'lg' | 'icon'
   /** 按鈕變體 */
@@ -72,7 +73,7 @@ export function HierarchicalTermsExportButton({
   const { toast } = useToast()
   const [isExporting, setIsExporting] = useState(false)
 
-  const isDisabled = batchStatus !== 'COMPLETED' || isExporting
+  const isDisabled = (batchStatus !== 'COMPLETED' && batchStatus !== 'AGGREGATED') || isExporting
 
   // --- Handlers ---
 
@@ -163,16 +164,19 @@ export function HierarchicalTermsExportButton({
     </>
   )
 
-  // 如果不是 COMPLETED 狀態，顯示 Tooltip 說明原因
-  if (batchStatus !== 'COMPLETED') {
-    const tooltipMessage =
-      batchStatus === 'PENDING'
-        ? '批次尚未開始處理'
-        : batchStatus === 'PROCESSING'
-          ? '批次正在處理中'
-          : batchStatus === 'FAILED'
-            ? '批次處理失敗'
-            : '批次已取消'
+  // 如果不是 COMPLETED 或 AGGREGATED 狀態，顯示 Tooltip 說明原因
+  if (batchStatus !== 'COMPLETED' && batchStatus !== 'AGGREGATED') {
+    const statusMessages: Record<HistoricalBatchStatus, string> = {
+      PENDING: '批次尚未開始處理',
+      PROCESSING: '批次正在處理中',
+      PAUSED: '批次已暫停',
+      AGGREGATING: '批次正在聚合術語中',
+      AGGREGATED: '批次已完成聚合',
+      COMPLETED: '批次已完成',
+      FAILED: '批次處理失敗',
+      CANCELLED: '批次已取消',
+    }
+    const tooltipMessage = statusMessages[batchStatus]
 
     return (
       <TooltipProvider>

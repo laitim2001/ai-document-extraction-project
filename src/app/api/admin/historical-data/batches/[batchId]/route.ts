@@ -185,7 +185,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
-    const session = await auth()
+    const session = await getAuthSession(request)
     if (!session?.user?.id) {
       return NextResponse.json(
         {
@@ -294,7 +294,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
  */
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const session = await auth()
+    const session = await getAuthSession(request)
     if (!session?.user?.id) {
       return NextResponse.json(
         {

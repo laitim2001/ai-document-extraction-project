@@ -163,7 +163,7 @@ export async function aggregateTermsHierarchically(
   });
 
   // FIX-006: 如果沒有文件有 documentFormatId，則 fallback 到只需要 documentIssuerId
-  let useFallbackMode = files.length === 0;
+  const useFallbackMode = files.length === 0;
   let useUnidentifiedFallback = false;
 
   if (useFallbackMode) {

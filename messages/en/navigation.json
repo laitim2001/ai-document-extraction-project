@@ -1,0 +1,45 @@
+{
+  "sections": {
+    "overview": "Overview",
+    "documents": "Document Processing",
+    "rules": "Rule Management",
+    "reports": "Reports",
+    "admin": "System Admin"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "globalView": "Global View",
+    "invoices": "Invoices",
+    "uploadInvoice": "Upload Invoice",
+    "review": "Review Queue",
+    "escalations": "Escalations",
+    "mappingRules": "Mapping Rules",
+    "companies": "Companies",
+    "analyticsReports": "Analytics Reports",
+    "auditLogs": "Audit Logs",
+    "users": "User Management",
+    "historicalData": "Historical Data Init",
+    "documentPreview": "Document Preview Test",
+    "fieldMapping": "Field Mapping Config",
+    "promptConfig": "Prompt Config",
+    "termAnalysis": "Term Analysis",
+    "settings": "Settings"
+  },
+  "user": {
+    "profile": "Profile",
+    "preferences": "Preferences",
+    "logout": "Logout"
+  },
+  "breadcrumb": {
+    "home": "Home"
+  },
+  "app": {
+    "name": "AI Doc Extract",
+    "fullName": "AI Document Extraction",
+    "version": "Version {version}"
+  },
+  "actions": {
+    "closeMenu": "Close Menu",
+    "toggleSidebar": "Toggle Sidebar"
+  }
+}

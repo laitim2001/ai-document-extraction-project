@@ -1,9 +1,10 @@
 /**
- * @fileoverview Sidebar Component - 側邊欄導航組件
+ * @fileoverview Sidebar Component - 側邊欄導航組件（國際化版本）
  *
  * @description
  *   提供應用程式側邊欄導航，包含分類導航選單、用戶資訊顯示和收合功能。
  *   支援響應式設計，在移動端作為 overlay 顯示。
+ *   完整的國際化支援。
  *
  * @component Sidebar
  *
@@ -15,12 +16,14 @@
  *   - 響應式設計
  *   - 歷史數據初始化入口 (Epic 0)
  *   - 文件預覽測試入口 (Epic 13)
+ *   - i18n 國際化支援 (Epic 17)
  *
  * @since CHANGE-001 - Dashboard Layout Redesign
- * @lastModified 2026-01-03
+ * @lastModified 2026-01-17
  *
  * @dependencies
- *   - next/navigation: 路由導航
+ *   - next-intl - 國際化
+ *   - @/i18n/routing - Locale-aware 路由
  *   - lucide-react: 圖示組件
  *   - @/components/ui: shadcn/ui 組件
  */
@@ -28,8 +31,9 @@
 'use client'
 
 import * as React from 'react'
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/routing'
 import {
   LayoutDashboard,
   Globe,
@@ -41,11 +45,9 @@ import {
   Building2,
   BarChart3,
   History,
-  Settings,
   Users,
   ChevronLeft,
   ChevronRight,
-  FileSearch,
   Database,
   Layers,
   ArrowRightLeft,
@@ -68,13 +70,13 @@ import {
 // ============================================================
 
 interface NavItem {
-  name: string
+  nameKey: string
   href: string
   icon: React.ComponentType<{ className?: string }>
 }
 
 interface NavSection {
-  title: string
+  titleKey: string
   items: NavItem[]
 }
 
@@ -89,46 +91,44 @@ interface SidebarProps {
 
 const navigation: NavSection[] = [
   {
-    title: '概覽',
+    titleKey: 'sections.overview',
     items: [
-      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { name: '全局視圖', href: '/global', icon: Globe },
+      { nameKey: 'sidebar.dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { nameKey: 'sidebar.globalView', href: '/global', icon: Globe },
     ],
   },
   {
-    title: '文件處理',
+    titleKey: 'sections.documents',
     items: [
-      { name: '發票列表', href: '/invoices', icon: FileText },
-      { name: '上傳發票', href: '/invoices/upload', icon: Upload },
-      { name: '待審核', href: '/review', icon: ClipboardCheck },
-      { name: '升級案例', href: '/escalations', icon: AlertTriangle },
+      { nameKey: 'sidebar.invoices', href: '/invoices', icon: FileText },
+      { nameKey: 'sidebar.uploadInvoice', href: '/invoices/upload', icon: Upload },
+      { nameKey: 'sidebar.review', href: '/review', icon: ClipboardCheck },
+      { nameKey: 'sidebar.escalations', href: '/escalations', icon: AlertTriangle },
     ],
   },
   {
-    title: '規則管理',
+    titleKey: 'sections.rules',
     items: [
-      { name: '映射規則', href: '/rules', icon: GitBranch },
-      { name: '公司管理', href: '/companies', icon: Building2 },
+      { nameKey: 'sidebar.mappingRules', href: '/rules', icon: GitBranch },
+      { nameKey: 'sidebar.companies', href: '/companies', icon: Building2 },
     ],
   },
   {
-    title: '報表',
+    titleKey: 'sections.reports',
     items: [
-      { name: '分析報表', href: '/reports/monthly', icon: BarChart3 },
-      { name: '審計日誌', href: '/audit/query', icon: History },
-      // { name: '文件追蹤', href: '/trace', icon: FileSearch }, // TODO: 待實現
+      { nameKey: 'sidebar.analyticsReports', href: '/reports/monthly', icon: BarChart3 },
+      { nameKey: 'sidebar.auditLogs', href: '/audit/query', icon: History },
     ],
   },
   {
-    title: '系統管理',
+    titleKey: 'sections.admin',
     items: [
-      // { name: '系統設定', href: '/settings', icon: Settings }, // TODO: 待實現
-      { name: '用戶管理', href: '/admin/users', icon: Users },
-      { name: '歷史數據初始化', href: '/admin/historical-data', icon: Database },
-      { name: '文件預覽測試', href: '/admin/document-preview-test', icon: Layers },
-      { name: '欄位映射配置', href: '/admin/field-mapping-configs', icon: ArrowRightLeft },
-      { name: 'Prompt 配置', href: '/admin/prompt-configs', icon: MessageSquareCode },
-      { name: '術語分析', href: '/admin/term-analysis', icon: Tags },
+      { nameKey: 'sidebar.users', href: '/admin/users', icon: Users },
+      { nameKey: 'sidebar.historicalData', href: '/admin/historical-data', icon: Database },
+      { nameKey: 'sidebar.documentPreview', href: '/admin/document-preview-test', icon: Layers },
+      { nameKey: 'sidebar.fieldMapping', href: '/admin/field-mapping-configs', icon: ArrowRightLeft },
+      { nameKey: 'sidebar.promptConfig', href: '/admin/prompt-configs', icon: MessageSquareCode },
+      { nameKey: 'sidebar.termAnalysis', href: '/admin/term-analysis', icon: Tags },
     ],
   },
 ]
@@ -143,11 +143,12 @@ const navigation: NavSection[] = [
  */
 export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps) {
   const pathname = usePathname()
+  const t = useTranslations('navigation')
 
   const isActiveLink = (href: string) => {
-    // 使用精確匹配，避免父路徑誤匹配子路徑
-    // 例如：/invoices 不應該匹配 /invoices/upload
-    return pathname === href
+    // 移除 locale 前綴來比較路徑
+    const pathWithoutLocale = pathname.replace(/^\/(en|zh-TW|zh-CN)/, '')
+    return pathWithoutLocale === href
   }
 
   return (
@@ -166,7 +167,7 @@ export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps
                 <FileText className="h-5 w-5 text-white" />
               </div>
               <span className="ml-2 text-lg font-semibold text-gray-900 dark:text-white truncate">
-                AI Doc Extract
+                {t('app.name')}
               </span>
             </div>
           )}
@@ -198,10 +199,10 @@ export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps
         <ScrollArea className="flex-1 py-4">
           <nav className="space-y-6 px-2">
             {navigation.map((section, sectionIndex) => (
-              <div key={section.title}>
+              <div key={section.titleKey}>
                 {!isCollapsed && (
                   <h3 className="mb-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    {section.title}
+                    {t(section.titleKey)}
                   </h3>
                 )}
                 {isCollapsed && sectionIndex > 0 && (
@@ -211,10 +212,11 @@ export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps
                   {section.items.map((item) => {
                     const Icon = item.icon
                     const isActive = isActiveLink(item.href)
+                    const label = t(item.nameKey)
 
                     if (isCollapsed) {
                       return (
-                        <li key={item.name}>
+                        <li key={item.nameKey}>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Link
@@ -230,7 +232,7 @@ export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps
                               </Link>
                             </TooltipTrigger>
                             <TooltipContent side="right">
-                              {item.name}
+                              {label}
                             </TooltipContent>
                           </Tooltip>
                         </li>
@@ -238,7 +240,7 @@ export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps
                     }
 
                     return (
-                      <li key={item.name}>
+                      <li key={item.nameKey}>
                         <Link
                           href={item.href}
                           className={cn(
@@ -249,7 +251,7 @@ export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps
                           )}
                         >
                           <Icon className="h-4 w-4 flex-shrink-0" />
-                          <span className="ml-3 truncate">{item.name}</span>
+                          <span className="ml-3 truncate">{label}</span>
                           {isActive && (
                             <div className="ml-auto h-2 w-2 rounded-full bg-blue-600" />
                           )}
@@ -267,8 +269,8 @@ export function Sidebar({ isCollapsed = false, onCollapsedChange }: SidebarProps
         {!isCollapsed && (
           <div className="border-t border-gray-200 dark:border-gray-800 p-4">
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              <p>AI Document Extraction</p>
-              <p>Version 1.0.0</p>
+              <p>{t('app.fullName')}</p>
+              <p>{t('app.version', { version: '1.0.0' })}</p>
             </div>
           </div>
         )}

@@ -1,0 +1,144 @@
+{
+  "page": {
+    "title": "系統管理",
+    "description": "管理用戶、角色和系統配置"
+  },
+  "users": {
+    "title": "用戶管理",
+    "description": "管理系統用戶帳號",
+    "table": {
+      "name": "姓名",
+      "email": "電郵",
+      "role": "角色",
+      "city": "城市",
+      "status": "狀態",
+      "lastLogin": "最後登入",
+      "actions": "操作"
+    },
+    "status": {
+      "active": "啟用",
+      "inactive": "停用",
+      "pending": "待審核"
+    },
+    "actions": {
+      "create": "新增用戶",
+      "edit": "編輯",
+      "delete": "刪除",
+      "activate": "啟用",
+      "deactivate": "停用",
+      "resetPassword": "重設密碼"
+    },
+    "form": {
+      "name": "姓名",
+      "email": "電郵",
+      "password": "密碼",
+      "confirmPassword": "確認密碼",
+      "role": "角色",
+      "city": "城市",
+      "department": "部門"
+    },
+    "dialog": {
+      "createTitle": "新增用戶",
+      "editTitle": "編輯用戶",
+      "deleteTitle": "確認刪除",
+      "deleteMessage": "確定要刪除用戶「{name}」嗎？此操作無法復原。",
+      "resetPasswordTitle": "重設密碼",
+      "resetPasswordMessage": "確定要重設用戶「{name}」的密碼嗎？"
+    }
+  },
+  "roles": {
+    "title": "角色管理",
+    "description": "管理用戶角色和權限",
+    "table": {
+      "name": "角色名稱",
+      "description": "描述",
+      "permissions": "權限數量",
+      "users": "用戶數量",
+      "actions": "操作"
+    },
+    "actions": {
+      "create": "新增角色",
+      "edit": "編輯",
+      "delete": "刪除",
+      "viewPermissions": "查看權限"
+    },
+    "form": {
+      "name": "角色名稱",
+      "description": "描述",
+      "permissions": "權限"
+    },
+    "permissions": {
+      "read": "讀取",
+      "write": "寫入",
+      "delete": "刪除",
+      "admin": "管理"
+    }
+  },
+  "config": {
+    "title": "系統配置",
+    "description": "配置系統參數和設定",
+    "sections": {
+      "general": "一般設定",
+      "security": "安全設定",
+      "notifications": "通知設定",
+      "integrations": "整合設定"
+    },
+    "general": {
+      "systemName": "系統名稱",
+      "defaultLanguage": "預設語言",
+      "timezone": "時區",
+      "dateFormat": "日期格式"
+    },
+    "security": {
+      "sessionTimeout": "會話逾時（分鐘）",
+      "passwordPolicy": "密碼政策",
+      "mfaRequired": "強制雙因素認證",
+      "loginAttempts": "登入嘗試次數上限"
+    }
+  },
+  "monitoring": {
+    "title": "系統監控",
+    "description": "監控系統健康狀態和效能",
+    "metrics": {
+      "cpu": "CPU 使用率",
+      "memory": "記憶體使用率",
+      "disk": "磁碟使用率",
+      "requests": "請求數/秒"
+    },
+    "status": {
+      "healthy": "健康",
+      "warning": "警告",
+      "critical": "嚴重"
+    }
+  },
+  "logs": {
+    "title": "系統日誌",
+    "description": "查看系統事件和錯誤日誌",
+    "filters": {
+      "level": "日誌級別",
+      "source": "來源",
+      "dateRange": "日期範圍"
+    },
+    "levels": {
+      "info": "資訊",
+      "warning": "警告",
+      "error": "錯誤",
+      "debug": "除錯"
+    }
+  },
+  "backup": {
+    "title": "備份管理",
+    "description": "管理系統資料備份",
+    "actions": {
+      "createBackup": "建立備份",
+      "restore": "還原",
+      "download": "下載",
+      "delete": "刪除"
+    },
+    "status": {
+      "completed": "已完成",
+      "inProgress": "進行中",
+      "failed": "失敗"
+    }
+  }
+}

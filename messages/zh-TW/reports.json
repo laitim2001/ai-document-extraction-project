@@ -1,0 +1,100 @@
+{
+  "page": {
+    "title": "報表分析",
+    "description": "查看處理統計和成本分析"
+  },
+  "tabs": {
+    "dashboard": "統計儀表板",
+    "costs": "成本報表",
+    "audit": "審計報告",
+    "performance": "效能分析"
+  },
+  "dashboard": {
+    "title": "處理統計",
+    "period": {
+      "today": "今日",
+      "thisWeek": "本週",
+      "thisMonth": "本月",
+      "thisQuarter": "本季",
+      "thisYear": "今年",
+      "custom": "自訂範圍"
+    },
+    "metrics": {
+      "totalProcessed": "總處理數",
+      "autoApproved": "自動通過",
+      "quickReview": "快速審核",
+      "fullReview": "完整審核",
+      "failed": "處理失敗",
+      "avgProcessingTime": "平均處理時間",
+      "avgConfidence": "平均信心度"
+    },
+    "charts": {
+      "processingTrend": "處理趨勢",
+      "statusDistribution": "狀態分佈",
+      "confidenceDistribution": "信心度分佈",
+      "companyComparison": "公司比較"
+    }
+  },
+  "costs": {
+    "title": "成本分析",
+    "summary": {
+      "totalCost": "總成本",
+      "avgCostPerInvoice": "平均每張成本",
+      "savingsEstimate": "預估節省",
+      "manualHoursSaved": "節省人時"
+    },
+    "breakdown": {
+      "byCompany": "按公司",
+      "byChargeType": "按費用類型",
+      "byMonth": "按月份"
+    },
+    "export": {
+      "exportReport": "匯出報表",
+      "format": "格式",
+      "dateRange": "日期範圍"
+    }
+  },
+  "audit": {
+    "title": "審計報告",
+    "filters": {
+      "user": "操作用戶",
+      "action": "操作類型",
+      "dateRange": "日期範圍"
+    },
+    "actions": {
+      "approve": "批准",
+      "reject": "拒絕",
+      "correct": "修正",
+      "escalate": "提交上級"
+    },
+    "table": {
+      "timestamp": "時間",
+      "user": "用戶",
+      "action": "操作",
+      "document": "文件",
+      "changes": "變更",
+      "reason": "原因"
+    }
+  },
+  "performance": {
+    "title": "效能分析",
+    "metrics": {
+      "ocrAccuracy": "OCR 準確率",
+      "mappingAccuracy": "映射準確率",
+      "processingSpeed": "處理速度",
+      "throughput": "吞吐量"
+    },
+    "comparison": {
+      "vsLastPeriod": "較上期",
+      "vsTarget": "較目標",
+      "trend": "趨勢"
+    }
+  },
+  "common": {
+    "noData": "暫無數據",
+    "loading": "載入中...",
+    "refresh": "重新整理",
+    "export": "匯出",
+    "print": "列印"
+  }
+}

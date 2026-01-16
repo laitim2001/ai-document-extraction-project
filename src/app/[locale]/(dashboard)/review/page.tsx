@@ -1,11 +1,12 @@
 /**
- * @fileoverview 審核列表頁面
+ * @fileoverview 審核列表頁面（國際化版本）
  * @description
  *   待審核發票列表頁面，提供：
  *   - 待審核發票的列表顯示
  *   - Forwarder、處理路徑、信心度範圍篩選
  *   - 分頁功能
  *   - 點擊進入審核詳情
+ *   - 完整的國際化支援
  *
  *   URL 參數（支援書籤和分享）：
  *   - companyId: Company ID
@@ -14,11 +15,12 @@
  *   - maxConfidence: 最高信心度
  *   - page: 頁碼
  *
- * @module src/app/(dashboard)/review/page
- * @since Epic 3 - Story 3.1
- * @lastModified 2025-12-18
+ * @module src/app/[locale]/(dashboard)/review/page
+ * @since Epic 3 - Story 3.1, Epic 17 - Story 17.2
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - next/navigation - URL 路由
  *   - @/components/features/review - 審核組件
  *   - @/types/review - 類型定義
@@ -28,6 +30,7 @@
 
 import { useState, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { ReviewQueue, ReviewFilters } from '@/components/features/review'
 import { ReviewQueueSkeleton } from '@/components/features/review'
 import type { ReviewQueueFilters } from '@/types/review'
@@ -152,11 +155,16 @@ function ReviewPageContent() {
  * 顯示待審核發票列表，支援篩選和分頁
  */
 export default function ReviewPage() {
+  const t = useTranslations('review')
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* 頁面標題 */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">待審核發票</h1>
+        <div>
+          <h1 className="text-2xl font-bold">{t('page.title')}</h1>
+          <p className="text-gray-500">{t('page.description')}</p>
+        </div>
       </div>
 
       {/* 使用 Suspense 包裝使用 useSearchParams 的組件 */}

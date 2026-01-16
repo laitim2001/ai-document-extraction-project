@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * @fileoverview 發票列表頁面
+ * @fileoverview 發票列表頁面（國際化版本）
  * @description
  *   發票文件管理的主要列表頁面，提供：
  *   - 文件列表顯示
@@ -9,11 +9,12 @@
  *   - 搜尋和篩選功能
  *   - 分頁導航
  *   - 實時狀態更新
+ *   - 完整的國際化支援
  *
- * @module src/app/(dashboard)/invoices/page
+ * @module src/app/[locale]/(dashboard)/invoices/page
  * @author Development Team
  * @since Epic 2 - Story 2.7 (Processing Status Tracking & Display)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 動態輪詢（處理中 5s，閒置 30s）
@@ -21,8 +22,10 @@
  *   - 狀態篩選
  *   - 文件名搜尋
  *   - 分頁
+ *   - i18n 國際化支援
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/hooks/use-documents - Documents Hook
  *   - @/components/features/invoice - 發票組件
  *   - @/components/ui - shadcn/ui 組件
@@ -30,9 +33,11 @@
  * @related
  *   - src/app/api/documents/route.ts - Documents API
  *   - src/components/features/invoice/InvoiceListTable.tsx - 表格組件
+ *   - messages/{locale}/invoices.json - 翻譯檔案
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useDocuments } from '@/hooks/use-documents'
 import { InvoiceListTable } from '@/components/features/invoice/InvoiceListTable'
 import { Input } from '@/components/ui/input'
@@ -55,6 +60,10 @@ import { Search, Filter, RefreshCw } from 'lucide-react'
  * 發票列表頁面
  */
 export default function InvoicesPage() {
+  // --- i18n ---
+  const t = useTranslations('invoices')
+  const tc = useTranslations('common')
+
   // --- State ---
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
@@ -76,14 +85,14 @@ export default function InvoicesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">發票文件</h1>
-          <p className="text-gray-500">管理和追蹤上傳的發票處理狀態</p>
+          <h1 className="text-2xl font-bold">{t('page.title')}</h1>
+          <p className="text-gray-500">{t('page.description')}</p>
         </div>
         <Button onClick={() => refetch()} disabled={isRefetching}>
           <RefreshCw
             className={`h-4 w-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`}
           />
-          刷新
+          {tc('actions.refresh')}
         </Button>
       </div>
 
@@ -93,7 +102,7 @@ export default function InvoicesPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-500">
-                總計
+                {t('stats.total')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -104,7 +113,7 @@ export default function InvoicesPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-blue-500">
-                處理中
+                {t('stats.processing')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -117,7 +126,7 @@ export default function InvoicesPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-green-500">
-                已完成
+                {t('stats.completed')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -130,7 +139,7 @@ export default function InvoicesPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-red-500">
-                失敗
+                {t('stats.failed')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -147,7 +156,7 @@ export default function InvoicesPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="搜尋文件名稱..."
+            placeholder={t('filters.searchPlaceholder')}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value)
@@ -166,17 +175,29 @@ export default function InvoicesPage() {
         >
           <SelectTrigger className="w-[180px]">
             <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="所有狀態" />
+            <SelectValue placeholder={t('filters.allStatus')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">所有狀態</SelectItem>
-            <SelectItem value="UPLOADING">上傳中</SelectItem>
-            <SelectItem value="OCR_PROCESSING">OCR 處理中</SelectItem>
-            <SelectItem value="MAPPING_PROCESSING">映射中</SelectItem>
-            <SelectItem value="PENDING_REVIEW">待審核</SelectItem>
-            <SelectItem value="COMPLETED">已完成</SelectItem>
-            <SelectItem value="OCR_FAILED">OCR 失敗</SelectItem>
-            <SelectItem value="FAILED">處理失敗</SelectItem>
+            <SelectItem value="all">{t('filters.allStatus')}</SelectItem>
+            <SelectItem value="UPLOADING">
+              {t('filters.status.uploading')}
+            </SelectItem>
+            <SelectItem value="OCR_PROCESSING">
+              {t('filters.status.ocrProcessing')}
+            </SelectItem>
+            <SelectItem value="MAPPING_PROCESSING">
+              {t('filters.status.mappingProcessing')}
+            </SelectItem>
+            <SelectItem value="PENDING_REVIEW">
+              {t('filters.status.pendingReview')}
+            </SelectItem>
+            <SelectItem value="COMPLETED">
+              {t('filters.status.completed')}
+            </SelectItem>
+            <SelectItem value="OCR_FAILED">
+              {t('filters.status.ocrFailed')}
+            </SelectItem>
+            <SelectItem value="FAILED">{t('filters.status.failed')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -195,9 +216,11 @@ export default function InvoicesPage() {
       {data?.meta && data.meta.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            顯示 {(page - 1) * data.meta.pageSize + 1} -{' '}
-            {Math.min(page * data.meta.pageSize, data.meta.total)} of{' '}
-            {data.meta.total}
+            {tc('pagination.showing', {
+              start: (page - 1) * data.meta.pageSize + 1,
+              end: Math.min(page * data.meta.pageSize, data.meta.total),
+              total: data.meta.total,
+            })}
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -206,10 +229,10 @@ export default function InvoicesPage() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
             >
-              上一頁
+              {tc('pagination.previous')}
             </Button>
             <span className="text-sm">
-              {page} / {data.meta.totalPages}
+              {tc('pagination.pageOf', { page, total: data.meta.totalPages })}
             </span>
             <Button
               variant="outline"
@@ -219,7 +242,7 @@ export default function InvoicesPage() {
               }
               disabled={page === data.meta.totalPages}
             >
-              下一頁
+              {tc('pagination.next')}
             </Button>
           </div>
         </div>

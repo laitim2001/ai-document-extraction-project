@@ -1,0 +1,114 @@
+{
+  "page": {
+    "title": "映射規則",
+    "description": "管理發票欄位映射規則"
+  },
+  "tabs": {
+    "universal": "通用規則",
+    "companySpecific": "公司特定規則",
+    "learned": "學習規則"
+  },
+  "tier": {
+    "universal": "通用層",
+    "companyOverride": "公司覆蓋層",
+    "llmClassification": "AI 智能分類"
+  },
+  "list": {
+    "searchPlaceholder": "搜尋規則...",
+    "filters": {
+      "tier": "規則層級",
+      "company": "公司",
+      "chargeType": "費用類型",
+      "status": "狀態",
+      "allTiers": "所有層級",
+      "allCompanies": "所有公司",
+      "allTypes": "所有類型"
+    }
+  },
+  "table": {
+    "columns": {
+      "sourceText": "來源文字",
+      "chargeType": "費用類型",
+      "tier": "層級",
+      "company": "公司",
+      "confidence": "信心度",
+      "usageCount": "使用次數",
+      "status": "狀態",
+      "actions": "操作"
+    },
+    "empty": "沒有找到映射規則",
+    "emptyDescription": "建立新規則開始設定"
+  },
+  "status": {
+    "active": "啟用",
+    "inactive": "停用",
+    "pending": "待驗證",
+    "rejected": "已拒絕"
+  },
+  "actions": {
+    "create": "新增規則",
+    "edit": "編輯",
+    "delete": "刪除",
+    "activate": "啟用",
+    "deactivate": "停用",
+    "approve": "批准",
+    "reject": "拒絕",
+    "test": "測試規則",
+    "bulkImport": "批量匯入",
+    "export": "匯出"
+  },
+  "form": {
+    "sourceText": "來源文字",
+    "sourceTextPlaceholder": "輸入發票上的文字（支援正則表達式）",
+    "chargeType": "費用類型",
+    "chargeTypePlaceholder": "選擇或輸入費用類型",
+    "tier": "規則層級",
+    "company": "適用公司",
+    "companyPlaceholder": "選擇公司（通用規則留空）",
+    "format": "適用格式",
+    "formatPlaceholder": "選擇格式（選填）",
+    "isRegex": "使用正則表達式",
+    "caseSensitive": "區分大小寫",
+    "priority": "優先級",
+    "notes": "備註"
+  },
+  "dialog": {
+    "createTitle": "新增映射規則",
+    "editTitle": "編輯映射規則",
+    "deleteTitle": "確認刪除",
+    "deleteMessage": "確定要刪除此映射規則嗎？",
+    "testTitle": "測試規則",
+    "testInput": "輸入測試文字",
+    "testResult": "匹配結果",
+    "bulkImportTitle": "批量匯入規則",
+    "bulkImportDescription": "上傳 CSV 檔案匯入多個規則"
+  },
+  "test": {
+    "inputPlaceholder": "輸入要測試的文字...",
+    "matched": "匹配成功",
+    "notMatched": "未匹配",
+    "matchedRule": "匹配規則",
+    "confidence": "信心度"
+  },
+  "chargeTypes": {
+    "oceanFreight": "海運費",
+    "airFreight": "空運費",
+    "documentFee": "文件費",
+    "customsClearance": "報關費",
+    "handling": "手續費",
+    "insurance": "保險費",
+    "storage": "倉儲費",
+    "delivery": "派送費",
+    "other": "其他費用"
+  },
+  "learning": {
+    "title": "規則學習",
+    "description": "從人工修正中學習的規則",
+    "pendingApproval": "待批准",
+    "approved": "已批准",
+    "rejected": "已拒絕",
+    "source": "學習來源",
+    "learnedFrom": "學習自",
+    "corrections": "次修正"
+  }
+}

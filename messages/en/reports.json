@@ -1,0 +1,100 @@
+{
+  "page": {
+    "title": "Reports & Analytics",
+    "description": "View processing statistics and cost analysis"
+  },
+  "tabs": {
+    "dashboard": "Statistics Dashboard",
+    "costs": "Cost Reports",
+    "audit": "Audit Reports",
+    "performance": "Performance Analysis"
+  },
+  "dashboard": {
+    "title": "Processing Statistics",
+    "period": {
+      "today": "Today",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "thisQuarter": "This Quarter",
+      "thisYear": "This Year",
+      "custom": "Custom Range"
+    },
+    "metrics": {
+      "totalProcessed": "Total Processed",
+      "autoApproved": "Auto Approved",
+      "quickReview": "Quick Review",
+      "fullReview": "Full Review",
+      "failed": "Failed",
+      "avgProcessingTime": "Avg Processing Time",
+      "avgConfidence": "Avg Confidence"
+    },
+    "charts": {
+      "processingTrend": "Processing Trend",
+      "statusDistribution": "Status Distribution",
+      "confidenceDistribution": "Confidence Distribution",
+      "companyComparison": "Company Comparison"
+    }
+  },
+  "costs": {
+    "title": "Cost Analysis",
+    "summary": {
+      "totalCost": "Total Cost",
+      "avgCostPerInvoice": "Avg Cost Per Invoice",
+      "savingsEstimate": "Estimated Savings",
+      "manualHoursSaved": "Manual Hours Saved"
+    },
+    "breakdown": {
+      "byCompany": "By Company",
+      "byChargeType": "By Charge Type",
+      "byMonth": "By Month"
+    },
+    "export": {
+      "exportReport": "Export Report",
+      "format": "Format",
+      "dateRange": "Date Range"
+    }
+  },
+  "audit": {
+    "title": "Audit Reports",
+    "filters": {
+      "user": "User",
+      "action": "Action Type",
+      "dateRange": "Date Range"
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "correct": "Correct",
+      "escalate": "Escalate"
+    },
+    "table": {
+      "timestamp": "Timestamp",
+      "user": "User",
+      "action": "Action",
+      "document": "Document",
+      "changes": "Changes",
+      "reason": "Reason"
+    }
+  },
+  "performance": {
+    "title": "Performance Analysis",
+    "metrics": {
+      "ocrAccuracy": "OCR Accuracy",
+      "mappingAccuracy": "Mapping Accuracy",
+      "processingSpeed": "Processing Speed",
+      "throughput": "Throughput"
+    },
+    "comparison": {
+      "vsLastPeriod": "vs Last Period",
+      "vsTarget": "vs Target",
+      "trend": "Trend"
+    }
+  },
+  "common": {
+    "noData": "No data available",
+    "loading": "Loading...",
+    "refresh": "Refresh",
+    "export": "Export",
+    "print": "Print"
+  }
+}

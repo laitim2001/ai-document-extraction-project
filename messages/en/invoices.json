@@ -1,0 +1,59 @@
+{
+  "page": {
+    "title": "Invoice Documents",
+    "description": "Manage and track uploaded invoice processing status"
+  },
+  "stats": {
+    "total": "Total",
+    "processing": "Processing",
+    "completed": "Completed",
+    "failed": "Failed"
+  },
+  "filters": {
+    "searchPlaceholder": "Search by filename...",
+    "allStatus": "All Status",
+    "status": {
+      "uploading": "Uploading",
+      "ocrProcessing": "OCR Processing",
+      "mappingProcessing": "Mapping",
+      "pendingReview": "Pending Review",
+      "completed": "Completed",
+      "ocrFailed": "OCR Failed",
+      "failed": "Failed"
+    }
+  },
+  "table": {
+    "columns": {
+      "filename": "Filename",
+      "status": "Status",
+      "uploadedAt": "Uploaded At",
+      "processingPath": "Processing Path",
+      "confidence": "Confidence",
+      "company": "Company",
+      "actions": "Actions"
+    },
+    "empty": "No invoices found",
+    "emptyDescription": "Upload a new invoice to get started"
+  },
+  "processingPath": {
+    "autoApprove": "Auto Approve",
+    "quickReview": "Quick Review",
+    "fullReview": "Full Review",
+    "manualRequired": "Manual Required"
+  },
+  "upload": {
+    "title": "Upload Invoice",
+    "dragDrop": "Drag and drop files here, or click to select",
+    "supportedFormats": "Supported formats: PDF, JPG, PNG",
+    "maxSize": "Maximum file size: {size}MB",
+    "uploading": "Uploading...",
+    "uploadSuccess": "Upload successful",
+    "uploadFailed": "Upload failed"
+  },
+  "actions": {
+    "view": "View",
+    "retry": "Retry",
+    "download": "Download",
+    "delete": "Delete"
+  }
+}

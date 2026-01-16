@@ -1,0 +1,114 @@
+{
+  "page": {
+    "title": "Mapping Rules",
+    "description": "Manage invoice field mapping rules"
+  },
+  "tabs": {
+    "universal": "Universal Rules",
+    "companySpecific": "Company-Specific Rules",
+    "learned": "Learned Rules"
+  },
+  "tier": {
+    "universal": "Universal Tier",
+    "companyOverride": "Company Override Tier",
+    "llmClassification": "AI Classification"
+  },
+  "list": {
+    "searchPlaceholder": "Search rules...",
+    "filters": {
+      "tier": "Rule Tier",
+      "company": "Company",
+      "chargeType": "Charge Type",
+      "status": "Status",
+      "allTiers": "All Tiers",
+      "allCompanies": "All Companies",
+      "allTypes": "All Types"
+    }
+  },
+  "table": {
+    "columns": {
+      "sourceText": "Source Text",
+      "chargeType": "Charge Type",
+      "tier": "Tier",
+      "company": "Company",
+      "confidence": "Confidence",
+      "usageCount": "Usage Count",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": "No mapping rules found",
+    "emptyDescription": "Create a new rule to get started"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending Verification",
+    "rejected": "Rejected"
+  },
+  "actions": {
+    "create": "Add Rule",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "approve": "Approve",
+    "reject": "Reject",
+    "test": "Test Rule",
+    "bulkImport": "Bulk Import",
+    "export": "Export"
+  },
+  "form": {
+    "sourceText": "Source Text",
+    "sourceTextPlaceholder": "Enter text from invoice (regex supported)",
+    "chargeType": "Charge Type",
+    "chargeTypePlaceholder": "Select or enter charge type",
+    "tier": "Rule Tier",
+    "company": "Applicable Company",
+    "companyPlaceholder": "Select company (leave empty for universal)",
+    "format": "Applicable Format",
+    "formatPlaceholder": "Select format (optional)",
+    "isRegex": "Use Regular Expression",
+    "caseSensitive": "Case Sensitive",
+    "priority": "Priority",
+    "notes": "Notes"
+  },
+  "dialog": {
+    "createTitle": "Add Mapping Rule",
+    "editTitle": "Edit Mapping Rule",
+    "deleteTitle": "Confirm Deletion",
+    "deleteMessage": "Are you sure you want to delete this mapping rule?",
+    "testTitle": "Test Rule",
+    "testInput": "Enter test text",
+    "testResult": "Match Result",
+    "bulkImportTitle": "Bulk Import Rules",
+    "bulkImportDescription": "Upload a CSV file to import multiple rules"
+  },
+  "test": {
+    "inputPlaceholder": "Enter text to test...",
+    "matched": "Matched",
+    "notMatched": "Not Matched",
+    "matchedRule": "Matched Rule",
+    "confidence": "Confidence"
+  },
+  "chargeTypes": {
+    "oceanFreight": "Ocean Freight",
+    "airFreight": "Air Freight",
+    "documentFee": "Document Fee",
+    "customsClearance": "Customs Clearance",
+    "handling": "Handling Fee",
+    "insurance": "Insurance",
+    "storage": "Storage",
+    "delivery": "Delivery",
+    "other": "Other"
+  },
+  "learning": {
+    "title": "Rule Learning",
+    "description": "Rules learned from manual corrections",
+    "pendingApproval": "Pending Approval",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "source": "Learning Source",
+    "learnedFrom": "Learned From",
+    "corrections": "corrections"
+  }
+}

@@ -32,6 +32,7 @@ import {
   Layers,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { HistoricalBatchStatus } from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -51,8 +52,6 @@ import { HierarchicalTermsExportButton } from './HierarchicalTermsExportButton'
 // ============================================================
 // Types
 // ============================================================
-
-type HistoricalBatchStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED'
 
 interface HistoricalBatch {
   id: string

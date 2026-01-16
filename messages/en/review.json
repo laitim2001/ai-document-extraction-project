@@ -1,0 +1,51 @@
+{
+  "page": {
+    "title": "Pending Review",
+    "description": "Review and correct AI extraction results"
+  },
+  "filters": {
+    "company": "Company/Forwarder",
+    "processingPath": "Processing Path",
+    "confidenceRange": "Confidence Range",
+    "clearFilters": "Clear Filters",
+    "allCompanies": "All Companies",
+    "allPaths": "All Paths"
+  },
+  "confidence": {
+    "low": "Low Confidence",
+    "medium": "Medium Confidence",
+    "high": "High Confidence",
+    "range": "{min}% - {max}%"
+  },
+  "actions": {
+    "approve": "Approve",
+    "reject": "Reject",
+    "correct": "Correct & Approve",
+    "viewDetails": "View Details",
+    "escalate": "Escalate"
+  },
+  "detail": {
+    "extractedFields": "Extracted Fields",
+    "originalDocument": "Original Document",
+    "correctionHistory": "Correction History",
+    "noCorrections": "No corrections yet"
+  },
+  "dialog": {
+    "approveTitle": "Confirm Approval",
+    "approveMessage": "Are you sure you want to approve this extraction result?",
+    "rejectTitle": "Rejection Reason",
+    "rejectPlaceholder": "Please enter rejection reason...",
+    "escalateTitle": "Escalate for Review",
+    "escalateMessage": "Please explain why this needs supervisor review"
+  },
+  "empty": {
+    "title": "No invoices pending review",
+    "description": "All invoices have been processed"
+  },
+  "processingPath": {
+    "autoApprove": "Auto Approve",
+    "quickReview": "Quick Review",
+    "fullReview": "Full Review",
+    "manualRequired": "Manual Required"
+  }
+}

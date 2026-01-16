@@ -59,6 +59,7 @@ import {
   HistoricalFile,
   ProcessingMethod,
   HistoricalFileStatus,
+  IssuerIdentificationMethod,
 } from '@prisma/client'
 import { determineProcessingMethod } from './processing-router.service'
 import { calculateActualCost } from './cost-estimation.service'
@@ -827,31 +828,42 @@ export async function processFile(
       const issuerData = issuerStepResult?.data
 
       // 更新文件記錄（包含公司識別和發行者識別結果）
+      // 構建更新數據對象，避免 TypeScript 條件展開類型推斷問題
+      const updateData: Parameters<typeof prisma.historicalFile.update>[0]['data'] = {
+        status: HistoricalFileStatus.COMPLETED,
+        processingEndAt: new Date(),
+        processedAt: new Date(),
+        extractionResult: extractionResult as object,
+        actualCost,
+      }
+
+      // Story 0.6: 公司識別結果
+      if (companyIdentification) {
+        updateData.identifiedCompanyId = companyIdentification.companyId
+        updateData.companyMatchType = companyIdentification.matchType
+        updateData.companyMatchScore = companyIdentification.matchScore
+      }
+
+      // FIX-023: 從統一處理流程結果同步發行者識別欄位
+      // 當使用 UnifiedProcessor 時，從 stepResults 中提取 ISSUER_IDENTIFICATION 結果
+      if (issuerData?.matchedCompanyId) {
+        updateData.documentIssuerId = issuerData.matchedCompanyId
+        // IssuerIdentificationMethod enum: LOGO, HEADER, LETTERHEAD, FOOTER, AI_INFERENCE
+        // 如果方法不匹配任何有效值，使用 AI_INFERENCE 作為默認
+        const validMethods = ['LOGO', 'HEADER', 'LETTERHEAD', 'FOOTER', 'AI_INFERENCE'] as const
+        const method = issuerData.identificationMethod
+        updateData.issuerIdentificationMethod = method && validMethods.includes(method as typeof validMethods[number])
+          ? (method as IssuerIdentificationMethod)
+          : IssuerIdentificationMethod.AI_INFERENCE
+        updateData.issuerConfidence = issuerData.confidence || null
+      }
+      // Story 0.8: 發行者識別結果（舊版：updateFileIssuerResult 已在 processFileIssuerIdentification 中執行）
+      // 當使用舊版處理流程時，documentIssuerId 等欄位在 processFileIssuerIdentification 中更新
+      // 當使用 UnifiedProcessor 時，上方的 issuerData 展開會處理這些欄位
+
       await prisma.historicalFile.update({
         where: { id: file.id },
-        data: {
-          status: HistoricalFileStatus.COMPLETED,
-          processingEndAt: new Date(),
-          processedAt: new Date(),
-          extractionResult: extractionResult as object,
-          actualCost,
-          // Story 0.6: 公司識別結果
-          ...(companyIdentification && {
-            identifiedCompanyId: companyIdentification.companyId,
-            companyMatchType: companyIdentification.matchType,
-            companyMatchScore: companyIdentification.matchScore,
-          }),
-          // FIX-023: 從統一處理流程結果同步發行者識別欄位
-          // 當使用 UnifiedProcessor 時，從 stepResults 中提取 ISSUER_IDENTIFICATION 結果
-          ...(issuerData?.matchedCompanyId && {
-            documentIssuerId: issuerData.matchedCompanyId,
-            issuerIdentificationMethod: issuerData.identificationMethod || null,
-            issuerConfidence: issuerData.confidence || null,
-          }),
-          // Story 0.8: 發行者識別結果（舊版：updateFileIssuerResult 已在 processFileIssuerIdentification 中執行）
-          // 當使用舊版處理流程時，documentIssuerId 等欄位在 processFileIssuerIdentification 中更新
-          // 當使用 UnifiedProcessor 時，上方的 issuerData 展開會處理這些欄位
-        },
+        data: updateData,
       })
 
       return {

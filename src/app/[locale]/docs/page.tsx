@@ -1,25 +1,25 @@
 /**
- * @fileoverview SDK Examples Documentation Page
+ * @fileoverview API Documentation Page with Swagger UI
  * @description
- *   Page displaying SDK code examples for TypeScript, Python, and C#.
- *   Includes quick start guide and comprehensive API usage examples.
+ *   Interactive API documentation page using Swagger UI.
+ *   Loads OpenAPI spec dynamically and provides try-it-out functionality.
  *
- * @module src/app/docs/examples/page
+ * @module src/app/docs/page
  * @since Epic 11 - Story 11.6
  * @lastModified 2024-12-21
  */
 
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { SDKExamplesContent } from '@/components/features/docs/SDKExamplesContent';
+import { SwaggerUIWrapper } from '@/components/features/docs/SwaggerUIWrapper';
 
 // ============================================================
 // Metadata
 // ============================================================
 
 export const metadata: Metadata = {
-  title: 'SDK Examples | Invoice Extraction API',
-  description: 'Code examples for integrating with the Invoice Extraction API in TypeScript, Python, and C#.',
+  title: 'API Documentation | Invoice Extraction API',
+  description: 'Interactive API documentation for the Invoice Extraction API. Explore endpoints, try requests, and view response schemas.',
 };
 
 // ============================================================
@@ -27,10 +27,10 @@ export const metadata: Metadata = {
 // ============================================================
 
 /**
- * SDK Examples Page
- * Displays comprehensive SDK examples for multiple languages
+ * API Documentation Page
+ * Renders Swagger UI with the OpenAPI specification
  */
-export default function SDKExamplesPage() {
+export default function DocsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -41,38 +41,30 @@ export default function SDKExamplesPage() {
               Invoice Extraction API
             </Link>
             <span className="text-muted-foreground">|</span>
-            <span className="text-sm text-muted-foreground">SDK Examples</span>
+            <span className="text-sm text-muted-foreground">API Documentation</span>
           </div>
           <div className="ml-auto flex items-center space-x-4">
-            <a
-              href="/docs"
+            <Link
+              href="./examples"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              API Reference
-            </a>
-            <a
+              SDK Examples
+            </Link>
+            <Link
               href="/api/openapi"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               target="_blank"
               rel="noopener noreferrer"
             >
-              OpenAPI Spec
-            </a>
+              OpenAPI Spec (JSON)
+            </Link>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container py-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">SDK Examples</h1>
-          <p className="text-muted-foreground mb-8">
-            Code examples for integrating with the Invoice Extraction API.
-            Choose your preferred programming language.
-          </p>
-
-          <SDKExamplesContent />
-        </div>
+      <main className="container py-6">
+        <SwaggerUIWrapper />
       </main>
 
       {/* Footer */}
@@ -82,20 +74,22 @@ export default function SDKExamplesPage() {
             Invoice Extraction API v1.0.0
           </p>
           <div className="flex items-center space-x-4">
-            <a
-              href="/docs"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              API Reference
-            </a>
-            <a
+            <Link
               href="/api/docs/error-codes"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               target="_blank"
               rel="noopener noreferrer"
             >
               Error Codes
-            </a>
+            </Link>
+            <Link
+              href="/api/docs/version"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Version Info
+            </Link>
           </div>
         </div>
       </footer>

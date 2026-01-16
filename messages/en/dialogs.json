@@ -1,0 +1,72 @@
+{
+  "common": {
+    "confirmTitle": "Confirm Action",
+    "confirmMessage": "Are you sure you want to perform this action?",
+    "cancelButton": "Cancel",
+    "confirmButton": "Confirm"
+  },
+  "delete": {
+    "title": "Confirm Delete",
+    "message": "Are you sure you want to delete this item? This action cannot be undone.",
+    "itemMessage": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+    "multipleMessage": "Are you sure you want to delete {count} selected items? This action cannot be undone."
+  },
+  "save": {
+    "title": "Save Changes",
+    "message": "You have unsaved changes. Would you like to save them?",
+    "saveButton": "Save",
+    "discardButton": "Discard Changes"
+  },
+  "leave": {
+    "title": "Leave Page",
+    "message": "You have unsaved changes. Are you sure you want to leave?"
+  },
+  "approve": {
+    "title": "Confirm Approval",
+    "message": "Are you sure you want to approve this item?",
+    "batchMessage": "Are you sure you want to approve {count} selected items?"
+  },
+  "reject": {
+    "title": "Confirm Rejection",
+    "message": "Please enter the rejection reason:",
+    "reasonPlaceholder": "Enter rejection reason...",
+    "reasonRequired": "Rejection reason is required"
+  },
+  "upload": {
+    "title": "Upload Files",
+    "dropzone": "Drag and drop files here, or click to select",
+    "selectedFiles": "{count} files selected",
+    "uploading": "Uploading...",
+    "uploadComplete": "Upload complete",
+    "uploadFailed": "Upload failed"
+  },
+  "export": {
+    "title": "Export Data",
+    "formatLabel": "Select Format",
+    "rangeLabel": "Date Range",
+    "exportButton": "Export",
+    "exporting": "Exporting...",
+    "success": "Export successful",
+    "failed": "Export failed"
+  },
+  "filter": {
+    "title": "Advanced Filters",
+    "applyButton": "Apply Filters",
+    "resetButton": "Reset",
+    "noFilters": "No filters applied"
+  },
+  "error": {
+    "title": "Operation Failed",
+    "defaultMessage": "An error occurred. Please try again later.",
+    "networkMessage": "Network connection failed. Please check your connection and try again.",
+    "retryButton": "Retry"
+  },
+  "success": {
+    "title": "Operation Successful",
+    "defaultMessage": "Operation completed successfully."
+  },
+  "loading": {
+    "title": "Please Wait",
+    "message": "Processing..."
+  }
+}

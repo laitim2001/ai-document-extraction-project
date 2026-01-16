@@ -1,0 +1,98 @@
+{
+  "metadata": {
+    "title": "AI Document Extraction",
+    "description": "AI-powered document extraction and classification system"
+  },
+  "actions": {
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "refresh": "Refresh",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "submit": "Submit",
+    "reset": "Reset",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "retry": "Retry",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "status": {
+    "pending": "Pending",
+    "processing": "Processing",
+    "completed": "Completed",
+    "failed": "Failed",
+    "waitingReview": "Waiting Review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "active": "Active",
+    "inactive": "Inactive",
+    "draft": "Draft"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "first": "First",
+    "last": "Last",
+    "page": "Page {page}",
+    "pageOf": "Page {page} of {total}",
+    "showing": "Showing {start} - {end} of {total}",
+    "itemsPerPage": "Items per page",
+    "goToPage": "Go to page"
+  },
+  "form": {
+    "required": "Required",
+    "optional": "Optional",
+    "selectPlaceholder": "Select...",
+    "searchPlaceholder": "Search...",
+    "noResults": "No results",
+    "loading": "Loading..."
+  },
+  "dialog": {
+    "confirmDelete": "Confirm Delete?",
+    "confirmAction": "Confirm this action?",
+    "deleteWarning": "This action cannot be undone. Are you sure?",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?"
+  },
+  "toast": {
+    "success": "Operation successful",
+    "error": "Operation failed",
+    "saved": "Saved",
+    "deleted": "Deleted",
+    "updated": "Updated",
+    "created": "Created",
+    "copied": "Copied",
+    "networkError": "Network error. Please check your connection and try again."
+  },
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo": "{count} minutes ago",
+    "hoursAgo": "{count} hours ago",
+    "daysAgo": "{count} days ago",
+    "weeksAgo": "{count} weeks ago",
+    "monthsAgo": "{count} months ago",
+    "yearsAgo": "{count} years ago"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "invoices": "Invoices",
+    "review": "Review Queue",
+    "rules": "Mapping Rules",
+    "companies": "Companies",
+    "reports": "Reports",
+    "admin": "Admin",
+    "settings": "Settings",
+    "logout": "Logout"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "page": {
+    "title": "Company Management",
+    "description": "Manage Forwarder company data and configurations"
+  },
+  "list": {
+    "searchPlaceholder": "Search company name...",
+    "filters": {
+      "status": "Status",
+      "city": "City",
+      "allStatus": "All Status",
+      "allCities": "All Cities"
+    }
+  },
+  "table": {
+    "columns": {
+      "name": "Company Name",
+      "code": "Company Code",
+      "city": "City",
+      "formats": "Format Count",
+      "rules": "Rule Count",
+      "status": "Status",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "empty": "No companies found",
+    "emptyDescription": "Create a new company to get started"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending Setup"
+  },
+  "actions": {
+    "create": "Add Company",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "viewFormats": "View Formats",
+    "viewRules": "View Rules"
+  },
+  "form": {
+    "basic": "Basic Information",
+    "name": "Company Name",
+    "namePlaceholder": "Enter company name",
+    "code": "Company Code",
+    "codePlaceholder": "Enter unique identifier code",
+    "city": "City",
+    "cityPlaceholder": "Select city",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter company description (optional)",
+    "contact": "Contact Information",
+    "contactPerson": "Contact Person",
+    "contactEmail": "Contact Email",
+    "contactPhone": "Contact Phone",
+    "settings": "Settings",
+    "autoApproveThreshold": "Auto-Approve Threshold",
+    "defaultCurrency": "Default Currency"
+  },
+  "dialog": {
+    "createTitle": "Add Company",
+    "editTitle": "Edit Company",
+    "deleteTitle": "Confirm Deletion",
+    "deleteMessage": "Are you sure you want to delete company \"{name}\"? Related formats and rules will also be deleted.",
+    "deleteWarning": "This action cannot be undone"
+  },
+  "detail": {
+    "overview": "Overview",
+    "formats": "Invoice Formats",
+    "rules": "Mapping Rules",
+    "history": "Processing History",
+    "stats": {
+      "totalInvoices": "Total Invoices",
+      "processedThisMonth": "Processed This Month",
+      "autoApproveRate": "Auto-Approve Rate",
+      "avgConfidence": "Average Confidence"
+    }
+  }
+}

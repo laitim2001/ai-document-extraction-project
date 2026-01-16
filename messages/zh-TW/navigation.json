@@ -1,0 +1,45 @@
+{
+  "sections": {
+    "overview": "概覽",
+    "documents": "文件處理",
+    "rules": "規則管理",
+    "reports": "報表",
+    "admin": "系統管理"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "globalView": "全局視圖",
+    "invoices": "發票列表",
+    "uploadInvoice": "上傳發票",
+    "review": "待審核",
+    "escalations": "升級案例",
+    "mappingRules": "映射規則",
+    "companies": "公司管理",
+    "analyticsReports": "分析報表",
+    "auditLogs": "審計日誌",
+    "users": "用戶管理",
+    "historicalData": "歷史數據初始化",
+    "documentPreview": "文件預覽測試",
+    "fieldMapping": "欄位映射配置",
+    "promptConfig": "Prompt 配置",
+    "termAnalysis": "術語分析",
+    "settings": "設定"
+  },
+  "user": {
+    "profile": "個人資料",
+    "preferences": "偏好設定",
+    "logout": "登出"
+  },
+  "breadcrumb": {
+    "home": "首頁"
+  },
+  "app": {
+    "name": "AI Doc Extract",
+    "fullName": "AI Document Extraction",
+    "version": "Version {version}"
+  },
+  "actions": {
+    "closeMenu": "關閉選單",
+    "toggleSidebar": "切換側邊欄"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "page": {
+    "title": "發票文件",
+    "description": "管理和追蹤上傳的發票處理狀態"
+  },
+  "stats": {
+    "total": "總計",
+    "processing": "處理中",
+    "completed": "已完成",
+    "failed": "失敗"
+  },
+  "filters": {
+    "searchPlaceholder": "搜尋文件名稱...",
+    "allStatus": "所有狀態",
+    "status": {
+      "uploading": "上傳中",
+      "ocrProcessing": "OCR 處理中",
+      "mappingProcessing": "映射中",
+      "pendingReview": "待審核",
+      "completed": "已完成",
+      "ocrFailed": "OCR 失敗",
+      "failed": "處理失敗"
+    }
+  },
+  "table": {
+    "columns": {
+      "filename": "文件名稱",
+      "status": "狀態",
+      "uploadedAt": "上傳時間",
+      "processingPath": "處理路徑",
+      "confidence": "信心度",
+      "company": "公司",
+      "actions": "操作"
+    },
+    "empty": "沒有找到發票文件",
+    "emptyDescription": "上傳新的發票文件開始處理"
+  },
+  "processingPath": {
+    "autoApprove": "自動通過",
+    "quickReview": "快速審核",
+    "fullReview": "完整審核",
+    "manualRequired": "需人工處理"
+  },
+  "upload": {
+    "title": "上傳發票",
+    "dragDrop": "拖放文件到此處，或點擊選擇文件",
+    "supportedFormats": "支援格式：PDF、JPG、PNG",
+    "maxSize": "最大文件大小：{size}MB",
+    "uploading": "上傳中...",
+    "uploadSuccess": "上傳成功",
+    "uploadFailed": "上傳失敗"
+  },
+  "actions": {
+    "view": "查看",
+    "retry": "重試",
+    "download": "下載",
+    "delete": "刪除"
+  }
+}

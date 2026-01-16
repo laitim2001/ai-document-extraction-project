@@ -1,0 +1,51 @@
+{
+  "page": {
+    "title": "待審核發票",
+    "description": "審核和修正 AI 提取結果"
+  },
+  "filters": {
+    "company": "公司/Forwarder",
+    "processingPath": "處理路徑",
+    "confidenceRange": "信心度範圍",
+    "clearFilters": "清除篩選",
+    "allCompanies": "所有公司",
+    "allPaths": "所有路徑"
+  },
+  "confidence": {
+    "low": "低信心度",
+    "medium": "中信心度",
+    "high": "高信心度",
+    "range": "{min}% - {max}%"
+  },
+  "actions": {
+    "approve": "批准",
+    "reject": "拒絕",
+    "correct": "修正並批准",
+    "viewDetails": "查看詳情",
+    "escalate": "提交上級"
+  },
+  "detail": {
+    "extractedFields": "提取欄位",
+    "originalDocument": "原始文件",
+    "correctionHistory": "修正歷史",
+    "noCorrections": "尚無修正記錄"
+  },
+  "dialog": {
+    "approveTitle": "確認批准",
+    "approveMessage": "確定要批准此發票的提取結果嗎？",
+    "rejectTitle": "拒絕原因",
+    "rejectPlaceholder": "請輸入拒絕原因...",
+    "escalateTitle": "提交上級審核",
+    "escalateMessage": "請說明需要上級審核的原因"
+  },
+  "empty": {
+    "title": "沒有待審核的發票",
+    "description": "所有發票都已處理完成"
+  },
+  "processingPath": {
+    "autoApprove": "自動通過",
+    "quickReview": "快速審核",
+    "fullReview": "完整審核",
+    "manualRequired": "需人工處理"
+  }
+}

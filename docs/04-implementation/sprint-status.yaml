@@ -267,9 +267,9 @@ development_status:
   # ============================================================
   # Epic 17: 國際化 (i18n)
   # ============================================================
-  epic-17: backlog  # 5 stories planned - i18n internationalization using next-intl
-  17-1-i18n-infrastructure-setup: drafted  # Tech spec completed: next-intl installation, i18n config, routing restructure (/[locale]/...), middleware setup, zh-TW/en/zh-CN support
-  17-2-core-ui-text-internationalization: drafted  # Tech spec completed: ~400 P0 translation keys extraction, messages JSON structure, navigation/invoices/review/common namespaces
+  epic-17: in-progress  # 5 stories planned - i18n internationalization using next-intl
+  17-1-i18n-infrastructure-setup: done  # Completed 2026-01-17: next-intl 4.x, i18n config (config.ts/request.ts/routing.ts), routing restructure ([locale]/...), middleware integration (i18n + NextAuth), en/zh-TW/zh-CN locales, messages JSON (common namespace), [locale]/layout.tsx (NextIntlClientProvider), root redirect page
+  17-2-core-ui-text-internationalization: done  # Completed 2026-01-17: 10 translation namespaces (common/invoices/review/navigation/dialogs/admin/auth/companies/rules/reports), i18n/request.ts multi-namespace loading, invoices/page.tsx + review/page.tsx + Sidebar.tsx refactored with useTranslations
   17-3-validation-error-internationalization: drafted  # Tech spec completed: Zod 4.x locales integration, API error messages i18n, RFC 7807 error format, useLocalizedZod hook
   17-4-date-number-currency-formatting: drafted  # Tech spec completed: date-fns + Intl API, multi-currency support, formatLocalizedDate/Number/Currency utilities
   17-5-language-preference-settings: drafted  # Tech spec completed: LocaleSwitcher component, User.preferredLocale DB field, localStorage fallback, hreflang meta tags
