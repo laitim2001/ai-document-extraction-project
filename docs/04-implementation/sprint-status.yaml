@@ -263,3 +263,14 @@ development_status:
   16-7-data-template-management: done  # Completed 2026-01-13: DataTemplate Prisma model, data-template.ts types, data-template.ts Zod schema, data-template.service.ts CRUD, /api/v1/data-templates CRUD API, /admin/data-templates UI (列表/新增/編輯), DataTemplateFieldEditor 欄位編輯器, 3 system templates seeded (ERP/費用報表/物流追蹤)
   16-8-manual-format-creation: done  # Completed 2026-01-14: POST /api/v1/formats API endpoint, createDocumentFormatManually service (Prisma transaction), createDocumentFormatSchema Zod validation, useCreateFormat mutation hook, CreateFormatDialog component (進階選項展開), FormatList integration (空狀態+統計資訊旁), auto-create FieldMappingConfig/PromptConfig options, 409 duplicate format handling
   epic-16-retrospective: optional
+
+  # ============================================================
+  # Epic 17: 國際化 (i18n)
+  # ============================================================
+  epic-17: backlog  # 5 stories planned - i18n internationalization using next-intl
+  17-1-i18n-infrastructure-setup: drafted  # Tech spec completed: next-intl installation, i18n config, routing restructure (/[locale]/...), middleware setup, zh-TW/en/zh-CN support
+  17-2-core-ui-text-internationalization: drafted  # Tech spec completed: ~400 P0 translation keys extraction, messages JSON structure, navigation/invoices/review/common namespaces
+  17-3-validation-error-internationalization: drafted  # Tech spec completed: Zod 4.x locales integration, API error messages i18n, RFC 7807 error format, useLocalizedZod hook
+  17-4-date-number-currency-formatting: drafted  # Tech spec completed: date-fns + Intl API, multi-currency support, formatLocalizedDate/Number/Currency utilities
+  17-5-language-preference-settings: drafted  # Tech spec completed: LocaleSwitcher component, User.preferredLocale DB field, localStorage fallback, hreflang meta tags
+  epic-17-retrospective: optional
