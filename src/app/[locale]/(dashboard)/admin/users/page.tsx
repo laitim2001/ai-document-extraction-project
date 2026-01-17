@@ -37,14 +37,18 @@
 
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { auth } from '@/lib/auth'
 import { hasPermission } from '@/lib/auth/city-permission'
 import { PERMISSIONS } from '@/types/permissions'
 import { UserList, UserListSkeleton, AddUserDialog } from '@/components/features/admin'
 
-export const metadata = {
-  title: '用戶管理 | AI Document Extraction',
-  description: '管理系統用戶、角色和權限',
+export async function generateMetadata() {
+  const t = await getTranslations('admin.users')
+  return {
+    title: `${t('title')} | AI Document Extraction`,
+    description: t('description'),
+  }
 }
 
 /**
@@ -79,16 +83,19 @@ export default async function UsersPage() {
   // 檢查 USER_MANAGE 權限（用於新增按鈕，支援 '*' 通配符）
   const hasManagePerm = hasPermission(session.user, PERMISSIONS.USER_MANAGE)
 
+  // 獲取翻譯
+  const t = await getTranslations('admin.users')
+
   return (
     <div className="space-y-6">
       {/* 頁面標題 */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            用戶管理
+            {t('title')}
           </h1>
           <p className="text-muted-foreground">
-            管理系統用戶、角色和權限
+            {t('description')}
           </p>
         </div>
         {/* 新增用戶按鈕（需要 USER_MANAGE 權限） */}

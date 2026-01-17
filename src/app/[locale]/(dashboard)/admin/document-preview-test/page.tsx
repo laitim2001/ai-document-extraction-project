@@ -14,17 +14,20 @@
  * @route /admin/document-preview-test
  */
 
-import { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { DocumentPreviewTestPage } from './components/DocumentPreviewTestPage';
 
 // ============================================================
 // Metadata
 // ============================================================
 
-export const metadata: Metadata = {
-  title: '文件預覽整合測試 | Admin',
-  description: 'Epic 13 文件預覽與欄位映射組件整合測試頁面',
-};
+export async function generateMetadata() {
+  const t = await getTranslations('documentPreview');
+  return {
+    title: t('testPage.metadata.title'),
+    description: t('testPage.metadata.description'),
+  };
+}
 
 // ============================================================
 // Page Component

@@ -86,6 +86,11 @@
     "search": {
       "placeholder": "Search by name or email..."
     },
+    "list": {
+      "loadError": "Failed to load user list, please try again.",
+      "unknownError": "Unknown error",
+      "summary": "Showing {count} of {total} users"
+    },
     "statusToggle": {
       "thisUser": "This User",
       "actionsMenu": "Actions Menu",

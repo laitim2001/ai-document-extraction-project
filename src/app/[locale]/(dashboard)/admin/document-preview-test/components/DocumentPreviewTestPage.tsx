@@ -21,6 +21,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { ArrowLeft, FileText, Settings, Layers } from 'lucide-react';
 
 // UI Components
@@ -88,12 +89,12 @@ function PanelHeader({ icon, title, badge }: PanelHeaderProps) {
 /**
  * 空狀態提示組件
  */
-function EmptyStatePrompt() {
+function EmptyStatePrompt({ t }: { t: ReturnType<typeof useTranslations> }) {
   return (
     <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
       <FileText className="h-16 w-16 mb-4 opacity-50" />
-      <p className="text-lg font-medium">尚未載入文件</p>
-      <p className="text-sm mt-2">請上傳文件或載入範例數據</p>
+      <p className="text-lg font-medium">{t('testPage.emptyState.noFile')}</p>
+      <p className="text-sm mt-2">{t('testPage.emptyState.uploadPrompt')}</p>
     </div>
   );
 }
@@ -107,6 +108,9 @@ function EmptyStatePrompt() {
  * @description 文件預覽整合測試頁面主組件
  */
 export function DocumentPreviewTestPage() {
+  // --- Hooks ---
+  const t = useTranslations('documentPreview');
+
   // --- Store State ---
   const { currentFile, processingStatus, error } = useFileState();
   const { extractedFields, selectedFieldId } = useFieldsState();
@@ -211,13 +215,13 @@ export function DocumentPreviewTestPage() {
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span className="text-sm">返回管理後台</span>
+            <span className="text-sm">{t('testPage.backToAdmin')}</span>
           </Link>
           <Separator orientation="vertical" className="h-6" />
           <div>
-            <h1 className="text-xl font-semibold">文件預覽整合測試</h1>
+            <h1 className="text-xl font-semibold">{t('testPage.title')}</h1>
             <p className="text-sm text-muted-foreground">
-              Epic 13 組件整合驗證環境
+              {t('testPage.subtitle')}
             </p>
           </div>
         </div>
@@ -232,11 +236,11 @@ export function DocumentPreviewTestPage() {
             <div className="h-full flex flex-col border-r">
               <PanelHeader
                 icon={<FileText className="h-4 w-4" />}
-                title="提取欄位"
+                title={t('testPage.panel.extractedFields')}
                 badge={
                   hasFile && (
                     <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                      {extractedFields.length} 個欄位
+                      {t('testPage.panel.fieldsCount', { count: extractedFields.length })}
                     </span>
                   )
                 }
@@ -251,7 +255,7 @@ export function DocumentPreviewTestPage() {
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                    上傳文件以查看提取欄位
+                    {t('testPage.panel.uploadToView')}
                   </div>
                 )}
               </div>
@@ -265,11 +269,11 @@ export function DocumentPreviewTestPage() {
             <div className="h-full flex flex-col">
               <PanelHeader
                 icon={<Layers className="h-4 w-4" />}
-                title="PDF 預覽"
+                title={t('testPage.panel.pdfPreview')}
                 badge={
                   hasFile && totalPages > 0 && (
                     <span className="text-xs text-muted-foreground">
-                      第 {currentPage} / {totalPages} 頁
+                      {t('testPage.panel.pageInfo', { current: currentPage, total: totalPages })}
                     </span>
                   )
                 }
@@ -306,7 +310,7 @@ export function DocumentPreviewTestPage() {
                     {isProcessing ? (
                       <div className="flex flex-col items-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4" />
-                        <p className="text-muted-foreground">處理中...</p>
+                        <p className="text-muted-foreground">{t('testPage.panel.processing')}</p>
                       </div>
                     ) : hasError ? (
                       <Card className="w-full max-w-md">
@@ -333,7 +337,7 @@ export function DocumentPreviewTestPage() {
             <div className="h-full flex flex-col">
               <PanelHeader
                 icon={<Settings className="h-4 w-4" />}
-                title="映射配置"
+                title={t('testPage.panel.mappingConfig')}
               />
               <div className="flex-1 overflow-hidden">
                 <MappingConfigPanel

@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Mapping Rules",
-    "description": "Manage invoice field mapping rules"
+    "description": "Manage document field extraction mapping rules and configure company-specific or universal extraction patterns",
+    "addRule": "Add Rule"
   },
   "tabs": {
     "universal": "Universal Rules",
@@ -15,6 +16,12 @@
   },
   "list": {
     "searchPlaceholder": "Search rules...",
+    "loadError": "Failed to load",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "pagination": {
+      "summary": "Total {total} rules, Page {page} / {totalPages}"
+    },
     "filters": {
       "tier": "Rule Tier",
       "company": "Company",
@@ -209,5 +216,103 @@
     "source": "Learning Source",
     "learnedFrom": "Learned From",
     "corrections": "corrections"
+  },
+  "ruleEdit": {
+    "dialog": {
+      "title": "Edit Rule: {fieldLabel}",
+      "description": "Submit changes for review. Changes will take effect after approval."
+    },
+    "toast": {
+      "submitted": "Changes Submitted",
+      "submittedDesc": "Rule change request has been submitted for review and will take effect after approval."
+    },
+    "form": {
+      "ruleInfo": "Rule Information",
+      "fieldName": "Field Name:",
+      "fieldLabel": "Field Label:",
+      "extractionType": "Extraction Type",
+      "patternConfig": "Pattern Configuration",
+      "priority": "Priority (1-100)",
+      "priorityDesc": "Higher number means higher priority",
+      "confidence": "Confidence Threshold (0-1)",
+      "confidenceDesc": "Recommended range: 0.7-0.9",
+      "description": "Description (Optional)",
+      "descriptionPlaceholder": "Describe the purpose or special cases of this rule...",
+      "reason": "Change Reason",
+      "reasonRequired": "Change Reason *",
+      "reasonPlaceholder": "Please explain why this rule needs to be modified...",
+      "reasonDesc": "The reason will be recorded in the audit history"
+    },
+    "extractionTypes": {
+      "regex": {
+        "label": "Regular Expression",
+        "description": "Match and extract text using regular expressions"
+      },
+      "keyword": {
+        "label": "Keyword",
+        "description": "Extract adjacent text based on keyword position"
+      },
+      "position": {
+        "label": "Position",
+        "description": "Extract from specific PDF coordinates (requires OCR)"
+      },
+      "aiPrompt": {
+        "label": "AI Prompt",
+        "description": "Use AI to understand and extract content (requires AI service)"
+      },
+      "template": {
+        "label": "Template",
+        "description": "Match and extract using predefined templates (requires template system)"
+      }
+    },
+    "regex": {
+      "expression": "Regular Expression",
+      "expressionPlaceholder": "e.g.: Invoice\\s*(?:No|Number)?[.:]?\\s*(\\S+)",
+      "flags": "Flags",
+      "flagsGi": "gi (global, case-insensitive)",
+      "flagsG": "g (global)",
+      "flagsI": "i (case-insensitive)",
+      "flagsGim": "gim (global, case-insensitive, multiline)",
+      "groupIndex": "Capture Group Index"
+    },
+    "keyword": {
+      "keywords": "Keywords (one per line)",
+      "keywordsPlaceholder": "Invoice No\nInvoice Number\nINV#",
+      "direction": "Search Direction",
+      "directionRight": "Right",
+      "directionLeft": "Left",
+      "directionBelow": "Below",
+      "directionAbove": "Above",
+      "extractLength": "Extract Length"
+    },
+    "aiPrompt": {
+      "prompt": "AI Prompt",
+      "promptPlaceholder": "Extract the invoice number from the document...",
+      "promptDesc": "The prompt will be sent to the AI model. Clearly describe what to extract."
+    },
+    "position": {
+      "notice": "Position extraction requires OCR coordinates. Use the test panel to get coordinates."
+    },
+    "template": {
+      "notAvailable": "Template matching editing is not yet available"
+    },
+    "preview": {
+      "title": "Rule Preview",
+      "testPlaceholder": "Paste test text content...",
+      "button": "Preview",
+      "loading": "Previewing...",
+      "matched": "Matched",
+      "notMatched": "Not Matched",
+      "confidence": "Confidence: {value}%",
+      "extractedValue": "Extracted Value",
+      "clickToTest": "Click \"Preview\" button to test the rule"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "submit": "Submit Changes"
+    },
+    "validation": {
+      "reasonRequired": "Please explain the reason for this change"
+    }
   }
 }

@@ -6,6 +6,49 @@
     "reports": "報表",
     "admin": "系統管理"
   },
+  "topbar": {
+    "openMenu": "開啟選單",
+    "search": "搜尋",
+    "searchPlaceholder": "搜尋發票、Forwarder...",
+    "toggleTheme": "切換主題",
+    "notifications": {
+      "title": "通知",
+      "markAllRead": "全部標為已讀",
+      "viewAll": "查看全部通知"
+    },
+    "user": {
+      "defaultName": "用戶",
+      "profile": "個人資料",
+      "settings": "系統設定",
+      "logout": "登出"
+    },
+    "roles": {
+      "systemAdmin": "系統管理員",
+      "superUser": "超級用戶",
+      "dataProcessor": "資料處理員",
+      "cityManager": "城市經理",
+      "regionalManager": "區域經理",
+      "auditor": "審計員"
+    },
+    "mockNotifications": {
+      "invoiceApproved": {
+        "title": "發票審核完成",
+        "message": "發票 INV-2024-001 已通過自動審核"
+      },
+      "ruleSuggestion": {
+        "title": "新規則建議",
+        "message": "系統建議為 DHL 新增映射規則"
+      },
+      "lowConfidence": {
+        "title": "低信心度警告",
+        "message": "3 張發票需要人工審核"
+      },
+      "time": {
+        "minutesAgo": "{count} 分鐘前",
+        "hoursAgo": "{count} 小時前"
+      }
+    }
+  },
   "sidebar": {
     "dashboard": "Dashboard",
     "globalView": "全局視圖",

@@ -1,4 +1,50 @@
 {
+  "testPage": {
+    "backToAdmin": "Back to Admin",
+    "title": "Document Preview Integration Test",
+    "subtitle": "Epic 13 Component Integration Test Environment",
+    "panel": {
+      "extractedFields": "Extracted Fields",
+      "fieldsCount": "{count} fields",
+      "uploadToView": "Upload a file to view extracted fields",
+      "pdfPreview": "PDF Preview",
+      "pageInfo": "Page {current} / {total}",
+      "processing": "Processing...",
+      "mappingConfig": "Mapping Configuration"
+    },
+    "emptyState": {
+      "noFile": "No file loaded",
+      "uploadPrompt": "Please upload a file or load sample data"
+    },
+    "toolbar": {
+      "uploadFile": "Upload File",
+      "uploadTooltip": "Upload PDF, PNG, or JPG file for testing",
+      "loadSample": "Load Sample",
+      "loadSampleTooltip": "Load preset sample extracted fields",
+      "reset": "Reset",
+      "resetTooltip": "Clear all data and reset page state"
+    },
+    "uploader": {
+      "unsupportedFormat": "Unsupported file format",
+      "supportedFormats": "Only PDF, PNG, JPG supported",
+      "dropToUpload": "Drop to upload",
+      "dragHere": "Drag and drop files here",
+      "orClickToSelect": "or click to select files",
+      "maxSize": "Supports PDF, PNG, JPG (max 20MB)"
+    },
+    "errors": {
+      "extractionFailed": "Extraction failed",
+      "processingFailed": "File processing failed",
+      "unknownError": "Unknown error",
+      "uploadFailed": "File upload failed",
+      "fileTooLarge": "File too large",
+      "maxSizeAllowed": "Maximum allowed {size}MB"
+    },
+    "metadata": {
+      "title": "Document Preview Integration Test | Admin",
+      "description": "Epic 13 Document Preview and Field Mapping Component Integration Test Page"
+    }
+  },
   "fieldsPanel": {
     "stats": {
       "showing": "Showing {filtered} / {total} fields",
@@ -60,5 +106,62 @@
     "title": "Error",
     "loading": "Failed to load document",
     "retry": "Retry"
+  },
+  "mappingConfigPanel": {
+    "title": "Field Mapping Configuration",
+    "description": "Configure mapping rules between source fields and target fields, supporting various transform types.",
+    "unsaved": "Unsaved",
+    "reset": "Reset",
+    "save": "Save",
+    "configName": {
+      "global": "Global Mapping Configuration",
+      "company": "Company Mapping Configuration ({id})",
+      "companyNoId": "Company Mapping Configuration (Not Selected)",
+      "format": "Format Mapping Configuration ({id})",
+      "formatNoId": "Format Mapping Configuration (Not Selected)"
+    },
+    "tabs": {
+      "rules": "Mapping Rules",
+      "preview": "Preview Results"
+    },
+    "stats": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "discardDialog": {
+      "title": "Discard unsaved changes?",
+      "description": "You have unsaved changes. Switching configuration scope will lose these changes. Are you sure you want to continue?",
+      "cancel": "Cancel",
+      "confirm": "Discard Changes"
+    }
+  },
+  "configSelector": {
+    "scope": {
+      "label": "Configuration Scope",
+      "placeholder": "Select scope",
+      "global": "Global",
+      "globalDesc": "Default rules for all companies",
+      "company": "Company",
+      "companyDesc": "Override rules for specific company",
+      "format": "Format",
+      "formatDesc": "Precise rules for specific document format"
+    },
+    "company": {
+      "label": "Company",
+      "placeholder": "Select company"
+    },
+    "format": {
+      "label": "Document Format",
+      "placeholder": "Select format",
+      "selectCompanyFirst": "Please select a company first",
+      "noFormats": "No formats available for this company",
+      "fileCount": "{count} files"
+    },
+    "priorityInfo": {
+      "title": "Mapping Priority",
+      "format": "Format: Highest priority, for specific document formats",
+      "company": "Company: Overrides global rules, for specific companies",
+      "global": "Global: Default rules, applies to all companies"
+    }
   }
 }

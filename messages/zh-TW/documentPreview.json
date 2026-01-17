@@ -1,4 +1,50 @@
 {
+  "testPage": {
+    "backToAdmin": "返回管理後台",
+    "title": "文件預覽整合測試",
+    "subtitle": "Epic 13 組件整合驗證環境",
+    "panel": {
+      "extractedFields": "提取欄位",
+      "fieldsCount": "{count} 個欄位",
+      "uploadToView": "上傳文件以查看提取欄位",
+      "pdfPreview": "PDF 預覽",
+      "pageInfo": "第 {current} / {total} 頁",
+      "processing": "處理中...",
+      "mappingConfig": "映射配置"
+    },
+    "emptyState": {
+      "noFile": "尚未載入文件",
+      "uploadPrompt": "請上傳文件或載入範例數據"
+    },
+    "toolbar": {
+      "uploadFile": "上傳文件",
+      "uploadTooltip": "上傳 PDF、PNG 或 JPG 文件進行測試",
+      "loadSample": "載入範例",
+      "loadSampleTooltip": "載入預設的範例提取欄位數據",
+      "reset": "重置",
+      "resetTooltip": "清除所有數據並重置頁面狀態"
+    },
+    "uploader": {
+      "unsupportedFormat": "不支援的文件格式",
+      "supportedFormats": "僅支援 PDF、PNG、JPG",
+      "dropToUpload": "放開以上傳文件",
+      "dragHere": "拖放文件至此處",
+      "orClickToSelect": "或點擊選擇文件",
+      "maxSize": "支援 PDF、PNG、JPG（最大 20MB）"
+    },
+    "errors": {
+      "extractionFailed": "提取失敗",
+      "processingFailed": "文件處理失敗",
+      "unknownError": "未知錯誤",
+      "uploadFailed": "文件上傳失敗",
+      "fileTooLarge": "文件太大",
+      "maxSizeAllowed": "最大允許 {size}MB"
+    },
+    "metadata": {
+      "title": "文件預覽整合測試 | Admin",
+      "description": "Epic 13 文件預覽與欄位映射組件整合測試頁面"
+    }
+  },
   "fieldsPanel": {
     "stats": {
       "showing": "顯示 {filtered} / {total} 個欄位",
@@ -60,5 +106,62 @@
     "title": "錯誤",
     "loading": "載入文件失敗",
     "retry": "重試"
+  },
+  "mappingConfigPanel": {
+    "title": "欄位映射配置",
+    "description": "設定來源欄位與目標欄位的映射規則，支援多種轉換類型。",
+    "unsaved": "未儲存",
+    "reset": "重設",
+    "save": "儲存",
+    "configName": {
+      "global": "全域映射配置",
+      "company": "公司映射配置 ({id})",
+      "companyNoId": "公司映射配置 (未選擇)",
+      "format": "格式映射配置 ({id})",
+      "formatNoId": "格式映射配置 (未選擇)"
+    },
+    "tabs": {
+      "rules": "映射規則",
+      "preview": "預覽結果"
+    },
+    "stats": {
+      "active": "啟用中",
+      "inactive": "已停用"
+    },
+    "discardDialog": {
+      "title": "放棄未儲存的變更？",
+      "description": "您有未儲存的變更。切換配置範圍將會遺失這些變更。確定要繼續嗎？",
+      "cancel": "取消",
+      "confirm": "放棄變更"
+    }
+  },
+  "configSelector": {
+    "scope": {
+      "label": "配置範圍",
+      "placeholder": "選擇配置範圍",
+      "global": "通用層",
+      "globalDesc": "適用於所有公司的預設規則",
+      "company": "公司層",
+      "companyDesc": "特定公司的覆蓋規則",
+      "format": "格式層",
+      "formatDesc": "特定文件格式的精確規則"
+    },
+    "company": {
+      "label": "公司",
+      "placeholder": "選擇公司"
+    },
+    "format": {
+      "label": "文件格式",
+      "placeholder": "選擇文件格式",
+      "selectCompanyFirst": "請先選擇公司",
+      "noFormats": "該公司沒有文件格式",
+      "fileCount": "{count} 個文件"
+    },
+    "priorityInfo": {
+      "title": "映射優先級說明",
+      "format": "格式層：最高優先級，針對特定文件格式",
+      "company": "公司層：覆蓋通用規則，針對特定公司",
+      "global": "通用層：預設規則，適用於所有公司"
+    }
   }
 }

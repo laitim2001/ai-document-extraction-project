@@ -86,6 +86,11 @@
     "search": {
       "placeholder": "搜尋名稱或電子郵件..."
     },
+    "list": {
+      "loadError": "載入用戶列表失敗，請重試。",
+      "unknownError": "未知錯誤",
+      "summary": "顯示 {count} 筆，共 {total} 筆用戶"
+    },
     "statusToggle": {
       "thisUser": "此用戶",
       "actionsMenu": "操作選單",

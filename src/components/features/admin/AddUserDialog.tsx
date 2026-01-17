@@ -289,8 +289,8 @@ export function AddUserDialog({
                 <FormItem>
                   <FormLabel>{t('users.form.cityOptional')}</FormLabel>
                   <Select
-                    value={field.value || ''}
-                    onValueChange={(value) => field.onChange(value || null)}
+                    value={field.value || '__none__'}
+                    onValueChange={(value) => field.onChange(value === '__none__' ? null : value)}
                     disabled={isLoadingCities}
                   >
                     <FormControl>
@@ -311,7 +311,7 @@ export function AddUserDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">{t('users.form.cityEmpty')}</SelectItem>
+                      <SelectItem value="__none__">{t('users.form.cityEmpty')}</SelectItem>
                       {cities?.map((city) => (
                         <SelectItem key={city.id} value={city.id}>
                           {city.name} ({city.code})

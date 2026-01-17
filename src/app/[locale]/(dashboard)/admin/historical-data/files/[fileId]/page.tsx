@@ -15,6 +15,7 @@
 
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ArrowLeft, FileText, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -34,12 +35,12 @@ import {
 // Status Badge Styling
 // ============================================================
 
-const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  PENDING: { label: '待處理', variant: 'outline' },
-  PROCESSING: { label: '處理中', variant: 'secondary' },
-  COMPLETED: { label: '已完成', variant: 'default' },
-  FAILED: { label: '失敗', variant: 'destructive' },
-  SKIPPED: { label: '已跳過', variant: 'outline' },
+const statusConfig: Record<string, { labelKey: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  PENDING: { labelKey: 'pending', variant: 'outline' },
+  PROCESSING: { labelKey: 'processing', variant: 'secondary' },
+  COMPLETED: { labelKey: 'completed', variant: 'default' },
+  FAILED: { labelKey: 'failed', variant: 'destructive' },
+  SKIPPED: { labelKey: 'skipped', variant: 'outline' },
 };
 
 // ============================================================
@@ -53,6 +54,7 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'second
 export default function FileDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslations('historicalData');
   const fileId = params.fileId as string;
 
   const { data: file, isLoading, error } = useHistoricalFileDetail(fileId);
@@ -70,7 +72,7 @@ export default function FileDetailPage() {
       <div className="flex h-[50vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="text-muted-foreground">載入文件詳情中...</p>
+          <p className="text-muted-foreground">{t('fileDetail.loading')}</p>
         </div>
       </div>
     );
@@ -86,14 +88,14 @@ export default function FileDetailPage() {
             <FileText className="h-8 w-8 text-destructive" />
           </div>
           <div>
-            <h3 className="font-semibold">載入失敗</h3>
+            <h3 className="font-semibold">{t('fileDetail.loadFailed')}</h3>
             <p className="text-sm text-muted-foreground">
-              {error instanceof Error ? error.message : '無法載入文件詳情'}
+              {error instanceof Error ? error.message : t('fileDetail.loadFailedDesc')}
             </p>
           </div>
           <Button variant="outline" onClick={handleBack}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            返回列表
+            {t('fileDetail.backToList')}
           </Button>
         </div>
       </div>
@@ -110,21 +112,21 @@ export default function FileDetailPage() {
             <FileText className="h-8 w-8 text-muted-foreground" />
           </div>
           <div>
-            <h3 className="font-semibold">找不到文件</h3>
+            <h3 className="font-semibold">{t('fileDetail.notFound')}</h3>
             <p className="text-sm text-muted-foreground">
-              文件 ID: {fileId} 不存在或已被刪除
+              {t('fileDetail.notFoundDesc', { id: fileId })}
             </p>
           </div>
           <Button variant="outline" onClick={handleBack}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            返回列表
+            {t('fileDetail.backToList')}
           </Button>
         </div>
       </div>
     );
   }
 
-  const statusInfo = statusConfig[file.status] || { label: file.status, variant: 'outline' as const };
+  const statusInfo = statusConfig[file.status] || { labelKey: file.status.toLowerCase(), variant: 'outline' as const };
 
   // --- Render ---
 
@@ -140,12 +142,12 @@ export default function FileDetailPage() {
             <h1 className="text-xl font-semibold">{file.fileName}</h1>
             {file.batch && (
               <p className="text-sm text-muted-foreground">
-                批次: {file.batch.name || file.batch.id.substring(0, 8)}
+                {t('fileDetail.batch')}: {file.batch.name || file.batch.id.substring(0, 8)}
               </p>
             )}
           </div>
         </div>
-        <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+        <Badge variant={statusInfo.variant}>{t(`fileDetail.status.${statusInfo.labelKey}`)}</Badge>
       </div>
 
       {/* Info Cards Row */}
@@ -157,10 +159,10 @@ export default function FileDetailPage() {
       {/* Tabs Section */}
       <Tabs defaultValue="extraction" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="extraction">提取結果</TabsTrigger>
-          <TabsTrigger value="issuer">發行者識別</TabsTrigger>
-          <TabsTrigger value="lineitems">Line Items</TabsTrigger>
-          <TabsTrigger value="raw">原始 JSON</TabsTrigger>
+          <TabsTrigger value="extraction">{t('fileDetail.tabs.extraction')}</TabsTrigger>
+          <TabsTrigger value="issuer">{t('fileDetail.tabs.issuer')}</TabsTrigger>
+          <TabsTrigger value="lineitems">{t('fileDetail.tabs.lineitems')}</TabsTrigger>
+          <TabsTrigger value="raw">{t('fileDetail.tabs.raw')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="extraction">

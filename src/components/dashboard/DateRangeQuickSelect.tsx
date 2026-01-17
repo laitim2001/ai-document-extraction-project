@@ -25,7 +25,6 @@ import { Button } from '@/components/ui/button';
 import { useDateRange } from '@/contexts/DateRangeContext';
 import {
   type PresetRange,
-  PRESET_LABELS,
   QUICK_SELECT_PRESETS,
 } from '@/types/date-range';
 
@@ -110,7 +109,7 @@ export function DateRangeQuickSelect({
               isSelected && 'ring-2 ring-ring ring-offset-2'
             )}
           >
-            {PRESET_LABELS[preset]}
+            {t(`presets.${preset}`)}
           </Button>
         );
       })}

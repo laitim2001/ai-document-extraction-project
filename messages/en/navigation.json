@@ -6,6 +6,49 @@
     "reports": "Reports",
     "admin": "System Admin"
   },
+  "topbar": {
+    "openMenu": "Open Menu",
+    "search": "Search",
+    "searchPlaceholder": "Search invoices, forwarders...",
+    "toggleTheme": "Toggle Theme",
+    "notifications": {
+      "title": "Notifications",
+      "markAllRead": "Mark all as read",
+      "viewAll": "View all notifications"
+    },
+    "user": {
+      "defaultName": "User",
+      "profile": "Profile",
+      "settings": "System Settings",
+      "logout": "Logout"
+    },
+    "roles": {
+      "systemAdmin": "System Admin",
+      "superUser": "Super User",
+      "dataProcessor": "Data Processor",
+      "cityManager": "City Manager",
+      "regionalManager": "Regional Manager",
+      "auditor": "Auditor"
+    },
+    "mockNotifications": {
+      "invoiceApproved": {
+        "title": "Invoice Review Completed",
+        "message": "Invoice INV-2024-001 has passed automatic review"
+      },
+      "ruleSuggestion": {
+        "title": "New Rule Suggestion",
+        "message": "System suggests adding mapping rule for DHL"
+      },
+      "lowConfidence": {
+        "title": "Low Confidence Warning",
+        "message": "3 invoices require manual review"
+      },
+      "time": {
+        "minutesAgo": "{count} minutes ago",
+        "hoursAgo": "{count} hours ago"
+      }
+    }
+  },
   "sidebar": {
     "dashboard": "Dashboard",
     "globalView": "Global View",

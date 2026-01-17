@@ -36,6 +36,7 @@
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Plus, Search, Filter, RefreshCw, Building2, CheckCircle, XCircle } from 'lucide-react'
 import { useCompanies } from '@/hooks/use-companies'
 import { ForwarderTable } from '@/components/features/forwarders/ForwarderTable'
@@ -61,6 +62,7 @@ import type { CompanySortField } from '@/types/company'
  */
 export default function CompaniesPage() {
   const router = useRouter()
+  const t = useTranslations('companies')
 
   // --- State ---
   const [searchInput, setSearchInput] = useState('')
@@ -139,8 +141,8 @@ export default function CompaniesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">公司管理</h1>
-          <p className="text-gray-500">管理公司檔案、映射規則和優先級設定</p>
+          <h1 className="text-2xl font-bold">{t('page.title')}</h1>
+          <p className="text-gray-500">{t('page.description')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -151,12 +153,12 @@ export default function CompaniesPage() {
             <RefreshCw
               className={`h-4 w-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`}
             />
-            刷新
+            {t('actions.refresh')}
           </Button>
           <Button asChild>
             <Link href="/companies/new">
               <Plus className="mr-2 h-4 w-4" />
-              新增公司
+              {t('actions.create')}
             </Link>
           </Button>
         </div>
@@ -168,7 +170,7 @@ export default function CompaniesPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
               <Building2 className="h-4 w-4" />
-              總計
+              {t('stats.total')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -180,7 +182,7 @@ export default function CompaniesPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-green-500 flex items-center gap-2">
               <CheckCircle className="h-4 w-4" />
-              啟用
+              {t('stats.active')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -194,7 +196,7 @@ export default function CompaniesPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-red-500 flex items-center gap-2">
               <XCircle className="h-4 w-4" />
-              停用
+              {t('stats.inactive')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -210,7 +212,7 @@ export default function CompaniesPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="搜尋公司名稱或代碼..."
+            placeholder={t('list.searchPlaceholder')}
             value={searchInput}
             onChange={handleSearchChange}
             className="pl-10"
@@ -220,12 +222,12 @@ export default function CompaniesPage() {
         <Select value={currentStatus} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-[180px]">
             <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="所有狀態" />
+            <SelectValue placeholder={t('list.filters.allStatus')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">所有狀態</SelectItem>
-            <SelectItem value="active">啟用</SelectItem>
-            <SelectItem value="inactive">停用</SelectItem>
+            <SelectItem value="all">{t('list.filters.allStatus')}</SelectItem>
+            <SelectItem value="active">{t('status.active')}</SelectItem>
+            <SelectItem value="inactive">{t('status.inactive')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -237,9 +239,9 @@ export default function CompaniesPage() {
             <ForwarderTableSkeleton rows={10} />
           ) : error ? (
             <div className="py-10 text-center">
-              <p className="text-destructive">載入公司列表失敗，請重試。</p>
+              <p className="text-destructive">{t('list.loadError')}</p>
               <p className="mt-2 text-sm text-muted-foreground">
-                {error instanceof Error ? error.message : '未知錯誤'}
+                {error instanceof Error ? error.message : t('list.unknownError')}
               </p>
             </div>
           ) : (
@@ -259,9 +261,11 @@ export default function CompaniesPage() {
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            顯示 {(pagination.page - 1) * pagination.limit + 1} -{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-            {pagination.total}
+            {t('pagination.showing', {
+              start: (pagination.page - 1) * pagination.limit + 1,
+              end: Math.min(pagination.page * pagination.limit, pagination.total),
+              total: pagination.total,
+            })}
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -270,10 +274,13 @@ export default function CompaniesPage() {
               onClick={() => setPage(Math.max(1, pagination.page - 1))}
               disabled={pagination.page === 1}
             >
-              上一頁
+              {t('pagination.previous')}
             </Button>
             <span className="text-sm">
-              {pagination.page} / {pagination.totalPages}
+              {t('pagination.pageOf', {
+                page: pagination.page,
+                total: pagination.totalPages,
+              })}
             </span>
             <Button
               variant="outline"
@@ -283,7 +290,7 @@ export default function CompaniesPage() {
               }
               disabled={pagination.page === pagination.totalPages}
             >
-              下一頁
+              {t('pagination.next')}
             </Button>
           </div>
         </div>

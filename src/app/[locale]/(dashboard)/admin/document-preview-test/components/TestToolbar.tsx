@@ -15,6 +15,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Upload, FileArchive, RotateCcw, Loader2 } from 'lucide-react';
 
 // UI Components
@@ -207,6 +208,9 @@ const SAMPLE_EXTRACTED_FIELDS: ExtractedField[] = [
  * @description 測試頁面工具列，提供上傳、載入範例和重置功能
  */
 export function TestToolbar() {
+  // --- Hooks ---
+  const t = useTranslations('documentPreview');
+
   // --- Store State ---
   const { processingStatus } = useFileState();
 
@@ -265,7 +269,7 @@ export function TestToolbar() {
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-          throw new Error(result.error || '提取失敗');
+          throw new Error(result.error || t('testPage.errors.extractionFailed'));
         }
 
         // Use real extracted fields from API
@@ -345,11 +349,11 @@ export function TestToolbar() {
               ) : (
                 <Upload className="h-4 w-4 mr-2" />
               )}
-              上傳文件
+              {t('testPage.toolbar.uploadFile')}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>上傳 PDF、PNG 或 JPG 文件進行測試</p>
+            <p>{t('testPage.toolbar.uploadTooltip')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -367,11 +371,11 @@ export function TestToolbar() {
               ) : (
                 <FileArchive className="h-4 w-4 mr-2" />
               )}
-              載入範例
+              {t('testPage.toolbar.loadSample')}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>載入預設的範例提取欄位數據</p>
+            <p>{t('testPage.toolbar.loadSampleTooltip')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -387,11 +391,11 @@ export function TestToolbar() {
               disabled={isProcessing}
             >
               <RotateCcw className="h-4 w-4 mr-2" />
-              重置
+              {t('testPage.toolbar.reset')}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>清除所有數據並重置頁面狀態</p>
+            <p>{t('testPage.toolbar.resetTooltip')}</p>
           </TooltipContent>
         </Tooltip>
       </div>

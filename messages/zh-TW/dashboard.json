@@ -66,6 +66,7 @@
     "lastQuarter": "上季",
     "thisYear": "今年",
     "lastYear": "去年",
+    "custom": "自訂範圍",
     "customRange": "自訂範圍"
   },
   "dateValidation": {

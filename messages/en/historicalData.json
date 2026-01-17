@@ -1,4 +1,60 @@
 {
+  "page": {
+    "title": "Historical Data Management",
+    "description": "Upload and process historical invoice files",
+    "loading": "Loading...",
+    "tabs": {
+      "files": "File List",
+      "upload": "Upload Files"
+    },
+    "toast": {
+      "batchCreated": "Batch created successfully",
+      "batchCreatedDesc": "Batch \"{name}\" has been created",
+      "createFailed": "Creation failed",
+      "createFailedDesc": "Unable to create batch",
+      "batchDeleted": "Batch deleted",
+      "deleteFailed": "Deletion failed",
+      "deleteFailedDesc": "Unable to delete batch",
+      "fileDeleted": "File deleted",
+      "fileDeleteFailed": "Deletion failed",
+      "fileDeleteFailedDesc": "Unable to delete file",
+      "typeUpdated": "Type updated",
+      "typeUpdateFailed": "Update failed",
+      "typeUpdateFailedDesc": "Unable to update file type",
+      "uploadComplete": "Upload complete",
+      "uploadCompleteDesc": "Successful: {successful}, Failed: {failed}",
+      "batchNotFound": "Batch not found",
+      "batchNotFoundDesc": "Unable to find the batch",
+      "fetchDetailFailed": "Failed to fetch details",
+      "fetchDetailFailedDesc": "Unable to fetch batch details",
+      "processingStarted": "Processing started",
+      "processingStartedDesc": "Batch processing has begun, please wait for completion",
+      "startProcessingFailed": "Failed to start processing",
+      "startProcessingFailedDesc": "Unable to start batch processing"
+    }
+  },
+  "fileDetail": {
+    "loading": "Loading file details...",
+    "loadFailed": "Load failed",
+    "loadFailedDesc": "Unable to load file details",
+    "backToList": "Back to list",
+    "notFound": "File not found",
+    "notFoundDesc": "File ID: {id} does not exist or has been deleted",
+    "batch": "Batch",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed",
+      "skipped": "Skipped"
+    },
+    "tabs": {
+      "extraction": "Extraction Results",
+      "issuer": "Issuer Identification",
+      "lineitems": "Line Items",
+      "raw": "Raw JSON"
+    }
+  },
   "batchList": {
     "status": {
       "pending": "Pending",
@@ -30,6 +86,63 @@
     "deleteDialog": {
       "title": "Confirm Delete Batch",
       "description": "Are you sure you want to delete this batch? All files within the batch will also be deleted. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
+  },
+  "fileList": {
+    "fileType": {
+      "nativePdf": "Native PDF",
+      "scannedPdf": "Scanned PDF",
+      "image": "Image",
+      "unknown": "Unknown"
+    },
+    "status": {
+      "pending": "Pending",
+      "detecting": "Detecting",
+      "detected": "Detected",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "filter": {
+      "fileType": "File Type",
+      "allTypes": "All Types",
+      "status": "Status",
+      "allStatus": "All Status"
+    },
+    "bulk": {
+      "selected": "{count} files selected",
+      "changeType": "Change Type",
+      "deleteSelected": "Delete Selected"
+    },
+    "table": {
+      "fileName": "File Name",
+      "type": "Type",
+      "size": "Size",
+      "status": "Status",
+      "detectedAt": "Detected At",
+      "actions": "Actions",
+      "selectType": "Select Type",
+      "selectAll": "Select All",
+      "selectFile": "Select {name}"
+    },
+    "empty": "No files match the criteria",
+    "stats": {
+      "total": "{count} files total",
+      "filtered": "(showing {count})",
+      "completed": "Completed",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "actions": {
+      "viewDetails": "View Details",
+      "retryDetection": "Retry Detection",
+      "deleteFile": "Delete File"
+    },
+    "deleteDialog": {
+      "title": "Confirm Delete",
+      "description": "Are you sure you want to delete this file? This action cannot be undone.",
       "cancel": "Cancel",
       "confirm": "Delete"
     }

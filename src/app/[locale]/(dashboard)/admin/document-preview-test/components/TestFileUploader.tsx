@@ -19,6 +19,7 @@
 
 import * as React from 'react';
 import { useDropzone } from 'react-dropzone';
+import { useTranslations } from 'next-intl';
 import { Upload, FileText, Image, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -51,6 +52,9 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024;
  * @description 拖放式文件上傳組件
  */
 export function TestFileUploader() {
+  // --- Hooks ---
+  const t = useTranslations('documentPreview');
+
   // --- Store Actions ---
   const {
     setCurrentFile,
@@ -105,7 +109,7 @@ export function TestFileUploader() {
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-          throw new Error(result.error || '提取失敗');
+          throw new Error(result.error || t('testPage.errors.extractionFailed'));
         }
 
         // Use real extracted fields from API
@@ -122,8 +126,8 @@ export function TestFileUploader() {
         setProcessingStatus('error');
         setError({
           code: 'PROCESSING_ERROR',
-          message: '文件處理失敗',
-          details: error instanceof Error ? error.message : '未知錯誤',
+          message: t('testPage.errors.processingFailed'),
+          details: error instanceof Error ? error.message : t('testPage.errors.unknownError'),
         });
       }
     },
@@ -143,17 +147,17 @@ export function TestFileUploader() {
       if (!rejection) return;
 
       const errorCode = rejection.errors[0]?.code || 'UNKNOWN';
-      let message = '文件上傳失敗';
+      let message = t('testPage.errors.uploadFailed');
       let details = '';
 
       switch (errorCode) {
         case 'file-too-large':
-          message = '文件太大';
-          details = `最大允許 ${MAX_FILE_SIZE / 1024 / 1024}MB`;
+          message = t('testPage.errors.fileTooLarge');
+          details = t('testPage.errors.maxSizeAllowed', { size: MAX_FILE_SIZE / 1024 / 1024 });
           break;
         case 'file-invalid-type':
-          message = '不支援的文件格式';
-          details = '僅支援 PDF、PNG、JPG 格式';
+          message = t('testPage.uploader.unsupportedFormat');
+          details = t('testPage.uploader.supportedFormats');
           break;
         default:
           details = rejection.errors[0]?.message || '';
@@ -165,7 +169,7 @@ export function TestFileUploader() {
         details,
       });
     },
-    [setError]
+    [setError, t]
   );
 
   // --- Dropzone ---
@@ -193,13 +197,13 @@ export function TestFileUploader() {
       {isDragReject ? (
         <>
           <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-          <p className="text-destructive font-medium">不支援的文件格式</p>
-          <p className="text-sm text-muted-foreground mt-2">僅支援 PDF、PNG、JPG</p>
+          <p className="text-destructive font-medium">{t('testPage.uploader.unsupportedFormat')}</p>
+          <p className="text-sm text-muted-foreground mt-2">{t('testPage.uploader.supportedFormats')}</p>
         </>
       ) : isDragActive ? (
         <>
           <Upload className="h-12 w-12 text-primary mb-4 animate-bounce" />
-          <p className="text-primary font-medium">放開以上傳文件</p>
+          <p className="text-primary font-medium">{t('testPage.uploader.dropToUpload')}</p>
         </>
       ) : (
         <>
@@ -207,12 +211,12 @@ export function TestFileUploader() {
             <FileText className="h-10 w-10 text-muted-foreground" />
             <Image className="h-10 w-10 text-muted-foreground" />
           </div>
-          <p className="font-medium">拖放文件至此處</p>
+          <p className="font-medium">{t('testPage.uploader.dragHere')}</p>
           <p className="text-sm text-muted-foreground mt-2">
-            或點擊選擇文件
+            {t('testPage.uploader.orClickToSelect')}
           </p>
           <p className="text-xs text-muted-foreground mt-4">
-            支援 PDF、PNG、JPG（最大 20MB）
+            {t('testPage.uploader.maxSize')}
           </p>
         </>
       )}

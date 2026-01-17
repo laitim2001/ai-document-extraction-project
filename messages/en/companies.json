@@ -1,7 +1,18 @@
 {
   "page": {
     "title": "Company Management",
-    "description": "Manage Forwarder company data and configurations"
+    "description": "Manage company profiles, mapping rules, and priority settings"
+  },
+  "stats": {
+    "total": "Total",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "pagination": {
+    "showing": "Showing {start} - {end} of {total}",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "{page} / {total}"
   },
   "list": {
     "searchPlaceholder": "Search name or code...",

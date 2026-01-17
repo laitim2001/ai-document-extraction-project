@@ -21,6 +21,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { ArrowLeft, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -54,6 +55,7 @@ import {
 // ============================================================
 
 export default function HistoricalDataPage() {
+  const t = useTranslations('historicalData')
   const { toast } = useToast()
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'files' | 'upload'>('files')
@@ -99,8 +101,8 @@ export default function HistoricalDataPage() {
           autoMergeSimilar: data.autoMergeSimilar,
         })
         toast({
-          title: '批次建立成功',
-          description: `批次「${data.name}」已建立`,
+          title: t('page.toast.batchCreated'),
+          description: t('page.toast.batchCreatedDesc', { name: data.name }),
         })
         // 自動選擇新建立的批次
         setSelectedBatchId(result.data.id)
@@ -108,13 +110,13 @@ export default function HistoricalDataPage() {
       } catch (error) {
         toast({
           variant: 'destructive',
-          title: '建立失敗',
-          description: error instanceof Error ? error.message : '無法建立批次',
+          title: t('page.toast.createFailed'),
+          description: error instanceof Error ? error.message : t('page.toast.createFailedDesc'),
         })
         throw error
       }
     },
-    [createBatchMutation, toast]
+    [createBatchMutation, toast, t]
   )
 
   const handleDeleteBatch = useCallback(
@@ -122,7 +124,7 @@ export default function HistoricalDataPage() {
       try {
         await deleteBatchMutation.mutateAsync(batchId)
         toast({
-          title: '批次已刪除',
+          title: t('page.toast.batchDeleted'),
         })
         if (selectedBatchId === batchId) {
           setSelectedBatchId(null)
@@ -130,13 +132,13 @@ export default function HistoricalDataPage() {
       } catch (error) {
         toast({
           variant: 'destructive',
-          title: '刪除失敗',
-          description: error instanceof Error ? error.message : '無法刪除批次',
+          title: t('page.toast.deleteFailed'),
+          description: error instanceof Error ? error.message : t('page.toast.deleteFailedDesc'),
         })
         throw error
       }
     },
-    [deleteBatchMutation, selectedBatchId, toast]
+    [deleteBatchMutation, selectedBatchId, toast, t]
   )
 
   const handleDeleteFile = useCallback(
@@ -144,19 +146,19 @@ export default function HistoricalDataPage() {
       try {
         await deleteFileMutation.mutateAsync(fileId)
         toast({
-          title: '文件已刪除',
+          title: t('page.toast.fileDeleted'),
         })
         refetchDetail()
       } catch (error) {
         toast({
           variant: 'destructive',
-          title: '刪除失敗',
-          description: error instanceof Error ? error.message : '無法刪除文件',
+          title: t('page.toast.fileDeleteFailed'),
+          description: error instanceof Error ? error.message : t('page.toast.fileDeleteFailedDesc'),
         })
         throw error
       }
     },
-    [deleteFileMutation, refetchDetail, toast]
+    [deleteFileMutation, refetchDetail, toast, t]
   )
 
   const handleUpdateFileType = useCallback(
@@ -164,31 +166,31 @@ export default function HistoricalDataPage() {
       try {
         await updateFileTypeMutation.mutateAsync({ fileId, detectedType })
         toast({
-          title: '類型已更新',
+          title: t('page.toast.typeUpdated'),
         })
         refetchDetail()
       } catch (error) {
         toast({
           variant: 'destructive',
-          title: '更新失敗',
-          description: error instanceof Error ? error.message : '無法更新文件類型',
+          title: t('page.toast.typeUpdateFailed'),
+          description: error instanceof Error ? error.message : t('page.toast.typeUpdateFailedDesc'),
         })
         throw error
       }
     },
-    [updateFileTypeMutation, refetchDetail, toast]
+    [updateFileTypeMutation, refetchDetail, toast, t]
   )
 
   const handleUploadComplete = useCallback(
     (results: { successful: number; failed: number }) => {
       toast({
-        title: '上傳完成',
-        description: `成功 ${results.successful} 個，失敗 ${results.failed} 個`,
+        title: t('page.toast.uploadComplete'),
+        description: t('page.toast.uploadCompleteDesc', { successful: results.successful, failed: results.failed }),
       })
       refetchDetail()
       setActiveTab('files')
     },
-    [refetchDetail, toast]
+    [refetchDetail, toast, t]
   )
 
   const handleBackToList = useCallback(() => {
@@ -208,8 +210,8 @@ export default function HistoricalDataPage() {
       if (!batch) {
         toast({
           variant: 'destructive',
-          title: '批次不存在',
-          description: '無法找到該批次',
+          title: t('page.toast.batchNotFound'),
+          description: t('page.toast.batchNotFoundDesc'),
         })
         return
       }
@@ -218,7 +220,7 @@ export default function HistoricalDataPage() {
       try {
         const response = await fetch(`/api/admin/historical-data/batches/${batchId}`)
         if (!response.ok) {
-          throw new Error('無法獲取批次詳情')
+          throw new Error(t('page.toast.fetchDetailFailedDesc'))
         }
         const { data } = await response.json()
         const files: FileForCostEstimation[] = data.files.map((file: { id: string; detectedType: string | null; metadata: { pageCount?: number } | null }) => ({
@@ -237,12 +239,12 @@ export default function HistoricalDataPage() {
       } catch (error) {
         toast({
           variant: 'destructive',
-          title: '獲取詳情失敗',
-          description: error instanceof Error ? error.message : '無法獲取批次詳情',
+          title: t('page.toast.fetchDetailFailed'),
+          description: error instanceof Error ? error.message : t('page.toast.fetchDetailFailedDesc'),
         })
       }
     },
-    [batchesData, toast]
+    [batchesData, toast, t]
   )
 
   /**
@@ -265,12 +267,12 @@ export default function HistoricalDataPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.detail || '啟動處理失敗')
+        throw new Error(errorData.detail || t('page.toast.startProcessingFailed'))
       }
 
       toast({
-        title: '處理已啟動',
-        description: '批次處理已開始，請等待處理完成',
+        title: t('page.toast.processingStarted'),
+        description: t('page.toast.processingStartedDesc'),
       })
 
       setProcessingDialogOpen(false)
@@ -278,13 +280,13 @@ export default function HistoricalDataPage() {
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: '啟動處理失敗',
-        description: error instanceof Error ? error.message : '無法啟動批次處理',
+        title: t('page.toast.startProcessingFailed'),
+        description: error instanceof Error ? error.message : t('page.toast.startProcessingFailedDesc'),
       })
     } finally {
       setIsStartingProcess(false)
     }
-  }, [processingBatchId, refetchBatches, toast])
+  }, [processingBatchId, refetchBatches, toast, t])
 
   // --- Render: Batch Detail View ---
 
@@ -302,7 +304,7 @@ export default function HistoricalDataPage() {
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {batch?.name || '載入中...'}
+                {batch?.name || t('page.loading')}
               </h1>
               {batch?.description && (
                 <p className="text-muted-foreground">{batch.description}</p>
@@ -315,11 +317,11 @@ export default function HistoricalDataPage() {
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'files' | 'upload')}>
           <TabsList>
             <TabsTrigger value="files">
-              文件列表 ({files.length})
+              {t('page.tabs.files')} ({files.length})
             </TabsTrigger>
             <TabsTrigger value="upload">
               <Upload className="h-4 w-4 mr-2" />
-              上傳文件
+              {t('page.tabs.upload')}
             </TabsTrigger>
           </TabsList>
 
@@ -356,10 +358,10 @@ export default function HistoricalDataPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            歷史數據管理
+            {t('page.title')}
           </h1>
           <p className="text-muted-foreground">
-            上傳和處理歷史發票文件
+            {t('page.description')}
           </p>
         </div>
         <CreateBatchDialog onCreateBatch={handleCreateBatch} />

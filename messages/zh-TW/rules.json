@@ -1,7 +1,8 @@
 {
   "page": {
-    "title": "映射規則",
-    "description": "管理發票欄位映射規則"
+    "title": "映射規則管理",
+    "description": "管理文件欄位提取的映射規則，配置公司特定或通用提取模式",
+    "addRule": "新增規則"
   },
   "tabs": {
     "universal": "通用規則",
@@ -15,6 +16,12 @@
   },
   "list": {
     "searchPlaceholder": "搜尋規則...",
+    "loadError": "載入失敗",
+    "retry": "重試",
+    "refresh": "刷新",
+    "pagination": {
+      "summary": "共 {total} 條規則，第 {page} / {totalPages} 頁"
+    },
     "filters": {
       "tier": "規則層級",
       "company": "公司",
@@ -209,5 +216,103 @@
     "source": "學習來源",
     "learnedFrom": "學習自",
     "corrections": "次修正"
+  },
+  "ruleEdit": {
+    "dialog": {
+      "title": "編輯規則：{fieldLabel}",
+      "description": "修改規則配置後提交審核，變更將在審核通過後生效"
+    },
+    "toast": {
+      "submitted": "變更已提交",
+      "submittedDesc": "規則變更請求已提交審核，待審核者批准後生效。"
+    },
+    "form": {
+      "ruleInfo": "規則資訊",
+      "fieldName": "欄位名稱：",
+      "fieldLabel": "欄位標籤：",
+      "extractionType": "提取類型",
+      "patternConfig": "提取模式配置",
+      "priority": "優先級 (1-100)",
+      "priorityDesc": "數字越大優先級越高",
+      "confidence": "信心度閾值 (0-1)",
+      "confidenceDesc": "建議 0.7-0.9 之間",
+      "description": "描述（選填）",
+      "descriptionPlaceholder": "說明此規則的用途或特殊情況...",
+      "reason": "變更原因",
+      "reasonRequired": "變更原因 *",
+      "reasonPlaceholder": "請說明為什麼需要修改此規則...",
+      "reasonDesc": "變更原因將記錄在審核歷史中"
+    },
+    "extractionTypes": {
+      "regex": {
+        "label": "正則表達式",
+        "description": "使用正則表達式匹配並提取文字"
+      },
+      "keyword": {
+        "label": "關鍵字",
+        "description": "根據關鍵字位置提取相鄰文字"
+      },
+      "position": {
+        "label": "座標位置",
+        "description": "根據 PDF 座標提取特定區域（需 OCR 支援）"
+      },
+      "aiPrompt": {
+        "label": "AI 提示詞",
+        "description": "使用 AI 理解並提取內容（需 AI 服務）"
+      },
+      "template": {
+        "label": "模板匹配",
+        "description": "使用預定義模板匹配並提取（需模板系統）"
+      }
+    },
+    "regex": {
+      "expression": "正則表達式",
+      "expressionPlaceholder": "例如: Invoice\\s*(?:No|Number)?[.:]?\\s*(\\S+)",
+      "flags": "旗標 (Flags)",
+      "flagsGi": "gi (全域, 不分大小寫)",
+      "flagsG": "g (全域)",
+      "flagsI": "i (不分大小寫)",
+      "flagsGim": "gim (全域, 不分大小寫, 多行)",
+      "groupIndex": "擷取群組索引"
+    },
+    "keyword": {
+      "keywords": "關鍵字（每行一個）",
+      "keywordsPlaceholder": "Invoice No\nInvoice Number\nINV#",
+      "direction": "搜尋方向",
+      "directionRight": "右側",
+      "directionLeft": "左側",
+      "directionBelow": "下方",
+      "directionAbove": "上方",
+      "extractLength": "提取長度"
+    },
+    "aiPrompt": {
+      "prompt": "AI 提示詞",
+      "promptPlaceholder": "請從文件中提取發票號碼...",
+      "promptDesc": "提示詞將發送給 AI 模型，請清楚描述要提取的內容"
+    },
+    "position": {
+      "notice": "座標位置提取需要 OCR 座標資訊，建議使用測試面板獲取座標"
+    },
+    "template": {
+      "notAvailable": "模板匹配編輯功能尚未開放"
+    },
+    "preview": {
+      "title": "規則預覽",
+      "testPlaceholder": "貼上測試文本內容...",
+      "button": "預覽",
+      "loading": "預覽中...",
+      "matched": "匹配成功",
+      "notMatched": "未匹配",
+      "confidence": "信心度: {value}%",
+      "extractedValue": "提取的值",
+      "clickToTest": "點擊「預覽」按鈕測試規則效果"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "submit": "提交變更"
+    },
+    "validation": {
+      "reasonRequired": "請說明變更原因"
+    }
   }
 }

@@ -23,6 +23,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -69,51 +70,52 @@ import {
 // ============================================================
 
 /**
- * 提取類型選項
+ * 提取類型選項（使用 i18n 翻譯鍵）
  */
 const EXTRACTION_TYPES = [
   {
     value: 'REGEX',
-    label: '正則表達式',
-    description: '使用正則表達式匹配並提取文字',
+    labelKey: 'ruleEdit.extractionTypes.regex.label',
+    descKey: 'ruleEdit.extractionTypes.regex.description',
   },
   {
     value: 'KEYWORD',
-    label: '關鍵字',
-    description: '根據關鍵字位置提取相鄰文字',
+    labelKey: 'ruleEdit.extractionTypes.keyword.label',
+    descKey: 'ruleEdit.extractionTypes.keyword.description',
   },
   {
     value: 'POSITION',
-    label: '座標位置',
-    description: '根據 PDF 座標提取特定區域（需 OCR 支援）',
+    labelKey: 'ruleEdit.extractionTypes.position.label',
+    descKey: 'ruleEdit.extractionTypes.position.description',
   },
   {
     value: 'AI_PROMPT',
-    label: 'AI 提示詞',
-    description: '使用 AI 理解並提取內容（需 AI 服務）',
+    labelKey: 'ruleEdit.extractionTypes.aiPrompt.label',
+    descKey: 'ruleEdit.extractionTypes.aiPrompt.description',
   },
   {
     value: 'TEMPLATE',
-    label: '模板匹配',
-    description: '使用預定義模板匹配並提取（需模板系統）',
+    labelKey: 'ruleEdit.extractionTypes.template.label',
+    descKey: 'ruleEdit.extractionTypes.template.description',
   },
 ] as const
 
 /**
- * 表單驗證 Schema
+ * 表單驗證 Schema 工廠函數
  */
-const formSchema = z.object({
-  extractionType: z
-    .enum(['REGEX', 'KEYWORD', 'POSITION', 'AI_PROMPT', 'TEMPLATE'])
-    .optional(),
-  pattern: z.record(z.string(), z.unknown()).optional(),
-  priority: z.number().int().min(1).max(100).optional(),
-  confidence: z.number().min(0).max(1).optional(),
-  description: z.string().max(500).optional(),
-  reason: z.string().min(1, '請說明變更原因').max(1000),
-})
+const createFormSchema = (reasonRequiredMessage: string) =>
+  z.object({
+    extractionType: z
+      .enum(['REGEX', 'KEYWORD', 'POSITION', 'AI_PROMPT', 'TEMPLATE'])
+      .optional(),
+    pattern: z.record(z.string(), z.unknown()).optional(),
+    priority: z.number().int().min(1).max(100).optional(),
+    confidence: z.number().min(0).max(1).optional(),
+    description: z.string().max(500).optional(),
+    reason: z.string().min(1, reasonRequiredMessage).max(1000),
+  })
 
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>
 
 /**
  * 規則資料型別
@@ -149,9 +151,11 @@ interface RuleEditFormProps {
 function RegexPatternEditor({
   value,
   onChange,
+  t,
 }: {
   value: Record<string, unknown>
   onChange: (value: Record<string, unknown>) => void
+  t: (key: string) => string
 }) {
   const expression = (value.expression as string) ?? ''
   const flags = (value.flags as string) ?? 'gi'
@@ -160,9 +164,9 @@ function RegexPatternEditor({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>正則表達式</Label>
+        <Label>{t('ruleEdit.regex.expression')}</Label>
         <Input
-          placeholder="例如: Invoice\\s*(?:No|Number)?[.:]?\\s*(\\S+)"
+          placeholder={t('ruleEdit.regex.expressionPlaceholder')}
           className="font-mono"
           value={expression}
           onChange={(e) =>
@@ -172,7 +176,7 @@ function RegexPatternEditor({
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>旗標 (Flags)</Label>
+          <Label>{t('ruleEdit.regex.flags')}</Label>
           <Select
             value={flags}
             onValueChange={(v) => onChange({ ...value, flags: v })}
@@ -181,15 +185,15 @@ function RegexPatternEditor({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="gi">gi (全域, 不分大小寫)</SelectItem>
-              <SelectItem value="g">g (全域)</SelectItem>
-              <SelectItem value="i">i (不分大小寫)</SelectItem>
-              <SelectItem value="gim">gim (全域, 不分大小寫, 多行)</SelectItem>
+              <SelectItem value="gi">{t('ruleEdit.regex.flagsGi')}</SelectItem>
+              <SelectItem value="g">{t('ruleEdit.regex.flagsG')}</SelectItem>
+              <SelectItem value="i">{t('ruleEdit.regex.flagsI')}</SelectItem>
+              <SelectItem value="gim">{t('ruleEdit.regex.flagsGim')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>擷取群組索引</Label>
+          <Label>{t('ruleEdit.regex.groupIndex')}</Label>
           <Input
             type="number"
             min={0}
@@ -211,9 +215,11 @@ function RegexPatternEditor({
 function KeywordPatternEditor({
   value,
   onChange,
+  t,
 }: {
   value: Record<string, unknown>
   onChange: (value: Record<string, unknown>) => void
+  t: (key: string) => string
 }) {
   const keywords = (value.keywords as string[]) ?? []
   const searchDirection = (value.searchDirection as string) ?? 'right'
@@ -222,9 +228,9 @@ function KeywordPatternEditor({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>關鍵字（每行一個）</Label>
+        <Label>{t('ruleEdit.keyword.keywords')}</Label>
         <Textarea
-          placeholder="Invoice No&#10;Invoice Number&#10;INV#"
+          placeholder={t('ruleEdit.keyword.keywordsPlaceholder')}
           className="font-mono min-h-[100px]"
           value={keywords.join('\n')}
           onChange={(e) =>
@@ -237,7 +243,7 @@ function KeywordPatternEditor({
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>搜尋方向</Label>
+          <Label>{t('ruleEdit.keyword.direction')}</Label>
           <Select
             value={searchDirection}
             onValueChange={(v) => onChange({ ...value, searchDirection: v })}
@@ -246,15 +252,15 @@ function KeywordPatternEditor({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="right">右側</SelectItem>
-              <SelectItem value="left">左側</SelectItem>
-              <SelectItem value="below">下方</SelectItem>
-              <SelectItem value="above">上方</SelectItem>
+              <SelectItem value="right">{t('ruleEdit.keyword.directionRight')}</SelectItem>
+              <SelectItem value="left">{t('ruleEdit.keyword.directionLeft')}</SelectItem>
+              <SelectItem value="below">{t('ruleEdit.keyword.directionBelow')}</SelectItem>
+              <SelectItem value="above">{t('ruleEdit.keyword.directionAbove')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>提取長度</Label>
+          <Label>{t('ruleEdit.keyword.extractLength')}</Label>
           <Input
             type="number"
             min={10}
@@ -279,23 +285,25 @@ function KeywordPatternEditor({
 function AIPromptPatternEditor({
   value,
   onChange,
+  t,
 }: {
   value: Record<string, unknown>
   onChange: (value: Record<string, unknown>) => void
+  t: (key: string) => string
 }) {
   const prompt = (value.prompt as string) ?? ''
 
   return (
     <div className="space-y-2">
-      <Label>AI 提示詞</Label>
+      <Label>{t('ruleEdit.aiPrompt.prompt')}</Label>
       <Textarea
-        placeholder="請從文件中提取發票號碼..."
+        placeholder={t('ruleEdit.aiPrompt.promptPlaceholder')}
         className="min-h-[120px]"
         value={prompt}
         onChange={(e) => onChange({ ...value, prompt: e.target.value })}
       />
       <p className="text-sm text-muted-foreground">
-        提示詞將發送給 AI 模型，請清楚描述要提取的內容
+        {t('ruleEdit.aiPrompt.promptDesc')}
       </p>
     </div>
   )
@@ -308,6 +316,7 @@ function PreviewResult({
   data,
   isLoading,
   error,
+  t,
 }: {
   data?: {
     matched: boolean
@@ -322,12 +331,14 @@ function PreviewResult({
   }
   isLoading: boolean
   error: Error | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: (key: string, params?: Record<string, any>) => string
 }) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-4">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-sm text-muted-foreground">預覽中...</span>
+        <span className="ml-2 text-sm text-muted-foreground">{t('ruleEdit.preview.loading')}</span>
       </div>
     )
   }
@@ -344,7 +355,7 @@ function PreviewResult({
   if (!data) {
     return (
       <p className="text-sm text-muted-foreground text-center p-4">
-        點擊「預覽」按鈕測試規則效果
+        {t('ruleEdit.preview.clickToTest')}
       </p>
     )
   }
@@ -355,21 +366,21 @@ function PreviewResult({
         {data.matched ? (
           <Badge variant="default" className="bg-green-600">
             <CheckCircle2 className="h-3 w-3 mr-1" />
-            匹配成功
+            {t('ruleEdit.preview.matched')}
           </Badge>
         ) : (
           <Badge variant="destructive">
             <XCircle className="h-3 w-3 mr-1" />
-            未匹配
+            {t('ruleEdit.preview.notMatched')}
           </Badge>
         )}
-        <Badge variant="outline">信心度: {(data.confidence * 100).toFixed(0)}%</Badge>
+        <Badge variant="outline">{t('ruleEdit.preview.confidence', { value: (data.confidence * 100).toFixed(0) })}</Badge>
         <Badge variant="secondary">{data.processingTime}ms</Badge>
       </div>
 
       {data.matched && data.extractedValue && (
         <div className="rounded-md border p-3 bg-muted/50">
-          <Label className="text-xs text-muted-foreground">提取的值</Label>
+          <Label className="text-xs text-muted-foreground">{t('ruleEdit.preview.extractedValue')}</Label>
           <p className="mt-1 font-mono">{data.extractedValue}</p>
         </div>
       )}
@@ -398,6 +409,8 @@ function PreviewResult({
  *   提供現有規則的編輯界面，變更會創建待審核的變更請求
  */
 export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
+  const t = useTranslations('rules')
+
   // --- State ---
   const [patternValue, setPatternValue] = React.useState<Record<string, unknown>>(
     rule.extractionPattern
@@ -421,6 +434,12 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
     error: previewError,
     reset: resetPreview,
   } = useRulePreview()
+
+  // --- Form Schema (with translations) ---
+  const formSchema = React.useMemo(
+    () => createFormSchema(t('ruleEdit.validation.reasonRequired')),
+    [t]
+  )
 
   // --- Form ---
   const form = useForm<FormValues>({
@@ -479,22 +498,22 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
     switch (watchedExtractionType) {
       case 'REGEX':
         return (
-          <RegexPatternEditor value={patternValue} onChange={setPatternValue} />
+          <RegexPatternEditor value={patternValue} onChange={setPatternValue} t={t} />
         )
       case 'KEYWORD':
         return (
-          <KeywordPatternEditor value={patternValue} onChange={setPatternValue} />
+          <KeywordPatternEditor value={patternValue} onChange={setPatternValue} t={t} />
         )
       case 'AI_PROMPT':
         return (
-          <AIPromptPatternEditor value={patternValue} onChange={setPatternValue} />
+          <AIPromptPatternEditor value={patternValue} onChange={setPatternValue} t={t} />
         )
       case 'POSITION':
         return (
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              座標位置提取需要 OCR 座標資訊，建議使用測試面板獲取座標
+              {t('ruleEdit.position.notice')}
             </AlertDescription>
           </Alert>
         )
@@ -502,7 +521,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
         return (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>模板匹配編輯功能尚未開放</AlertDescription>
+            <AlertDescription>{t('ruleEdit.template.notAvailable')}</AlertDescription>
           </Alert>
         )
       default:
@@ -518,11 +537,11 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
         <div className="rounded-lg border p-4 bg-muted/30">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-muted-foreground">欄位名稱：</span>
+              <span className="text-muted-foreground">{t('ruleEdit.form.fieldName')}</span>
               <span className="font-medium ml-2">{rule.fieldName}</span>
             </div>
             <div>
-              <span className="text-muted-foreground">欄位標籤：</span>
+              <span className="text-muted-foreground">{t('ruleEdit.form.fieldLabel')}</span>
               <span className="font-medium ml-2">{rule.fieldLabel}</span>
             </div>
           </div>
@@ -534,7 +553,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
           name="extractionType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>提取類型</FormLabel>
+              <FormLabel>{t('ruleEdit.form.extractionType')}</FormLabel>
               <Tabs
                 value={field.value}
                 onValueChange={(v) => {
@@ -549,7 +568,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
                 <TabsList className="grid w-full grid-cols-5">
                   {EXTRACTION_TYPES.map((type) => (
                     <TabsTrigger key={type.value} value={type.value}>
-                      {type.label}
+                      {t(type.labelKey)}
                     </TabsTrigger>
                   ))}
                 </TabsList>
@@ -557,7 +576,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
                   <TabsContent key={type.value} value={type.value} className="mt-4">
                     <Alert>
                       <Info className="h-4 w-4" />
-                      <AlertDescription>{type.description}</AlertDescription>
+                      <AlertDescription>{t(type.descKey)}</AlertDescription>
                     </Alert>
                   </TabsContent>
                 ))}
@@ -569,7 +588,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
 
         {/* Pattern 編輯器 */}
         <div className="space-y-2">
-          <Label>提取模式配置</Label>
+          <Label>{t('ruleEdit.form.patternConfig')}</Label>
           {renderPatternEditor()}
         </div>
 
@@ -580,7 +599,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
             name="priority"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>優先級 (1-100)</FormLabel>
+                <FormLabel>{t('ruleEdit.form.priority')}</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -592,7 +611,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
                     }
                   />
                 </FormControl>
-                <FormDescription>數字越大優先級越高</FormDescription>
+                <FormDescription>{t('ruleEdit.form.priorityDesc')}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -603,7 +622,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
             name="confidence"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>信心度閾值 (0-1)</FormLabel>
+                <FormLabel>{t('ruleEdit.form.confidence')}</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -616,7 +635,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
                     }
                   />
                 </FormControl>
-                <FormDescription>建議 0.7-0.9 之間</FormDescription>
+                <FormDescription>{t('ruleEdit.form.confidenceDesc')}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -629,10 +648,10 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>描述（選填）</FormLabel>
+              <FormLabel>{t('ruleEdit.form.description')}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="說明此規則的用途或特殊情況..."
+                  placeholder={t('ruleEdit.form.descriptionPlaceholder')}
                   className="resize-none"
                   rows={2}
                   {...field}
@@ -647,10 +666,10 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
 
         {/* 預覽區域 */}
         <div className="space-y-4">
-          <Label>規則預覽</Label>
+          <Label>{t('ruleEdit.preview.title')}</Label>
           <div className="space-y-2">
             <Textarea
-              placeholder="貼上測試文本內容..."
+              placeholder={t('ruleEdit.preview.testPlaceholder')}
               className="min-h-[100px] font-mono text-sm"
               value={testContent}
               onChange={(e) => {
@@ -670,7 +689,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
               ) : (
                 <Eye className="h-4 w-4 mr-2" />
               )}
-              預覽
+              {t('ruleEdit.preview.button')}
             </Button>
           </div>
 
@@ -679,6 +698,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
               data={previewData}
               isLoading={isPreviewing}
               error={previewError}
+              t={t}
             />
           </div>
         </div>
@@ -691,17 +711,17 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
           name="reason"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>變更原因 *</FormLabel>
+              <FormLabel>{t('ruleEdit.form.reasonRequired')}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="請說明為什麼需要修改此規則..."
+                  placeholder={t('ruleEdit.form.reasonPlaceholder')}
                   className="resize-none"
                   rows={3}
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                變更原因將記錄在審核歷史中
+                {t('ruleEdit.form.reasonDesc')}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -712,7 +732,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
         <div className="flex justify-end gap-4">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
-              取消
+              {t('ruleEdit.buttons.cancel')}
             </Button>
           )}
           <Button type="submit" disabled={isUpdating}>
@@ -721,7 +741,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
             ) : (
               <Save className="h-4 w-4 mr-2" />
             )}
-            提交變更
+            {t('ruleEdit.buttons.submit')}
           </Button>
         </div>
       </form>
