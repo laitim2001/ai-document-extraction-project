@@ -19,8 +19,9 @@
  *   - src/components/features/admin/UserStatusToggle.tsx - 狀態切換組件 (Story 1.6)
  */
 
+import { useTranslations, useLocale } from 'next-intl'
 import { formatDistanceToNow } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
+import { zhTW, enUS } from 'date-fns/locale'
 import {
   Table,
   TableBody,
@@ -79,20 +80,20 @@ function getStatusVariant(
 }
 
 /**
- * 獲取狀態顯示文字
+ * 獲取狀態對應的翻譯 key
  * @param status - 用戶狀態
- * @returns 狀態中文名稱
+ * @returns 翻譯 key
  */
-function getStatusLabel(status: string): string {
+function getStatusKey(status: string): string {
   switch (status) {
     case 'ACTIVE':
-      return '啟用'
+      return 'users.status.active'
     case 'INACTIVE':
-      return '停用'
+      return 'users.status.inactive'
     case 'SUSPENDED':
-      return '暫停'
+      return 'users.status.suspended'
     default:
-      return status
+      return 'users.status.pending'
   }
 }
 
@@ -113,10 +114,14 @@ function getStatusLabel(status: string): string {
  *   <UserTable users={users} onEdit={handleEdit} showActions />
  */
 export function UserTable({ users, onEdit, showActions = true }: UserTableProps) {
+  const t = useTranslations('admin')
+  const locale = useLocale()
+  const dateLocale = locale === 'zh-TW' ? zhTW : enUS
+
   if (users.length === 0) {
     return (
       <div className="rounded-md border p-8 text-center text-muted-foreground">
-        找不到符合條件的用戶
+        {t('users.table.emptyState')}
       </div>
     )
   }
@@ -126,12 +131,12 @@ export function UserTable({ users, onEdit, showActions = true }: UserTableProps)
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[300px]">用戶</TableHead>
-            <TableHead>角色</TableHead>
-            <TableHead>城市</TableHead>
-            <TableHead>狀態</TableHead>
-            <TableHead>最後登入</TableHead>
-            {showActions && <TableHead className="w-[80px]">操作</TableHead>}
+            <TableHead className="w-[300px]">{t('users.table.name')}</TableHead>
+            <TableHead>{t('users.table.role')}</TableHead>
+            <TableHead>{t('users.table.city')}</TableHead>
+            <TableHead>{t('users.table.status')}</TableHead>
+            <TableHead>{t('users.table.lastLogin')}</TableHead>
+            {showActions && <TableHead className="w-[80px]">{t('users.table.actions')}</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -149,7 +154,7 @@ export function UserTable({ users, onEdit, showActions = true }: UserTableProps)
                   </Avatar>
                   <div>
                     <div className="font-medium">
-                      {user.name || '未設定名稱'}
+                      {user.name || t('users.table.noName')}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {user.email}
@@ -185,7 +190,7 @@ export function UserTable({ users, onEdit, showActions = true }: UserTableProps)
               {/* 狀態 */}
               <TableCell>
                 <Badge variant={getStatusVariant(user.status)}>
-                  {getStatusLabel(user.status)}
+                  {t(getStatusKey(user.status))}
                 </Badge>
               </TableCell>
 
@@ -194,9 +199,9 @@ export function UserTable({ users, onEdit, showActions = true }: UserTableProps)
                 {user.lastLoginAt
                   ? formatDistanceToNow(new Date(user.lastLoginAt), {
                       addSuffix: true,
-                      locale: zhTW,
+                      locale: dateLocale,
                     })
-                  : '從未登入'}
+                  : t('users.table.neverLoggedIn')}
               </TableCell>
 
               {/* 操作 */}

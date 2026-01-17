@@ -1,22 +1,25 @@
 'use client'
 
 /**
- * @fileoverview 歷史數據批次列表組件
+ * @fileoverview 歷史數據批次列表組件（國際化版本）
  * @description
  *   顯示批次列表，支援：
  *   - 批次狀態顯示
  *   - 進度追蹤
  *   - 批次操作（查看詳情、刪除、匯出術語報告）
+ *   - 完整國際化支援
  *
  * @module src/components/features/historical-data/HistoricalBatchList
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-27
+ * @lastModified 2026-01-17
  *
  * @features
  *   - CHANGE-002: 階層式術語報告匯出按鈕
+ *   - Epic 17: 完整國際化支援
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useState, useCallback } from 'react'
 import {
   FolderOpen,
@@ -94,20 +97,20 @@ interface HistoricalBatchListProps {
 const STATUS_CONFIG: Record<
   HistoricalBatchStatus,
   {
-    label: string
+    labelKey: string
     icon: React.ElementType
     variant: 'default' | 'secondary' | 'destructive' | 'outline'
     color: string
   }
 > = {
-  PENDING: { label: '待處理', icon: Clock, variant: 'secondary', color: 'text-yellow-500' },
-  PROCESSING: { label: '處理中', icon: Loader2, variant: 'outline', color: 'text-blue-500' },
-  PAUSED: { label: '已暫停', icon: PauseCircle, variant: 'secondary', color: 'text-orange-500' },
-  AGGREGATING: { label: '聚合中', icon: Layers, variant: 'outline', color: 'text-purple-500' },
-  AGGREGATED: { label: '聚合完成', icon: Layers, variant: 'default', color: 'text-indigo-500' },
-  COMPLETED: { label: '已完成', icon: CheckCircle2, variant: 'default', color: 'text-green-500' },
-  FAILED: { label: '失敗', icon: XCircle, variant: 'destructive', color: 'text-red-500' },
-  CANCELLED: { label: '已取消', icon: AlertTriangle, variant: 'secondary', color: 'text-gray-500' },
+  PENDING: { labelKey: 'pending', icon: Clock, variant: 'secondary', color: 'text-yellow-500' },
+  PROCESSING: { labelKey: 'processing', icon: Loader2, variant: 'outline', color: 'text-blue-500' },
+  PAUSED: { labelKey: 'paused', icon: PauseCircle, variant: 'secondary', color: 'text-orange-500' },
+  AGGREGATING: { labelKey: 'aggregating', icon: Layers, variant: 'outline', color: 'text-purple-500' },
+  AGGREGATED: { labelKey: 'aggregated', icon: Layers, variant: 'default', color: 'text-indigo-500' },
+  COMPLETED: { labelKey: 'completed', icon: CheckCircle2, variant: 'default', color: 'text-green-500' },
+  FAILED: { labelKey: 'failed', icon: XCircle, variant: 'destructive', color: 'text-red-500' },
+  CANCELLED: { labelKey: 'cancelled', icon: AlertTriangle, variant: 'secondary', color: 'text-gray-500' },
 }
 
 // ============================================================
@@ -140,6 +143,7 @@ export function HistoricalBatchList({
   onStartProcessing,
   className,
 }: HistoricalBatchListProps) {
+  const t = useTranslations('historicalData')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [batchToDelete, setBatchToDelete] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -191,8 +195,8 @@ export function HistoricalBatchList({
       <Card className={className}>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-lg font-medium text-muted-foreground">尚無批次</p>
-          <p className="text-sm text-muted-foreground">建立新批次以開始上傳文件</p>
+          <p className="text-lg font-medium text-muted-foreground">{t('batchList.empty.title')}</p>
+          <p className="text-sm text-muted-foreground">{t('batchList.empty.description')}</p>
         </CardContent>
       </Card>
     )
@@ -232,7 +236,7 @@ export function HistoricalBatchList({
                         batch.status === 'PROCESSING' && 'animate-spin'
                       )}
                     />
-                    {statusConfig.label}
+                    {t(`batchList.status.${statusConfig.labelKey}`)}
                   </Badge>
                   {onSelectBatch && (
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -245,7 +249,7 @@ export function HistoricalBatchList({
               {batch.status === 'PROCESSING' && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-1 text-sm">
-                    <span>處理進度</span>
+                    <span>{t('batchList.progress.label')}</span>
                     <span>{progress}%</span>
                   </div>
                   <Progress value={progress} />
@@ -255,19 +259,19 @@ export function HistoricalBatchList({
               {/* 統計資訊 */}
               <div className="grid grid-cols-4 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">總文件數</p>
+                  <p className="text-muted-foreground">{t('batchList.stats.totalFiles')}</p>
                   <p className="font-medium">{batch.totalFiles}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">已處理</p>
+                  <p className="text-muted-foreground">{t('batchList.stats.processed')}</p>
                   <p className="font-medium text-green-600">{batch.processedFiles}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">失敗</p>
+                  <p className="text-muted-foreground">{t('batchList.stats.failed')}</p>
                   <p className="font-medium text-red-600">{batch.failedFiles}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">建立時間</p>
+                  <p className="text-muted-foreground">{t('batchList.stats.createdAt')}</p>
                   <p className="font-medium">{formatDate(batch.createdAt)}</p>
                 </div>
               </div>
@@ -275,7 +279,7 @@ export function HistoricalBatchList({
               {/* 操作按鈕 */}
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
                 <div className="text-sm text-muted-foreground">
-                  建立者：{batch.creator.name || batch.creator.email}
+                  {t('batchList.creator', { name: batch.creator.name || batch.creator.email })}
                 </div>
                 <div className="flex items-center gap-2">
                   {canStart && onStartProcessing && (
@@ -285,7 +289,7 @@ export function HistoricalBatchList({
                       onClick={(e) => handleStartProcessing(e, batch.id)}
                     >
                       <Play className="h-4 w-4 mr-1" />
-                      開始處理
+                      {t('batchList.actions.startProcessing')}
                     </Button>
                   )}
                   <HierarchicalTermsExportButton
@@ -317,20 +321,20 @@ export function HistoricalBatchList({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除批次</AlertDialogTitle>
+            <AlertDialogTitle>{t('batchList.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要刪除這個批次嗎？批次內的所有文件也會被刪除。此操作無法撤銷。
+              {t('batchList.deleteDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>{t('batchList.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isDeleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              刪除
+              {t('batchList.deleteDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

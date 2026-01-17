@@ -18,6 +18,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -60,6 +61,7 @@ export function DateRangeQuickSelect({
   presets = QUICK_SELECT_PRESETS,
   size = 'sm',
 }: DateRangeQuickSelectProps) {
+  const t = useTranslations('dashboard');
   const { dateRange, setPreset, isLoading } = useDateRange();
 
   // 處理預設範圍選擇
@@ -84,7 +86,7 @@ export function DateRangeQuickSelect({
   return (
     <div
       role="group"
-      aria-label="快速選擇時間範圍"
+      aria-label={t('dateRange.quickSelect')}
       className={cn(
         'flex gap-2',
         orientation === 'vertical' ? 'flex-col' : 'flex-wrap',
@@ -131,6 +133,7 @@ export function DateRangeQuickSelectGroup({
   className?: string;
   disabled?: boolean;
 }) {
+  const t = useTranslations('dashboard');
   const dayPresets: PresetRange[] = ['today', 'yesterday'];
   const weekPresets: PresetRange[] = ['thisWeek', 'lastWeek'];
   const monthPresets: PresetRange[] = ['thisMonth', 'lastMonth'];
@@ -140,23 +143,23 @@ export function DateRangeQuickSelectGroup({
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       <div className="flex flex-wrap gap-2">
-        <span className="text-xs text-muted-foreground w-12">日：</span>
+        <span className="text-xs text-muted-foreground w-12">{t('dateRange.day')}</span>
         <DateRangeQuickSelect presets={dayPresets} disabled={disabled} />
       </div>
       <div className="flex flex-wrap gap-2">
-        <span className="text-xs text-muted-foreground w-12">週：</span>
+        <span className="text-xs text-muted-foreground w-12">{t('dateRange.week')}</span>
         <DateRangeQuickSelect presets={weekPresets} disabled={disabled} />
       </div>
       <div className="flex flex-wrap gap-2">
-        <span className="text-xs text-muted-foreground w-12">月：</span>
+        <span className="text-xs text-muted-foreground w-12">{t('dateRange.month')}</span>
         <DateRangeQuickSelect presets={monthPresets} disabled={disabled} />
       </div>
       <div className="flex flex-wrap gap-2">
-        <span className="text-xs text-muted-foreground w-12">季：</span>
+        <span className="text-xs text-muted-foreground w-12">{t('dateRange.quarter')}</span>
         <DateRangeQuickSelect presets={quarterPresets} disabled={disabled} />
       </div>
       <div className="flex flex-wrap gap-2">
-        <span className="text-xs text-muted-foreground w-12">年：</span>
+        <span className="text-xs text-muted-foreground w-12">{t('dateRange.year')}</span>
         <DateRangeQuickSelect presets={yearPresets} disabled={disabled} />
       </div>
     </div>

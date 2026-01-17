@@ -36,6 +36,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Loader2 } from 'lucide-react'
@@ -108,6 +109,8 @@ export function AddUserDialog({
   triggerSize = 'default',
   className,
 }: AddUserDialogProps) {
+  const t = useTranslations('admin')
+
   // --- State ---
   const [open, setOpen] = useState(false)
 
@@ -133,8 +136,8 @@ export function AddUserDialog({
     createUser(data, {
       onSuccess: () => {
         toast({
-          title: '用戶已創建',
-          description: `${data.name} 已成功加入系統`,
+          title: t('users.toast.created.title'),
+          description: t('users.toast.created.description', { name: data.name }),
         })
         setOpen(false)
         form.reset()
@@ -142,7 +145,7 @@ export function AddUserDialog({
       onError: (error) => {
         toast({
           variant: 'destructive',
-          title: '創建失敗',
+          title: t('users.toast.createError.title'),
           description: error.message,
         })
       },
@@ -163,14 +166,14 @@ export function AddUserDialog({
       <DialogTrigger asChild>
         <Button variant={triggerVariant} size={triggerSize} className={className}>
           <Plus className="mr-2 h-4 w-4" />
-          新增用戶
+          {t('users.actions.create')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>新增用戶</DialogTitle>
+          <DialogTitle>{t('users.dialog.createTitle')}</DialogTitle>
           <DialogDescription>
-            創建新的用戶帳號。用戶將可以使用 Azure AD 登入系統。
+            {t('users.dialog.createDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -182,7 +185,7 @@ export function AddUserDialog({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>電子郵件</FormLabel>
+                  <FormLabel>{t('users.form.email')}</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -192,7 +195,7 @@ export function AddUserDialog({
                     />
                   </FormControl>
                   <FormDescription>
-                    必須與用戶的 Azure AD 帳號一致
+                    {t('users.form.emailDescription')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -205,10 +208,10 @@ export function AddUserDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>姓名</FormLabel>
+                  <FormLabel>{t('users.form.name')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="王小明"
+                      placeholder={t('users.form.namePlaceholder')}
                       autoComplete="off"
                       {...field}
                     />
@@ -225,16 +228,16 @@ export function AddUserDialog({
               render={() => (
                 <FormItem>
                   <div className="mb-2">
-                    <FormLabel>角色</FormLabel>
+                    <FormLabel>{t('users.form.roles')}</FormLabel>
                     <FormDescription>
-                      選擇用戶的角色權限（至少選擇一個）
+                      {t('users.form.rolesDescription')}
                     </FormDescription>
                   </div>
                   <div className="space-y-2">
                     {isLoadingRoles ? (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        載入角色...
+                        {t('users.form.rolesLoading')}
                       </div>
                     ) : (
                       roles?.map((role) => (
@@ -284,7 +287,7 @@ export function AddUserDialog({
               name="cityId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>城市（選填）</FormLabel>
+                  <FormLabel>{t('users.form.cityOptional')}</FormLabel>
                   <Select
                     value={field.value || ''}
                     onValueChange={(value) => field.onChange(value || null)}
@@ -292,23 +295,23 @@ export function AddUserDialog({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="選擇城市...">
+                        <SelectValue placeholder={t('users.form.cityPlaceholder')}>
                           {isLoadingCities ? (
                             <span className="flex items-center gap-2">
                               <Loader2 className="h-4 w-4 animate-spin" />
-                              載入中...
+                              {t('users.form.cityLoading')}
                             </span>
                           ) : field.value ? (
                             cities?.find((c) => c.id === field.value)?.name ||
-                            '選擇城市...'
+                            t('users.form.cityPlaceholder')
                           ) : (
-                            '選擇城市...'
+                            t('users.form.cityPlaceholder')
                           )}
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">不指定城市</SelectItem>
+                      <SelectItem value="">{t('users.form.cityEmpty')}</SelectItem>
                       {cities?.map((city) => (
                         <SelectItem key={city.id} value={city.id}>
                           {city.name} ({city.code})
@@ -317,7 +320,7 @@ export function AddUserDialog({
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    若分配 City Manager 角色，建議指定城市
+                    {t('users.form.cityDescription')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -331,11 +334,11 @@ export function AddUserDialog({
                 onClick={() => setOpen(false)}
                 disabled={isPending}
               >
-                取消
+                {t('users.dialog.cancel')}
               </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                創建用戶
+                {t('users.dialog.submit')}
               </Button>
             </DialogFooter>
           </form>

@@ -32,15 +32,25 @@ import { defaultLocale, isValidLocale } from './config'
  */
 const namespaces = [
   'common',
-  'invoices',
-  'review',
   'navigation',
   'dialogs',
-  'admin',
   'auth',
-  'companies',
+  'validation',
+  'errors',
+  'dashboard',
+  'global',
+  'escalation',
+  'review',
+  'invoices',
   'rules',
+  'companies',
   'reports',
+  'admin',
+  'historicalData',
+  'termAnalysis',
+  'documentPreview',
+  'fieldMappingConfig',
+  'promptConfig',
 ] as const
 
 export type Namespace = (typeof namespaces)[number]

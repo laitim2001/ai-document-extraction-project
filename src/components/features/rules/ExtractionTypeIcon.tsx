@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * @fileoverview 提取類型圖標組件
+ * @fileoverview 提取類型圖標組件（國際化版本）
  * @description
  *   顯示映射規則提取類型的圖標：
  *   - regex: 正則表達式
@@ -9,15 +9,18 @@
  *   - position: 位置提取
  *   - azure_field: Azure 欄位
  *   - ai_prompt: AI 提示詞
+ *   - 完整國際化支援
  *
  * @module src/components/features/rules/ExtractionTypeIcon
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - lucide-react - 圖標庫
  */
 
+import { useTranslations } from 'next-intl'
 import {
   Regex,
   Search,
@@ -51,44 +54,38 @@ interface ExtractionTypeIconProps {
 const TYPE_CONFIG: Record<
   ExtractionMethod,
   {
-    label: string
-    description: string
+    i18nKey: string
     icon: LucideIcon
     color: string
     bgColor: string
   }
 > = {
   regex: {
-    label: '正則表達式',
-    description: '使用正則表達式匹配文字模式',
+    i18nKey: 'regex',
     icon: Regex,
     color: 'text-blue-600 dark:text-blue-400',
     bgColor: 'bg-blue-50 dark:bg-blue-900/30',
   },
   keyword: {
-    label: '關鍵字',
-    description: '根據關鍵字定位提取',
+    i18nKey: 'keyword',
     icon: Search,
     color: 'text-yellow-600 dark:text-yellow-400',
     bgColor: 'bg-yellow-50 dark:bg-yellow-900/30',
   },
   position: {
-    label: '位置提取',
-    description: '根據 PDF 座標位置提取',
+    i18nKey: 'position',
     icon: Target,
     color: 'text-green-600 dark:text-green-400',
     bgColor: 'bg-green-50 dark:bg-green-900/30',
   },
   azure_field: {
-    label: 'Azure 欄位',
-    description: '使用 Azure Document Intelligence 欄位',
+    i18nKey: 'azureField',
     icon: FileText,
     color: 'text-cyan-600 dark:text-cyan-400',
     bgColor: 'bg-cyan-50 dark:bg-cyan-900/30',
   },
   ai_prompt: {
-    label: 'AI 提示詞',
-    description: '使用 LLM 智能提取',
+    i18nKey: 'aiPrompt',
     icon: Brain,
     color: 'text-purple-600 dark:text-purple-400',
     bgColor: 'bg-purple-50 dark:bg-purple-900/30',
@@ -124,9 +121,11 @@ export function ExtractionTypeIcon({
   size = 'md',
   className,
 }: ExtractionTypeIconProps) {
+  const t = useTranslations('rules')
   const config = TYPE_CONFIG[type]
   const sizeConfig = SIZE_CONFIG[size]
   const Icon = config.icon
+  const label = t(`extractionType.${config.i18nKey}`)
 
   if (!showLabel) {
     return (
@@ -137,7 +136,7 @@ export function ExtractionTypeIcon({
           config.bgColor,
           className
         )}
-        title={config.label}
+        title={label}
       >
         <Icon className={cn(sizeConfig.icon, config.color)} />
       </div>
@@ -155,7 +154,7 @@ export function ExtractionTypeIcon({
     >
       <Icon className={cn(sizeConfig.icon, config.color)} />
       <span className={cn(sizeConfig.text, config.color, 'font-medium')}>
-        {config.label}
+        {label}
       </span>
     </div>
   )

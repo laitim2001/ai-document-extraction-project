@@ -49,12 +49,12 @@ export function generateStaticParams() {
 // 生成元數據
 export async function generateMetadata({ params }: LocaleLayoutProps) {
   const { locale } = await params
-  const t = await getTranslations({ locale, namespace: 'metadata' })
+  const t = await getTranslations({ locale, namespace: 'common' })
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com'
 
   return {
-    title: t('title'),
-    description: t('description'),
+    title: t('metadata.title'),
+    description: t('metadata.description'),
     alternates: {
       canonical: `${baseUrl}/${locale}`,
       languages: Object.fromEntries(locales.map((loc) => [loc, `${baseUrl}/${loc}`])),

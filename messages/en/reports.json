@@ -96,5 +96,75 @@
     "refresh": "Refresh",
     "export": "Export",
     "print": "Print"
+  },
+  "aiCost": {
+    "title": "AI API Cost",
+    "loadError": "Unable to load cost data",
+    "anomalyCount": "{count} anomalies",
+    "anomalyTooltip": "Cost anomalies detected in the past 7 days, click for details",
+    "pastDays": "Past {days} days",
+    "callCount": "Calls",
+    "successRate": "Success Rate",
+    "avgCost": "Avg Cost",
+    "viewDetails": "View Detailed Analysis",
+    "costLabel": "Cost"
+  },
+  "cityCost": {
+    "emptyState": "No city cost reports matching criteria found",
+    "anomalyCount": "{count} anomalies",
+    "highRisk": "{count} high risk",
+    "mediumRisk": "{count} medium risk",
+    "lowRisk": "{count} low risk",
+    "clickForDetails": "Click for details",
+    "columns": {
+      "city": "City",
+      "volume": "Volume",
+      "automationRate": "Automation Rate",
+      "aiCost": "AI Cost",
+      "laborCost": "Labor Cost",
+      "totalCost": "Total Cost",
+      "unitCost": "Unit Cost",
+      "trend": "Trend"
+    },
+    "laborCostTooltip": "Labor cost is an estimate",
+    "laborCostDesc": "Based on manual review and escalation processing count",
+    "autoPrefix": "Auto: {count}",
+    "manualReview": "Manual review: {count}",
+    "escalation": "Escalation: {count}",
+    "estimateNote": "This is an estimate"
+  },
+  "costAnomaly": {
+    "dialogTitle": "Cost Anomaly Analysis",
+    "dialogDescription": "Cost anomaly details for {city}",
+    "noAnomalies": "No cost anomalies for this city",
+    "totalCount": "{count} anomalies total",
+    "severity": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "riskLabel": "risk",
+    "currentValue": "Current Value",
+    "baselineValue": "Baseline Value",
+    "change": "Change",
+    "types": {
+      "volume_spike": "Volume Spike",
+      "volume_drop": "Volume Drop",
+      "cost_per_doc_increase": "Unit Cost Increase",
+      "cost_per_doc_decrease": "Unit Cost Decrease",
+      "api_cost_spike": "API Cost Spike",
+      "labor_cost_spike": "Labor Cost Spike",
+      "automation_rate_drop": "Automation Rate Drop",
+      "unknown": "Pending Analysis"
+    },
+    "recommendations": {
+      "title": "Recommended Actions",
+      "items": {
+        "checkTrend": "Review volume change trend to confirm if it's expected business change",
+        "analyzeAutomation": "Analyze reasons for automation rate drop, consider updating mapping rules",
+        "reviewManual": "Regularly review manual review cases, look for automation improvement opportunities",
+        "communicateBusiness": "Communicate with business team to understand recent business changes"
+      }
+    }
   }
 }

@@ -32,6 +32,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Trash2, Loader2, AlertTriangle, ShieldAlert, Users } from 'lucide-react'
 
 import { useDeleteRole } from '@/hooks/use-roles'
@@ -97,6 +98,9 @@ export function DeleteRoleDialog({
   iconTrigger = false,
   className,
 }: DeleteRoleDialogProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- State ---
   const [open, setOpen] = useState(false)
 
@@ -114,10 +118,10 @@ export function DeleteRoleDialog({
     if (!canDelete) {
       toast({
         variant: 'destructive',
-        title: '無法刪除',
+        title: t('roles.toast.cannotDelete.title'),
         description: role.isSystem
-          ? '系統角色無法刪除'
-          : `角色「${role.name}」目前有 ${userCount} 位使用者，請先移除使用者後再刪除`,
+          ? t('roles.toast.cannotDelete.systemRole')
+          : t('roles.toast.cannotDelete.inUse', { name: role.name, count: userCount }),
       })
       return
     }
@@ -125,15 +129,15 @@ export function DeleteRoleDialog({
     deleteRole(role.id, {
       onSuccess: () => {
         toast({
-          title: '角色已刪除',
-          description: `角色「${role.name}」已成功刪除`,
+          title: t('roles.toast.deleted.title'),
+          description: t('roles.toast.deleted.description', { name: role.name }),
         })
         handleOpenChange(false)
       },
       onError: (error) => {
         toast({
           variant: 'destructive',
-          title: '刪除失敗',
+          title: t('roles.toast.deleteError.title'),
           description: error.message,
         })
       },
@@ -157,7 +161,7 @@ export function DeleteRoleDialog({
             disabled={role.isSystem}
           >
             <Trash2 className="h-4 w-4 text-destructive" />
-            <span className="sr-only">刪除角色</span>
+            <span className="sr-only">{t('roles.delete.srOnly')}</span>
           </Button>
         ) : (
           <Button
@@ -167,7 +171,7 @@ export function DeleteRoleDialog({
             disabled={role.isSystem}
           >
             <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-            刪除
+            {t('roles.delete.trigger')}
           </Button>
         )}
       </AlertDialogTrigger>
@@ -175,10 +179,13 @@ export function DeleteRoleDialog({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-destructive" />
-            確認刪除角色
+            {t('roles.delete.title')}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            您確定要刪除角色「<strong>{role.name}</strong>」嗎？此操作無法復原。
+            {t.rich('roles.delete.description', {
+              name: role.name,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -187,10 +194,10 @@ export function DeleteRoleDialog({
           <Alert variant="default" className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
             <ShieldAlert className="h-4 w-4 text-amber-600" />
             <AlertTitle className="text-amber-800 dark:text-amber-400">
-              系統角色
+              {t('roles.delete.systemRoleAlert.title')}
             </AlertTitle>
             <AlertDescription className="text-amber-700 dark:text-amber-500">
-              此為系統預設角色，無法刪除。
+              {t('roles.delete.systemRoleAlert.description')}
             </AlertDescription>
           </Alert>
         )}
@@ -198,9 +205,9 @@ export function DeleteRoleDialog({
         {!role.isSystem && isInUse && (
           <Alert variant="destructive">
             <Users className="h-4 w-4" />
-            <AlertTitle>角色使用中</AlertTitle>
+            <AlertTitle>{t('roles.delete.inUseAlert.title')}</AlertTitle>
             <AlertDescription>
-              此角色目前有 {userCount} 位使用者正在使用，請先將這些使用者改為其他角色後再刪除。
+              {t('roles.delete.inUseAlert.description', { count: userCount })}
             </AlertDescription>
           </Alert>
         )}
@@ -209,14 +216,14 @@ export function DeleteRoleDialog({
           <Alert variant="default" className="border-destructive/50 bg-destructive/10">
             <AlertTriangle className="h-4 w-4 text-destructive" />
             <AlertDescription className="text-destructive">
-              刪除後，此角色的所有設定將永久移除，且無法復原。
+              {t('roles.delete.warningAlert.description')}
             </AlertDescription>
           </Alert>
         )}
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>
-            取消
+            {t('roles.delete.cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
@@ -224,7 +231,7 @@ export function DeleteRoleDialog({
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            確認刪除
+            {t('roles.delete.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

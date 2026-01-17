@@ -1,14 +1,15 @@
 /**
- * @fileoverview PDF 控制工具列組件
+ * @fileoverview PDF 控制工具列組件 (i18n version)
  * @description
  *   提供 PDF 瀏覽控制功能，包含:
  *   - 頁面導航 (上一頁/下一頁/跳轉)
  *   - 縮放控制 (放大/縮小/重置)
  *   - 頁面資訊顯示
+ *   - Full i18n support
  *
  * @module src/components/features/document-preview
  * @since Epic 13 - Story 13.1 (文件預覽組件與欄位高亮)
- * @lastModified 2025-01-02
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 頁面上下導航
@@ -20,6 +21,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -92,6 +94,7 @@ export function PDFControls({
   className,
   disabled = false,
 }: PDFControlsProps) {
+  const t = useTranslations('documentPreview')
   const [pageInput, setPageInput] = React.useState(String(currentPage))
 
   // 同步頁碼輸入框
@@ -172,12 +175,12 @@ export function PDFControls({
                 size="icon"
                 onClick={handlePreviousPage}
                 disabled={disabled || currentPage <= 1}
-                aria-label="上一頁"
+                aria-label={t('controls.navigation.previousPage')}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>上一頁</TooltipContent>
+            <TooltipContent>{t('controls.navigation.previousPage')}</TooltipContent>
           </Tooltip>
 
           <div className="flex items-center gap-1 text-sm">
@@ -189,7 +192,7 @@ export function PDFControls({
               onKeyDown={handlePageInputKeyDown}
               disabled={disabled}
               className="w-12 h-8 text-center"
-              aria-label="頁碼"
+              aria-label={t('controls.navigation.pageNumber')}
             />
             <span className="text-muted-foreground">/ {totalPages}</span>
           </div>
@@ -201,12 +204,12 @@ export function PDFControls({
                 size="icon"
                 onClick={handleNextPage}
                 disabled={disabled || currentPage >= totalPages}
-                aria-label="下一頁"
+                aria-label={t('controls.navigation.nextPage')}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>下一頁</TooltipContent>
+            <TooltipContent>{t('controls.navigation.nextPage')}</TooltipContent>
           </Tooltip>
         </div>
 
@@ -219,12 +222,12 @@ export function PDFControls({
                 size="icon"
                 onClick={handleZoomOut}
                 disabled={disabled || scale <= MIN_SCALE}
-                aria-label="縮小"
+                aria-label={t('controls.zoom.zoomOut')}
               >
                 <ZoomOut className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>縮小</TooltipContent>
+            <TooltipContent>{t('controls.zoom.zoomOut')}</TooltipContent>
           </Tooltip>
 
           <span className="text-sm text-muted-foreground w-14 text-center">
@@ -238,12 +241,12 @@ export function PDFControls({
                 size="icon"
                 onClick={handleZoomIn}
                 disabled={disabled || scale >= MAX_SCALE}
-                aria-label="放大"
+                aria-label={t('controls.zoom.zoomIn')}
               >
                 <ZoomIn className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>放大</TooltipContent>
+            <TooltipContent>{t('controls.zoom.zoomIn')}</TooltipContent>
           </Tooltip>
 
           <div className="h-4 w-px bg-border mx-1" />
@@ -255,12 +258,12 @@ export function PDFControls({
                 size="icon"
                 onClick={handleResetZoom}
                 disabled={disabled}
-                aria-label="重置縮放"
+                aria-label={t('controls.zoom.resetZoom')}
               >
                 <RotateCcw className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>重置縮放 (100%)</TooltipContent>
+            <TooltipContent>{t('controls.zoom.resetZoom')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -270,12 +273,12 @@ export function PDFControls({
                 size="icon"
                 onClick={handleFitWidth}
                 disabled={disabled}
-                aria-label="適合寬度"
+                aria-label={t('controls.zoom.fitWidth')}
               >
                 <Maximize2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>適合寬度</TooltipContent>
+            <TooltipContent>{t('controls.zoom.fitWidth')}</TooltipContent>
           </Tooltip>
         </div>
       </div>

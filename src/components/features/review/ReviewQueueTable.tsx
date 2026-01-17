@@ -1,5 +1,5 @@
 /**
- * @fileoverview 審核隊列表格組件
+ * @fileoverview 審核隊列表格組件（國際化版本）
  * @description
  *   顯示待審核發票列表的表格，包含：
  *   - 文件名稱
@@ -7,12 +7,14 @@
  *   - 上傳時間（相對時間）
  *   - 信心度 Badge
  *   - 處理路徑 Badge
+ *   - 完整國際化支援
  *
  * @module src/components/features/review/ReviewQueueTable
  * @since Epic 3 - Story 3.1
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/table - shadcn Table 組件
  *   - date-fns - 日期格式化
  *   - @/types/review - 類型定義
@@ -20,6 +22,7 @@
 
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
 import type { ReviewQueueItem } from '@/types/review'
 import { ConfidenceBadge } from './ConfidenceBadge'
 import { ProcessingPathBadge } from './ProcessingPathBadge'
@@ -32,7 +35,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { formatDistanceToNow } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
+import { zhTW, enUS } from 'date-fns/locale'
 
 // ============================================================
 // Types
@@ -65,16 +68,22 @@ export function ReviewQueueTable({
   items,
   onSelectItem,
 }: ReviewQueueTableProps) {
+  const t = useTranslations('review')
+  const locale = useLocale()
+
+  // 根據 locale 選擇日期格式化的 locale
+  const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
+
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[300px]">文件名</TableHead>
-            <TableHead>Forwarder</TableHead>
-            <TableHead>上傳時間</TableHead>
-            <TableHead className="text-center">信心度</TableHead>
-            <TableHead>處理路徑</TableHead>
+            <TableHead className="w-[300px]">{t('table.fileName')}</TableHead>
+            <TableHead>Company</TableHead>
+            <TableHead>{t('table.uploadTime')}</TableHead>
+            <TableHead className="text-center">{t('table.confidence')}</TableHead>
+            <TableHead>{t('table.processingPath')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -94,13 +103,13 @@ export function ReviewQueueTable({
               </TableCell>
               <TableCell>
                 {item.company?.name || (
-                  <span className="text-muted-foreground">未識別</span>
+                  <span className="text-muted-foreground">{t('table.unidentified')}</span>
                 )}
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {formatDistanceToNow(new Date(item.document.createdAt), {
                   addSuffix: true,
-                  locale: zhTW,
+                  locale: dateLocale,
                 })}
               </TableCell>
               <TableCell className="text-center">

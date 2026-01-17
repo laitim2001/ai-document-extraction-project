@@ -33,6 +33,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -109,6 +110,7 @@ interface CityStats {
  * @description 顯示區域績效的可展開視圖組件
  */
 export function RegionView() {
+  const t = useTranslations('global')
   const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d')
   const [expandedRegions, setExpandedRegions] = useState<string[]>([])
 
@@ -139,15 +141,15 @@ export function RegionView() {
     <div className="space-y-4">
       {/* Controls */}
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">區域績效</h3>
+        <h3 className="text-lg font-medium">{t('region.title')}</h3>
         <Select value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
           <SelectTrigger className="w-32">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="7d">7 天</SelectItem>
-            <SelectItem value="30d">30 天</SelectItem>
-            <SelectItem value="90d">90 天</SelectItem>
+            <SelectItem value="7d">{t('region.days7')}</SelectItem>
+            <SelectItem value="30d">{t('region.days30')}</SelectItem>
+            <SelectItem value="90d">{t('region.days90')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -162,7 +164,7 @@ export function RegionView() {
                 <XAxis dataKey="regionName" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="documents" fill="#8884d8" name="處理數量" />
+                <Bar dataKey="documents" fill="#8884d8" name={t('region.volume')} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -191,26 +193,26 @@ export function RegionView() {
                           {region.regionName}
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {region.cities} 個活躍城市
+                          {region.cities} {t('region.activeCities')}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-6">
                       <div className="text-right">
-                        <p className="text-sm text-muted-foreground">處理量</p>
+                        <p className="text-sm text-muted-foreground">{t('region.volume')}</p>
                         <p className="text-lg font-semibold">
                           {region.documents.toLocaleString()}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-muted-foreground">成功率</p>
+                        <p className="text-sm text-muted-foreground">{t('region.successRate')}</p>
                         <p className="text-lg font-semibold">
                           {(region.successRate * 100).toFixed(1)}%
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-muted-foreground">信心度</p>
+                        <p className="text-sm text-muted-foreground">{t('region.confidence')}</p>
                         <p className="text-lg font-semibold">
                           {(region.confidence * 100).toFixed(1)}%
                         </p>
@@ -235,7 +237,7 @@ export function RegionView() {
 
         {regions.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
-            目前沒有區域數據
+            {t('region.noData')}
           </div>
         )}
       </div>
@@ -269,6 +271,7 @@ function TrendBadge({ trend, value }: { trend: string; value: number }) {
  * 區域城市表格組件
  */
 function RegionCitiesTable({ regionCode }: { regionCode: string }) {
+  const t = useTranslations('global')
   const { data, isLoading } = useQuery({
     queryKey: ['region-cities', regionCode],
     queryFn: async () => {
@@ -289,7 +292,7 @@ function RegionCitiesTable({ regionCode }: { regionCode: string }) {
   if (cities.length === 0) {
     return (
       <div className="text-center py-4 text-muted-foreground">
-        此區域沒有城市數據
+        {t('region.noCityData')}
       </div>
     )
   }
@@ -298,11 +301,11 @@ function RegionCitiesTable({ regionCode }: { regionCode: string }) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>城市</TableHead>
-          <TableHead className="text-right">處理量</TableHead>
-          <TableHead className="text-right">成功率</TableHead>
-          <TableHead className="text-right">平均信心度</TableHead>
-          <TableHead className="text-right">修正率</TableHead>
+          <TableHead>{t('region.city')}</TableHead>
+          <TableHead className="text-right">{t('region.volume')}</TableHead>
+          <TableHead className="text-right">{t('region.successRate')}</TableHead>
+          <TableHead className="text-right">{t('region.confidence')}</TableHead>
+          <TableHead className="text-right">{t('region.correctionRate')}</TableHead>
           <TableHead></TableHead>
         </TableRow>
       </TableHeader>

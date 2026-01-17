@@ -30,6 +30,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useMemo, useState, useCallback } from 'react'
 import {
   ArrowUpDown,
@@ -199,9 +200,11 @@ function TrendIndicator({
 function AnomalyIndicator({
   report,
   onAnomalyClick,
+  t,
 }: {
   report: CityCostReport
   onAnomalyClick?: (cityCode: string, anomaly: CostAnomalyDetail) => void
+  t: (key: string, values?: Record<string, number>) => string
 }) {
   if (!report.anomalies || report.anomalies.length === 0) {
     return null
@@ -245,15 +248,15 @@ function AnomalyIndicator({
       <TooltipContent>
         <div className="space-y-1">
           <p className="font-medium">
-            {report.anomalies.length} 個異常
+            {t('cityCost.anomalyCount', { count: report.anomalies.length })}
           </p>
           {highSeverityCount > 0 && (
-            <p className="text-red-500">{highSeverityCount} 高風險</p>
+            <p className="text-red-500">{t('cityCost.highRisk', { count: highSeverityCount })}</p>
           )}
           {mediumSeverityCount > 0 && (
-            <p className="text-amber-500">{mediumSeverityCount} 中風險</p>
+            <p className="text-amber-500">{t('cityCost.mediumRisk', { count: mediumSeverityCount })}</p>
           )}
-          <p className="text-xs text-muted-foreground">點擊查看詳情</p>
+          <p className="text-xs text-muted-foreground">{t('cityCost.clickForDetails')}</p>
         </div>
       </TooltipContent>
     </Tooltip>
@@ -291,6 +294,8 @@ export function CityCostTable({
   onAnomalyClick,
   className,
 }: CityCostTableProps) {
+  const t = useTranslations('reports')
+
   // --- State ---
   const [sortField, setSortField] = useState<SortField>('totalCost')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
@@ -372,7 +377,7 @@ export function CityCostTable({
           className
         )}
       >
-        找不到符合條件的城市成本報表
+        {t('cityCost.emptyState')}
       </div>
     )
   }
@@ -387,7 +392,7 @@ export function CityCostTable({
               <TableHead className="w-[180px]">
                 <SortableHeader
                   field="cityName"
-                  label="城市"
+                  label={t('cityCost.columns.city')}
                   currentSortBy={sortField}
                   currentSortOrder={sortOrder}
                   onSort={handleSort}
@@ -396,7 +401,7 @@ export function CityCostTable({
               <TableHead className="w-[120px] text-right">
                 <SortableHeader
                   field="totalDocuments"
-                  label="處理量"
+                  label={t('cityCost.columns.volume')}
                   currentSortBy={sortField}
                   currentSortOrder={sortOrder}
                   onSort={handleSort}
@@ -406,7 +411,7 @@ export function CityCostTable({
               <TableHead className="w-[100px] text-right">
                 <SortableHeader
                   field="automationRate"
-                  label="自動化率"
+                  label={t('cityCost.columns.automationRate')}
                   currentSortBy={sortField}
                   currentSortOrder={sortOrder}
                   onSort={handleSort}
@@ -416,7 +421,7 @@ export function CityCostTable({
               <TableHead className="w-[120px] text-right">
                 <SortableHeader
                   field="apiCost"
-                  label="AI 成本"
+                  label={t('cityCost.columns.aiCost')}
                   currentSortBy={sortField}
                   currentSortOrder={sortOrder}
                   onSort={handleSort}
@@ -427,7 +432,7 @@ export function CityCostTable({
                 <div className="flex items-center justify-end gap-1">
                   <SortableHeader
                     field="laborCost"
-                    label="人工成本"
+                    label={t('cityCost.columns.laborCost')}
                     currentSortBy={sortField}
                     currentSortOrder={sortOrder}
                     onSort={handleSort}
@@ -438,9 +443,9 @@ export function CityCostTable({
                       <Info className="h-3 w-3 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>人工成本為估算值</p>
+                      <p>{t('cityCost.laborCostTooltip')}</p>
                       <p className="text-xs text-muted-foreground">
-                        基於手動審核和升級處理數量計算
+                        {t('cityCost.laborCostDesc')}
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -449,7 +454,7 @@ export function CityCostTable({
               <TableHead className="w-[120px] text-right">
                 <SortableHeader
                   field="totalCost"
-                  label="總成本"
+                  label={t('cityCost.columns.totalCost')}
                   currentSortBy={sortField}
                   currentSortOrder={sortOrder}
                   onSort={handleSort}
@@ -459,14 +464,14 @@ export function CityCostTable({
               <TableHead className="w-[100px] text-right">
                 <SortableHeader
                   field="costPerDocument"
-                  label="單位成本"
+                  label={t('cityCost.columns.unitCost')}
                   currentSortBy={sortField}
                   currentSortOrder={sortOrder}
                   onSort={handleSort}
                   className="justify-end"
                 />
               </TableHead>
-              <TableHead className="w-[80px] text-center">趨勢</TableHead>
+              <TableHead className="w-[80px] text-center">{t('cityCost.columns.trend')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -498,6 +503,7 @@ export function CityCostTable({
                         <AnomalyIndicator
                           report={report}
                           onAnomalyClick={onAnomalyClick}
+                          t={t}
                         />
                       )}
                     </div>
@@ -508,7 +514,7 @@ export function CityCostTable({
                     <div>
                       <div>{formatNumber(report.processing.totalDocuments)}</div>
                       <div className="text-xs text-muted-foreground">
-                        自動: {formatNumber(report.processing.autoApproved)}
+                        {t('cityCost.autoPrefix', { count: formatNumber(report.processing.autoApproved) })}
                       </div>
                     </div>
                   </TableCell>
@@ -545,14 +551,13 @@ export function CityCostTable({
                       <TooltipContent>
                         <div className="space-y-1">
                           <p>
-                            人工審核: {formatNumber(report.processing.manualReviewed)}{' '}
-                            筆
+                            {t('cityCost.manualReview', { count: formatNumber(report.processing.manualReviewed) })}
                           </p>
                           <p>
-                            升級處理: {formatNumber(report.processing.escalated)} 筆
+                            {t('cityCost.escalation', { count: formatNumber(report.processing.escalated) })}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            此為估算值
+                            {t('cityCost.estimateNote')}
                           </p>
                         </div>
                       </TooltipContent>

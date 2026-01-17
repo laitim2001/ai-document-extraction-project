@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * @fileoverview 文件上傳組件
+ * @fileoverview 文件上傳組件（國際化版本）
  * @description
  *   提供發票文件上傳功能，支援：
  *   - 拖放上傳
@@ -10,19 +10,22 @@
  *   - 文件預覽
  *   - 進度顯示
  *   - 錯誤處理
+ *   - 完整國際化支援
  *
  * @module src/components/features/invoice/FileUploader
  * @author Development Team
  * @since Epic 2 - Story 2.1 (File Upload Interface & Validation)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @features
  *   - react-dropzone 整合
  *   - 客戶端文件驗證
  *   - 上傳進度追蹤
  *   - 成功/失敗狀態顯示
+ *   - i18n 國際化支援
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - react-dropzone - 拖放上傳
  *   - @tanstack/react-query - 伺服器狀態管理
  *   - sonner - Toast 通知
@@ -30,9 +33,11 @@
  * @related
  *   - src/app/api/documents/upload/route.ts - 上傳 API
  *   - src/lib/upload/constants.ts - 上傳配置
+ *   - messages/{locale}/invoices.json - 翻譯檔案
  */
 
 import { useCallback, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useDropzone, type FileRejection } from 'react-dropzone'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -53,7 +58,6 @@ import {
 import { cn } from '@/lib/utils'
 import {
   UPLOAD_CONFIG,
-  UPLOAD_ERRORS,
   DROPZONE_ACCEPT,
   formatFileSize,
 } from '@/lib/upload'
@@ -120,6 +124,9 @@ interface FileUploaderProps {
  * @description 提供拖放和點擊上傳功能的發票文件上傳器
  */
 export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) {
+  // --- i18n ---
+  const t = useTranslations('invoices')
+
   // --- State ---
   const [files, setFiles] = useState<FileWithStatus[]>([])
   const [isUploading, setIsUploading] = useState(false)
@@ -136,7 +143,7 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
       // 檢查總數量
       const totalCount = files.length + acceptedFiles.length
       if (totalCount > UPLOAD_CONFIG.MAX_FILES_PER_BATCH) {
-        toast.error(UPLOAD_ERRORS.TOO_MANY_FILES)
+        toast.error(t('uploadErrors.tooManyFiles', { count: UPLOAD_CONFIG.MAX_FILES_PER_BATCH }))
         return
       }
 
@@ -160,13 +167,13 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
       rejectedFiles.forEach((rejection) => {
         const error = rejection.errors[0]
         if (error.code === 'file-invalid-type') {
-          toast.error(`${rejection.file.name}: ${UPLOAD_ERRORS.INVALID_TYPE}`)
+          toast.error(`${rejection.file.name}: ${t('uploadErrors.invalidType', { formats: UPLOAD_CONFIG.ACCEPT_LABEL })}`)
         } else if (error.code === 'file-too-large') {
-          toast.error(`${rejection.file.name}: ${UPLOAD_ERRORS.FILE_TOO_LARGE}`)
+          toast.error(`${rejection.file.name}: ${t('uploadErrors.fileTooLarge', { size: UPLOAD_CONFIG.MAX_FILE_SIZE_DISPLAY })}`)
         }
       })
     },
-    [files.length]
+    [files.length, t]
   )
 
   /**
@@ -226,7 +233,7 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error?.detail || '上傳失敗')
+        throw new Error(error.error?.detail || t('upload.uploadFailed'))
       }
 
       const result = await response.json()
@@ -251,10 +258,10 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
 
       // 顯示 Toast
       if (result.uploaded.length > 0) {
-        toast.success(`成功上傳 ${result.uploaded.length} 個文件`)
+        toast.success(t('upload.successCount', { count: result.uploaded.length }))
       }
       if (result.failed.length > 0) {
-        toast.error(`${result.failed.length} 個文件上傳失敗`)
+        toast.error(t('upload.failedCount', { count: result.failed.length }))
       }
 
       // 使緩存失效
@@ -281,7 +288,7 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
   const handleUpload = async () => {
     const pendingFiles = files.filter((f) => f.status === 'pending')
     if (pendingFiles.length === 0) {
-      toast.error('沒有待上傳的文件')
+      toast.error(t('upload.noPendingFiles'))
       return
     }
 
@@ -347,17 +354,19 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
         <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
         {isDragActive ? (
           <p className="text-lg font-medium">
-            {isDragReject ? '不支援的文件格式' : '放開以上傳文件'}
+            {isDragReject ? t('upload.unsupportedFormat') : t('upload.dropToUpload')}
           </p>
         ) : (
           <>
-            <p className="text-lg font-medium">拖放文件到此處，或點擊選擇</p>
+            <p className="text-lg font-medium">{t('upload.dragDrop')}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              支援 {UPLOAD_CONFIG.ACCEPT_LABEL}，單個文件最大{' '}
-              {UPLOAD_CONFIG.MAX_FILE_SIZE_DISPLAY}
+              {t('upload.supportedFormats', {
+                formats: UPLOAD_CONFIG.ACCEPT_LABEL,
+                size: UPLOAD_CONFIG.MAX_FILE_SIZE_DISPLAY,
+              })}
             </p>
             <p className="text-sm text-muted-foreground">
-              最多 {UPLOAD_CONFIG.MAX_FILES_PER_BATCH} 個文件
+              {t('upload.maxFiles', { count: UPLOAD_CONFIG.MAX_FILES_PER_BATCH })}
             </p>
           </>
         )}
@@ -369,10 +378,10 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-medium">
-                已選擇 {files.length} 個文件
+                {t('upload.selectedFiles', { count: files.length })}
                 {pendingCount > 0 && pendingCount !== files.length && (
                   <span className="text-muted-foreground ml-2">
-                    ({pendingCount} 個待上傳)
+                    {t('upload.pendingCount', { count: pendingCount })}
                   </span>
                 )}
               </h3>
@@ -382,7 +391,7 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
                 onClick={clearFiles}
                 disabled={isUploading}
               >
-                清除全部
+                {t('upload.clearAll')}
               </Button>
             </div>
 
@@ -391,7 +400,7 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
               <div className="mb-4">
                 <Progress value={uploadProgress} className="h-2" />
                 <p className="text-sm text-muted-foreground mt-1 text-center">
-                  上傳中... {uploadProgress}%
+                  {t('upload.uploadingProgress', { percent: uploadProgress })}
                 </p>
               </div>
             )}
@@ -425,7 +434,7 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
                   {/* 狀態 */}
                   <div className="flex items-center gap-2">
                     {file.status === 'pending' && (
-                      <Badge variant="secondary">待上傳</Badge>
+                      <Badge variant="secondary">{t('upload.statusPending')}</Badge>
                     )}
                     {file.status === 'uploading' && (
                       <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
@@ -467,12 +476,12 @@ export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) 
           {isUploading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              上傳中...
+              {t('upload.uploading')}
             </>
           ) : (
             <>
               <Upload className="mr-2 h-4 w-4" />
-              上傳 {pendingCount} 個文件
+              {t('upload.uploadCount', { count: pendingCount })}
             </>
           )}
         </Button>

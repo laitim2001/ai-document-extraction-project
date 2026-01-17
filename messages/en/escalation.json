@@ -1,0 +1,131 @@
+{
+  "page": {
+    "title": "Escalation Management",
+    "description": "Handle complex cases requiring Super User review"
+  },
+  "list": {
+    "loadError": "Failed to load escalations: ",
+    "pagination": "Total {total} items, Page {page} of {totalPages}",
+    "previous": "Previous",
+    "next": "Next",
+    "noData": "No escalations currently",
+    "retry": "Retry"
+  },
+  "table": {
+    "fileName": "File Name",
+    "reason": "Escalation Reason",
+    "status": "Status",
+    "escalatedBy": "Escalated By",
+    "escalatedAt": "Escalation Time",
+    "actions": "Actions",
+    "unidentified": "Unidentified",
+    "view": "View"
+  },
+  "detail": {
+    "title": "Escalation Details",
+    "handleCase": "Handle This Case",
+    "status": "Status",
+    "reason": "Escalation Reason",
+    "escalatedAt": "Escalation Time",
+    "escalatedBy": "Escalated By",
+    "description": "Details",
+    "documentPreview": "Document Preview",
+    "document": "Document:",
+    "pdfLoadError": "Unable to load PDF",
+    "extractedFields": "Extracted Fields",
+    "empty": "(Empty)",
+    "noFields": "No extracted fields",
+    "correctionHistory": "Correction History",
+    "resolution": "Resolution Result",
+    "resolvedBy": "Resolved By",
+    "resolvedAt": "Resolved Time",
+    "resolutionNotes": "Resolution Notes",
+    "notFound": "Escalation not found"
+  },
+  "filters": {
+    "status": "Status:",
+    "reason": "Reason:",
+    "all": "All",
+    "clearFilters": "Clear Filters"
+  },
+  "status": {
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "resolved": "Resolved",
+    "cancelled": "Cancelled"
+  },
+  "reasons": {
+    "unknownCompany": "Unknown Company",
+    "unknownCompanyDesc": "System cannot identify which forwarder this invoice is from",
+    "mappingNotApplicable": "Mapping Rules Not Applicable",
+    "mappingNotApplicableDesc": "Existing mapping rules cannot correctly handle this invoice format",
+    "documentQuality": "Document Quality Issue",
+    "documentQualityDesc": "Document is blurry, damaged, or unreadable",
+    "other": "Other",
+    "otherDesc": "Other situations requiring Super User assistance"
+  },
+  "decisions": {
+    "approve": "Approve",
+    "approveDesc": "Confirm extraction results are correct, no changes needed",
+    "approveWithCorrections": "Approve with Corrections",
+    "approveWithCorrectionsDesc": "Approve this document after correcting errors",
+    "reject": "Reject",
+    "rejectDesc": "Document cannot be processed, mark as rejected",
+    "approved": "Approved",
+    "corrected": "Corrected",
+    "rejected": "Rejected"
+  },
+  "resolve": {
+    "title": "Handle Escalation",
+    "description": "Select a decision and complete this escalation",
+    "document": "Document:",
+    "selectDecision": "Select Decision",
+    "corrections": "Corrections",
+    "addCorrection": "Add Correction",
+    "atLeastOneCorrection": "Please add at least one correction",
+    "correctionItem": "Correction Item #{index}",
+    "field": "Field",
+    "selectField": "Select Field",
+    "correctionType": "Correction Type",
+    "normalCorrection": "Normal Correction",
+    "exceptionCorrection": "Exception Correction",
+    "originalValue": "Original Value",
+    "correctedValue": "Corrected Value",
+    "enterCorrectedValue": "Enter corrected value",
+    "notes": "Notes (Optional)",
+    "enterNotes": "Enter resolution notes...",
+    "createRuleSuggestion": "Create Rule Suggestion (connects to Epic 4 Rule Management)",
+    "fieldName": "Field Name",
+    "fieldNamePlaceholder": "e.g., Freight Charge",
+    "suggestedPattern": "Suggested Pattern",
+    "patternPlaceholder": "e.g., /freight|shipping/i",
+    "ruleDescription": "Description (Optional)",
+    "ruleDescriptionPlaceholder": "Explain the purpose of this rule",
+    "cancel": "Cancel",
+    "processing": "Processing...",
+    "confirm": "Confirm"
+  },
+  "dialog": {
+    "title": "Escalate Case",
+    "description": "Escalate this invoice to Super User. Please select escalation reason.",
+    "document": "Document:",
+    "selectReason": "Select Escalation Reason",
+    "required": "*Required",
+    "detailedDescription": "Detailed Description",
+    "provideDescription": "Please provide detailed description",
+    "cancel": "Cancel",
+    "submitting": "Submitting...",
+    "confirmEscalation": "Confirm Escalation",
+    "placeholders": {
+      "unidentified": "Describe the unidentifiable situation (optional)...",
+      "mappingRules": "Please describe which field rules need adjustment...",
+      "documentQuality": "Please describe the document quality issues...",
+      "other": "Please provide more details...",
+      "default": "Please provide detailed description..."
+    }
+  },
+  "toast": {
+    "caseDecision": "Case {decision}",
+    "processingFailed": "Processing failed: "
+  }
+}

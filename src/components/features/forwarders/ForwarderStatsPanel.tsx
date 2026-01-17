@@ -1,23 +1,26 @@
 'use client'
 
 /**
- * @fileoverview Forwarder 統計面板組件
+ * @fileoverview Forwarder 統計面板組件（國際化版本）
  * @description
  *   顯示 Forwarder 的處理統計資料，包含：
  *   - 統計數字卡片（總數、成功率、信心度）
  *   - 30 天趨勢圖表
+ *   - 完整國際化支援
  *
  * @module src/components/features/forwarders/ForwarderStatsPanel
  * @author Development Team
  * @since Epic 5 - Story 5.2 (Forwarder Detail Config View)
- * @lastModified 2025-12-19
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - recharts - 圖表庫
  *   - @/types/forwarder - 類型定義
  *   - @/components/ui - UI 組件
  */
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { ForwarderStats, DailyTrendData } from '@/types/forwarder'
 import {
@@ -83,50 +86,70 @@ function StatCard({ title, value, icon, description }: StatCardProps) {
  *   顯示處理統計和趨勢圖表
  */
 export function ForwarderStatsPanel({ stats }: ForwarderStatsPanelProps) {
+  const t = useTranslations('companies')
+
   // 空值保護：如果 stats 未定義，顯示空狀態
   if (!stats) {
     return (
       <div className="flex items-center justify-center py-16 text-center">
         <div className="text-muted-foreground">
           <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p>暫無統計資料</p>
+          <p>{t('stats.noData')}</p>
         </div>
       </div>
     )
   }
 
+  // 獲取圖表標籤的翻譯
+  const chartAllLabel = t('stats.chartAll')
+  const chartSuccessLabel = t('stats.chartSuccess')
+
   // 格式化趨勢資料用於圖表
   const chartData = (stats.dailyTrend ?? []).map((item: DailyTrendData) => ({
     date: item.date.slice(5), // 只顯示 MM-DD
-    全部: item.count,
-    成功: item.successCount,
+    [chartAllLabel]: item.count,
+    [chartSuccessLabel]: item.successCount,
   }))
+
+  // 獲取成功率描述
+  const getSuccessRateDesc = () => {
+    if (stats.successRate >= 90) return t('stats.excellent')
+    if (stats.successRate >= 70) return t('stats.good')
+    return t('stats.needsAttention')
+  }
+
+  // 獲取信心度描述
+  const getConfidenceDesc = () => {
+    if (stats.avgConfidence >= 90) return t('stats.highConfidence')
+    if (stats.avgConfidence >= 70) return t('stats.mediumConfidence')
+    return t('stats.lowConfidence')
+  }
 
   return (
     <div className="space-y-4">
       {/* 統計數字卡片 */}
       <div className="grid gap-4 md:grid-cols-4">
         <StatCard
-          title="文件總數"
+          title={t('stats.totalDocuments')}
           value={stats.totalDocuments.toLocaleString()}
           icon={<FileText className="h-5 w-5 text-primary" />}
         />
         <StatCard
-          title="近 30 天處理"
+          title={t('stats.processedLast30Days')}
           value={stats.processedLast30Days.toLocaleString()}
           icon={<Activity className="h-5 w-5 text-primary" />}
         />
         <StatCard
-          title="成功率"
+          title={t('stats.successRate')}
           value={`${stats.successRate}%`}
           icon={<CheckCircle className="h-5 w-5 text-green-600" />}
-          description={stats.successRate >= 90 ? '表現優異' : stats.successRate >= 70 ? '表現良好' : '需要關注'}
+          description={getSuccessRateDesc()}
         />
         <StatCard
-          title="平均信心度"
+          title={t('stats.avgConfidence')}
           value={`${stats.avgConfidence}%`}
           icon={<TrendingUp className="h-5 w-5 text-blue-600" />}
-          description={stats.avgConfidence >= 90 ? '高信心度' : stats.avgConfidence >= 70 ? '中等信心度' : '低信心度'}
+          description={getConfidenceDesc()}
         />
       </div>
 
@@ -135,7 +158,7 @@ export function ForwarderStatsPanel({ stats }: ForwarderStatsPanelProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            30 天處理趨勢
+            {t('stats.trendTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -165,7 +188,7 @@ export function ForwarderStatsPanel({ stats }: ForwarderStatsPanelProps) {
                 <Legend />
                 <Line
                   type="monotone"
-                  dataKey="全部"
+                  dataKey={chartAllLabel}
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
                   dot={false}
@@ -173,7 +196,7 @@ export function ForwarderStatsPanel({ stats }: ForwarderStatsPanelProps) {
                 />
                 <Line
                   type="monotone"
-                  dataKey="成功"
+                  dataKey={chartSuccessLabel}
                   stroke="hsl(142.1, 76.2%, 36.3%)"
                   strokeWidth={2}
                   dot={false}

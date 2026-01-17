@@ -13,12 +13,16 @@
       "city": "城市",
       "status": "狀態",
       "lastLogin": "最後登入",
-      "actions": "操作"
+      "actions": "操作",
+      "emptyState": "找不到符合條件的用戶",
+      "noName": "未設定名稱",
+      "neverLoggedIn": "從未登入"
     },
     "status": {
       "active": "啟用",
       "inactive": "停用",
-      "pending": "待審核"
+      "pending": "待審核",
+      "suspended": "暫停"
     },
     "actions": {
       "create": "新增用戶",
@@ -30,20 +34,119 @@
     },
     "form": {
       "name": "姓名",
+      "namePlaceholder": "王小明",
       "email": "電郵",
+      "emailDescription": "必須與用戶的 Azure AD 帳號一致",
       "password": "密碼",
       "confirmPassword": "確認密碼",
       "role": "角色",
+      "roles": "角色",
+      "rolesDescription": "選擇用戶的角色權限（至少選擇一個）",
+      "rolesLoading": "載入角色...",
       "city": "城市",
+      "cityOptional": "城市（選填）",
+      "cityPlaceholder": "選擇城市...",
+      "cityEmpty": "不指定城市",
+      "cityDescription": "若分配 City Manager 角色，建議指定城市",
+      "cityLoading": "載入中...",
       "department": "部門"
     },
     "dialog": {
       "createTitle": "新增用戶",
+      "createDescription": "創建新的用戶帳號。用戶將可以使用 Azure AD 登入系統。",
       "editTitle": "編輯用戶",
+      "editDescription": "修改用戶的資料、角色和城市指派。",
+      "editEmailDescription": "電子郵件無法修改（與 Azure AD 帳號綁定）",
       "deleteTitle": "確認刪除",
       "deleteMessage": "確定要刪除用戶「{name}」嗎？此操作無法復原。",
       "resetPasswordTitle": "重設密碼",
-      "resetPasswordMessage": "確定要重設用戶「{name}」的密碼嗎？"
+      "resetPasswordMessage": "確定要重設用戶「{name}」的密碼嗎？",
+      "disableTitle": "確認停用帳戶",
+      "disableMessage": "您確定要停用 {name} 的帳戶嗎？停用後，該用戶將無法登入系統。您可以隨時重新啟用此帳戶。",
+      "cancel": "取消",
+      "submit": "創建用戶",
+      "submitEdit": "儲存變更",
+      "submitting": "處理中..."
+    },
+    "filters": {
+      "role": {
+        "placeholder": "所有角色",
+        "all": "所有角色"
+      },
+      "city": {
+        "placeholder": "所有城市",
+        "all": "所有城市"
+      },
+      "status": {
+        "placeholder": "所有狀態",
+        "all": "所有狀態"
+      },
+      "clear": "清除"
+    },
+    "search": {
+      "placeholder": "搜尋名稱或電子郵件..."
+    },
+    "statusToggle": {
+      "thisUser": "此用戶",
+      "actionsMenu": "操作選單",
+      "editUser": "編輯用戶",
+      "disableAccount": "停用帳戶",
+      "enableAccount": "啟用帳戶",
+      "cannotDisableSelf": "您無法停用自己的帳戶",
+      "dialog": {
+        "title": "確認停用帳戶",
+        "description": "您確定要停用 <strong>{name}</strong> 的帳戶嗎？",
+        "warning": "停用後，該用戶將無法登入系統。您可以隨時重新啟用此帳戶。",
+        "cancel": "取消",
+        "processing": "處理中...",
+        "confirm": "確認停用"
+      },
+      "toast": {
+        "disabled": {
+          "title": "用戶已停用",
+          "description": "{name} 的帳戶已被停用，該用戶將無法登入系統。"
+        },
+        "disableError": {
+          "title": "停用失敗"
+        },
+        "enabled": {
+          "title": "用戶已啟用",
+          "description": "{name} 的帳戶已恢復啟用，該用戶現在可以登入系統。"
+        },
+        "enableError": {
+          "title": "啟用失敗"
+        }
+      }
+    },
+    "toast": {
+      "created": {
+        "title": "用戶已創建",
+        "description": "{name} 已成功加入系統"
+      },
+      "createError": {
+        "title": "創建失敗"
+      },
+      "updated": {
+        "title": "用戶已更新",
+        "description": "{name} 的資料已成功更新"
+      },
+      "updateError": {
+        "title": "更新失敗"
+      },
+      "disabled": {
+        "title": "用戶已停用",
+        "description": "{name} 的帳戶已被停用，該用戶將無法登入系統。"
+      },
+      "disableError": {
+        "title": "停用失敗"
+      },
+      "enabled": {
+        "title": "用戶已啟用",
+        "description": "{name} 的帳戶已恢復啟用，該用戶現在可以登入系統。"
+      },
+      "enableError": {
+        "title": "啟用失敗"
+      }
     }
   },
   "roles": {
@@ -64,14 +167,144 @@
     },
     "form": {
       "name": "角色名稱",
+      "namePlaceholder": "例如：發票審核員",
+      "nameDescription": "角色名稱需唯一，支援中英文",
       "description": "描述",
-      "permissions": "權限"
+      "descriptionOptional": "描述（選填）",
+      "descriptionPlaceholder": "簡要描述此角色的職責...",
+      "permissions": "權限設定",
+      "permissionsDescription": "選擇此角色可以執行的操作",
+      "permissionsSystemDescription": "系統角色的權限配置"
     },
     "permissions": {
       "read": "讀取",
       "write": "寫入",
       "delete": "刪除",
       "admin": "管理"
+    },
+    "list": {
+      "loadError": "載入角色列表失敗，請重試。",
+      "empty": "目前沒有任何角色",
+      "system": {
+        "label": "系統角色（無法修改）",
+        "badge": "系統角色"
+      },
+      "custom": {
+        "label": "自訂角色",
+        "empty": "目前沒有自訂角色，點擊「新增角色」建立第一個自訂角色"
+      }
+    },
+    "card": {
+      "users": "{count} 位使用者",
+      "permissions": "{count} 項權限"
+    },
+    "dialog": {
+      "viewTitle": "檢視角色",
+      "editTitle": "編輯角色",
+      "viewDescription": "系統角色無法修改，僅供檢視。",
+      "editDescription": "修改角色資訊和權限設定。",
+      "close": "關閉",
+      "cancel": "取消",
+      "save": "儲存變更"
+    },
+    "systemRole": {
+      "title": "系統角色",
+      "description": "此為系統預設角色，無法修改或刪除。如需自訂權限，請建立新的自訂角色。"
+    },
+    "toast": {
+      "cannotModify": {
+        "title": "無法修改",
+        "description": "系統角色無法修改"
+      },
+      "updated": {
+        "title": "角色已更新",
+        "description": "角色「{name}」已成功更新"
+      },
+      "updateError": {
+        "title": "更新失敗"
+      },
+      "created": {
+        "title": "角色已建立",
+        "description": "角色「{name}」已成功建立"
+      },
+      "createError": {
+        "title": "建立失敗"
+      },
+      "deleted": {
+        "title": "角色已刪除",
+        "description": "角色「{name}」已成功刪除"
+      },
+      "deleteError": {
+        "title": "刪除失敗"
+      },
+      "cannotDelete": {
+        "title": "無法刪除",
+        "systemRole": "系統角色無法刪除",
+        "inUse": "角色「{name}」目前有 {count} 位使用者，請先移除使用者後再刪除"
+      }
+    },
+    "add": {
+      "trigger": "新增角色",
+      "title": "新增角色",
+      "description": "建立自訂角色並設定權限。系統角色無法透過此方式建立。",
+      "form": {
+        "name": "角色名稱",
+        "namePlaceholder": "例如：發票審核員",
+        "nameDescription": "角色名稱需唯一，支援中英文",
+        "descriptionOptional": "描述（選填）",
+        "descriptionPlaceholder": "簡要描述此角色的職責...",
+        "permissions": "權限設定",
+        "permissionsDescription": "選擇此角色可以執行的操作（至少選擇一個）"
+      },
+      "cancel": "取消",
+      "submit": "建立角色"
+    },
+    "delete": {
+      "trigger": "刪除",
+      "srOnly": "刪除角色",
+      "title": "確認刪除角色",
+      "description": "您確定要刪除角色「{name}」嗎？此操作無法復原。",
+      "systemRoleAlert": {
+        "title": "系統角色",
+        "description": "此為系統預設角色，無法刪除。"
+      },
+      "inUseAlert": {
+        "title": "角色使用中",
+        "description": "此角色目前有 {count} 位使用者正在使用，請先將這些使用者改為其他角色後再刪除。"
+      },
+      "warningAlert": {
+        "description": "刪除後，此角色的所有設定將永久移除，且無法復原。"
+      },
+      "cancel": "取消",
+      "confirm": "確認刪除"
+    },
+    "permissionSelector": {
+      "permissionCount": "{selected} / {total} 個權限",
+      "selectedLabel": "已選擇權限",
+      "selectedCount": "{selected} / {total}"
+    }
+  },
+  "city": {
+    "selector": {
+      "empty": "不指定城市",
+      "placeholder": "選擇城市...",
+      "loading": "載入中...",
+      "notAssigned": "未指定城市"
+    },
+    "display": {
+      "notAssigned": "未指定城市"
+    }
+  },
+  "permissionScope": {
+    "loading": "載入中...",
+    "label": "管理範圍：",
+    "global": "所有城市",
+    "city": "指定城市",
+    "none": "無管理權限",
+    "title": "管理範圍",
+    "cityManager": {
+      "mode": "城市管理員模式：",
+      "description": "您只能查看和管理所屬城市的用戶。如需存取其他城市的資料，請聯繫系統管理員。"
     }
   },
   "config": {
@@ -128,7 +361,14 @@
   },
   "backup": {
     "title": "備份管理",
-    "description": "管理系統資料備份",
+    "description": "管理系統備份與排程",
+    "refresh": "重新整理",
+    "createManual": "手動備份",
+    "tabs": {
+      "overview": "總覽",
+      "records": "備份記錄",
+      "schedules": "排程管理"
+    },
     "actions": {
       "createBackup": "建立備份",
       "restore": "還原",
@@ -138,7 +378,427 @@
     "status": {
       "completed": "已完成",
       "inProgress": "進行中",
-      "failed": "失敗"
+      "failed": "失敗",
+      "cancelled": "已取消",
+      "pending": "待處理"
+    },
+    "list": {
+      "title": "備份記錄",
+      "description": "系統備份歷史記錄",
+      "loadError": "載入失敗：{error}",
+      "emptyState": "沒有備份記錄",
+      "filters": {
+        "status": {
+          "all": "全部狀態",
+          "completed": "已完成",
+          "inProgress": "執行中",
+          "failed": "失敗",
+          "cancelled": "已取消",
+          "pending": "待處理"
+        },
+        "source": {
+          "all": "全部來源",
+          "database": "資料庫",
+          "files": "檔案",
+          "config": "設定",
+          "fullSystem": "完整系統"
+        },
+        "type": {
+          "all": "全部類型",
+          "full": "完整備份",
+          "incremental": "增量備份",
+          "differential": "差異備份"
+        }
+      },
+      "table": {
+        "backupTime": "備份時間",
+        "source": "來源",
+        "type": "類型",
+        "size": "大小",
+        "status": "狀態",
+        "operator": "操作者",
+        "system": "系統"
+      },
+      "actions": {
+        "viewDetails": "查看詳情",
+        "download": "下載",
+        "cancelBackup": "取消備份",
+        "delete": "刪除"
+      },
+      "pagination": {
+        "total": "共 {total} 筆，第 {page} / {totalPages} 頁"
+      },
+      "cancelDialog": {
+        "title": "確認取消備份",
+        "description": "確定要取消這個正在執行的備份嗎？此操作無法復原。",
+        "cancel": "取消",
+        "confirm": "確認取消",
+        "cancelling": "取消中..."
+      },
+      "deleteDialog": {
+        "title": "確認刪除備份",
+        "description": "確定要刪除這個備份嗎？刪除後將無法復原，備份檔案也會被永久移除。",
+        "cancel": "取消",
+        "confirm": "確認刪除",
+        "deleting": "刪除中..."
+      },
+      "toast": {
+        "cancelled": "備份已取消",
+        "cancelError": "取消失敗",
+        "deleted": "備份已刪除",
+        "deleteError": "刪除失敗"
+      }
+    },
+    "statusCard": {
+      "title": "備份狀態摘要",
+      "description": "系統備份的整體狀態",
+      "stats": {
+        "completed": "已完成",
+        "running": "執行中",
+        "failed": "失敗",
+        "total": "總計"
+      },
+      "lastBackup": "最後備份時間",
+      "noBackup": "尚未有備份",
+      "nextScheduled": "下次排程備份",
+      "noSchedule": "無排程"
+    },
+    "create": {
+      "title": "建立手動備份",
+      "description": "選擇備份來源和類型，立即執行備份操作",
+      "name": "備份名稱",
+      "namePlaceholder": "輸入備份名稱...",
+      "nameRequired": "請輸入備份名稱",
+      "source": "備份來源",
+      "sources": {
+        "database": {
+          "label": "資料庫",
+          "description": "備份所有資料庫表格和資料"
+        },
+        "files": {
+          "label": "檔案",
+          "description": "備份上傳的文件和附件"
+        },
+        "config": {
+          "label": "系統設定",
+          "description": "備份系統配置和設定檔"
+        },
+        "fullSystem": {
+          "label": "完整系統",
+          "description": "備份資料庫、檔案和設定"
+        }
+      },
+      "type": "備份類型",
+      "types": {
+        "full": {
+          "label": "完整備份",
+          "description": "備份所有資料（推薦首次備份）"
+        },
+        "incremental": {
+          "label": "增量備份",
+          "description": "只備份自上次備份後變更的資料"
+        },
+        "differential": {
+          "label": "差異備份",
+          "description": "備份自上次完整備份後變更的資料"
+        }
+      },
+      "descriptionLabel": "備份描述（選填）",
+      "descriptionPlaceholder": "輸入備份描述...",
+      "cancel": "取消",
+      "submit": "開始備份",
+      "submitting": "建立中...",
+      "toast": {
+        "started": "備份已開始執行",
+        "error": "建立備份失敗"
+      }
+    },
+    "storage": {
+      "title": "儲存使用量",
+      "description": "備份儲存空間使用狀況",
+      "criticalAlert": "儲存空間即將用盡！請立即清理舊備份或增加儲存空間。",
+      "warningAlert": "儲存空間使用量已超過 80%，建議清理不需要的備份。",
+      "totalUsage": "總使用量",
+      "percentUsed": "{percent}% 已使用",
+      "categories": {
+        "database": "資料庫",
+        "files": "檔案",
+        "config": "設定",
+        "fullSystem": "完整系統"
+      }
+    },
+    "schedule": {
+      "title": "備份排程",
+      "description": "自動備份排程配置",
+      "addSchedule": "新增排程",
+      "emptyState": "沒有備份排程",
+      "loadError": "載入失敗：{error}",
+      "table": {
+        "scheduleName": "排程名稱",
+        "backupSource": "備份來源",
+        "backupType": "備份類型",
+        "frequency": "執行頻率",
+        "nextRun": "下次執行",
+        "status": "狀態"
+      },
+      "status": {
+        "enabled": "啟用",
+        "disabled": "停用"
+      },
+      "actions": {
+        "runNow": "立即執行",
+        "edit": "編輯",
+        "delete": "刪除"
+      },
+      "pagination": {
+        "total": "共 {total} 筆，第 {page} / {totalPages} 頁"
+      },
+      "runDialog": {
+        "title": "確認執行排程",
+        "description": "確定要立即執行這個備份排程嗎？這將開始一個新的備份任務。",
+        "cancel": "取消",
+        "confirm": "確認執行",
+        "running": "執行中..."
+      },
+      "deleteDialog": {
+        "title": "確認刪除排程",
+        "description": "確定要刪除這個備份排程嗎？刪除後將無法復原。",
+        "cancel": "取消",
+        "confirm": "確認刪除",
+        "deleting": "刪除中..."
+      },
+      "toast": {
+        "toggleError": "切換狀態失敗",
+        "runStarted": "排程備份已開始執行",
+        "runError": "執行失敗",
+        "deleted": "排程已刪除",
+        "deleteError": "刪除失敗"
+      },
+      "dialog": {
+        "createTitle": "新增備份排程",
+        "createDescription": "建立自動備份排程",
+        "editTitle": "編輯備份排程",
+        "editDescription": "修改備份排程的設定",
+        "form": {
+          "name": "排程名稱",
+          "nameRequired": "必填",
+          "namePlaceholder": "例如：每日資料庫備份",
+          "nameError": "請輸入排程名稱",
+          "nameLengthError": "名稱不得超過 100 字元",
+          "descriptionOptional": "描述（選填）",
+          "descriptionPlaceholder": "輸入排程描述...",
+          "backupSource": "備份來源",
+          "backupType": "備份類型",
+          "sources": {
+            "database": "資料庫",
+            "files": "檔案",
+            "config": "系統設定",
+            "fullSystem": "完整系統"
+          },
+          "types": {
+            "full": "完整備份",
+            "incremental": "增量備份",
+            "differential": "差異備份"
+          },
+          "frequency": "執行頻率",
+          "cronTooltip": "Cron 表達式格式：分 時 日 月 週",
+          "cronExample": "例如：0 3 * * * 表示每天凌晨 3 點",
+          "cronPresets": {
+            "hourly": "每小時",
+            "dailyMidnight": "每天午夜",
+            "daily3am": "每天凌晨 3 點",
+            "weeklyMidnight": "每週日午夜",
+            "monthlyMidnight": "每月 1 日午夜",
+            "custom": "自訂"
+          },
+          "cronError": "請輸入 Cron 表達式",
+          "retentionDays": "保留天數",
+          "retentionDaysError": "保留天數需介於 1-365 天",
+          "maxBackups": "最大備份數",
+          "maxBackupsError": "最大備份數需介於 1-100",
+          "enableSchedule": "啟用排程",
+          "enableDescription": "啟用後將自動執行備份"
+        },
+        "cancel": "取消",
+        "createSubmit": "建立排程",
+        "editSubmit": "更新排程",
+        "creating": "建立中...",
+        "updating": "更新中...",
+        "toast": {
+          "created": "排程已建立",
+          "updated": "排程已更新",
+          "error": "操作失敗"
+        }
+      }
+    }
+  },
+  "alerts": {
+    "title": "警報設定",
+    "description": "設定系統警報規則並管理警報通知",
+    "stats": {
+      "firing": "觸發中警報",
+      "firingDescription": "需要立即處理",
+      "acknowledged": "已確認警報",
+      "acknowledgedDescription": "正在處理中",
+      "resolved": "已解決警報",
+      "resolvedDescription": "過去 24 小時",
+      "activeRules": "活躍規則",
+      "activeRulesDescription": "正在監控中"
+    },
+    "tabs": {
+      "rules": "規則管理",
+      "history": "警報歷史"
+    },
+    "rulesCard": {
+      "title": "警報規則",
+      "description": "設定監控指標和觸發條件，系統將自動發送通知"
+    },
+    "historyCard": {
+      "title": "警報歷史",
+      "description": "查看所有警報記錄，進行確認或解決操作"
+    }
+  },
+  "apiKeys": {
+    "title": "API Key 管理",
+    "description": "管理外部系統的 API 存取金鑰",
+    "actions": {
+      "create": "創建 API Key"
+    },
+    "search": {
+      "placeholder": "搜尋名稱或描述...",
+      "button": "搜尋"
+    },
+    "filters": {
+      "status": {
+        "placeholder": "狀態",
+        "all": "全部狀態",
+        "active": "已啟用",
+        "inactive": "已停用"
+      }
+    },
+    "pagination": {
+      "total": "共 {total} 個 API Key",
+      "pageInfo": "第 {page} / {totalPages} 頁",
+      "previous": "上一頁",
+      "next": "下一頁"
+    },
+    "deleteDialog": {
+      "title": "確定要刪除此 API Key？",
+      "description": "刪除後，使用此 Key 的所有外部系統將無法繼續存取 API。此操作無法復原。",
+      "cancel": "取消",
+      "confirm": "確定刪除",
+      "deleting": "刪除中..."
+    },
+    "rotateDialog": {
+      "title": "確定要輪替此 API Key？",
+      "successTitle": "新 API Key 已生成",
+      "description": "輪替將生成新的 API Key 並停用舊的 Key。使用舊 Key 的系統需要更新為新 Key。",
+      "successDescription": "請立即複製並安全保存此新 Key，關閉後將無法再次查看。",
+      "cancel": "取消",
+      "confirm": "確定輪替",
+      "rotating": "輪替中...",
+      "saved": "我已保存，關閉"
+    }
+  },
+  "configManagement": {
+    "title": "系統配置管理",
+    "description": "管理系統運行時配置參數",
+    "loading": "載入配置中...",
+    "loadError": "載入配置失敗：{error}",
+    "unknownError": "未知錯誤",
+    "retry": "重試",
+    "reloadCache": "重新載入快取",
+    "searchPlaceholder": "搜尋配置名稱或描述...",
+    "noMatch": "找不到符合條件的配置",
+    "empty": "此類別沒有配置項目",
+    "toast": {
+      "updated": "配置已更新",
+      "updatedRequiresRestart": "配置已更新，需要重啟服務才能生效",
+      "updateError": "更新失敗",
+      "rolledBack": "配置已回滾",
+      "rollbackError": "回滾失敗",
+      "reset": "配置已重置為預設值",
+      "resetError": "重置失敗",
+      "reloaded": "配置快取已重新載入",
+      "reloadError": "重新載入失敗"
+    },
+    "resetDialog": {
+      "title": "確認重置配置",
+      "description": "確定要將此配置重置為預設值嗎？此操作會記錄在變更歷史中。",
+      "cancel": "取消",
+      "confirm": "確認重置",
+      "resetting": "重置中..."
+    }
+  },
+  "logsViewer": {
+    "title": "系統日誌",
+    "description": "查詢和分析系統運行日誌",
+    "openStream": "即時日誌",
+    "closeStream": "關閉即時日誌",
+    "export": "匯出",
+    "refresh": "刷新",
+    "stats": {
+      "total": "總日誌數",
+      "errors": "錯誤日誌",
+      "warnings": "警告日誌",
+      "info": "資訊日誌",
+      "debug": "除錯日誌"
+    },
+    "filters": {
+      "title": "篩選條件",
+      "description": "根據級別、來源和關鍵字篩選日誌",
+      "searchPlaceholder": "搜尋訊息內容...",
+      "level": "級別",
+      "selectLevel": "選擇日誌級別",
+      "source": "來源",
+      "selectSource": "選擇日誌來源",
+      "perPage": "每頁數量",
+      "perPageOption": "{count} 筆",
+      "search": "搜尋",
+      "clear": "清除篩選"
+    },
+    "list": {
+      "title": "日誌記錄",
+      "showing": "顯示 {from} - {to} 筆，共 {total} 筆",
+      "loading": "載入中...",
+      "empty": "沒有找到符合條件的日誌",
+      "columns": {
+        "time": "時間",
+        "level": "級別",
+        "source": "來源",
+        "message": "訊息",
+        "actions": "操作"
+      }
+    },
+    "pagination": {
+      "pageInfo": "第 {page} 頁，共 {totalPages} 頁",
+      "previous": "上一頁",
+      "next": "下一頁"
+    }
+  },
+  "restore": {
+    "title": "數據恢復",
+    "description": "從備份恢復系統數據",
+    "refresh": "重新整理",
+    "startRestore": "開始恢復",
+    "duration": {
+      "seconds": "{value} 秒",
+      "minutes": "{value} 分鐘",
+      "hours": "{value} 小時"
+    },
+    "stats": {
+      "total": "總恢復次數",
+      "totalDescription": "系統恢復操作次數",
+      "successful": "成功恢復",
+      "successfulDescription": "成功完成的恢復",
+      "failed": "失敗恢復",
+      "failedDescription": "需要注意的失敗記錄",
+      "averageTime": "平均恢復時間",
+      "averageTimeDescription": "恢復操作平均耗時"
+    },
+    "list": {
+      "title": "恢復記錄",
+      "description": "查看所有恢復操作記錄"
     }
   }
 }

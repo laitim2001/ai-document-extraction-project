@@ -22,6 +22,7 @@
 import * as React from 'react';
 import { CalendarIcon } from 'lucide-react';
 import { type DateRange as DayPickerDateRange } from 'react-day-picker';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -62,6 +63,7 @@ export function DateRangePicker({
   className,
   disabled = false,
 }: DateRangePickerProps) {
+  const t = useTranslations('dashboard');
   const { dateRange, setDateRange, isLoading } = useDateRange();
   const [isOpen, setIsOpen] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -97,7 +99,7 @@ export function DateRangePicker({
       // 驗證日期範圍
       const validation = validateDateRange(range.from, range.to);
       if (!validation.isValid) {
-        setError(validation.error || '日期範圍無效');
+        setError(validation.error || t('dateRange.invalidRange'));
         return;
       }
 
@@ -116,7 +118,7 @@ export function DateRangePicker({
   // 顯示文字
   const displayText = React.useMemo(() => {
     if (isLoading) {
-      return '載入中...';
+      return t('dateRange.loading');
     }
 
     if (dateRange.preset && dateRange.preset !== 'custom') {
@@ -124,7 +126,7 @@ export function DateRangePicker({
     }
 
     return formatDateRangeDisplay(dateRange);
-  }, [dateRange, isLoading]);
+  }, [dateRange, isLoading, t]);
 
   // 計算天數
   const rangeDays = getRangeDays(dateRange.startDate, dateRange.endDate);
@@ -152,7 +154,7 @@ export function DateRangePicker({
             <span>{displayText}</span>
             {dateRange.preset === 'custom' && (
               <span className="ml-auto text-xs text-muted-foreground">
-                {rangeDays} 天
+                {rangeDays} {t('dateRange.days')}
               </span>
             )}
           </Button>
@@ -160,9 +162,9 @@ export function DateRangePicker({
         <PopoverContent className="w-auto p-0" align="start">
           <div className="p-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">選擇日期範圍</span>
+              <span className="text-sm font-medium">{t('dateRange.selectRange')}</span>
               <span className="text-xs text-muted-foreground">
-                最多 {MAX_RANGE_DAYS} 天
+                {t('dateRange.maxDays', { max: MAX_RANGE_DAYS })}
               </span>
             </div>
             {error && (

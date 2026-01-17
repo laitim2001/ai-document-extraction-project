@@ -15,6 +15,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
@@ -194,6 +195,7 @@ function LoadingSkeleton() {
 // ============================================================================
 
 export default function EditFieldMappingConfigPage() {
+  const t = useTranslations('fieldMappingConfig');
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
@@ -299,8 +301,8 @@ export default function EditFieldMappingConfigPage() {
         }
 
         toast({
-          title: '儲存成功',
-          description: `已更新配置「${updatedConfig.name}」`,
+          title: t('toast.saveSuccess.title'),
+          description: t('toast.saveSuccess.description', { name: updatedConfig.name }),
         });
 
         // Navigate back to list
@@ -308,8 +310,8 @@ export default function EditFieldMappingConfigPage() {
       } catch (err) {
         toast({
           variant: 'destructive',
-          title: '儲存失敗',
-          description: err instanceof Error ? err.message : '未知錯誤',
+          title: t('toast.saveError.title'),
+          description: err instanceof Error ? err.message : t('error.unknown'),
         });
       } finally {
         setIsSaving(false);
@@ -338,7 +340,7 @@ export default function EditFieldMappingConfigPage() {
           <Link href="/admin/field-mapping-configs">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              返回列表
+              {t('page.backToList')}
             </Button>
           </Link>
         </div>
@@ -347,7 +349,7 @@ export default function EditFieldMappingConfigPage() {
           <AlertDescription>
             {error instanceof Error
               ? error.message
-              : '載入配置失敗，配置可能不存在'}
+              : t('error.configNotFound')}
           </AlertDescription>
         </Alert>
       </div>
@@ -362,13 +364,13 @@ export default function EditFieldMappingConfigPage() {
         <Link href="/admin/field-mapping-configs">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            返回列表
+            {t('page.backToList')}
           </Button>
         </Link>
         <Separator orientation="vertical" className="h-6" />
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            編輯欄位映射配置
+            {t('page.editTitle')}
           </h1>
           <p className="text-muted-foreground">
             {visualConfig.name}

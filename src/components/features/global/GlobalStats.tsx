@@ -29,6 +29,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -67,6 +68,7 @@ interface GlobalStatsProps {
  * @description 顯示全局統計摘要的卡片組件
  */
 export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
+  const t = useTranslations('global')
   const { data, isLoading, error } = useQuery({
     queryKey: ['global-analytics', period],
     queryFn: async () => {
@@ -85,7 +87,7 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600">
-        載入統計數據時發生錯誤
+        {t('stats.loadError')}
       </div>
     )
   }
@@ -104,7 +106,7 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
       {/* 總處理量 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">總處理量</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('stats.totalVolume')}</CardTitle>
           <FileText className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -112,7 +114,7 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
             {stats.totalDocuments.toLocaleString()}
           </div>
           <p className="text-xs text-muted-foreground">
-            期間內處理的文件總數
+            {t('stats.totalVolumeDesc')}
           </p>
         </CardContent>
       </Card>
@@ -120,7 +122,7 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
       {/* 已完成 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">已完成</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('stats.completed')}</CardTitle>
           <CheckCircle2 className="h-4 w-4 text-green-500" />
         </CardHeader>
         <CardContent>
@@ -128,7 +130,7 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
             {stats.processedDocuments.toLocaleString()}
           </div>
           <p className="text-xs text-muted-foreground">
-            成功處理的文件數
+            {t('stats.completedDesc')}
           </p>
         </CardContent>
       </Card>
@@ -136,7 +138,7 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
       {/* 成功率 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">成功率</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('stats.successRate')}</CardTitle>
           <TrendingUp className="h-4 w-4 text-blue-500" />
         </CardHeader>
         <CardContent>
@@ -144,7 +146,7 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
             {(stats.successRate * 100).toFixed(1)}%
           </div>
           <p className="text-xs text-muted-foreground">
-            處理完成比例
+            {t('stats.successRateDesc')}
           </p>
         </CardContent>
       </Card>
@@ -152,7 +154,7 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
       {/* 平均信心度 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">平均信心度</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('stats.avgConfidence')}</CardTitle>
           <Target className="h-4 w-4 text-purple-500" />
         </CardHeader>
         <CardContent>
@@ -160,7 +162,7 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
             {(stats.averageConfidence * 100).toFixed(1)}%
           </div>
           <p className="text-xs text-muted-foreground">
-            AI 分類信心度
+            {t('stats.avgConfidenceDesc')}
           </p>
         </CardContent>
       </Card>
@@ -168,13 +170,13 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
       {/* 活躍城市 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">活躍城市</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('stats.activeCities')}</CardTitle>
           <Building2 className="h-4 w-4 text-orange-500" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.activeCities}</div>
           <p className="text-xs text-muted-foreground">
-            啟用中的城市數
+            {t('stats.activeCitiesDesc')}
           </p>
         </CardContent>
       </Card>
@@ -182,13 +184,13 @@ export function GlobalStats({ period = '30d' }: GlobalStatsProps) {
       {/* 活躍用戶 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">活躍用戶</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('stats.activeUsers')}</CardTitle>
           <Users className="h-4 w-4 text-cyan-500" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.activeUsers}</div>
           <p className="text-xs text-muted-foreground">
-            期間內登入的用戶
+            {t('stats.activeUsersDesc')}
           </p>
         </CardContent>
       </Card>

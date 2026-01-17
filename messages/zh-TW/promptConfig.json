@@ -1,0 +1,119 @@
+{
+  "list": {
+    "empty": "尚無 Prompt 配置",
+    "loadError": "載入失敗：{error}",
+    "version": "版本 v{version}",
+    "globalConfig": "全局配置",
+    "disabled": "停用",
+    "edit": "編輯"
+  },
+  "types": {
+    "ISSUER_IDENTIFICATION": "發行者識別",
+    "TERM_CLASSIFICATION": "術語分類",
+    "FIELD_EXTRACTION": "欄位提取",
+    "VALIDATION": "結果驗證"
+  },
+  "filters": {
+    "search": {
+      "placeholder": "搜尋配置名稱..."
+    },
+    "promptType": {
+      "all": "全部類型"
+    },
+    "scope": {
+      "all": "全部範圍"
+    },
+    "status": {
+      "all": "全部狀態",
+      "active": "啟用中",
+      "inactive": "已停用"
+    },
+    "clear": "清除篩選",
+    "label": "篩選條件："
+  },
+  "form": {
+    "basicInfo": {
+      "title": "基本資訊",
+      "description": "設定 Prompt 配置的基本屬性"
+    },
+    "name": {
+      "label": "配置名稱",
+      "placeholder": "例如：DHL 發票術語分類"
+    },
+    "description": {
+      "label": "描述",
+      "placeholder": "配置的用途說明..."
+    },
+    "promptType": {
+      "label": "Prompt 類型",
+      "placeholder": "選擇類型"
+    },
+    "scope": {
+      "label": "適用範圍",
+      "placeholder": "選擇範圍"
+    },
+    "company": {
+      "label": "公司",
+      "placeholder": "選擇公司"
+    },
+    "documentFormat": {
+      "label": "文件格式",
+      "placeholder": "選擇文件格式"
+    },
+    "mergeStrategy": {
+      "label": "合併策略",
+      "placeholder": "選擇策略"
+    },
+    "isActive": {
+      "label": "啟用狀態",
+      "description": "停用後此配置將不會被使用"
+    },
+    "promptContent": {
+      "title": "Prompt 內容",
+      "description": "編輯 System Prompt 和 User Prompt Template"
+    },
+    "validation": {
+      "typeRequired": "請選擇 Prompt 類型",
+      "scopeRequired": "請選擇適用範圍",
+      "nameRequired": "請輸入配置名稱",
+      "nameMaxLength": "名稱最多 100 字",
+      "descriptionMaxLength": "描述最多 500 字",
+      "systemPromptRequired": "請輸入 System Prompt",
+      "userPromptRequired": "請輸入 User Prompt Template"
+    },
+    "submit": {
+      "saving": "儲存中...",
+      "create": "建立配置",
+      "update": "更新配置"
+    },
+    "testUnavailable": "測試功能不可用"
+  },
+  "scopes": {
+    "GLOBAL": {
+      "label": "全局",
+      "description": "適用於所有公司和文件格式"
+    },
+    "COMPANY": {
+      "label": "公司",
+      "description": "適用於特定公司"
+    },
+    "FORMAT": {
+      "label": "格式",
+      "description": "適用於特定文件格式"
+    }
+  },
+  "mergeStrategies": {
+    "OVERRIDE": {
+      "label": "覆蓋",
+      "description": "完全取代父配置"
+    },
+    "APPEND": {
+      "label": "附加",
+      "description": "附加在父配置之後"
+    },
+    "PREPEND": {
+      "label": "前置",
+      "description": "插入在父配置之前"
+    }
+  }
+}

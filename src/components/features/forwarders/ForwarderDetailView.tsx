@@ -1,27 +1,31 @@
 'use client'
 
 /**
- * @fileoverview Forwarder 詳情檢視主組件
+ * @fileoverview Forwarder 詳情檢視主組件（國際化版本）
  * @description
  *   整合 Forwarder 詳情頁面的所有子組件，提供：
  *   - 標題區域（名稱、狀態、返回按鈕）
  *   - Tabs 導航（總覽、規則、統計、文件）
  *   - 各 Tab 內容區域
+ *   - 完整國際化支援
  *
  * @module src/components/features/forwarders/ForwarderDetailView
  * @author Development Team
  * @since Epic 5 - Story 5.2 (Forwarder Detail Config View)
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-17
  *
  * @changelog
+ *   - 2026-01-17 (Epic 17): 國際化支援
  *   - 2026-01-12 (Story 16-1): 新增「格式」Tab，顯示公司文件格式列表
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/hooks/use-forwarder-detail - 數據獲取
  *   - @/types/forwarder - 類型定義
  *   - @/components/ui - UI 組件
  */
 
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -87,18 +91,18 @@ function DetailSkeleton() {
 /**
  * 錯誤狀態顯示
  */
-function ErrorDisplay({ message }: { message: string }) {
+function ErrorDisplay({ message, t }: { message: string; t: (key: string) => string }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="rounded-full bg-destructive/10 p-4 mb-4">
         <Building2 className="h-8 w-8 text-destructive" />
       </div>
-      <h2 className="text-lg font-semibold mb-2">無法載入 Forwarder 資料</h2>
+      <h2 className="text-lg font-semibold mb-2">{t('detail.loadFailed')}</h2>
       <p className="text-muted-foreground mb-4">{message}</p>
       <Link href="/companies">
         <Button variant="outline">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          返回列表
+          {t('detail.backToList')}
         </Button>
       </Link>
     </div>
@@ -108,20 +112,20 @@ function ErrorDisplay({ message }: { message: string }) {
 /**
  * 404 狀態顯示
  */
-function NotFoundDisplay() {
+function NotFoundDisplay({ t }: { t: (key: string) => string }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="rounded-full bg-muted p-4 mb-4">
         <Building2 className="h-8 w-8 text-muted-foreground" />
       </div>
-      <h2 className="text-lg font-semibold mb-2">找不到 Forwarder</h2>
+      <h2 className="text-lg font-semibold mb-2">{t('detail.notFound')}</h2>
       <p className="text-muted-foreground mb-4">
-        該 Forwarder 可能已被刪除或您沒有權限存取
+        {t('detail.notFoundDescription')}
       </p>
       <Link href="/companies">
         <Button variant="outline">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          返回列表
+          {t('detail.backToList')}
         </Button>
       </Link>
     </div>
@@ -142,6 +146,8 @@ function NotFoundDisplay() {
  * @param props.forwarderId - Forwarder ID
  */
 export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
+  const t = useTranslations('companies')
+
   // 獲取 Forwarder 詳情
   // REFACTOR-001: useForwarderDetail 返回 { company: ... }
   // company 類型為 CompanyDetailView，ForwarderDetailView 是其 type alias
@@ -154,17 +160,17 @@ export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
 
   // 錯誤狀態
   if (error) {
-    return <ErrorDisplay message={error.message} />
+    return <ErrorDisplay message={error.message} t={t} />
   }
 
   // 找不到資料
   if (!forwarder) {
-    return <NotFoundDisplay />
+    return <NotFoundDisplay t={t} />
   }
 
   // 計算狀態顯示
   const displayStatus = getForwarderDisplayStatus(forwarder.isActive)
-  const statusConfig = LEGACY_FORWARDER_STATUS_CONFIG[displayStatus]
+  const statusI18nKey = forwarder.isActive ? 'active' : 'inactive'
 
   return (
     <div className="space-y-6">
@@ -188,8 +194,8 @@ export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
                 <h1 className="text-xl font-bold">
                   {forwarder.displayName || forwarder.name}
                 </h1>
-                <Badge className={statusConfig.className}>
-                  {statusConfig.label}
+                <Badge className={LEGACY_FORWARDER_STATUS_CONFIG[displayStatus].className}>
+                  {t(`status.${statusI18nKey}`)}
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground font-mono">
@@ -207,7 +213,7 @@ export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
             onClick={() => refetch()}
           >
             <RefreshCw className="mr-2 h-4 w-4" />
-            重新整理
+            {t('actions.refresh')}
           </Button>
         </div>
       </div>
@@ -215,11 +221,11 @@ export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
       {/* Tabs 導航 */}
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="grid w-full max-w-xl grid-cols-5">
-          <TabsTrigger value="overview">總覽</TabsTrigger>
-          <TabsTrigger value="rules">規則</TabsTrigger>
-          <TabsTrigger value="formats">格式</TabsTrigger>
-          <TabsTrigger value="stats">統計</TabsTrigger>
-          <TabsTrigger value="documents">文件</TabsTrigger>
+          <TabsTrigger value="overview">{t('detail.overview')}</TabsTrigger>
+          <TabsTrigger value="rules">{t('detail.rules')}</TabsTrigger>
+          <TabsTrigger value="formats">{t('detail.formats')}</TabsTrigger>
+          <TabsTrigger value="stats">{t('detail.stats')}</TabsTrigger>
+          <TabsTrigger value="documents">{t('detail.documents')}</TabsTrigger>
         </TabsList>
 
         {/* 總覽 Tab */}

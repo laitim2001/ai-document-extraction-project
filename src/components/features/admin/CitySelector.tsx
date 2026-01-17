@@ -31,6 +31,7 @@
  */
 
 import { useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { Loader2, MapPin, Lock } from 'lucide-react'
 
 import { useCitiesGrouped, useCities } from '@/hooks/use-cities'
@@ -147,13 +148,18 @@ export function CitySelector({
   value,
   onChange,
   allowEmpty = false,
-  emptyLabel = '不指定城市',
-  placeholder = '選擇城市...',
+  emptyLabel,
+  placeholder,
   disabled = false,
   className,
   ariaLabel = 'Select city',
   forceReadOnly = false,
 }: CitySelectorProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+  const resolvedEmptyLabel = emptyLabel ?? t('city.selector.empty')
+  const resolvedPlaceholder = placeholder ?? t('city.selector.placeholder')
+
   // --- Hooks ---
   const { user, hasPermission } = useAuth()
   const { data: groupedCities, isLoading: isLoadingGrouped } = useCitiesGrouped()
@@ -210,10 +216,10 @@ export function CitySelector({
           {isLoading ? (
             <span className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
-              載入中...
+              {t('city.selector.loading')}
             </span>
           ) : (
-            userCityName || '未指定城市'
+            userCityName || t('city.selector.notAssigned')
           )}
         </span>
       </div>
@@ -228,11 +234,11 @@ export function CitySelector({
       disabled={disabled || isLoading}
     >
       <SelectTrigger className={cn('w-full', className)} aria-label={ariaLabel}>
-        <SelectValue placeholder={placeholder}>
+        <SelectValue placeholder={resolvedPlaceholder}>
           {isLoading ? (
             <span className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
-              載入中...
+              {t('city.selector.loading')}
             </span>
           ) : value ? (
             <span className="flex items-center gap-1">
@@ -240,16 +246,16 @@ export function CitySelector({
               {selectedCityName}
             </span>
           ) : allowEmpty ? (
-            emptyLabel
+            resolvedEmptyLabel
           ) : (
-            placeholder
+            resolvedPlaceholder
           )}
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
         {/* 空選項 */}
         {allowEmpty && (
-          <SelectItem value="__empty__">{emptyLabel}</SelectItem>
+          <SelectItem value="__empty__">{resolvedEmptyLabel}</SelectItem>
         )}
 
         {/* 按區域分組顯示 */}
@@ -288,6 +294,7 @@ export function CityDisplayBadge({
   cityId: string | null
   className?: string
 }) {
+  const t = useTranslations('admin')
   const { data: cities, isLoading } = useCities()
 
   const cityName = useMemo(() => {
@@ -307,7 +314,7 @@ export function CityDisplayBadge({
   if (!cityName) {
     return (
       <span className={cn('text-sm text-muted-foreground', className)}>
-        未指定城市
+        {t('city.display.notAssigned')}
       </span>
     )
   }

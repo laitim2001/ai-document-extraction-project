@@ -14,6 +14,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import {
@@ -84,6 +85,9 @@ interface BackupScheduleListProps {
  * 備份排程列表組件
  */
 export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- State ---
   const [params, setParams] = useState<BackupScheduleListParams>({
     page: 1,
@@ -111,40 +115,40 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
         const result = await toggleMutation.mutateAsync(id)
         toast.success(result.data.message)
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : '切換狀態失敗')
+        toast.error(err instanceof Error ? err.message : t('backup.schedule.toast.toggleError'))
       }
     },
-    [toggleMutation]
+    [toggleMutation, t]
   )
 
   const handleRun = useCallback(async () => {
     if (!runId) return
     try {
       await runMutation.mutateAsync(runId)
-      toast.success('排程備份已開始執行')
+      toast.success(t('backup.schedule.toast.runStarted'))
       setRunId(null)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : '執行失敗')
+      toast.error(err instanceof Error ? err.message : t('backup.schedule.toast.runError'))
     }
-  }, [runId, runMutation])
+  }, [runId, runMutation, t])
 
   const handleDelete = useCallback(async () => {
     if (!deleteId) return
     try {
       await deleteMutation.mutateAsync(deleteId)
-      toast.success('排程已刪除')
+      toast.success(t('backup.schedule.toast.deleted'))
       setDeleteId(null)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : '刪除失敗')
+      toast.error(err instanceof Error ? err.message : t('backup.schedule.toast.deleteError'))
     }
-  }, [deleteId, deleteMutation])
+  }, [deleteId, deleteMutation, t])
 
   if (error) {
     return (
       <Card>
         <CardContent className="py-10">
           <p className="text-center text-destructive">
-            載入失敗：{error instanceof Error ? error.message : '未知錯誤'}
+            {t('backup.schedule.loadError', { error: error instanceof Error ? error.message : 'Unknown error' })}
           </p>
         </CardContent>
       </Card>
@@ -158,13 +162,13 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>備份排程</CardTitle>
-          <CardDescription>自動備份排程配置</CardDescription>
+          <CardTitle>{t('backup.schedule.title')}</CardTitle>
+          <CardDescription>{t('backup.schedule.description')}</CardDescription>
         </div>
         {onAdd && (
           <Button onClick={onAdd} size="sm">
             <Calendar className="mr-2 h-4 w-4" />
-            新增排程
+            {t('backup.schedule.addSchedule')}
           </Button>
         )}
       </CardHeader>
@@ -174,12 +178,12 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>排程名稱</TableHead>
-                <TableHead>備份來源</TableHead>
-                <TableHead>備份類型</TableHead>
-                <TableHead>執行頻率</TableHead>
-                <TableHead>下次執行</TableHead>
-                <TableHead>狀態</TableHead>
+                <TableHead>{t('backup.schedule.table.scheduleName')}</TableHead>
+                <TableHead>{t('backup.schedule.table.backupSource')}</TableHead>
+                <TableHead>{t('backup.schedule.table.backupType')}</TableHead>
+                <TableHead>{t('backup.schedule.table.frequency')}</TableHead>
+                <TableHead>{t('backup.schedule.table.nextRun')}</TableHead>
+                <TableHead>{t('backup.schedule.table.status')}</TableHead>
                 <TableHead className="w-[80px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -197,7 +201,7 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
               ) : schedules.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                    沒有備份排程
+                    {t('backup.schedule.emptyState')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -246,7 +250,7 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
                             disabled={toggleMutation.isPending}
                           />
                           <span className="text-sm">
-                            {schedule.isEnabled ? '啟用' : '停用'}
+                            {schedule.isEnabled ? t('backup.schedule.status.enabled') : t('backup.schedule.status.disabled')}
                           </span>
                         </div>
                       </TableCell>
@@ -263,11 +267,11 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
                               disabled={!schedule.isEnabled}
                             >
                               <PlayCircle className="mr-2 h-4 w-4" />
-                              立即執行
+                              {t('backup.schedule.actions.runNow')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onEdit?.(schedule)}>
                               <Edit className="mr-2 h-4 w-4" />
-                              編輯
+                              {t('backup.schedule.actions.edit')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -275,7 +279,7 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
                               className="text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
-                              刪除
+                              {t('backup.schedule.actions.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -292,7 +296,11 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              共 {pagination.total} 筆，第 {pagination.page} / {pagination.totalPages} 頁
+              {t('backup.schedule.pagination.total', {
+                total: pagination.total,
+                page: pagination.page,
+                totalPages: pagination.totalPages,
+              })}
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -320,21 +328,21 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
       <AlertDialog open={!!runId} onOpenChange={(open) => !open && setRunId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認執行排程</AlertDialogTitle>
+            <AlertDialogTitle>{t('backup.schedule.runDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要立即執行這個備份排程嗎？這將開始一個新的備份任務。
+              {t('backup.schedule.runDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={runMutation.isPending}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={runMutation.isPending}>{t('backup.schedule.runDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleRun} disabled={runMutation.isPending}>
               {runMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  執行中...
+                  {t('backup.schedule.runDialog.running')}
                 </>
               ) : (
-                '確認執行'
+                t('backup.schedule.runDialog.confirm')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -345,13 +353,13 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除排程</AlertDialogTitle>
+            <AlertDialogTitle>{t('backup.schedule.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要刪除這個備份排程嗎？刪除後將無法復原。
+              {t('backup.schedule.deleteDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>{t('backup.schedule.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
@@ -360,10 +368,10 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
               {deleteMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  刪除中...
+                  {t('backup.schedule.deleteDialog.deleting')}
                 </>
               ) : (
-                '確認刪除'
+                t('backup.schedule.deleteDialog.confirm')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

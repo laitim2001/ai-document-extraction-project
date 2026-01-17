@@ -1,0 +1,116 @@
+{
+  "batchList": {
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paused": "Paused",
+      "aggregating": "Aggregating",
+      "aggregated": "Aggregated",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "empty": {
+      "title": "No batches",
+      "description": "Create a new batch to start uploading files"
+    },
+    "progress": {
+      "label": "Processing Progress"
+    },
+    "stats": {
+      "totalFiles": "Total Files",
+      "processed": "Processed",
+      "failed": "Failed",
+      "createdAt": "Created At"
+    },
+    "creator": "Created by: {name}",
+    "actions": {
+      "startProcessing": "Start Processing"
+    },
+    "deleteDialog": {
+      "title": "Confirm Delete Batch",
+      "description": "Are you sure you want to delete this batch? All files within the batch will also be deleted. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
+  },
+  "createBatchDialog": {
+    "trigger": "Create Batch",
+    "title": "Create New Batch",
+    "description": "Create a new batch to upload historical data files",
+    "form": {
+      "name": {
+        "label": "Batch Name",
+        "placeholder": "e.g., 2024-Q1 Historical Invoices",
+        "description": "Give the batch an easy-to-identify name"
+      },
+      "description": {
+        "label": "Description (Optional)",
+        "placeholder": "Batch description..."
+      }
+    },
+    "validation": {
+      "nameRequired": "Please enter a batch name",
+      "nameMaxLength": "Batch name cannot exceed 100 characters",
+      "descriptionMaxLength": "Description cannot exceed 500 characters"
+    },
+    "sections": {
+      "expand": "Expand",
+      "collapse": "Collapse"
+    },
+    "companyIdentification": {
+      "title": "Company Identification Settings",
+      "enable": {
+        "label": "Enable Company Identification",
+        "description": "Automatically identify and match company data from documents"
+      },
+      "fuzzyThreshold": {
+        "label": "Fuzzy Match Threshold",
+        "description": "Match similarity must reach this threshold to be considered the same company (recommended 85-95%)"
+      },
+      "autoMerge": {
+        "label": "Auto Merge Similar Companies",
+        "description": "Automatically merge similar company names into one company"
+      }
+    },
+    "termAggregation": {
+      "title": "Term Aggregation Settings",
+      "enable": {
+        "label": "Enable Term Aggregation",
+        "description": "Automatically aggregate term statistics after batch processing"
+      },
+      "similarityThreshold": {
+        "label": "Term Similarity Threshold",
+        "description": "Terms with similarity reaching this threshold will be considered the same term (recommended 80-90%)"
+      },
+      "autoClassify": {
+        "label": "Auto Classify Terms",
+        "description": "Use AI to automatically classify terms into expense categories"
+      }
+    },
+    "issuerIdentification": {
+      "title": "Issuer Identification Settings",
+      "enable": {
+        "label": "Enable Issuer Identification",
+        "description": "Identify issuing company from document Logo/Header/Letterhead"
+      },
+      "confidenceThreshold": {
+        "label": "Identification Confidence Threshold",
+        "description": "Only accept identification results when confidence reaches this threshold (recommended 60-80%)"
+      },
+      "fuzzyThreshold": {
+        "label": "Company Match Threshold",
+        "description": "Match similarity must reach this threshold to be considered the same issuing company (recommended 85-95%)"
+      },
+      "autoCreate": {
+        "label": "Auto Create Issuer Company",
+        "description": "Automatically create new company when no existing company matches"
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create",
+      "creating": "Creating..."
+    }
+  }
+}

@@ -31,6 +31,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { Plus, RefreshCw } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -52,6 +53,9 @@ import type { BackupScheduleListItem } from '@/types/backup'
  * 備份管理主組件
  */
 export function BackupManagement() {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- State ---
   const [activeTab, setActiveTab] = useState('overview')
   const [createBackupOpen, setCreateBackupOpen] = useState(false)
@@ -96,17 +100,17 @@ export function BackupManagement() {
       {/* 標題列 */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold">備份管理</h2>
-          <p className="text-muted-foreground mt-1">管理系統備份與排程</p>
+          <h2 className="text-2xl font-bold">{t('backup.title')}</h2>
+          <p className="text-muted-foreground mt-1">{t('backup.description')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleRefresh}>
             <RefreshCw className="h-4 w-4 mr-2" />
-            重新整理
+            {t('backup.refresh')}
           </Button>
           <Button size="sm" onClick={() => setCreateBackupOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            手動備份
+            {t('backup.createManual')}
           </Button>
         </div>
       </div>
@@ -114,9 +118,9 @@ export function BackupManagement() {
       {/* 標籤頁 */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="overview">總覽</TabsTrigger>
-          <TabsTrigger value="backups">備份記錄</TabsTrigger>
-          <TabsTrigger value="schedules">排程管理</TabsTrigger>
+          <TabsTrigger value="overview">{t('backup.tabs.overview')}</TabsTrigger>
+          <TabsTrigger value="backups">{t('backup.tabs.records')}</TabsTrigger>
+          <TabsTrigger value="schedules">{t('backup.tabs.schedules')}</TabsTrigger>
         </TabsList>
 
         {/* 總覽標籤 */}

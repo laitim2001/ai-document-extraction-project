@@ -1,0 +1,64 @@
+{
+  "fieldsPanel": {
+    "stats": {
+      "showing": "顯示 {filtered} / {total} 個欄位",
+      "editedOnly": "（僅顯示已修改）",
+      "edited": "{count} 個已修改",
+      "lowConfidence": "{count} 個低信心度",
+      "avgConfidence": "平均信心度: {value}%"
+    },
+    "empty": {
+      "noFields": "沒有符合條件的欄位",
+      "clearSearch": "清除搜尋"
+    }
+  },
+  "filters": {
+    "search": {
+      "placeholder": "搜尋欄位名稱或值..."
+    },
+    "confidence": {
+      "label": "信心度",
+      "all": "全部信心度",
+      "high": "高 (≥90%)",
+      "medium": "中 (70-89%)",
+      "low": "低 (<70%)"
+    },
+    "source": {
+      "label": "來源",
+      "all": "全部來源",
+      "azureDi": "Azure DI",
+      "gptVision": "GPT Vision",
+      "manual": "手動輸入",
+      "mapping": "映射規則"
+    },
+    "sortBy": {
+      "label": "排序",
+      "category": "類別",
+      "name": "名稱",
+      "confidence": "信心度"
+    },
+    "sortOrder": {
+      "asc": "升序",
+      "desc": "降序"
+    },
+    "showEditedOnly": "僅顯示已修改"
+  },
+  "controls": {
+    "navigation": {
+      "previousPage": "上一頁",
+      "nextPage": "下一頁",
+      "pageNumber": "頁碼"
+    },
+    "zoom": {
+      "zoomIn": "放大",
+      "zoomOut": "縮小",
+      "resetZoom": "重置縮放 (100%)",
+      "fitWidth": "適合寬度"
+    }
+  },
+  "error": {
+    "title": "錯誤",
+    "loading": "載入文件失敗",
+    "retry": "重試"
+  }
+}

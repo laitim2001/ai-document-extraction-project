@@ -34,6 +34,7 @@
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import {
   GlobalStats,
   RegionView,
@@ -65,6 +66,7 @@ type PeriodType = '7d' | '30d' | '90d' | '1y'
  * @description 全局管理者儀表板頁面
  */
 export default function GlobalDashboardPage() {
+  const t = useTranslations('global')
   const { data: session, status } = useSession()
   const [period, setPeriod] = useState<PeriodType>('30d')
 
@@ -90,10 +92,10 @@ export default function GlobalDashboardPage() {
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <Globe className="h-8 w-8 text-blue-600" />
-            全局管理儀表板
+            {t('page.title')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            跨區域、跨城市的全系統績效監控
+            {t('page.description')}
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -105,10 +107,10 @@ export default function GlobalDashboardPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7d">最近 7 天</SelectItem>
-              <SelectItem value="30d">最近 30 天</SelectItem>
-              <SelectItem value="90d">最近 90 天</SelectItem>
-              <SelectItem value="1y">過去一年</SelectItem>
+              <SelectItem value="7d">{t('filters.last7Days')}</SelectItem>
+              <SelectItem value="30d">{t('filters.last30Days')}</SelectItem>
+              <SelectItem value="90d">{t('filters.last90Days')}</SelectItem>
+              <SelectItem value="1y">{t('filters.pastYear')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -125,11 +127,11 @@ export default function GlobalDashboardPage() {
         <TabsList>
           <TabsTrigger value="regions" className="flex items-center gap-2">
             <Map className="h-4 w-4" />
-            區域績效
+            {t('tabs.regionalPerformance')}
           </TabsTrigger>
           <TabsTrigger value="rankings" className="flex items-center gap-2">
             <Trophy className="h-4 w-4" />
-            城市排行
+            {t('tabs.cityRankings')}
           </TabsTrigger>
         </TabsList>
 

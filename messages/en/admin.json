@@ -13,12 +13,16 @@
       "city": "City",
       "status": "Status",
       "lastLogin": "Last Login",
-      "actions": "Actions"
+      "actions": "Actions",
+      "emptyState": "No users matching criteria found",
+      "noName": "Name not set",
+      "neverLoggedIn": "Never logged in"
     },
     "status": {
       "active": "Active",
       "inactive": "Inactive",
-      "pending": "Pending"
+      "pending": "Pending",
+      "suspended": "Suspended"
     },
     "actions": {
       "create": "Add User",
@@ -30,20 +34,119 @@
     },
     "form": {
       "name": "Name",
+      "namePlaceholder": "John Doe",
       "email": "Email",
+      "emailDescription": "Must match user's Azure AD account",
       "password": "Password",
       "confirmPassword": "Confirm Password",
       "role": "Role",
+      "roles": "Roles",
+      "rolesDescription": "Select user role permissions (at least one required)",
+      "rolesLoading": "Loading roles...",
       "city": "City",
+      "cityOptional": "City (optional)",
+      "cityPlaceholder": "Select city...",
+      "cityEmpty": "No city assigned",
+      "cityDescription": "If assigning City Manager role, specifying a city is recommended",
+      "cityLoading": "Loading...",
       "department": "Department"
     },
     "dialog": {
       "createTitle": "Add User",
+      "createDescription": "Create new user account. User will be able to login using Azure AD.",
       "editTitle": "Edit User",
+      "editDescription": "Modify user information, roles and city assignment.",
+      "editEmailDescription": "Email cannot be modified (bound to Azure AD account)",
       "deleteTitle": "Confirm Deletion",
       "deleteMessage": "Are you sure you want to delete user \"{name}\"? This action cannot be undone.",
       "resetPasswordTitle": "Reset Password",
-      "resetPasswordMessage": "Are you sure you want to reset the password for user \"{name}\"?"
+      "resetPasswordMessage": "Are you sure you want to reset the password for user \"{name}\"?",
+      "disableTitle": "Confirm Disable Account",
+      "disableMessage": "Are you sure you want to disable {name}'s account? After disabling, the user will not be able to login. You can re-enable this account at any time.",
+      "cancel": "Cancel",
+      "submit": "Create User",
+      "submitEdit": "Save Changes",
+      "submitting": "Processing..."
+    },
+    "filters": {
+      "role": {
+        "placeholder": "All Roles",
+        "all": "All Roles"
+      },
+      "city": {
+        "placeholder": "All Cities",
+        "all": "All Cities"
+      },
+      "status": {
+        "placeholder": "All Statuses",
+        "all": "All Statuses"
+      },
+      "clear": "Clear"
+    },
+    "search": {
+      "placeholder": "Search by name or email..."
+    },
+    "statusToggle": {
+      "thisUser": "This User",
+      "actionsMenu": "Actions Menu",
+      "editUser": "Edit User",
+      "disableAccount": "Disable Account",
+      "enableAccount": "Enable Account",
+      "cannotDisableSelf": "You cannot disable your own account",
+      "dialog": {
+        "title": "Confirm Disable Account",
+        "description": "Are you sure you want to disable <strong>{name}</strong>'s account?",
+        "warning": "After disabling, the user will not be able to login. You can re-enable this account at any time.",
+        "cancel": "Cancel",
+        "processing": "Processing...",
+        "confirm": "Confirm Disable"
+      },
+      "toast": {
+        "disabled": {
+          "title": "User Disabled",
+          "description": "{name}'s account has been disabled, the user will not be able to login."
+        },
+        "disableError": {
+          "title": "Disable Failed"
+        },
+        "enabled": {
+          "title": "User Enabled",
+          "description": "{name}'s account has been re-enabled, the user can now login."
+        },
+        "enableError": {
+          "title": "Enable Failed"
+        }
+      }
+    },
+    "toast": {
+      "created": {
+        "title": "User Created",
+        "description": "{name} has been successfully added to the system"
+      },
+      "createError": {
+        "title": "Creation Failed"
+      },
+      "updated": {
+        "title": "User Updated",
+        "description": "{name}'s information has been successfully updated"
+      },
+      "updateError": {
+        "title": "Update Failed"
+      },
+      "disabled": {
+        "title": "User Disabled",
+        "description": "{name}'s account has been disabled, the user will not be able to login."
+      },
+      "disableError": {
+        "title": "Disable Failed"
+      },
+      "enabled": {
+        "title": "User Enabled",
+        "description": "{name}'s account has been re-enabled, the user can now login."
+      },
+      "enableError": {
+        "title": "Enable Failed"
+      }
     }
   },
   "roles": {
@@ -64,14 +167,144 @@
     },
     "form": {
       "name": "Role Name",
+      "namePlaceholder": "e.g., Invoice Reviewer",
+      "nameDescription": "Role name must be unique, supports both English and Chinese",
       "description": "Description",
-      "permissions": "Permissions"
+      "descriptionOptional": "Description (optional)",
+      "descriptionPlaceholder": "Brief description of this role's responsibilities...",
+      "permissions": "Permissions",
+      "permissionsDescription": "Select operations this role can perform",
+      "permissionsSystemDescription": "System role permission configuration"
     },
     "permissions": {
       "read": "Read",
       "write": "Write",
       "delete": "Delete",
       "admin": "Admin"
+    },
+    "list": {
+      "loadError": "Failed to load role list, please try again.",
+      "empty": "No roles found",
+      "system": {
+        "label": "System Roles (cannot be modified)",
+        "badge": "System Role"
+      },
+      "custom": {
+        "label": "Custom Roles",
+        "empty": "No custom roles. Click \"Add Role\" to create the first custom role"
+      }
+    },
+    "card": {
+      "users": "{count} users",
+      "permissions": "{count} permissions"
+    },
+    "dialog": {
+      "viewTitle": "View Role",
+      "editTitle": "Edit Role",
+      "viewDescription": "System roles cannot be modified, view only.",
+      "editDescription": "Modify role information and permission settings.",
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save Changes"
+    },
+    "systemRole": {
+      "title": "System Role",
+      "description": "This is a system default role and cannot be modified or deleted. To customize permissions, please create a new custom role."
+    },
+    "toast": {
+      "cannotModify": {
+        "title": "Cannot Modify",
+        "description": "System roles cannot be modified"
+      },
+      "updated": {
+        "title": "Role Updated",
+        "description": "Role \"{name}\" has been successfully updated"
+      },
+      "updateError": {
+        "title": "Update Failed"
+      },
+      "created": {
+        "title": "Role Created",
+        "description": "Role \"{name}\" has been successfully created"
+      },
+      "createError": {
+        "title": "Creation Failed"
+      },
+      "deleted": {
+        "title": "Role Deleted",
+        "description": "Role \"{name}\" has been successfully deleted"
+      },
+      "deleteError": {
+        "title": "Delete Failed"
+      },
+      "cannotDelete": {
+        "title": "Cannot Delete",
+        "systemRole": "System roles cannot be deleted",
+        "inUse": "Role \"{name}\" currently has {count} users, please remove users before deleting"
+      }
+    },
+    "add": {
+      "trigger": "Add Role",
+      "title": "Add Role",
+      "description": "Create custom roles and set permissions. System roles cannot be created this way.",
+      "form": {
+        "name": "Role Name",
+        "namePlaceholder": "e.g., Invoice Reviewer",
+        "nameDescription": "Role name must be unique, supports both English and Chinese",
+        "descriptionOptional": "Description (optional)",
+        "descriptionPlaceholder": "Brief description of this role's responsibilities...",
+        "permissions": "Permissions",
+        "permissionsDescription": "Select operations this role can perform (at least one required)"
+      },
+      "cancel": "Cancel",
+      "submit": "Create Role"
+    },
+    "delete": {
+      "trigger": "Delete",
+      "srOnly": "Delete Role",
+      "title": "Confirm Delete Role",
+      "description": "Are you sure you want to delete role \"{name}\"? This action cannot be undone.",
+      "systemRoleAlert": {
+        "title": "System Role",
+        "description": "This is a system default role and cannot be deleted."
+      },
+      "inUseAlert": {
+        "title": "Role In Use",
+        "description": "This role currently has {count} users using it. Please assign these users to other roles before deleting."
+      },
+      "warningAlert": {
+        "description": "After deletion, all settings for this role will be permanently removed and cannot be recovered."
+      },
+      "cancel": "Cancel",
+      "confirm": "Confirm Delete"
+    },
+    "permissionSelector": {
+      "permissionCount": "{selected} / {total} permissions",
+      "selectedLabel": "Selected Permissions",
+      "selectedCount": "{selected} / {total}"
+    }
+  },
+  "city": {
+    "selector": {
+      "empty": "No city assigned",
+      "placeholder": "Select city...",
+      "loading": "Loading...",
+      "notAssigned": "City not assigned"
+    },
+    "display": {
+      "notAssigned": "City not assigned"
+    }
+  },
+  "permissionScope": {
+    "loading": "Loading...",
+    "label": "Management Scope:",
+    "global": "All Cities",
+    "city": "Specified Cities",
+    "none": "No management permission",
+    "title": "Management Scope",
+    "cityManager": {
+      "mode": "City Manager Mode:",
+      "description": "You can only view and manage users in your assigned cities. Contact system administrator for access to other cities."
     }
   },
   "config": {
@@ -128,7 +361,14 @@
   },
   "backup": {
     "title": "Backup Management",
-    "description": "Manage system data backups",
+    "description": "Manage system backups and schedules",
+    "refresh": "Refresh",
+    "createManual": "Manual Backup",
+    "tabs": {
+      "overview": "Overview",
+      "records": "Backup Records",
+      "schedules": "Schedule Management"
+    },
     "actions": {
       "createBackup": "Create Backup",
       "restore": "Restore",
@@ -138,7 +378,427 @@
     "status": {
       "completed": "Completed",
       "inProgress": "In Progress",
-      "failed": "Failed"
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "pending": "Pending"
+    },
+    "list": {
+      "title": "Backup Records",
+      "description": "System backup history",
+      "loadError": "Load failed: {error}",
+      "emptyState": "No backup records",
+      "filters": {
+        "status": {
+          "all": "All Status",
+          "completed": "Completed",
+          "inProgress": "In Progress",
+          "failed": "Failed",
+          "cancelled": "Cancelled",
+          "pending": "Pending"
+        },
+        "source": {
+          "all": "All Sources",
+          "database": "Database",
+          "files": "Files",
+          "config": "Config",
+          "fullSystem": "Full System"
+        },
+        "type": {
+          "all": "All Types",
+          "full": "Full Backup",
+          "incremental": "Incremental",
+          "differential": "Differential"
+        }
+      },
+      "table": {
+        "backupTime": "Backup Time",
+        "source": "Source",
+        "type": "Type",
+        "size": "Size",
+        "status": "Status",
+        "operator": "Operator",
+        "system": "System"
+      },
+      "actions": {
+        "viewDetails": "View Details",
+        "download": "Download",
+        "cancelBackup": "Cancel Backup",
+        "delete": "Delete"
+      },
+      "pagination": {
+        "total": "Total {total} records, Page {page} / {totalPages}"
+      },
+      "cancelDialog": {
+        "title": "Confirm Cancel Backup",
+        "description": "Are you sure you want to cancel this running backup? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Confirm Cancel",
+        "cancelling": "Cancelling..."
+      },
+      "deleteDialog": {
+        "title": "Confirm Delete Backup",
+        "description": "Are you sure you want to delete this backup? After deletion, it cannot be recovered and the backup file will be permanently removed.",
+        "cancel": "Cancel",
+        "confirm": "Confirm Delete",
+        "deleting": "Deleting..."
+      },
+      "toast": {
+        "cancelled": "Backup cancelled",
+        "cancelError": "Cancel failed",
+        "deleted": "Backup deleted",
+        "deleteError": "Delete failed"
+      }
+    },
+    "statusCard": {
+      "title": "Backup Status Summary",
+      "description": "Overall system backup status",
+      "stats": {
+        "completed": "Completed",
+        "running": "Running",
+        "failed": "Failed",
+        "total": "Total"
+      },
+      "lastBackup": "Last Backup Time",
+      "noBackup": "No backups yet",
+      "nextScheduled": "Next Scheduled Backup",
+      "noSchedule": "No schedule"
+    },
+    "create": {
+      "title": "Create Manual Backup",
+      "description": "Select backup source and type to execute backup operation",
+      "name": "Backup Name",
+      "namePlaceholder": "Enter backup name...",
+      "nameRequired": "Please enter backup name",
+      "source": "Backup Source",
+      "sources": {
+        "database": {
+          "label": "Database",
+          "description": "Backup all database tables and data"
+        },
+        "files": {
+          "label": "Files",
+          "description": "Backup uploaded documents and attachments"
+        },
+        "config": {
+          "label": "System Config",
+          "description": "Backup system configuration and settings"
+        },
+        "fullSystem": {
+          "label": "Full System",
+          "description": "Backup database, files and config"
+        }
+      },
+      "type": "Backup Type",
+      "types": {
+        "full": {
+          "label": "Full Backup",
+          "description": "Backup all data (recommended for first backup)"
+        },
+        "incremental": {
+          "label": "Incremental Backup",
+          "description": "Only backup data changed since last backup"
+        },
+        "differential": {
+          "label": "Differential Backup",
+          "description": "Backup data changed since last full backup"
+        }
+      },
+      "descriptionLabel": "Description (optional)",
+      "descriptionPlaceholder": "Enter backup description...",
+      "cancel": "Cancel",
+      "submit": "Start Backup",
+      "submitting": "Creating...",
+      "toast": {
+        "started": "Backup started",
+        "error": "Create backup failed"
+      }
+    },
+    "storage": {
+      "title": "Storage Usage",
+      "description": "Backup storage space status",
+      "criticalAlert": "Storage space is running out! Please clean up old backups or add more storage.",
+      "warningAlert": "Storage usage exceeds 80%, recommend cleaning up unnecessary backups.",
+      "totalUsage": "Total Usage",
+      "percentUsed": "{percent}% used",
+      "categories": {
+        "database": "Database",
+        "files": "Files",
+        "config": "Config",
+        "fullSystem": "Full System"
+      }
+    },
+    "schedule": {
+      "title": "Backup Schedules",
+      "description": "Automatic backup schedule configuration",
+      "addSchedule": "Add Schedule",
+      "emptyState": "No backup schedules",
+      "loadError": "Load failed: {error}",
+      "table": {
+        "scheduleName": "Schedule Name",
+        "backupSource": "Backup Source",
+        "backupType": "Backup Type",
+        "frequency": "Frequency",
+        "nextRun": "Next Run",
+        "status": "Status"
+      },
+      "status": {
+        "enabled": "Enabled",
+        "disabled": "Disabled"
+      },
+      "actions": {
+        "runNow": "Run Now",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "pagination": {
+        "total": "Total {total} records, Page {page} / {totalPages}"
+      },
+      "runDialog": {
+        "title": "Confirm Run Schedule",
+        "description": "Are you sure you want to run this backup schedule now? This will start a new backup task.",
+        "cancel": "Cancel",
+        "confirm": "Confirm Run",
+        "running": "Running..."
+      },
+      "deleteDialog": {
+        "title": "Confirm Delete Schedule",
+        "description": "Are you sure you want to delete this backup schedule? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Confirm Delete",
+        "deleting": "Deleting..."
+      },
+      "toast": {
+        "toggleError": "Toggle status failed",
+        "runStarted": "Schedule backup started",
+        "runError": "Run failed",
+        "deleted": "Schedule deleted",
+        "deleteError": "Delete failed"
+      },
+      "dialog": {
+        "createTitle": "Add Backup Schedule",
+        "createDescription": "Create automatic backup schedule",
+        "editTitle": "Edit Backup Schedule",
+        "editDescription": "Modify backup schedule settings",
+        "form": {
+          "name": "Schedule Name",
+          "nameRequired": "required",
+          "namePlaceholder": "e.g., Daily Database Backup",
+          "nameError": "Please enter schedule name",
+          "nameLengthError": "Name cannot exceed 100 characters",
+          "descriptionOptional": "Description (optional)",
+          "descriptionPlaceholder": "Enter schedule description...",
+          "backupSource": "Backup Source",
+          "backupType": "Backup Type",
+          "sources": {
+            "database": "Database",
+            "files": "Files",
+            "config": "System Config",
+            "fullSystem": "Full System"
+          },
+          "types": {
+            "full": "Full Backup",
+            "incremental": "Incremental Backup",
+            "differential": "Differential Backup"
+          },
+          "frequency": "Frequency",
+          "cronTooltip": "Cron expression format: minute hour day month weekday",
+          "cronExample": "e.g., 0 3 * * * means every day at 3 AM",
+          "cronPresets": {
+            "hourly": "Every Hour",
+            "dailyMidnight": "Daily at Midnight",
+            "daily3am": "Daily at 3 AM",
+            "weeklyMidnight": "Weekly Sunday at Midnight",
+            "monthlyMidnight": "Monthly 1st at Midnight",
+            "custom": "Custom"
+          },
+          "cronError": "Please enter Cron expression",
+          "retentionDays": "Retention Days",
+          "retentionDaysError": "Retention days must be between 1-365",
+          "maxBackups": "Max Backups",
+          "maxBackupsError": "Max backups must be between 1-100",
+          "enableSchedule": "Enable Schedule",
+          "enableDescription": "When enabled, backup will run automatically"
+        },
+        "cancel": "Cancel",
+        "createSubmit": "Create Schedule",
+        "editSubmit": "Update Schedule",
+        "creating": "Creating...",
+        "updating": "Updating...",
+        "toast": {
+          "created": "Schedule created",
+          "updated": "Schedule updated",
+          "error": "Operation failed"
+        }
+      }
+    }
+  },
+  "alerts": {
+    "title": "Alert Settings",
+    "description": "Configure system alert rules and manage alert notifications",
+    "stats": {
+      "firing": "Firing Alerts",
+      "firingDescription": "Requires immediate attention",
+      "acknowledged": "Acknowledged Alerts",
+      "acknowledgedDescription": "Being processed",
+      "resolved": "Resolved Alerts",
+      "resolvedDescription": "In the past 24 hours",
+      "activeRules": "Active Rules",
+      "activeRulesDescription": "Currently monitoring"
+    },
+    "tabs": {
+      "rules": "Rule Management",
+      "history": "Alert History"
+    },
+    "rulesCard": {
+      "title": "Alert Rules",
+      "description": "Configure monitoring metrics and trigger conditions, system will send notifications automatically"
+    },
+    "historyCard": {
+      "title": "Alert History",
+      "description": "View all alert records, acknowledge or resolve alerts"
+    }
+  },
+  "apiKeys": {
+    "title": "API Key Management",
+    "description": "Manage external system API access keys",
+    "actions": {
+      "create": "Create API Key"
+    },
+    "search": {
+      "placeholder": "Search name or description...",
+      "button": "Search"
+    },
+    "filters": {
+      "status": {
+        "placeholder": "Status",
+        "all": "All Status",
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "pagination": {
+      "total": "Total {total} API Keys",
+      "pageInfo": "Page {page} / {totalPages}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "deleteDialog": {
+      "title": "Delete this API Key?",
+      "description": "After deletion, all external systems using this key will not be able to access the API. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm Delete",
+      "deleting": "Deleting..."
+    },
+    "rotateDialog": {
+      "title": "Rotate this API Key?",
+      "successTitle": "New API Key Generated",
+      "description": "Rotation will generate a new API Key and disable the old one. Systems using the old key need to update to the new key.",
+      "successDescription": "Please copy and securely save this new key immediately. It cannot be viewed again after closing.",
+      "cancel": "Cancel",
+      "confirm": "Confirm Rotate",
+      "rotating": "Rotating...",
+      "saved": "I've saved it, close"
+    }
+  },
+  "configManagement": {
+    "title": "System Configuration",
+    "description": "Manage system runtime configuration parameters",
+    "loading": "Loading configuration...",
+    "loadError": "Failed to load configuration: {error}",
+    "unknownError": "Unknown error",
+    "retry": "Retry",
+    "reloadCache": "Reload Cache",
+    "searchPlaceholder": "Search configuration name or description...",
+    "noMatch": "No matching configuration found",
+    "empty": "No configuration items in this category",
+    "toast": {
+      "updated": "Configuration updated",
+      "updatedRequiresRestart": "Configuration updated, requires service restart to take effect",
+      "updateError": "Update failed",
+      "rolledBack": "Configuration rolled back",
+      "rollbackError": "Rollback failed",
+      "reset": "Configuration reset to default",
+      "resetError": "Reset failed",
+      "reloaded": "Configuration cache reloaded",
+      "reloadError": "Reload failed"
+    },
+    "resetDialog": {
+      "title": "Confirm Reset Configuration",
+      "description": "Are you sure you want to reset this configuration to default? This action will be recorded in the change history.",
+      "cancel": "Cancel",
+      "confirm": "Confirm Reset",
+      "resetting": "Resetting..."
+    }
+  },
+  "logsViewer": {
+    "title": "System Logs",
+    "description": "Query and analyze system operation logs",
+    "openStream": "Live Logs",
+    "closeStream": "Close Live Logs",
+    "export": "Export",
+    "refresh": "Refresh",
+    "stats": {
+      "total": "Total Logs",
+      "errors": "Error Logs",
+      "warnings": "Warning Logs",
+      "info": "Info Logs",
+      "debug": "Debug Logs"
+    },
+    "filters": {
+      "title": "Filter Conditions",
+      "description": "Filter logs by level, source, and keywords",
+      "searchPlaceholder": "Search message content...",
+      "level": "Level",
+      "selectLevel": "Select log level",
+      "source": "Source",
+      "selectSource": "Select log source",
+      "perPage": "Per Page",
+      "perPageOption": "{count} entries",
+      "search": "Search",
+      "clear": "Clear Filters"
+    },
+    "list": {
+      "title": "Log Records",
+      "showing": "Showing {from} - {to} of {total} entries",
+      "loading": "Loading...",
+      "empty": "No logs matching criteria found",
+      "columns": {
+        "time": "Time",
+        "level": "Level",
+        "source": "Source",
+        "message": "Message",
+        "actions": "Actions"
+      }
+    },
+    "pagination": {
+      "pageInfo": "Page {page}, Total {totalPages} pages",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "restore": {
+    "title": "Data Restore",
+    "description": "Restore system data from backup",
+    "refresh": "Refresh",
+    "startRestore": "Start Restore",
+    "duration": {
+      "seconds": "{value} seconds",
+      "minutes": "{value} minutes",
+      "hours": "{value} hours"
+    },
+    "stats": {
+      "total": "Total Restores",
+      "totalDescription": "System restore operation count",
+      "successful": "Successful Restores",
+      "successfulDescription": "Successfully completed restores",
+      "failed": "Failed Restores",
+      "failedDescription": "Failed records needing attention",
+      "averageTime": "Average Restore Time",
+      "averageTimeDescription": "Average time for restore operations"
+    },
+    "list": {
+      "title": "Restore Records",
+      "description": "View all restore operation records"
     }
   }
 }

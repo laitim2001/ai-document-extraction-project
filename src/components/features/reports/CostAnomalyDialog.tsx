@@ -30,6 +30,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   AlertTriangle,
   Lightbulb,
@@ -58,38 +59,21 @@ import type {
 // ============================================================
 
 /**
- * 異常類型標籤對應
+ * 嚴重度樣式配置
  */
-const ANOMALY_TYPE_LABELS: Record<AnomalyType, string> = {
-  volume_spike: '處理量激增',
-  volume_drop: '處理量下降',
-  cost_per_doc_increase: '單位成本上升',
-  cost_per_doc_decrease: '單位成本下降',
-  api_cost_spike: 'API 成本激增',
-  labor_cost_spike: '人工成本激增',
-  automation_rate_drop: '自動化率下降',
-  unknown: '待分析',
-}
-
-/**
- * 嚴重度配置
- */
-const SEVERITY_CONFIG: Record<
+const SEVERITY_STYLES: Record<
   AnomalySeverity,
-  { label: string; color: string; bgColor: string }
+  { color: string; bgColor: string }
 > = {
   low: {
-    label: '低',
     color: 'text-yellow-800',
     bgColor: 'bg-yellow-100',
   },
   medium: {
-    label: '中',
     color: 'text-orange-800',
     bgColor: 'bg-orange-100',
   },
   high: {
-    label: '高',
     color: 'text-red-800',
     bgColor: 'bg-red-100',
   },
@@ -127,7 +111,13 @@ function LoadingSkeleton() {
 /**
  * 異常詳情卡片
  */
-function AnomalyDetailCard({ anomaly }: { anomaly: CostAnomalyDetail }) {
+function AnomalyDetailCard({
+  anomaly,
+  t,
+}: {
+  anomaly: CostAnomalyDetail
+  t: (key: string, values?: Record<string, string | number>) => string
+}) {
   return (
     <div className="space-y-4 border rounded-lg p-4">
       {/* 異常類型標題 */}
@@ -144,17 +134,17 @@ function AnomalyDetailCard({ anomaly }: { anomaly: CostAnomalyDetail }) {
             )}
           />
           <span className="font-medium">
-            {ANOMALY_TYPE_LABELS[anomaly.type]}
+            {t(`costAnomaly.types.${anomaly.type}`)}
           </span>
         </div>
         <Badge
           variant="outline"
           className={cn(
-            SEVERITY_CONFIG[anomaly.severity].bgColor,
-            SEVERITY_CONFIG[anomaly.severity].color
+            SEVERITY_STYLES[anomaly.severity].bgColor,
+            SEVERITY_STYLES[anomaly.severity].color
           )}
         >
-          {SEVERITY_CONFIG[anomaly.severity].label}風險
+          {t(`costAnomaly.severity.${anomaly.severity}`)} {t('costAnomaly.riskLabel')}
         </Badge>
       </div>
 
@@ -164,7 +154,7 @@ function AnomalyDetailCard({ anomaly }: { anomaly: CostAnomalyDetail }) {
       {/* 數值對比 */}
       <div className="grid grid-cols-3 gap-4 text-sm">
         <div className="text-center">
-          <div className="text-muted-foreground">當前值</div>
+          <div className="text-muted-foreground">{t('costAnomaly.currentValue')}</div>
           <div className="font-medium">
             {typeof anomaly.currentValue === 'number'
               ? anomaly.currentValue.toLocaleString()
@@ -172,7 +162,7 @@ function AnomalyDetailCard({ anomaly }: { anomaly: CostAnomalyDetail }) {
           </div>
         </div>
         <div className="text-center">
-          <div className="text-muted-foreground">基準值</div>
+          <div className="text-muted-foreground">{t('costAnomaly.baselineValue')}</div>
           <div className="font-medium">
             {typeof anomaly.baselineValue === 'number'
               ? anomaly.baselineValue.toLocaleString()
@@ -180,7 +170,7 @@ function AnomalyDetailCard({ anomaly }: { anomaly: CostAnomalyDetail }) {
           </div>
         </div>
         <div className="text-center">
-          <div className="text-muted-foreground">變化</div>
+          <div className="text-muted-foreground">{t('costAnomaly.change')}</div>
           <div
             className={cn(
               'font-medium',
@@ -236,6 +226,8 @@ export function CostAnomalyDialog({
   anomalies,
   isLoading = false,
 }: CostAnomalyDialogProps) {
+  const t = useTranslations('reports')
+
   // --- Computed values ---
   const highSeverityCount = anomalies.filter(
     (a) => a.severity === 'high'
@@ -254,10 +246,10 @@ export function CostAnomalyDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
-            成本異常分析
+            {t('costAnomaly.dialogTitle')}
           </DialogTitle>
           <DialogDescription>
-            {cityName || cityCode} 的成本異常詳情
+            {t('costAnomaly.dialogDescription', { city: cityName || cityCode })}
           </DialogDescription>
         </DialogHeader>
 
@@ -265,46 +257,46 @@ export function CostAnomalyDialog({
           <LoadingSkeleton />
         ) : anomalies.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            此城市目前沒有成本異常
+            {t('costAnomaly.noAnomalies')}
           </div>
         ) : (
           <div className="space-y-6">
             {/* 摘要統計 */}
             <div className="flex flex-wrap gap-2">
               <Badge variant="outline">
-                共 {anomalies.length} 個異常
+                {t('costAnomaly.totalCount', { count: anomalies.length })}
               </Badge>
               {highSeverityCount > 0 && (
                 <Badge
                   variant="outline"
                   className={cn(
-                    SEVERITY_CONFIG.high.bgColor,
-                    SEVERITY_CONFIG.high.color
+                    SEVERITY_STYLES.high.bgColor,
+                    SEVERITY_STYLES.high.color
                   )}
                 >
-                  {highSeverityCount} 高風險
+                  {t('cityCost.highRisk', { count: highSeverityCount })}
                 </Badge>
               )}
               {mediumSeverityCount > 0 && (
                 <Badge
                   variant="outline"
                   className={cn(
-                    SEVERITY_CONFIG.medium.bgColor,
-                    SEVERITY_CONFIG.medium.color
+                    SEVERITY_STYLES.medium.bgColor,
+                    SEVERITY_STYLES.medium.color
                   )}
                 >
-                  {mediumSeverityCount} 中風險
+                  {t('cityCost.mediumRisk', { count: mediumSeverityCount })}
                 </Badge>
               )}
               {lowSeverityCount > 0 && (
                 <Badge
                   variant="outline"
                   className={cn(
-                    SEVERITY_CONFIG.low.bgColor,
-                    SEVERITY_CONFIG.low.color
+                    SEVERITY_STYLES.low.bgColor,
+                    SEVERITY_STYLES.low.color
                   )}
                 >
-                  {lowSeverityCount} 低風險
+                  {t('cityCost.lowRisk', { count: lowSeverityCount })}
                 </Badge>
               )}
             </div>
@@ -318,20 +310,20 @@ export function CostAnomalyDialog({
                   return severityOrder[a.severity] - severityOrder[b.severity]
                 })
                 .map((anomaly) => (
-                  <AnomalyDetailCard key={anomaly.id} anomaly={anomaly} />
+                  <AnomalyDetailCard key={anomaly.id} anomaly={anomaly} t={t} />
                 ))}
             </div>
 
             {/* 通用建議 */}
             <Alert>
               <Activity className="h-4 w-4" />
-              <AlertTitle>建議行動</AlertTitle>
+              <AlertTitle>{t('costAnomaly.recommendations.title')}</AlertTitle>
               <AlertDescription>
                 <ul className="list-disc list-inside space-y-1 mt-2 text-sm">
-                  <li>檢視處理量變化趨勢，確認是否為預期的業務變化</li>
-                  <li>分析自動化率下降的原因，考慮更新映射規則</li>
-                  <li>定期審查人工審核案例，尋找自動化改進機會</li>
-                  <li>與業務團隊溝通，了解近期業務變動情況</li>
+                  <li>{t('costAnomaly.recommendations.items.checkTrend')}</li>
+                  <li>{t('costAnomaly.recommendations.items.analyzeAutomation')}</li>
+                  <li>{t('costAnomaly.recommendations.items.reviewManual')}</li>
+                  <li>{t('costAnomaly.recommendations.items.communicateBusiness')}</li>
                 </ul>
               </AlertDescription>
             </Alert>

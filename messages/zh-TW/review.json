@@ -1,15 +1,21 @@
 {
   "page": {
     "title": "待審核發票",
-    "description": "審核和修正 AI 提取結果"
+    "description": "審核和修正 AI 提取結果",
+    "reviewDetails": "審核詳情",
+    "documentNotFound": "找不到文件",
+    "documentNotFoundDesc": "指定的文件不存在或已被刪除。",
+    "backToList": "返回審核列表",
+    "review": "審核：{fileName}"
   },
   "filters": {
     "company": "公司/Forwarder",
-    "processingPath": "處理路徑",
-    "confidenceRange": "信心度範圍",
+    "processingPath": "處理路徑：",
+    "confidenceRange": "信心度：",
     "clearFilters": "清除篩選",
     "allCompanies": "所有公司",
-    "allPaths": "所有路徑"
+    "allPaths": "全部",
+    "all": "全部"
   },
   "confidence": {
     "low": "低信心度",
@@ -28,7 +34,10 @@
     "extractedFields": "提取欄位",
     "originalDocument": "原始文件",
     "correctionHistory": "修正歷史",
-    "noCorrections": "尚無修正記錄"
+    "noCorrections": "尚無修正記錄",
+    "loadFailed": "載入失敗",
+    "loadFailedDesc": "無法載入審核資料，請稍後再試。",
+    "reload": "重新載入"
   },
   "dialog": {
     "approveTitle": "確認批准",
@@ -36,7 +45,11 @@
     "rejectTitle": "拒絕原因",
     "rejectPlaceholder": "請輸入拒絕原因...",
     "escalateTitle": "提交上級審核",
-    "escalateMessage": "請說明需要上級審核的原因"
+    "escalateMessage": "請說明需要上級審核的原因",
+    "unsavedChanges": "未儲存的變更",
+    "unsavedChangesDesc": "您有尚未儲存的變更。離開此頁面將會遺失這些變更。確定要離開嗎？",
+    "continueEditing": "繼續編輯",
+    "discardChanges": "捨棄變更"
   },
   "empty": {
     "title": "沒有待審核的發票",
@@ -47,5 +60,49 @@
     "quickReview": "快速審核",
     "fullReview": "完整審核",
     "manualRequired": "需人工處理"
+  },
+  "queue": {
+    "loadFailed": "載入失敗",
+    "loadFailedDesc": "無法載入審核隊列，請重試。",
+    "retry": "重試",
+    "totalPending": "共 {count} 筆待審核",
+    "refresh": "重新整理",
+    "previous": "上一頁",
+    "next": "下一頁"
+  },
+  "table": {
+    "fileName": "文件名",
+    "uploadTime": "上傳時間",
+    "confidence": "信心度",
+    "processingPath": "處理路徑",
+    "unidentified": "未識別"
+  },
+  "approval": {
+    "quickReviewMode": "快速審核模式",
+    "fullReviewMode": "完整審核模式",
+    "review": "審核",
+    "confirmTitle": "確認審核結果",
+    "confirmDesc": "您即將確認此文件的 {mode} 結果。",
+    "fieldsConfirmed": "{count} 個欄位將被標記為已確認。",
+    "afterConfirm": "確認後，文件狀態將更新為「已批准」並記錄審計日誌。",
+    "reviewNotes": "審核備註（選填）",
+    "notesPlaceholder": "輸入任何要記錄的備註...",
+    "cancel": "取消",
+    "confirming": "確認中...",
+    "confirm": "確認"
+  },
+  "toast": {
+    "reviewConfirmed": "審核已確認",
+    "documentApproved": "文件已標記為批准",
+    "confirmFailed": "審核確認失敗",
+    "caseEscalated": "案例已升級",
+    "escalationNotified": "已通知 Super User 處理此案例",
+    "escalationFailed": "升級失敗",
+    "noChanges": "沒有變更需要儲存",
+    "saveFailed": "儲存修正失敗",
+    "correctionsSaved": "修正已儲存",
+    "correctionsSavedDesc": "已儲存 {count} 個欄位的修正",
+    "saveFailedRetry": "儲存失敗",
+    "tryAgainLater": "請稍後再試"
   }
 }

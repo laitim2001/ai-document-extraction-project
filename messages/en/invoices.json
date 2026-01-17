@@ -14,26 +14,36 @@
     "allStatus": "All Status",
     "status": {
       "uploading": "Uploading",
+      "uploaded": "Uploaded",
       "ocrProcessing": "OCR Processing",
-      "mappingProcessing": "Mapping",
-      "pendingReview": "Pending Review",
-      "completed": "Completed",
+      "ocrCompleted": "OCR Completed",
       "ocrFailed": "OCR Failed",
+      "mappingProcessing": "Mapping",
+      "mappingCompleted": "Mapping Completed",
+      "pendingReview": "Pending Review",
+      "inReview": "In Review",
+      "completed": "Completed",
       "failed": "Failed"
     }
   },
   "table": {
     "columns": {
       "filename": "Filename",
+      "fileName": "File Name",
       "status": "Status",
       "uploadedAt": "Uploaded At",
+      "uploadTime": "Upload Time",
       "processingPath": "Processing Path",
       "confidence": "Confidence",
       "company": "Company",
       "actions": "Actions"
     },
     "empty": "No invoices found",
-    "emptyDescription": "Upload a new invoice to get started"
+    "noDocuments": "No documents found",
+    "emptyDescription": "Upload a new invoice to get started",
+    "loading": "Loading...",
+    "processingError": "An error occurred during processing",
+    "processingFailed": "Processing Failed"
   },
   "processingPath": {
     "autoApprove": "Auto Approve",
@@ -41,19 +51,65 @@
     "fullReview": "Full Review",
     "manualRequired": "Manual Required"
   },
+  "status": {
+    "UPLOADING": "Uploading",
+    "UPLOADED": "Uploaded",
+    "OCR_PROCESSING": "OCR Processing",
+    "OCR_COMPLETED": "OCR Completed",
+    "OCR_FAILED": "OCR Failed",
+    "MAPPING_PROCESSING": "Mapping",
+    "MAPPING_COMPLETED": "Mapping Completed",
+    "PENDING_REVIEW": "Pending Review",
+    "IN_REVIEW": "In Review",
+    "COMPLETED": "Completed",
+    "FAILED": "Failed"
+  },
   "upload": {
-    "title": "Upload Invoice",
+    "title": "Upload Invoice Files",
+    "description": "Upload invoice files for AI processing and data extraction. Supports PDF, JPG, PNG formats.",
+    "selectCity": "Select City",
+    "selectCityPlaceholder": "Please select a city",
+    "selectCityHint": "Please select a city before uploading invoice files.",
+    "selectCityRequired": "Please select a city before uploading files",
     "dragDrop": "Drag and drop files here, or click to select",
-    "supportedFormats": "Supported formats: PDF, JPG, PNG",
+    "dropToUpload": "Drop to upload files",
+    "unsupportedFormat": "Unsupported file format",
+    "supportedFormats": "Supports {formats}, max {size} per file",
+    "formatHint": "Supports {formats}, max {size} per file",
+    "maxFiles": "Maximum {count} files",
     "maxSize": "Maximum file size: {size}MB",
+    "selectedFiles": "{count} files selected",
+    "pendingCount": "({count} pending)",
+    "clearAll": "Clear All",
+    "uploadingProgress": "Uploading... {percent}%",
+    "statusPending": "Pending",
     "uploading": "Uploading...",
+    "uploadCount": "Upload {count} files",
     "uploadSuccess": "Upload successful",
-    "uploadFailed": "Upload failed"
+    "successCount": "Successfully uploaded {count} files",
+    "uploadFailed": "Upload failed",
+    "failedCount": "{count} files failed to upload",
+    "noPendingFiles": "No pending files to upload",
+    "loading": "Loading..."
+  },
+  "uploadErrors": {
+    "invalidType": "Unsupported file format, please upload {formats}",
+    "fileTooLarge": "File size exceeds limit ({size})",
+    "tooManyFiles": "Maximum {count} files allowed",
+    "uploadFailed": "File upload failed, please try again",
+    "noFiles": "Please select files to upload",
+    "unauthorized": "Please log in",
+    "forbidden": "You don't have permission to upload invoices"
   },
   "actions": {
     "view": "View",
     "retry": "Retry",
     "download": "Download",
     "delete": "Delete"
+  },
+  "retry": {
+    "success": "Processing restarted",
+    "failed": "Retry failed: {message}",
+    "button": "Retry"
   }
 }

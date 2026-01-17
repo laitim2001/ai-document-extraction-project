@@ -38,6 +38,7 @@
  */
 
 import { useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
@@ -108,6 +109,9 @@ interface EditUserDialogProps {
  *   />
  */
 export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- Hooks ---
   const { toast } = useToast()
   const { mutate: updateUser, isPending } = useUpdateUser()
@@ -150,15 +154,15 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
       {
         onSuccess: () => {
           toast({
-            title: '用戶已更新',
-            description: `${data.name || user.email} 的資料已成功更新`,
+            title: t('users.toast.updated.title'),
+            description: t('users.toast.updated.description', { name: data.name || user.email }),
           })
           onOpenChange(false)
         },
         onError: (error) => {
           toast({
             variant: 'destructive',
-            title: '更新失敗',
+            title: t('users.toast.updateError.title'),
             description: error.message,
           })
         },
@@ -181,15 +185,15 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>編輯用戶</DialogTitle>
-          <DialogDescription>修改用戶的資料、角色和城市指派。</DialogDescription>
+          <DialogTitle>{t('users.dialog.editTitle')}</DialogTitle>
+          <DialogDescription>{t('users.dialog.editDescription')}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Email 欄位（唯讀） */}
             <FormItem>
-              <FormLabel>電子郵件</FormLabel>
+              <FormLabel>{t('users.form.email')}</FormLabel>
               <FormControl>
                 <Input
                   type="email"
@@ -198,7 +202,7 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
                   className="bg-muted cursor-not-allowed"
                 />
               </FormControl>
-              <FormDescription>電子郵件無法修改（與 Azure AD 帳號綁定）</FormDescription>
+              <FormDescription>{t('users.dialog.editEmailDescription')}</FormDescription>
             </FormItem>
 
             {/* 名稱欄位 */}
@@ -207,9 +211,9 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>姓名</FormLabel>
+                  <FormLabel>{t('users.form.name')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="王小明" autoComplete="off" {...field} />
+                    <Input placeholder={t('users.form.namePlaceholder')} autoComplete="off" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -223,14 +227,14 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
               render={() => (
                 <FormItem>
                   <div className="mb-2">
-                    <FormLabel>角色</FormLabel>
-                    <FormDescription>選擇用戶的角色權限（至少選擇一個）</FormDescription>
+                    <FormLabel>{t('users.form.roles')}</FormLabel>
+                    <FormDescription>{t('users.form.rolesDescription')}</FormDescription>
                   </div>
                   <div className="space-y-2">
                     {isLoadingRoles ? (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        載入角色...
+                        {t('users.form.rolesLoading')}
                       </div>
                     ) : (
                       roles?.map((role) => (
@@ -278,7 +282,7 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
               name="cityId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>城市（選填）</FormLabel>
+                  <FormLabel>{t('users.form.cityOptional')}</FormLabel>
                   <Select
                     value={field.value || '__none__'}
                     onValueChange={(value) => field.onChange(value === '__none__' ? null : value)}
@@ -286,22 +290,22 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="選擇城市...">
+                        <SelectValue placeholder={t('users.form.cityPlaceholder')}>
                           {isLoadingCities ? (
                             <span className="flex items-center gap-2">
                               <Loader2 className="h-4 w-4 animate-spin" />
-                              載入中...
+                              {t('users.form.cityLoading')}
                             </span>
                           ) : field.value ? (
-                            cities?.find((c) => c.id === field.value)?.name || '選擇城市...'
+                            cities?.find((c) => c.id === field.value)?.name || t('users.form.cityPlaceholder')
                           ) : (
-                            '選擇城市...'
+                            t('users.form.cityPlaceholder')
                           )}
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="__none__">不指定城市</SelectItem>
+                      <SelectItem value="__none__">{t('users.form.cityEmpty')}</SelectItem>
                       {cities?.map((city) => (
                         <SelectItem key={city.id} value={city.id}>
                           {city.name} ({city.code})
@@ -309,7 +313,7 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>若分配 City Manager 角色，建議指定城市</FormDescription>
+                  <FormDescription>{t('users.form.cityDescription')}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -322,11 +326,11 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
                 onClick={() => onOpenChange(false)}
                 disabled={isPending}
               >
-                取消
+                {t('users.dialog.cancel')}
               </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                儲存變更
+                {t('users.dialog.submitEdit')}
               </Button>
             </DialogFooter>
           </form>

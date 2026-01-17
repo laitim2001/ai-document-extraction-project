@@ -1,25 +1,28 @@
 'use client'
 
 /**
- * @fileoverview 發票列表表格組件
+ * @fileoverview 發票列表表格組件（國際化版本）
  * @description
  *   顯示發票文件列表的表格，包含：
  *   - 文件名稱、狀態、處理路徑
  *   - 上傳時間（相對時間）
  *   - 操作按鈕（查看、重試）
+ *   - 完整國際化支援
  *
  * @module src/components/features/invoice/InvoiceListTable
  * @author Development Team
  * @since Epic 2 - Story 2.7 (Processing Status Tracking & Display)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 響應式表格
  *   - 狀態徽章顯示
  *   - 錯誤訊息顯示
  *   - 重試按鈕（僅失敗狀態）
+ *   - i18n 國際化支援
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/table - Table 組件
  *   - @/components/ui/button - Button 組件
  *   - date-fns - 日期格式化
@@ -27,11 +30,13 @@
  *
  * @related
  *   - src/hooks/use-documents.ts - Documents Hook
- *   - src/app/(dashboard)/invoices/page.tsx - 發票列表頁面
+ *   - src/app/[locale]/(dashboard)/invoices/page.tsx - 發票列表頁面
+ *   - messages/{locale}/invoices.json - 翻譯檔案
  */
 
 import * as React from 'react'
 import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -45,7 +50,7 @@ import { ProcessingStatus } from './ProcessingStatus'
 import { RetryButton } from './RetryButton'
 import { getStatusConfig } from '@/lib/document-status'
 import { formatDistanceToNow } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
+import { zhTW, enUS } from 'date-fns/locale'
 import { Eye, FileText } from 'lucide-react'
 import type { DocumentListItem } from '@/hooks/use-documents'
 
@@ -65,13 +70,13 @@ export interface InvoiceListTableProps {
 // ============================================================
 
 /**
- * 處理路徑顯示映射
+ * 處理路徑顯示映射 key（用於翻譯查找）
  */
-const processingPathLabels: Record<string, string> = {
-  AUTO_APPROVE: '自動通過',
-  QUICK_REVIEW: '快速審核',
-  FULL_REVIEW: '完整審核',
-  MANUAL_REQUIRED: '需人工處理',
+const processingPathKeys: Record<string, string> = {
+  AUTO_APPROVE: 'autoApprove',
+  QUICK_REVIEW: 'quickReview',
+  FULL_REVIEW: 'fullReview',
+  MANUAL_REQUIRED: 'manualRequired',
 }
 
 // ============================================================
@@ -96,11 +101,17 @@ export function InvoiceListTable({
   documents,
   isLoading,
 }: InvoiceListTableProps) {
+  const t = useTranslations('invoices')
+  const locale = useLocale()
+
+  // 根據 locale 選擇日期格式化的 locale
+  const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
+
   // 載入中狀態
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-pulse text-gray-500">載入中...</div>
+        <div className="animate-pulse text-gray-500">{t('table.loading')}</div>
       </div>
     )
   }
@@ -110,7 +121,7 @@ export function InvoiceListTable({
     return (
       <div className="flex flex-col items-center justify-center py-12 text-gray-500">
         <FileText className="h-12 w-12 mb-4 opacity-50" />
-        <p>沒有找到文件</p>
+        <p>{t('table.noDocuments')}</p>
       </div>
     )
   }
@@ -119,11 +130,11 @@ export function InvoiceListTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>文件名稱</TableHead>
-          <TableHead>狀態</TableHead>
-          <TableHead>處理路徑</TableHead>
-          <TableHead>上傳時間</TableHead>
-          <TableHead className="text-right">操作</TableHead>
+          <TableHead>{t('table.columns.filename')}</TableHead>
+          <TableHead>{t('table.columns.status')}</TableHead>
+          <TableHead>{t('table.columns.processingPath')}</TableHead>
+          <TableHead>{t('table.columns.uploadTime')}</TableHead>
+          <TableHead className="text-right">{t('table.columns.actions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -151,9 +162,9 @@ export function InvoiceListTable({
                 {statusConfig.isError && doc.uploader && (
                   <p
                     className="text-xs text-red-500 mt-1 truncate max-w-[150px]"
-                    title="處理過程中發生錯誤"
+                    title={t('table.processingError')}
                   >
-                    處理失敗
+                    {t('table.processingFailed')}
                   </p>
                 )}
               </TableCell>
@@ -162,7 +173,7 @@ export function InvoiceListTable({
               <TableCell>
                 {doc.processingPath ? (
                   <span className="text-sm">
-                    {processingPathLabels[doc.processingPath] ||
+                    {t(`processingPath.${processingPathKeys[doc.processingPath]}`) ||
                       doc.processingPath}
                   </span>
                 ) : (
@@ -174,7 +185,7 @@ export function InvoiceListTable({
               <TableCell className="text-gray-500 text-sm">
                 {formatDistanceToNow(new Date(doc.createdAt), {
                   addSuffix: true,
-                  locale: zhTW,
+                  locale: dateLocale,
                 })}
               </TableCell>
 

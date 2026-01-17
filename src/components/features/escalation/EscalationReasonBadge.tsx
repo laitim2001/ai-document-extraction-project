@@ -1,25 +1,28 @@
 'use client'
 
 /**
- * @fileoverview 升級原因 Badge 組件
+ * @fileoverview 升級原因 Badge 組件（國際化版本）
  * @description
  *   顯示升級案例原因的標籤組件：
  *   - UNKNOWN_COMPANY: 無法識別 Company (REFACTOR-001: 原 UNKNOWN_FORWARDER)
  *   - RULE_NOT_APPLICABLE: 映射規則不適用
  *   - POOR_QUALITY: 文件品質問題
  *   - OTHER: 其他
+ *   - 完整國際化支援
  *
  * @module src/components/features/escalation/EscalationReasonBadge
  * @since Epic 3 - Story 3.8 (Super User 處理升級案例)
- * @lastModified 2025-12-22
+ * @lastModified 2026-01-17
  * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/badge - shadcn Badge 組件
  *   - @/types/escalation - 原因配置
  *   - lucide-react - 圖示
  */
 
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { ESCALATION_REASON_CONFIG } from '@/types/escalation'
 import { cn } from '@/lib/utils'
@@ -63,6 +66,15 @@ const REASON_ICONS: Record<EscalationReason, React.ElementType> = {
 // Component
 // ============================================================
 
+// 原因翻譯 key 映射
+const REASON_I18N_KEYS: Record<EscalationReason, string> = {
+  UNKNOWN_FORWARDER: 'unknownCompany',
+  UNKNOWN_COMPANY: 'unknownCompany',
+  RULE_NOT_APPLICABLE: 'mappingNotApplicable',
+  POOR_QUALITY: 'documentQuality',
+  OTHER: 'other',
+}
+
 /**
  * 升級原因 Badge
  *
@@ -77,8 +89,11 @@ export function EscalationReasonBadge({
   showIcon = false,
   className,
 }: EscalationReasonBadgeProps) {
-  const config = ESCALATION_REASON_CONFIG[reason]
+  const t = useTranslations('escalation')
   const Icon = REASON_ICONS[reason]
+
+  // 使用翻譯獲取原因標籤
+  const reasonLabel = t(`reasons.${REASON_I18N_KEYS[reason]}`)
 
   return (
     <Badge
@@ -86,7 +101,7 @@ export function EscalationReasonBadge({
       className={cn('gap-1', className)}
     >
       {showIcon && <Icon className="h-3 w-3" />}
-      {config.label}
+      {reasonLabel}
     </Badge>
   )
 }

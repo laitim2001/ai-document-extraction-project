@@ -1,15 +1,16 @@
 'use client'
 
 /**
- * @fileoverview Forwarder 表單組件
+ * @fileoverview Forwarder 表單組件（國際化版本）
  * @description
  *   提供 Forwarder 創建和編輯的表單。
  *   支援即時代碼驗證、Logo 上傳和表單驗證。
+ *   - 完整國際化支援
  *
  * @module src/components/features/forwarders/ForwarderForm
  * @author Development Team
  * @since Epic 5 - Story 5.5 (新增/停用貨代商配置)
- * @lastModified 2025-12-19
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 創建/編輯模式
@@ -17,8 +18,10 @@
  *   - Logo 上傳和預覽
  *   - Zod 表單驗證
  *   - 提交狀態管理
+ *   - 完整國際化支援
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - react-hook-form - 表單管理
  *   - @hookform/resolvers/zod - Zod 驗證
  *   - use-debounce - Debounce Hook
@@ -26,6 +29,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useCallback, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -68,12 +72,8 @@ interface ForwarderFormProps {
     defaultConfidence?: number
     logoUrl?: string | null
   }
-  /** 表單標題 */
-  title?: string
-  /** 表單描述 */
-  description?: string
-  /** 提交按鈕文字 */
-  submitLabel?: string
+  /** 是否為編輯模式 */
+  isEdit?: boolean
   /** 自定義 className */
   className?: string
 }
@@ -95,13 +95,17 @@ interface CodeCheckState {
  */
 export function ForwarderForm({
   initialData,
-  title = '新增貨代商',
-  description = '填寫貨代商基本資訊',
-  submitLabel = '創建貨代商',
+  isEdit = false,
   className,
 }: ForwarderFormProps) {
+  const t = useTranslations('companies')
   const router = useRouter()
-  const isEditMode = !!initialData?.id
+  const isEditMode = isEdit || !!initialData?.id
+
+  // 動態標題和描述
+  const title = isEditMode ? t('form.editTitle') : t('form.title')
+  const description = t('form.description')
+  const submitLabel = isEditMode ? t('form.submitEdit') : t('form.submit')
 
   // --- State ---
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -148,7 +152,7 @@ export function ForwarderForm({
     if (!/^[A-Z0-9_]+$/.test(code)) {
       setCodeCheck({
         status: 'error',
-        message: '只能使用大寫字母、數字和底線',
+        message: t('form.codeCheck.invalidFormat'),
       })
       return
     }
@@ -162,18 +166,18 @@ export function ForwarderForm({
       if (data.success && data.data.available) {
         setCodeCheck({
           status: 'available',
-          message: '此代碼可以使用',
+          message: t('form.codeCheck.available'),
         })
       } else {
         setCodeCheck({
           status: 'taken',
-          message: '此代碼已被使用',
+          message: t('form.codeCheck.taken'),
         })
       }
     } catch {
       setCodeCheck({
         status: 'error',
-        message: '檢查失敗，請稍後重試',
+        message: t('form.codeCheck.error'),
       })
     }
   }, 300)
@@ -201,7 +205,7 @@ export function ForwarderForm({
   const onSubmit = async (data: CreateForwarderFormData) => {
     // 檢查代碼是否可用（創建模式）
     if (!isEditMode && codeCheck.status === 'taken') {
-      setSubmitError('請選擇一個可用的代碼')
+      setSubmitError(t('form.codeCheck.taken'))
       return
     }
 
@@ -238,14 +242,14 @@ export function ForwarderForm({
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error?.detail || '操作失敗')
+        throw new Error(result.error?.detail || t('form.submitError'))
       }
 
       // 成功後跳轉
       router.push('/companies')
       router.refresh()
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : '操作失敗，請稍後重試')
+      setSubmitError(err instanceof Error ? err.message : t('form.submitErrorRetry'))
     } finally {
       setIsSubmitting(false)
     }
@@ -258,7 +262,7 @@ export function ForwarderForm({
         return (
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
             <Loader2 className="h-3 w-3 animate-spin" />
-            檢查中...
+            {t('form.codeCheck.checking')}
           </span>
         )
       case 'available':
@@ -417,7 +421,7 @@ export function ForwarderForm({
               onClick={() => router.back()}
               disabled={isSubmitting}
             >
-              取消
+              {t('actions.cancel')}
             </Button>
             <Button
               type="submit"

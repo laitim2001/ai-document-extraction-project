@@ -1,0 +1,64 @@
+{
+  "fieldsPanel": {
+    "stats": {
+      "showing": "Showing {filtered} / {total} fields",
+      "editedOnly": "(showing edited only)",
+      "edited": "{count} edited",
+      "lowConfidence": "{count} low confidence",
+      "avgConfidence": "Avg. confidence: {value}%"
+    },
+    "empty": {
+      "noFields": "No matching fields",
+      "clearSearch": "Clear search"
+    }
+  },
+  "filters": {
+    "search": {
+      "placeholder": "Search field names or values..."
+    },
+    "confidence": {
+      "label": "Confidence",
+      "all": "All confidence",
+      "high": "High (≥90%)",
+      "medium": "Medium (70-89%)",
+      "low": "Low (<70%)"
+    },
+    "source": {
+      "label": "Source",
+      "all": "All sources",
+      "azureDi": "Azure DI",
+      "gptVision": "GPT Vision",
+      "manual": "Manual",
+      "mapping": "Mapping Rule"
+    },
+    "sortBy": {
+      "label": "Sort",
+      "category": "Category",
+      "name": "Name",
+      "confidence": "Confidence"
+    },
+    "sortOrder": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "showEditedOnly": "Show edited only"
+  },
+  "controls": {
+    "navigation": {
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "pageNumber": "Page number"
+    },
+    "zoom": {
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "resetZoom": "Reset zoom (100%)",
+      "fitWidth": "Fit width"
+    }
+  },
+  "error": {
+    "title": "Error",
+    "loading": "Failed to load document",
+    "retry": "Retry"
+  }
+}

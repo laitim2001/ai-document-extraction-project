@@ -1,24 +1,27 @@
 'use client'
 
 /**
- * @fileoverview 重試處理按鈕組件
+ * @fileoverview 重試處理按鈕組件（國際化版本）
  * @description
  *   提供文件處理重試功能的按鈕：
  *   - 點擊觸發重試 API
  *   - 載入狀態顯示
  *   - 成功/失敗提示
+ *   - 完整國際化支援
  *
  * @module src/components/features/invoice/RetryButton
  * @author Development Team
  * @since Epic 2 - Story 2.7 (Processing Status Tracking & Display)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 整合 useDocuments hook 的 retry
  *   - 載入動畫
  *   - Toast 通知
+ *   - i18n 國際化支援
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - lucide-react - 圖標
  *   - sonner - Toast 通知
  *   - @/components/ui/button - Button 組件
@@ -27,9 +30,11 @@
  * @related
  *   - src/hooks/use-documents.ts - Documents Hook
  *   - src/components/features/invoice/InvoiceListTable.tsx - 表格組件
+ *   - messages/{locale}/invoices.json - 翻譯檔案
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { RefreshCw, Loader2 } from 'lucide-react'
 import { useDocuments } from '@/hooks/use-documents'
@@ -77,16 +82,17 @@ export function RetryButton({
   size = 'sm',
   className,
 }: RetryButtonProps) {
+  const t = useTranslations('invoices')
   const { retry, isRetrying } = useDocuments()
 
   const handleRetry = () => {
     retry(documentId, {
       onSuccess: () => {
-        toast.success('處理重新開始')
+        toast.success(t('retry.success'))
         onRetry?.()
       },
       onError: (error) => {
-        toast.error(`重試失敗: ${error.message}`)
+        toast.error(t('retry.failed', { message: error.message }))
       },
     })
   }
@@ -104,7 +110,7 @@ export function RetryButton({
       ) : (
         <RefreshCw className="h-4 w-4" />
       )}
-      <span className="ml-1">重試</span>
+      <span className="ml-1">{t('retry.button')}</span>
     </Button>
   )
 }

@@ -1,0 +1,119 @@
+{
+  "list": {
+    "empty": "No Prompt configurations yet",
+    "loadError": "Load failed: {error}",
+    "version": "Version v{version}",
+    "globalConfig": "Global configuration",
+    "disabled": "Disabled",
+    "edit": "Edit"
+  },
+  "types": {
+    "ISSUER_IDENTIFICATION": "Issuer Identification",
+    "TERM_CLASSIFICATION": "Term Classification",
+    "FIELD_EXTRACTION": "Field Extraction",
+    "VALIDATION": "Result Validation"
+  },
+  "filters": {
+    "search": {
+      "placeholder": "Search configuration names..."
+    },
+    "promptType": {
+      "all": "All types"
+    },
+    "scope": {
+      "all": "All scopes"
+    },
+    "status": {
+      "all": "All statuses",
+      "active": "Active",
+      "inactive": "Disabled"
+    },
+    "clear": "Clear filters",
+    "label": "Filters:"
+  },
+  "form": {
+    "basicInfo": {
+      "title": "Basic Information",
+      "description": "Set the basic properties of the Prompt configuration"
+    },
+    "name": {
+      "label": "Configuration Name",
+      "placeholder": "e.g., DHL Invoice Term Classification"
+    },
+    "description": {
+      "label": "Description",
+      "placeholder": "Description of the configuration's purpose..."
+    },
+    "promptType": {
+      "label": "Prompt Type",
+      "placeholder": "Select type"
+    },
+    "scope": {
+      "label": "Scope",
+      "placeholder": "Select scope"
+    },
+    "company": {
+      "label": "Company",
+      "placeholder": "Select company"
+    },
+    "documentFormat": {
+      "label": "Document Format",
+      "placeholder": "Select document format"
+    },
+    "mergeStrategy": {
+      "label": "Merge Strategy",
+      "placeholder": "Select strategy"
+    },
+    "isActive": {
+      "label": "Active Status",
+      "description": "When disabled, this configuration will not be used"
+    },
+    "promptContent": {
+      "title": "Prompt Content",
+      "description": "Edit System Prompt and User Prompt Template"
+    },
+    "validation": {
+      "typeRequired": "Please select a Prompt type",
+      "scopeRequired": "Please select a scope",
+      "nameRequired": "Please enter a configuration name",
+      "nameMaxLength": "Name must be 100 characters or less",
+      "descriptionMaxLength": "Description must be 500 characters or less",
+      "systemPromptRequired": "Please enter System Prompt",
+      "userPromptRequired": "Please enter User Prompt Template"
+    },
+    "submit": {
+      "saving": "Saving...",
+      "create": "Create Configuration",
+      "update": "Update Configuration"
+    },
+    "testUnavailable": "Test feature unavailable"
+  },
+  "scopes": {
+    "GLOBAL": {
+      "label": "Global",
+      "description": "Applies to all companies and document formats"
+    },
+    "COMPANY": {
+      "label": "Company",
+      "description": "Applies to a specific company"
+    },
+    "FORMAT": {
+      "label": "Format",
+      "description": "Applies to a specific document format"
+    }
+  },
+  "mergeStrategies": {
+    "OVERRIDE": {
+      "label": "Override",
+      "description": "Completely replace parent configuration"
+    },
+    "APPEND": {
+      "label": "Append",
+      "description": "Append to parent configuration"
+    },
+    "PREPEND": {
+      "label": "Prepend",
+      "description": "Insert before parent configuration"
+    }
+  }
+}

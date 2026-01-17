@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Global Admin Dashboard",
+    "description": "Cross-region, cross-city system performance monitoring"
+  },
+  "filters": {
+    "last7Days": "Last 7 Days",
+    "last30Days": "Last 30 Days",
+    "last90Days": "Last 90 Days",
+    "pastYear": "Past Year"
+  },
+  "tabs": {
+    "regionalPerformance": "Regional Performance",
+    "cityRankings": "City Rankings"
+  },
+  "stats": {
+    "totalVolume": "Total Processing Volume",
+    "totalVolumeDesc": "Total documents processed during the period",
+    "completed": "Completed",
+    "completedDesc": "Successfully processed documents",
+    "successRate": "Success Rate",
+    "successRateDesc": "Completion ratio",
+    "avgConfidence": "Average Confidence",
+    "avgConfidenceDesc": "AI classification confidence",
+    "activeCities": "Active Cities",
+    "activeCitiesDesc": "Number of active cities",
+    "activeUsers": "Active Users",
+    "activeUsersDesc": "Users who logged in during the period",
+    "loadError": "Error loading statistics"
+  },
+  "region": {
+    "title": "Regional Performance",
+    "days7": "7 Days",
+    "days30": "30 Days",
+    "days90": "90 Days",
+    "volume": "Processing Volume",
+    "activeCities": "active cities",
+    "successRate": "Success Rate",
+    "confidence": "Confidence",
+    "noData": "No regional data available",
+    "noCityData": "No city data for this region",
+    "city": "City",
+    "correctionRate": "Correction Rate"
+  },
+  "rankings": {
+    "title": "City Leaderboard",
+    "sortBy": {
+      "volume": "Volume",
+      "successRate": "Success Rate",
+      "efficiency": "Efficiency"
+    },
+    "noData": "No ranking data available",
+    "rank": "Rank",
+    "city": "City",
+    "region": "Region",
+    "change": "Change"
+  },
+  "trend": {
+    "title": "Trend Analysis",
+    "metrics": {
+      "all": "All Metrics",
+      "volume": "Volume",
+      "successRate": "Success Rate",
+      "confidence": "Confidence"
+    },
+    "noData": "No trend data available"
+  }
+}

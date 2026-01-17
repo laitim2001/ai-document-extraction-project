@@ -13,6 +13,7 @@
  * @lastModified 2025-12-21
  */
 
+import { useTranslations } from 'next-intl'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import {
@@ -56,15 +57,18 @@ export function BackupStatusCard({
   nextScheduledBackup,
   isLoading,
 }: BackupStatusCardProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <HardDrive className="h-5 w-5" />
-            備份狀態摘要
+            {t('backup.statusCard.title')}
           </CardTitle>
-          <CardDescription>系統備份的整體狀態</CardDescription>
+          <CardDescription>{t('backup.statusCard.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -79,28 +83,28 @@ export function BackupStatusCard({
 
   const stats = [
     {
-      label: '已完成',
+      label: t('backup.statusCard.stats.completed'),
       value: completedBackups,
       icon: CheckCircle2,
       color: 'text-green-600',
       bg: 'bg-green-100',
     },
     {
-      label: '執行中',
+      label: t('backup.statusCard.stats.running'),
       value: runningBackups,
       icon: PlayCircle,
       color: 'text-blue-600',
       bg: 'bg-blue-100',
     },
     {
-      label: '失敗',
+      label: t('backup.statusCard.stats.failed'),
       value: failedBackups,
       icon: XCircle,
       color: 'text-red-600',
       bg: 'bg-red-100',
     },
     {
-      label: '總計',
+      label: t('backup.statusCard.stats.total'),
       value: totalBackups,
       icon: HardDrive,
       color: 'text-gray-600',
@@ -113,9 +117,9 @@ export function BackupStatusCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <HardDrive className="h-5 w-5" />
-          備份狀態摘要
+          {t('backup.statusCard.title')}
         </CardTitle>
-        <CardDescription>系統備份的整體狀態</CardDescription>
+        <CardDescription>{t('backup.statusCard.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* 狀態統計 */}
@@ -142,11 +146,11 @@ export function BackupStatusCard({
           <div className="flex items-center gap-3 rounded-lg border p-4">
             <Clock className="h-5 w-5 text-muted-foreground" />
             <div>
-              <p className="text-sm font-medium">最後備份時間</p>
+              <p className="text-sm font-medium">{t('backup.statusCard.lastBackup')}</p>
               <p className="text-sm text-muted-foreground">
                 {lastBackupTime
                   ? format(new Date(lastBackupTime), 'yyyy/MM/dd HH:mm', { locale: zhTW })
-                  : '尚未有備份'}
+                  : t('backup.statusCard.noBackup')}
               </p>
             </div>
           </div>
@@ -154,11 +158,11 @@ export function BackupStatusCard({
           <div className="flex items-center gap-3 rounded-lg border p-4">
             <Calendar className="h-5 w-5 text-muted-foreground" />
             <div>
-              <p className="text-sm font-medium">下次排程備份</p>
+              <p className="text-sm font-medium">{t('backup.statusCard.nextScheduled')}</p>
               <p className="text-sm text-muted-foreground">
                 {nextScheduledBackup
                   ? format(new Date(nextScheduledBackup), 'yyyy/MM/dd HH:mm', { locale: zhTW })
-                  : '無排程'}
+                  : t('backup.statusCard.noSchedule')}
               </p>
             </div>
           </div>

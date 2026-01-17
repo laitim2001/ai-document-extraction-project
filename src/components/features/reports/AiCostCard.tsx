@@ -26,6 +26,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -177,6 +178,8 @@ export function AiCostCard({
   showDetailLink = true,
   className,
 }: AiCostCardProps) {
+  const t = useTranslations('reports')
+
   // 計算日期範圍
   const endDate = new Date()
   const startDate = new Date()
@@ -211,13 +214,13 @@ export function AiCostCard({
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
             <DollarSign className="h-4 w-4" />
-            AI API 成本
+            {t('aiCost.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-4 text-center">
             <AlertTriangle className="h-8 w-8 text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">無法載入成本數據</p>
+            <p className="text-sm text-muted-foreground">{t('aiCost.loadError')}</p>
           </div>
         </CardContent>
       </Card>
@@ -245,25 +248,25 @@ export function AiCostCard({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <DollarSign className="h-4 w-4" />
-            AI API 成本
+            {t('aiCost.title')}
             {hasAnomalies && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
                     <Badge variant="outline" className="border-yellow-500 text-yellow-600">
                       <AlertTriangle className="h-3 w-3 mr-1" />
-                      {(anomalies?.severityCounts.high || 0) + (anomalies?.severityCounts.critical || 0)} 異常
+                      {t('aiCost.anomalyCount', { count: (anomalies?.severityCounts.high || 0) + (anomalies?.severityCounts.critical || 0) })}
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>過去 7 天有成本異常，請點擊查看詳情</p>
+                    <p>{t('aiCost.anomalyTooltip')}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             )}
           </CardTitle>
           <CardDescription>
-            過去 {dateRange} 天
+            {t('aiCost.pastDays', { days: dateRange })}
           </CardDescription>
         </div>
       </CardHeader>
@@ -283,21 +286,21 @@ export function AiCostCard({
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
                 <Cpu className="h-3 w-3" />
-                呼叫次數
+                {t('aiCost.callCount')}
               </div>
               <p className="text-lg font-semibold">{summary.totalCalls.toLocaleString()}</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
                 <CheckCircle className="h-3 w-3" />
-                成功率
+                {t('aiCost.successRate')}
               </div>
               <p className="text-lg font-semibold">{summary.overallSuccessRate.toFixed(1)}%</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
                 <DollarSign className="h-3 w-3" />
-                均成本
+                {t('aiCost.avgCost')}
               </div>
               <p className="text-lg font-semibold">
                 ${summary.totalCalls > 0 ? (totalCost / summary.totalCalls).toFixed(6) : '0'}
@@ -326,7 +329,7 @@ export function AiCostCard({
                       ))}
                     </Pie>
                     <RechartsTooltip
-                      formatter={(value) => [`$${Number(value ?? 0).toFixed(4)}`, '成本']}
+                      formatter={(value) => [`$${Number(value ?? 0).toFixed(4)}`, t('aiCost.costLabel')]}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -349,7 +352,7 @@ export function AiCostCard({
             <div className="pt-2 border-t">
               <Button variant="ghost" className="w-full justify-between" asChild>
                 <Link href="/reports/ai-cost">
-                  查看詳細分析
+                  {t('aiCost.viewDetails')}
                   <ChevronRight className="h-4 w-4" />
                 </Link>
               </Button>

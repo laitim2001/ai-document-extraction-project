@@ -1,5 +1,5 @@
 /**
- * @fileoverview 欄位過濾器組件
+ * @fileoverview 欄位過濾器組件 (i18n version)
  * @description
  *   提供欄位列表的過濾和排序功能：
  *   - 關鍵字搜尋
@@ -7,15 +7,17 @@
  *   - 來源過濾 (Azure DI/GPT Vision/手動/映射)
  *   - 排序 (名稱/信心度/類別)
  *   - 僅顯示已修改
+ *   - Full i18n support
  *
  * @module src/components/features/document-preview
  * @since Epic 13 - Story 13.2 (欄位提取結果面板)
- * @lastModified 2026-01-02
+ * @lastModified 2026-01-17
  */
 
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Search, ArrowUp, ArrowDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -56,6 +58,8 @@ export function FieldFilters({
   onChange,
   className,
 }: FieldFiltersProps) {
+  const t = useTranslations('documentPreview')
+
   // --- Handlers ---
 
   const updateFilter = <K extends keyof FieldFilterState>(
@@ -78,7 +82,7 @@ export function FieldFilters({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
-            placeholder="搜尋欄位名稱或值..."
+            placeholder={t('filters.search.placeholder')}
             value={filters.search}
             onChange={(e) => updateFilter('search', e.target.value)}
             className="pl-9"
@@ -99,13 +103,13 @@ export function FieldFilters({
           }
         >
           <SelectTrigger className="w-32">
-            <SelectValue placeholder="信心度" />
+            <SelectValue placeholder={t('filters.confidence.label')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">全部信心度</SelectItem>
-            <SelectItem value="HIGH">高 (≥90%)</SelectItem>
-            <SelectItem value="MEDIUM">中 (70-89%)</SelectItem>
-            <SelectItem value="LOW">低 (&lt;70%)</SelectItem>
+            <SelectItem value="ALL">{t('filters.confidence.all')}</SelectItem>
+            <SelectItem value="HIGH">{t('filters.confidence.high')}</SelectItem>
+            <SelectItem value="MEDIUM">{t('filters.confidence.medium')}</SelectItem>
+            <SelectItem value="LOW">{t('filters.confidence.low')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -117,14 +121,14 @@ export function FieldFilters({
           }
         >
           <SelectTrigger className="w-32">
-            <SelectValue placeholder="來源" />
+            <SelectValue placeholder={t('filters.source.label')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">全部來源</SelectItem>
-            <SelectItem value="AZURE_DI">Azure DI</SelectItem>
-            <SelectItem value="GPT_VISION">GPT Vision</SelectItem>
-            <SelectItem value="MANUAL">手動輸入</SelectItem>
-            <SelectItem value="MAPPING">映射規則</SelectItem>
+            <SelectItem value="ALL">{t('filters.source.all')}</SelectItem>
+            <SelectItem value="AZURE_DI">{t('filters.source.azureDi')}</SelectItem>
+            <SelectItem value="GPT_VISION">{t('filters.source.gptVision')}</SelectItem>
+            <SelectItem value="MANUAL">{t('filters.source.manual')}</SelectItem>
+            <SelectItem value="MAPPING">{t('filters.source.mapping')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -136,12 +140,12 @@ export function FieldFilters({
           }
         >
           <SelectTrigger className="w-28">
-            <SelectValue placeholder="排序" />
+            <SelectValue placeholder={t('filters.sortBy.label')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="category">類別</SelectItem>
-            <SelectItem value="name">名稱</SelectItem>
-            <SelectItem value="confidence">信心度</SelectItem>
+            <SelectItem value="category">{t('filters.sortBy.category')}</SelectItem>
+            <SelectItem value="name">{t('filters.sortBy.name')}</SelectItem>
+            <SelectItem value="confidence">{t('filters.sortBy.confidence')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -150,7 +154,7 @@ export function FieldFilters({
           variant="outline"
           size="icon"
           onClick={toggleSortOrder}
-          title={filters.sortOrder === 'asc' ? '升序' : '降序'}
+          title={filters.sortOrder === 'asc' ? t('filters.sortOrder.asc') : t('filters.sortOrder.desc')}
         >
           {filters.sortOrder === 'asc' ? (
             <ArrowUp className="h-4 w-4" />
@@ -172,7 +176,7 @@ export function FieldFilters({
             htmlFor="showEditedOnly"
             className="cursor-pointer text-sm text-gray-700"
           >
-            僅顯示已修改
+            {t('filters.showEditedOnly')}
           </label>
         </div>
       </div>

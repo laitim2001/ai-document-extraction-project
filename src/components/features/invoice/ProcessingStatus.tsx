@@ -1,24 +1,27 @@
 'use client'
 
 /**
- * @fileoverview 處理狀態徽章組件
+ * @fileoverview 處理狀態徽章組件（國際化版本）
  * @description
  *   顯示文件處理狀態的徽章，包含：
  *   - 狀態圖標
- *   - 狀態標籤（支援中英文）
+ *   - 狀態標籤（根據 locale 自動切換語言）
  *   - 處理中動畫
+ *   - 完整國際化支援
  *
  * @module src/components/features/invoice/ProcessingStatus
  * @author Development Team
  * @since Epic 2 - Story 2.7 (Processing Status Tracking & Display)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 11 種狀態視覺化
  *   - 處理中旋轉動畫
  *   - 可配置尺寸
+ *   - i18n 國際化支援
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - lucide-react - 圖標
  *   - @/lib/document-status - 狀態配置
  *   - @/lib/utils - cn utility
@@ -26,9 +29,11 @@
  * @related
  *   - src/lib/document-status.ts - 狀態配置
  *   - src/components/features/invoice/InvoiceListTable.tsx - 表格組件
+ *   - messages/{locale}/invoices.json - 翻譯檔案
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
 import { getStatusConfig, type DocumentStatusKey } from '@/lib/document-status'
@@ -89,8 +94,12 @@ export function ProcessingStatus({
   size = 'md',
   className,
 }: ProcessingStatusProps) {
+  const t = useTranslations('invoices')
   const config = getStatusConfig(status)
   const Icon = config.icon
+
+  // 使用翻譯獲取狀態標籤，fallback 到 config.label
+  const statusLabel = t.has(`status.${status}`) ? t(`status.${status}`) : config.label
 
   return (
     <div
@@ -107,7 +116,7 @@ export function ProcessingStatus({
       ) : (
         <Icon className={iconSizes[size]} />
       )}
-      {showLabel && <span>{config.labelZh}</span>}
+      {showLabel && <span>{statusLabel}</span>}
     </div>
   )
 }

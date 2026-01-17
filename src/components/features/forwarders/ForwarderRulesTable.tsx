@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * @fileoverview Forwarder 規則列表組件
+ * @fileoverview Forwarder 規則列表組件（國際化版本）
  * @description
  *   顯示 Forwarder 相關的映射規則列表，支援：
  *   - 狀態篩選
@@ -9,19 +9,22 @@
  *   - 分頁
  *   - 排序
  *   - 規則編輯（Story 5-3）
+ *   - 完整國際化支援
  *
  * @module src/components/features/forwarders/ForwarderRulesTable
  * @author Development Team
  * @since Epic 5 - Story 5.2 (Forwarder Detail Config View)
- * @lastModified 2025-12-19
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/types/forwarder - 類型定義
  *   - @/components/ui - UI 組件
  *   - @/components/features/rules - 規則編輯組件
  */
 
 import { useState, useCallback } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -55,7 +58,7 @@ import type { RuleStatus, RuleListItem } from '@/types/forwarder'
 import { RULE_STATUS_CONFIG } from '@/types/forwarder'
 import { Search, FileText, MoreHorizontal, Edit, Eye } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
+import { zhTW, enUS } from 'date-fns/locale'
 import Link from 'next/link'
 import { useQueryClient } from '@tanstack/react-query'
 import { ruleKeys } from '@/hooks/useRuleEdit'
@@ -80,6 +83,10 @@ interface ForwarderRulesTableProps {
  *   顯示 Forwarder 的映射規則列表，支援篩選、搜尋和分頁
  */
 export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
+  const t = useTranslations('companies')
+  const locale = useLocale()
+  const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
+
   // 本地篩選狀態
   const [statusFilter, setStatusFilter] = useState<RuleStatus | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -136,7 +143,7 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
   // 格式化時間
   const formatTime = (date: Date | string | null) => {
     if (!date) return '-'
-    return formatDistanceToNow(new Date(date), { addSuffix: true, locale: zhTW })
+    return formatDistanceToNow(new Date(date), { addSuffix: true, locale: dateLocale })
   }
 
   // 載入中狀態
@@ -146,7 +153,7 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            映射規則
+            {t('rulesTable.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -165,7 +172,7 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
     return (
       <Card>
         <CardContent className="py-10 text-center">
-          <p className="text-destructive">載入規則列表失敗</p>
+          <p className="text-destructive">{t('rulesTable.loadFailed')}</p>
         </CardContent>
       </Card>
     )
@@ -177,10 +184,10 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            映射規則
+            {t('rulesTable.title')}
             {pagination && (
               <span className="text-sm font-normal text-muted-foreground">
-                ({pagination.total} 筆)
+                {t('rulesTable.totalCount', { count: pagination.total })}
               </span>
             )}
           </CardTitle>
@@ -190,7 +197,7 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="搜尋欄位名稱..."
+                placeholder={t('rulesTable.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="pl-8 w-full sm:w-[200px]"
@@ -198,14 +205,14 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
             </div>
             <Select value={statusFilter} onValueChange={handleStatusChange}>
               <SelectTrigger className="w-full sm:w-[140px]">
-                <SelectValue placeholder="篩選狀態" />
+                <SelectValue placeholder={t('rulesTable.filterStatus')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部狀態</SelectItem>
-                <SelectItem value="ACTIVE">啟用</SelectItem>
-                <SelectItem value="DRAFT">草稿</SelectItem>
-                <SelectItem value="PENDING_REVIEW">待審核</SelectItem>
-                <SelectItem value="DEPRECATED">已棄用</SelectItem>
+                <SelectItem value="all">{t('rulesTable.allStatus')}</SelectItem>
+                <SelectItem value="ACTIVE">{t('rulesTable.ruleStatus.active')}</SelectItem>
+                <SelectItem value="DRAFT">{t('rulesTable.ruleStatus.draft')}</SelectItem>
+                <SelectItem value="PENDING_REVIEW">{t('rulesTable.ruleStatus.pendingReview')}</SelectItem>
+                <SelectItem value="DEPRECATED">{t('rulesTable.ruleStatus.deprecated')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -215,21 +222,21 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
         {rules.length === 0 ? (
           <div className="py-10 text-center text-muted-foreground">
             {searchQuery || statusFilter !== 'all'
-              ? '沒有符合條件的規則'
-              : '尚無規則'}
+              ? t('rulesTable.noMatchingRules')
+              : t('rulesTable.noRules')}
           </div>
         ) : (
           <>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>欄位名稱</TableHead>
-                  <TableHead>狀態</TableHead>
-                  <TableHead className="text-right">版本</TableHead>
-                  <TableHead className="text-right">信心度</TableHead>
-                  <TableHead className="text-right">匹配次數</TableHead>
-                  <TableHead>最後匹配</TableHead>
-                  <TableHead className="w-[80px]">操作</TableHead>
+                  <TableHead>{t('rulesTable.columns.fieldName')}</TableHead>
+                  <TableHead>{t('rulesTable.columns.status')}</TableHead>
+                  <TableHead className="text-right">{t('rulesTable.columns.version')}</TableHead>
+                  <TableHead className="text-right">{t('rulesTable.columns.confidence')}</TableHead>
+                  <TableHead className="text-right">{t('rulesTable.columns.matchCount')}</TableHead>
+                  <TableHead>{t('rulesTable.columns.lastMatched')}</TableHead>
+                  <TableHead className="w-[80px]">{t('rulesTable.columns.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -240,7 +247,7 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
                     </TableCell>
                     <TableCell>
                       <Badge className={RULE_STATUS_CONFIG[rule.status].className}>
-                        {RULE_STATUS_CONFIG[rule.status].label}
+                        {t(`rulesTable.ruleStatus.${rule.status === 'ACTIVE' ? 'active' : rule.status === 'DRAFT' ? 'draft' : rule.status === 'PENDING_REVIEW' ? 'pendingReview' : 'deprecated'}`)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">v{rule.version}</TableCell>
@@ -263,12 +270,12 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => handleEditRule(rule)}>
                             <Edit className="h-4 w-4 mr-2" />
-                            編輯規則
+                            {t('rulesTable.actions.editRule')}
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link href={`/rules/${rule.id}`}>
                               <Eye className="h-4 w-4 mr-2" />
-                              查看詳情
+                              {t('rulesTable.actions.viewDetails')}
                             </Link>
                           </DropdownMenuItem>
                         </DropdownMenuContent>

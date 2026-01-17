@@ -1,15 +1,16 @@
 /**
- * @fileoverview Term Analysis Filter Bar
+ * @fileoverview Term Analysis Filter Bar (i18n version)
  * @description
  *   Filter controls for term aggregation:
  *   - Batch selection
  *   - Company filter
  *   - Date range
  *   - Minimum frequency
+ *   - Full i18n support
  *
  * @module src/components/features/term-analysis/TermFilters
  * @since Epic 0 - Story 0.5
- * @lastModified 2025-12-24
+ * @lastModified 2026-01-17
  *
  * @related
  *   - src/hooks/use-term-analysis.ts - 術語分析數據 Hook
@@ -19,6 +20,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Filter, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,6 +59,8 @@ export function TermFilters({
   batches = [],
   companies = [],
 }: TermFiltersProps) {
+  const t = useTranslations('termAnalysis');
+
   // --- Handlers ---
 
   const handleFilterChange = React.useCallback(
@@ -85,7 +89,7 @@ export function TermFilters({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">Filters</span>
+          <span className="text-sm font-medium">{t('filters.title')}</span>
         </div>
         {hasActiveFilters && (
           <Button
@@ -95,7 +99,7 @@ export function TermFilters({
             className="h-8"
           >
             <X className="h-4 w-4 mr-1" />
-            Clear
+            {t('filters.clear')}
           </Button>
         )}
       </div>
@@ -103,16 +107,16 @@ export function TermFilters({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Batch Filter */}
         <div className="space-y-2">
-          <Label htmlFor="batch-filter">Batch</Label>
+          <Label htmlFor="batch-filter">{t('filters.batch.label')}</Label>
           <Select
             value={filters.batchId || '__all__'}
             onValueChange={(value) => handleFilterChange('batchId', value)}
           >
             <SelectTrigger id="batch-filter">
-              <SelectValue placeholder="All batches" />
+              <SelectValue placeholder={t('filters.batch.all')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__all__">All batches</SelectItem>
+              <SelectItem value="__all__">{t('filters.batch.all')}</SelectItem>
               {batches.map((batch) => (
                 <SelectItem key={batch.id} value={batch.id}>
                   {batch.name}
@@ -124,16 +128,16 @@ export function TermFilters({
 
         {/* Company Filter */}
         <div className="space-y-2">
-          <Label htmlFor="company-filter">Company</Label>
+          <Label htmlFor="company-filter">{t('filters.company.label')}</Label>
           <Select
             value={filters.companyId || '__all__'}
             onValueChange={(value) => handleFilterChange('companyId', value)}
           >
             <SelectTrigger id="company-filter">
-              <SelectValue placeholder="All companies" />
+              <SelectValue placeholder={t('filters.company.all')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__all__">All companies</SelectItem>
+              <SelectItem value="__all__">{t('filters.company.all')}</SelectItem>
               {companies.map((company) => (
                 <SelectItem key={company.id} value={company.id}>
                   {company.name}
@@ -145,12 +149,12 @@ export function TermFilters({
 
         {/* Min Frequency Filter */}
         <div className="space-y-2">
-          <Label htmlFor="min-frequency">Min. Frequency</Label>
+          <Label htmlFor="min-frequency">{t('filters.minFrequency.label')}</Label>
           <Input
             id="min-frequency"
             type="number"
             min={1}
-            placeholder="1"
+            placeholder={t('filters.minFrequency.placeholder')}
             value={filters.minFrequency || ''}
             onChange={(e) =>
               handleFilterChange(
@@ -163,7 +167,7 @@ export function TermFilters({
 
         {/* Result Limit */}
         <div className="space-y-2">
-          <Label htmlFor="limit">Result Limit</Label>
+          <Label htmlFor="limit">{t('filters.limit.label')}</Label>
           <Select
             value={filters.limit?.toString() || '__all__'}
             onValueChange={(value) =>
@@ -171,10 +175,10 @@ export function TermFilters({
             }
           >
             <SelectTrigger id="limit">
-              <SelectValue placeholder="500 (default)" />
+              <SelectValue placeholder={t('filters.limit.default')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__all__">500 (default)</SelectItem>
+              <SelectItem value="__all__">{t('filters.limit.default')}</SelectItem>
               <SelectItem value="100">100</SelectItem>
               <SelectItem value="250">250</SelectItem>
               <SelectItem value="500">500</SelectItem>

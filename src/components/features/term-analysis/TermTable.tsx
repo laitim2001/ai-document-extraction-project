@@ -1,15 +1,16 @@
 /**
- * @fileoverview Term Analysis Table Component
+ * @fileoverview Term Analysis Table Component (i18n version)
  * @description
  *   Displays aggregated terms in a data table with:
  *   - Term frequency and distribution
  *   - AI classification suggestions
  *   - Multi-select for batch operations
  *   - Sorting and filtering capabilities
+ *   - Full i18n support
  *
  * @module src/components/features/term-analysis/TermTable
  * @since Epic 0 - Story 0.5
- * @lastModified 2025-12-24
+ * @lastModified 2026-01-17
  *
  * @related
  *   - src/hooks/use-term-analysis.ts - 術語分析數據 Hook
@@ -21,6 +22,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import {
   Table,
@@ -63,32 +65,21 @@ interface TermTableProps {
 }
 
 // ============================================================================
-// Constants
+// Helper Types
 // ============================================================================
 
-const CATEGORY_LABELS: Record<StandardChargeCategory, string> = {
-  OCEAN_FREIGHT: 'Ocean Freight',
-  AIR_FREIGHT: 'Air Freight',
-  HANDLING_FEE: 'Handling Fee',
-  CUSTOMS_CLEARANCE: 'Customs Clearance',
-  DOCUMENTATION_FEE: 'Documentation Fee',
-  TERMINAL_HANDLING: 'Terminal Handling',
-  INLAND_TRANSPORT: 'Inland Transport',
-  INSURANCE: 'Insurance',
-  STORAGE: 'Storage',
-  FUEL_SURCHARGE: 'Fuel Surcharge',
-  SECURITY_FEE: 'Security Fee',
-  OTHER: 'Other',
-};
+// Translation function type - using ReturnType for proper typing with next-intl
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TranslationFunction = ReturnType<typeof import('next-intl').useTranslations<any>>;
 
 // ============================================================================
-// Helper Components
+// Helper Components (with i18n support)
 // ============================================================================
 
 /**
  * Confidence indicator component
  */
-function ConfidenceIndicator({ confidence }: { confidence: number }) {
+function ConfidenceIndicator({ confidence, t }: { confidence: number; t: TranslationFunction }) {
   let Icon = AlertCircle;
   let colorClass = 'text-yellow-500';
 
@@ -114,10 +105,10 @@ function ConfidenceIndicator({ confidence }: { confidence: number }) {
         </TooltipTrigger>
         <TooltipContent>
           {confidence >= 90
-            ? 'High confidence - Auto approve'
+            ? t('table.confidence.high')
             : confidence >= 70
-              ? 'Medium confidence - Quick review'
-              : 'Low confidence - Full review'}
+              ? t('table.confidence.medium')
+              : t('table.confidence.low')}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -129,11 +120,12 @@ function ConfidenceIndicator({ confidence }: { confidence: number }) {
  */
 function CompanyBadge({
   distribution,
+  t,
 }: {
   distribution: AggregatedTerm['companyDistribution'];
+  t: TranslationFunction;
 }) {
   const totalCompanies = distribution.length;
-  const topCompany = distribution[0];
 
   if (totalCompanies === 0) {
     return <span className="text-muted-foreground">-</span>;
@@ -144,7 +136,7 @@ function CompanyBadge({
       <Tooltip>
         <TooltipTrigger asChild>
           <Badge variant="outline" className="cursor-help">
-            {totalCompanies} {totalCompanies === 1 ? 'company' : 'companies'}
+            {t('table.companyCount', { count: totalCompanies })}
           </Badge>
         </TooltipTrigger>
         <TooltipContent>
@@ -156,7 +148,7 @@ function CompanyBadge({
             ))}
             {totalCompanies > 5 && (
               <div className="text-muted-foreground">
-                +{totalCompanies - 5} more...
+                {t('table.moreCompanies', { count: totalCompanies - 5 })}
               </div>
             )}
           </div>
@@ -178,6 +170,8 @@ export function TermTable({
   onCreateRule,
   isLoading = false,
 }: TermTableProps) {
+  const t = useTranslations('termAnalysis');
+
   // --- Handlers ---
 
   const handleSelectAll = React.useCallback(
@@ -217,7 +211,7 @@ export function TermTable({
   if (terms.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No terms found. Try adjusting your filters or process more historical data.
+        {t('table.empty')}
       </div>
     );
   }
@@ -236,15 +230,15 @@ export function TermTable({
                 // @ts-expect-error - indeterminate is a valid HTML attribute
                 indeterminate={someSelected}
                 onCheckedChange={(checked) => handleSelectAll(!!checked)}
-                aria-label="Select all"
+                aria-label={t('table.selectAll')}
               />
             </TableHead>
-            <TableHead>Term</TableHead>
-            <TableHead className="w-24 text-right">Frequency</TableHead>
-            <TableHead className="w-32">Companies</TableHead>
-            <TableHead className="w-40">Suggested Category</TableHead>
-            <TableHead className="w-24">Confidence</TableHead>
-            <TableHead className="w-32">Actions</TableHead>
+            <TableHead>{t('table.headers.term')}</TableHead>
+            <TableHead className="w-24 text-right">{t('table.headers.frequency')}</TableHead>
+            <TableHead className="w-32">{t('table.headers.companies')}</TableHead>
+            <TableHead className="w-40">{t('table.headers.suggestedCategory')}</TableHead>
+            <TableHead className="w-24">{t('table.headers.confidence')}</TableHead>
+            <TableHead className="w-32">{t('table.headers.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -263,7 +257,7 @@ export function TermTable({
                     onCheckedChange={(checked) =>
                       handleSelectTerm(term.term, !!checked)
                     }
-                    aria-label={`Select ${term.term}`}
+                    aria-label={t('table.selectTerm', { term: term.term })}
                   />
                 </TableCell>
                 <TableCell>
@@ -273,7 +267,7 @@ export function TermTable({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span className="text-xs text-muted-foreground cursor-help">
-                            +{term.similarTerms.length} similar
+                            {t('table.similarTerms', { count: term.similarTerms.length })}
                           </span>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -291,13 +285,12 @@ export function TermTable({
                   {term.frequency.toLocaleString()}
                 </TableCell>
                 <TableCell>
-                  <CompanyBadge distribution={term.companyDistribution} />
+                  <CompanyBadge distribution={term.companyDistribution} t={t} />
                 </TableCell>
                 <TableCell>
                   {classification ? (
                     <Badge variant="secondary">
-                      {CATEGORY_LABELS[classification.category] ||
-                        classification.category}
+                      {t(`table.categories.${classification.category}`)}
                     </Badge>
                   ) : (
                     <span className="text-muted-foreground">-</span>
@@ -305,7 +298,7 @@ export function TermTable({
                 </TableCell>
                 <TableCell>
                   {classification ? (
-                    <ConfidenceIndicator confidence={classification.confidence} />
+                    <ConfidenceIndicator confidence={classification.confidence} t={t} />
                   ) : (
                     <span className="text-muted-foreground">-</span>
                   )}
@@ -318,7 +311,7 @@ export function TermTable({
                       onCreateRule?.(term, classification?.category)
                     }
                   >
-                    Create Rule
+                    {t('table.createRule')}
                   </Button>
                 </TableCell>
               </TableRow>

@@ -14,6 +14,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
@@ -127,6 +128,7 @@ const STANDARD_TARGET_FIELDS: TargetFieldDefinition[] = [
 // ============================================================================
 
 export default function NewFieldMappingConfigPage() {
+  const t = useTranslations('fieldMappingConfig');
   const router = useRouter();
   const { toast } = useToast();
 
@@ -177,8 +179,8 @@ export default function NewFieldMappingConfigPage() {
         }
 
         toast({
-          title: '建立成功',
-          description: `已建立配置「${configResult.data.name}」`,
+          title: t('toast.createSuccess.title'),
+          description: t('toast.createSuccess.description', { name: configResult.data.name }),
         });
 
         // Navigate back to list
@@ -186,8 +188,8 @@ export default function NewFieldMappingConfigPage() {
       } catch (err) {
         toast({
           variant: 'destructive',
-          title: '建立失敗',
-          description: err instanceof Error ? err.message : '未知錯誤',
+          title: t('toast.createError.title'),
+          description: err instanceof Error ? err.message : t('error.unknown'),
         });
       } finally {
         setIsSaving(false);
@@ -212,14 +214,14 @@ export default function NewFieldMappingConfigPage() {
         <Link href="/admin/field-mapping-configs">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            返回列表
+            {t('page.backToList')}
           </Button>
         </Link>
         <Separator orientation="vertical" className="h-6" />
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">新增欄位映射配置</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('page.newTitle')}</h1>
           <p className="text-muted-foreground">
-            建立新的三層級欄位映射規則配置
+            {t('page.newDescription')}
           </p>
         </div>
       </div>

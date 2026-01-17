@@ -1,0 +1,78 @@
+{
+  "page": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, ",
+    "welcomeUser": "User",
+    "systemDescription": "AI Document Extraction & Classification System - Intelligent Freight Invoice Processing"
+  },
+  "cards": {
+    "documentUpload": {
+      "title": "Document Upload",
+      "description": "Upload Freight Invoice for automated processing"
+    },
+    "mappingManagement": {
+      "title": "Mapping Management",
+      "description": "Manage term mapping rules and classification settings"
+    },
+    "reviewWorkstation": {
+      "title": "Review Workstation",
+      "description": "Review and correct AI classification results"
+    },
+    "dataAnalytics": {
+      "title": "Data Analytics",
+      "description": "View processing statistics and performance metrics"
+    }
+  },
+  "sections": {
+    "systemFeatures": "System Features",
+    "comingSoon": "Coming Soon",
+    "sessionInfo": "Session Info (Development Mode)"
+  },
+  "stats": {
+    "title": "Processing Statistics",
+    "processingVolume": "Processing Volume",
+    "today": "Today",
+    "successRate": "Success Rate",
+    "automationRate": "Automation Rate",
+    "avgProcessingTime": "Average Processing Time",
+    "pendingReview": "Pending Review",
+    "urgent": "Urgent",
+    "lastUpdated": "Last updated: ",
+    "refreshStats": "Refresh statistics",
+    "loadError": "Unable to load statistics: ",
+    "retry": "Retry"
+  },
+  "dateRange": {
+    "invalidRange": "Invalid date range",
+    "loading": "Loading...",
+    "days": "days",
+    "selectRange": "Select date range",
+    "maxDays": "Maximum {max} days",
+    "quickSelect": "Quick select time range",
+    "day": "Day:",
+    "week": "Week:",
+    "month": "Month:",
+    "quarter": "Quarter:",
+    "year": "Year:"
+  },
+  "presets": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "lastWeek": "Last Week",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "thisQuarter": "This Quarter",
+    "lastQuarter": "Last Quarter",
+    "thisYear": "This Year",
+    "lastYear": "Last Year",
+    "customRange": "Custom Range"
+  },
+  "dateValidation": {
+    "invalidStartDate": "Invalid start date",
+    "invalidEndDate": "Invalid end date",
+    "endBeforeStart": "End date cannot be earlier than start date",
+    "exceedsMaxDays": "Date range cannot exceed {max} days",
+    "exceedsToday": "End date cannot exceed today"
+  }
+}

@@ -33,6 +33,7 @@
  *   - src/components/features/admin/roles/DeleteRoleDialog.tsx - 刪除角色
  */
 
+import { useTranslations } from 'next-intl'
 import { useRoles } from '@/hooks/use-roles'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -80,6 +81,9 @@ interface RoleListProps {
  *   <RoleList hasManagePermission={true} />
  */
 export function RoleList({ hasManagePermission = false, className }: RoleListProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- Hooks ---
   const { data: roles, isLoading, error } = useRoles()
 
@@ -93,9 +97,9 @@ export function RoleList({ hasManagePermission = false, className }: RoleListPro
     return (
       <Card>
         <CardContent className="py-10 text-center">
-          <p className="text-destructive">載入角色列表失敗，請重試。</p>
+          <p className="text-destructive">{t('roles.list.loadError')}</p>
           <p className="text-sm text-muted-foreground mt-2">
-            {error instanceof Error ? error.message : '未知錯誤'}
+            {error instanceof Error ? error.message : t('common.unknownError')}
           </p>
         </CardContent>
       </Card>
@@ -108,7 +112,7 @@ export function RoleList({ hasManagePermission = false, className }: RoleListPro
       <Card>
         <CardContent className="py-10 text-center">
           <Shield className="mx-auto h-12 w-12 text-muted-foreground/50" />
-          <p className="mt-4 text-muted-foreground">目前沒有任何角色</p>
+          <p className="mt-4 text-muted-foreground">{t('roles.list.empty')}</p>
         </CardContent>
       </Card>
     )
@@ -126,7 +130,7 @@ export function RoleList({ hasManagePermission = false, className }: RoleListPro
         <div className="space-y-4">
           <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            系統角色（無法修改）
+            {t('roles.list.system.label')}
           </h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {systemRoles.map((role) => (
@@ -134,6 +138,7 @@ export function RoleList({ hasManagePermission = false, className }: RoleListPro
                 key={role.id}
                 role={role}
                 hasManagePermission={hasManagePermission}
+                t={t}
               />
             ))}
           </div>
@@ -144,7 +149,7 @@ export function RoleList({ hasManagePermission = false, className }: RoleListPro
       <div className="space-y-4">
         <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
           <Key className="h-4 w-4" />
-          自訂角色
+          {t('roles.list.custom.label')}
         </h3>
         {customRoles.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -153,6 +158,7 @@ export function RoleList({ hasManagePermission = false, className }: RoleListPro
                 key={role.id}
                 role={role}
                 hasManagePermission={hasManagePermission}
+                t={t}
               />
             ))}
           </div>
@@ -160,7 +166,7 @@ export function RoleList({ hasManagePermission = false, className }: RoleListPro
           <Card className="border-dashed">
             <CardContent className="py-8 text-center">
               <p className="text-muted-foreground">
-                目前沒有自訂角色，點擊「新增角色」建立第一個自訂角色
+                {t('roles.list.custom.empty')}
               </p>
             </CardContent>
           </Card>
@@ -177,12 +183,13 @@ export function RoleList({ hasManagePermission = false, className }: RoleListPro
 interface RoleCardProps {
   role: RoleWithCount
   hasManagePermission: boolean
+  t: (key: string, values?: Record<string, string | number>) => string
 }
 
 /**
  * 角色卡片組件
  */
-function RoleCard({ role, hasManagePermission }: RoleCardProps) {
+function RoleCard({ role, hasManagePermission, t }: RoleCardProps) {
   const userCount = role._count?.users ?? 0
 
   return (
@@ -194,7 +201,7 @@ function RoleCard({ role, hasManagePermission }: RoleCardProps) {
               {role.name}
               {role.isSystem && (
                 <Badge variant="secondary" className="text-xs">
-                  系統角色
+                  {t('roles.list.system.badge')}
                 </Badge>
               )}
             </CardTitle>
@@ -211,11 +218,11 @@ function RoleCard({ role, hasManagePermission }: RoleCardProps) {
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Users className="h-4 w-4" />
-            <span>{userCount} 位使用者</span>
+            <span>{t('roles.card.users', { count: userCount })}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Key className="h-4 w-4" />
-            <span>{role.permissions.length} 項權限</span>
+            <span>{t('roles.card.permissions', { count: role.permissions.length })}</span>
           </div>
         </div>
 

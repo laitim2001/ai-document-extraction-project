@@ -13,6 +13,7 @@
 
 import * as React from 'react';
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -161,6 +162,8 @@ function TableSkeleton() {
  * @description 系統日誌檢視器主組件
  */
 export function LogViewer({ className }: LogViewerProps) {
+  const t = useTranslations('admin');
+
   // --- State ---
   const [filters, setFilters] = useState<LogListFilters>({
     page: 1,
@@ -227,21 +230,21 @@ export function LogViewer({ className }: LogViewerProps) {
       {/* 頁面標題 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">系統日誌</h1>
-          <p className="text-muted-foreground">查詢和分析系統運行日誌</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('logsViewer.title')}</h1>
+          <p className="text-muted-foreground">{t('logsViewer.description')}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setShowStreamPanel(!showStreamPanel)}>
             <Activity className="mr-2 h-4 w-4" />
-            {showStreamPanel ? '關閉即時日誌' : '即時日誌'}
+            {showStreamPanel ? t('logsViewer.closeStream') : t('logsViewer.openStream')}
           </Button>
           <Button variant="outline" onClick={() => setShowExportDialog(true)}>
             <Download className="mr-2 h-4 w-4" />
-            匯出
+            {t('logsViewer.export')}
           </Button>
           <Button variant="outline" onClick={() => refetch()}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            刷新
+            {t('logsViewer.refresh')}
           </Button>
         </div>
       </div>
@@ -258,29 +261,29 @@ export function LogViewer({ className }: LogViewerProps) {
       {!statsLoading && stats && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <StatCard
-            title="總日誌數"
+            title={t('logsViewer.stats.total')}
             value={stats.totalCount}
             icon={<Activity className="h-4 w-4" />}
           />
           <StatCard
-            title="錯誤日誌"
+            title={t('logsViewer.stats.errors')}
             value={(stats.byLevel?.ERROR || 0) + (stats.byLevel?.CRITICAL || 0)}
             icon={<AlertCircle className="h-4 w-4" />}
             variant={(stats.byLevel?.ERROR || 0) + (stats.byLevel?.CRITICAL || 0) > 0 ? 'danger' : 'default'}
           />
           <StatCard
-            title="警告日誌"
+            title={t('logsViewer.stats.warnings')}
             value={stats.byLevel?.WARN || 0}
             icon={<AlertTriangle className="h-4 w-4" />}
             variant={(stats.byLevel?.WARN || 0) > 0 ? 'warning' : 'default'}
           />
           <StatCard
-            title="資訊日誌"
+            title={t('logsViewer.stats.info')}
             value={stats.byLevel?.INFO || 0}
             icon={<Info className="h-4 w-4" />}
           />
           <StatCard
-            title="除錯日誌"
+            title={t('logsViewer.stats.debug')}
             value={stats.byLevel?.DEBUG || 0}
             icon={<Bug className="h-4 w-4" />}
           />
@@ -290,8 +293,8 @@ export function LogViewer({ className }: LogViewerProps) {
       {/* 篩選區域 */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">篩選條件</CardTitle>
-          <CardDescription>根據級別、來源和關鍵字篩選日誌</CardDescription>
+          <CardTitle className="text-lg">{t('logsViewer.filters.title')}</CardTitle>
+          <CardDescription>{t('logsViewer.filters.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
@@ -300,7 +303,7 @@ export function LogViewer({ className }: LogViewerProps) {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="搜尋訊息內容..."
+                  placeholder={t('logsViewer.filters.searchPlaceholder')}
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -314,7 +317,7 @@ export function LogViewer({ className }: LogViewerProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="gap-2">
                   <Filter className="h-4 w-4" />
-                  級別
+                  {t('logsViewer.filters.level')}
                   {selectedLevels.length > 0 && (
                     <Badge variant="secondary" className="ml-1">
                       {selectedLevels.length}
@@ -323,7 +326,7 @@ export function LogViewer({ className }: LogViewerProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>選擇日誌級別</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('logsViewer.filters.selectLevel')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {LOG_LEVELS.map((level) => (
                   <DropdownMenuCheckboxItem
@@ -342,7 +345,7 @@ export function LogViewer({ className }: LogViewerProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="gap-2">
                   <Filter className="h-4 w-4" />
-                  來源
+                  {t('logsViewer.filters.source')}
                   {selectedSources.length > 0 && (
                     <Badge variant="secondary" className="ml-1">
                       {selectedSources.length}
@@ -351,7 +354,7 @@ export function LogViewer({ className }: LogViewerProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>選擇日誌來源</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('logsViewer.filters.selectSource')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {LOG_SOURCES.map((source) => (
                   <DropdownMenuCheckboxItem
@@ -371,19 +374,19 @@ export function LogViewer({ className }: LogViewerProps) {
               onValueChange={(v) => setFilters((prev) => ({ ...prev, limit: parseInt(v), page: 1 }))}
             >
               <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="每頁數量" />
+                <SelectValue placeholder={t('logsViewer.filters.perPage')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="20">20 筆</SelectItem>
-                <SelectItem value="50">50 筆</SelectItem>
-                <SelectItem value="100">100 筆</SelectItem>
+                <SelectItem value="20">{t('logsViewer.filters.perPageOption', { count: 20 })}</SelectItem>
+                <SelectItem value="50">{t('logsViewer.filters.perPageOption', { count: 50 })}</SelectItem>
+                <SelectItem value="100">{t('logsViewer.filters.perPageOption', { count: 100 })}</SelectItem>
               </SelectContent>
             </Select>
 
             {/* 搜尋和清除按鈕 */}
-            <Button onClick={handleSearch}>搜尋</Button>
+            <Button onClick={handleSearch}>{t('logsViewer.filters.search')}</Button>
             <Button variant="ghost" onClick={handleClearFilters}>
-              清除篩選
+              {t('logsViewer.filters.clear')}
             </Button>
           </div>
         </CardContent>
@@ -392,11 +395,15 @@ export function LogViewer({ className }: LogViewerProps) {
       {/* 日誌列表 */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">日誌記錄</CardTitle>
+          <CardTitle className="text-lg">{t('logsViewer.list.title')}</CardTitle>
           <CardDescription>
             {pagination
-              ? `顯示 ${(pagination.page - 1) * pagination.limit + 1} - ${Math.min(pagination.page * pagination.limit, pagination.total)} 筆，共 ${pagination.total} 筆`
-              : '載入中...'}
+              ? t('logsViewer.list.showing', {
+                  from: (pagination.page - 1) * pagination.limit + 1,
+                  to: Math.min(pagination.page * pagination.limit, pagination.total),
+                  total: pagination.total
+                })
+              : t('logsViewer.list.loading')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -404,18 +411,18 @@ export function LogViewer({ className }: LogViewerProps) {
             <TableSkeleton />
           ) : logs.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              沒有找到符合條件的日誌
+              {t('logsViewer.list.empty')}
             </div>
           ) : (
             <>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[160px]">時間</TableHead>
-                    <TableHead className="w-[100px]">級別</TableHead>
-                    <TableHead className="w-[100px]">來源</TableHead>
-                    <TableHead>訊息</TableHead>
-                    <TableHead className="w-[80px]">操作</TableHead>
+                    <TableHead className="w-[160px]">{t('logsViewer.list.columns.time')}</TableHead>
+                    <TableHead className="w-[100px]">{t('logsViewer.list.columns.level')}</TableHead>
+                    <TableHead className="w-[100px]">{t('logsViewer.list.columns.source')}</TableHead>
+                    <TableHead>{t('logsViewer.list.columns.message')}</TableHead>
+                    <TableHead className="w-[80px]">{t('logsViewer.list.columns.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -451,7 +458,7 @@ export function LogViewer({ className }: LogViewerProps) {
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4">
                   <p className="text-sm text-muted-foreground">
-                    第 {pagination.page} 頁，共 {pagination.totalPages} 頁
+                    {t('logsViewer.pagination.pageInfo', { page: pagination.page, totalPages: pagination.totalPages })}
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -461,7 +468,7 @@ export function LogViewer({ className }: LogViewerProps) {
                       onClick={() => handlePageChange(pagination.page - 1)}
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      上一頁
+                      {t('logsViewer.pagination.previous')}
                     </Button>
                     <Button
                       variant="outline"
@@ -469,7 +476,7 @@ export function LogViewer({ className }: LogViewerProps) {
                       disabled={pagination.page >= pagination.totalPages}
                       onClick={() => handlePageChange(pagination.page + 1)}
                     >
-                      下一頁
+                      {t('logsViewer.pagination.next')}
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>

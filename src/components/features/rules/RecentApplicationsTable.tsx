@@ -1,24 +1,27 @@
 'use client'
 
 /**
- * @fileoverview 最近應用記錄表格組件
+ * @fileoverview 最近應用記錄表格組件（國際化版本）
  * @description
  *   顯示映射規則的最近應用記錄：
  *   - 文件名稱和連結
  *   - 提取值
  *   - 準確性狀態（已驗證/未驗證）
  *   - 應用時間
+ *   - 完整國際化支援
  *
  * @module src/components/features/rules/RecentApplicationsTable
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/table - shadcn Table 組件
  *   - @/components/ui/badge - shadcn Badge 組件
  *   - date-fns - 日期格式化
  */
 
+import { useTranslations, useLocale } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -31,7 +34,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, XCircle, HelpCircle, ExternalLink } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
+import { zhTW, enUS } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import type { RecentApplication } from '@/types/rule'
@@ -54,12 +57,12 @@ interface RecentApplicationsTableProps {
 /**
  * 準確性狀態 Badge
  */
-function AccuracyBadge({ isAccurate }: { isAccurate: boolean | null }) {
+function AccuracyBadge({ isAccurate, t }: { isAccurate: boolean | null; t: (key: string) => string }) {
   if (isAccurate === null) {
     return (
       <Badge variant="outline" className="gap-1">
         <HelpCircle className="h-3 w-3" />
-        未驗證
+        {t('accuracy.unverified')}
       </Badge>
     )
   }
@@ -71,7 +74,7 @@ function AccuracyBadge({ isAccurate }: { isAccurate: boolean | null }) {
         className="gap-1 bg-green-100 text-green-700 border-0 dark:bg-green-900/30 dark:text-green-400"
       >
         <CheckCircle2 className="h-3 w-3" />
-        正確
+        {t('accuracy.correct')}
       </Badge>
     )
   }
@@ -82,7 +85,7 @@ function AccuracyBadge({ isAccurate }: { isAccurate: boolean | null }) {
       className="gap-1 bg-red-100 text-red-700 border-0 dark:bg-red-900/30 dark:text-red-400"
     >
       <XCircle className="h-3 w-3" />
-      錯誤
+      {t('accuracy.incorrect')}
     </Badge>
   )
 }
@@ -103,6 +106,10 @@ export function RecentApplicationsTable({
   applications,
   className,
 }: RecentApplicationsTableProps) {
+  const t = useTranslations('rules')
+  const locale = useLocale()
+  const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
+
   // --- Empty State ---
   if (applications.length === 0) {
     return (
@@ -112,9 +119,9 @@ export function RecentApplicationsTable({
           className
         )}
       >
-        <p className="text-muted-foreground">尚無應用記錄</p>
+        <p className="text-muted-foreground">{t('applications.noRecords')}</p>
         <p className="text-xs text-muted-foreground mt-1">
-          當規則被應用到文件提取時，記錄將顯示在這裡
+          {t('applications.noRecordsDesc')}
         </p>
       </div>
     )
@@ -126,10 +133,10 @@ export function RecentApplicationsTable({
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            <TableHead>文件</TableHead>
-            <TableHead>提取值</TableHead>
-            <TableHead className="w-[100px]">狀態</TableHead>
-            <TableHead className="w-[140px]">應用時間</TableHead>
+            <TableHead>{t('applications.document')}</TableHead>
+            <TableHead>{t('applications.extractedValue')}</TableHead>
+            <TableHead className="w-[100px]">{t('applications.status')}</TableHead>
+            <TableHead className="w-[140px]">{t('applications.appliedAt')}</TableHead>
             <TableHead className="w-[80px]"></TableHead>
           </TableRow>
         </TableHeader>
@@ -150,20 +157,20 @@ export function RecentApplicationsTable({
                     {app.extractedValue}
                   </code>
                 ) : (
-                  <span className="text-muted-foreground text-sm">無值</span>
+                  <span className="text-muted-foreground text-sm">{t('applications.noValue')}</span>
                 )}
               </TableCell>
 
               {/* 準確性狀態 */}
               <TableCell>
-                <AccuracyBadge isAccurate={app.isAccurate} />
+                <AccuracyBadge isAccurate={app.isAccurate} t={t} />
               </TableCell>
 
               {/* 應用時間 */}
               <TableCell className="text-sm text-muted-foreground">
                 {formatDistanceToNow(new Date(app.appliedAt), {
                   addSuffix: true,
-                  locale: zhTW,
+                  locale: dateLocale,
                 })}
               </TableCell>
 

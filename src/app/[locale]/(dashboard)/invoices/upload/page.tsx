@@ -1,23 +1,26 @@
 'use client'
 
 /**
- * @fileoverview 發票上傳頁面
+ * @fileoverview 發票上傳頁面（國際化版本）
  * @description
  *   提供發票文件上傳功能的頁面。
  *   支援拖放上傳、批量上傳和進度追蹤。
  *   支援選擇城市進行文件分類。
+ *   支援完整的國際化。
  *
- * @module src/app/(dashboard)/invoices/upload/page
+ * @module src/app/[locale]/(dashboard)/invoices/upload/page
  * @author Development Team
  * @since Epic 2 - Story 2.1 (File Upload Interface & Validation)
- * @lastModified 2026-01-14
+ * @lastModified 2026-01-17
  *
  * @related
  *   - src/components/features/invoice/FileUploader.tsx - 上傳組件
  *   - src/app/api/documents/upload/route.ts - 上傳 API
+ *   - messages/{locale}/invoices.json - 翻譯檔案
  */
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { MapPin, Loader2 } from 'lucide-react'
 import { FileUploader } from '@/components/features/invoice'
 import {
@@ -46,6 +49,7 @@ import { useCitiesGrouped } from '@/hooks/use-cities'
  * @description 發票文件上傳頁面，提供拖放上傳功能和城市選擇
  */
 export default function UploadPage() {
+  const t = useTranslations('invoices')
   const [selectedCityCode, setSelectedCityCode] = useState<string>('')
   const { data: groupedCities, isLoading: isLoadingCities } = useCitiesGrouped()
 
@@ -64,9 +68,9 @@ export default function UploadPage() {
     <div className="container mx-auto py-6 max-w-3xl">
       <Card>
         <CardHeader>
-          <CardTitle>上傳發票文件</CardTitle>
+          <CardTitle>{t('upload.title')}</CardTitle>
           <CardDescription>
-            上傳發票文件以進行 AI 處理和數據提取。支援 PDF、JPG、PNG 格式。
+            {t('upload.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -75,7 +79,7 @@ export default function UploadPage() {
             <Label htmlFor="city-select">
               <span className="flex items-center gap-1">
                 <MapPin className="h-4 w-4" />
-                選擇城市 <span className="text-destructive">*</span>
+                {t('upload.selectCity')} <span className="text-destructive">*</span>
               </span>
             </Label>
             <Select
@@ -84,11 +88,11 @@ export default function UploadPage() {
               disabled={isLoadingCities}
             >
               <SelectTrigger id="city-select" className="w-full">
-                <SelectValue placeholder={isLoadingCities ? '載入中...' : '請選擇城市'}>
+                <SelectValue placeholder={isLoadingCities ? t('upload.loading') : t('upload.selectCityPlaceholder')}>
                   {isLoadingCities ? (
                     <span className="flex items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      載入中...
+                      {t('upload.loading')}
                     </span>
                   ) : selectedCityCode ? (
                     <span className="flex items-center gap-1">
@@ -96,7 +100,7 @@ export default function UploadPage() {
                       {cityCodeToName[selectedCityCode]} ({selectedCityCode})
                     </span>
                   ) : (
-                    '請選擇城市'
+                    t('upload.selectCityPlaceholder')
                   )}
                 </SelectValue>
               </SelectTrigger>
@@ -120,7 +124,7 @@ export default function UploadPage() {
             </Select>
             {!selectedCityCode && !isLoadingCities && (
               <p className="text-sm text-muted-foreground">
-                請先選擇城市，才能上傳發票文件。
+                {t('upload.selectCityHint')}
               </p>
             )}
           </div>
@@ -131,7 +135,7 @@ export default function UploadPage() {
           ) : (
             <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground">
               <MapPin className="mx-auto h-12 w-12 mb-4 opacity-50" />
-              <p>請先選擇城市，才能上傳文件</p>
+              <p>{t('upload.selectCityRequired')}</p>
             </div>
           )}
         </CardContent>

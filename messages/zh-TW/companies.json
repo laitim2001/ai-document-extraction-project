@@ -4,27 +4,37 @@
     "description": "管理 Forwarder 公司資料和配置"
   },
   "list": {
-    "searchPlaceholder": "搜尋公司名稱...",
+    "searchPlaceholder": "搜尋名稱或代碼...",
     "filters": {
       "status": "狀態",
       "city": "城市",
       "allStatus": "所有狀態",
-      "allCities": "所有城市"
-    }
+      "allCities": "所有城市",
+      "clear": "清除"
+    },
+    "loadError": "載入公司列表失敗，請重試。",
+    "unknownError": "未知錯誤",
+    "showingResults": "顯示 {count} 筆，共 {total} 筆公司"
   },
   "table": {
     "columns": {
-      "name": "公司名稱",
-      "code": "公司代碼",
+      "name": "名稱",
+      "code": "代碼",
       "city": "城市",
       "formats": "格式數量",
       "rules": "規則數量",
+      "ruleCount": "規則數",
+      "priority": "優先級",
       "status": "狀態",
       "createdAt": "建立時間",
+      "updatedAt": "最後更新",
       "actions": "操作"
     },
-    "empty": "沒有找到公司資料",
-    "emptyDescription": "建立新公司開始設定"
+    "empty": "找不到符合條件的公司",
+    "emptyDescription": "建立新公司開始設定",
+    "rulesCount": "{count} 個映射規則",
+    "viewDetails": "檢視詳情",
+    "edit": "編輯"
   },
   "status": {
     "active": "啟用",
@@ -38,25 +48,47 @@
     "activate": "啟用",
     "deactivate": "停用",
     "viewFormats": "查看格式",
-    "viewRules": "查看規則"
+    "viewRules": "查看規則",
+    "refresh": "重新整理",
+    "cancel": "取消",
+    "confirm": "確認"
   },
   "form": {
     "basic": "基本資訊",
+    "title": "新增貨代商",
+    "editTitle": "編輯貨代商",
+    "description": "填寫貨代商基本資訊",
     "name": "公司名稱",
     "namePlaceholder": "輸入公司名稱",
     "code": "公司代碼",
     "codePlaceholder": "輸入唯一識別代碼",
+    "codeDescription": "只能使用大寫字母、數字和底線",
     "city": "城市",
     "cityPlaceholder": "選擇城市",
-    "description": "描述",
+    "descriptionField": "描述",
     "descriptionPlaceholder": "輸入公司描述（選填）",
     "contact": "聯絡資訊",
     "contactPerson": "聯絡人",
     "contactEmail": "聯絡電郵",
+    "contactEmailPlaceholder": "輸入聯絡電郵",
     "contactPhone": "聯絡電話",
     "settings": "設定",
     "autoApproveThreshold": "自動通過閾值",
-    "defaultCurrency": "預設貨幣"
+    "defaultCurrency": "預設貨幣",
+    "defaultConfidence": "預設信心度",
+    "defaultConfidenceDescription": "低於此信心度需要人工審核",
+    "logo": "Logo",
+    "submit": "創建貨代商",
+    "submitEdit": "儲存變更",
+    "submitError": "操作失敗",
+    "submitErrorRetry": "操作失敗，請稍後重試",
+    "codeCheck": {
+      "checking": "檢查中...",
+      "available": "此代碼可以使用",
+      "taken": "此代碼已被使用",
+      "error": "檢查失敗，請稍後重試",
+      "invalidFormat": "只能使用大寫字母、數字和底線"
+    }
   },
   "dialog": {
     "createTitle": "新增公司",
@@ -65,16 +97,141 @@
     "deleteMessage": "確定要刪除公司「{name}」嗎？相關的格式和規則也會被刪除。",
     "deleteWarning": "此操作無法復原"
   },
+  "deactivateDialog": {
+    "title": "停用公司",
+    "confirmQuestion": "確定要停用 {name} 嗎？",
+    "description": "停用後，該公司的發票處理將暫停。",
+    "deactivateRulesLabel": "同時停用相關規則",
+    "deactivateRulesDescription": "將 {count} 個活躍規則標記為已停用",
+    "reasonLabel": "停用原因（選填）",
+    "reasonPlaceholder": "請輸入停用原因...",
+    "confirm": "確認停用",
+    "error": "停用失敗",
+    "errorRetry": "停用失敗，請稍後重試"
+  },
+  "activateDialog": {
+    "title": "啟用公司",
+    "confirmQuestion": "確定要啟用 {name} 嗎？",
+    "description": "啟用後，該公司的發票處理將恢復。",
+    "reactivateRulesLabel": "同時恢復相關規則",
+    "reactivateRulesDescription": "將 {count} 個已停用規則恢復為活躍",
+    "confirm": "確認啟用",
+    "error": "啟用失敗",
+    "errorRetry": "啟用失敗，請稍後重試"
+  },
+  "merge": {
+    "title": "合併公司",
+    "description": "選擇要保留的主公司，其他公司將被合併到主公司中",
+    "selectPrimary": "選擇主公司（保留）",
+    "documentCount": "出現 {count} 次",
+    "needTwoCompanies": "需要選擇至少 2 個公司才能進行合併",
+    "previewTitle": "合併後，以下公司將被標記為已合併：",
+    "previewDescription": "這些公司的名稱將成為主公司的名稱變體，用於未來的自動匹配。",
+    "selectError": "請選擇要合併的公司",
+    "success": "成功合併 {count} 個公司",
+    "error": "合併公司失敗",
+    "merging": "合併中...",
+    "confirmMerge": "確認合併",
+    "close": "關閉"
+  },
+  "companyType": {
+    "forwarder": "貨運代理商",
+    "forwarderDesc": "提供貨運代理服務的公司",
+    "exporter": "出口商",
+    "exporterDesc": "從事商品出口的公司",
+    "carrier": "承運人",
+    "carrierDesc": "提供運輸服務的公司",
+    "customsBroker": "報關行",
+    "customsBrokerDesc": "提供報關服務的公司",
+    "other": "其他",
+    "otherDesc": "其他類型的公司",
+    "unknown": "未分類",
+    "unknownDesc": "尚未分類的公司",
+    "selectPlaceholder": "選擇公司類型"
+  },
   "detail": {
-    "overview": "概覽",
-    "formats": "發票格式",
-    "rules": "映射規則",
+    "overview": "總覽",
+    "formats": "格式",
+    "rules": "規則",
+    "stats": "統計",
+    "documents": "文件",
     "history": "處理歷史",
-    "stats": {
+    "backToList": "返回列表",
+    "loadFailed": "無法載入公司資料",
+    "notFound": "找不到公司",
+    "notFoundDescription": "該公司可能已被刪除或您沒有權限存取",
+    "basicInfo": "基本資訊",
+    "rulesSummary": "規則摘要",
+    "name": "名稱",
+    "code": "代碼",
+    "priority": "優先級",
+    "identificationPatterns": "識別模式",
+    "totalRules": "規則總數",
+    "relatedDocuments": "關聯文件",
+    "documentsUnit": "份",
+    "statsInfo": {
       "totalInvoices": "總發票數",
       "processedThisMonth": "本月處理",
       "autoApproveRate": "自動通過率",
       "avgConfidence": "平均信心度"
+    }
+  },
+  "stats": {
+    "noData": "暫無統計資料",
+    "totalDocuments": "文件總數",
+    "processedLast30Days": "近 30 天處理",
+    "successRate": "成功率",
+    "avgConfidence": "平均信心度",
+    "excellent": "表現優異",
+    "good": "表現良好",
+    "needsAttention": "需要關注",
+    "highConfidence": "高信心度",
+    "mediumConfidence": "中等信心度",
+    "lowConfidence": "低信心度",
+    "trendTitle": "30 天處理趨勢",
+    "chartAll": "全部",
+    "chartSuccess": "成功"
+  },
+  "recentDocs": {
+    "title": "近期文件",
+    "recentCount": "(最近 {count} 筆)",
+    "loadFailed": "載入近期文件失敗",
+    "noRecords": "尚無處理紀錄",
+    "columns": {
+      "fileName": "檔案名稱",
+      "status": "狀態",
+      "confidence": "信心度",
+      "processedAt": "處理時間",
+      "actions": "操作"
+    }
+  },
+  "rulesTable": {
+    "title": "映射規則",
+    "totalCount": "({count} 筆)",
+    "loadFailed": "載入規則列表失敗",
+    "noRules": "尚無規則",
+    "noMatchingRules": "沒有符合條件的規則",
+    "searchPlaceholder": "搜尋欄位名稱...",
+    "filterStatus": "篩選狀態",
+    "allStatus": "全部狀態",
+    "columns": {
+      "fieldName": "欄位名稱",
+      "status": "狀態",
+      "version": "版本",
+      "confidence": "信心度",
+      "matchCount": "匹配次數",
+      "lastMatched": "最後匹配",
+      "actions": "操作"
+    },
+    "actions": {
+      "editRule": "編輯規則",
+      "viewDetails": "查看詳情"
+    },
+    "ruleStatus": {
+      "active": "啟用",
+      "draft": "草稿",
+      "pendingReview": "待審核",
+      "deprecated": "已棄用"
     }
   }
 }

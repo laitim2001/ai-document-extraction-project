@@ -1,0 +1,78 @@
+{
+  "page": {
+    "title": "儀表板",
+    "welcome": "歡迎回來，",
+    "welcomeUser": "用戶",
+    "systemDescription": "AI 文件提取與分類系統 - 智能處理 Freight Invoice"
+  },
+  "cards": {
+    "documentUpload": {
+      "title": "文件上傳",
+      "description": "上傳 Freight Invoice 進行自動化處理"
+    },
+    "mappingManagement": {
+      "title": "映射管理",
+      "description": "管理術語映射規則和分類配置"
+    },
+    "reviewWorkstation": {
+      "title": "審核工作台",
+      "description": "審核和修正 AI 分類結果"
+    },
+    "dataAnalytics": {
+      "title": "數據分析",
+      "description": "查看處理統計和效能指標"
+    }
+  },
+  "sections": {
+    "systemFeatures": "系統功能",
+    "comingSoon": "即將推出",
+    "sessionInfo": "Session 資訊 (開發模式)"
+  },
+  "stats": {
+    "title": "處理統計",
+    "processingVolume": "處理量",
+    "today": "今日",
+    "successRate": "成功率",
+    "automationRate": "自動化率",
+    "avgProcessingTime": "平均處理時間",
+    "pendingReview": "待審核",
+    "urgent": "緊急",
+    "lastUpdated": "最後更新：",
+    "refreshStats": "刷新統計數據",
+    "loadError": "無法載入統計數據：",
+    "retry": "重試"
+  },
+  "dateRange": {
+    "invalidRange": "日期範圍無效",
+    "loading": "載入中...",
+    "days": "天",
+    "selectRange": "選擇日期範圍",
+    "maxDays": "最多 {max} 天",
+    "quickSelect": "快速選擇時間範圍",
+    "day": "日：",
+    "week": "週：",
+    "month": "月：",
+    "quarter": "季：",
+    "year": "年："
+  },
+  "presets": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "thisWeek": "本週",
+    "lastWeek": "上週",
+    "thisMonth": "本月",
+    "lastMonth": "上月",
+    "thisQuarter": "本季",
+    "lastQuarter": "上季",
+    "thisYear": "今年",
+    "lastYear": "去年",
+    "customRange": "自訂範圍"
+  },
+  "dateValidation": {
+    "invalidStartDate": "起始日期無效",
+    "invalidEndDate": "結束日期無效",
+    "endBeforeStart": "結束日期不能早於起始日期",
+    "exceedsMaxDays": "日期範圍不能超過 {max} 天",
+    "exceedsToday": "結束日期不能超過今天"
+  }
+}

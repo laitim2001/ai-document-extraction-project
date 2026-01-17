@@ -26,6 +26,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { Plus, RefreshCw, Database, CheckCircle2, XCircle, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -95,6 +96,8 @@ function RestoreStatsCard({
  * 數據恢復管理主組件
  */
 export function RestoreManagement() {
+  const t = useTranslations('admin')
+
   // --- State ---
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false)
   const [detailDialogOpen, setDetailDialogOpen] = useState(false)
@@ -125,9 +128,9 @@ export function RestoreManagement() {
 
   const formatDuration = (seconds: number | null | undefined): string => {
     if (!seconds) return '-'
-    if (seconds < 60) return `${seconds} 秒`
-    if (seconds < 3600) return `${Math.round(seconds / 60)} 分鐘`
-    return `${Math.round(seconds / 3600)} 小時`
+    if (seconds < 60) return t('restore.duration.seconds', { value: seconds })
+    if (seconds < 3600) return t('restore.duration.minutes', { value: Math.round(seconds / 60) })
+    return t('restore.duration.hours', { value: Math.round(seconds / 3600) })
   }
 
   return (
@@ -135,17 +138,17 @@ export function RestoreManagement() {
       {/* 標題列 */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold">數據恢復</h2>
-          <p className="text-muted-foreground mt-1">從備份恢復系統數據</p>
+          <h2 className="text-2xl font-bold">{t('restore.title')}</h2>
+          <p className="text-muted-foreground mt-1">{t('restore.description')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleRefresh}>
             <RefreshCw className="h-4 w-4 mr-2" />
-            重新整理
+            {t('restore.refresh')}
           </Button>
           <Button size="sm" onClick={() => setRestoreDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            開始恢復
+            {t('restore.startRestore')}
           </Button>
         </div>
       </div>
@@ -153,32 +156,32 @@ export function RestoreManagement() {
       {/* 統計卡片 */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <RestoreStatsCard
-          title="總恢復次數"
+          title={t('restore.stats.total')}
           value={stats?.totalRestores ?? 0}
-          description="系統恢復操作次數"
+          description={t('restore.stats.totalDescription')}
           icon={<Database className="h-4 w-4" />}
           isLoading={statsLoading}
         />
         <RestoreStatsCard
-          title="成功恢復"
+          title={t('restore.stats.successful')}
           value={stats?.successfulRestores ?? 0}
-          description="成功完成的恢復"
+          description={t('restore.stats.successfulDescription')}
           icon={<CheckCircle2 className="h-4 w-4" />}
           variant="success"
           isLoading={statsLoading}
         />
         <RestoreStatsCard
-          title="失敗恢復"
+          title={t('restore.stats.failed')}
           value={stats?.failedRestores ?? 0}
-          description="需要注意的失敗記錄"
+          description={t('restore.stats.failedDescription')}
           icon={<XCircle className="h-4 w-4" />}
           variant="destructive"
           isLoading={statsLoading}
         />
         <RestoreStatsCard
-          title="平均恢復時間"
+          title={t('restore.stats.averageTime')}
           value={formatDuration(stats?.averageRestoreTime)}
-          description="恢復操作平均耗時"
+          description={t('restore.stats.averageTimeDescription')}
           icon={<Clock className="h-4 w-4" />}
           isLoading={statsLoading}
         />
@@ -187,8 +190,8 @@ export function RestoreManagement() {
       {/* 恢復記錄列表 */}
       <Card>
         <CardHeader>
-          <CardTitle>恢復記錄</CardTitle>
-          <CardDescription>查看所有恢復操作記錄</CardDescription>
+          <CardTitle>{t('restore.list.title')}</CardTitle>
+          <CardDescription>{t('restore.list.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <RestoreList onViewDetails={handleViewDetails} />

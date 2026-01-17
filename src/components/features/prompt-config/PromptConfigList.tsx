@@ -1,12 +1,13 @@
 /**
- * @fileoverview Prompt 配置列表組件（按類型分組）
+ * @fileoverview Prompt 配置列表組件（按類型分組）(i18n version)
  * @description
  *   顯示 Prompt 配置的分組列表，支援按 promptType 分組。
  *   包含載入狀態、空狀態和錯誤處理。
+ *   Full i18n support
  *
  * @module src/components/features/prompt-config/PromptConfigList
  * @since Epic 14 - Story 14.2
- * @lastModified 2026-01-02
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 按 promptType 分組顯示
@@ -22,6 +23,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import type { PromptConfigListItem } from '@/types/prompt-config';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -64,12 +66,8 @@ interface PromptConfigListProps {
 // 常數定義
 // ============================================================================
 
-const PROMPT_TYPE_LABELS: Record<string, string> = {
-  ISSUER_IDENTIFICATION: '發行者識別',
-  TERM_CLASSIFICATION: '術語分類',
-  FIELD_EXTRACTION: '欄位提取',
-  VALIDATION: '結果驗證',
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TranslationFunction = ReturnType<typeof import('next-intl').useTranslations<any>>;
 
 const PROMPT_TYPE_ICONS: Record<string, React.ReactNode> = {
   ISSUER_IDENTIFICATION: <Building2 className="h-5 w-5" />,
@@ -94,6 +92,8 @@ export function PromptConfigList({
   error,
   onEdit,
 }: PromptConfigListProps) {
+  const t = useTranslations('promptConfig');
+
   // 按 promptType 分組
   const groupedConfigs = React.useMemo(() => {
     const groups: Record<string, PromptConfigListItem[]> = {};
@@ -113,7 +113,7 @@ export function PromptConfigList({
   if (error) {
     return (
       <div className="text-center py-12 text-red-500">
-        載入失敗：{error.message}
+        {t('list.loadError', { error: error.message })}
       </div>
     );
   }
@@ -121,7 +121,7 @@ export function PromptConfigList({
   if (configs.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        尚無 Prompt 配置
+        {t('list.empty')}
       </div>
     );
   }
@@ -134,7 +134,7 @@ export function PromptConfigList({
           <div className="flex items-center gap-2 mb-4">
             {PROMPT_TYPE_ICONS[promptType] ?? <FileText className="h-5 w-5" />}
             <h2 className="text-lg font-semibold">
-              {PROMPT_TYPE_LABELS[promptType] ?? promptType}
+              {t(`types.${promptType}`)}
             </h2>
             <Badge variant="secondary">{typeConfigs.length}</Badge>
           </div>
@@ -146,6 +146,7 @@ export function PromptConfigList({
                 key={config.id}
                 config={config}
                 onEdit={onEdit}
+                t={t}
               />
             ))}
           </div>
@@ -162,9 +163,10 @@ export function PromptConfigList({
 interface PromptConfigCardProps {
   config: PromptConfigListItem;
   onEdit: (id: string) => void;
+  t: TranslationFunction;
 }
 
-function PromptConfigCard({ config, onEdit }: PromptConfigCardProps) {
+function PromptConfigCard({ config, onEdit, t }: PromptConfigCardProps) {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
@@ -177,7 +179,7 @@ function PromptConfigCard({ config, onEdit }: PromptConfigCardProps) {
               </Badge>
               {!config.isActive && (
                 <Badge variant="outline" className="text-muted-foreground">
-                  停用
+                  {t('list.disabled')}
                 </Badge>
               )}
             </div>
@@ -191,7 +193,7 @@ function PromptConfigCard({ config, onEdit }: PromptConfigCardProps) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(config.id)}>
                 <Edit className="h-4 w-4 mr-2" />
-                編輯
+                {t('list.edit')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -219,12 +221,12 @@ function PromptConfigCard({ config, onEdit }: PromptConfigCardProps) {
           {config.scope === 'GLOBAL' && !config.companyName && !config.documentFormatName && (
             <div className="flex items-center gap-1">
               <Globe className="h-3 w-3" />
-              全局配置
+              {t('list.globalConfig')}
             </div>
           )}
         </div>
         <div className="mt-2 text-xs text-muted-foreground">
-          版本 v{config.version}
+          {t('list.version', { version: config.version })}
         </div>
       </CardContent>
     </Card>

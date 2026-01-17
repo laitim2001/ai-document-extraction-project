@@ -25,6 +25,105 @@
       "allTypes": "All Types"
     }
   },
+  "ruleTable": {
+    "forwarder": "Forwarder",
+    "fieldName": "Field Name",
+    "extractionType": "Extraction Type",
+    "status": "Status",
+    "version": "Version",
+    "priority": "Priority",
+    "successRate": "Success Rate",
+    "updatedAt": "Updated",
+    "universalRule": "Universal Rule",
+    "noMatchingRules": "No matching rules found"
+  },
+  "ruleFilters": {
+    "forwarder": "Forwarder",
+    "fieldName": "Field Name",
+    "status": "Status",
+    "category": "Category",
+    "all": "All",
+    "allForwarders": "All Forwarders",
+    "universalRules": "Universal Rules",
+    "allStatuses": "All Statuses",
+    "allCategories": "All Categories",
+    "searchField": "Search field...",
+    "clearFilters": "Clear Filters"
+  },
+  "ruleStatus": {
+    "active": "Active",
+    "draft": "Draft",
+    "pendingReview": "Pending Review",
+    "deprecated": "Deprecated"
+  },
+  "detail": {
+    "loadFailed": "Failed to load",
+    "backToList": "Back to List",
+    "universalRule": "Universal Rule",
+    "noDescription": "No description",
+    "fieldLabel": "Field Label:",
+    "versionHistory": "Version History",
+    "edit": "Edit",
+    "extractionType": "Extraction Type",
+    "version": "Version",
+    "priority": "Priority",
+    "confidenceThreshold": "Confidence Threshold",
+    "extractionPattern": "Extraction Pattern",
+    "applications": "Applications",
+    "patternDetails": "Pattern Details",
+    "recentApplications": "Recent Applications",
+    "createdBy": "Created by:",
+    "createdAt": "Created at:",
+    "forwarder": "Forwarder:",
+    "updatedAt": "Updated at:",
+    "category": "Category:",
+    "requiredField": "Required field:",
+    "system": "System",
+    "yes": "Yes"
+  },
+  "stats": {
+    "applicationStats": "Application Statistics",
+    "totalApplications": "Total Applications",
+    "successfulApplications": "Successful",
+    "overallSuccessRate": "Overall Success Rate",
+    "last7DaysPerformance": "Last 7 Days Performance",
+    "last7DaysApplications": "Applications",
+    "last7DaysSuccessRate": "Last 7 Days Success Rate",
+    "confidenceConfig": "Confidence Configuration",
+    "confidenceThreshold": "Confidence Threshold",
+    "belowRequiresReview": "Below this value requires manual review"
+  },
+  "trend": {
+    "up": "Rising",
+    "down": "Falling",
+    "stable": "Stable"
+  },
+  "extractionType": {
+    "regex": "Regex",
+    "regexDesc": "Extract using regular expression pattern matching",
+    "keyword": "Keyword",
+    "keywordDesc": "Extract based on keyword location",
+    "position": "Position",
+    "positionDesc": "Extract based on PDF coordinate position",
+    "azureField": "Azure Field",
+    "azureFieldDesc": "Use Azure Document Intelligence field",
+    "aiPrompt": "AI Prompt",
+    "aiPromptDesc": "Use LLM for intelligent extraction"
+  },
+  "applications": {
+    "document": "Document",
+    "extractedValue": "Extracted Value",
+    "status": "Status",
+    "appliedAt": "Applied At",
+    "noRecords": "No application records",
+    "noRecordsDesc": "Records will appear here when this rule is applied to documents",
+    "noValue": "No value"
+  },
+  "accuracy": {
+    "unverified": "Unverified",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
   "table": {
     "columns": {
       "sourceText": "Source Text",

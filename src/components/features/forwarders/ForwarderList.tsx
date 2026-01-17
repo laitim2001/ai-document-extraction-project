@@ -1,15 +1,16 @@
 'use client'
 
 /**
- * @fileoverview Forwarder 列表主組件
+ * @fileoverview Forwarder 列表主組件（國際化版本）
  * @description
  *   整合搜尋、篩選、表格和分頁的 Forwarder 管理列表。
  *   使用 URL 參數管理狀態，支援書籤和分享。
+ *   - 完整國際化支援
  *
  * @module src/components/features/companies/ForwarderList
  * @author Development Team
  * @since Epic 5 - Story 5.1 (Forwarder Profile List)
- * @lastModified 2025-12-19
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 分頁 Forwarder 列表（每頁 10 筆）
@@ -18,8 +19,10 @@
  *   - 多欄位排序（預設：更新時間降序）
  *   - URL 狀態同步
  *   - 骨架屏載入狀態
+ *   - 完整國際化支援
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/hooks/use-forwarders - Forwarder 查詢
  *   - next/navigation - URL 路由
  *
@@ -28,6 +31,7 @@
  */
 
 import { useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useForwarders } from '@/hooks/use-forwarders'
 import { ForwarderFilters } from './ForwarderFilters'
@@ -64,6 +68,7 @@ import type { CompanySortField } from '@/types/company'
  *   </Suspense>
  */
 export function ForwarderList() {
+  const t = useTranslations('companies')
   const router = useRouter()
 
   // 使用 Forwarder 查詢 Hook
@@ -160,9 +165,9 @@ export function ForwarderList() {
     return (
       <Card>
         <CardContent className="py-10 text-center">
-          <p className="text-destructive">載入 Forwarder 列表失敗，請重試。</p>
+          <p className="text-destructive">{t('list.loadError')}</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            {error instanceof Error ? error.message : '未知錯誤'}
+            {error instanceof Error ? error.message : t('list.unknownError')}
           </p>
         </CardContent>
       </Card>
@@ -204,7 +209,7 @@ export function ForwarderList() {
       {/* 結果摘要 */}
       {pagination && (
         <p className="text-center text-sm text-muted-foreground">
-          顯示 {forwarders.length} 筆，共 {pagination.total} 筆 Forwarder
+          {t('list.showingResults', { count: forwarders.length, total: pagination.total })}
         </p>
       )}
     </div>

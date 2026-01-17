@@ -1,22 +1,25 @@
 'use client'
 
 /**
- * @fileoverview 規則表格組件
+ * @fileoverview 規則表格組件（國際化版本）
  * @description
  *   顯示映射規則列表的表格：
  *   - 支援排序（欄位名稱、優先級、更新時間）
  *   - 顯示 Forwarder、欄位名稱、提取類型、狀態、版本、成功率
  *   - 行點擊導航到詳情頁
+ *   - 完整國際化支援
  *
  * @module src/components/features/rules/RuleTable
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/table - shadcn Table 組件
  *   - date-fns - 日期格式化
  */
 
+import { useTranslations, useLocale } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -29,7 +32,7 @@ import { RuleStatusBadge } from './RuleStatusBadge'
 import { ExtractionTypeIcon } from './ExtractionTypeIcon'
 import { ArrowUpDown, ArrowUp, ArrowDown, Globe } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
+import { zhTW, enUS } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
 import type { RuleListItem } from '@/types/rule'
 
@@ -125,6 +128,10 @@ export function RuleTable({
   onSort,
   onRowClick,
 }: RuleTableProps) {
+  const t = useTranslations('rules')
+  const locale = useLocale()
+  const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
+
   // --- Handlers ---
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -138,7 +145,7 @@ export function RuleTable({
   if (rules.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg bg-muted/20">
-        <p className="text-muted-foreground">沒有符合條件的規則</p>
+        <p className="text-muted-foreground">{t('ruleTable.noMatchingRules')}</p>
       </div>
     )
   }
@@ -149,13 +156,13 @@ export function RuleTable({
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            <TableHead className="w-[160px]">Forwarder</TableHead>
+            <TableHead className="w-[160px]">{t('ruleTable.forwarder')}</TableHead>
             <TableHead
               className="cursor-pointer hover:bg-muted/70 transition-colors"
               onClick={() => handleSort('fieldName')}
             >
               <div className="flex items-center">
-                欄位名稱
+                {t('ruleTable.fieldName')}
                 <SortIcon
                   column="fieldName"
                   sortBy={sortBy}
@@ -163,15 +170,15 @@ export function RuleTable({
                 />
               </div>
             </TableHead>
-            <TableHead className="w-[130px]">提取類型</TableHead>
-            <TableHead className="w-[100px]">狀態</TableHead>
-            <TableHead className="w-[80px] text-center">版本</TableHead>
+            <TableHead className="w-[130px]">{t('ruleTable.extractionType')}</TableHead>
+            <TableHead className="w-[100px]">{t('ruleTable.status')}</TableHead>
+            <TableHead className="w-[80px] text-center">{t('ruleTable.version')}</TableHead>
             <TableHead
               className="w-[90px] cursor-pointer hover:bg-muted/70 transition-colors"
               onClick={() => handleSort('priority')}
             >
               <div className="flex items-center">
-                優先級
+                {t('ruleTable.priority')}
                 <SortIcon
                   column="priority"
                   sortBy={sortBy}
@@ -179,13 +186,13 @@ export function RuleTable({
                 />
               </div>
             </TableHead>
-            <TableHead className="w-[100px] text-right">成功率</TableHead>
+            <TableHead className="w-[100px] text-right">{t('ruleTable.successRate')}</TableHead>
             <TableHead
               className="w-[140px] cursor-pointer hover:bg-muted/70 transition-colors"
               onClick={() => handleSort('updatedAt')}
             >
               <div className="flex items-center">
-                更新時間
+                {t('ruleTable.updatedAt')}
                 <SortIcon
                   column="updatedAt"
                   sortBy={sortBy}
@@ -215,7 +222,7 @@ export function RuleTable({
                 ) : (
                   <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
                     <Globe className="h-4 w-4" />
-                    <span className="font-medium">通用規則</span>
+                    <span className="font-medium">{t('ruleTable.universalRule')}</span>
                   </div>
                 )}
               </TableCell>
@@ -272,7 +279,7 @@ export function RuleTable({
               <TableCell className="text-sm text-muted-foreground">
                 {formatDistanceToNow(new Date(rule.updatedAt), {
                   addSuffix: true,
-                  locale: zhTW,
+                  locale: dateLocale,
                 })}
               </TableCell>
             </TableRow>

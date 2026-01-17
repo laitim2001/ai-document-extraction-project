@@ -4,27 +4,37 @@
     "description": "Manage Forwarder company data and configurations"
   },
   "list": {
-    "searchPlaceholder": "Search company name...",
+    "searchPlaceholder": "Search name or code...",
     "filters": {
       "status": "Status",
       "city": "City",
       "allStatus": "All Status",
-      "allCities": "All Cities"
-    }
+      "allCities": "All Cities",
+      "clear": "Clear"
+    },
+    "loadError": "Failed to load company list, please try again.",
+    "unknownError": "Unknown error",
+    "showingResults": "Showing {count} of {total} companies"
   },
   "table": {
     "columns": {
-      "name": "Company Name",
-      "code": "Company Code",
+      "name": "Name",
+      "code": "Code",
       "city": "City",
       "formats": "Format Count",
       "rules": "Rule Count",
+      "ruleCount": "Rules",
+      "priority": "Priority",
       "status": "Status",
       "createdAt": "Created At",
+      "updatedAt": "Last Updated",
       "actions": "Actions"
     },
-    "empty": "No companies found",
-    "emptyDescription": "Create a new company to get started"
+    "empty": "No companies matching criteria found",
+    "emptyDescription": "Create a new company to get started",
+    "rulesCount": "{count} mapping rules",
+    "viewDetails": "View Details",
+    "edit": "Edit"
   },
   "status": {
     "active": "Active",
@@ -38,25 +48,47 @@
     "activate": "Activate",
     "deactivate": "Deactivate",
     "viewFormats": "View Formats",
-    "viewRules": "View Rules"
+    "viewRules": "View Rules",
+    "refresh": "Refresh",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   },
   "form": {
     "basic": "Basic Information",
+    "title": "Add Forwarder",
+    "editTitle": "Edit Forwarder",
+    "description": "Fill in forwarder basic information",
     "name": "Company Name",
     "namePlaceholder": "Enter company name",
     "code": "Company Code",
     "codePlaceholder": "Enter unique identifier code",
+    "codeDescription": "Only uppercase letters, numbers, and underscores allowed",
     "city": "City",
     "cityPlaceholder": "Select city",
-    "description": "Description",
+    "descriptionField": "Description",
     "descriptionPlaceholder": "Enter company description (optional)",
     "contact": "Contact Information",
     "contactPerson": "Contact Person",
     "contactEmail": "Contact Email",
+    "contactEmailPlaceholder": "Enter contact email",
     "contactPhone": "Contact Phone",
     "settings": "Settings",
     "autoApproveThreshold": "Auto-Approve Threshold",
-    "defaultCurrency": "Default Currency"
+    "defaultCurrency": "Default Currency",
+    "defaultConfidence": "Default Confidence",
+    "defaultConfidenceDescription": "Confidence threshold below this requires manual review",
+    "logo": "Logo",
+    "submit": "Create Forwarder",
+    "submitEdit": "Save Changes",
+    "submitError": "Operation failed",
+    "submitErrorRetry": "Operation failed, please try again",
+    "codeCheck": {
+      "checking": "Checking...",
+      "available": "This code is available",
+      "taken": "This code is already in use",
+      "error": "Check failed, please try again",
+      "invalidFormat": "Only uppercase letters, numbers, and underscores allowed"
+    }
   },
   "dialog": {
     "createTitle": "Add Company",
@@ -65,16 +97,141 @@
     "deleteMessage": "Are you sure you want to delete company \"{name}\"? Related formats and rules will also be deleted.",
     "deleteWarning": "This action cannot be undone"
   },
+  "deactivateDialog": {
+    "title": "Deactivate Company",
+    "confirmQuestion": "Are you sure you want to deactivate {name}?",
+    "description": "After deactivation, this company's invoice processing will be suspended.",
+    "deactivateRulesLabel": "Also deactivate related rules",
+    "deactivateRulesDescription": "Mark {count} active rules as deprecated",
+    "reasonLabel": "Reason for deactivation (optional)",
+    "reasonPlaceholder": "Please enter the reason...",
+    "confirm": "Confirm Deactivation",
+    "error": "Deactivation failed",
+    "errorRetry": "Deactivation failed, please try again"
+  },
+  "activateDialog": {
+    "title": "Activate Company",
+    "confirmQuestion": "Are you sure you want to activate {name}?",
+    "description": "After activation, invoice processing for this company will resume.",
+    "reactivateRulesLabel": "Also restore related rules",
+    "reactivateRulesDescription": "Restore {count} deprecated rules to active",
+    "confirm": "Confirm Activation",
+    "error": "Activation failed",
+    "errorRetry": "Activation failed, please try again"
+  },
+  "merge": {
+    "title": "Merge Companies",
+    "description": "Select the primary company to keep, other companies will be merged into it",
+    "selectPrimary": "Select Primary Company (Keep)",
+    "documentCount": "Appeared {count} times",
+    "needTwoCompanies": "Need at least 2 companies to merge",
+    "previewTitle": "After merging, these companies will be marked as merged:",
+    "previewDescription": "These company names will become name variants of the primary company for future auto-matching.",
+    "selectError": "Please select companies to merge",
+    "success": "Successfully merged {count} companies",
+    "error": "Failed to merge companies",
+    "merging": "Merging...",
+    "confirmMerge": "Confirm Merge",
+    "close": "Close"
+  },
+  "companyType": {
+    "forwarder": "Forwarder",
+    "forwarderDesc": "Freight forwarding service company",
+    "exporter": "Exporter",
+    "exporterDesc": "Company engaged in exporting goods",
+    "carrier": "Carrier",
+    "carrierDesc": "Transportation service company",
+    "customsBroker": "Customs Broker",
+    "customsBrokerDesc": "Customs clearance service company",
+    "other": "Other",
+    "otherDesc": "Other types of company",
+    "unknown": "Unclassified",
+    "unknownDesc": "Company not yet classified",
+    "selectPlaceholder": "Select company type"
+  },
   "detail": {
     "overview": "Overview",
-    "formats": "Invoice Formats",
-    "rules": "Mapping Rules",
+    "formats": "Formats",
+    "rules": "Rules",
+    "stats": "Statistics",
+    "documents": "Documents",
     "history": "Processing History",
-    "stats": {
+    "backToList": "Back to List",
+    "loadFailed": "Unable to Load Company Data",
+    "notFound": "Company Not Found",
+    "notFoundDescription": "The company may have been deleted or you don't have permission to access it",
+    "basicInfo": "Basic Information",
+    "rulesSummary": "Rules Summary",
+    "name": "Name",
+    "code": "Code",
+    "priority": "Priority",
+    "identificationPatterns": "Identification Patterns",
+    "totalRules": "Total Rules",
+    "relatedDocuments": "Related Documents",
+    "documentsUnit": "files",
+    "statsInfo": {
       "totalInvoices": "Total Invoices",
       "processedThisMonth": "Processed This Month",
       "autoApproveRate": "Auto-Approve Rate",
       "avgConfidence": "Average Confidence"
+    }
+  },
+  "stats": {
+    "noData": "No statistics available",
+    "totalDocuments": "Total Documents",
+    "processedLast30Days": "Processed (30 Days)",
+    "successRate": "Success Rate",
+    "avgConfidence": "Avg Confidence",
+    "excellent": "Excellent",
+    "good": "Good",
+    "needsAttention": "Needs Attention",
+    "highConfidence": "High Confidence",
+    "mediumConfidence": "Medium Confidence",
+    "lowConfidence": "Low Confidence",
+    "trendTitle": "30-Day Processing Trend",
+    "chartAll": "Total",
+    "chartSuccess": "Success"
+  },
+  "recentDocs": {
+    "title": "Recent Documents",
+    "recentCount": "(Last {count})",
+    "loadFailed": "Failed to load recent documents",
+    "noRecords": "No processing records",
+    "columns": {
+      "fileName": "File Name",
+      "status": "Status",
+      "confidence": "Confidence",
+      "processedAt": "Processed At",
+      "actions": "Actions"
+    }
+  },
+  "rulesTable": {
+    "title": "Mapping Rules",
+    "totalCount": "({count})",
+    "loadFailed": "Failed to load rules list",
+    "noRules": "No rules",
+    "noMatchingRules": "No rules matching criteria",
+    "searchPlaceholder": "Search field name...",
+    "filterStatus": "Filter Status",
+    "allStatus": "All Status",
+    "columns": {
+      "fieldName": "Field Name",
+      "status": "Status",
+      "version": "Version",
+      "confidence": "Confidence",
+      "matchCount": "Match Count",
+      "lastMatched": "Last Matched",
+      "actions": "Actions"
+    },
+    "actions": {
+      "editRule": "Edit Rule",
+      "viewDetails": "View Details"
+    },
+    "ruleStatus": {
+      "active": "Active",
+      "draft": "Draft",
+      "pendingReview": "Pending Review",
+      "deprecated": "Deprecated"
     }
   }
 }

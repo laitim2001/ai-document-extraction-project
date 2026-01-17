@@ -96,5 +96,75 @@
     "refresh": "重新整理",
     "export": "匯出",
     "print": "列印"
+  },
+  "aiCost": {
+    "title": "AI API 成本",
+    "loadError": "無法載入成本數據",
+    "anomalyCount": "{count} 異常",
+    "anomalyTooltip": "過去 7 天有成本異常，請點擊查看詳情",
+    "pastDays": "過去 {days} 天",
+    "callCount": "呼叫次數",
+    "successRate": "成功率",
+    "avgCost": "均成本",
+    "viewDetails": "查看詳細分析",
+    "costLabel": "成本"
+  },
+  "cityCost": {
+    "emptyState": "找不到符合條件的城市成本報表",
+    "anomalyCount": "{count} 個異常",
+    "highRisk": "{count} 高風險",
+    "mediumRisk": "{count} 中風險",
+    "lowRisk": "{count} 低風險",
+    "clickForDetails": "點擊查看詳情",
+    "columns": {
+      "city": "城市",
+      "volume": "處理量",
+      "automationRate": "自動化率",
+      "aiCost": "AI 成本",
+      "laborCost": "人工成本",
+      "totalCost": "總成本",
+      "unitCost": "單位成本",
+      "trend": "趨勢"
+    },
+    "laborCostTooltip": "人工成本為估算值",
+    "laborCostDesc": "基於手動審核和升級處理數量計算",
+    "autoPrefix": "自動: {count}",
+    "manualReview": "人工審核: {count} 筆",
+    "escalation": "升級處理: {count} 筆",
+    "estimateNote": "此為估算值"
+  },
+  "costAnomaly": {
+    "dialogTitle": "成本異常分析",
+    "dialogDescription": "{city} 的成本異常詳情",
+    "noAnomalies": "此城市目前沒有成本異常",
+    "totalCount": "共 {count} 個異常",
+    "severity": {
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    },
+    "riskLabel": "風險",
+    "currentValue": "當前值",
+    "baselineValue": "基準值",
+    "change": "變化",
+    "types": {
+      "volume_spike": "處理量激增",
+      "volume_drop": "處理量下降",
+      "cost_per_doc_increase": "單位成本上升",
+      "cost_per_doc_decrease": "單位成本下降",
+      "api_cost_spike": "API 成本激增",
+      "labor_cost_spike": "人工成本激增",
+      "automation_rate_drop": "自動化率下降",
+      "unknown": "待分析"
+    },
+    "recommendations": {
+      "title": "建議行動",
+      "items": {
+        "checkTrend": "檢視處理量變化趨勢，確認是否為預期的業務變化",
+        "analyzeAutomation": "分析自動化率下降的原因，考慮更新映射規則",
+        "reviewManual": "定期審查人工審核案例，尋找自動化改進機會",
+        "communicateBusiness": "與業務團隊溝通，了解近期業務變動情況"
+      }
+    }
   }
 }

@@ -16,6 +16,7 @@
  *   - @/hooks/use-cities - 城市查詢
  */
 
+import { useTranslations } from 'next-intl'
 import { useRoles } from '@/hooks/use-roles'
 import { useCities } from '@/hooks/use-cities'
 import {
@@ -69,6 +70,7 @@ export function UserFilters({
   status,
   onChange,
 }: UserFiltersProps) {
+  const t = useTranslations('admin')
   const { data: roles } = useRoles()
   const { data: cities } = useCities()
 
@@ -88,10 +90,10 @@ export function UserFilters({
         }
       >
         <SelectTrigger className="w-[150px]" aria-label="Filter by role">
-          <SelectValue placeholder="所有角色" />
+          <SelectValue placeholder={t('users.filters.role.placeholder')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">所有角色</SelectItem>
+          <SelectItem value="all">{t('users.filters.role.all')}</SelectItem>
           {roles?.map((role) => (
             <SelectItem key={role.id} value={role.id}>
               {role.name}
@@ -108,10 +110,10 @@ export function UserFilters({
         }
       >
         <SelectTrigger className="w-[150px]" aria-label="Filter by city">
-          <SelectValue placeholder="所有城市" />
+          <SelectValue placeholder={t('users.filters.city.placeholder')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">所有城市</SelectItem>
+          <SelectItem value="all">{t('users.filters.city.all')}</SelectItem>
           {cities?.map((city) => (
             <SelectItem key={city.id} value={city.id}>
               {city.name}
@@ -130,12 +132,12 @@ export function UserFilters({
         }
       >
         <SelectTrigger className="w-[120px]" aria-label="Filter by status">
-          <SelectValue placeholder="所有狀態" />
+          <SelectValue placeholder={t('users.filters.status.placeholder')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">所有狀態</SelectItem>
-          <SelectItem value="ACTIVE">啟用</SelectItem>
-          <SelectItem value="INACTIVE">停用</SelectItem>
+          <SelectItem value="all">{t('users.filters.status.all')}</SelectItem>
+          <SelectItem value="ACTIVE">{t('users.status.active')}</SelectItem>
+          <SelectItem value="INACTIVE">{t('users.status.inactive')}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -148,7 +150,7 @@ export function UserFilters({
           aria-label="Clear all filters"
         >
           <X className="mr-1 h-4 w-4" />
-          清除
+          {t('users.filters.clear')}
         </Button>
       )}
     </div>

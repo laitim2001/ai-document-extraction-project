@@ -1,0 +1,58 @@
+{
+  "table": {
+    "headers": {
+      "term": "Term",
+      "frequency": "Frequency",
+      "companies": "Companies",
+      "suggestedCategory": "Suggested Category",
+      "confidence": "Confidence",
+      "actions": "Actions"
+    },
+    "empty": "No terms found. Try adjusting your filters or process more historical data.",
+    "selectAll": "Select all",
+    "selectTerm": "Select {term}",
+    "similarTerms": "+{count} similar",
+    "companyCount": "{count, plural, =1 {# company} other {# companies}}",
+    "moreCompanies": "+{count} more...",
+    "createRule": "Create Rule",
+    "confidence": {
+      "high": "High confidence - Auto approve",
+      "medium": "Medium confidence - Quick review",
+      "low": "Low confidence - Full review"
+    },
+    "categories": {
+      "OCEAN_FREIGHT": "Ocean Freight",
+      "AIR_FREIGHT": "Air Freight",
+      "HANDLING_FEE": "Handling Fee",
+      "CUSTOMS_CLEARANCE": "Customs Clearance",
+      "DOCUMENTATION_FEE": "Documentation Fee",
+      "TERMINAL_HANDLING": "Terminal Handling",
+      "INLAND_TRANSPORT": "Inland Transport",
+      "INSURANCE": "Insurance",
+      "STORAGE": "Storage",
+      "FUEL_SURCHARGE": "Fuel Surcharge",
+      "SECURITY_FEE": "Security Fee",
+      "OTHER": "Other"
+    }
+  },
+  "filters": {
+    "title": "Filters",
+    "clear": "Clear",
+    "batch": {
+      "label": "Batch",
+      "all": "All batches"
+    },
+    "company": {
+      "label": "Company",
+      "all": "All companies"
+    },
+    "minFrequency": {
+      "label": "Min. Frequency",
+      "placeholder": "1"
+    },
+    "limit": {
+      "label": "Result Limit",
+      "default": "500 (default)"
+    }
+  }
+}

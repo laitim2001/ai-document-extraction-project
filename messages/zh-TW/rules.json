@@ -25,6 +25,105 @@
       "allTypes": "所有類型"
     }
   },
+  "ruleTable": {
+    "forwarder": "Forwarder",
+    "fieldName": "欄位名稱",
+    "extractionType": "提取類型",
+    "status": "狀態",
+    "version": "版本",
+    "priority": "優先級",
+    "successRate": "成功率",
+    "updatedAt": "更新時間",
+    "universalRule": "通用規則",
+    "noMatchingRules": "沒有符合條件的規則"
+  },
+  "ruleFilters": {
+    "forwarder": "Forwarder",
+    "fieldName": "欄位名稱",
+    "status": "狀態",
+    "category": "類別",
+    "all": "全部",
+    "allForwarders": "全部 Forwarder",
+    "universalRules": "通用規則",
+    "allStatuses": "全部狀態",
+    "allCategories": "全部類別",
+    "searchField": "搜索欄位...",
+    "clearFilters": "清除篩選"
+  },
+  "ruleStatus": {
+    "active": "生效中",
+    "draft": "草稿",
+    "pendingReview": "待審核",
+    "deprecated": "已棄用"
+  },
+  "detail": {
+    "loadFailed": "載入失敗",
+    "backToList": "返回列表",
+    "universalRule": "通用規則",
+    "noDescription": "無描述",
+    "fieldLabel": "欄位標籤：",
+    "versionHistory": "版本歷史",
+    "edit": "編輯",
+    "extractionType": "提取類型",
+    "version": "版本",
+    "priority": "優先級",
+    "confidenceThreshold": "信心度閾值",
+    "extractionPattern": "提取模式",
+    "applications": "應用記錄",
+    "patternDetails": "提取模式詳情",
+    "recentApplications": "最近應用記錄",
+    "createdBy": "創建者：",
+    "createdAt": "創建時間：",
+    "forwarder": "Forwarder：",
+    "updatedAt": "更新時間：",
+    "category": "類別：",
+    "requiredField": "必填欄位：",
+    "system": "系統",
+    "yes": "是"
+  },
+  "stats": {
+    "applicationStats": "應用統計",
+    "totalApplications": "總應用次數",
+    "successfulApplications": "成功次數",
+    "overallSuccessRate": "整體成功率",
+    "last7DaysPerformance": "近 7 天表現",
+    "last7DaysApplications": "應用次數",
+    "last7DaysSuccessRate": "近 7 天成功率",
+    "confidenceConfig": "信心度配置",
+    "confidenceThreshold": "信心度閾值",
+    "belowRequiresReview": "低於此值需人工審核"
+  },
+  "trend": {
+    "up": "上升",
+    "down": "下降",
+    "stable": "穩定"
+  },
+  "extractionType": {
+    "regex": "正則表達式",
+    "regexDesc": "使用正則表達式匹配文字模式",
+    "keyword": "關鍵字",
+    "keywordDesc": "根據關鍵字定位提取",
+    "position": "位置提取",
+    "positionDesc": "根據 PDF 座標位置提取",
+    "azureField": "Azure 欄位",
+    "azureFieldDesc": "使用 Azure Document Intelligence 欄位",
+    "aiPrompt": "AI 提示詞",
+    "aiPromptDesc": "使用 LLM 智能提取"
+  },
+  "applications": {
+    "document": "文件",
+    "extractedValue": "提取值",
+    "status": "狀態",
+    "appliedAt": "應用時間",
+    "noRecords": "尚無應用記錄",
+    "noRecordsDesc": "當規則被應用到文件提取時，記錄將顯示在這裡",
+    "noValue": "無值"
+  },
+  "accuracy": {
+    "unverified": "未驗證",
+    "correct": "正確",
+    "incorrect": "錯誤"
+  },
   "table": {
     "columns": {
       "sourceText": "來源文字",

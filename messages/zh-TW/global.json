@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "全局管理儀表板",
+    "description": "跨區域、跨城市的全系統績效監控"
+  },
+  "filters": {
+    "last7Days": "最近 7 天",
+    "last30Days": "最近 30 天",
+    "last90Days": "最近 90 天",
+    "pastYear": "過去一年"
+  },
+  "tabs": {
+    "regionalPerformance": "區域績效",
+    "cityRankings": "城市排行"
+  },
+  "stats": {
+    "totalVolume": "總處理量",
+    "totalVolumeDesc": "期間內處理的文件總數",
+    "completed": "已完成",
+    "completedDesc": "成功處理的文件數",
+    "successRate": "成功率",
+    "successRateDesc": "處理完成比例",
+    "avgConfidence": "平均信心度",
+    "avgConfidenceDesc": "AI 分類信心度",
+    "activeCities": "活躍城市",
+    "activeCitiesDesc": "啟用中的城市數",
+    "activeUsers": "活躍用戶",
+    "activeUsersDesc": "期間內登入的用戶",
+    "loadError": "載入統計數據時發生錯誤"
+  },
+  "region": {
+    "title": "區域績效",
+    "days7": "7 天",
+    "days30": "30 天",
+    "days90": "90 天",
+    "volume": "處理量",
+    "activeCities": "個活躍城市",
+    "successRate": "成功率",
+    "confidence": "信心度",
+    "noData": "目前沒有區域數據",
+    "noCityData": "此區域沒有城市數據",
+    "city": "城市",
+    "correctionRate": "修正率"
+  },
+  "rankings": {
+    "title": "城市排行榜",
+    "sortBy": {
+      "volume": "處理量",
+      "successRate": "成功率",
+      "efficiency": "效率"
+    },
+    "noData": "目前沒有排名數據",
+    "rank": "排名",
+    "city": "城市",
+    "region": "區域",
+    "change": "變化"
+  },
+  "trend": {
+    "title": "趨勢分析",
+    "metrics": {
+      "all": "全部指標",
+      "volume": "處理量",
+      "successRate": "成功率",
+      "confidence": "信心度"
+    },
+    "noData": "目前沒有趨勢數據"
+  }
+}

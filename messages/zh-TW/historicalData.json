@@ -1,0 +1,116 @@
+{
+  "batchList": {
+    "status": {
+      "pending": "待處理",
+      "processing": "處理中",
+      "paused": "已暫停",
+      "aggregating": "聚合中",
+      "aggregated": "聚合完成",
+      "completed": "已完成",
+      "failed": "失敗",
+      "cancelled": "已取消"
+    },
+    "empty": {
+      "title": "尚無批次",
+      "description": "建立新批次以開始上傳文件"
+    },
+    "progress": {
+      "label": "處理進度"
+    },
+    "stats": {
+      "totalFiles": "總文件數",
+      "processed": "已處理",
+      "failed": "失敗",
+      "createdAt": "建立時間"
+    },
+    "creator": "建立者：{name}",
+    "actions": {
+      "startProcessing": "開始處理"
+    },
+    "deleteDialog": {
+      "title": "確認刪除批次",
+      "description": "確定要刪除這個批次嗎？批次內的所有文件也會被刪除。此操作無法撤銷。",
+      "cancel": "取消",
+      "confirm": "刪除"
+    }
+  },
+  "createBatchDialog": {
+    "trigger": "建立批次",
+    "title": "建立新批次",
+    "description": "建立一個新的批次以上傳歷史數據文件",
+    "form": {
+      "name": {
+        "label": "批次名稱",
+        "placeholder": "例如：2024-Q1 歷史發票",
+        "description": "為批次取一個容易識別的名稱"
+      },
+      "description": {
+        "label": "描述（選填）",
+        "placeholder": "批次說明..."
+      }
+    },
+    "validation": {
+      "nameRequired": "請輸入批次名稱",
+      "nameMaxLength": "批次名稱不能超過 100 個字元",
+      "descriptionMaxLength": "描述不能超過 500 個字元"
+    },
+    "sections": {
+      "expand": "展開",
+      "collapse": "收起"
+    },
+    "companyIdentification": {
+      "title": "公司識別設定",
+      "enable": {
+        "label": "啟用公司識別",
+        "description": "自動從文件中識別並匹配公司資料"
+      },
+      "fuzzyThreshold": {
+        "label": "模糊匹配閾值",
+        "description": "匹配相似度達此閾值才視為同一公司（建議 85-95%）"
+      },
+      "autoMerge": {
+        "label": "自動合併相似公司",
+        "description": "自動將相似的公司名稱合併為同一公司"
+      }
+    },
+    "termAggregation": {
+      "title": "術語聚合設定",
+      "enable": {
+        "label": "啟用術語聚合",
+        "description": "批量處理完成後自動聚合術語統計"
+      },
+      "similarityThreshold": {
+        "label": "術語相似度閾值",
+        "description": "相似度達此閾值的術語會被視為相同術語（建議 80-90%）"
+      },
+      "autoClassify": {
+        "label": "自動分類術語",
+        "description": "使用 AI 自動將術語分類到費用類別"
+      }
+    },
+    "issuerIdentification": {
+      "title": "發行者識別設定",
+      "enable": {
+        "label": "啟用發行者識別",
+        "description": "從文件 Logo/Header/Letterhead 識別發行公司"
+      },
+      "confidenceThreshold": {
+        "label": "識別信心度閾值",
+        "description": "信心度達此閾值才接受識別結果（建議 60-80%）"
+      },
+      "fuzzyThreshold": {
+        "label": "公司匹配閾值",
+        "description": "匹配相似度達此閾值才視為同一發行公司（建議 85-95%）"
+      },
+      "autoCreate": {
+        "label": "自動建立發行公司",
+        "description": "未匹配到現有公司時自動建立新公司"
+      }
+    },
+    "actions": {
+      "cancel": "取消",
+      "create": "建立",
+      "creating": "建立中..."
+    }
+  }
+}

@@ -37,7 +37,7 @@
 
 import * as React from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { zhTW } from 'date-fns/locale';
+import { zhTW, enUS } from 'date-fns/locale';
 import {
   RefreshCw,
   FileText,
@@ -46,6 +46,7 @@ import {
   Clock,
   AlertTriangle,
 } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 import { StatCard } from './StatCard';
 import { DateRangePicker } from './DateRangePicker';
 import { DateRangeQuickSelectCompact } from './DateRangeQuickSelect';
@@ -89,6 +90,9 @@ function formatNumber(num: number): string {
  *   必須包裹在 DateRangeProvider 內使用。
  */
 export function DashboardStats() {
+  const t = useTranslations('dashboard');
+  const locale = useLocale();
+  const dateLocale = locale === 'zh-TW' ? zhTW : enUS;
   const { dateRange, isLoading: isDateRangeLoading } = useDateRange();
   const { data, isLoading, isError, error, isFetching, dataUpdatedAt } =
     useDashboardStatistics();
@@ -120,14 +124,14 @@ export function DashboardStats() {
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            無法載入統計數據：{(error as Error).message}
+            {t('stats.loadError')}{(error as Error).message}
             <Button
               variant="link"
               size="sm"
               onClick={refreshStatistics}
               className="ml-2"
             >
-              重試
+              {t('stats.retry')}
             </Button>
           </AlertDescription>
         </Alert>
@@ -150,10 +154,10 @@ export function DashboardStats() {
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {dataUpdatedAt && (
             <span>
-              最後更新：
+              {t('stats.lastUpdated')}
               {formatDistanceToNow(dataUpdatedAt, {
                 addSuffix: true,
-                locale: zhTW,
+                locale: dateLocale,
               })}
             </span>
           )}
@@ -162,7 +166,7 @@ export function DashboardStats() {
             size="sm"
             onClick={refreshStatistics}
             disabled={isFetching}
-            aria-label="刷新統計數據"
+            aria-label={t('stats.refreshStats')}
           >
             <RefreshCw
               className={cn('h-4 w-4', isFetching && 'animate-spin')}
@@ -173,7 +177,7 @@ export function DashboardStats() {
 
       {/* 統計標題 */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">處理統計</h2>
+        <h2 className="text-lg font-semibold">{t('stats.title')}</h2>
         <span className="text-sm text-muted-foreground">{rangeTitle}</span>
       </div>
 
@@ -181,9 +185,9 @@ export function DashboardStats() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {/* 處理量 */}
         <StatCard
-          title="處理量"
+          title={t('stats.processingVolume')}
           value={formatNumber(data?.processingVolume?.thisMonth ?? 0)}
-          subtitle={`今日 ${formatNumber(data?.processingVolume?.today ?? 0)}`}
+          subtitle={`${t('stats.today')} ${formatNumber(data?.processingVolume?.today ?? 0)}`}
           trend={data?.processingVolume?.trend}
           trendValue={`${data?.processingVolume?.trendPercentage?.toFixed(1) ?? 0}%`}
           icon={<FileText className="h-4 w-4" />}
@@ -192,7 +196,7 @@ export function DashboardStats() {
 
         {/* 成功率 */}
         <StatCard
-          title="成功率"
+          title={t('stats.successRate')}
           value={`${data?.successRate?.value?.toFixed(1) ?? 0}%`}
           trend={data?.successRate?.trend}
           trendValue={`${data?.successRate?.trendPercentage?.toFixed(1) ?? 0}%`}
@@ -211,7 +215,7 @@ export function DashboardStats() {
 
         {/* 自動化率 */}
         <StatCard
-          title="自動化率"
+          title={t('stats.automationRate')}
           value={`${data?.automationRate?.value?.toFixed(1) ?? 0}%`}
           trend={data?.automationRate?.trend}
           trendValue={`${data?.automationRate?.trendPercentage?.toFixed(1) ?? 0}%`}
@@ -221,7 +225,7 @@ export function DashboardStats() {
 
         {/* 平均處理時間 */}
         <StatCard
-          title="平均處理時間"
+          title={t('stats.avgProcessingTime')}
           value={data?.averageProcessingTime?.formatted ?? '—'}
           trend={data?.averageProcessingTime?.trend}
           trendValue={`${data?.averageProcessingTime?.trendPercentage?.toFixed(1) ?? 0}%`}
@@ -231,11 +235,11 @@ export function DashboardStats() {
 
         {/* 待審核 */}
         <StatCard
-          title="待審核"
+          title={t('stats.pendingReview')}
           value={formatNumber(data?.pendingReview?.count ?? 0)}
           subtitle={
             data?.pendingReview?.urgent && data.pendingReview.urgent > 0
-              ? `${data.pendingReview.urgent} 緊急`
+              ? `${data.pendingReview.urgent} ${t('stats.urgent')}`
               : undefined
           }
           icon={<AlertTriangle className="h-4 w-4" />}

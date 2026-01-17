@@ -1,0 +1,131 @@
+{
+  "page": {
+    "title": "升級案例管理",
+    "description": "處理需要 Super User 審核的複雜案例"
+  },
+  "list": {
+    "loadError": "載入升級案例失敗：",
+    "pagination": "共 {total} 筆，第 {page} / {totalPages} 頁",
+    "previous": "上一頁",
+    "next": "下一頁",
+    "noData": "目前沒有升級案例",
+    "retry": "重試"
+  },
+  "table": {
+    "fileName": "文件名",
+    "reason": "升級原因",
+    "status": "狀態",
+    "escalatedBy": "升級者",
+    "escalatedAt": "升級時間",
+    "actions": "操作",
+    "unidentified": "未識別",
+    "view": "查看"
+  },
+  "detail": {
+    "title": "升級案例詳情",
+    "handleCase": "處理此案例",
+    "status": "狀態",
+    "reason": "升級原因",
+    "escalatedAt": "升級時間",
+    "escalatedBy": "升級者",
+    "description": "詳細說明",
+    "documentPreview": "文件預覽",
+    "document": "文件：",
+    "pdfLoadError": "無法載入 PDF",
+    "extractedFields": "提取欄位",
+    "empty": "(空)",
+    "noFields": "無提取欄位",
+    "correctionHistory": "修正記錄",
+    "resolution": "處理結果",
+    "resolvedBy": "處理者",
+    "resolvedAt": "處理時間",
+    "resolutionNotes": "處理說明",
+    "notFound": "找不到此升級案例"
+  },
+  "filters": {
+    "status": "狀態：",
+    "reason": "原因：",
+    "all": "全部",
+    "clearFilters": "清除篩選"
+  },
+  "status": {
+    "pending": "待處理",
+    "inProgress": "處理中",
+    "resolved": "已解決",
+    "cancelled": "已取消"
+  },
+  "reasons": {
+    "unknownCompany": "無法識別公司",
+    "unknownCompanyDesc": "系統無法判斷此發票來自哪個物流商",
+    "mappingNotApplicable": "映射規則不適用",
+    "mappingNotApplicableDesc": "現有的映射規則無法正確處理此發票格式",
+    "documentQuality": "文件品質問題",
+    "documentQualityDesc": "文件模糊、破損或無法正常讀取",
+    "other": "其他",
+    "otherDesc": "其他需要 Super User 協助的情況"
+  },
+  "decisions": {
+    "approve": "核准",
+    "approveDesc": "確認提取結果正確，無需修改",
+    "approveWithCorrections": "修正後核准",
+    "approveWithCorrectionsDesc": "修正錯誤後核准此文件",
+    "reject": "拒絕",
+    "rejectDesc": "文件無法處理，標記為拒絕",
+    "approved": "已核准",
+    "corrected": "已修正",
+    "rejected": "已拒絕"
+  },
+  "resolve": {
+    "title": "處理升級案例",
+    "description": "選擇處理決策並完成此升級案例",
+    "document": "文件：",
+    "selectDecision": "選擇處理決策",
+    "corrections": "修正項目",
+    "addCorrection": "新增修正",
+    "atLeastOneCorrection": "請新增至少一項修正",
+    "correctionItem": "修正項目 #{index}",
+    "field": "欄位",
+    "selectField": "選擇欄位",
+    "correctionType": "修正類型",
+    "normalCorrection": "一般修正",
+    "exceptionCorrection": "例外修正",
+    "originalValue": "原始值",
+    "correctedValue": "修正值",
+    "enterCorrectedValue": "輸入修正後的值",
+    "notes": "備註（選填）",
+    "enterNotes": "輸入處理備註...",
+    "createRuleSuggestion": "創建規則建議（連接 Epic 4 規則管理）",
+    "fieldName": "欄位名稱",
+    "fieldNamePlaceholder": "例如：Freight Charge",
+    "suggestedPattern": "建議模式",
+    "patternPlaceholder": "例如：/freight|運費/i",
+    "ruleDescription": "描述說明（選填）",
+    "ruleDescriptionPlaceholder": "說明此規則的用途",
+    "cancel": "取消",
+    "processing": "處理中...",
+    "confirm": "確認處理"
+  },
+  "dialog": {
+    "title": "升級案例",
+    "description": "將此發票升級給 Super User 處理。請選擇升級原因。",
+    "document": "文件：",
+    "selectReason": "選擇升級原因",
+    "required": "*需說明",
+    "detailedDescription": "詳細說明",
+    "provideDescription": "請提供詳細說明",
+    "cancel": "取消",
+    "submitting": "提交中...",
+    "confirmEscalation": "確認升級",
+    "placeholders": {
+      "unidentified": "描述無法識別的情況（選填）...",
+      "mappingRules": "請說明哪個欄位的規則需要調整...",
+      "documentQuality": "請描述文件的品質問題...",
+      "other": "請提供更多詳情...",
+      "default": "請提供詳細說明..."
+    }
+  },
+  "toast": {
+    "caseDecision": "案例已{decision}",
+    "processingFailed": "處理失敗："
+  }
+}

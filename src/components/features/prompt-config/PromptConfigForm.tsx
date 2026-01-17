@@ -6,7 +6,7 @@
  *
  * @module src/components/features/prompt-config/PromptConfigForm
  * @since Epic 14 - Story 14.2
- * @lastModified 2026-01-02
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 基本資訊表單（名稱、描述、類型、範圍）
@@ -24,6 +24,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -119,6 +120,7 @@ export function PromptConfigForm({
   onTest,
   isSubmitting = false,
 }: PromptConfigFormProps) {
+  const t = useTranslations('promptConfig');
   const isEditMode = !!config;
 
   // 初始化表單
@@ -152,7 +154,7 @@ export function PromptConfigForm({
     }
     return {
       success: false,
-      error: '測試功能不可用',
+      error: t('form.testUnavailable'),
       executionTimeMs: 0,
     };
   };
@@ -163,9 +165,9 @@ export function PromptConfigForm({
         {/* 基本資訊 */}
         <Card>
           <CardHeader>
-            <CardTitle>基本資訊</CardTitle>
+            <CardTitle>{t('form.basicInfo.title')}</CardTitle>
             <CardDescription>
-              設定 Prompt 配置的基本屬性
+              {t('form.basicInfo.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -175,9 +177,9 @@ export function PromptConfigForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>配置名稱 *</FormLabel>
+                  <FormLabel>{t('form.name.label')} *</FormLabel>
                   <FormControl>
-                    <Input placeholder="例如：DHL 發票術語分類" {...field} />
+                    <Input placeholder={t('form.name.placeholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,10 +192,10 @@ export function PromptConfigForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>描述</FormLabel>
+                  <FormLabel>{t('form.description.label')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="配置的用途說明..."
+                      placeholder={t('form.description.placeholder')}
                       className="resize-none"
                       {...field}
                     />
@@ -210,7 +212,7 @@ export function PromptConfigForm({
                 name="promptType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Prompt 類型 *</FormLabel>
+                    <FormLabel>{t('form.promptType.label')} *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
@@ -218,19 +220,19 @@ export function PromptConfigForm({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="選擇類型" />
+                          <SelectValue placeholder={t('form.promptType.placeholder')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {Object.values(PROMPT_TYPES).map((type) => (
                           <SelectItem key={type.value} value={type.value}>
-                            {type.label}
+                            {t(`types.${type.value}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      {PROMPT_TYPES[field.value as keyof typeof PROMPT_TYPES]?.description}
+                      {field.value && t(`types.${field.value}`)}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -243,7 +245,7 @@ export function PromptConfigForm({
                 name="scope"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>適用範圍 *</FormLabel>
+                    <FormLabel>{t('form.scope.label')} *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
@@ -251,19 +253,19 @@ export function PromptConfigForm({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="選擇範圍" />
+                          <SelectValue placeholder={t('form.scope.placeholder')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {Object.values(PROMPT_SCOPES).map((scope) => (
                           <SelectItem key={scope.value} value={scope.value}>
-                            {scope.label}
+                            {t(`scopes.${scope.value}.label`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      {PROMPT_SCOPES[field.value as keyof typeof PROMPT_SCOPES]?.description}
+                      {field.value && t(`scopes.${field.value}.description`)}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -278,14 +280,14 @@ export function PromptConfigForm({
                 name="companyId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>公司 {watchScope === 'COMPANY' && '*'}</FormLabel>
+                    <FormLabel>{t('form.company.label')} {watchScope === 'COMPANY' && '*'}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value ?? ''}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="選擇公司" />
+                          <SelectValue placeholder={t('form.company.placeholder')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -309,14 +311,14 @@ export function PromptConfigForm({
                 name="documentFormatId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>文件格式 *</FormLabel>
+                    <FormLabel>{t('form.documentFormat.label')} *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value ?? ''}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="選擇文件格式" />
+                          <SelectValue placeholder={t('form.documentFormat.placeholder')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -340,26 +342,26 @@ export function PromptConfigForm({
                 name="mergeStrategy"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>合併策略</FormLabel>
+                    <FormLabel>{t('form.mergeStrategy.label')}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="選擇策略" />
+                          <SelectValue placeholder={t('form.mergeStrategy.placeholder')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {Object.values(MERGE_STRATEGIES).map((strategy) => (
                           <SelectItem key={strategy.value} value={strategy.value}>
-                            {strategy.label}
+                            {t(`mergeStrategies.${strategy.value}.label`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      {MERGE_STRATEGIES[field.value as keyof typeof MERGE_STRATEGIES]?.description}
+                      {field.value && t(`mergeStrategies.${field.value}.description`)}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -373,9 +375,9 @@ export function PromptConfigForm({
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">啟用狀態</FormLabel>
+                      <FormLabel className="text-base">{t('form.isActive.label')}</FormLabel>
                       <FormDescription>
-                        停用後此配置將不會被使用
+                        {t('form.isActive.description')}
                       </FormDescription>
                     </div>
                     <FormControl>
@@ -396,9 +398,9 @@ export function PromptConfigForm({
         {/* Prompt 編輯器 */}
         <Card>
           <CardHeader>
-            <CardTitle>Prompt 內容</CardTitle>
+            <CardTitle>{t('form.promptContent.title')}</CardTitle>
             <CardDescription>
-              編輯 System Prompt 和 User Prompt Template
+              {t('form.promptContent.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -439,12 +441,12 @@ export function PromptConfigForm({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                儲存中...
+                {t('form.submit.saving')}
               </>
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                {isEditMode ? '更新配置' : '建立配置'}
+                {isEditMode ? t('form.submit.update') : t('form.submit.create')}
               </>
             )}
           </Button>

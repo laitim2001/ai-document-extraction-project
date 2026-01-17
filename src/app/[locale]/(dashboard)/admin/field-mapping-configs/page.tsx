@@ -1,20 +1,22 @@
 /**
- * @fileoverview Field Mapping 配置管理列表頁
+ * @fileoverview Field Mapping 配置管理列表頁 (i18n version)
  * @description
  *   Field Mapping 配置的管理介面入口：
  *   - 表格形式顯示所有配置
  *   - 支援篩選（範圍、公司、格式、狀態、搜尋）
  *   - 提供新增、編輯、刪除功能
+ *   - Full i18n support
  *
  * @module src/app/(dashboard)/admin/field-mapping-configs
  * @since Epic 13 - Story 13.7
- * @lastModified 2026-01-07
+ * @lastModified 2026-01-17
  */
 
 'use client';
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Plus,
   RefreshCw,
@@ -80,41 +82,41 @@ interface FiltersState {
 }
 
 // ============================================================================
+// Types - Translation function
+// ============================================================================
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TranslationFunction = ReturnType<typeof import('next-intl').useTranslations<any>>;
+
+// ============================================================================
 // Constants
 // ============================================================================
 
-const SCOPE_OPTIONS: { value: ConfigScope; label: string }[] = [
-  { value: 'GLOBAL', label: '通用' },
-  { value: 'COMPANY', label: '公司' },
-  { value: 'FORMAT', label: '格式' },
-];
-
-const STATUS_OPTIONS = [
-  { value: 'all', label: '全部' },
-  { value: 'active', label: '啟用' },
-  { value: 'inactive', label: '停用' },
-];
+const SCOPE_VALUES: ConfigScope[] = ['GLOBAL', 'COMPANY', 'FORMAT'];
+const STATUS_VALUES = ['all', 'active', 'inactive'] as const;
 
 // ============================================================================
 // Helper Components
 // ============================================================================
 
-function ScopeBadge({ scope }: { scope: ConfigScope }) {
-  const variants: Record<ConfigScope, { variant: 'default' | 'secondary' | 'outline'; label: string }> = {
-    GLOBAL: { variant: 'default', label: '通用' },
-    COMPANY: { variant: 'secondary', label: '公司' },
-    FORMAT: { variant: 'outline', label: '格式' },
+function ScopeBadge({ scope, t }: { scope: ConfigScope; t: TranslationFunction }) {
+  const variants: Record<ConfigScope, 'default' | 'secondary' | 'outline'> = {
+    GLOBAL: 'default',
+    COMPANY: 'secondary',
+    FORMAT: 'outline',
   };
 
-  const { variant, label } = variants[scope];
-
-  return <Badge variant={variant}>{label}</Badge>;
+  return (
+    <Badge variant={variants[scope]}>
+      {t(`scope.${scope.toLowerCase()}`)}
+    </Badge>
+  );
 }
 
-function StatusBadge({ isActive }: { isActive: boolean }) {
+function StatusBadge({ isActive, t }: { isActive: boolean; t: TranslationFunction }) {
   return (
     <Badge variant={isActive ? 'default' : 'secondary'}>
-      {isActive ? '啟用' : '停用'}
+      {isActive ? t('status.active') : t('status.inactive')}
     </Badge>
   );
 }
@@ -138,6 +140,7 @@ interface FiltersProps {
   onFiltersChange: (filters: FiltersState) => void;
   companies: Array<{ id: string; name: string }>;
   documentFormats: Array<{ id: string; name: string }>;
+  t: TranslationFunction;
 }
 
 function ConfigFilters({
@@ -145,6 +148,7 @@ function ConfigFilters({
   onFiltersChange,
   companies,
   documentFormats,
+  t,
 }: FiltersProps) {
   const handleScopeChange = (value: string) => {
     if (value === 'all') {
@@ -206,13 +210,13 @@ function ConfigFilters({
         onValueChange={handleScopeChange}
       >
         <SelectTrigger className="w-[140px]">
-          <SelectValue placeholder="選擇範圍" />
+          <SelectValue placeholder={t('filters.scope.label')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">全部範圍</SelectItem>
-          {SCOPE_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
-              {opt.label}
+          <SelectItem value="all">{t('filters.scope.all')}</SelectItem>
+          {SCOPE_VALUES.map((scope) => (
+            <SelectItem key={scope} value={scope}>
+              {t(`filters.scope.${scope.toLowerCase()}`)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -224,10 +228,10 @@ function ConfigFilters({
         onValueChange={handleCompanyChange}
       >
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="選擇公司" />
+          <SelectValue placeholder={t('filters.company.placeholder')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">全部公司</SelectItem>
+          <SelectItem value="all">{t('filters.company.all')}</SelectItem>
           {companies.map((company) => (
             <SelectItem key={company.id} value={company.id}>
               {company.name}
@@ -242,10 +246,10 @@ function ConfigFilters({
         onValueChange={handleFormatChange}
       >
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="選擇格式" />
+          <SelectValue placeholder={t('filters.format.placeholder')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">全部格式</SelectItem>
+          <SelectItem value="all">{t('filters.format.all')}</SelectItem>
           {documentFormats.map((format) => (
             <SelectItem key={format.id} value={format.id}>
               {format.name}
@@ -266,12 +270,12 @@ function ConfigFilters({
         onValueChange={handleStatusChange}
       >
         <SelectTrigger className="w-[120px]">
-          <SelectValue placeholder="選擇狀態" />
+          <SelectValue placeholder={t('filters.status.label')} />
         </SelectTrigger>
         <SelectContent>
-          {STATUS_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
-              {opt.label}
+          {STATUS_VALUES.map((status) => (
+            <SelectItem key={status} value={status}>
+              {t(`filters.status.${status}`)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -281,7 +285,7 @@ function ConfigFilters({
       <div className="relative flex-1 min-w-[200px]">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="搜尋配置名稱..."
+          placeholder={t('filters.search.placeholder')}
           value={filters.search ?? ''}
           onChange={handleSearchChange}
           className="pl-10"
@@ -292,7 +296,7 @@ function ConfigFilters({
       {hasFilters && (
         <Button variant="ghost" size="sm" onClick={handleClearFilters}>
           <X className="h-4 w-4 mr-1" />
-          清除篩選
+          {t('filters.clear')}
         </Button>
       )}
     </div>
@@ -308,9 +312,11 @@ interface ConfigTableProps {
   isLoading: boolean;
   onEdit: (id: string) => void;
   onDelete: (id: string, name: string) => void;
+  t: TranslationFunction;
+  locale: string;
 }
 
-function ConfigTable({ configs, isLoading, onEdit, onDelete }: ConfigTableProps) {
+function ConfigTable({ configs, isLoading, onEdit, onDelete, t, locale }: ConfigTableProps) {
   if (isLoading) {
     return <TableSkeleton />;
   }
@@ -319,8 +325,8 @@ function ConfigTable({ configs, isLoading, onEdit, onDelete }: ConfigTableProps)
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
         <Settings2 className="h-12 w-12 mb-4 opacity-50" />
-        <p>沒有找到配置</p>
-        <p className="text-sm">請調整篩選條件或新增配置</p>
+        <p>{t('table.empty.title')}</p>
+        <p className="text-sm">{t('table.empty.description')}</p>
       </div>
     );
   }
@@ -329,14 +335,14 @@ function ConfigTable({ configs, isLoading, onEdit, onDelete }: ConfigTableProps)
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>名稱</TableHead>
-          <TableHead>範圍</TableHead>
-          <TableHead>公司</TableHead>
-          <TableHead>格式</TableHead>
-          <TableHead className="text-center">規則數</TableHead>
-          <TableHead>狀態</TableHead>
-          <TableHead>更新時間</TableHead>
-          <TableHead className="text-right">操作</TableHead>
+          <TableHead>{t('table.headers.name')}</TableHead>
+          <TableHead>{t('table.headers.scope')}</TableHead>
+          <TableHead>{t('table.headers.company')}</TableHead>
+          <TableHead>{t('table.headers.format')}</TableHead>
+          <TableHead className="text-center">{t('table.headers.rulesCount')}</TableHead>
+          <TableHead>{t('table.headers.status')}</TableHead>
+          <TableHead>{t('table.headers.updatedAt')}</TableHead>
+          <TableHead className="text-right">{t('table.headers.actions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -353,16 +359,16 @@ function ConfigTable({ configs, isLoading, onEdit, onDelete }: ConfigTableProps)
               </div>
             </TableCell>
             <TableCell>
-              <ScopeBadge scope={config.scope} />
+              <ScopeBadge scope={config.scope} t={t} />
             </TableCell>
             <TableCell>{config.companyName ?? '-'}</TableCell>
             <TableCell>{config.documentFormatName ?? '-'}</TableCell>
             <TableCell className="text-center">{config.rulesCount}</TableCell>
             <TableCell>
-              <StatusBadge isActive={config.isActive} />
+              <StatusBadge isActive={config.isActive} t={t} />
             </TableCell>
             <TableCell className="text-sm text-muted-foreground">
-              {new Date(config.updatedAt).toLocaleDateString('zh-TW')}
+              {new Date(config.updatedAt).toLocaleDateString(locale === 'zh-TW' ? 'zh-TW' : 'en-US')}
             </TableCell>
             <TableCell className="text-right">
               <div className="flex items-center justify-end gap-2">
@@ -396,6 +402,8 @@ function ConfigTable({ configs, isLoading, onEdit, onDelete }: ConfigTableProps)
 export default function FieldMappingConfigsPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useTranslations('fieldMappingConfig');
+  const locale = router.locale || 'zh-TW';
 
   // --- State ---
   const [filters, setFilters] = React.useState<FiltersState>({});
@@ -466,18 +474,18 @@ export default function FieldMappingConfigsPage() {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       toast({
-        title: '刪除成功',
-        description: `已刪除配置「${deleteTarget.name}」`,
+        title: t('toast.deleteSuccess.title'),
+        description: t('toast.deleteSuccess.description', { name: deleteTarget.name }),
       });
       setDeleteTarget(null);
     } catch (err) {
       toast({
         variant: 'destructive',
-        title: '刪除失敗',
-        description: err instanceof Error ? err.message : '未知錯誤',
+        title: t('toast.deleteError.title'),
+        description: err instanceof Error ? err.message : t('error.unknown'),
       });
     }
-  }, [deleteTarget, deleteMutation, toast]);
+  }, [deleteTarget, deleteMutation, toast, t]);
 
   const handleRefresh = React.useCallback(() => {
     refetch();
@@ -492,20 +500,20 @@ export default function FieldMappingConfigsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Settings2 className="h-6 w-6" />
-            欄位映射配置管理
+            {t('page.title')}
           </h1>
           <p className="text-muted-foreground">
-            管理三層級欄位映射規則配置（通用 / 公司 / 格式）
+            {t('page.description')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={handleRefresh} variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
-            重新整理
+            {t('page.refresh')}
           </Button>
           <Button onClick={handleCreateNew}>
             <Plus className="h-4 w-4 mr-2" />
-            新增配置
+            {t('page.newConfig')}
           </Button>
         </div>
       </div>
@@ -513,7 +521,7 @@ export default function FieldMappingConfigsPage() {
       {/* Filters */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg">篩選條件</CardTitle>
+          <CardTitle className="text-lg">{t('filters.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <ConfigFilters
@@ -521,6 +529,7 @@ export default function FieldMappingConfigsPage() {
             onFiltersChange={setFilters}
             companies={companies}
             documentFormats={documentFormats}
+            t={t}
           />
         </CardContent>
       </Card>
@@ -530,14 +539,14 @@ export default function FieldMappingConfigsPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            載入配置資料時發生錯誤：
-            {error instanceof Error ? error.message : '未知錯誤'}
+            {t('error.loadFailed')}
+            {error instanceof Error ? error.message : t('error.unknown')}
           </AlertDescription>
         </Alert>
       )}
 
       {/* Summary */}
-      <div className="text-sm text-muted-foreground">共 {totalCount} 個配置</div>
+      <div className="text-sm text-muted-foreground">{t('table.summary', { count: totalCount })}</div>
 
       {/* Config Table */}
       <Card>
@@ -547,6 +556,8 @@ export default function FieldMappingConfigsPage() {
             isLoading={isLoading}
             onEdit={handleEdit}
             onDelete={handleDeleteRequest}
+            t={t}
+            locale={locale}
           />
         </CardContent>
       </Card>
@@ -558,18 +569,18 @@ export default function FieldMappingConfigsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除配置</AlertDialogTitle>
+            <AlertDialogTitle>{t('dialog.delete.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要刪除配置「{deleteTarget?.name}」嗎？此操作無法復原，配置中的所有規則也將被刪除。
+              {t('dialog.delete.description', { name: deleteTarget?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{t('dialog.delete.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '刪除中...' : '確認刪除'}
+              {deleteMutation.isPending ? t('dialog.delete.deleting') : t('dialog.delete.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
