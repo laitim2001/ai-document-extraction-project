@@ -11,14 +11,14 @@
  * @features
  *   - 移動選單切換按鈕（lg 以下顯示）
  *   - 全域搜尋欄
- *   - 語言切換器（預留，未實現 i18n）
+ *   - 語言切換器（Story 17-5：i18n 整合）
  *   - 主題切換器
  *   - 通知鈴鐺（靜態展示）
  *   - 用戶下拉選單（頭像、姓名、角色、登出）
  *   - 響應式設計
  *
  * @since CHANGE-001 - Dashboard Layout Redesign
- * @lastModified 2025-12-21
+ * @lastModified 2026-01-17
  *
  * @dependencies
  *   - next-auth/react: 用戶會話管理和登出功能
@@ -41,7 +41,6 @@ import {
   Bell,
   Sun,
   Moon,
-  Globe,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
@@ -55,6 +54,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { CityIndicator } from '@/components/layout/CityIndicator'
+import { LocaleSwitcher } from '@/components/features/locale/LocaleSwitcher'
 
 // ============================================================
 // Types
@@ -199,11 +199,8 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           {/* 城市指示器 */}
           <CityIndicator />
 
-          {/* 語言切換（預留） */}
-          <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700">
-            <Globe className="h-5 w-5" />
-            <span className="sr-only">切換語言</span>
-          </Button>
+          {/* 語言切換 (Story 17-5) */}
+          <LocaleSwitcher className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" />
 
           {/* 主題切換 */}
           {mounted && (

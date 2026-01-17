@@ -170,6 +170,7 @@ export const {
             status: true,
             isGlobalAdmin: true,
             isRegionalManager: true,
+            preferredLocale: true, // Story 17-5: 語言偏好
           },
         })
 
@@ -180,6 +181,9 @@ export const {
           // Story 6.1: 設置管理員身份
           token.isGlobalAdmin = dbUser.isGlobalAdmin
           token.isRegionalManager = dbUser.isRegionalManager
+
+          // Story 17-5: 語言偏好
+          token.preferredLocale = dbUser.preferredLocale ?? undefined
         }
 
         // 獲取用戶角色和權限
@@ -222,6 +226,9 @@ export const {
         session.user.isGlobalAdmin = token.isGlobalAdmin ?? false
         session.user.isRegionalManager = token.isRegionalManager ?? false
         session.user.regionCodes = token.regionCodes
+
+        // Story 17-5: 語言偏好
+        session.user.preferredLocale = token.preferredLocale
       }
       return session
     },

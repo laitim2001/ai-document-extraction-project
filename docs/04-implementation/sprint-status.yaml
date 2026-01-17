@@ -267,10 +267,10 @@ development_status:
   # ============================================================
   # Epic 17: 國際化 (i18n)
   # ============================================================
-  epic-17: in-progress  # 5 stories planned - i18n internationalization using next-intl
+  epic-17: done  # All 5 stories completed 2026-01-17 - i18n internationalization using next-intl
   17-1-i18n-infrastructure-setup: done  # Completed 2026-01-17: next-intl 4.x, i18n config (config.ts/request.ts/routing.ts), routing restructure ([locale]/...), middleware integration (i18n + NextAuth), en/zh-TW/zh-CN locales, messages JSON (common namespace), [locale]/layout.tsx (NextIntlClientProvider), root redirect page
   17-2-core-ui-text-internationalization: done  # Completed 2026-01-17: 10 translation namespaces (common/invoices/review/navigation/dialogs/admin/auth/companies/rules/reports), i18n/request.ts multi-namespace loading, invoices/page.tsx + review/page.tsx + Sidebar.tsx refactored with useTranslations
   17-3-validation-error-internationalization: done  # Completed 2026-01-17: validation.json/errors.json (zh-TW/en/zh-CN), i18n-zod.ts (Zod 4.x locales integration), i18n-api-error.ts (RFC 7807 + Accept-Language), use-localized-zod.ts hook, use-localized-toast.ts hook, COMMON_FIELD_LABELS mapping
   17-4-date-number-currency-formatting: done  # Completed 2026-01-17: i18n-date.ts (date-fns locales integration, DATE_FORMATS), i18n-number.ts (formatNumber/formatPercent/formatCompact/formatInteger/formatDecimal), i18n-currency.ts (7 currencies, CURRENCY_SYMBOLS/NAMES), use-localized-date.ts hook, use-localized-format.ts hook (unified API)
-  17-5-language-preference-settings: drafted  # Tech spec completed: LocaleSwitcher component, User.preferredLocale DB field, localStorage fallback, hreflang meta tags
+  17-5-language-preference-settings: done  # Completed 2026-01-17: LocaleSwitcher component (TopBar integration), use-locale-preference.ts hook (LocalStorage + DB sync), User.preferredLocale Prisma field, PATCH /api/v1/users/me/locale API, next-auth session/jwt preferredLocale extension, hreflang meta tags in layout.tsx
   epic-17-retrospective: optional

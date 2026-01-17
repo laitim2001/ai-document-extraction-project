@@ -55,6 +55,8 @@ declare module 'next-auth' {
       isRegionalManager: boolean
       /** 區域管理員管理的區域代碼列表 (Story 6.1) */
       regionCodes?: string[]
+      /** 用戶語言偏好 (Story 17-5) */
+      preferredLocale?: string
     } & DefaultSession['user']
   }
 
@@ -77,6 +79,8 @@ declare module 'next-auth' {
     isRegionalManager?: boolean
     /** 區域管理員管理的區域代碼列表 (Story 6.1) */
     regionCodes?: string[]
+    /** 用戶語言偏好 (Story 17-5) */
+    preferredLocale?: string
   }
 }
 
@@ -102,5 +106,7 @@ declare module 'next-auth/jwt' {
     isRegionalManager?: boolean
     /** 區域管理員管理的區域代碼列表 (Story 6.1) */
     regionCodes?: string[]
+    /** 用戶語言偏好 (Story 17-5) */
+    preferredLocale?: string
   }
 }
