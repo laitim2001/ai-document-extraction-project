@@ -22,7 +22,8 @@
    - 閱讀 `docs/02-architecture/architecture.md`
    - 檢查 `prisma/schema.prisma` 相關數據模型
    - 檢查 `src/app/api/` 相關 API
-   - 檢查 `src/app/(dashboard)/` 相關頁面
+   - 檢查 `src/app/[locale]/(dashboard)/` 相關頁面
+   - 檢查 `messages/` 是否需要新增翻譯
 
 3. 制定實施計劃
    - 識別需要修改的文件
@@ -108,9 +109,14 @@ Read: [找到的相關文件]
 - [ ] `src/app/api/xxx/route.ts` - [變更描述]
 
 ### 前端
-- [ ] `src/app/(dashboard)/xxx/page.tsx` - [變更描述]
+- [ ] `src/app/[locale]/(dashboard)/xxx/page.tsx` - [變更描述]
 - [ ] `src/components/features/xxx/` - [變更描述]
 - [ ] `src/hooks/use-xxx.ts` - [變更描述]
+
+### 國際化 (i18n)
+- [ ] `messages/en/xxx.json` - [新增/更新翻譯]
+- [ ] `messages/zh-TW/xxx.json` - [新增/更新翻譯]
+- [ ] `messages/zh-CN/xxx.json` - [新增/更新翻譯]
 
 ### 測試
 - [ ] `tests/xxx.test.ts` - [測試計劃]
@@ -191,6 +197,7 @@ npm run lint         # ESLint 檢查
 - [ ] 已驗證架構支援程度
 - [ ] 已識別需要修改的文件
 - [ ] 已評估三層映射系統影響
+- [ ] 已評估 i18n 翻譯需求（需新增哪些翻譯）
 - [ ] 已創建 TodoWrite 任務清單
 - [ ] 已建立功能規劃目錄（新功能）或變更記錄（修復/增強）
 
@@ -213,5 +220,5 @@ npm run lint         # ESLint 檢查
 ---
 
 **維護者**: AI 助手 + 開發團隊
-**最後更新**: 2025-12-26
-**版本**: 1.1
+**最後更新**: 2026-01-18
+**版本**: 1.2

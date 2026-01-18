@@ -19,9 +19,11 @@
    - 閱讀 `claudedocs/3-progress/daily/` 最新的日報
 
 2. 理解專案結構
-   - 查看 `src/app/(dashboard)/` 了解頁面結構
+   - 查看 `src/app/[locale]/(dashboard)/` 了解頁面結構（i18n 路由）
    - 查看 `src/app/api/` 了解 API 結構
    - 查看 `src/services/` 了解業務邏輯
+   - 查看 `src/i18n/` 了解國際化配置
+   - 查看 `messages/` 了解翻譯文件結構
 
 3. 確認當前狀態
    - 檢查 Git 狀態: `git status` 和 `git log --oneline -10`
@@ -84,8 +86,9 @@ Read: package.json (了解依賴和腳本)
 - **名稱**: AI Document Extraction System
 - **目標**: AI 驅動的文件內容提取與自動分類系統
 - **業務**: 處理 SCM 部門 Freight Invoice (450,000-500,000 張/年)
-- **技術棧**: Next.js 15 + TypeScript + Prisma + Azure OpenAI
+- **技術棧**: Next.js 15 + TypeScript + Prisma + Azure OpenAI + next-intl
 - **開發模式**: Next.js App Router + shadcn/ui
+- **國際化**: next-intl (支援 en, zh-TW, zh-CN)
 
 ## 核心架構
 ### 三層映射系統
@@ -117,10 +120,11 @@ Read: package.json (了解依賴和腳本)
 
 ## 快速導航
 - **文檔**: docs/, claudedocs/
-- **前端**: src/app/, src/components/
+- **前端**: src/app/[locale]/, src/components/
 - **API**: src/app/api/
 - **服務**: src/services/
 - **數據庫**: prisma/schema.prisma
+- **國際化**: src/i18n/, messages/
 - **功能規劃**: claudedocs/1-planning/features/
 
 ## 下一步建議
@@ -152,7 +156,7 @@ AI 助手應該能回答以下問題:
    - 檢查 claudedocs/1-planning/features/
 
 6. **技術棧?**
-   - Next.js 15, TypeScript, Prisma, PostgreSQL, Azure OpenAI
+   - Next.js 15, TypeScript, Prisma, PostgreSQL, Azure OpenAI, next-intl (i18n)
 
 7. **如何啟動?**
    - `docker-compose up -d` → `npm run dev`
@@ -191,5 +195,5 @@ AI 助手應該能回答以下問題:
 ---
 
 **維護者**: AI 助手 + 開發團隊
-**最後更新**: 2025-12-26
-**版本**: 1.1
+**最後更新**: 2026-01-18
+**版本**: 1.2

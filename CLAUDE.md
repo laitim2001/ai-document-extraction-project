@@ -54,6 +54,7 @@
 - **資料庫**: PostgreSQL + Prisma ORM
 - **狀態管理**: Zustand (UI) + React Query (Server State)
 - **表單**: React Hook Form + Zod 驗證
+- **國際化**: next-intl (支援 en, zh-TW, zh-CN)
 
 ### 外部服務
 
@@ -77,7 +78,7 @@
 ai-document-extraction-project/
 │
 ├── .claude/                    # 🤖 Claude Code 配置
-│   ├── rules/                  # 開發規範（8 個規則文件）
+│   ├── rules/                  # 開發規範（9 個規則文件）
 │   │   ├── general.md          # 通用開發規範
 │   │   ├── typescript.md       # TypeScript 規範
 │   │   ├── services.md         # 服務層規範
@@ -85,6 +86,7 @@ ai-document-extraction-project/
 │   │   ├── components.md       # 組件開發規範
 │   │   ├── database.md         # 資料庫規範
 │   │   ├── testing.md          # 測試規範
+│   │   ├── i18n.md             # 國際化規範
 │   │   └── technical-obstacles.md  # 技術障礙處理
 │   └── settings.local.json     # 本地設定
 │
@@ -111,27 +113,39 @@ ai-document-extraction-project/
 ├── openapi/                    # 📄 OpenAPI 規格
 │   └── (API 規格文檔)          # Swagger/OpenAPI specs
 │
+├── messages/                   # 🌐 i18n 翻譯文件
+│   ├── en/                     # English 翻譯
+│   ├── zh-TW/                  # 繁體中文翻譯
+│   └── zh-CN/                  # 简体中文翻譯
+│
 ├── prisma/                     # 🗄️ Prisma Schema 和遷移
 ├── public/                     # 靜態資源
 ├── scripts/                    # 工具腳本
 │
 ├── src/                        # 💻 Next.js 源代碼
 │   ├── app/                    # App Router 頁面
-│   │   ├── (auth)/             # 認證相關頁面
-│   │   ├── (dashboard)/        # 儀表板頁面
+│   │   ├── [locale]/           # 🌐 i18n 動態路由
+│   │   │   ├── (auth)/         # 認證相關頁面
+│   │   │   └── (dashboard)/    # 儀表板頁面
 │   │   └── api/                # API 路由（256+ 端點）
 │   ├── components/             # React 組件（242+ 組件）
 │   │   ├── ui/                 # shadcn/ui 基礎組件
 │   │   ├── features/           # 功能組件
 │   │   └── layouts/            # 佈局組件
+│   ├── config/                 # ⚙️ 應用配置
+│   ├── constants/              # 📋 常數定義
 │   ├── contexts/               # React Context 提供者
 │   ├── events/                 # 事件處理系統
 │   ├── hooks/                  # 自定義 Hooks
+│   ├── i18n/                   # 🌐 i18n 配置
+│   │   ├── config.ts           # 語言配置常數
+│   │   ├── routing.ts          # next-intl 路由配置
+│   │   └── request.ts          # Server-side locale
 │   ├── jobs/                   # 背景任務和排程
-│   ├── lib/                    # 工具庫
+│   ├── lib/                    # 工具庫（含 i18n 格式化工具）
 │   ├── middlewares/            # 中間件
 │   ├── providers/              # 應用程式提供者
-│   ├── services/               # 業務邏輯服務層（91+ 服務）
+│   ├── services/               # 業務邏輯服務層（95+ 服務）
 │   ├── stores/                 # Zustand 狀態管理
 │   ├── types/                  # TypeScript 類型定義
 │   └── validations/            # Zod 驗證 Schema
@@ -743,7 +757,7 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 
 > **進度來源**: `docs/04-implementation/sprint-status.yaml` - 項目進度的唯一真實來源
 
-### Epic 結構（16 個 Epic，104 個 Stories）
+### Epic 結構（17 個 Epic，111 個 Stories）
 
 | Epic | 名稱                        | Stories | 狀態      | 完成日期   |
 | ---- | --------------------------- | ------- | --------- | ---------- |
@@ -763,6 +777,7 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 | 13   | 文件預覽與欄位映射          | 6       | ✅ 已完成 | 2026-01-03 |
 | 14   | Prompt 配置與動態生成       | 4       | ✅ 已完成 | 2026-01-03 |
 | 15   | 統一 3 層機制到日常處理流程 | 5       | ✅ 已完成 | 2026-01-03 |
+| 17   | 國際化 (i18n) 多語言支援    | 7       | 🚧 進行中 | -          |
 
 ### 重要重構記錄
 
@@ -783,15 +798,16 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 
 ## 版本資訊
 
-- **CLAUDE.md 版本**: 2.2.0
+- **CLAUDE.md 版本**: 2.3.0
 - **建立日期**: 2025-12-17
-- **最後更新**: 2026-01-03
+- **最後更新**: 2026-01-18
 - **維護者**: Development Team
 
 ### 更新記錄
 
 | 版本  | 日期       | 變更內容                                                                         |
 | ----- | ---------- | -------------------------------------------------------------------------------- |
+| 2.3.0 | 2026-01-18 | 新增 Epic 17 (i18n)、新增 i18n.md 規則文件、技術棧新增 next-intl                 |
 | 2.2.0 | 2026-01-03 | Epic 13-15 全部完成、Story 13-6 整合測試頁面實作完成                             |
 | 2.1.0 | 2026-01-02 | 新增 Epic 13-15 規劃文檔、更新 Epic 總數至 16 個、Story 總數至 104 個            |
 | 2.0.0 | 2025-12-26 | 重大更新：全部 13 個 Epic 已完成、新增 Epic 0、更新目錄結構、Story 數量更正為 90 |

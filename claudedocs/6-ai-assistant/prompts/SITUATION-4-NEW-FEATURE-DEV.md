@@ -31,6 +31,7 @@
    - 資料庫: 數據模型 → Migration
    - 後端: 服務層 → API → 測試
    - 前端: 組件 → 頁面 → 整合
+   - 國際化: 翻譯文件 → 組件整合
    - 使用 TodoWrite 追蹤進度
 
 4. 遵循最佳實踐
@@ -38,6 +39,7 @@
    - 使用 shadcn/ui 組件
    - 遵循三層映射系統設計
    - 遵循信心度路由機制
+   - 遵循 i18n 國際化規範（參考 `.claude/rules/i18n.md`）
 
 5. 記錄開發過程
    - 更新 04-progress.md
@@ -133,22 +135,27 @@ TodoWrite: 標記後端任務完成
 
 ### Phase 3: 前端開發
 ```bash
-# 1. 組件開發
+# 1. 組件開發（使用 useTranslations）
 Write: src/components/features/新功能/Component.tsx
 Write: src/components/features/新功能/index.ts
 
 # 2. 自定義 Hook
 Write: src/hooks/use-新功能.ts
 
-# 3. 頁面開發
-Write: src/app/(dashboard)/新功能/page.tsx
+# 3. 頁面開發（注意 [locale] 路由）
+Write: src/app/[locale]/(dashboard)/新功能/page.tsx
 
-# 4. 測試
+# 4. 國際化翻譯（必須同步更新三個語言）
+Write: messages/en/新功能.json
+Write: messages/zh-TW/新功能.json
+Write: messages/zh-CN/新功能.json
+
+# 5. 測試
 Bash: npm run type-check
 Bash: npm run lint
 Bash: npm run dev (手動測試)
 
-# 5. 更新進度
+# 6. 更新進度
 Edit: claudedocs/1-planning/features/FEAT-XXX/04-progress.md
 TodoWrite: 標記前端任務完成
 ```
@@ -182,6 +189,12 @@ TodoWrite: 標記前端任務完成
 - [ ] 響應式設計
 - [ ] Loading 和 Error 狀態處理
 - [ ] 使用 React Query 進行資料獲取
+
+### 國際化 (i18n) 標準
+- [ ] 所有使用者可見文字使用 useTranslations
+- [ ] 翻譯文件同步更新（en, zh-TW, zh-CN）
+- [ ] 使用 `@/i18n/routing` 的 Link 和 Router
+- [ ] 日期/數字/貨幣使用格式化工具
 
 ### 代碼品質
 - [ ] ESLint 無錯誤
@@ -305,5 +318,5 @@ TodoWrite: 標記前端任務完成
 ---
 
 **維護者**: AI 助手 + 開發團隊
-**最後更新**: 2025-12-26
-**版本**: 1.1
+**最後更新**: 2026-01-18
+**版本**: 1.2
