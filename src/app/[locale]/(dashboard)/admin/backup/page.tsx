@@ -61,7 +61,7 @@ export default function BackupPage() {
   }
 
   if (!session?.user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   if (!session.user.isGlobalAdmin) {

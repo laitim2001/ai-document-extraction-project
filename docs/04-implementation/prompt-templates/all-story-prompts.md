@@ -5717,6 +5717,109 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
+### Story 13-8: 發票詳情頁面
+
+```
+# 開發任務：Story 13-8 發票詳情頁面
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-13-document-preview/13-8-invoice-detail-page.md
+3. docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-8.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/component-registry.md
+- src/components/features/document-preview/index.ts（Story 13-1, 13-2 組件）
+- src/components/features/invoice/ProcessingStatus.tsx（現有狀態組件）
+- src/components/features/confidence/ConfidenceBadge.tsx（信心度徽章）
+- messages/{locale}/invoices.json（i18n 翻譯）
+
+## 開發要求
+1. 嚴格遵循 Story 文件和 Tech Spec 的設計
+2. 建立發票詳情頁面 `/[locale]/(dashboard)/invoices/[id]/page.tsx`
+3. 實現以下組件：
+   - InvoiceDetailHeader（頭部：返回、標題、狀態、操作按鈕）
+   - InvoiceDetailStats（統計卡片：狀態、信心度、上傳、來源）
+   - InvoiceDetailTabs（Tabs 容器）
+   - PreviewTab（整合 DynamicPDFViewer + FieldHighlightOverlay）
+   - FieldsTab（整合 ExtractedFieldsPanel）
+   - ProcessingTab + ProcessingTimeline
+   - AuditTab + InvoiceAuditLog
+4. 建立 useInvoiceDetail Hook（含處理中狀態輪詢）
+5. 新增 i18n 翻譯（en, zh-TW, zh-CN 三語言）
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 可復用組件索引
+
+### 文件預覽組件（來自 Story 13-1, 13-2）
+- DynamicPDFViewer - PDF 預覽（含懶加載）
+- FieldHighlightOverlay - 欄位高亮覆蓋層
+- ExtractedFieldsPanel - 提取欄位面板
+- PDFControls - PDF 控制列
+- FieldFilters - 欄位篩選器
+
+### 現有發票組件
+- ProcessingStatus - 處理狀態徽章
+- RetryButton - 重試按鈕
+
+### 現有通用組件
+- ConfidenceBadge - 信心度徽章
+- DocumentSourceBadge - 來源徽章
+
+## API 端點（已存在）
+- GET /api/documents/[id] - 文件詳情
+- GET /api/documents/[id]/download - 文件下載
+- POST /api/documents/[id]/retry - 重試處理
+- GET /api/documents/[id]/trace - 處理追蹤
+- GET /api/extraction/[id]/fields - 提取欄位
+- GET /api/confidence/[id] - 信心度詳情
+- GET /api/audit-logs - 審計日誌
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 從發票列表可點擊進入詳情頁 `/invoices/{id}`
+- [ ] 頭部組件正確顯示（返回按鈕、標題、狀態、操作）
+- [ ] 4 張統計卡片數據正確
+- [ ] 文件預覽 Tab 功能正常（PDF 預覽 + 欄位高亮）
+- [ ] 提取欄位 Tab 功能正常（搜尋、篩選、聯動）
+- [ ] 處理詳情 Tab 時間軸正確顯示
+- [ ] 審計日誌 Tab 正確載入
+- [ ] 處理中狀態有輪詢更新（3 秒間隔）
+- [ ] 失敗狀態可重試
+
+### 3. i18n 驗證
+- [ ] 所有文字使用翻譯系統
+- [ ] en / zh-TW / zh-CN 翻譯完整
+- [ ] 日期、數字格式化正確
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`13-8-invoice-detail-page.md`)：Status 改為 `done`
+
+### 5. 附加文檔（如適用）
+- [ ] 更新 src/components/features/invoice/index.ts（導出新組件）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 6. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
 ## Epic 14: Prompt 配置系統
 
 > **說明**：此 Epic 提供 GPT Vision Prompt 的可配置化管理，支援層級覆蓋與動態解析。

@@ -50,7 +50,7 @@ export default async function RegionalReportPage() {
 
   // 未登入
   if (!session?.user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   // 權限檢查：必須是區域經理或全局管理員

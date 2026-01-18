@@ -7,7 +7,9 @@
     "add": "添加",
     "edit": "编辑",
     "delete": "删除",
+    "deleting": "删除中...",
     "save": "保存",
+    "saving": "保存中...",
     "cancel": "取消",
     "confirm": "确认",
     "close": "关闭",
@@ -27,6 +29,13 @@
     "retry": "重试",
     "approve": "批准",
     "reject": "拒绝"
+  },
+  "errors": {
+    "title": "错误",
+    "generic": "发生错误，请重试",
+    "notFound": "找不到资源",
+    "unauthorized": "未授权访问",
+    "forbidden": "访问被拒绝"
   },
   "status": {
     "pending": "待处理",

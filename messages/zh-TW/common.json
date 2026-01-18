@@ -7,7 +7,9 @@
     "add": "新增",
     "edit": "編輯",
     "delete": "刪除",
+    "deleting": "刪除中...",
     "save": "保存",
+    "saving": "保存中...",
     "cancel": "取消",
     "confirm": "確認",
     "close": "關閉",
@@ -27,6 +29,13 @@
     "retry": "重試",
     "approve": "批准",
     "reject": "拒絕"
+  },
+  "errors": {
+    "title": "錯誤",
+    "generic": "發生錯誤，請重試",
+    "notFound": "找不到資源",
+    "unauthorized": "未授權訪問",
+    "forbidden": "訪問被拒絕"
   },
   "status": {
     "pending": "待處理",

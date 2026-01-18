@@ -31,6 +31,7 @@
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { auth, signIn } from '@/lib/auth'
+import { DevLoginForm } from '@/components/features/auth/DevLoginForm'
 
 /**
  * 檢查 Azure AD 是否已正確配置
@@ -166,66 +167,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         {/* 開發模式登入（Azure AD 未配置時顯示） */}
         {(isDevelopment || !azureConfigured) && !azureConfigured && (
-          <>
-            {/* 開發模式提示 */}
-            <div className="mb-4 rounded-md bg-yellow-50 dark:bg-yellow-900/20 p-3">
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                {t('login.devMode.notice')}
-              </p>
-            </div>
-
-            <form
-              action={async (formData: FormData) => {
-                'use server'
-                const email = formData.get('email') as string
-                await signIn('credentials', {
-                  email,
-                  password: 'dev',
-                  redirectTo: callbackUrl ?? '/dashboard',
-                })
-              }}
-            >
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    defaultValue="admin@example.com"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
-                    placeholder="test@example.com"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-                >
-                  {t('login.devMode.loginButton')}
-                </button>
-              </div>
-            </form>
-
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                    {t('login.devMode.environment')}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </>
+          <DevLoginForm callbackUrl={callbackUrl} />
         )}
       </div>
 

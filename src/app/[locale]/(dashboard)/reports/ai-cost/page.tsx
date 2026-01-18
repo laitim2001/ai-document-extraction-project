@@ -71,7 +71,7 @@ export default async function AiCostReportPage() {
 
   // 未登入
   if (!session?.user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   return (

@@ -111,5 +111,57 @@
     "success": "Processing restarted",
     "failed": "Retry failed: {message}",
     "button": "Retry"
+  },
+  "detail": {
+    "title": "Invoice Details",
+    "backToList": "Back to List",
+    "tabs": {
+      "preview": "Preview",
+      "fields": "Extracted Fields",
+      "processing": "Processing",
+      "audit": "Audit Log"
+    },
+    "stats": {
+      "status": "Status",
+      "confidence": "Confidence",
+      "uploadInfo": "Upload Info",
+      "source": "Source",
+      "processingTime": "Processing Time"
+    },
+    "timeline": {
+      "title": "Processing Timeline",
+      "totalTime": "Total Time",
+      "step": "Step",
+      "duration": "Duration",
+      "status": "Status"
+    },
+    "audit": {
+      "title": "Audit Log",
+      "entries": "entries",
+      "system": "System"
+    },
+    "actions": {
+      "retry": "Retry",
+      "download": "Download",
+      "delete": "Delete"
+    },
+    "empty": {
+      "noPreview": "Unable to preview this file",
+      "noFields": "No extracted fields available",
+      "noProcessingSteps": "No processing steps recorded",
+      "noAuditLogs": "No audit logs available"
+    },
+    "errors": {
+      "notFound": "Document not found",
+      "noFile": "File not available for download",
+      "downloadFailed": "Failed to download file",
+      "deleteFailed": "Failed to delete document",
+      "traceFailed": "Failed to load processing trace",
+      "auditFailed": "Failed to load audit logs"
+    },
+    "deleteConfirmTitle": "Delete Document",
+    "deleteConfirmDescription": "Are you sure you want to delete \"{fileName}\"? This action cannot be undone.",
+    "deleteSuccess": "Document Deleted",
+    "deleteSuccessDescription": "The document has been successfully deleted."
   }
 }

@@ -7,7 +7,9 @@
     "add": "Add",
     "edit": "Edit",
     "delete": "Delete",
+    "deleting": "Deleting...",
     "save": "Save",
+    "saving": "Saving...",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "close": "Close",
@@ -27,6 +29,13 @@
     "retry": "Retry",
     "approve": "Approve",
     "reject": "Reject"
+  },
+  "errors": {
+    "title": "Error",
+    "generic": "Something went wrong. Please try again.",
+    "notFound": "Resource not found",
+    "unauthorized": "Unauthorized access",
+    "forbidden": "Access denied"
   },
   "status": {
     "pending": "Pending",

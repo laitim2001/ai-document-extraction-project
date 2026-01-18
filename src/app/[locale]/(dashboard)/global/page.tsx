@@ -31,7 +31,7 @@
  *   - src/app/api/analytics/global/route.ts - 全局分析 API
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -67,21 +67,39 @@ type PeriodType = '7d' | '30d' | '90d' | '1y'
  */
 export default function GlobalDashboardPage() {
   const t = useTranslations('global')
-  const { data: session, status } = useSession()
+  const { data: session, status, update } = useSession()
   const [period, setPeriod] = useState<PeriodType>('30d')
+  const [isChecking, setIsChecking] = useState(true)
 
-  // 載入中
-  if (status === 'loading') {
+  // 首次加載時，強制刷新 session 以確保數據最新
+  useEffect(() => {
+    const checkSession = async () => {
+      if (status === 'authenticated' && session?.user) {
+        // 如果 isGlobalAdmin 是 undefined，強制刷新 session
+        if (session.user.isGlobalAdmin === undefined) {
+          await update()
+        }
+        setIsChecking(false)
+      } else if (status === 'unauthenticated') {
+        setIsChecking(false)
+      }
+    }
+    checkSession()
+  }, [status, session, update])
+
+  // 載入中或正在檢查權限
+  if (status === 'loading' || isChecking) {
     return <GlobalDashboardSkeleton />
   }
 
   // 未認證 - 重定向到登入
   if (!session?.user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   // 非全局管理者 - 重定向到儀表板
-  if (!session.user.isGlobalAdmin) {
+  // 使用明確的 false 檢查，避免 undefined 導致錯誤重定向
+  if (session.user.isGlobalAdmin === false) {
     redirect('/dashboard')
   }
 

@@ -72,10 +72,23 @@ function isAzureADConfigured(): boolean {
 }
 
 /**
- * 開發模式標識
- * 當 Azure AD 未配置時，使用簡化的認證流程
+ * 檢查是否為開發/示範模式
+ *
+ * @description
+ *   此邏輯必須與 auth.config.ts 中的 Credentials Provider 啟用條件一致：
+ *   - development 模式：使用開發模式認證
+ *   - Azure AD 未配置：使用開發模式認證（允許在生產環境測試）
+ *
+ *   這確保當 Credentials Provider 啟用時，JWT callback 也使用相應的開發模式邏輯，
+ *   避免嘗試從資料庫獲取不存在的用戶資訊。
+ *
+ *   注意：使用函數而非常數，確保在運行時動態計算（避免構建時烘焙）
+ *
+ * @returns 是否為開發/示範模式
  */
-const isDevelopmentMode = process.env.NODE_ENV === 'development' && !isAzureADConfigured()
+function isDevelopmentMode(): boolean {
+  return process.env.NODE_ENV === 'development' || !isAzureADConfigured()
+}
 
 /**
  * 獲取用戶的角色和權限
@@ -117,7 +130,7 @@ export const {
 
   // 加入 Prisma adapter（僅在生產環境或 Azure AD 已配置時使用）
   // 開發模式使用 Credentials provider 時不需要 adapter
-  ...(isDevelopmentMode ? {} : { adapter: PrismaAdapter(prisma) }),
+  ...(isDevelopmentMode() ? {} : { adapter: PrismaAdapter(prisma) }),
 
   callbacks: {
     ...authConfig.callbacks,
@@ -135,7 +148,7 @@ export const {
      */
     async jwt({ token, account, user }) {
       // 開發模式：使用簡化的 token 設置
-      if (isDevelopmentMode) {
+      if (isDevelopmentMode()) {
         if (user) {
           token.sub = user.id
           token.email = user.email
@@ -248,7 +261,7 @@ export const {
      */
     async signIn({ user }) {
       // 開發模式：跳過資料庫檢查
-      if (isDevelopmentMode) {
+      if (isDevelopmentMode()) {
         return true
       }
 
@@ -287,7 +300,7 @@ export const {
      */
     async createUser({ user }) {
       // 開發模式下此事件不會觸發，但保留檢查以防萬一
-      if (isDevelopmentMode) {
+      if (isDevelopmentMode()) {
         return
       }
 
@@ -358,7 +371,7 @@ const DEV_MOCK_SESSION = {
  */
 export async function getAuthSession(request?: NextRequest) {
   // 檢查開發模式繞過
-  if (isDevelopmentMode && request) {
+  if (isDevelopmentMode() && request) {
     const bypassHeader = request.headers.get('X-Dev-Bypass-Auth')
     if (bypassHeader === 'true') {
       console.log('[Auth] Development mode bypass enabled via X-Dev-Bypass-Auth header')

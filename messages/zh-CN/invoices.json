@@ -1,0 +1,167 @@
+{
+  "page": {
+    "title": "发票文件",
+    "description": "管理和追踪上传的发票处理状态"
+  },
+  "stats": {
+    "total": "总计",
+    "processing": "处理中",
+    "completed": "已完成",
+    "failed": "失败"
+  },
+  "filters": {
+    "searchPlaceholder": "搜索文件名称...",
+    "allStatus": "所有状态",
+    "status": {
+      "uploading": "上传中",
+      "uploaded": "已上传",
+      "ocrProcessing": "OCR 处理中",
+      "ocrCompleted": "OCR 完成",
+      "ocrFailed": "OCR 失败",
+      "mappingProcessing": "映射中",
+      "mappingCompleted": "映射完成",
+      "pendingReview": "待审核",
+      "inReview": "审核中",
+      "completed": "已完成",
+      "failed": "处理失败"
+    }
+  },
+  "table": {
+    "columns": {
+      "filename": "文件名称",
+      "fileName": "文件名称",
+      "status": "状态",
+      "uploadedAt": "上传时间",
+      "uploadTime": "上传时间",
+      "processingPath": "处理路径",
+      "confidence": "置信度",
+      "company": "公司",
+      "actions": "操作"
+    },
+    "empty": "没有找到发票文件",
+    "noDocuments": "没有找到文件",
+    "emptyDescription": "上传新的发票文件开始处理",
+    "loading": "加载中...",
+    "processingError": "处理过程中发生错误",
+    "processingFailed": "处理失败"
+  },
+  "processingPath": {
+    "autoApprove": "自动通过",
+    "quickReview": "快速审核",
+    "fullReview": "完整审核",
+    "manualRequired": "需人工处理"
+  },
+  "status": {
+    "UPLOADING": "上传中",
+    "UPLOADED": "已上传",
+    "OCR_PROCESSING": "OCR 处理中",
+    "OCR_COMPLETED": "OCR 完成",
+    "OCR_FAILED": "OCR 失败",
+    "MAPPING_PROCESSING": "映射中",
+    "MAPPING_COMPLETED": "映射完成",
+    "PENDING_REVIEW": "待审核",
+    "IN_REVIEW": "审核中",
+    "COMPLETED": "已完成",
+    "FAILED": "处理失败"
+  },
+  "upload": {
+    "title": "上传发票文件",
+    "description": "上传发票文件以进行 AI 处理和数据提取。支持 PDF、JPG、PNG 格式。",
+    "selectCity": "选择城市",
+    "selectCityPlaceholder": "请选择城市",
+    "selectCityHint": "请先选择城市，才能上传发票文件。",
+    "selectCityRequired": "请先选择城市，才能上传文件",
+    "dragDrop": "拖放文件到此处，或点击选择",
+    "dropToUpload": "放开以上传文件",
+    "unsupportedFormat": "不支持的文件格式",
+    "supportedFormats": "支持 {formats}，单个文件最大 {size}",
+    "formatHint": "支持 {formats}，单个文件最大 {size}",
+    "maxFiles": "最多 {count} 个文件",
+    "maxSize": "最大文件大小：{size}MB",
+    "selectedFiles": "已选择 {count} 个文件",
+    "pendingCount": "({count} 个待上传)",
+    "clearAll": "清除全部",
+    "uploadingProgress": "上传中... {percent}%",
+    "statusPending": "待上传",
+    "uploading": "上传中...",
+    "uploadCount": "上传 {count} 个文件",
+    "uploadSuccess": "上传成功",
+    "successCount": "成功上传 {count} 个文件",
+    "uploadFailed": "上传失败",
+    "failedCount": "{count} 个文件上传失败",
+    "noPendingFiles": "没有待上传的文件",
+    "loading": "加载中..."
+  },
+  "uploadErrors": {
+    "invalidType": "不支持的文件格式，请上传 {formats}",
+    "fileTooLarge": "文件大小超过限制 ({size})",
+    "tooManyFiles": "最多允许 {count} 个文件",
+    "uploadFailed": "文件上传失败，请重试",
+    "noFiles": "请选择要上传的文件",
+    "unauthorized": "请先登录",
+    "forbidden": "您没有权限上传发票"
+  },
+  "actions": {
+    "view": "查看",
+    "retry": "重试",
+    "download": "下载",
+    "delete": "删除"
+  },
+  "retry": {
+    "success": "处理重新开始",
+    "failed": "重试失败：{message}",
+    "button": "重试"
+  },
+  "detail": {
+    "title": "发票详情",
+    "backToList": "返回列表",
+    "tabs": {
+      "preview": "文件预览",
+      "fields": "提取字段",
+      "processing": "处理详情",
+      "audit": "审计日志"
+    },
+    "stats": {
+      "status": "处理状态",
+      "confidence": "置信度",
+      "uploadInfo": "上传信息",
+      "source": "来源",
+      "processingTime": "处理耗时"
+    },
+    "timeline": {
+      "title": "处理时间轴",
+      "totalTime": "总耗时",
+      "step": "步骤",
+      "duration": "耗时",
+      "status": "状态"
+    },
+    "audit": {
+      "title": "审计日志",
+      "entries": "条记录",
+      "system": "系统"
+    },
+    "actions": {
+      "retry": "重试",
+      "download": "下载",
+      "delete": "删除"
+    },
+    "empty": {
+      "noPreview": "无法预览此文件",
+      "noFields": "暂无提取字段",
+      "noProcessingSteps": "暂无处理步骤记录",
+      "noAuditLogs": "暂无审计日志"
+    },
+    "errors": {
+      "notFound": "找不到文件",
+      "noFile": "文件无法下载",
+      "downloadFailed": "文件下载失败",
+      "deleteFailed": "文件删除失败",
+      "traceFailed": "处理追踪加载失败",
+      "auditFailed": "审计日志加载失败"
+    },
+    "deleteConfirmTitle": "删除文件",
+    "deleteConfirmDescription": "确定要删除「{fileName}」吗？此操作无法撤销。",
+    "deleteSuccess": "文件已删除",
+    "deleteSuccessDescription": "文件已成功删除。"
+  }
+}

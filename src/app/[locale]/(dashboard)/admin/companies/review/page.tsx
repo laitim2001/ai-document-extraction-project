@@ -108,7 +108,7 @@ export default async function CompanyReviewPage() {
   const session = await auth()
 
   if (!session?.user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   const hasViewPerm = hasPermission(session.user, PERMISSIONS.FORWARDER_VIEW)

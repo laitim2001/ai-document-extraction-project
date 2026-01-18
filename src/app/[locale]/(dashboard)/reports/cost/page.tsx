@@ -68,7 +68,7 @@ export default async function CityCostReportPage() {
 
   // 未登入
   if (!session?.user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   return (

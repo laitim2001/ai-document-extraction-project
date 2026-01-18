@@ -111,5 +111,57 @@
     "success": "處理重新開始",
     "failed": "重試失敗：{message}",
     "button": "重試"
+  },
+  "detail": {
+    "title": "發票詳情",
+    "backToList": "返回列表",
+    "tabs": {
+      "preview": "文件預覽",
+      "fields": "提取欄位",
+      "processing": "處理詳情",
+      "audit": "審計日誌"
+    },
+    "stats": {
+      "status": "處理狀態",
+      "confidence": "信心度",
+      "uploadInfo": "上傳資訊",
+      "source": "來源",
+      "processingTime": "處理耗時"
+    },
+    "timeline": {
+      "title": "處理時間軸",
+      "totalTime": "總耗時",
+      "step": "步驟",
+      "duration": "耗時",
+      "status": "狀態"
+    },
+    "audit": {
+      "title": "審計日誌",
+      "entries": "筆記錄",
+      "system": "系統"
+    },
+    "actions": {
+      "retry": "重試",
+      "download": "下載",
+      "delete": "刪除"
+    },
+    "empty": {
+      "noPreview": "無法預覽此文件",
+      "noFields": "尚無提取欄位",
+      "noProcessingSteps": "尚無處理步驟記錄",
+      "noAuditLogs": "尚無審計日誌"
+    },
+    "errors": {
+      "notFound": "找不到文件",
+      "noFile": "文件無法下載",
+      "downloadFailed": "文件下載失敗",
+      "deleteFailed": "文件刪除失敗",
+      "traceFailed": "處理追蹤載入失敗",
+      "auditFailed": "審計日誌載入失敗"
+    },
+    "deleteConfirmTitle": "刪除文件",
+    "deleteConfirmDescription": "確定要刪除「{fileName}」嗎？此操作無法撤銷。",
+    "deleteSuccess": "文件已刪除",
+    "deleteSuccessDescription": "文件已成功刪除。"
   }
 }

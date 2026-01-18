@@ -127,7 +127,7 @@ export default function OutlookConfigPage() {
   }
 
   if (!session?.user) {
-    redirect('/login');
+    redirect('/auth/login');
   }
 
   if (!session.user.isGlobalAdmin) {

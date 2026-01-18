@@ -62,7 +62,7 @@ export default function SystemConfigPage() {
   }
 
   if (!session?.user) {
-    redirect('/login')
+    redirect('/auth/login')
   }
 
   if (!session.user.isGlobalAdmin) {

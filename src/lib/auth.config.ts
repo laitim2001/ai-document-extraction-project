@@ -67,6 +67,9 @@ function buildProviders(): Provider[] {
   const providers: Provider[] = []
 
   // 開發模式或 Azure AD 未配置時，使用 Credentials 提供者
+  // ⚠️ 重要：此條件必須與 auth.ts 中的 isDevelopmentMode 保持一致
+  //    auth.ts: isDevelopmentMode = NODE_ENV === 'development' || !isAzureADConfigured()
+  //    如果修改此條件，請同步更新 auth.ts
   if (process.env.NODE_ENV === 'development' || !isAzureADConfigured()) {
     providers.push(
       Credentials({
