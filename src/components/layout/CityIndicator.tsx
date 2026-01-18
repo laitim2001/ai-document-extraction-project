@@ -17,19 +17,21 @@
  * @module src/components/layout/CityIndicator
  * @author Development Team
  * @since Epic 6 - Story 6.2 (City User Data Access Control)
- * @lastModified 2025-12-19
+ * @lastModified 2026-01-18
  *
  * @dependencies
  *   - @/hooks/useUserCity - 城市訪問 Hook
  *   - @tanstack/react-query - 數據獲取
  *   - @/components/ui/* - UI 基礎組件
  *   - lucide-react - 圖標
+ *   - next-intl - 國際化
  *
  * @related
  *   - src/hooks/useUserCity.ts - 城市訪問 Hook
  *   - src/app/api/cities/[code]/route.ts - 城市資訊 API
  */
 
+import { useTranslations } from 'next-intl'
 import { useUserCity } from '@/hooks/useUserCity'
 import { useQuery } from '@tanstack/react-query'
 import { Badge } from '@/components/ui/badge'
@@ -103,6 +105,7 @@ async function fetchCityInfo(cityCode: string): Promise<CityData | null> {
  *   </header>
  */
 export function CityIndicator() {
+  const t = useTranslations('common.city')
   const {
     primaryCityCode,
     cityCodes,
@@ -138,11 +141,11 @@ export function CityIndicator() {
           <TooltipTrigger asChild>
             <Badge variant="secondary" className="gap-1 cursor-help">
               <Globe className="h-3 w-3" />
-              全球管理員
+              {t('globalAdmin')}
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
-            <p>您擁有所有城市的完整訪問權限</p>
+            <p>{t('globalAdminTooltip')}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -157,7 +160,7 @@ export function CityIndicator() {
           <TooltipTrigger asChild>
             <Badge variant="secondary" className="gap-1 cursor-help">
               <Building2 className="h-3 w-3" />
-              區域管理
+              {t('regionalManager')}
               {cityCodes.length > 0 && (
                 <span className="ml-1 text-xs bg-primary/10 px-1 rounded">
                   {cityCodes.length}
@@ -166,7 +169,7 @@ export function CityIndicator() {
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
-            <p>您可訪問 {cityCodes.length} 個城市</p>
+            <p>{t('regionalManagerTooltip', { count: cityCodes.length })}</p>
             <p className="text-xs text-muted-foreground mt-1">
               {cityCodes.join(', ')}
             </p>
@@ -206,11 +209,11 @@ export function CityIndicator() {
           <TooltipTrigger asChild>
             <Badge variant="outline" className="gap-1 cursor-help">
               <MapPin className="h-3 w-3" />
-              {cityCodes.length} 個城市
+              {t('multiCityAccess', { count: cityCodes.length })}
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
-            <p>您可訪問以下城市:</p>
+            <p>{t('multiCityTooltip')}</p>
             <p className="text-xs text-muted-foreground mt-1">
               {cityCodes.join(', ')}
             </p>
@@ -237,12 +240,12 @@ export function CityIndicator() {
         <TooltipTrigger asChild>
           <Badge variant="destructive" className="gap-1 cursor-help">
             <MapPin className="h-3 w-3" />
-            未配置城市
+            {t('noCityConfigured')}
           </Badge>
         </TooltipTrigger>
         <TooltipContent>
-          <p>您尚未被分配任何城市訪問權限</p>
-          <p className="text-xs text-muted-foreground">請聯繫管理員配置</p>
+          <p>{t('noCityTooltip')}</p>
+          <p className="text-xs text-muted-foreground">{t('contactAdmin')}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

@@ -29,6 +29,7 @@
  */
 
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { auth, signIn } from '@/lib/auth'
 
 /**
@@ -54,20 +55,8 @@ interface LoginPageProps {
   }>
 }
 
-/**
- * 錯誤訊息映射
- */
-const ERROR_MESSAGES: Record<string, string> = {
-  OAuthSignin: '無法啟動登入流程，請稍後再試。',
-  OAuthCallback: '登入回調失敗，請稍後再試。',
-  OAuthCreateAccount: '無法建立帳戶，請聯繫管理員。',
-  Callback: '登入回調發生錯誤。',
-  AccessDenied: '您的帳戶已被停用或無權限訪問此系統。',
-  Configuration: '系統配置錯誤，請聯繫管理員。',
-  Default: '發生未知錯誤，請稍後再試。',
-}
-
 export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const t = await getTranslations('auth')
   const session = await auth()
   const { callbackUrl, error } = await searchParams
 
@@ -76,7 +65,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     redirect(callbackUrl ?? '/dashboard')
   }
 
-  const errorMessage = error ? ERROR_MESSAGES[error] ?? ERROR_MESSAGES.Default : null
+  const errorMessage = error ? t(`errors.${error}`) ?? t('errors.Default') : null
   const azureConfigured = isAzureADConfigured()
   const isDevelopment = process.env.NODE_ENV === 'development'
 
@@ -103,7 +92,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           AI Document Extraction
         </h2>
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-          智能文件提取與分類系統
+          {t('login.description')}
         </p>
       </div>
 
@@ -156,7 +145,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
                   <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                 </svg>
-                使用 Microsoft 帳號登入
+                {t('login.microsoftLogin')}
               </button>
             </form>
 
@@ -167,7 +156,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                    僅限企業帳號
+                    {t('login.enterpriseOnly')}
                   </span>
                 </div>
               </div>
@@ -181,7 +170,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             {/* 開發模式提示 */}
             <div className="mb-4 rounded-md bg-yellow-50 dark:bg-yellow-900/20 p-3">
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                🔧 開發模式 - Azure AD 未配置
+                {t('login.devMode.notice')}
               </p>
             </div>
 
@@ -219,7 +208,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   type="submit"
                   className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
                 >
-                  開發模式登入
+                  {t('login.devMode.loginButton')}
                 </button>
               </div>
             </form>
@@ -231,7 +220,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                    開發環境
+                    {t('login.devMode.environment')}
                   </span>
                 </div>
               </div>
@@ -241,20 +230,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       </div>
 
       {/* 頁腳資訊 */}
-      <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-        {azureConfigured ? (
-          <>
-            請使用您的企業 Microsoft 帳號登入系統。
-            <br />
-            如有問題，請聯繫 IT 支援團隊。
-          </>
-        ) : (
-          <>
-            開發模式 - 使用任意 email 即可登入。
-            <br />
-            生產環境需配置 Azure AD。
-          </>
-        )}
+      <p className="text-center text-xs text-gray-500 dark:text-gray-400 whitespace-pre-line">
+        {azureConfigured ? t('login.productionFooter') : t('login.devMode.footer')}
       </p>
     </>
   )

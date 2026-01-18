@@ -1,8 +1,8 @@
 # API 目錄 - Next.js API Routes
 
-> **端點數量**: 273+ API 端點
-> **最後更新**: 2026-01-02
-> **版本**: 1.1.0
+> **端點數量**: 280+ API 端點
+> **最後更新**: 2026-01-18
+> **版本**: 1.2.0
 
 ---
 
@@ -290,6 +290,7 @@
 | `/v1/webhooks/` | Webhook 管理 | Epic 11 |
 | `/v1/field-mapping-configs/` | 欄位映射配置 | Epic 13 |
 | `/v1/prompt-configs/` | Prompt 配置管理 | Epic 14 |
+| `/v1/users/me/locale/` | 用戶語言偏好 | Epic 17 |
 
 ### 33. 欄位映射配置 API (Field Mapping Configs) - Epic 13
 
@@ -376,6 +377,44 @@ GLOBAL → COMPANY → FORMAT（越具體優先級越高）
 #### 變數插值
 
 支援 `{{variableName}}` 語法在 systemPrompt 和 userPromptTemplate 中進行變數插值。
+
+### 35. 用戶語言偏好 API (User Locale) - Epic 17
+
+> **Story 17-5**: 語言偏好設定 - 支援 LocalStorage + 資料庫雙重持久化
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/users/me/locale/` | PATCH | 更新當前用戶的語言偏好 |
+
+#### 請求格式
+
+```typescript
+// PATCH /api/v1/users/me/locale
+{
+  "locale": "zh-TW"  // 'en' | 'zh-TW' | 'zh-CN'
+}
+```
+
+#### 響應格式
+
+```typescript
+{
+  "success": true,
+  "data": {
+    "preferredLocale": "zh-TW"
+  }
+}
+```
+
+#### 語言偏好優先級
+
+```
+1. URL 路徑中的 locale（/zh-TW/dashboard）
+2. 資料庫偏好（已登入用戶）
+3. LocalStorage 偏好
+4. 瀏覽器 Accept-Language
+5. 預設語言（en）
+```
 
 ---
 
@@ -541,5 +580,5 @@ GET /api/documents?page=1&limit=20&sortBy=createdAt&sortOrder=desc
 ---
 
 **維護者**: Development Team
-**最後更新**: 2026-01-02
-**版本**: 1.1.0
+**最後更新**: 2026-01-18
+**版本**: 1.2.0

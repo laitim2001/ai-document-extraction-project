@@ -16,6 +16,7 @@
 
 import * as React from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ArrowLeft, Settings2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -42,6 +43,7 @@ export default function EditPromptConfigPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
+  const t = useTranslations('promptConfig');
 
   const configId = params.id as string;
 
@@ -88,18 +90,18 @@ export default function EditPromptConfigPage() {
           version: config.version,
         });
         toast({
-          title: '更新成功',
-          description: '配置已成功更新',
+          title: t('page.toast.updateSuccess'),
+          description: t('page.toast.updateSuccessDesc'),
         });
       } catch (err) {
         toast({
           variant: 'destructive',
-          title: '更新失敗',
-          description: err instanceof Error ? err.message : '未知錯誤',
+          title: t('page.toast.updateFailed'),
+          description: err instanceof Error ? err.message : t('page.unknownError'),
         });
       }
     },
-    [updateMutation, toast, config]
+    [updateMutation, toast, config, t]
   );
 
   const handleTest = React.useCallback(
@@ -110,12 +112,12 @@ export default function EditPromptConfigPage() {
       } catch (err) {
         return {
           success: false,
-          error: err instanceof Error ? err.message : '測試失敗',
+          error: err instanceof Error ? err.message : t('page.toast.testFailed'),
           executionTimeMs: 0,
         };
       }
     },
-    [testMutation]
+    [testMutation, t]
   );
 
   // --- Loading State ---
@@ -144,19 +146,19 @@ export default function EditPromptConfigPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">載入失敗</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t('editPage.loadFailed')}</h1>
           </div>
         </div>
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            無法載入配置資料：
+            {t('editPage.loadError')}
             {configError instanceof Error
               ? configError.message
-              : '配置不存在或已被刪除'}
+              : t('editPage.notFound')}
           </AlertDescription>
         </Alert>
-        <Button onClick={handleGoBack}>返回配置列表</Button>
+        <Button onClick={handleGoBack}>{t('editPage.backToList')}</Button>
       </div>
     );
   }
@@ -172,7 +174,7 @@ export default function EditPromptConfigPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Settings2 className="h-6 w-6" />
-            編輯 Prompt 配置
+            {t('editPage.title')}
           </h1>
           <p className="text-muted-foreground">
             {config.name}

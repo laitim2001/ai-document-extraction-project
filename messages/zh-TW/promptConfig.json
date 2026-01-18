@@ -1,4 +1,44 @@
 {
+  "page": {
+    "title": "Prompt 配置管理",
+    "description": "管理 AI 處理流程中使用的 Prompt 配置",
+    "refresh": "重新整理",
+    "addConfig": "新增配置",
+    "filterTitle": "篩選條件",
+    "loadError": "載入配置資料時發生錯誤：",
+    "unknownError": "未知錯誤",
+    "totalConfigs": "共 {count} 個配置",
+    "deleteDialog": {
+      "title": "確認刪除配置",
+      "message": "確定要刪除配置「{name}」嗎？此操作無法復原。",
+      "cancel": "取消",
+      "confirm": "確認刪除",
+      "deleting": "刪除中..."
+    },
+    "toast": {
+      "deleteSuccess": "刪除成功",
+      "deleteSuccessDesc": "已刪除配置「{name}」",
+      "deleteFailed": "刪除失敗",
+      "createSuccess": "建立成功",
+      "createSuccessDesc": "已成功建立配置「{name}」",
+      "createFailed": "建立失敗",
+      "updateSuccess": "更新成功",
+      "updateSuccessDesc": "配置已成功更新",
+      "updateFailed": "更新失敗",
+      "testFailed": "測試失敗"
+    }
+  },
+  "newPage": {
+    "title": "新增 Prompt 配置",
+    "description": "建立新的 AI Prompt 配置"
+  },
+  "editPage": {
+    "title": "編輯 Prompt 配置",
+    "loadFailed": "載入失敗",
+    "loadError": "無法載入配置資料：",
+    "notFound": "配置不存在或已被刪除",
+    "backToList": "返回配置列表"
+  },
   "list": {
     "empty": "尚無 Prompt 配置",
     "loadError": "載入失敗：{error}",

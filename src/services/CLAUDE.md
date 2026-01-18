@@ -1,8 +1,8 @@
 # Services 目錄 - 業務邏輯服務層
 
-> **服務數量**: 91+ 服務文件
-> **最後更新**: 2025-12-26
-> **版本**: 1.0.0
+> **服務數量**: 95+ 服務文件
+> **最後更新**: 2026-01-18
+> **版本**: 1.1.0
 
 ---
 
@@ -37,7 +37,7 @@
 
 | 服務 | 說明 | Epic |
 |------|------|------|
-| `gpt-vision.service.ts` | GPT-5.2 Vision 處理 | Epic 2 |
+| `gpt-vision.service.ts` | Azure OpenAI GPT-5.2 Vision 處理 | Epic 2 |
 | `azure-di.service.ts` | Azure Document Intelligence | Epic 2 |
 | `confidence.service.ts` | 信心度計算 | Epic 2 |
 | `term-classification.service.ts` | 術語分類（Tier 3） | Epic 4 |
@@ -332,5 +332,5 @@ audit-log.service.ts
 ---
 
 **維護者**: Development Team
-**最後更新**: 2025-12-26
-**版本**: 1.0.0
+**最後更新**: 2026-01-18
+**版本**: 1.1.0

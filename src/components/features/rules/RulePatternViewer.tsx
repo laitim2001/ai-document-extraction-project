@@ -18,6 +18,7 @@
  *   - @/components/ui/badge - shadcn Badge 組件
  */
 
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { ExtractionTypeIcon, getExtractionTypeConfig } from './ExtractionTypeIcon'
 import { cn } from '@/lib/utils'
@@ -198,7 +199,10 @@ export function RulePatternViewer({
   pattern,
   className,
 }: RulePatternViewerProps) {
+  const t = useTranslations('rules')
   const config = getExtractionTypeConfig(pattern.method)
+  const label = t(`extractionType.${config.i18nKey}`)
+  const description = t(`extractionType.${config.i18nKey}Desc`)
 
   // 根據類型渲染對應的查看器
   const renderPatternContent = () => {
@@ -228,8 +232,8 @@ export function RulePatternViewer({
       <div className="flex items-center gap-3 pb-4 border-b">
         <ExtractionTypeIcon type={pattern.method} size="lg" />
         <div>
-          <h4 className="font-medium">{config.label}</h4>
-          <p className="text-sm text-muted-foreground">{config.description}</p>
+          <h4 className="font-medium">{label}</h4>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
       </div>
 

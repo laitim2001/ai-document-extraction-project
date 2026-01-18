@@ -135,6 +135,18 @@
       "confirm": "Discard Changes"
     }
   },
+  "mappingRuleList": {
+    "empty": {
+      "title": "No Mapping Rules",
+      "description": "Click the button below to create your first mapping rule",
+      "addRule": "Add Rule"
+    },
+    "title": "Mapping Rules",
+    "dragHint": "Drag to adjust priority, lower number means higher priority",
+    "addRule": "Add Rule",
+    "rulesCount": "{count} rules",
+    "disabledCount": "({count} disabled)"
+  },
   "configSelector": {
     "scope": {
       "label": "Configuration Scope",

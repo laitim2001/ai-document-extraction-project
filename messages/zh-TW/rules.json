@@ -4,6 +4,14 @@
     "description": "管理文件欄位提取的映射規則，配置公司特定或通用提取模式",
     "addRule": "新增規則"
   },
+  "summary": {
+    "totalRules": "總規則數",
+    "activeRules": "生效中",
+    "draftRules": "草稿",
+    "pendingReviewRules": "待審核",
+    "deprecatedRules": "已棄用",
+    "universalRules": "通用規則"
+  },
   "tabs": {
     "universal": "通用規則",
     "companySpecific": "公司特定規則",

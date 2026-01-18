@@ -83,11 +83,7 @@ export default async function NewCompanyPage() {
       </div>
 
       {/* 表單 */}
-      <ForwarderForm
-        title="公司資訊"
-        description="請填寫以下必要資訊來建立新的公司"
-        submitLabel="建立公司"
-      />
+      <ForwarderForm />
     </div>
   )
 }

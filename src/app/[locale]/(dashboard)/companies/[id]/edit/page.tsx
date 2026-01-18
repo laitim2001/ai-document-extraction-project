@@ -130,9 +130,7 @@ export default async function EditCompanyPage({ params }: PageProps) {
       {/* 表單 */}
       <ForwarderForm
         initialData={initialData}
-        title="公司資訊"
-        description="修改公司基本資訊"
-        submitLabel="儲存變更"
+        isEdit
       />
     </div>
   )

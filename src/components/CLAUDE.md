@@ -1,8 +1,8 @@
 # Components 目錄 - React 組件庫
 
-> **組件數量**: 245+ 組件文件
-> **最後更新**: 2026-01-02
-> **版本**: 1.0.0
+> **組件數量**: 250+ 組件文件
+> **最後更新**: 2026-01-18
+> **版本**: 1.2.0
 
 ---
 
@@ -300,6 +300,25 @@ src/components/
 | `FieldFilters.tsx` | 過濾器組件 (搜尋、篩選、排序控制) |
 | `ExtractedFieldsPanel.tsx` | 欄位提取結果主面板 (統計、分組、過濾)
 
+#### 2.25 國際化組件 (`features/locale/`) - Epic 17
+
+> **Story 17-5**: 語言偏好設定
+
+| 組件 | 說明 |
+|------|------|
+| `LocaleSwitcher.tsx` | 語言切換下拉選單（支援 en, zh-TW, zh-CN）|
+
+**使用範例**:
+```typescript
+import { LocaleSwitcher } from '@/components/features/locale';
+
+// 僅圖標模式
+<LocaleSwitcher />
+
+// 顯示語言名稱
+<LocaleSwitcher showLabel />
+```
+
 ### 3. 佈局組件
 
 #### 3.1 Layout (`layout/`)
@@ -439,6 +458,38 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 ```
 
+### 國際化（i18n）
+
+> **完整規範**: 請參考 `.claude/rules/i18n.md`
+
+```typescript
+'use client';
+
+import { useTranslations, useLocale } from 'next-intl';
+import { Link, useRouter } from '@/i18n/routing';
+
+export function MyComponent() {
+  const t = useTranslations('namespace');
+  const locale = useLocale();
+
+  return (
+    <div>
+      <h1>{t('title')}</h1>
+      <Link href="/dashboard">Dashboard</Link>
+    </div>
+  );
+}
+```
+
+**日期/數字格式化**:
+```typescript
+import { formatShortDate, formatRelativeTime } from '@/lib/i18n-date';
+import { formatNumber, formatPercent } from '@/lib/i18n-number';
+
+formatShortDate(date, locale);     // 2026/01/18
+formatNumber(1234567, locale);     // 1,234,567
+```
+
 ---
 
 ## 注意事項
@@ -482,11 +533,13 @@ import { cn } from '@/lib/utils';
 
 - [CLAUDE.md (根目錄)](../../CLAUDE.md) - 項目總指南
 - [.claude/rules/components.md](../../.claude/rules/components.md) - 組件開發規範
+- [.claude/rules/i18n.md](../../.claude/rules/i18n.md) - 國際化開發規範
 - [src/hooks/CLAUDE.md](../hooks/CLAUDE.md) - 自定義 Hooks
 - [src/stores/](../stores/) - Zustand 狀態管理
+- [src/i18n/](../i18n/) - 國際化配置
 
 ---
 
 **維護者**: Development Team
-**最後更新**: 2026-01-02
-**版本**: 1.1.0
+**最後更新**: 2026-01-18
+**版本**: 1.2.0

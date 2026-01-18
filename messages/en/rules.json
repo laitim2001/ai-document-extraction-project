@@ -4,6 +4,14 @@
     "description": "Manage document field extraction mapping rules and configure company-specific or universal extraction patterns",
     "addRule": "Add Rule"
   },
+  "summary": {
+    "totalRules": "Total Rules",
+    "activeRules": "Active",
+    "draftRules": "Draft",
+    "pendingReviewRules": "Pending Review",
+    "deprecatedRules": "Deprecated",
+    "universalRules": "Universal Rules"
+  },
   "tabs": {
     "universal": "Universal Rules",
     "companySpecific": "Company-Specific Rules",

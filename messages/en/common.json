@@ -94,5 +94,23 @@
     "admin": "Admin",
     "settings": "Settings",
     "logout": "Logout"
+  },
+  "locale": {
+    "switchLanguage": "Switch Language",
+    "languages": {
+      "en": "English",
+      "zh-TW": "繁體中文"
+    }
+  },
+  "city": {
+    "globalAdmin": "Global Admin",
+    "globalAdminTooltip": "You have full access to all cities",
+    "regionalManager": "Regional Manager",
+    "regionalManagerTooltip": "You can access {count} cities",
+    "multiCityAccess": "{count} cities",
+    "multiCityTooltip": "You can access the following cities:",
+    "noCityConfigured": "No city configured",
+    "noCityTooltip": "You have not been assigned any city access",
+    "contactAdmin": "Please contact administrator for configuration"
   }
 }

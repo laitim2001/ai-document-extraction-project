@@ -15,6 +15,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Plus, RefreshCw, AlertCircle, Settings2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,7 @@ import type { GetPromptConfigsParams } from '@/types/prompt-config';
 export default function PromptConfigsPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useTranslations('promptConfig');
 
   // --- State ---
   const [filters, setFilters] = React.useState<PromptConfigFiltersState>({});
@@ -112,18 +114,18 @@ export default function PromptConfigsPage() {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       toast({
-        title: '刪除成功',
-        description: `已刪除配置「${deleteTarget.name}」`,
+        title: t('page.toast.deleteSuccess'),
+        description: t('page.toast.deleteSuccessDesc', { name: deleteTarget.name }),
       });
       setDeleteTarget(null);
     } catch (err) {
       toast({
         variant: 'destructive',
-        title: '刪除失敗',
-        description: err instanceof Error ? err.message : '未知錯誤',
+        title: t('page.toast.deleteFailed'),
+        description: err instanceof Error ? err.message : t('page.unknownError'),
       });
     }
-  }, [deleteTarget, deleteMutation, toast]);
+  }, [deleteTarget, deleteMutation, toast, t]);
 
   const handleRefresh = React.useCallback(() => {
     refetch();
@@ -138,20 +140,20 @@ export default function PromptConfigsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Settings2 className="h-6 w-6" />
-            Prompt 配置管理
+            {t('page.title')}
           </h1>
           <p className="text-muted-foreground">
-            管理 AI 處理流程中使用的 Prompt 配置
+            {t('page.description')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={handleRefresh} variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
-            重新整理
+            {t('page.refresh')}
           </Button>
           <Button onClick={handleCreateNew}>
             <Plus className="h-4 w-4 mr-2" />
-            新增配置
+            {t('page.addConfig')}
           </Button>
         </div>
       </div>
@@ -159,7 +161,7 @@ export default function PromptConfigsPage() {
       {/* Filters */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg">篩選條件</CardTitle>
+          <CardTitle className="text-lg">{t('page.filterTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <PromptConfigFilters
@@ -174,15 +176,15 @@ export default function PromptConfigsPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            載入配置資料時發生錯誤：
-            {error instanceof Error ? error.message : '未知錯誤'}
+            {t('page.loadError')}
+            {error instanceof Error ? error.message : t('page.unknownError')}
           </AlertDescription>
         </Alert>
       )}
 
       {/* Summary */}
       <div className="text-sm text-muted-foreground">
-        共 {totalCount} 個配置
+        {t('page.totalConfigs', { count: totalCount })}
       </div>
 
       {/* Config List */}
@@ -201,18 +203,18 @@ export default function PromptConfigsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除配置</AlertDialogTitle>
+            <AlertDialogTitle>{t('page.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要刪除配置「{deleteTarget?.name}」嗎？此操作無法復原。
+              {t('page.deleteDialog.message', { name: deleteTarget?.name ?? '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{t('page.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '刪除中...' : '確認刪除'}
+              {deleteMutation.isPending ? t('page.deleteDialog.deleting') : t('page.deleteDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -101,7 +101,7 @@ claudedocs/
 
 ## 📊 項目進度追蹤
 
-### Epic 完成狀態 (2026-01-02)
+### Epic 完成狀態 (2026-01-18)
 
 | Epic | 名稱 | 狀態 | 完成日期 |
 |------|------|------|----------|
@@ -118,9 +118,10 @@ claudedocs/
 | Epic 10 | n8n 工作流整合 | ✅ 已完成 | 2025-12-21 |
 | Epic 11 | 對外 API 服務 | ✅ 已完成 | 2025-12-21 |
 | Epic 12 | 系統管理與監控 | ✅ 已完成 | 2025-12-21 |
-| Epic 13 | 文件預覽與欄位映射 | ⏸️ 規劃中 | - |
-| Epic 14 | Prompt 配置與動態生成 | ⏸️ 規劃中 | - |
-| Epic 15 | 統一 3 層機制到日常處理流程 | ⏸️ 規劃中 | - |
+| Epic 13 | 文件預覽與欄位映射 | ✅ 已完成 | 2026-01-03 |
+| Epic 14 | Prompt 配置與動態生成 | ✅ 已完成 | 2026-01-03 |
+| Epic 15 | 統一 3 層機制到日常處理流程 | ✅ 已完成 | 2026-01-03 |
+| Epic 17 | 國際化 (i18n) | 🚧 進行中 | - |
 
 ### Epic 0 詳細進度 (歷史數據初始化)
 
@@ -267,10 +268,11 @@ claudedocs/6-ai-assistant/prompts/
 - **資料庫**: PostgreSQL + Prisma ORM
 - **狀態管理**: Zustand (UI) + React Query (Server State)
 - **表單**: React Hook Form + Zod 驗證
+- **國際化**: next-intl（支援 en, zh-TW, zh-CN）
 
 ### 外部服務
 - **OCR**: Azure Document Intelligence
-- **AI**: Azure OpenAI GPT-4o (含 GPT Vision)
+- **AI**: Azure OpenAI GPT-5.2 (含 GPT Vision)
 - **認證**: Azure AD (Entra ID) SSO
 - **工作流**: n8n
 - **文件來源**: SharePoint / Outlook / Azure Blob Storage
@@ -388,13 +390,18 @@ claudedocs/6-ai-assistant/prompts/
 - `docs/04-implementation/sprint-status.yaml` - Sprint 狀態追蹤
 
 ### 規則文件
-- `.claude/rules/documentation.md` - 文檔撰寫規範
 - `.claude/rules/general.md` - 通用開發規範
 - `.claude/rules/components.md` - 組件開發規範
 - `.claude/rules/typescript.md` - TypeScript 規範
+- `.claude/rules/i18n.md` - 國際化開發規範
+- `.claude/rules/api-design.md` - API 設計規範
+- `.claude/rules/services.md` - 服務層規範
+- `.claude/rules/database.md` - 資料庫規範
+- `.claude/rules/testing.md` - 測試規範
+- `.claude/rules/technical-obstacles.md` - 技術障礙處理
 
 ---
 
 **維護者**: AI 助手 + 開發團隊
-**最後更新**: 2026-01-02
-**文檔版本**: 1.5.0
+**最後更新**: 2026-01-18
+**文檔版本**: 1.6.0

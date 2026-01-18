@@ -59,7 +59,7 @@ import {
 } from '@/hooks/useDashboardStatistics';
 import { useDateRange } from '@/contexts/DateRangeContext';
 import { formatDateRangeDisplay } from '@/lib/date-range-utils';
-import { PRESET_LABELS } from '@/types/date-range';
+// PRESET_LABELS removed - using i18n translations instead
 
 // ============================================================
 // Utility Functions
@@ -101,10 +101,10 @@ export function DashboardStats() {
   // 計算顯示標題
   const rangeTitle = React.useMemo(() => {
     if (dateRange.preset && dateRange.preset !== 'custom') {
-      return PRESET_LABELS[dateRange.preset];
+      return t(`presets.${dateRange.preset}`);
     }
     return formatDateRangeDisplay(dateRange);
-  }, [dateRange]);
+  }, [dateRange, t]);
 
   // ============================================================
   // Error State

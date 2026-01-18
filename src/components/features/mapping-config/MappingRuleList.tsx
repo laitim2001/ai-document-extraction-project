@@ -42,6 +42,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { useTranslations } from 'next-intl';
 import { Plus, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SortableRuleItem } from './SortableRuleItem';
@@ -107,6 +108,8 @@ export function MappingRuleList({
   disabled = false,
   className,
 }: MappingRuleListProps) {
+  const t = useTranslations('documentPreview.mappingRuleList');
+
   // --- Sensors Setup ---
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -147,13 +150,13 @@ export function MappingRuleList({
     return (
       <div className={cn('flex flex-col items-center py-12', className)}>
         <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 className="mb-2 text-lg font-medium">尚無映射規則</h3>
+        <h3 className="mb-2 text-lg font-medium">{t('empty.title')}</h3>
         <p className="mb-4 text-sm text-muted-foreground">
-          點擊下方按鈕建立第一條映射規則
+          {t('empty.description')}
         </p>
         <Button onClick={onAdd} disabled={disabled}>
           <Plus className="mr-2 h-4 w-4" />
-          新增規則
+          {t('empty.addRule')}
         </Button>
       </div>
     );
@@ -165,14 +168,14 @@ export function MappingRuleList({
       {/* 標題和新增按鈕 */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium">映射規則</h3>
+          <h3 className="text-sm font-medium">{t('title')}</h3>
           <p className="text-xs text-muted-foreground">
-            拖動調整優先級，數字越小優先級越高
+            {t('dragHint')}
           </p>
         </div>
         <Button size="sm" onClick={onAdd} disabled={disabled}>
           <Plus className="mr-2 h-4 w-4" />
-          新增規則
+          {t('addRule')}
         </Button>
       </div>
 
@@ -204,10 +207,10 @@ export function MappingRuleList({
 
       {/* 規則計數 */}
       <div className="text-right text-xs text-muted-foreground">
-        共 {rules.length} 條規則
+        {t('rulesCount', { count: rules.length })}
         {rules.filter((r) => !r.isActive).length > 0 && (
           <span className="ml-1">
-            （{rules.filter((r) => !r.isActive).length} 條已停用）
+            {t('disabledCount', { count: rules.filter((r) => !r.isActive).length })}
           </span>
         )}
       </div>

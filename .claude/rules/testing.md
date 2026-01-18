@@ -149,3 +149,65 @@ npm run test -- --grep "MappingService"
 - ✅ Mock 外部依賴（API、資料庫）
 - ❌ 不要測試實現細節，測試行為
 - ❌ 不要在測試中使用真實的外部服務
+
+## i18n 測試指南
+
+### Mock next-intl
+
+```typescript
+// 基本 Mock 設定
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+  useLocale: () => 'en',
+}));
+
+// 帶翻譯的 Mock
+vi.mock('next-intl', () => ({
+  useTranslations: (namespace: string) => (key: string, params?: Record<string, any>) => {
+    const message = `${namespace}.${key}`;
+    return params ? `${message} ${JSON.stringify(params)}` : message;
+  },
+  useLocale: () => 'zh-TW',
+}));
+```
+
+### 測試多語言組件
+
+```typescript
+describe('LocalizedComponent', () => {
+  // 測試不同語言
+  it.each(['en', 'zh-TW', 'zh-CN'])('should render in %s locale', (locale) => {
+    vi.mocked(useLocale).mockReturnValue(locale);
+    // 測試邏輯...
+  });
+});
+```
+
+### 測試日期/數字格式化
+
+```typescript
+import { formatShortDate, formatNumber } from '@/lib/i18n-date';
+
+describe('formatShortDate', () => {
+  const testDate = new Date('2026-01-18');
+
+  it('should format date correctly for zh-TW', () => {
+    expect(formatShortDate(testDate, 'zh-TW')).toBe('2026/01/18');
+  });
+
+  it('should format date correctly for en', () => {
+    expect(formatShortDate(testDate, 'en')).toBe('01/18/2026');
+  });
+});
+```
+
+### E2E 測試語言切換
+
+```typescript
+// Playwright 測試範例
+test('should switch language', async ({ page }) => {
+  await page.goto('/en/dashboard');
+  await page.click('[data-testid="locale-switcher"]');
+  await page.click('text=繁體中文');
+  await expect(page).toHaveURL('/zh-TW/dashboard');
+});

@@ -1,4 +1,44 @@
 {
+  "page": {
+    "title": "Prompt Configuration Management",
+    "description": "Manage AI Prompt configurations used in processing workflows",
+    "refresh": "Refresh",
+    "addConfig": "Add Configuration",
+    "filterTitle": "Filters",
+    "loadError": "Error loading configuration data:",
+    "unknownError": "Unknown error",
+    "totalConfigs": "{count} configurations",
+    "deleteDialog": {
+      "title": "Confirm Delete Configuration",
+      "message": "Are you sure you want to delete configuration \"{name}\"? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm Delete",
+      "deleting": "Deleting..."
+    },
+    "toast": {
+      "deleteSuccess": "Deleted Successfully",
+      "deleteSuccessDesc": "Configuration \"{name}\" has been deleted",
+      "deleteFailed": "Delete Failed",
+      "createSuccess": "Created Successfully",
+      "createSuccessDesc": "Configuration \"{name}\" has been created",
+      "createFailed": "Create Failed",
+      "updateSuccess": "Updated Successfully",
+      "updateSuccessDesc": "Configuration has been updated",
+      "updateFailed": "Update Failed",
+      "testFailed": "Test failed"
+    }
+  },
+  "newPage": {
+    "title": "Add Prompt Configuration",
+    "description": "Create a new AI Prompt configuration"
+  },
+  "editPage": {
+    "title": "Edit Prompt Configuration",
+    "loadFailed": "Load Failed",
+    "loadError": "Unable to load configuration data:",
+    "notFound": "Configuration does not exist or has been deleted",
+    "backToList": "Back to Configuration List"
+  },
   "list": {
     "empty": "No Prompt configurations yet",
     "loadError": "Load failed: {error}",

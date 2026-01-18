@@ -15,6 +15,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ArrowLeft, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -33,6 +34,7 @@ import type { CreatePromptConfigRequest } from '@/types/prompt-config';
 export default function NewPromptConfigPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useTranslations('promptConfig');
 
   // --- Queries ---
   const { data: companies = [] } = useCompaniesForPromptConfig();
@@ -55,19 +57,19 @@ export default function NewPromptConfigPage() {
       try {
         const result = await createMutation.mutateAsync(data);
         toast({
-          title: '建立成功',
-          description: `已成功建立配置「${result.data.name}」`,
+          title: t('page.toast.createSuccess'),
+          description: t('page.toast.createSuccessDesc', { name: result.data.name }),
         });
         router.push('/admin/prompt-configs');
       } catch (err) {
         toast({
           variant: 'destructive',
-          title: '建立失敗',
-          description: err instanceof Error ? err.message : '未知錯誤',
+          title: t('page.toast.createFailed'),
+          description: err instanceof Error ? err.message : t('page.unknownError'),
         });
       }
     },
-    [createMutation, toast, router]
+    [createMutation, toast, router, t]
   );
 
   // --- Render ---
@@ -82,10 +84,10 @@ export default function NewPromptConfigPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Settings2 className="h-6 w-6" />
-            新增 Prompt 配置
+            {t('newPage.title')}
           </h1>
           <p className="text-muted-foreground">
-            建立新的 AI Prompt 配置
+            {t('newPage.description')}
           </p>
         </div>
       </div>

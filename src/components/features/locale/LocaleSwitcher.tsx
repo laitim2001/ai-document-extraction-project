@@ -23,7 +23,7 @@
 'use client'
 
 import * as React from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
 import { Globe, Check, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -81,6 +81,7 @@ export function LocaleSwitcher({
   const locale = useLocale() as Locale
   const router = useRouter()
   const pathname = usePathname()
+  const t = useTranslations('common.locale')
   const { setLocalePreference, isLoading } = useLocalePreference()
   const [isPending, startTransition] = React.useTransition()
 
@@ -128,7 +129,7 @@ export function LocaleSwitcher({
             <Globe className="h-4 w-4" />
           )}
           {showLabel && <span>{localeNames[locale]}</span>}
-          <span className="sr-only">切換語言</span>
+          <span className="sr-only">{t('switchLanguage')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">

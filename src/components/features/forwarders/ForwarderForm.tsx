@@ -231,7 +231,7 @@ export function ForwarderForm({
         formData.append('removeLogo', 'true')
       }
 
-      const url = isEditMode ? `/api/companies/${initialData.id}` : '/api/companies'
+      const url = isEditMode && initialData?.id ? `/api/companies/${initialData.id}` : '/api/companies'
       const method = isEditMode ? 'PUT' : 'POST'
 
       const response = await fetch(url, {

@@ -16,7 +16,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   Plus,
   RefreshCw,
@@ -403,7 +403,7 @@ export default function FieldMappingConfigsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const t = useTranslations('fieldMappingConfig');
-  const locale = router.locale || 'zh-TW';
+  const locale = useLocale();
 
   // --- State ---
   const [filters, setFilters] = React.useState<FiltersState>({});
@@ -571,7 +571,7 @@ export default function FieldMappingConfigsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t('dialog.delete.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('dialog.delete.description', { name: deleteTarget?.name })}
+              {t('dialog.delete.description', { name: deleteTarget?.name ?? '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
