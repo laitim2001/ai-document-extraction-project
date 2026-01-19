@@ -30,6 +30,14 @@ model User {
   lastActiveAt      DateTime?  @map("last_active_at") // Story 12-1: 最後活躍時間（用於活躍用戶統計）
   preferredLocale   String?    @map("preferred_locale") @default("en") // Story 17-5: 用戶語言偏好
 
+  // Story 18-1: 郵件驗證欄位
+  emailVerificationToken   String?   @unique @map("email_verification_token")
+  emailVerificationExpires DateTime? @map("email_verification_expires")
+
+  // Story 18-3: 密碼重設欄位（預留）
+  passwordResetToken   String?   @unique @map("password_reset_token")
+  passwordResetExpires DateTime? @map("password_reset_expires")
+
   // Relations
   accounts               Account[]
   sessions               Session[]

@@ -275,3 +275,10 @@ development_status:
   17-4-date-number-currency-formatting: done  # Completed 2026-01-17: i18n-date.ts (date-fns locales integration, DATE_FORMATS), i18n-number.ts (formatNumber/formatPercent/formatCompact/formatInteger/formatDecimal), i18n-currency.ts (7 currencies, CURRENCY_SYMBOLS/NAMES), use-localized-date.ts hook, use-localized-format.ts hook (unified API)
   17-5-language-preference-settings: done  # Completed 2026-01-17: LocaleSwitcher component (TopBar integration), use-locale-preference.ts hook (LocalStorage + DB sync), User.preferredLocale Prisma field, PATCH /api/v1/users/me/locale API, next-auth session/jwt preferredLocale extension, hreflang meta tags in layout.tsx
   epic-17-retrospective: optional
+
+  # ============================================================
+  # Epic 18: 本地帳號認證系統
+  # ============================================================
+  epic-18: in-progress  # Local account authentication system
+  18-1-user-registration: done  # Completed 2026-01-19: RegisterForm (RHF+Zod), password.ts (bcryptjs salt=12), token.ts (crypto.randomBytes), email.ts (Nodemailer + verification template), POST /api/auth/register, User model extensions (emailVerificationToken/Expires, passwordResetToken/Expires), auth.json i18n (en/zh-TW/zh-CN)
+  epic-18-retrospective: optional
