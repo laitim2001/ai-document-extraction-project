@@ -39,6 +39,27 @@
 import type { NextAuthConfig } from 'next-auth'
 import type { Provider } from 'next-auth/providers'
 import Credentials from 'next-auth/providers/credentials'
+import { CredentialsSignin } from 'next-auth'
+
+// ============================================================
+// Custom Auth Errors
+// ============================================================
+
+/**
+ * 自定義認證錯誤類別
+ * 用於向客戶端傳遞特定的錯誤代碼
+ */
+class EmailNotVerifiedError extends CredentialsSignin {
+  code = 'EmailNotVerified'
+}
+
+class AccountSuspendedError extends CredentialsSignin {
+  code = 'AccountSuspended'
+}
+
+class AccountDisabledError extends CredentialsSignin {
+  code = 'AccountDisabled'
+}
 
 /**
  * Session 最大存活時間（秒）
@@ -142,15 +163,17 @@ function buildProviders(): Provider[] {
 
         // 檢查帳號狀態
         if (user.status !== 'ACTIVE') {
-          // 使用特殊錯誤代碼，以便前端顯示正確訊息
-          throw new Error(
-            user.status === 'SUSPENDED' ? 'AccountSuspended' : 'AccountDisabled'
-          )
+          // 使用自定義錯誤類別，以便前端顯示正確訊息
+          if (user.status === 'SUSPENDED') {
+            throw new AccountSuspendedError()
+          } else {
+            throw new AccountDisabledError()
+          }
         }
 
         // 檢查郵件驗證狀態
         if (!user.emailVerified) {
-          throw new Error('EmailNotVerified')
+          throw new EmailNotVerifiedError()
         }
 
         // 返回用戶資訊（不包含密碼和敏感資料）

@@ -104,6 +104,13 @@ export function LoginForm({ callbackUrl = '/dashboard' }: LoginFormProps) {
 
   /**
    * 處理登入表單提交
+   *
+   * @description
+   *   Auth.js v5 的 signIn 返回值結構：
+   *   - error: 錯誤類型（例如 'CredentialsSignin'）
+   *   - code: 自定義錯誤代碼（例如 'EmailNotVerified'）
+   *   - ok: 是否成功
+   *   - status: HTTP 狀態碼
    */
   const onSubmit = async (data: LoginInput) => {
     setIsLoading(true)
@@ -117,7 +124,10 @@ export function LoginForm({ callbackUrl = '/dashboard' }: LoginFormProps) {
       })
 
       if (result?.error) {
-        setError(getErrorMessage(result.error))
+        // Auth.js v5: 自定義錯誤代碼在 result.code 中
+        // 優先使用 code（自定義錯誤），否則使用 error（通用錯誤）
+        const errorCode = (result as { code?: string }).code || result.error
+        setError(getErrorMessage(errorCode))
         setIsLoading(false)
         return
       }
