@@ -108,5 +108,7 @@ declare module 'next-auth/jwt' {
     regionCodes?: string[]
     /** 用戶語言偏好 (Story 17-5) */
     preferredLocale?: string
+    /** 登入提供者 (Story 18-2) */
+    provider?: string
   }
 }

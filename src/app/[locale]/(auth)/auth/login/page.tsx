@@ -1,23 +1,26 @@
 /**
- * @fileoverview Azure AD SSO 登入頁面
+ * @fileoverview 登入頁面
  * @description
- *   提供企業 SSO 登入入口，使用 Microsoft Entra ID (Azure AD) 進行認證。
- *   開發模式下支援 Credentials 登入。
+ *   提供 Azure AD SSO 和本地帳號雙重登入入口。
+ *
+ *   登入選項：
+ *   - Microsoft 企業帳號登入（Azure AD SSO）
+ *   - 本地帳號登入（電子郵件 + 密碼）
  *
  *   功能特點：
- *   - Microsoft 企業帳號登入按鈕
- *   - 開發模式 Credentials 登入表單
  *   - 自動重定向已登入用戶
  *   - 保留原始請求路徑（callbackUrl）
+ *   - 開發模式支援簡化登入
+ *   - i18n 多語言支援
  *
- * @module src/app/(auth)/auth/login/page
+ * @module src/app/[locale]/(auth)/auth/login/page
  * @author Development Team
  * @since Epic 1 - Story 1.1 (Azure AD SSO Login)
- * @lastModified 2025-12-21
+ * @lastModified 2026-01-19
  *
  * @features
  *   - Azure AD SSO 登入
- *   - 開發模式 Credentials 登入
+ *   - 本地帳號登入 (Story 18-2)
  *   - 回調 URL 支援
  *   - 錯誤訊息顯示
  *   - 響應式設計
@@ -25,13 +28,16 @@
  * @related
  *   - src/lib/auth.ts - NextAuth 配置
  *   - src/lib/auth.config.ts - Edge 認證配置
+ *   - src/components/features/auth/LoginForm.tsx - 本地登入表單
  *   - src/app/(auth)/auth/error/page.tsx - 錯誤頁面
  */
 
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { auth, signIn } from '@/lib/auth'
+import { LoginForm } from '@/components/features/auth/LoginForm'
 import { DevLoginForm } from '@/components/features/auth/DevLoginForm'
+import { Separator } from '@/components/ui/separator'
 
 /**
  * 檢查 Azure AD 是否已正確配置
@@ -69,6 +75,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = error ? t(`errors.${error}`) ?? t('errors.Default') : null
   const azureConfigured = isAzureADConfigured()
   const isDevelopment = process.env.NODE_ENV === 'development'
+
+  // 開發模式且 Azure AD 未配置：顯示簡化的開發登入
+  const showDevMode = isDevelopment && !azureConfigured
 
   return (
     <>
@@ -125,55 +134,59 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
       {/* 登入表單 */}
       <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
-        {/* Azure AD 登入（生產環境或 Azure AD 已配置） */}
-        {azureConfigured && (
+        {/* 開發模式登入 */}
+        {showDevMode ? (
+          <DevLoginForm callbackUrl={callbackUrl} />
+        ) : (
           <>
-            <form
-              action={async () => {
-                'use server'
-                await signIn('microsoft-entra-id', {
-                  redirectTo: callbackUrl ?? '/dashboard',
-                })
-              }}
-            >
-              <button
-                type="submit"
-                className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-              >
-                <svg className="h-5 w-5" viewBox="0 0 21 21" fill="currentColor">
-                  <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-                  <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-                  <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-                  <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-                </svg>
-                {t('login.microsoftLogin')}
-              </button>
-            </form>
+            {/* Azure AD 登入 */}
+            {azureConfigured && (
+              <>
+                <form
+                  action={async () => {
+                    'use server'
+                    await signIn('microsoft-entra-id', {
+                      redirectTo: callbackUrl ?? '/dashboard',
+                    })
+                  }}
+                >
+                  <button
+                    type="submit"
+                    className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  >
+                    <svg className="h-5 w-5" viewBox="0 0 21 21" fill="currentColor">
+                      <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+                      <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+                      <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+                      <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+                    </svg>
+                    {t('login.microsoftLogin')}
+                  </button>
+                </form>
 
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                    {t('login.enterpriseOnly')}
+                {/* 分隔線 */}
+                <div className="my-6 relative">
+                  <Separator />
+                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 px-3 text-sm text-gray-500 dark:text-gray-400">
+                    {t('login.orDivider')}
                   </span>
                 </div>
-              </div>
-            </div>
-          </>
-        )}
+              </>
+            )}
 
-        {/* 開發模式登入（Azure AD 未配置時顯示） */}
-        {(isDevelopment || !azureConfigured) && !azureConfigured && (
-          <DevLoginForm callbackUrl={callbackUrl} />
+            {/* 本地帳號登入表單 */}
+            <LoginForm callbackUrl={callbackUrl ?? '/dashboard'} />
+          </>
         )}
       </div>
 
       {/* 頁腳資訊 */}
       <p className="text-center text-xs text-gray-500 dark:text-gray-400 whitespace-pre-line">
-        {azureConfigured ? t('login.productionFooter') : t('login.devMode.footer')}
+        {showDevMode
+          ? t('login.devMode.footer')
+          : azureConfigured
+          ? t('login.productionFooter')
+          : t('login.localAccountFooter')}
       </p>
     </>
   )

@@ -281,4 +281,5 @@ development_status:
   # ============================================================
   epic-18: in-progress  # Local account authentication system
   18-1-user-registration: done  # Completed 2026-01-19: RegisterForm (RHF+Zod), password.ts (bcryptjs salt=12), token.ts (crypto.randomBytes), email.ts (Nodemailer + verification template), POST /api/auth/register, User model extensions (emailVerificationToken/Expires, passwordResetToken/Expires), auth.json i18n (en/zh-TW/zh-CN)
+  18-2-local-account-login: done  # Completed 2026-01-19: LoginForm (RHF+Zod), auth.config.ts Credentials Provider (dynamic import, bcrypt verify), auth.ts JWT/signIn callbacks (provider detection, DB user load), login/page.tsx dual UI (Azure AD + local), auth.json i18n updates, error handling (AccountSuspended/Disabled/EmailNotVerified/CredentialsSignin)
   epic-18-retrospective: optional

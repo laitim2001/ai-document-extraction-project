@@ -10,6 +10,7 @@
  *   - 自動建立用戶記錄於首次登入
  *   - 擴展 session 包含角色、權限和用戶狀態
  *   - 整合城市權限系統支援多城市資料隔離 (Story 6.1)
+ *   - 支援本地帳號登入 (Story 18-2)
  *
  *   架構說明：
  *   - auth.config.ts: Edge-compatible 配置（用於 Middleware）
@@ -18,10 +19,11 @@
  * @module src/lib/auth
  * @author Development Team
  * @since Epic 1 - Story 1.1 (Azure AD SSO Login)
- * @lastModified 2025-12-21
+ * @lastModified 2026-01-19
  *
  * @features
  *   - Azure AD (Entra ID) SSO 整合
+ *   - 本地帳號密碼登入 (Story 18-2)
  *   - JWT session 策略
  *   - 自動用戶建立/更新
  *   - 多角色 RBAC 權限系統
@@ -145,16 +147,30 @@ export const {
      *   - 載入用戶的主要城市代碼
      *   - 識別全域管理員和區域管理員身份
      *   - 載入區域管理員負責的區域代碼
+     *
+     *   Story 18-2: 支援本地帳號登入
+     *   - 本地帳號登入時 account.provider === 'credentials'
+     *   - Session 結構與 Azure AD 登入保持一致
      */
     async jwt({ token, account, user }) {
-      // 開發模式：使用簡化的 token 設置
-      if (isDevelopmentMode()) {
-        if (user) {
-          token.sub = user.id
-          token.email = user.email
-          token.name = user.name
+      // 首次登入時設置基本資訊
+      if (user) {
+        token.sub = user.id
+        token.email = user.email
+        token.name = user.name
+      }
+
+      // 記錄登入方式
+      if (account) {
+        token.provider = account.provider
+        if (account.provider === 'microsoft-entra-id') {
+          token.azureAdId = account.providerAccountId
         }
-        // 設置開發模式預設值
+      }
+
+      // 開發模式模擬用戶：id 為 'dev-user-1'
+      // 使用簡化的 token 設置，不查詢資料庫
+      if (token.sub === 'dev-user-1') {
         token.status = 'ACTIVE'
         token.roles = [{
           id: 'dev-role-1',
@@ -168,13 +184,7 @@ export const {
         return token
       }
 
-      // 生產模式：從資料庫獲取用戶資訊
-      // 首次登入時，從 account 取得 Azure AD ID
-      if (account) {
-        token.azureAdId = account.providerAccountId
-      }
-
-      // 從資料庫獲取最新的用戶資訊（包括角色變更）
+      // 真正的用戶：從資料庫獲取用戶資訊（無論是 Azure AD 還是本地帳號）
       if (token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
@@ -188,7 +198,11 @@ export const {
         })
 
         if (dbUser) {
-          token.azureAdId = dbUser.azureAdId ?? undefined
+          // 只有當 token 沒有 azureAdId 時才從資料庫取值
+          // （避免覆蓋 Azure AD 登入時的值）
+          if (!token.azureAdId && dbUser.azureAdId) {
+            token.azureAdId = dbUser.azureAdId
+          }
           token.status = dbUser.status
 
           // Story 6.1: 設置管理員身份
@@ -254,25 +268,31 @@ export const {
      *   Story 1.6: 停用的用戶嘗試登入時，將被重導至錯誤頁面
      *   而非顯示通用的登入失敗訊息。
      *
+     *   Story 18-2: 本地帳號登入支援
+     *   - 本地帳號的狀態和郵件驗證已在 auth.config.ts 的 authorize 中檢查
+     *   - 這裡只處理 Azure AD 登入的狀態檢查和最後登入時間更新
+     *
      *   狀態處理：
      *   - ACTIVE: 允許登入
      *   - INACTIVE: 重導至 /auth/error?error=AccountDisabled
      *   - SUSPENDED: 重導至 /auth/error?error=AccountSuspended
      */
-    async signIn({ user }) {
-      // 開發模式：跳過資料庫檢查
-      if (isDevelopmentMode()) {
+    async signIn({ user, account }) {
+      // 開發模式模擬用戶：跳過資料庫檢查
+      if (user.id === 'dev-user-1') {
         return true
       }
 
-      // 生產模式：檢查用戶狀態
+      // 真正的用戶：檢查用戶狀態並更新最後登入時間
       if (user.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { status: true },
+          select: { status: true, emailVerified: true },
         })
 
         // 如果用戶存在但非 ACTIVE 狀態，重導至錯誤頁面
+        // 注意：本地帳號登入時，狀態已在 authorize 中檢查並拋出錯誤
+        // 這裡主要處理 Azure AD 登入的情況
         if (dbUser && dbUser.status !== 'ACTIVE') {
           // 根據不同狀態重導至相應錯誤頁面
           if (dbUser.status === 'SUSPENDED') {
