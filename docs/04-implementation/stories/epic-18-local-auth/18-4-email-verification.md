@@ -1,0 +1,249 @@
+# Story 18.4: 郵件驗證系統
+
+**Status:** ready-for-dev
+
+---
+
+## Story
+
+**As a** 新註冊的用戶,
+**I want** 驗證我的電子郵件地址,
+**So that** 我可以確認我的帳號並正常使用系統。
+
+---
+
+## Acceptance Criteria
+
+### AC1: 註冊後發送驗證郵件
+
+**Given** 用戶成功完成註冊
+**When** 用戶帳號建立完成
+**Then** 系統自動發送驗證郵件
+**And** 郵件包含唯一的驗證連結
+**And** 驗證連結有效期為 24 小時
+
+### AC2: 驗證郵件內容
+
+**Given** 用戶收到驗證郵件
+**When** 用戶查看郵件
+**Then** 郵件包含：
+  - 歡迎訊息和用戶名稱
+  - 驗證連結按鈕
+  - 連結有效期說明
+  - 未請求說明（如非本人操作）
+
+### AC3: 點擊驗證連結
+
+**Given** 用戶點擊郵件中的驗證連結
+**When** Token 有效
+**Then** 系統更新 emailVerified 為當前時間戳
+**And** 刪除驗證 Token
+**And** 重導向至登入頁面
+**And** 顯示「電子郵件驗證成功」訊息
+
+### AC4: Token 過期處理
+
+**Given** 用戶點擊驗證連結
+**When** Token 已過期（超過 24 小時）
+**Then** 顯示「驗證連結已過期」訊息
+**And** 提供「重新發送驗證郵件」選項
+
+### AC5: Token 無效處理
+
+**Given** 用戶訪問驗證連結
+**When** Token 不存在或已使用
+**Then** 顯示「驗證連結無效」訊息
+**And** 提供「重新發送驗證郵件」選項
+
+### AC6: 重新發送驗證郵件
+
+**Given** 用戶需要重新發送驗證郵件
+**When** 用戶點擊「重新發送驗證郵件」
+**Then** 系統產生新的驗證 Token
+**And** 舊 Token 失效
+**And** 發送新的驗證郵件
+**And** 顯示「驗證郵件已重新發送」訊息
+
+### AC7: 已驗證用戶處理
+
+**Given** 用戶的電子郵件已經驗證
+**When** 用戶嘗試再次驗證或請求重發
+**Then** 顯示「您的電子郵件已經驗證」訊息
+**And** 提供登入連結
+
+### AC8: 速率限制
+
+**Given** 用戶多次請求重新發送驗證郵件
+**When** 超過速率限制（5 次/小時）
+**Then** 顯示「請求過於頻繁，請稍後再試」訊息
+**And** 暫時阻止該帳號的重發請求
+
+---
+
+## Tasks / Subtasks
+
+- [ ] **Task 1: 驗證 API 端點** (AC: #3, #4, #5)
+  - [ ] 1.1 建立 `GET /api/auth/verify-email` 端點
+  - [ ] 1.2 實現 Token 查詢和驗證
+  - [ ] 1.3 實現 emailVerified 更新
+  - [ ] 1.4 實現 Token 刪除
+  - [ ] 1.5 實現錯誤處理
+
+- [ ] **Task 2: 重新發送 API** (AC: #6, #7, #8)
+  - [ ] 2.1 建立 `POST /api/auth/resend-verification` 端點
+  - [ ] 2.2 實現用戶查詢和狀態檢查
+  - [ ] 2.3 實現新 Token 產生
+  - [ ] 2.4 實現速率限制檢查
+  - [ ] 2.5 整合郵件發送服務
+
+- [ ] **Task 3: 郵件模板** (AC: #1, #2)
+  - [ ] 3.1 建立驗證郵件 HTML 模板
+  - [ ] 3.2 實現多語言支援
+  - [ ] 3.3 加入公司品牌元素
+
+- [ ] **Task 4: 驗證結果頁面** (AC: #3, #4, #5)
+  - [ ] 4.1 建立 `src/app/[locale]/(auth)/auth/verify-email/page.tsx`
+  - [ ] 4.2 實現成功/失敗狀態顯示
+  - [ ] 4.3 實現重新發送功能
+
+- [ ] **Task 5: 重新發送頁面** (AC: #6, #7)
+  - [ ] 5.1 建立請求重新發送的表單
+  - [ ] 5.2 實現載入狀態和成功訊息
+
+- [ ] **Task 6: 登入頁面整合** (AC: #4, #6)
+  - [ ] 6.1 在登入失敗時顯示「重新發送驗證郵件」選項
+  - [ ] 6.2 實現未驗證用戶的引導流程
+
+- [ ] **Task 7: 翻譯文件更新** (AC: #1-7)
+  - [ ] 7.1 更新 `messages/*/auth.json` 郵件驗證相關翻譯
+
+- [ ] **Task 8: 驗證與測試** (AC: #1-8)
+  - [ ] 8.1 測試註冊後自動發送驗證郵件
+  - [ ] 8.2 測試驗證連結功能
+  - [ ] 8.3 測試 Token 過期處理
+  - [ ] 8.4 測試重新發送功能
+  - [ ] 8.5 測試已驗證用戶處理
+  - [ ] 8.6 測試速率限制
+
+---
+
+## Dev Notes
+
+### 驗證流程圖
+
+```
+註冊成功
+    ↓
+系統產生驗證 Token (64 字元)
+    ↓
+發送驗證郵件
+    ↓
+用戶點擊郵件連結
+    ↓
+┌───────────────────────────────────┐
+│          Token 檢查               │
+├───────────────────────────────────┤
+│ Token 存在且有效？                │
+│   ├─ 是 → 更新 emailVerified     │
+│   │       刪除 Token              │
+│   │       重導向至登入（成功）    │
+│   │                               │
+│   └─ 否 → Token 過期？           │
+│         ├─ 是 → 顯示過期訊息     │
+│         │       提供重發選項      │
+│         │                         │
+│         └─ 否 → 顯示無效訊息     │
+│               提供重發選項        │
+└───────────────────────────────────┘
+```
+
+### API 端點設計
+
+```
+GET /api/auth/verify-email?token=xxx
+  Response: { success: boolean, message: string }
+  Redirect: /auth/login?verified=true (成功時)
+
+POST /api/auth/resend-verification
+  Body: { email: string }
+  Response: { message: string }
+```
+
+### 郵件模板設計
+
+```html
+<!-- 郵件驗證模板 -->
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+    .header { background: #3B82F6; color: white; padding: 20px; text-align: center; }
+    .content { padding: 30px; }
+    .button {
+      display: inline-block;
+      background: #3B82F6;
+      color: white;
+      padding: 12px 30px;
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    .footer { padding: 20px; text-align: center; color: #666; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>AI Document Extraction</h1>
+    </div>
+    <div class="content">
+      <h2>歡迎加入，{{name}}！</h2>
+      <p>感謝您註冊 AI Document Extraction 系統。</p>
+      <p>請點擊以下按鈕驗證您的電子郵件地址：</p>
+      <a href="{{verifyUrl}}" class="button">驗證電子郵件</a>
+      <p style="color: #666; font-size: 14px;">
+        此連結將在 24 小時後失效。
+      </p>
+      <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+      <p style="color: #999; font-size: 12px;">
+        如果您沒有註冊此帳號，請忽略此郵件。
+      </p>
+    </div>
+    <div class="footer">
+      <p>&copy; 2026 AI Document Extraction. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+```
+
+### Testing Requirements
+
+| 驗證項目 | 測試方法 | 預期結果 |
+|---------|---------|---------|
+| 註冊發送郵件 | 完成註冊後檢查信箱 | 收到驗證郵件 |
+| 驗證連結有效 | 點擊有效連結 | 驗證成功並重導向 |
+| 連結過期 | 點擊過期連結 | 顯示過期訊息 |
+| 重新發送 | 請求重發驗證郵件 | 收到新郵件 |
+| 已驗證用戶 | 再次請求驗證 | 顯示已驗證訊息 |
+| 速率限制 | 多次請求重發 | 顯示頻繁請求訊息 |
+
+---
+
+## Story Metadata
+
+| 屬性 | 值 |
+|------|------|
+| Story ID | 18.4 |
+| Story Key | 18-4-email-verification |
+| Epic | Epic 18: 本地帳號認證系統 |
+| Estimated Effort | 1 天 |
+| Dependencies | Story 18-1 |
+| Blocking | 無 |
+
+---
+
+*Story created: 2026-01-19*
+*Status: ready-for-dev*
+*Generated by: Claude AI Assistant*
