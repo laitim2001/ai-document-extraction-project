@@ -306,3 +306,85 @@ ${resetUrl}
     text,
   })
 }
+
+/**
+ * 發送密碼變更通知郵件
+ *
+ * @description
+ *   發送密碼已變更的通知郵件，讓用戶知道密碼已被更改。
+ *   此為安全功能，當密碼被重設時通知用戶。
+ *
+ * @param email - 收件人電子郵件
+ * @param name - 用戶名稱
+ */
+export async function sendPasswordChangedEmail(
+  email: string,
+  name: string | null
+): Promise<void> {
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+    .header h1 { margin: 0; font-size: 24px; }
+    .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
+    .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 12px; }
+    .alert { background: #FEE2E2; border: 1px solid #EF4444; border-radius: 6px; padding: 16px; margin-top: 20px; }
+    .alert-icon { color: #EF4444; font-size: 24px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>AI Document Extraction</h1>
+    </div>
+    <div class="content">
+      <h2>密碼已變更</h2>
+      <p>您好，${name || 'User'}！</p>
+      <p>您的帳號密碼已成功變更。</p>
+      <p>如果這是您本人的操作，您可以忽略此郵件。</p>
+      <div class="alert">
+        <div class="alert-icon">⚠️</div>
+        <strong>重要提醒：</strong>如果您沒有進行此操作，請立即聯繫系統管理員，您的帳號可能已被未經授權的人員存取。
+      </div>
+      <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+        變更時間：${new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
+      </p>
+    </div>
+    <div class="footer">
+      <p>&copy; ${new Date().getFullYear()} AI Document Extraction. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `
+
+  const text = `
+密碼已變更
+
+您好，${name || 'User'}！
+
+您的帳號密碼已成功變更。
+
+如果這是您本人的操作，您可以忽略此郵件。
+
+⚠️ 重要提醒：如果您沒有進行此操作，請立即聯繫系統管理員，您的帳號可能已被未經授權的人員存取。
+
+變更時間：${new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
+
+---
+© ${new Date().getFullYear()} AI Document Extraction. All rights reserved.
+  `
+
+  await sendEmail({
+    to: email,
+    subject: '[AI Document Extraction] 您的密碼已變更',
+    html,
+    text,
+  })
+}

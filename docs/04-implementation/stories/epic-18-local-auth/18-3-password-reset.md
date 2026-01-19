@@ -1,6 +1,6 @@
 # Story 18.3: 忘記密碼與重設
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -77,56 +77,56 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 資料庫 Schema 確認** (AC: #2)
-  - [ ] 1.1 確認 User 模型有 passwordResetToken 欄位
-  - [ ] 1.2 確認 User 模型有 passwordResetExpires 欄位
-  - [ ] 1.3 執行 Prisma 遷移（如需要）
+- [x] **Task 1: 資料庫 Schema 確認** (AC: #2)
+  - [x] 1.1 確認 User 模型有 passwordResetToken 欄位
+  - [x] 1.2 確認 User 模型有 passwordResetExpires 欄位
+  - [x] 1.3 執行 Prisma 遷移（如需要）
 
-- [ ] **Task 2: 忘記密碼 API** (AC: #2, #3, #7)
-  - [ ] 2.1 建立 `POST /api/auth/forgot-password` 端點
-  - [ ] 2.2 實現電子郵件查詢邏輯
-  - [ ] 2.3 實現 Token 產生和存儲
-  - [ ] 2.4 實現速率限制檢查
-  - [ ] 2.5 整合郵件發送服務
+- [x] **Task 2: 忘記密碼 API** (AC: #2, #3, #7)
+  - [x] 2.1 建立 `POST /api/auth/forgot-password` 端點
+  - [x] 2.2 實現電子郵件查詢邏輯
+  - [x] 2.3 實現 Token 產生和存儲
+  - [x] 2.4 實現速率限制檢查
+  - [x] 2.5 整合郵件發送服務
 
-- [ ] **Task 3: 重設密碼 API** (AC: #4, #5, #6)
-  - [ ] 3.1 建立 `POST /api/auth/reset-password` 端點
-  - [ ] 3.2 實現 Token 驗證邏輯
-  - [ ] 3.3 實現密碼更新邏輯
-  - [ ] 3.4 實現 Token 失效邏輯
-  - [ ] 3.5 發送密碼變更通知郵件
+- [x] **Task 3: 重設密碼 API** (AC: #4, #5, #6)
+  - [x] 3.1 建立 `POST /api/auth/reset-password` 端點
+  - [x] 3.2 實現 Token 驗證邏輯
+  - [x] 3.3 實現密碼更新邏輯
+  - [x] 3.4 實現 Token 失效邏輯
+  - [x] 3.5 發送密碼變更通知郵件
 
-- [ ] **Task 4: Token 驗證 API** (AC: #5)
-  - [ ] 4.1 建立 `GET /api/auth/verify-reset-token` 端點
-  - [ ] 4.2 實現 Token 有效性檢查
+- [x] **Task 4: Token 驗證 API** (AC: #5)
+  - [x] 4.1 建立 `GET /api/auth/verify-reset-token` 端點
+  - [x] 4.2 實現 Token 有效性檢查
 
-- [ ] **Task 5: 郵件模板** (AC: #2, #6)
-  - [ ] 5.1 建立密碼重設郵件 HTML 模板
-  - [ ] 5.2 建立密碼變更通知郵件模板
-  - [ ] 5.3 實現郵件發送函數
+- [x] **Task 5: 郵件模板** (AC: #2, #6)
+  - [x] 5.1 建立密碼重設郵件 HTML 模板
+  - [x] 5.2 建立密碼變更通知郵件模板
+  - [x] 5.3 實現郵件發送函數
 
-- [ ] **Task 6: 忘記密碼頁面** (AC: #1)
-  - [ ] 6.1 建立 `src/app/[locale]/(auth)/auth/forgot-password/page.tsx`
-  - [ ] 6.2 實現忘記密碼表單
-  - [ ] 6.3 實現載入狀態和成功訊息
+- [x] **Task 6: 忘記密碼頁面** (AC: #1)
+  - [x] 6.1 建立 `src/app/[locale]/(auth)/auth/forgot-password/page.tsx`
+  - [x] 6.2 實現忘記密碼表單
+  - [x] 6.3 實現載入狀態和成功訊息
 
-- [ ] **Task 7: 重設密碼頁面** (AC: #4, #5)
-  - [ ] 7.1 建立 `src/app/[locale]/(auth)/auth/reset-password/page.tsx`
-  - [ ] 7.2 實現 Token 驗證和頁面載入
-  - [ ] 7.3 實現重設密碼表單
-  - [ ] 7.4 實現密碼強度驗證
-  - [ ] 7.5 實現 Token 無效處理
+- [x] **Task 7: 重設密碼頁面** (AC: #4, #5)
+  - [x] 7.1 建立 `src/app/[locale]/(auth)/auth/reset-password/page.tsx`
+  - [x] 7.2 實現 Token 驗證和頁面載入
+  - [x] 7.3 實現重設密碼表單
+  - [x] 7.4 實現密碼強度驗證
+  - [x] 7.5 實現 Token 無效處理
 
-- [ ] **Task 8: 翻譯文件更新** (AC: #1-6)
-  - [ ] 8.1 更新 `messages/*/auth.json` 密碼重設相關翻譯
+- [x] **Task 8: 翻譯文件更新** (AC: #1-6)
+  - [x] 8.1 更新 `messages/*/auth.json` 密碼重設相關翻譯
 
-- [ ] **Task 9: 驗證與測試** (AC: #1-7)
-  - [ ] 9.1 測試忘記密碼流程
-  - [ ] 9.2 測試重設郵件發送
-  - [ ] 9.3 測試 Token 驗證
-  - [ ] 9.4 測試密碼重設成功
-  - [ ] 9.5 測試 Token 過期處理
-  - [ ] 9.6 測試速率限制
+- [x] **Task 9: 驗證與測試** (AC: #1-7)
+  - [x] 9.1 測試忘記密碼流程
+  - [x] 9.2 測試重設郵件發送
+  - [x] 9.3 測試 Token 驗證
+  - [x] 9.4 測試密碼重設成功
+  - [x] 9.5 測試 Token 過期處理
+  - [x] 9.6 測試速率限制
 
 ---
 
