@@ -69,6 +69,7 @@ export function LoginForm({ callbackUrl = '/dashboard' }: LoginFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const registered = searchParams.get('registered')
+  const verified = searchParams.get('verified')
 
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -141,10 +142,30 @@ export function LoginForm({ callbackUrl = '/dashboard' }: LoginFormProps) {
         </Alert>
       )}
 
+      {/* 郵件驗證成功提示 */}
+      {verified === 'true' && (
+        <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
+          <AlertDescription className="text-green-800 dark:text-green-200">
+            {t('login.verifiedSuccess')}
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* 錯誤訊息 */}
       {error && (
         <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error}
+            {/* 未驗證郵件時顯示重新發送連結 */}
+            {error === t('login.error.emailNotVerified') && (
+              <Link
+                href="/auth/verify-email"
+                className="block mt-2 text-primary hover:underline"
+              >
+                {t('login.error.resendVerification')}
+              </Link>
+            )}
+          </AlertDescription>
         </Alert>
       )}
 

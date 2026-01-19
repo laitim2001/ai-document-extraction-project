@@ -131,10 +131,12 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
 export async function sendVerificationEmail(
   email: string,
   name: string | null,
-  token: string
+  token: string,
+  locale: string = 'en'
 ): Promise<void> {
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
-  const verifyUrl = `${baseUrl}/auth/verify-email?token=${token}`
+  // 驗證連結經過 API 端點，包含 locale 以便重導向時使用正確的語言
+  const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${token}&locale=${locale}`
 
   const html = `
 <!DOCTYPE html>
