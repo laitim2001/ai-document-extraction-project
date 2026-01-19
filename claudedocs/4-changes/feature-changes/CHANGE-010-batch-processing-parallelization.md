@@ -7,10 +7,12 @@
 | 變更編號 | CHANGE-010 |
 | 變更日期 | 2026-01-16 |
 | 更新日期 | 2026-01-19 |
-| 完成日期 | - |
+| 完成日期 | 2026-01-19 |
 | 變更類型 | 效能優化 |
 | 影響範圍 | 批次處理服務 (batch-processor.service.ts) |
-| 狀態 | ⏳ 待實施 |
+| 狀態 | ✅ 已完成 |
+| Commit | b855aeb |
+| 回滾點 | git tag: pre-change-010 (fc58044) |
 
 ---
 
@@ -290,6 +292,7 @@ try {
 |------|------|----------|
 | 2026-01-16 | 1.0 | 初始方案：B + C 組合 |
 | 2026-01-19 | 2.0 | 深入分析後更新：移除方案 C（batch-processor 不調用 Python 服務），改用 p-queue-compat 解決 ESM 兼容性 |
+| 2026-01-19 | 2.1 | ✅ 實施完成：Commit b855aeb，新增 p-queue-compat 依賴，修改 batch-processor.service.ts |
 
 ---
 
