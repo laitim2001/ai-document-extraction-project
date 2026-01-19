@@ -7032,6 +7032,329 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
+## Epic 18: 本地帳號認證系統
+
+> **說明**：此 Epic 實現完整的本地帳號認證功能，包括用戶註冊、登入、密碼重設及郵件驗證。
+
+### Story 18-1: 用戶註冊
+
+```
+# 開發任務：Story 18-1 用戶註冊
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-local-auth/18-1-user-registration.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/lib/auth.ts（現有認證配置）
+- src/lib/auth.config.ts（Provider 配置）
+- prisma/schema.prisma（User 模型）
+- messages/{locale}/auth.json（i18n 翻譯）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 更新 Prisma Schema 添加驗證欄位：
+   - emailVerificationToken, emailVerificationExpires
+   - passwordResetToken, passwordResetExpires
+3. 執行 Prisma 遷移
+4. 建立密碼工具 src/lib/password.ts：
+   - hashPassword（bcrypt cost 12）
+   - verifyPassword
+   - validatePasswordStrength
+5. 建立 Token 工具 src/lib/token.ts：
+   - generateToken（crypto.randomBytes）
+   - getTokenExpiry
+6. 建立郵件服務 src/lib/email.ts：
+   - sendEmail（nodemailer）
+   - sendVerificationEmail
+7. 建立註冊 API POST /api/auth/register
+8. 建立註冊頁面 /[locale]/(auth)/auth/register/page.tsx
+9. 建立驗證 Schema src/validations/auth.ts
+10. 新增 i18n 翻譯（en, zh-TW, zh-CN）
+11. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 環境變數需求
+確保 .env 中已配置：
+- SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM
+- BCRYPT_SALT_ROUNDS="12"（可選，預設 12）
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npx prisma migrate dev` 確認遷移成功
+
+### 2. 功能驗證
+- [ ] 註冊頁面正確顯示並可輸入
+- [ ] 電子郵件驗證（格式、唯一性）
+- [ ] 密碼強度驗證正確運作
+- [ ] 註冊成功後發送驗證郵件
+- [ ] 重複郵件註冊顯示錯誤訊息
+
+### 3. 安全驗證
+- [ ] 密碼以 bcrypt 加密存儲
+- [ ] 驗證 Token 長度 64 字元
+- [ ] Token 有效期正確設置（24 小時）
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 5. 附加文檔
+- [ ] 更新 src/lib/index.ts（如存在）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 6. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-2: 本地帳號登入
+
+```
+# 開發任務：Story 18-2 本地帳號登入
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-local-auth/18-2-local-account-login.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-1.md（依賴）
+- src/lib/auth.config.ts（需修改 Credentials Provider）
+- src/lib/auth.ts（需修改 JWT Callback）
+- src/lib/password.ts（Story 18-1 建立）
+- messages/{locale}/auth.json（i18n 翻譯）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 修改 Credentials Provider（src/lib/auth.config.ts）：
+   - 實現真正的帳號密碼驗證
+   - 檢查帳號狀態（ACTIVE/SUSPENDED/DISABLED）
+   - 檢查郵件驗證狀態
+3. 修改 JWT Callback（src/lib/auth.ts）：
+   - 確保 Session 結構與 Azure AD 一致
+   - 統一載入用戶角色和城市權限
+4. 更新登入頁面 /[locale]/(auth)/auth/login/page.tsx：
+   - 整合 Azure AD 和本地帳號雙重登入選項
+   - 實現本地帳號登入表單
+   - 處理各種登入錯誤
+5. 建立登入驗證 Schema（如未在 18-1 建立）
+6. 新增 i18n 翻譯
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 依賴
+- Story 18-1（用戶註冊）必須先完成
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 登入頁面顯示 Azure AD 和本地帳號雙重選項
+- [ ] Azure AD 登入仍正常運作
+- [ ] 本地帳號登入成功後正確跳轉
+- [ ] 錯誤密碼顯示正確錯誤訊息
+- [ ] 未驗證郵件用戶無法登入並顯示提示
+- [ ] 被暫停帳號無法登入並顯示提示
+
+### 3. Session 驗證
+- [ ] 本地帳號登入後 Session 包含所有必要資訊
+- [ ] Session 結構與 Azure AD 登入一致
+- [ ] 角色和城市權限正確載入
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-3: 忘記密碼與重設
+
+```
+# 開發任務：Story 18-3 忘記密碼與重設
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-local-auth/18-3-password-reset.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-1.md（依賴）
+- src/lib/token.ts（Token 工具）
+- src/lib/email.ts（郵件服務）
+- src/lib/password.ts（密碼工具）
+- messages/{locale}/auth.json（i18n 翻譯）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立忘記密碼 API POST /api/auth/forgot-password：
+   - 查詢用戶但不洩漏是否存在（安全考量）
+   - 產生 Token（32 字元，1 小時有效）
+   - 發送重設郵件
+3. 建立重設密碼 API POST /api/auth/reset-password：
+   - 驗證 Token 有效性
+   - 驗證密碼強度
+   - 更新密碼並清除 Token
+   - 發送密碼變更通知郵件
+4. 建立 Token 驗證 API GET /api/auth/verify-reset-token
+5. 更新郵件服務（src/lib/email.ts）：
+   - sendPasswordResetEmail
+   - sendPasswordChangedEmail
+6. 建立忘記密碼頁面 /[locale]/(auth)/auth/forgot-password/page.tsx
+7. 建立重設密碼頁面 /[locale]/(auth)/auth/reset-password/page.tsx
+8. 新增 i18n 翻譯
+9. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 依賴
+- Story 18-1（用戶註冊）必須先完成
+- Story 18-2（本地帳號登入）必須先完成
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 忘記密碼頁面正確顯示
+- [ ] 輸入已註冊郵件後發送重設郵件
+- [ ] 輸入未註冊郵件顯示相同成功訊息（安全）
+- [ ] 有效 Token 可進入重設密碼頁面
+- [ ] 過期 Token 顯示錯誤並提供重新請求選項
+- [ ] 成功重設密碼後重導向登入頁面
+
+### 3. 安全驗證
+- [ ] Token 僅 1 小時有效
+- [ ] Token 使用後立即失效
+- [ ] 密碼變更後發送通知郵件
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-4: 郵件驗證系統
+
+```
+# 開發任務：Story 18-4 郵件驗證系統
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-local-auth/18-4-email-verification.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-1.md（依賴）
+- src/lib/token.ts（Token 工具）
+- src/lib/email.ts（郵件服務）
+- messages/{locale}/auth.json（i18n 翻譯）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立郵件驗證 API GET /api/auth/verify-email：
+   - 處理有效 Token → 更新 emailVerified → 重導向登入
+   - 處理過期 Token → 顯示過期訊息
+   - 處理無效 Token → 顯示錯誤訊息
+3. 建立重新發送 API POST /api/auth/resend-verification：
+   - 實現速率限制（5 次/小時）
+   - 產生新 Token 並失效舊 Token
+   - 發送新驗證郵件
+4. 確保驗證郵件模板已在 18-1 建立
+5. 建立驗證結果頁面 /[locale]/(auth)/auth/verify-email/page.tsx：
+   - 顯示各種驗證結果狀態
+   - 提供重新發送功能
+6. 整合到登入頁面（未驗證用戶提示）
+7. 新增 i18n 翻譯
+8. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 依賴
+- Story 18-1（用戶註冊）必須先完成
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 點擊有效驗證連結成功驗證並重導向登入
+- [ ] 點擊過期連結顯示過期訊息
+- [ ] 點擊無效連結顯示錯誤訊息
+- [ ] 重新發送驗證郵件成功
+- [ ] 已驗證用戶請求重發顯示適當訊息
+- [ ] 速率限制正常運作（超過 5 次/小時顯示錯誤）
+
+### 3. 安全驗證
+- [ ] Token 驗證後立即刪除
+- [ ] Token 僅 24 小時有效
+- [ ] 重發請求不洩漏帳號存在資訊
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+- [ ] 如這是 Epic 最後一個 Story，更新 Epic 狀態為 `done`
+
+### 5. 附加文檔
+- [ ] 更新 CLAUDE.md 的項目進度追蹤表
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 6. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
 ## 使用說明
 
 ### 如何使用這些提示
@@ -7055,3 +7378,4 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 - **Epic 03**: 依賴 Epic 02 的處理結果
 - **Epic 06**: 多城市功能可能需要回頭調整早期 Story
 - **Epic 17**: Story 17-1 是 i18n 基礎，必須先完成；其他 Stories 可平行開發
+- **Epic 18**: Story 18-1 是認證基礎，必須先完成；18-2 依賴 18-1；18-3 依賴 18-1、18-2；18-4 依賴 18-1
