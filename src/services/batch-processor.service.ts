@@ -2,7 +2,8 @@
  * @fileoverview 批量處理執行器服務
  * @description
  *   負責執行批量文件處理任務：
- *   - 並發控制（最多 5 個並發任務）
+ *   - 並發控制（最多 5 個並發任務，使用 p-queue-compat）
+ *   - 速率限制（防止 Azure API 429 錯誤）
  *   - 錯誤處理和重試邏輯
  *   - 進度更新和狀態追蹤
  *   - 整合 Azure Document Intelligence 和 GPT Vision
@@ -12,13 +13,15 @@
  *   - 格式識別與三層術語聚合整合（Story 0.9）
  *   - Native PDF 雙重處理架構（CHANGE-001）
  *   - 整合 UnifiedDocumentProcessor 11 步管道（CHANGE-006）
+ *   - 並發處理優化（CHANGE-010）
  *
  * @module src/services/batch-processor
  * @since Epic 0 - Story 0.2
- * @lastModified 2026-01-06
+ * @lastModified 2026-01-19
  *
  * @features
- *   - 分塊順序處理（避免 async hooks 溢出）
+ *   - 分塊並發處理（使用 p-queue-compat 控制並發）
+ *   - 速率限制（intervalCap 防止 Azure API 429）
  *   - 處理進度回報
  *   - 錯誤重試機制
  *   - 處理結果記錄
@@ -31,9 +34,11 @@
  *   - Story 0.9: 格式識別與三層術語聚合（Company → Format → Terms）
  *   - CHANGE-001: Native PDF 雙重處理（GPT Vision 分類 + Azure DI 數據提取）
  *   - CHANGE-006: 整合 UnifiedDocumentProcessor 11 步管道（包含 GPT Enhanced Extraction）
+ *   - CHANGE-010: 並發處理優化（p-queue-compat 取代順序處理）
  *
  * @dependencies
  *   - Prisma Client - 數據庫操作
+ *   - p-queue-compat - 並發控制（CHANGE-010）
  *   - processing-router.service - 路由決策
  *   - azure-di.service - Azure Document Intelligence
  *   - gpt-vision.service - GPT Vision
@@ -54,6 +59,7 @@
  */
 
 import * as fs from 'fs/promises'
+import PQueue from 'p-queue-compat'
 import { prisma } from '@/lib/prisma'
 import {
   HistoricalFile,
@@ -186,6 +192,15 @@ export interface BatchProcessorOptions {
   chunkSize?: number
   /** 分塊之間的延遲（毫秒），讓 GC 有時間清理 */
   chunkDelayMs?: number
+  // CHANGE-010: 並發控制選項
+  /** 並發處理數量（預設 5） */
+  concurrency?: number
+  /** 每秒最大請求數（預設 10，防止 Azure API 429） */
+  intervalCap?: number
+  /** 速率限制間隔（毫秒，預設 1000） */
+  intervalMs?: number
+  /** 是否啟用並發處理（預設 true） */
+  enableParallelProcessing?: boolean
 }
 
 // ============================================================
@@ -203,6 +218,16 @@ const DEFAULT_CHUNK_SIZE = 5
 
 /** 預設分塊延遲（毫秒） */
 const DEFAULT_CHUNK_DELAY_MS = 2000
+
+// CHANGE-010: 並發控制配置
+/** 預設並發數（同時處理的文件數量） */
+const DEFAULT_CONCURRENCY = 5
+
+/** 每秒最大請求數（防止 Azure API 429 錯誤） */
+const DEFAULT_INTERVAL_CAP = 10
+
+/** 速率限制間隔（毫秒） */
+const DEFAULT_INTERVAL_MS = 1000
 
 // CHANGE-006: 是否使用 UnifiedProcessor（Feature Flag）
 // 設置為 true 以啟用 11 步處理管道，包含 GPT Enhanced Extraction
@@ -941,6 +966,11 @@ export async function processBatch(
     onProgress,
     chunkSize = DEFAULT_CHUNK_SIZE,
     chunkDelayMs = DEFAULT_CHUNK_DELAY_MS,
+    // CHANGE-010: 並發控制選項
+    concurrency = DEFAULT_CONCURRENCY,
+    intervalCap = DEFAULT_INTERVAL_CAP,
+    intervalMs = DEFAULT_INTERVAL_MS,
+    enableParallelProcessing = true,
   } = options
 
   const startTime = new Date()
@@ -1062,19 +1092,79 @@ export async function processBatch(
 
   // 將文件分成小塊處理
   const chunks = chunkArray(files, chunkSize)
-  console.log(`[Batch ${batchId}] Processing ${files.length} files in ${chunks.length} chunks (size: ${chunkSize})`)
+
+  // CHANGE-010: 創建並發控制隊列
+  const queue = new PQueue({
+    concurrency: enableParallelProcessing ? concurrency : 1,
+    interval: intervalMs,
+    intervalCap,
+  })
+
+  console.log(
+    `[Batch ${batchId}] Processing ${files.length} files in ${chunks.length} chunks ` +
+    `(size: ${chunkSize}, concurrency: ${enableParallelProcessing ? concurrency : 1}, ` +
+    `intervalCap: ${intervalCap}/s)`
+  )
 
   for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
     const chunk = chunks[chunkIndex]
     console.log(`[Batch ${batchId}] Starting chunk ${chunkIndex + 1}/${chunks.length} (${chunk.length} files)`)
 
-    // 順序處理每個分塊內的文件
-    for (const file of chunk) {
-      reportProgress(file.originalName, 1)
+    // CHANGE-010: 並發處理每個分塊內的文件
+    // 使用 p-queue 控制並發數和速率，避免 Azure API 429 錯誤
+    const chunkPromises = chunk.map(file =>
+      queue.add(async (): Promise<FileProcessingResult> => {
+        // 報告開始處理（顯示當前正在處理的文件和隊列中的任務數）
+        reportProgress(file.originalName, queue.pending + 1)
 
-      try {
-        // Story 0.6, 0.8 & 0.9: 傳遞公司識別、發行者識別和格式識別配置給 processFile
-        const result = await processFile(file, { maxRetries, retryDelayMs, companyConfig, issuerConfig, formatConfig })
+        try {
+          // Story 0.6, 0.8 & 0.9: 傳遞公司識別、發行者識別和格式識別配置給 processFile
+          const result = await processFile(file, { maxRetries, retryDelayMs, companyConfig, issuerConfig, formatConfig })
+
+          // CHANGE-010: 在任務完成後立即更新數據庫進度
+          // 使用 Prisma 的原子操作確保並發安全
+          await prisma.historicalBatch.update({
+            where: { id: batchId },
+            data: {
+              processedFiles: { increment: 1 },
+              failedFiles: result.success ? undefined : { increment: 1 },
+              // Story 0.6: 更新識別的公司數量
+              companiesIdentified: result.companyIdentification
+                ? { increment: 1 }
+                : undefined,
+              // Story 0.8: 更新識別的發行者數量
+              issuersIdentified: result.documentIssuer
+                ? { increment: 1 }
+                : undefined,
+              // Story 0.9: 更新識別的格式數量
+              formatsIdentified: result.formatIdentification
+                ? { increment: 1 }
+                : undefined,
+            },
+          })
+
+          return result
+        } catch (error) {
+          // 處理意外錯誤
+          console.error(`[Batch ${batchId}] Unexpected error processing ${file.originalName}:`, error)
+
+          // 返回失敗結果
+          return {
+            fileId: file.id,
+            success: false,
+            error: error instanceof Error ? error.message : 'Unexpected error',
+          }
+        }
+      })
+    )
+
+    // CHANGE-010: 等待所有任務完成（使用 allSettled 確保即使有錯誤也能繼續）
+    const chunkResults = await Promise.allSettled(chunkPromises)
+
+    // 處理結果並更新統計
+    for (const settledResult of chunkResults) {
+      if (settledResult.status === 'fulfilled' && settledResult.value) {
+        const result = settledResult.value
         results.push(result)
 
         if (result.success) {
@@ -1097,40 +1187,17 @@ export async function processBatch(
         }
 
         completedCount++
-        reportProgress(undefined, 0)
-
-        // 更新批次進度（包含公司識別、發行者識別和格式識別計數）
-        await prisma.historicalBatch.update({
-          where: { id: batchId },
-          data: {
-            processedFiles: { increment: 1 },
-            failedFiles: result.success ? undefined : { increment: 1 },
-            // Story 0.6: 更新識別的公司數量
-            companiesIdentified: result.companyIdentification
-              ? { increment: 1 }
-              : undefined,
-            // Story 0.8: 更新識別的發行者數量
-            issuersIdentified: result.documentIssuer
-              ? { increment: 1 }
-              : undefined,
-            // Story 0.9: 更新識別的格式數量
-            formatsIdentified: result.formatIdentification
-              ? { increment: 1 }
-              : undefined,
-          },
-        })
-      } catch (error) {
-        // 處理意外錯誤
-        console.error(`[Batch ${batchId}] Unexpected error processing ${file.originalName}:`, error)
+      } else if (settledResult.status === 'rejected') {
+        // 這種情況不應該發生，因為我們在 queue.add 中已經捕獲了錯誤
+        // 但為了安全起見，還是處理一下
+        console.error(`[Batch ${batchId}] Promise rejected unexpectedly:`, settledResult.reason)
         failedCount++
         completedCount++
-        results.push({
-          fileId: file.id,
-          success: false,
-          error: error instanceof Error ? error.message : 'Unexpected error',
-        })
       }
     }
+
+    // 報告 chunk 完成後的進度
+    reportProgress(undefined, 0)
 
     // 在分塊之間添加延遲，讓 GC 有時間清理
     if (chunkIndex < chunks.length - 1) {
