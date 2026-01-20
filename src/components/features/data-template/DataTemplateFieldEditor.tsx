@@ -1,11 +1,12 @@
 /**
- * @fileoverview 數據模版欄位編輯器組件
+ * @fileoverview 數據模版欄位編輯器組件（國際化版本）
  * @description
  *   提供欄位定義的新增、編輯、刪除、排序功能
+ *   - i18n 國際化支援 (Epic 17)
  *
  * @module src/components/features/data-template/DataTemplateFieldEditor
  * @since Epic 16 - Story 16.7
- * @lastModified 2026-01-13
+ * @lastModified 2026-01-20
  *
  * @features
  *   - 新增/編輯/刪除欄位
@@ -17,6 +18,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Plus,
   Trash2,
@@ -47,7 +49,6 @@ import type {
   DataTemplateField,
   DataTemplateFieldType,
 } from '@/types/data-template';
-import { FIELD_TYPE_OPTIONS } from '@/types/data-template';
 
 // ============================================================================
 // Types
@@ -77,13 +78,6 @@ const TYPE_ICONS: Record<DataTemplateFieldType, React.ComponentType<{ className?
   array: List,
 };
 
-const DEFAULT_FIELD: Omit<DataTemplateField, 'order'> = {
-  name: '',
-  label: '',
-  dataType: 'string',
-  isRequired: false,
-};
-
 // ============================================================================
 // Component
 // ============================================================================
@@ -94,18 +88,37 @@ export function DataTemplateFieldEditor({
   readOnly = false,
   error,
 }: DataTemplateFieldEditorProps) {
+  const t = useTranslations('dataTemplates');
+
+  // --- Field Type Options (i18n) ---
+  const fieldTypeOptions: Array<{ value: DataTemplateFieldType; label: string }> = [
+    { value: 'string', label: t('fieldTypes.string') },
+    { value: 'number', label: t('fieldTypes.number') },
+    { value: 'date', label: t('fieldTypes.date') },
+    { value: 'currency', label: t('fieldTypes.currency') },
+    { value: 'boolean', label: t('fieldTypes.boolean') },
+    { value: 'array', label: t('fieldTypes.array') },
+  ];
+
+  // --- Default Field ---
+  const createDefaultField = React.useCallback(
+    (order: number): DataTemplateField => ({
+      name: `field_${order}`,
+      label: t('fieldEditor.defaultFieldLabel', { number: order }),
+      dataType: 'string',
+      isRequired: false,
+      order,
+    }),
+    [t]
+  );
+
   // --- Handlers ---
 
   /** 新增欄位 */
   const handleAdd = React.useCallback(() => {
-    const newField: DataTemplateField = {
-      ...DEFAULT_FIELD,
-      name: `field_${fields.length + 1}`,
-      label: `欄位 ${fields.length + 1}`,
-      order: fields.length + 1,
-    };
+    const newField = createDefaultField(fields.length + 1);
     onChange([...fields, newField]);
-  }, [fields, onChange]);
+  }, [fields, onChange, createDefaultField]);
 
   /** 更新欄位 */
   const handleUpdate = React.useCallback(
@@ -166,7 +179,7 @@ export function DataTemplateFieldEditor({
     <div className="space-y-4">
       {/* 標題和新增按鈕 */}
       <div className="flex items-center justify-between">
-        <Label className="text-base font-medium">欄位定義</Label>
+        <Label className="text-base font-medium">{t('fieldEditor.title')}</Label>
         {!readOnly && (
           <Button
             type="button"
@@ -175,7 +188,7 @@ export function DataTemplateFieldEditor({
             onClick={handleAdd}
           >
             <Plus className="h-4 w-4 mr-1" />
-            新增欄位
+            {t('fieldEditor.addField')}
           </Button>
         )}
       </div>
@@ -189,7 +202,7 @@ export function DataTemplateFieldEditor({
       {fields.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-8 text-center text-muted-foreground">
-            尚無欄位定義，點擊「新增欄位」開始建立
+            {t('fieldEditor.emptyState')}
           </CardContent>
         </Card>
       ) : (
@@ -201,6 +214,7 @@ export function DataTemplateFieldEditor({
               index={index}
               total={fields.length}
               readOnly={readOnly}
+              fieldTypeOptions={fieldTypeOptions}
               onUpdate={(updates) => handleUpdate(index, updates)}
               onDelete={() => handleDelete(index)}
               onMoveUp={() => handleMoveUp(index)}
@@ -222,6 +236,7 @@ interface FieldRowProps {
   index: number;
   total: number;
   readOnly: boolean;
+  fieldTypeOptions: Array<{ value: DataTemplateFieldType; label: string }>;
   onUpdate: (updates: Partial<DataTemplateField>) => void;
   onDelete: () => void;
   onMoveUp: () => void;
@@ -233,11 +248,13 @@ function FieldRow({
   index,
   total,
   readOnly,
+  fieldTypeOptions,
   onUpdate,
   onDelete,
   onMoveUp,
   onMoveDown,
 }: FieldRowProps) {
+  const t = useTranslations('dataTemplates');
   const TypeIcon = TYPE_ICONS[field.dataType];
 
   return (
@@ -275,7 +292,7 @@ function FieldRow({
           <div className="flex-1 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* 欄位名稱 */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">欄位名稱</Label>
+              <Label className="text-xs text-muted-foreground">{t('fieldEditor.fieldName')}</Label>
               <Input
                 value={field.name}
                 onChange={(e) => onUpdate({ name: e.target.value })}
@@ -290,11 +307,11 @@ function FieldRow({
 
             {/* 顯示標籤 */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">顯示標籤</Label>
+              <Label className="text-xs text-muted-foreground">{t('fieldEditor.fieldLabel')}</Label>
               <Input
                 value={field.label}
                 onChange={(e) => onUpdate({ label: e.target.value })}
-                placeholder="顯示名稱"
+                placeholder={t('fieldEditor.fieldLabel')}
                 disabled={readOnly}
                 className={cn(readOnly && 'bg-muted')}
               />
@@ -302,7 +319,7 @@ function FieldRow({
 
             {/* 資料類型 */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">資料類型</Label>
+              <Label className="text-xs text-muted-foreground">{t('fieldEditor.dataType')}</Label>
               <Select
                 value={field.dataType}
                 onValueChange={(value) =>
@@ -314,12 +331,12 @@ function FieldRow({
                   <SelectValue>
                     <div className="flex items-center gap-2">
                       <TypeIcon className="h-4 w-4" />
-                      {FIELD_TYPE_OPTIONS.find((o) => o.value === field.dataType)?.label}
+                      {fieldTypeOptions.find((o) => o.value === field.dataType)?.label}
                     </div>
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {FIELD_TYPE_OPTIONS.map((option) => {
+                  {fieldTypeOptions.map((option) => {
                     const Icon = TYPE_ICONS[option.value];
                     return (
                       <SelectItem key={option.value} value={option.value}>
@@ -336,7 +353,7 @@ function FieldRow({
 
             {/* 必填選項 */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">選項</Label>
+              <Label className="text-xs text-muted-foreground">{t('fieldEditor.options')}</Label>
               <div className="flex items-center gap-2 h-10">
                 <Checkbox
                   id={`required-${index}`}
@@ -350,7 +367,7 @@ function FieldRow({
                   htmlFor={`required-${index}`}
                   className="text-sm font-normal cursor-pointer"
                 >
-                  必填
+                  {t('fieldEditor.required')}
                 </Label>
               </div>
             </div>

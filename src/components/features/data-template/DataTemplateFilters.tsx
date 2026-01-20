@@ -1,16 +1,18 @@
 /**
- * @fileoverview 數據模版篩選組件
+ * @fileoverview 數據模版篩選組件（國際化版本）
  * @description
  *   提供數據模版列表的篩選功能
+ *   - i18n 國際化支援 (Epic 17)
  *
  * @module src/components/features/data-template/DataTemplateFilters
  * @since Epic 16 - Story 16.7
- * @lastModified 2026-01-13
+ * @lastModified 2026-01-20
  */
 
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -42,6 +44,8 @@ export function DataTemplateFilters({
   filters,
   onFiltersChange,
 }: DataTemplateFiltersProps) {
+  const t = useTranslations('dataTemplates');
+
   // --- Handlers ---
 
   const handleSearchChange = React.useCallback(
@@ -101,7 +105,7 @@ export function DataTemplateFilters({
       <div className="relative flex-1 min-w-[200px]">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="搜尋模版名稱或說明..."
+          placeholder={t('filters.searchPlaceholder')}
           value={filters.search || ''}
           onChange={handleSearchChange}
           className="pl-9"
@@ -114,12 +118,12 @@ export function DataTemplateFilters({
         onValueChange={handleScopeChange}
       >
         <SelectTrigger className="w-[120px]">
-          <SelectValue placeholder="範圍" />
+          <SelectValue placeholder={t('filters.scope')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">全部範圍</SelectItem>
-          <SelectItem value="GLOBAL">全局</SelectItem>
-          <SelectItem value="COMPANY">公司</SelectItem>
+          <SelectItem value="all">{t('filters.allScopes')}</SelectItem>
+          <SelectItem value="GLOBAL">{t('filters.global')}</SelectItem>
+          <SelectItem value="COMPANY">{t('filters.company')}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -135,12 +139,12 @@ export function DataTemplateFilters({
         onValueChange={handleStatusChange}
       >
         <SelectTrigger className="w-[120px]">
-          <SelectValue placeholder="狀態" />
+          <SelectValue placeholder={t('filters.status')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">全部狀態</SelectItem>
-          <SelectItem value="active">啟用</SelectItem>
-          <SelectItem value="inactive">停用</SelectItem>
+          <SelectItem value="all">{t('filters.allStatuses')}</SelectItem>
+          <SelectItem value="active">{t('filters.active')}</SelectItem>
+          <SelectItem value="inactive">{t('filters.inactive')}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -156,12 +160,12 @@ export function DataTemplateFilters({
         onValueChange={handleSystemChange}
       >
         <SelectTrigger className="w-[120px]">
-          <SelectValue placeholder="類型" />
+          <SelectValue placeholder={t('filters.type')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">全部類型</SelectItem>
-          <SelectItem value="system">系統模版</SelectItem>
-          <SelectItem value="custom">自訂模版</SelectItem>
+          <SelectItem value="all">{t('filters.allTypes')}</SelectItem>
+          <SelectItem value="system">{t('filters.systemTemplate')}</SelectItem>
+          <SelectItem value="custom">{t('filters.customTemplate')}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -169,7 +173,7 @@ export function DataTemplateFilters({
       {hasFilters && (
         <Button variant="ghost" size="sm" onClick={handleClear}>
           <X className="h-4 w-4 mr-1" />
-          清除
+          {t('filters.clear')}
         </Button>
       )}
     </div>

@@ -369,5 +369,30 @@
       "create": "Create",
       "creating": "Creating..."
     }
+  },
+  "export": {
+    "button": {
+      "label": "Export Terms",
+      "exporting": "Exporting...",
+      "tooltip": "Export hierarchical terms report (Excel)"
+    },
+    "status": {
+      "pending": "Batch not yet started",
+      "processing": "Batch is processing",
+      "paused": "Batch is paused",
+      "aggregating": "Batch is aggregating terms",
+      "aggregated": "Batch aggregation completed",
+      "completed": "Batch completed",
+      "failed": "Batch processing failed",
+      "cancelled": "Batch cancelled",
+      "cannotExport": ", cannot export terms report"
+    },
+    "toast": {
+      "success": "Export successful",
+      "successDesc": "Downloaded \"{fileName}\"",
+      "failed": "Export failed",
+      "failedDesc": "Unable to export terms report",
+      "authExpired": "Authentication expired, please login again"
+    }
   }
 }

@@ -53,6 +53,7 @@ import {
   ArrowRightLeft,
   MessageSquareCode,
   Tags,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -126,6 +127,7 @@ const navigation: NavSection[] = [
       { nameKey: 'sidebar.users', href: '/admin/users', icon: Users },
       { nameKey: 'sidebar.historicalData', href: '/admin/historical-data', icon: Database },
       { nameKey: 'sidebar.documentPreview', href: '/admin/document-preview-test', icon: Layers },
+      { nameKey: 'sidebar.dataTemplates', href: '/admin/data-templates', icon: FileSpreadsheet },
       { nameKey: 'sidebar.fieldMapping', href: '/admin/field-mapping-configs', icon: ArrowRightLeft },
       { nameKey: 'sidebar.promptConfig', href: '/admin/prompt-configs', icon: MessageSquareCode },
       { nameKey: 'sidebar.termAnalysis', href: '/admin/term-analysis', icon: Tags },

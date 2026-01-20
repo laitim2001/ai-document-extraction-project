@@ -63,6 +63,7 @@
     "users": "用户管理",
     "historicalData": "历史数据初始化",
     "documentPreview": "文件预览测试",
+    "dataTemplates": "数据模板",
     "fieldMapping": "字段映射配置",
     "promptConfig": "Prompt 配置",
     "termAnalysis": "术语分析",

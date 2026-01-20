@@ -18,7 +18,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 // Types
 // ============================================================
 
-export type HistoricalBatchStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED'
+export type HistoricalBatchStatus = 'PENDING' | 'PROCESSING' | 'PAUSED' | 'AGGREGATING' | 'AGGREGATED' | 'COMPLETED' | 'FAILED' | 'CANCELLED'
 export type DetectedFileType = 'NATIVE_PDF' | 'SCANNED_PDF' | 'IMAGE'
 export type HistoricalFileStatus = 'PENDING' | 'DETECTING' | 'DETECTED' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
 

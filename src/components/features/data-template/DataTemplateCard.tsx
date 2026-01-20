@@ -1,16 +1,18 @@
 /**
- * @fileoverview 數據模版卡片組件
+ * @fileoverview 數據模版卡片組件（國際化版本）
  * @description
  *   顯示單個數據模版的摘要資訊，支援編輯和刪除操作
+ *   - i18n 國際化支援 (Epic 17)
  *
  * @module src/components/features/data-template/DataTemplateCard
  * @since Epic 16 - Story 16.7
- * @lastModified 2026-01-13
+ * @lastModified 2026-01-20
  */
 
 'use client';
 
 import * as React from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   MoreHorizontal,
   Pencil,
@@ -30,7 +32,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { formatShortDate } from '@/lib/i18n-date';
 import type { DataTemplateSummary } from '@/types/data-template';
+import type { Locale } from '@/i18n/config';
 
 // ============================================================================
 // Types
@@ -57,6 +61,9 @@ export function DataTemplateCard({
   onDelete,
   className,
 }: DataTemplateCardProps) {
+  const t = useTranslations('dataTemplates');
+  const locale = useLocale() as Locale;
+
   // --- Derived State ---
   const isSystem = template.isSystem;
   const isInUse = template.usageCount > 0;
@@ -84,12 +91,12 @@ export function DataTemplateCard({
             {template.scope === 'GLOBAL' ? (
               <Badge variant="secondary" className="gap-1">
                 <Globe className="h-3 w-3" />
-                全局
+                {t('card.global')}
               </Badge>
             ) : (
               <Badge variant="outline" className="gap-1">
                 <Building2 className="h-3 w-3" />
-                {template.companyName || '公司'}
+                {template.companyName || t('card.company')}
               </Badge>
             )}
 
@@ -97,13 +104,13 @@ export function DataTemplateCard({
             {isSystem && (
               <Badge variant="default" className="gap-1">
                 <Lock className="h-3 w-3" />
-                系統
+                {t('card.system')}
               </Badge>
             )}
 
             {/* 狀態 Badge */}
             {!template.isActive && (
-              <Badge variant="destructive">停用</Badge>
+              <Badge variant="destructive">{t('card.inactive')}</Badge>
             )}
 
             {/* 操作選單 */}
@@ -118,7 +125,7 @@ export function DataTemplateCard({
                   onClick={() => onEdit?.(template.id)}
                 >
                   <Pencil className="h-4 w-4 mr-2" />
-                  {isSystem ? '查看詳情' : '編輯'}
+                  {isSystem ? t('card.viewDetails') : t('card.edit')}
                 </DropdownMenuItem>
                 {canDelete && (
                   <DropdownMenuItem
@@ -126,7 +133,7 @@ export function DataTemplateCard({
                     className="text-destructive focus:text-destructive"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    刪除
+                    {t('card.delete')}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -147,17 +154,17 @@ export function DataTemplateCard({
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span>
             <span className="font-medium text-foreground">{template.fieldCount}</span>{' '}
-            個欄位
+            {t('card.fieldCount', { count: template.fieldCount }).replace(/^\d+\s*/, '')}
           </span>
           <span>
             <span className="font-medium text-foreground">{template.usageCount}</span>{' '}
-            個配置使用
+            {t('card.usageCount', { count: template.usageCount }).replace(/^\d+\s*/, '')}
           </span>
         </div>
 
         {/* 更新時間 */}
         <div className="mt-2 text-xs text-muted-foreground">
-          更新於 {new Date(template.updatedAt).toLocaleDateString('zh-TW')}
+          {t('card.updatedAt', { date: formatShortDate(template.updatedAt, locale) })}
         </div>
       </CardContent>
     </Card>

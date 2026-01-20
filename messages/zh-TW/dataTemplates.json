@@ -1,0 +1,115 @@
+{
+  "page": {
+    "title": "數據模版管理",
+    "description": "管理目標欄位結構模版，用於欄位映射配置",
+    "refresh": "重新整理",
+    "create": "新增模版",
+    "filters": "篩選條件",
+    "loadError": "載入模版資料時發生錯誤：",
+    "unknownError": "未知錯誤",
+    "templateCount": "共 {count} 個模版"
+  },
+  "deleteDialog": {
+    "title": "確認刪除模版",
+    "description": "確定要刪除模版「{name}」嗎？此操作會將模版設為停用狀態。",
+    "cancel": "取消",
+    "deleting": "刪除中...",
+    "confirm": "確認刪除"
+  },
+  "toast": {
+    "deleteSuccess": "刪除成功",
+    "deleteSuccessDesc": "已刪除模版「{name}」",
+    "deleteFailed": "刪除失敗",
+    "createSuccess": "創建成功",
+    "createSuccessDesc": "已創建模版「{name}」",
+    "createFailed": "創建失敗",
+    "updateSuccess": "更新成功",
+    "updateSuccessDesc": "已更新模版「{name}」",
+    "updateFailed": "更新失敗"
+  },
+  "new": {
+    "title": "新增數據模版",
+    "description": "創建新的目標欄位結構模版"
+  },
+  "edit": {
+    "viewTitle": "查看模版",
+    "editTitle": "編輯模版",
+    "viewDescription": "系統模版僅供查看，無法修改",
+    "editDescription": "編輯模版「{name}」",
+    "systemNotice": "這是系統內建模版，無法進行修改。如需自訂，請創建新的模版。",
+    "notFound": "找不到指定的模版"
+  },
+  "card": {
+    "global": "全局",
+    "company": "公司",
+    "system": "系統",
+    "inactive": "停用",
+    "viewDetails": "查看詳情",
+    "edit": "編輯",
+    "delete": "刪除",
+    "fieldCount": "{count} 個欄位",
+    "usageCount": "{count} 個配置使用",
+    "updatedAt": "更新於 {date}"
+  },
+  "list": {
+    "loadFailed": "載入失敗",
+    "loadFailedDesc": "無法載入模版列表",
+    "empty": "尚無數據模版",
+    "emptyDesc": "點擊「新增模版」按鈕建立第一個數據模版"
+  },
+  "filters": {
+    "searchPlaceholder": "搜尋模版名稱或說明...",
+    "scope": "範圍",
+    "allScopes": "全部範圍",
+    "global": "全局",
+    "company": "公司",
+    "status": "狀態",
+    "allStatuses": "全部狀態",
+    "active": "啟用",
+    "inactive": "停用",
+    "type": "類型",
+    "allTypes": "全部類型",
+    "systemTemplate": "系統模版",
+    "customTemplate": "自訂模版",
+    "clear": "清除"
+  },
+  "form": {
+    "basicInfo": "基本資訊",
+    "templateName": "模版名稱",
+    "templateNameRequired": "模版名稱 *",
+    "templateNamePlaceholder": "例：ERP 標準匯入格式",
+    "description": "說明",
+    "descriptionPlaceholder": "描述此模版的用途...",
+    "scopeRequired": "配置範圍 *",
+    "companyRequired": "所屬公司 *",
+    "companyPlaceholder": "選擇公司",
+    "fieldDefinitions": "欄位定義",
+    "back": "返回",
+    "saving": "儲存中...",
+    "updateTemplate": "更新模版",
+    "createTemplate": "創建模版"
+  },
+  "fieldEditor": {
+    "title": "欄位定義",
+    "addField": "新增欄位",
+    "emptyState": "尚無欄位定義，點擊「新增欄位」開始建立",
+    "fieldName": "欄位名稱",
+    "fieldLabel": "顯示標籤",
+    "dataType": "資料類型",
+    "options": "選項",
+    "required": "必填",
+    "defaultFieldLabel": "欄位 {number}"
+  },
+  "fieldTypes": {
+    "string": "文字",
+    "number": "數字",
+    "date": "日期",
+    "currency": "金額",
+    "boolean": "布林值",
+    "array": "陣列"
+  },
+  "scopes": {
+    "GLOBAL": "全局",
+    "COMPANY": "公司"
+  }
+}

@@ -369,5 +369,30 @@
       "create": "创建",
       "creating": "创建中..."
     }
+  },
+  "export": {
+    "button": {
+      "label": "导出术语",
+      "exporting": "导出中...",
+      "tooltip": "导出层级式术语报告（Excel）"
+    },
+    "status": {
+      "pending": "批次尚未开始处理",
+      "processing": "批次正在处理中",
+      "paused": "批次已暂停",
+      "aggregating": "批次正在聚合术语中",
+      "aggregated": "批次已完成聚合",
+      "completed": "批次已完成",
+      "failed": "批次处理失败",
+      "cancelled": "批次已取消",
+      "cannotExport": "，无法导出术语报告"
+    },
+    "toast": {
+      "success": "导出成功",
+      "successDesc": "已下载「{fileName}」",
+      "failed": "导出失败",
+      "failedDesc": "无法导出术语报告",
+      "authExpired": "认证已过期，请重新登录后再试"
+    }
   }
 }

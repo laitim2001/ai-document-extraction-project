@@ -1,5 +1,5 @@
 /**
- * @fileoverview 階層式術語報告 Excel 生成器
+ * @fileoverview 階層式術語報告 Excel 生成器（國際化版本）
  * @description
  *   生成 Epic 0 歷史數據初始化的術語報告，包含：
  *   - 摘要工作表：批次資訊和統計摘要
@@ -9,17 +9,19 @@
  *
  * @module src/lib/reports/hierarchical-terms-excel
  * @since Epic 0 - CHANGE-002
- * @lastModified 2025-12-27
+ * @lastModified 2026-01-20
  *
  * @features
  *   - 四個工作表的 Excel 報告生成
  *   - 術語按頻率降序排列
  *   - 包含原始術語範例
  *   - 支援篩選和凍結標題行
+ *   - i18n 國際化支援 (Epic 17)
  *
  * @dependencies
  *   - exceljs - Excel 生成庫
  *   - @/types/document-format - 類型定義
+ *   - ./excel-i18n - 翻譯常數
  *
  * @related
  *   - src/services/hierarchical-term-aggregation.service.ts - 數據聚合
@@ -32,6 +34,7 @@ import type {
   DocumentType,
   DocumentSubtype,
 } from '@/types/document-format';
+import { getExcelI18n, normalizeLocale, type ExcelLocale } from './excel-i18n';
 
 // ============================================================================
 // Types
@@ -66,39 +69,13 @@ export interface HierarchicalTermsExportOptions {
   maxTermsPerFormat?: number;
   /** 是否包含範例 (預設 true) */
   includeExamples?: boolean;
-  /** 語言 (預設 'zh') */
-  locale?: 'zh' | 'en';
+  /** 語言 (預設 'en') */
+  locale?: string;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-/**
- * 文件類型顯示名稱（中文）
- */
-const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
-  INVOICE: '發票',
-  DEBIT_NOTE: '借項通知單',
-  CREDIT_NOTE: '貸項通知單',
-  STATEMENT: '對帳單',
-  QUOTATION: '報價單',
-  BILL_OF_LADING: '提單',
-  CUSTOMS_DECLARATION: '報關單',
-  OTHER: '其他',
-};
-
-/**
- * 文件子類型顯示名稱（中文）
- */
-const DOCUMENT_SUBTYPE_LABELS: Record<DocumentSubtype, string> = {
-  OCEAN_FREIGHT: '海運',
-  AIR_FREIGHT: '空運',
-  LAND_TRANSPORT: '陸運',
-  CUSTOMS_CLEARANCE: '報關',
-  WAREHOUSING: '倉儲',
-  GENERAL: '一般',
-};
 
 /**
  * Excel 樣式定義
@@ -140,11 +117,16 @@ const STYLES = {
 // ============================================================================
 
 /**
- * 格式化日期為台灣格式
+ * 格式化日期
+ * @param date - 日期對象
+ * @param locale - 語言代碼
  */
-function formatDate(date: Date | null): string {
+function formatDate(date: Date | null, locale: ExcelLocale): string {
   if (!date) return 'N/A';
-  return date.toLocaleString('zh-TW', {
+
+  const dateLocale = locale === 'en' ? 'en-US' : locale === 'zh-CN' ? 'zh-CN' : 'zh-TW';
+
+  return date.toLocaleString(dateLocale, {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -159,10 +141,11 @@ function formatDate(date: Date | null): string {
  */
 function formatDocumentType(
   documentType: DocumentType,
-  documentSubtype: DocumentSubtype
+  documentSubtype: DocumentSubtype,
+  i18n: ReturnType<typeof getExcelI18n>
 ): string {
-  const typeLabel = DOCUMENT_TYPE_LABELS[documentType] || documentType;
-  const subtypeLabel = DOCUMENT_SUBTYPE_LABELS[documentSubtype] || documentSubtype;
+  const typeLabel = i18n.documentTypes[documentType] || documentType;
+  const subtypeLabel = i18n.documentSubtypes[documentSubtype] || documentSubtype;
   return `${subtypeLabel} ${typeLabel}`;
 }
 
@@ -200,7 +183,7 @@ function getFrequencyFill(frequency: number): ExcelJS.Fill | undefined {
  *   aggregation: { companies: [...], summary: {...} },
  *   generatedAt: new Date(),
  *   generatedBy: 'admin@example.com'
- * });
+ * }, { locale: 'en' });
  * ```
  */
 export async function generateHierarchicalTermsExcel(
@@ -211,7 +194,12 @@ export async function generateHierarchicalTermsExcel(
     minTermFrequency = 1,
     maxTermsPerFormat = 500,
     includeExamples = true,
+    locale: rawLocale,
   } = options;
+
+  // 取得翻譯
+  const locale = normalizeLocale(rawLocale);
+  const i18n = getExcelI18n(locale);
 
   const workbook = new ExcelJS.Workbook();
   workbook.creator = data.generatedBy;
@@ -221,29 +209,29 @@ export async function generateHierarchicalTermsExcel(
   // ========================================
   // 工作表 1: 摘要
   // ========================================
-  const summarySheet = workbook.addWorksheet('摘要');
+  const summarySheet = workbook.addWorksheet(i18n.sheets.summary);
 
   summarySheet.columns = [
-    { header: '項目', key: 'item', width: 25 },
-    { header: '值', key: 'value', width: 50 },
+    { header: i18n.summary.headers.item, key: 'item', width: 25 },
+    { header: i18n.summary.headers.value, key: 'value', width: 50 },
   ];
 
   const { batch, aggregation } = data;
   const { summary } = aggregation;
 
   summarySheet.addRows([
-    { item: '批次 ID', value: batch.id },
-    { item: '批次名稱', value: batch.name },
-    { item: '開始時間', value: formatDate(batch.startedAt) },
-    { item: '完成時間', value: formatDate(batch.completedAt) },
+    { item: i18n.summary.labels.batchId, value: batch.id },
+    { item: i18n.summary.labels.batchName, value: batch.name },
+    { item: i18n.summary.labels.startedAt, value: formatDate(batch.startedAt, locale) },
+    { item: i18n.summary.labels.completedAt, value: formatDate(batch.completedAt, locale) },
     { item: '', value: '' },
-    { item: '公司數量', value: summary.totalCompanies },
-    { item: '格式數量', value: summary.totalFormats },
-    { item: '唯一術語數', value: summary.totalUniqueTerms },
-    { item: '術語出現次數', value: summary.totalTermOccurrences },
+    { item: i18n.summary.labels.companyCount, value: summary.totalCompanies },
+    { item: i18n.summary.labels.formatCount, value: summary.totalFormats },
+    { item: i18n.summary.labels.uniqueTermCount, value: summary.totalUniqueTerms },
+    { item: i18n.summary.labels.termOccurrenceCount, value: summary.totalTermOccurrences },
     { item: '', value: '' },
-    { item: '報告產生時間', value: formatDate(data.generatedAt) },
-    { item: '產生者', value: data.generatedBy },
+    { item: i18n.summary.labels.generatedAt, value: formatDate(data.generatedAt, locale) },
+    { item: i18n.summary.labels.generatedBy, value: data.generatedBy },
   ]);
 
   // 摘要工作表樣式
@@ -253,16 +241,16 @@ export async function generateHierarchicalTermsExcel(
   // ========================================
   // 工作表 2: 公司列表
   // ========================================
-  const companiesSheet = workbook.addWorksheet('公司列表');
+  const companiesSheet = workbook.addWorksheet(i18n.sheets.companies);
 
   companiesSheet.columns = [
-    { header: '序號', key: 'index', width: 8 },
-    { header: '公司 ID', key: 'companyId', width: 30 },
-    { header: '公司名稱', key: 'companyName', width: 35 },
-    { header: '名稱變體', key: 'nameVariants', width: 40 },
-    { header: '文件數量', key: 'fileCount', width: 12 },
-    { header: '格式數量', key: 'formatCount', width: 12 },
-    { header: '術語數量', key: 'termCount', width: 12 },
+    { header: i18n.companies.headers.index, key: 'index', width: 8 },
+    { header: i18n.companies.headers.companyId, key: 'companyId', width: 30 },
+    { header: i18n.companies.headers.companyName, key: 'companyName', width: 35 },
+    { header: i18n.companies.headers.nameVariants, key: 'nameVariants', width: 40 },
+    { header: i18n.companies.headers.fileCount, key: 'fileCount', width: 12 },
+    { header: i18n.companies.headers.formatCount, key: 'formatCount', width: 12 },
+    { header: i18n.companies.headers.termCount, key: 'termCount', width: 12 },
   ];
 
   aggregation.companies.forEach((company, index) => {
@@ -271,7 +259,7 @@ export async function generateHierarchicalTermsExcel(
       index: index + 1,
       companyId: company.companyId,
       companyName: company.companyName,
-      nameVariants: company.companyNameVariants.join(', ') || '-',
+      nameVariants: company.companyNameVariants.join(', ') || i18n.common.none,
       fileCount: company.fileCount,
       formatCount: company.formats.length,
       termCount: totalTerms,
@@ -296,17 +284,17 @@ export async function generateHierarchicalTermsExcel(
   // ========================================
   // 工作表 3: 格式列表
   // ========================================
-  const formatsSheet = workbook.addWorksheet('格式列表');
+  const formatsSheet = workbook.addWorksheet(i18n.sheets.formats);
 
   formatsSheet.columns = [
-    { header: '序號', key: 'index', width: 8 },
-    { header: '格式 ID', key: 'formatId', width: 30 },
-    { header: '所屬公司', key: 'companyName', width: 30 },
-    { header: '文件類型', key: 'documentType', width: 15 },
-    { header: '文件子類型', key: 'documentSubtype', width: 15 },
-    { header: '格式名稱', key: 'formatName', width: 35 },
-    { header: '文件數量', key: 'fileCount', width: 12 },
-    { header: '術語數量', key: 'termCount', width: 12 },
+    { header: i18n.formats.headers.index, key: 'index', width: 8 },
+    { header: i18n.formats.headers.formatId, key: 'formatId', width: 30 },
+    { header: i18n.formats.headers.companyName, key: 'companyName', width: 30 },
+    { header: i18n.formats.headers.documentType, key: 'documentType', width: 15 },
+    { header: i18n.formats.headers.documentSubtype, key: 'documentSubtype', width: 15 },
+    { header: i18n.formats.headers.formatName, key: 'formatName', width: 35 },
+    { header: i18n.formats.headers.fileCount, key: 'fileCount', width: 12 },
+    { header: i18n.formats.headers.termCount, key: 'termCount', width: 12 },
   ];
 
   let formatIndex = 0;
@@ -317,8 +305,8 @@ export async function generateHierarchicalTermsExcel(
         index: formatIndex,
         formatId: format.formatId,
         companyName: company.companyName,
-        documentType: DOCUMENT_TYPE_LABELS[format.documentType] || format.documentType,
-        documentSubtype: DOCUMENT_SUBTYPE_LABELS[format.documentSubtype] || format.documentSubtype,
+        documentType: i18n.documentTypes[format.documentType] || format.documentType,
+        documentSubtype: i18n.documentSubtypes[format.documentSubtype] || format.documentSubtype,
         formatName: format.formatName,
         fileCount: format.fileCount,
         termCount: format.termCount,
@@ -342,21 +330,21 @@ export async function generateHierarchicalTermsExcel(
   // ========================================
   // 工作表 4: 術語列表
   // ========================================
-  const termsSheet = workbook.addWorksheet('術語列表');
+  const termsSheet = workbook.addWorksheet(i18n.sheets.terms);
 
   const termColumns: Partial<ExcelJS.Column>[] = [
-    { header: '序號', key: 'index', width: 8 },
-    { header: '公司名稱', key: 'companyName', width: 25 },
-    { header: '格式類型', key: 'formatType', width: 25 },
-    { header: '術語', key: 'term', width: 40 },
-    { header: '出現頻率', key: 'frequency', width: 12 },
+    { header: i18n.terms.headers.index, key: 'index', width: 8 },
+    { header: i18n.terms.headers.companyName, key: 'companyName', width: 25 },
+    { header: i18n.terms.headers.formatType, key: 'formatType', width: 25 },
+    { header: i18n.terms.headers.term, key: 'term', width: 40 },
+    { header: i18n.terms.headers.frequency, key: 'frequency', width: 12 },
   ];
 
   if (includeExamples) {
-    termColumns.push({ header: '範例', key: 'examples', width: 60 });
+    termColumns.push({ header: i18n.terms.headers.examples, key: 'examples', width: 60 });
   }
 
-  termColumns.push({ header: '建議分類', key: 'suggestedCategory', width: 20 });
+  termColumns.push({ header: i18n.terms.headers.suggestedCategory, key: 'suggestedCategory', width: 20 });
 
   termsSheet.columns = termColumns;
 
@@ -374,7 +362,7 @@ export async function generateHierarchicalTermsExcel(
 
   for (const company of aggregation.companies) {
     for (const format of company.formats) {
-      const formatType = formatDocumentType(format.documentType, format.documentSubtype);
+      const formatType = formatDocumentType(format.documentType, format.documentSubtype, i18n);
 
       for (const termNode of format.terms) {
         if (termNode.frequency < minTermFrequency) continue;
@@ -408,7 +396,7 @@ export async function generateHierarchicalTermsExcel(
     };
 
     if (includeExamples) {
-      rowData.examples = term.examples.slice(0, 3).join(' | ') || '-';
+      rowData.examples = term.examples.slice(0, 3).join(' | ') || i18n.common.none;
     }
 
     rowData.suggestedCategory = term.suggestedCategory || '';
@@ -449,14 +437,22 @@ export async function generateHierarchicalTermsExcel(
  *
  * @param batchName - 批次名稱
  * @param date - 日期（預設為現在）
+ * @param locale - 語言代碼
  * @returns 格式化的文件名
  */
-export function generateReportFileName(batchName: string, date: Date = new Date()): string {
+export function generateReportFileName(
+  batchName: string,
+  date: Date = new Date(),
+  locale?: string
+): string {
+  const normalizedLocale = normalizeLocale(locale);
+  const i18n = getExcelI18n(normalizedLocale);
+
   const dateStr = date.toISOString().slice(0, 10); // YYYY-MM-DD
   const sanitizedName = batchName
     .replace(/[<>:"/\\|?*]/g, '_') // 移除不合法字元
     .replace(/\s+/g, '_') // 空格替換為底線
     .slice(0, 50); // 限制長度
 
-  return `術語報告-${sanitizedName}-${dateStr}.xlsx`;
+  return `${i18n.reportFileNamePrefix}-${sanitizedName}-${dateStr}.xlsx`;
 }

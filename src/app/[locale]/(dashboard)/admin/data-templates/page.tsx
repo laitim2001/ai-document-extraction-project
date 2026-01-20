@@ -1,20 +1,22 @@
 /**
- * @fileoverview 數據模版管理列表頁
+ * @fileoverview 數據模版管理列表頁（國際化版本）
  * @description
  *   數據模版的管理介面入口：
  *   - 顯示所有模版（網格列表）
  *   - 支援篩選（範圍、狀態、類型、搜尋）
  *   - 提供新增、編輯、刪除功能
+ *   - i18n 國際化支援 (Epic 17)
  *
  * @module src/app/(dashboard)/admin/data-templates
  * @since Epic 16 - Story 16.7
- * @lastModified 2026-01-13
+ * @lastModified 2026-01-20
  */
 
 'use client';
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Plus, RefreshCw, AlertCircle, FileCode } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,6 +49,7 @@ import type { DataTemplateFilters as Filters } from '@/types/data-template';
 export default function DataTemplatesPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useTranslations('dataTemplates');
 
   // --- State ---
   const [filters, setFilters] = React.useState<Filters>({});
@@ -96,18 +99,18 @@ export default function DataTemplatesPage() {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       toast({
-        title: '刪除成功',
-        description: `已刪除模版「${deleteTarget.name}」`,
+        title: t('toast.deleteSuccess'),
+        description: t('toast.deleteSuccessDesc', { name: deleteTarget.name }),
       });
       setDeleteTarget(null);
     } catch (err) {
       toast({
         variant: 'destructive',
-        title: '刪除失敗',
-        description: err instanceof Error ? err.message : '未知錯誤',
+        title: t('toast.deleteFailed'),
+        description: err instanceof Error ? err.message : t('page.unknownError'),
       });
     }
-  }, [deleteTarget, deleteMutation, toast]);
+  }, [deleteTarget, deleteMutation, toast, t]);
 
   const handleRefresh = React.useCallback(() => {
     refetch();
@@ -115,7 +118,7 @@ export default function DataTemplatesPage() {
 
   const handleFiltersChange = React.useCallback((newFilters: Filters) => {
     setFilters(newFilters);
-    setPage(1); // 重置頁碼
+    setPage(1);
   }, []);
 
   // --- Render ---
@@ -126,20 +129,20 @@ export default function DataTemplatesPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <FileCode className="h-6 w-6" />
-            數據模版管理
+            {t('page.title')}
           </h1>
           <p className="text-muted-foreground">
-            管理目標欄位結構模版，用於欄位映射配置
+            {t('page.description')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={handleRefresh} variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
-            重新整理
+            {t('page.refresh')}
           </Button>
           <Button onClick={handleCreateNew}>
             <Plus className="h-4 w-4 mr-2" />
-            新增模版
+            {t('page.create')}
           </Button>
         </div>
       </div>
@@ -147,7 +150,7 @@ export default function DataTemplatesPage() {
       {/* Filters */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg">篩選條件</CardTitle>
+          <CardTitle className="text-lg">{t('page.filters')}</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTemplateFilters
@@ -162,15 +165,15 @@ export default function DataTemplatesPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            載入模版資料時發生錯誤：
-            {error instanceof Error ? error.message : '未知錯誤'}
+            {t('page.loadError')}
+            {error instanceof Error ? error.message : t('page.unknownError')}
           </AlertDescription>
         </Alert>
       )}
 
       {/* Summary */}
       <div className="text-sm text-muted-foreground">
-        共 {totalCount} 個模版
+        {t('page.templateCount', { count: totalCount })}
       </div>
 
       {/* Template List */}
@@ -189,18 +192,18 @@ export default function DataTemplatesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除模版</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要刪除模版「{deleteTarget?.name}」嗎？此操作會將模版設為停用狀態。
+              {t('deleteDialog.description', { name: deleteTarget?.name ?? '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{t('deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '刪除中...' : '確認刪除'}
+              {deleteMutation.isPending ? t('deleteDialog.deleting') : t('deleteDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

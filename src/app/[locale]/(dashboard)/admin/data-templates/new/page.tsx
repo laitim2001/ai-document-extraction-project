@@ -1,17 +1,19 @@
 /**
- * @fileoverview 新增數據模版頁面
+ * @fileoverview 新增數據模版頁面（國際化版本）
  * @description
  *   提供創建新數據模版的表單頁面
+ *   - i18n 國際化支援 (Epic 17)
  *
  * @module src/app/(dashboard)/admin/data-templates/new
  * @since Epic 16 - Story 16.7
- * @lastModified 2026-01-13
+ * @lastModified 2026-01-20
  */
 
 'use client';
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { FileCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DataTemplateForm } from '@/components/features/data-template';
@@ -38,6 +40,7 @@ interface FormValues {
 export default function NewDataTemplatePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useTranslations('dataTemplates');
 
   // --- Mutations ---
   const createMutation = useCreateDataTemplate();
@@ -56,20 +59,20 @@ export default function NewDataTemplatePage() {
         });
 
         toast({
-          title: '創建成功',
-          description: `已創建模版「${data.name}」`,
+          title: t('toast.createSuccess'),
+          description: t('toast.createSuccessDesc', { name: data.name }),
         });
 
         router.push('/admin/data-templates');
       } catch (err) {
         toast({
           variant: 'destructive',
-          title: '創建失敗',
-          description: err instanceof Error ? err.message : '未知錯誤',
+          title: t('toast.createFailed'),
+          description: err instanceof Error ? err.message : t('page.unknownError'),
         });
       }
     },
-    [createMutation, router, toast]
+    [createMutation, router, toast, t]
   );
 
   const handleCancel = React.useCallback(() => {
@@ -83,10 +86,10 @@ export default function NewDataTemplatePage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <FileCode className="h-6 w-6" />
-          新增數據模版
+          {t('new.title')}
         </h1>
         <p className="text-muted-foreground">
-          創建新的目標欄位結構模版
+          {t('new.description')}
         </p>
       </div>
 

@@ -1,0 +1,115 @@
+{
+  "page": {
+    "title": "Data Template Management",
+    "description": "Manage target field structure templates for field mapping configuration",
+    "refresh": "Refresh",
+    "create": "Create Template",
+    "filters": "Filters",
+    "loadError": "Error loading template data:",
+    "unknownError": "Unknown error",
+    "templateCount": "{count, plural, =0 {No templates} =1 {1 template} other {# templates}}"
+  },
+  "deleteDialog": {
+    "title": "Confirm Delete Template",
+    "description": "Are you sure you want to delete template \"{name}\"? This will set the template to inactive status.",
+    "cancel": "Cancel",
+    "deleting": "Deleting...",
+    "confirm": "Confirm Delete"
+  },
+  "toast": {
+    "deleteSuccess": "Deleted successfully",
+    "deleteSuccessDesc": "Template \"{name}\" has been deleted",
+    "deleteFailed": "Delete failed",
+    "createSuccess": "Created successfully",
+    "createSuccessDesc": "Template \"{name}\" has been created",
+    "createFailed": "Create failed",
+    "updateSuccess": "Updated successfully",
+    "updateSuccessDesc": "Template \"{name}\" has been updated",
+    "updateFailed": "Update failed"
+  },
+  "new": {
+    "title": "Create Data Template",
+    "description": "Create a new target field structure template"
+  },
+  "edit": {
+    "viewTitle": "View Template",
+    "editTitle": "Edit Template",
+    "viewDescription": "This is a system template and cannot be modified",
+    "editDescription": "Edit template \"{name}\"",
+    "systemNotice": "This is a built-in system template and cannot be modified. To customize, please create a new template.",
+    "notFound": "Template not found"
+  },
+  "card": {
+    "global": "Global",
+    "company": "Company",
+    "system": "System",
+    "inactive": "Inactive",
+    "viewDetails": "View Details",
+    "edit": "Edit",
+    "delete": "Delete",
+    "fieldCount": "{count, plural, =1 {1 field} other {# fields}}",
+    "usageCount": "{count, plural, =0 {No configs using} =1 {1 config using} other {# configs using}}",
+    "updatedAt": "Updated on {date}"
+  },
+  "list": {
+    "loadFailed": "Load Failed",
+    "loadFailedDesc": "Unable to load template list",
+    "empty": "No Data Templates",
+    "emptyDesc": "Click \"Create Template\" to create your first data template"
+  },
+  "filters": {
+    "searchPlaceholder": "Search template name or description...",
+    "scope": "Scope",
+    "allScopes": "All Scopes",
+    "global": "Global",
+    "company": "Company",
+    "status": "Status",
+    "allStatuses": "All Statuses",
+    "active": "Active",
+    "inactive": "Inactive",
+    "type": "Type",
+    "allTypes": "All Types",
+    "systemTemplate": "System Template",
+    "customTemplate": "Custom Template",
+    "clear": "Clear"
+  },
+  "form": {
+    "basicInfo": "Basic Information",
+    "templateName": "Template Name",
+    "templateNameRequired": "Template Name *",
+    "templateNamePlaceholder": "e.g., ERP Standard Import Format",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the purpose of this template...",
+    "scopeRequired": "Configuration Scope *",
+    "companyRequired": "Company *",
+    "companyPlaceholder": "Select company",
+    "fieldDefinitions": "Field Definitions",
+    "back": "Back",
+    "saving": "Saving...",
+    "updateTemplate": "Update Template",
+    "createTemplate": "Create Template"
+  },
+  "fieldEditor": {
+    "title": "Field Definitions",
+    "addField": "Add Field",
+    "emptyState": "No field definitions yet, click \"Add Field\" to start",
+    "fieldName": "Field Name",
+    "fieldLabel": "Display Label",
+    "dataType": "Data Type",
+    "options": "Options",
+    "required": "Required",
+    "defaultFieldLabel": "Field {number}"
+  },
+  "fieldTypes": {
+    "string": "Text",
+    "number": "Number",
+    "date": "Date",
+    "currency": "Currency",
+    "boolean": "Boolean",
+    "array": "Array"
+  },
+  "scopes": {
+    "GLOBAL": "Global",
+    "COMPANY": "Company"
+  }
+}

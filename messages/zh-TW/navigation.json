@@ -63,6 +63,7 @@
     "users": "用戶管理",
     "historicalData": "歷史數據初始化",
     "documentPreview": "文件預覽測試",
+    "dataTemplates": "數據模版",
     "fieldMapping": "欄位映射配置",
     "promptConfig": "Prompt 配置",
     "termAnalysis": "術語分析",

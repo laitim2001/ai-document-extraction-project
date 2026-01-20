@@ -369,5 +369,30 @@
       "create": "建立",
       "creating": "建立中..."
     }
+  },
+  "export": {
+    "button": {
+      "label": "匯出術語",
+      "exporting": "匯出中...",
+      "tooltip": "匯出階層式術語報告（Excel）"
+    },
+    "status": {
+      "pending": "批次尚未開始處理",
+      "processing": "批次正在處理中",
+      "paused": "批次已暫停",
+      "aggregating": "批次正在聚合術語中",
+      "aggregated": "批次已完成聚合",
+      "completed": "批次已完成",
+      "failed": "批次處理失敗",
+      "cancelled": "批次已取消",
+      "cannotExport": "，無法匯出術語報告"
+    },
+    "toast": {
+      "success": "匯出成功",
+      "successDesc": "已下載「{fileName}」",
+      "failed": "匯出失敗",
+      "failedDesc": "無法匯出術語報告",
+      "authExpired": "認證已過期，請重新登入後再試"
+    }
   }
 }

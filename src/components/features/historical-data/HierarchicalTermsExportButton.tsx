@@ -1,23 +1,29 @@
 'use client'
 
 /**
- * @fileoverview 階層式術語報告匯出按鈕
+ * @fileoverview 階層式術語報告匯出按鈕（國際化版本）
  * @description
  *   提供批次術語報告的 Excel 匯出功能。
- *   僅在批次狀態為 COMPLETED 時可用。
+ *   僅在批次狀態為 COMPLETED 或 AGGREGATED 時可用。
+ *   - i18n 國際化支援 (Epic 17)
  *
  * @module src/components/features/historical-data/HierarchicalTermsExportButton
  * @since Epic 0 - CHANGE-002
- * @lastModified 2026-01-05
+ * @lastModified 2026-01-20
  *
  * @features
  *   - 一鍵下載 Excel 報告
  *   - 匯出狀態指示
  *   - 錯誤處理與提示
+ *   - 根據當前語言匯出對應語言的報告
+ *
+ * @dependencies
+ *   - next-intl - 國際化支援
  */
 
 import * as React from 'react'
 import { useState, useCallback } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Loader2, FileSpreadsheet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -59,7 +65,8 @@ interface HierarchicalTermsExportButtonProps {
  *
  * @description
  *   點擊後會下載包含術語聚合資料的 Excel 報告。
- *   僅在批次狀態為 COMPLETED 時啟用。
+ *   僅在批次狀態為 COMPLETED 或 AGGREGATED 時啟用。
+ *   報告內容會根據當前語言設定進行翻譯。
  */
 export function HierarchicalTermsExportButton({
   batchId,
@@ -71,6 +78,8 @@ export function HierarchicalTermsExportButton({
   showLabel = true,
 }: HierarchicalTermsExportButtonProps) {
   const { toast } = useToast()
+  const t = useTranslations('historicalData')
+  const locale = useLocale()
   const [isExporting, setIsExporting] = useState(false)
 
   const isDisabled = (batchStatus !== 'COMPLETED' && batchStatus !== 'AGGREGATED') || isExporting
@@ -86,8 +95,9 @@ export function HierarchicalTermsExportButton({
       setIsExporting(true)
 
       try {
+        // 傳遞當前語言設定到 API
         const response = await fetch(
-          `/api/v1/batches/${batchId}/hierarchical-terms/export`,
+          `/api/v1/batches/${batchId}/hierarchical-terms/export?locale=${locale}`,
           {
             method: 'GET',
             credentials: 'include', // 確保認證 cookies 被發送
@@ -96,7 +106,7 @@ export function HierarchicalTermsExportButton({
 
         if (!response.ok) {
           const errorData = await response.json()
-          throw new Error(errorData.error || '匯出失敗')
+          throw new Error(errorData.error || t('export.toast.failed'))
         }
 
         // 檢查 Content-Type 確保是 Excel 格式
@@ -105,12 +115,12 @@ export function HierarchicalTermsExportButton({
         if (!contentType.includes('spreadsheetml') && !contentType.includes('application/octet-stream')) {
           // 可能是被重導向到登入頁面
           console.error('[Export] Unexpected content type:', contentType)
-          throw new Error('認證已過期，請重新登入後再試')
+          throw new Error(t('export.toast.authExpired'))
         }
 
         // 獲取文件名
         const contentDisposition = response.headers.get('Content-Disposition')
-        let fileName = `術語報告-${batchName || batchId}.xlsx`
+        let fileName = `${t('export.button.label')}-${batchName || batchId}.xlsx`
         if (contentDisposition) {
           const match = contentDisposition.match(/filename\*?=["']?(?:UTF-8'')?([^"';\n]+)/)
           if (match && match[1]) {
@@ -130,21 +140,21 @@ export function HierarchicalTermsExportButton({
         window.URL.revokeObjectURL(url)
 
         toast({
-          title: '匯出成功',
-          description: `已下載「${fileName}」`,
+          title: t('export.toast.success'),
+          description: t('export.toast.successDesc', { fileName }),
         })
       } catch (error) {
         console.error('[Export] Error:', error)
         toast({
           variant: 'destructive',
-          title: '匯出失敗',
-          description: error instanceof Error ? error.message : '無法匯出術語報告',
+          title: t('export.toast.failed'),
+          description: error instanceof Error ? error.message : t('export.toast.failedDesc'),
         })
       } finally {
         setIsExporting(false)
       }
     },
-    [batchId, batchName, isDisabled, toast]
+    [batchId, batchName, isDisabled, toast, t, locale]
   )
 
   // --- Render ---
@@ -158,7 +168,7 @@ export function HierarchicalTermsExportButton({
       )}
       {showLabel && (
         <span className="ml-1">
-          {isExporting ? '匯出中...' : '匯出術語'}
+          {isExporting ? t('export.button.exporting') : t('export.button.label')}
         </span>
       )}
     </>
@@ -166,17 +176,9 @@ export function HierarchicalTermsExportButton({
 
   // 如果不是 COMPLETED 或 AGGREGATED 狀態，顯示 Tooltip 說明原因
   if (batchStatus !== 'COMPLETED' && batchStatus !== 'AGGREGATED') {
-    const statusMessages: Record<HistoricalBatchStatus, string> = {
-      PENDING: '批次尚未開始處理',
-      PROCESSING: '批次正在處理中',
-      PAUSED: '批次已暫停',
-      AGGREGATING: '批次正在聚合術語中',
-      AGGREGATED: '批次已完成聚合',
-      COMPLETED: '批次已完成',
-      FAILED: '批次處理失敗',
-      CANCELLED: '批次已取消',
-    }
-    const tooltipMessage = statusMessages[batchStatus]
+    // 使用狀態對應的翻譯 key
+    const statusKey = batchStatus.toLowerCase() as 'pending' | 'processing' | 'paused' | 'aggregating' | 'aggregated' | 'completed' | 'failed' | 'cancelled'
+    const tooltipMessage = t(`export.status.${statusKey}`) + t('export.status.cannotExport')
 
     return (
       <TooltipProvider>
@@ -194,7 +196,7 @@ export function HierarchicalTermsExportButton({
             </span>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{tooltipMessage}，無法匯出術語報告</p>
+            <p>{tooltipMessage}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -216,7 +218,7 @@ export function HierarchicalTermsExportButton({
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>匯出階層式術語報告（Excel）</p>
+          <p>{t('export.button.tooltip')}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
