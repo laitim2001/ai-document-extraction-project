@@ -279,7 +279,7 @@ development_status:
   # ============================================================
   # Epic 18: 本地帳號認證系統
   # ============================================================
-  epic-18: in-progress  # Local account authentication system
+  epic-18: done  # All 4 stories completed 2026-01-19 - Local account authentication system
   18-1-user-registration: done  # Completed 2026-01-19: RegisterForm (RHF+Zod), password.ts (bcryptjs salt=12), token.ts (crypto.randomBytes), email.ts (Nodemailer + verification template), POST /api/auth/register, User model extensions (emailVerificationToken/Expires, passwordResetToken/Expires), auth.json i18n (en/zh-TW/zh-CN)
   18-2-local-account-login: done  # Completed 2026-01-19: LoginForm (RHF+Zod), auth.config.ts Credentials Provider (dynamic import, bcrypt verify), auth.ts JWT/signIn callbacks (provider detection, DB user load), login/page.tsx dual UI (Azure AD + local), auth.json i18n updates, error handling (AccountSuspended/Disabled/EmailNotVerified/CredentialsSignin)
   18-3-password-reset: done  # Completed 2026-01-19: forgot-password/reset-password/verify-reset-token APIs, sendPasswordChangedEmail (email.ts), forgot-password/reset-password pages (RHF+Zod, token verification, password strength indicator), auth.json i18n (forgotPassword/resetPassword namespaces)

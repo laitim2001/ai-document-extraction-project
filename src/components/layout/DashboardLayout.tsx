@@ -130,8 +130,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           isSidebarCollapsed ? 'lg:pl-16' : 'lg:pl-72'
         )}
       >
-        {/* Top Bar */}
-        <TopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
+        {/* Top Bar - 固定在頂部 */}
+        <div className="sticky top-0 z-40">
+          <TopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
+        </div>
 
         {/* Main Content */}
         <main className="px-4 py-6 sm:px-6 lg:px-8">
