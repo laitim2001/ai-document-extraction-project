@@ -207,12 +207,39 @@ async function updateFileType(fileId: string, detectedType: DetectedFileType) {
 
 /**
  * 歷史數據批次列表 Hook
+ *
+ * @description
+ *   FIX-019: 新增自動輪詢功能
+ *   - 當有批次處於 PROCESSING 或 AGGREGATING 狀態時，每 3 秒自動刷新
+ *   - 確保處理進度能即時顯示在前端
+ *
+ * @param filters 篩選條件
+ * @param options 額外選項
+ * @param options.enablePolling 是否啟用輪詢（預設: true）
+ * @param options.pollingInterval 輪詢間隔毫秒（預設: 3000）
  */
-export function useHistoricalBatches(filters: BatchListFilters = {}) {
+export function useHistoricalBatches(
+  filters: BatchListFilters = {},
+  options: { enablePolling?: boolean; pollingInterval?: number } = {}
+) {
+  const { enablePolling = true, pollingInterval = 3000 } = options
+
   return useQuery({
     queryKey: ['historical-batches', filters],
     queryFn: () => fetchBatches(filters),
-    staleTime: 30 * 1000, // 30 秒
+    staleTime: 5 * 1000, // 5 秒（縮短以便更快反映更新）
+    // FIX-019: 動態輪詢 - 使用函數形式根據當前數據決定是否繼續輪詢
+    refetchInterval: enablePolling
+      ? (query) => {
+          // 檢查是否有正在處理的批次
+          const hasProcessingBatch = query.state.data?.data?.some(
+            (batch: HistoricalBatch) =>
+              batch.status === 'PROCESSING' || batch.status === 'AGGREGATING'
+          )
+          // 有處理中的批次時啟用輪詢，否則停止
+          return hasProcessingBatch ? pollingInterval : false
+        }
+      : false,
   })
 }
 
