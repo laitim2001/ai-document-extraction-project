@@ -70,11 +70,17 @@ function formatConfidenceValue(confidence: number | null): string {
 
 /**
  * 獲取信心度樣式
+ * @description
+ *   需要先將信心度標準化為小數（0-1）再判斷
+ *   - 如果 > 1，視為百分比整數（如 96），需要除以 100
+ *   - 如果 <= 1，視為小數（如 0.96），直接使用
  */
 function getConfidenceVariant(confidence: number | null): 'default' | 'secondary' | 'outline' | 'destructive' {
   if (confidence === null) return 'outline';
-  if (confidence >= 0.9) return 'default';
-  if (confidence >= 0.7) return 'secondary';
+  // 標準化為小數（0-1）
+  const normalizedConfidence = confidence > 1 ? confidence / 100 : confidence;
+  if (normalizedConfidence >= 0.9) return 'default';
+  if (normalizedConfidence >= 0.7) return 'secondary';
   return 'destructive';
 }
 

@@ -23,6 +23,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
+import { useRouter, usePathname } from '@/i18n/routing'
 import { ArrowLeft, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -58,6 +59,8 @@ import {
 export default function HistoricalDataPage() {
   const t = useTranslations('historicalData')
   const { toast } = useToast()
+  const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'files' | 'upload'>('files')
@@ -206,7 +209,11 @@ export default function HistoricalDataPage() {
   const handleBackToList = useCallback(() => {
     setSelectedBatchId(null)
     refetchBatches()
-  }, [refetchBatches])
+    // 清除 URL 參數，避免 useEffect 又把 batchId 設回來
+    if (searchParams.get('batchId')) {
+      router.replace(pathname)
+    }
+  }, [refetchBatches, router, pathname, searchParams])
 
   // --- 開始處理相關 Handlers ---
 
