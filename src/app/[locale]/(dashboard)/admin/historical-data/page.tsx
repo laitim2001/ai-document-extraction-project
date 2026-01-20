@@ -124,9 +124,9 @@ export default function HistoricalDataPage() {
           title: t('page.toast.batchCreated'),
           description: t('page.toast.batchCreatedDesc', { name: data.name }),
         })
-        // 自動選擇新建立的批次
-        setSelectedBatchId(result.data.id)
+        // 自動選擇新建立的批次 - CHANGE-012: 使用 URL 導航
         setActiveTab('upload')
+        router.push(`${pathname}?batchId=${result.data.id}`)
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -136,7 +136,7 @@ export default function HistoricalDataPage() {
         throw error
       }
     },
-    [createBatchMutation, toast, t]
+    [createBatchMutation, toast, t, router, pathname]
   )
 
   const handleDeleteBatch = useCallback(
@@ -146,8 +146,11 @@ export default function HistoricalDataPage() {
         toast({
           title: t('page.toast.batchDeleted'),
         })
+        // CHANGE-012: 如果刪除的是當前選中的批次，使用 URL 導航清除
         if (selectedBatchId === batchId) {
+          isReturningToList.current = true
           setSelectedBatchId(null)
+          router.push(pathname)
         }
       } catch (error) {
         toast({
@@ -158,7 +161,7 @@ export default function HistoricalDataPage() {
         throw error
       }
     },
-    [deleteBatchMutation, selectedBatchId, toast, t]
+    [deleteBatchMutation, selectedBatchId, toast, t, router, pathname]
   )
 
   const handleDeleteFile = useCallback(
@@ -213,16 +216,25 @@ export default function HistoricalDataPage() {
     [refetchDetail, toast, t]
   )
 
+  /**
+   * 選擇批次 - 更新 URL 以保持導航一致性
+   * CHANGE-012: 使用 URL 參數管理批次選擇狀態
+   */
+  const handleSelectBatch = useCallback((batchId: string) => {
+    router.push(`${pathname}?batchId=${batchId}`)
+  }, [router, pathname])
+
+  /**
+   * 返回批次列表 - 清除 URL 參數
+   */
   const handleBackToList = useCallback(() => {
     // 標記正在返回列表，避免 useEffect 競態條件又設置回 batchId
     isReturningToList.current = true
     setSelectedBatchId(null)
     refetchBatches()
     // 清除 URL 參數
-    if (searchParams.get('batchId')) {
-      router.replace(pathname)
-    }
-  }, [refetchBatches, router, pathname, searchParams])
+    router.push(pathname)
+  }, [refetchBatches, router, pathname])
 
   // --- 開始處理相關 Handlers ---
 
@@ -397,7 +409,7 @@ export default function HistoricalDataPage() {
       <HistoricalBatchList
         batches={batches}
         isLoading={isLoadingBatches}
-        onSelectBatch={setSelectedBatchId}
+        onSelectBatch={handleSelectBatch}
         onDeleteBatch={handleDeleteBatch}
         onStartProcessing={handleStartProcessing}
       />
