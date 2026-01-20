@@ -94,15 +94,15 @@ export function ForwarderStatsPanel({ stats }: ForwarderStatsPanelProps) {
       <div className="flex items-center justify-center py-16 text-center">
         <div className="text-muted-foreground">
           <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p>{t('stats.noData')}</p>
+          <p>{t('performanceStats.noData')}</p>
         </div>
       </div>
     )
   }
 
   // 獲取圖表標籤的翻譯
-  const chartAllLabel = t('stats.chartAll')
-  const chartSuccessLabel = t('stats.chartSuccess')
+  const chartAllLabel = t('performanceStats.chartAll')
+  const chartSuccessLabel = t('performanceStats.chartSuccess')
 
   // 格式化趨勢資料用於圖表
   const chartData = (stats.dailyTrend ?? []).map((item: DailyTrendData) => ({
@@ -113,16 +113,16 @@ export function ForwarderStatsPanel({ stats }: ForwarderStatsPanelProps) {
 
   // 獲取成功率描述
   const getSuccessRateDesc = () => {
-    if (stats.successRate >= 90) return t('stats.excellent')
-    if (stats.successRate >= 70) return t('stats.good')
-    return t('stats.needsAttention')
+    if (stats.successRate >= 90) return t('performanceStats.excellent')
+    if (stats.successRate >= 70) return t('performanceStats.good')
+    return t('performanceStats.needsAttention')
   }
 
   // 獲取信心度描述
   const getConfidenceDesc = () => {
-    if (stats.avgConfidence >= 90) return t('stats.highConfidence')
-    if (stats.avgConfidence >= 70) return t('stats.mediumConfidence')
-    return t('stats.lowConfidence')
+    if (stats.avgConfidence >= 90) return t('performanceStats.highConfidence')
+    if (stats.avgConfidence >= 70) return t('performanceStats.mediumConfidence')
+    return t('performanceStats.lowConfidence')
   }
 
   return (
@@ -130,23 +130,23 @@ export function ForwarderStatsPanel({ stats }: ForwarderStatsPanelProps) {
       {/* 統計數字卡片 */}
       <div className="grid gap-4 md:grid-cols-4">
         <StatCard
-          title={t('stats.totalDocuments')}
+          title={t('performanceStats.totalDocuments')}
           value={stats.totalDocuments.toLocaleString()}
           icon={<FileText className="h-5 w-5 text-primary" />}
         />
         <StatCard
-          title={t('stats.processedLast30Days')}
+          title={t('performanceStats.processedLast30Days')}
           value={stats.processedLast30Days.toLocaleString()}
           icon={<Activity className="h-5 w-5 text-primary" />}
         />
         <StatCard
-          title={t('stats.successRate')}
+          title={t('performanceStats.successRate')}
           value={`${stats.successRate}%`}
           icon={<CheckCircle className="h-5 w-5 text-green-600" />}
           description={getSuccessRateDesc()}
         />
         <StatCard
-          title={t('stats.avgConfidence')}
+          title={t('performanceStats.avgConfidence')}
           value={`${stats.avgConfidence}%`}
           icon={<TrendingUp className="h-5 w-5 text-blue-600" />}
           description={getConfidenceDesc()}
@@ -158,7 +158,7 @@ export function ForwarderStatsPanel({ stats }: ForwarderStatsPanelProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            {t('stats.trendTitle')}
+            {t('performanceStats.trendTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>

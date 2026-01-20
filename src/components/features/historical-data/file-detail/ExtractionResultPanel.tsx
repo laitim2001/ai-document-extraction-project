@@ -15,10 +15,13 @@
 
 import * as React from 'react';
 import { FileText, Calendar, DollarSign, Building2, User, Percent } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { formatShortDate } from '@/lib/i18n-date';
 import type { ExtractionResult } from '@/hooks/use-historical-file-detail';
+import type { Locale } from '@/i18n/config';
 
 // ============================================================
 // Types
@@ -48,15 +51,10 @@ function formatAmount(amount: number | undefined, currency?: string): string {
 /**
  * 格式化日期
  */
-function formatDate(dateStr: string | undefined): string {
+function formatDate(dateStr: string | undefined, locale: Locale): string {
   if (!dateStr) return '-';
   try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('zh-TW', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
+    return formatShortDate(new Date(dateStr), locale);
   } catch {
     return dateStr;
   }
@@ -71,15 +69,18 @@ function formatDate(dateStr: string | undefined): string {
  * @description 顯示提取結果摘要的面板組件
  */
 export function ExtractionResultPanel({ extractionResult }: ExtractionResultPanelProps) {
+  const t = useTranslations('historicalData.fileDetail.extraction');
+  const locale = useLocale() as Locale;
+
   if (!extractionResult || !extractionResult.invoiceData) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">提取結果</CardTitle>
+          <CardTitle className="text-base">{t('title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex h-32 items-center justify-center text-muted-foreground">
-            <p>無提取結果</p>
+            <p>{t('noResults')}</p>
           </div>
         </CardContent>
       </Card>
@@ -91,26 +92,26 @@ export function ExtractionResultPanel({ extractionResult }: ExtractionResultPane
 
   const infoSections = [
     {
-      title: 'Invoice 資訊',
+      title: t('invoiceInfo'),
       items: [
-        { icon: FileText, label: 'Invoice 編號', value: invoice.invoiceNumber || '-' },
-        { icon: Calendar, label: 'Invoice 日期', value: formatDate(invoice.invoiceDate) },
-        { icon: Calendar, label: '到期日', value: formatDate(invoice.dueDate) },
+        { icon: FileText, label: t('invoiceNumber'), value: invoice.invoiceNumber || '-' },
+        { icon: Calendar, label: t('invoiceDate'), value: formatDate(invoice.invoiceDate, locale) },
+        { icon: Calendar, label: t('dueDate'), value: formatDate(invoice.dueDate, locale) },
       ],
     },
     {
-      title: '金額資訊',
+      title: t('amountInfo'),
       items: [
-        { icon: DollarSign, label: '小計', value: formatAmount(invoice.subtotal, invoice.currency) },
-        { icon: DollarSign, label: '稅額', value: formatAmount(invoice.taxAmount, invoice.currency) },
-        { icon: DollarSign, label: '總金額', value: formatAmount(invoice.totalAmount, invoice.currency) },
+        { icon: DollarSign, label: t('subtotal'), value: formatAmount(invoice.subtotal, invoice.currency) },
+        { icon: DollarSign, label: t('taxAmount'), value: formatAmount(invoice.taxAmount, invoice.currency) },
+        { icon: DollarSign, label: t('totalAmount'), value: formatAmount(invoice.totalAmount, invoice.currency) },
       ],
     },
     {
-      title: '交易對象',
+      title: t('parties'),
       items: [
-        { icon: Building2, label: '供應商', value: invoice.vendorName || '-' },
-        { icon: User, label: '客戶', value: invoice.customerName || '-' },
+        { icon: Building2, label: t('vendor'), value: invoice.vendorName || '-' },
+        { icon: User, label: t('customer'), value: invoice.customerName || '-' },
       ],
     },
   ];
@@ -119,7 +120,7 @@ export function ExtractionResultPanel({ extractionResult }: ExtractionResultPane
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">提取結果</CardTitle>
+          <CardTitle className="text-base">{t('title')}</CardTitle>
           {confidence !== undefined && (
             <Badge variant={confidence >= 0.9 ? 'default' : confidence >= 0.7 ? 'secondary' : 'outline'}>
               <Percent className="mr-1 h-3 w-3" />
@@ -155,13 +156,13 @@ export function ExtractionResultPanel({ extractionResult }: ExtractionResultPane
           <div className="mt-6 grid gap-4 border-t pt-4 md:grid-cols-2">
             {invoice.vendorAddress && (
               <div>
-                <p className="text-xs text-muted-foreground">供應商地址</p>
+                <p className="text-xs text-muted-foreground">{t('vendorAddress')}</p>
                 <p className="mt-1 text-sm">{invoice.vendorAddress}</p>
               </div>
             )}
             {invoice.customerAddress && (
               <div>
-                <p className="text-xs text-muted-foreground">客戶地址</p>
+                <p className="text-xs text-muted-foreground">{t('customerAddress')}</p>
                 <p className="mt-1 text-sm">{invoice.customerAddress}</p>
               </div>
             )}

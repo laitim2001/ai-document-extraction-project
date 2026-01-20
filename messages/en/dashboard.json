@@ -75,5 +75,11 @@
     "endBeforeStart": "End date cannot be earlier than start date",
     "exceedsMaxDays": "Date range cannot exceed {max} days",
     "exceedsToday": "End date cannot exceed today"
+  },
+  "errors": {
+    "access_denied": {
+      "title": "Access Denied",
+      "description": "You don't have permission to access that page. Please contact your administrator if you believe this is an error."
+    }
   }
 }

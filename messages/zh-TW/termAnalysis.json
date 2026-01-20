@@ -1,4 +1,28 @@
 {
+  "page": {
+    "title": "術語分析",
+    "description": "分析歷史處理結果中的收費術語，並建立映射規則",
+    "refresh": "重新整理"
+  },
+  "stats": {
+    "uniqueTerms": "唯一術語數",
+    "totalOccurrences": "總出現次數",
+    "companiesCount": "涉及公司數",
+    "batchesCount": "涉及批次數"
+  },
+  "actions": {
+    "selectedCount": "已選取 {count} 個術語",
+    "aiClassifying": "AI 分類中...",
+    "aiClassify": "AI 分類 ({count})",
+    "batchCreateRules": "批量建立規則"
+  },
+  "errors": {
+    "loadFailed": "載入術語資料時發生錯誤：",
+    "unknownError": "未知錯誤"
+  },
+  "aiInfo": {
+    "description": "AI 分類使用 GPT-5.2 模型分析術語，並根據物流行業標準費用類別提供建議。分類信心度 ≥90% 為高信心（自動通過），70-89% 為中信心（快速審核），<70% 為低信心（完整審核）。"
+  },
   "table": {
     "headers": {
       "term": "術語",

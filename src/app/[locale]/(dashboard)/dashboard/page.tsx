@@ -22,9 +22,11 @@
  *   - src/components/dashboard/DashboardStatsWithDateRange.tsx - 統計組件（含日期範圍）
  */
 
+import { Suspense } from 'react'
 import { auth } from '@/lib/auth'
 import { getTranslations } from 'next-intl/server'
 import { DashboardStatsWithDateRange } from '@/components/dashboard/DashboardStatsWithDateRange'
+import { AccessDeniedAlert } from '@/components/dashboard/AccessDeniedAlert'
 
 /**
  * 功能卡片配置 - 使用翻譯 key
@@ -81,6 +83,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* 存取被拒絕提示 */}
+      <Suspense fallback={null}>
+        <AccessDeniedAlert />
+      </Suspense>
+
       {/* 歡迎區塊 */}
       <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">

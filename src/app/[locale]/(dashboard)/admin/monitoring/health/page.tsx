@@ -103,12 +103,18 @@ function HealthDashboardSkeleton() {
  *   2. 檢查 SYSTEM_MONITOR 權限或管理員角色
  *   3. 渲染健康監控儀表板（帶 Suspense）
  */
-export default async function HealthMonitoringPage() {
+export default async function HealthMonitoringPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params;
+
   // 驗證認證狀態
   const session = await auth();
 
   if (!session?.user) {
-    redirect('/auth/login');
+    redirect(`/${locale}/auth/login`);
   }
 
   // 檢查 SYSTEM_MONITOR 權限或管理員角色（支援 '*' 通配符）
@@ -121,7 +127,7 @@ export default async function HealthMonitoringPage() {
   const isGlobalAdmin = session.user.isGlobalAdmin;
 
   if (!hasMonitorPermission && !isGlobalAdmin) {
-    redirect('/dashboard?error=access_denied');
+    redirect(`/${locale}/dashboard?error=access_denied`);
   }
 
   return (

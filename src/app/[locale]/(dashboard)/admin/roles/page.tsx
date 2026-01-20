@@ -59,19 +59,25 @@ export const metadata = {
  *   3. 檢查 USER_MANAGE 權限（用於操作按鈕）
  *   4. 渲染角色列表（帶 Suspense）
  */
-export default async function RolesPage() {
+export default async function RolesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+
   // 驗證認證狀態
   const session = await auth()
 
   if (!session?.user) {
-    redirect('/auth/login')
+    redirect(`/${locale}/auth/login`)
   }
 
   // 檢查 USER_VIEW 權限（支援 '*' 通配符）
   const hasViewPermission = hasPermission(session.user, PERMISSIONS.USER_VIEW)
 
   if (!hasViewPermission) {
-    redirect('/dashboard?error=access_denied')
+    redirect(`/${locale}/dashboard?error=access_denied`)
   }
 
   // 檢查 USER_MANAGE 權限（用於新增/編輯/刪除按鈕，支援 '*' 通配符）

@@ -147,6 +147,96 @@
     "rulesCount": "{count} rules",
     "disabledCount": "({count} disabled)"
   },
+  "mappingPreview": {
+    "title": "Preview Results",
+    "description": "View the transformation effects of mapping rules",
+    "loading": "Loading...",
+    "noRules": "Please add mapping rules first to view preview",
+    "noData": "No preview data. Click \"Load Preview\" to load.",
+    "loadPreview": "Load Preview",
+    "refresh": "Refresh",
+    "dataCount": "{count} records, applying {rules} rules",
+    "showErrorsOnly": "Show warnings and errors only",
+    "allSuccess": "All transformations successful",
+    "stats": {
+      "success": "{count} success",
+      "warning": "{count} warning",
+      "error": "{count} error"
+    },
+    "table": {
+      "status": "Status",
+      "sourceFields": "Source Fields",
+      "targetFields": "Target Fields",
+      "message": "Message"
+    },
+    "tooltip": {
+      "success": "Transform successful",
+      "warning": "Transform warning",
+      "error": "Transform error"
+    },
+    "details": {
+      "sourceFieldValues": "Source Field Values",
+      "targetFieldValues": "Target Field Values"
+    },
+    "empty": "(empty)",
+    "emptyString": "(empty string)"
+  },
+  "ruleEditor": {
+    "title": {
+      "create": "Add Mapping Rule",
+      "edit": "Edit Mapping Rule"
+    },
+    "description": "Configure the mapping relationship and transformation logic from source fields to target fields.",
+    "sourceFields": {
+      "label": "Source Fields",
+      "required": "*",
+      "multipleHint": "(multiple selection allowed)"
+    },
+    "targetField": {
+      "label": "Target Field",
+      "required": "*"
+    },
+    "transformType": {
+      "label": "Transform Type",
+      "placeholder": "Select transform type"
+    },
+    "transformTypes": {
+      "DIRECT": {
+        "label": "Direct Mapping",
+        "description": "Directly map source value to target field"
+      },
+      "CONCAT": {
+        "label": "Concatenate",
+        "description": "Concatenate multiple source fields into one value"
+      },
+      "SPLIT": {
+        "label": "Split",
+        "description": "Split source value by delimiter"
+      },
+      "LOOKUP": {
+        "label": "Lookup",
+        "description": "Transform value using lookup table"
+      },
+      "CUSTOM": {
+        "label": "Custom Formula",
+        "description": "Use custom JavaScript expression"
+      }
+    },
+    "validation": {
+      "title": "Validation Error",
+      "sourceFieldsRequired": "Please select at least one source field",
+      "sourceFieldsSingleOnly": "{type} only supports single source field",
+      "targetFieldRequired": "Please select a target field",
+      "delimiterRequired": "Split mode requires a delimiter",
+      "lookupTableRequired": "Lookup mode requires selecting a lookup table",
+      "formulaRequired": "Custom mode requires entering a formula"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    }
+  },
   "configSelector": {
     "scope": {
       "label": "Configuration Scope",
@@ -174,6 +264,99 @@
       "format": "Format: Highest priority, for specific document formats",
       "company": "Company: Overrides global rules, for specific companies",
       "global": "Global: Default rules, applies to all companies"
+    }
+  },
+  "transformConfig": {
+    "title": "Transform Configuration",
+    "descriptions": {
+      "DIRECT": "Direct Mapping: Maps source field value directly to target field without any transformation.",
+      "CONCAT": "Concatenate: Combines multiple source field values in sequence with specified delimiter.",
+      "SPLIT": "Split: Splits source field value by delimiter and selects specified index.",
+      "LOOKUP": "Lookup: Finds corresponding target value in lookup table based on source field value.",
+      "CUSTOM": "Custom: Uses custom formula for complex value transformation."
+    },
+    "directHint": "Direct mapping requires no additional configuration. Source field value will be mapped directly to target field.",
+    "delimiter": {
+      "label": "Delimiter",
+      "tooltip": "Delimiter used when concatenating field values",
+      "splitTooltip": "Delimiter used to split source field value",
+      "placeholder": "Select delimiter",
+      "customPlaceholder": "Or custom delimiter"
+    },
+    "delimiters": {
+      "space": "Space",
+      "commaSpace": "Comma + Space",
+      "hyphen": "Hyphen (-)",
+      "slash": "Slash (/)",
+      "underscore": "Underscore (_)",
+      "pipe": "Pipe (|)"
+    },
+    "nullHandling": {
+      "label": "Null Handling",
+      "tooltip": "How to handle empty source field values",
+      "placeholder": "Select handling method",
+      "skip": "Skip nulls",
+      "skipDesc": "Ignore nulls, exclude from concatenation",
+      "empty": "Keep as empty",
+      "emptyDesc": "Include nulls as empty strings",
+      "default": "Use default value",
+      "defaultDesc": "Replace nulls with default value"
+    },
+    "defaultValue": {
+      "label": "Default Value",
+      "tooltip": "Value to use when source is empty",
+      "lookupTooltip": "Value to use when no match is found in lookup table",
+      "placeholder": "Enter default value",
+      "optionalPlaceholder": "Enter default value (optional)"
+    },
+    "splitIndex": {
+      "label": "Split Index",
+      "tooltip": "Which part to take after splitting (starting from 0)"
+    },
+    "keepAll": {
+      "label": "Keep All",
+      "tooltip": "When checked, keeps all split results as an array"
+    },
+    "lookupTable": {
+      "label": "Lookup Table",
+      "tooltip": "Select lookup table for value transformation",
+      "placeholder": "Select lookup table",
+      "currency": "Currency Code Conversion Table",
+      "country": "Country Code Conversion Table",
+      "unit": "Unit Conversion Table"
+    },
+    "caseSensitive": {
+      "label": "Case Sensitive",
+      "tooltip": "Whether to distinguish between uppercase and lowercase letters during lookup"
+    },
+    "customFormula": {
+      "label": "Custom Formula",
+      "tooltip": "Use JavaScript expression for value transformation. Use $value for source value, $fields for all fields.",
+      "placeholder": "Example:\n// Get first 10 characters\n$value.substring(0, 10)\n\n// Combine multiple fields\n$fields['firstName'] + ' ' + $fields['lastName']\n\n// Conditional transform\n$value > 1000 ? 'high' : 'low'",
+      "availableVariables": "Available Variables:",
+      "varValue": "$value - Source field value",
+      "varFields": "$fields - Key-value pairs of all fields",
+      "varIndex": "$index - Current row index"
+    }
+  },
+  "sourceFieldSelector": {
+    "placeholder": "Select source fields",
+    "searchPlaceholder": "Search fields...",
+    "noResults": "No matching fields found",
+    "otherCategory": "Other",
+    "sampleValue": "Sample: {value}",
+    "selectedCount": "{count} fields selected"
+  },
+  "targetFieldSelector": {
+    "placeholder": "Select target field",
+    "searchPlaceholder": "Search fields...",
+    "noResults": "No matching fields found",
+    "otherCategory": "Other",
+    "dataTypes": {
+      "string": "Text",
+      "number": "Number",
+      "date": "Date",
+      "boolean": "Boolean"
     }
   }
 }

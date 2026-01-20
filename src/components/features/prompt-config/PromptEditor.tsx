@@ -22,6 +22,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -38,8 +39,6 @@ import {
   SYSTEM_VARIABLES,
   type AvailableVariable,
   type VariableCategory,
-  getVariableCategoryLabel,
-  getVariableCategoryDescription,
 } from '@/types/prompt-config-ui';
 
 // ============================================================================
@@ -70,6 +69,7 @@ export function PromptEditor({
   onUserPromptTemplateChange,
   previewContext = {},
 }: PromptEditorProps) {
+  const t = useTranslations('promptConfig');
   const [activeTab, setActiveTab] = React.useState<'system' | 'user'>('system');
   const [showPreview, setShowPreview] = React.useState(false);
   const systemTextareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -139,7 +139,7 @@ export function PromptEditor({
 
           <div className="flex items-center gap-2">
             {/* 變數插入器 */}
-            <VariableInserter onInsert={insertVariable} />
+            <VariableInserter onInsert={insertVariable} t={t} />
 
             {/* 預覽切換 */}
             <Button
@@ -150,12 +150,12 @@ export function PromptEditor({
               {showPreview ? (
                 <>
                   <Code className="h-4 w-4 mr-1" />
-                  原始碼
+                  {t('editor.viewSource')}
                 </>
               ) : (
                 <>
                   <Eye className="h-4 w-4 mr-1" />
-                  預覽
+                  {t('editor.viewPreview')}
                 </>
               )}
             </Button>
@@ -165,7 +165,7 @@ export function PromptEditor({
         <TabsContent value="system" className="mt-4">
           <Label htmlFor="systemPrompt">System Prompt</Label>
           <p className="text-sm text-muted-foreground mb-2">
-            定義 AI 的角色和行為準則
+            {t('editor.systemPromptDescription')}
           </p>
           {showPreview ? (
             <PromptPreviewPane content={previewContent} />
@@ -184,7 +184,7 @@ export function PromptEditor({
         <TabsContent value="user" className="mt-4">
           <Label htmlFor="userPromptTemplate">User Prompt Template</Label>
           <p className="text-sm text-muted-foreground mb-2">
-            用戶提示模板，支援變數如 {'{{companyName}}'}, {'{{knownTerms}}'}
+            {t('editor.userPromptDescription')}
           </p>
           {showPreview ? (
             <PromptPreviewPane content={previewContent} />
@@ -204,7 +204,7 @@ export function PromptEditor({
       {/* 字數統計 */}
       <div className="flex justify-end text-xs text-muted-foreground">
         <span>
-          System: {systemPrompt.length} 字 | User: {userPromptTemplate.length} 字
+          {t('editor.charCount', { systemCount: systemPrompt.length, userCount: userPromptTemplate.length })}
         </span>
       </div>
     </div>
@@ -217,9 +217,10 @@ export function PromptEditor({
 
 interface VariableInserterProps {
   onInsert: (variableName: string) => void;
+  t: ReturnType<typeof useTranslations<'promptConfig'>>;
 }
 
-function VariableInserter({ onInsert }: VariableInserterProps) {
+function VariableInserter({ onInsert, t }: VariableInserterProps) {
   const groupedVariables = React.useMemo(() => {
     const groups: Record<VariableCategory, AvailableVariable[]> = {
       static: [],
@@ -237,7 +238,7 @@ function VariableInserter({ onInsert }: VariableInserterProps) {
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <Variable className="h-4 w-4 mr-1" />
-          插入變數
+          {t('editor.insertVariable')}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
@@ -248,6 +249,7 @@ function VariableInserter({ onInsert }: VariableInserterProps) {
               category="static"
               variables={groupedVariables.static}
               onInsert={onInsert}
+              t={t}
             />
 
             {/* 動態變數 */}
@@ -255,6 +257,7 @@ function VariableInserter({ onInsert }: VariableInserterProps) {
               category="dynamic"
               variables={groupedVariables.dynamic}
               onInsert={onInsert}
+              t={t}
             />
 
             {/* 上下文變數 */}
@@ -262,6 +265,7 @@ function VariableInserter({ onInsert }: VariableInserterProps) {
               category="context"
               variables={groupedVariables.context}
               onInsert={onInsert}
+              t={t}
             />
           </div>
         </ScrollArea>
@@ -278,13 +282,15 @@ interface VariableGroupProps {
   category: VariableCategory;
   variables: AvailableVariable[];
   onInsert: (name: string) => void;
+  t: ReturnType<typeof useTranslations<'promptConfig'>>;
 }
 
-function VariableGroup({ category, variables, onInsert }: VariableGroupProps) {
+function VariableGroup({ category, variables, onInsert, t }: VariableGroupProps) {
   if (variables.length === 0) return null;
 
-  const title = getVariableCategoryLabel(category);
-  const description = getVariableCategoryDescription(category);
+  // 使用國際化的標籤和描述
+  const title = t(`editor.variableCategories.${category}.label`);
+  const description = t(`editor.variableCategories.${category}.description`);
 
   return (
     <div>

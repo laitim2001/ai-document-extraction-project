@@ -77,9 +77,15 @@ function isAzureADConfigured(): boolean {
 
   // 檢查是否為模擬值
   if (!clientId || !clientSecret || !tenantId) return false
-  if (clientId.startsWith('your-') || clientId === 'placeholder') return false
-  if (clientSecret.startsWith('your-') || clientSecret === 'placeholder') return false
-  if (tenantId.startsWith('your-') || tenantId === 'placeholder') return false
+
+  // 常見的模擬值前綴
+  const mockPrefixes = ['your-', 'test-', 'placeholder', 'mock-', 'fake-', 'dummy-']
+  const isMockValue = (value: string) =>
+    mockPrefixes.some(prefix => value.toLowerCase().startsWith(prefix))
+
+  if (isMockValue(clientId)) return false
+  if (isMockValue(clientSecret)) return false
+  if (isMockValue(tenantId)) return false
 
   return true
 }
@@ -108,80 +114,103 @@ function buildProviders(): Provider[] {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        // 驗證輸入
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
+        try {
+          // 驗證輸入
+          if (!credentials?.email || !credentials?.password) {
+            console.log('[Auth] Missing email or password')
+            return null
+          }
 
-        const email = (credentials.email as string).toLowerCase().trim()
-        const password = credentials.password as string
+          const email = (credentials.email as string).toLowerCase().trim()
+          const password = credentials.password as string
 
-        // 開發模式：如果 Azure AD 未配置，使用簡化驗證
-        const isDevelopmentMode = process.env.NODE_ENV === 'development' && !isAzureADConfigured()
-        if (isDevelopmentMode) {
-          // 開發模式下接受任何有效的 email 格式
-          if (email.includes('@')) {
-            return {
-              id: 'dev-user-1',
-              email: email,
-              name: email.split('@')[0],
-              image: null,
+          // 開發模式：如果 Azure AD 未配置，使用簡化驗證
+          const isDevelopmentMode = process.env.NODE_ENV === 'development' && !isAzureADConfigured()
+          console.log('[Auth] isDevelopmentMode:', isDevelopmentMode, 'NODE_ENV:', process.env.NODE_ENV)
+
+          if (isDevelopmentMode) {
+            // 開發模式下接受任何有效的 email 格式
+            if (email.includes('@')) {
+              console.log('[Auth] Development mode login for:', email)
+              return {
+                id: 'dev-user-1',
+                email: email,
+                name: email.split('@')[0],
+                image: null,
+              }
+            }
+            return null
+          }
+
+          // 生產模式：真正的帳號密碼驗證
+          console.log('[Auth] Production mode - verifying credentials for:', email)
+
+          // 動態導入以保持 Edge-compatible
+          const { prisma } = await import('@/lib/prisma')
+          const { verifyPassword } = await import('@/lib/password')
+
+          // 查詢用戶
+          const user = await prisma.user.findUnique({
+            where: { email },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              image: true,
+              password: true,
+              status: true,
+              emailVerified: true,
+            },
+          })
+
+          // 用戶不存在或無密碼（Azure AD 用戶沒有本地密碼）
+          if (!user || !user.password) {
+            console.log('[Auth] User not found or no password:', email)
+            return null
+          }
+
+          // 驗證密碼
+          const isValidPassword = await verifyPassword(password, user.password)
+          if (!isValidPassword) {
+            console.log('[Auth] Invalid password for:', email)
+            return null
+          }
+
+          // 檢查帳號狀態
+          if (user.status !== 'ACTIVE') {
+            console.log('[Auth] User status not ACTIVE:', user.status)
+            // 使用自定義錯誤類別，以便前端顯示正確訊息
+            if (user.status === 'SUSPENDED') {
+              throw new AccountSuspendedError()
+            } else {
+              throw new AccountDisabledError()
             }
           }
-          return null
-        }
 
-        // 生產模式：真正的帳號密碼驗證
-        // 動態導入以保持 Edge-compatible
-        const { prisma } = await import('@/lib/prisma')
-        const { verifyPassword } = await import('@/lib/password')
-
-        // 查詢用戶
-        const user = await prisma.user.findUnique({
-          where: { email },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            image: true,
-            password: true,
-            status: true,
-            emailVerified: true,
-          },
-        })
-
-        // 用戶不存在或無密碼（Azure AD 用戶沒有本地密碼）
-        if (!user || !user.password) {
-          return null
-        }
-
-        // 驗證密碼
-        const isValidPassword = await verifyPassword(password, user.password)
-        if (!isValidPassword) {
-          return null
-        }
-
-        // 檢查帳號狀態
-        if (user.status !== 'ACTIVE') {
-          // 使用自定義錯誤類別，以便前端顯示正確訊息
-          if (user.status === 'SUSPENDED') {
-            throw new AccountSuspendedError()
-          } else {
-            throw new AccountDisabledError()
+          // 檢查郵件驗證狀態
+          if (!user.emailVerified) {
+            console.log('[Auth] Email not verified for:', email)
+            throw new EmailNotVerifiedError()
           }
-        }
 
-        // 檢查郵件驗證狀態
-        if (!user.emailVerified) {
-          throw new EmailNotVerifiedError()
-        }
-
-        // 返回用戶資訊（不包含密碼和敏感資料）
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
+          console.log('[Auth] Login successful for:', email)
+          // 返回用戶資訊（不包含密碼和敏感資料）
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+          }
+        } catch (error) {
+          // 重新拋出已知的認證錯誤
+          if (error instanceof EmailNotVerifiedError ||
+              error instanceof AccountSuspendedError ||
+              error instanceof AccountDisabledError) {
+            throw error
+          }
+          // 記錄未預期的錯誤
+          console.error('[Auth] Unexpected error during authorization:', error)
+          return null
         }
       },
     })

@@ -147,6 +147,96 @@
     "rulesCount": "共 {count} 條規則",
     "disabledCount": "（{count} 條已停用）"
   },
+  "mappingPreview": {
+    "title": "預覽結果",
+    "description": "查看映射規則的轉換效果",
+    "loading": "載入中...",
+    "noRules": "請先新增映射規則以查看預覽",
+    "noData": "尚無預覽數據，請點擊「載入預覽」",
+    "loadPreview": "載入預覽",
+    "refresh": "刷新",
+    "dataCount": "共 {count} 筆數據，套用 {rules} 條規則",
+    "showErrorsOnly": "僅顯示警告和錯誤",
+    "allSuccess": "所有轉換均成功",
+    "stats": {
+      "success": "{count} 成功",
+      "warning": "{count} 警告",
+      "error": "{count} 錯誤"
+    },
+    "table": {
+      "status": "狀態",
+      "sourceFields": "來源欄位",
+      "targetFields": "目標欄位",
+      "message": "訊息"
+    },
+    "tooltip": {
+      "success": "轉換成功",
+      "warning": "轉換警告",
+      "error": "轉換錯誤"
+    },
+    "details": {
+      "sourceFieldValues": "來源欄位值",
+      "targetFieldValues": "目標欄位值"
+    },
+    "empty": "(空)",
+    "emptyString": "(空字串)"
+  },
+  "ruleEditor": {
+    "title": {
+      "create": "新增映射規則",
+      "edit": "編輯映射規則"
+    },
+    "description": "設定來源欄位到目標欄位的映射關係和轉換邏輯。",
+    "sourceFields": {
+      "label": "來源欄位",
+      "required": "*",
+      "multipleHint": "（可選擇多個）"
+    },
+    "targetField": {
+      "label": "目標欄位",
+      "required": "*"
+    },
+    "transformType": {
+      "label": "轉換類型",
+      "placeholder": "選擇轉換類型"
+    },
+    "transformTypes": {
+      "DIRECT": {
+        "label": "直接映射",
+        "description": "直接將來源值對應到目標欄位"
+      },
+      "CONCAT": {
+        "label": "串接",
+        "description": "將多個來源欄位串接為一個值"
+      },
+      "SPLIT": {
+        "label": "分割",
+        "description": "將來源值按分隔符拆分"
+      },
+      "LOOKUP": {
+        "label": "查找",
+        "description": "透過查找表轉換值"
+      },
+      "CUSTOM": {
+        "label": "自訂公式",
+        "description": "使用自訂 JavaScript 表達式"
+      }
+    },
+    "validation": {
+      "title": "驗證錯誤",
+      "sourceFieldsRequired": "請選擇至少一個來源欄位",
+      "sourceFieldsSingleOnly": "{type} 僅支援單一來源欄位",
+      "targetFieldRequired": "請選擇目標欄位",
+      "delimiterRequired": "分割模式需要指定分隔符",
+      "lookupTableRequired": "查找模式需要選擇查找表",
+      "formulaRequired": "自訂模式需要輸入公式"
+    },
+    "actions": {
+      "cancel": "取消",
+      "save": "儲存",
+      "saving": "儲存中..."
+    }
+  },
   "configSelector": {
     "scope": {
       "label": "配置範圍",
@@ -174,6 +264,99 @@
       "format": "格式層：最高優先級，針對特定文件格式",
       "company": "公司層：覆蓋通用規則，針對特定公司",
       "global": "通用層：預設規則，適用於所有公司"
+    }
+  },
+  "transformConfig": {
+    "title": "轉換參數配置",
+    "descriptions": {
+      "DIRECT": "直接映射：將來源欄位值直接對應到目標欄位，不進行任何轉換。",
+      "CONCAT": "串接：將多個來源欄位的值依序串接，可指定分隔符。",
+      "SPLIT": "分割：將來源欄位值按分隔符拆分，選取指定索引的部分。",
+      "LOOKUP": "查找：根據來源欄位值在查找表中尋找對應的目標值。",
+      "CUSTOM": "自訂：使用自訂公式進行複雜的值轉換。"
+    },
+    "directHint": "直接映射不需要額外配置，來源欄位值將直接對應到目標欄位。",
+    "delimiter": {
+      "label": "分隔符",
+      "tooltip": "串接多個欄位值時使用的分隔符號",
+      "splitTooltip": "用於拆分來源欄位值的分隔符號",
+      "placeholder": "選擇分隔符",
+      "customPlaceholder": "或自訂分隔符"
+    },
+    "delimiters": {
+      "space": "空格",
+      "commaSpace": "逗號+空格",
+      "hyphen": "連字符 (-)",
+      "slash": "斜線 (/)",
+      "underscore": "底線 (_)",
+      "pipe": "豎線 (|)"
+    },
+    "nullHandling": {
+      "label": "空值處理",
+      "tooltip": "當來源欄位值為空時的處理方式",
+      "placeholder": "選擇處理方式",
+      "skip": "跳過空值",
+      "skipDesc": "忽略空值，不加入串接結果",
+      "empty": "保留為空",
+      "emptyDesc": "空值以空字串加入",
+      "default": "使用預設值",
+      "defaultDesc": "空值替換為預設值"
+    },
+    "defaultValue": {
+      "label": "預設值",
+      "tooltip": "空值時使用的替代值",
+      "lookupTooltip": "當查找表中找不到對應值時使用的預設值",
+      "placeholder": "輸入預設值",
+      "optionalPlaceholder": "輸入預設值（可選）"
+    },
+    "splitIndex": {
+      "label": "取用索引",
+      "tooltip": "拆分後取用第幾個部分（從 0 開始）"
+    },
+    "keepAll": {
+      "label": "保留全部",
+      "tooltip": "勾選後將保留所有拆分結果（以陣列形式）"
+    },
+    "lookupTable": {
+      "label": "查找表",
+      "tooltip": "選擇用於值轉換的查找表",
+      "placeholder": "選擇查找表",
+      "currency": "貨幣代碼轉換表",
+      "country": "國家代碼轉換表",
+      "unit": "單位轉換表"
+    },
+    "caseSensitive": {
+      "label": "區分大小寫",
+      "tooltip": "查找時是否區分英文字母大小寫"
+    },
+    "customFormula": {
+      "label": "自訂公式",
+      "tooltip": "使用 JavaScript 表達式進行值轉換。可使用 $value 取得來源值，$fields 取得所有欄位。",
+      "placeholder": "範例：\n// 取來源值前 10 字元\n$value.substring(0, 10)\n\n// 組合多個欄位\n$fields['firstName'] + ' ' + $fields['lastName']\n\n// 條件轉換\n$value > 1000 ? 'high' : 'low'",
+      "availableVariables": "可用變數：",
+      "varValue": "$value - 來源欄位值",
+      "varFields": "$fields - 所有欄位的鍵值對",
+      "varIndex": "$index - 當前行索引"
+    }
+  },
+  "sourceFieldSelector": {
+    "placeholder": "選擇來源欄位",
+    "searchPlaceholder": "搜尋欄位...",
+    "noResults": "找不到符合的欄位",
+    "otherCategory": "其他",
+    "sampleValue": "範例: {value}",
+    "selectedCount": "已選擇 {count} 個欄位"
+  },
+  "targetFieldSelector": {
+    "placeholder": "選擇目標欄位",
+    "searchPlaceholder": "搜尋欄位...",
+    "noResults": "找不到符合的欄位",
+    "otherCategory": "其他",
+    "dataTypes": {
+      "string": "文字",
+      "number": "數字",
+      "date": "日期",
+      "boolean": "布林"
     }
   }
 }

@@ -65,19 +65,25 @@ export async function generateMetadata() {
  *   3. 檢查 USER_MANAGE 權限（用於新增按鈕）
  *   4. 渲染用戶列表（帶 Suspense）
  */
-export default async function UsersPage() {
+export default async function UsersPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+
   // 驗證認證狀態
   const session = await auth()
 
   if (!session?.user) {
-    redirect('/auth/login')
+    redirect(`/${locale}/auth/login`)
   }
 
   // 檢查 USER_VIEW 權限（支援 '*' 通配符）
   const hasViewPerm = hasPermission(session.user, PERMISSIONS.USER_VIEW)
 
   if (!hasViewPerm) {
-    redirect('/dashboard?error=access_denied')
+    redirect(`/${locale}/dashboard?error=access_denied`)
   }
 
   // 檢查 USER_MANAGE 權限（用於新增按鈕，支援 '*' 通配符）

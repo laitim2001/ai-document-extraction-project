@@ -16,6 +16,7 @@
 
 import * as React from 'react';
 import { Building2, Fingerprint, FileType, Percent, FileText } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,12 +39,15 @@ interface IssuerIdentificationPanelProps {
 /**
  * 格式化識別方法
  */
-function formatIdentificationMethod(method: string | null): { label: string; variant: 'default' | 'secondary' | 'outline' } {
-  if (!method) return { label: '未識別', variant: 'outline' };
+function formatIdentificationMethod(
+  method: string | null,
+  t: ReturnType<typeof useTranslations<'historicalData.fileDetail.issuer'>>
+): { label: string; variant: 'default' | 'secondary' | 'outline' } {
+  if (!method) return { label: t('method.notIdentified'), variant: 'outline' };
   const methodMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
-    HEADER: { label: 'Header 識別', variant: 'default' },
-    LOGO: { label: 'Logo 識別', variant: 'secondary' },
-    MANUAL: { label: '手動設定', variant: 'outline' },
+    HEADER: { label: t('method.header'), variant: 'default' },
+    LOGO: { label: t('method.logo'), variant: 'secondary' },
+    MANUAL: { label: t('method.manual'), variant: 'outline' },
   };
   return methodMap[method] || { label: method, variant: 'outline' };
 }
@@ -87,8 +91,10 @@ export function IssuerIdentificationPanel({
   documentFormat,
   formatConfidence,
 }: IssuerIdentificationPanelProps) {
+  const t = useTranslations('historicalData.fileDetail.issuer');
+
   const { method, confidence, matchedCompany } = issuerIdentification;
-  const methodInfo = formatIdentificationMethod(method);
+  const methodInfo = formatIdentificationMethod(method, t);
 
   const hasCompany = !!matchedCompany;
   const hasFormat = !!documentFormat;
@@ -97,7 +103,7 @@ export function IssuerIdentificationPanel({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">發行者識別</CardTitle>
+          <CardTitle className="text-base">{t('title')}</CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant={methodInfo.variant}>
               <Fingerprint className="mr-1 h-3 w-3" />
@@ -115,7 +121,7 @@ export function IssuerIdentificationPanel({
       <CardContent>
         {!hasCompany && !hasFormat ? (
           <div className="flex h-32 items-center justify-center text-muted-foreground">
-            <p>無發行者識別資訊</p>
+            <p>{t('noInfo')}</p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
@@ -123,7 +129,7 @@ export function IssuerIdentificationPanel({
             <div className="space-y-4">
               <h4 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Building2 className="h-4 w-4" />
-                匹配公司
+                {t('matchedCompany')}
               </h4>
               {hasCompany ? (
                 <div className="rounded-lg border p-4">
@@ -135,7 +141,7 @@ export function IssuerIdentificationPanel({
                   )}
                   {matchedCompany.code && (
                     <p className="mt-1 text-sm text-muted-foreground">
-                      代碼: {matchedCompany.code}
+                      {t('code')}: {matchedCompany.code}
                     </p>
                   )}
                   <p className="mt-2 text-xs text-muted-foreground">
@@ -144,7 +150,7 @@ export function IssuerIdentificationPanel({
                 </div>
               ) : (
                 <div className="flex h-24 items-center justify-center rounded-lg border border-dashed text-muted-foreground">
-                  <p className="text-sm">未匹配</p>
+                  <p className="text-sm">{t('notMatched')}</p>
                 </div>
               )}
             </div>
@@ -153,7 +159,7 @@ export function IssuerIdentificationPanel({
             <div className="space-y-4">
               <h4 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <FileType className="h-4 w-4" />
-                文件格式
+                {t('documentFormat')}
               </h4>
               {hasFormat ? (
                 <div className="rounded-lg border p-4">
@@ -173,7 +179,7 @@ export function IssuerIdentificationPanel({
                   </div>
                   {formatConfidence !== null && (
                     <p className="mt-2 text-sm text-muted-foreground">
-                      格式信心度: {formatConfidenceValue(formatConfidence)}
+                      {t('formatConfidence', { value: formatConfidenceValue(formatConfidence) })}
                     </p>
                   )}
                   <p className="mt-2 text-xs text-muted-foreground">
@@ -182,7 +188,7 @@ export function IssuerIdentificationPanel({
                 </div>
               ) : (
                 <div className="flex h-24 items-center justify-center rounded-lg border border-dashed text-muted-foreground">
-                  <p className="text-sm">未分類</p>
+                  <p className="text-sm">{t('notClassified')}</p>
                 </div>
               )}
             </div>

@@ -1,4 +1,28 @@
 {
+  "page": {
+    "title": "Term Analysis",
+    "description": "Analyze charge terms from historical processing results and create mapping rules",
+    "refresh": "Refresh"
+  },
+  "stats": {
+    "uniqueTerms": "Unique Terms",
+    "totalOccurrences": "Total Occurrences",
+    "companiesCount": "Companies Involved",
+    "batchesCount": "Batches Involved"
+  },
+  "actions": {
+    "selectedCount": "Selected {count} terms",
+    "aiClassifying": "AI Classifying...",
+    "aiClassify": "AI Classify ({count})",
+    "batchCreateRules": "Batch Create Rules"
+  },
+  "errors": {
+    "loadFailed": "Error loading term data:",
+    "unknownError": "Unknown error"
+  },
+  "aiInfo": {
+    "description": "AI classification uses the GPT-5.2 model to analyze terms and provide suggestions based on logistics industry standard charge categories. Confidence ≥90% is high (auto-approve), 70-89% is medium (quick review), <70% is low (full review)."
+  },
   "table": {
     "headers": {
       "term": "Term",

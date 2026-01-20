@@ -155,5 +155,27 @@
       "label": "前置",
       "description": "插入在父配置之前"
     }
+  },
+  "editor": {
+    "viewSource": "原始碼",
+    "viewPreview": "預覽",
+    "systemPromptDescription": "定義 AI 的角色和行為準則",
+    "userPromptDescription": "用戶提示模板，支援變數如 '{{companyName}}', '{{knownTerms}}'",
+    "charCount": "System: {systemCount} 字 | User: {userCount} 字",
+    "insertVariable": "插入變數",
+    "variableCategories": {
+      "static": {
+        "label": "靜態變數",
+        "description": "固定值，在配置時解析"
+      },
+      "dynamic": {
+        "label": "動態變數",
+        "description": "根據上下文在運行時解析的值"
+      },
+      "context": {
+        "label": "上下文變數",
+        "description": "文件特定的上下文資訊"
+      }
+    }
   }
 }

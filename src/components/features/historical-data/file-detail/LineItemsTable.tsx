@@ -16,6 +16,7 @@
 
 import * as React from 'react';
 import { List } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -86,18 +87,15 @@ function getLineItemColumns(items: LineItem[]): string[] {
 /**
  * 格式化欄位標題
  */
-function formatColumnHeader(key: string): string {
-  const headerMap: Record<string, string> = {
-    description: '描述',
-    quantity: '數量',
-    unitPrice: '單價',
-    amount: '金額',
-    unit: '單位',
-    total: '總計',
-    productCode: '產品代碼',
-    taxRate: '稅率',
-  };
-  return headerMap[key] || key.charAt(0).toUpperCase() + key.slice(1);
+function formatColumnHeader(
+  key: string,
+  t: ReturnType<typeof useTranslations<'historicalData.fileDetail.lineItems'>>
+): string {
+  const columnKeys = ['description', 'quantity', 'unitPrice', 'amount', 'unit', 'total', 'productCode', 'taxRate'];
+  if (columnKeys.includes(key)) {
+    return t(`columns.${key as 'description' | 'quantity' | 'unitPrice' | 'amount' | 'unit' | 'total' | 'productCode' | 'taxRate'}`);
+  }
+  return key.charAt(0).toUpperCase() + key.slice(1);
 }
 
 /**
@@ -137,19 +135,20 @@ function formatCellValue(value: unknown, key: string): string {
  * @description 顯示 Line Items 表格的組件
  */
 export function LineItemsTable({ extractionResult }: LineItemsTableProps) {
+  const t = useTranslations('historicalData.fileDetail.lineItems');
   const lineItems = extractionResult?.invoiceData?.lineItems;
 
   if (!lineItems || lineItems.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Line Items</CardTitle>
+          <CardTitle className="text-base">{t('title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex h-32 items-center justify-center text-muted-foreground">
             <div className="flex flex-col items-center gap-2">
               <List className="h-8 w-8" />
-              <p>無 Line Items 資料</p>
+              <p>{t('noData')}</p>
             </div>
           </div>
         </CardContent>
@@ -163,8 +162,8 @@ export function LineItemsTable({ extractionResult }: LineItemsTableProps) {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Line Items</CardTitle>
-          <Badge variant="secondary">{lineItems.length} 項</Badge>
+          <CardTitle className="text-base">{t('title')}</CardTitle>
+          <Badge variant="secondary">{t('itemCount', { count: lineItems.length })}</Badge>
         </div>
       </CardHeader>
       <CardContent>
@@ -182,7 +181,7 @@ export function LineItemsTable({ extractionResult }: LineItemsTableProps) {
                         : ''
                     }
                   >
-                    {formatColumnHeader(column)}
+                    {formatColumnHeader(column, t)}
                   </TableHead>
                 ))}
               </TableRow>

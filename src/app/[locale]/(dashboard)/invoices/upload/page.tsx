@@ -40,7 +40,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { useCitiesGrouped } from '@/hooks/use-cities'
+import { useAccessibleCitiesGrouped } from '@/hooks/use-accessible-cities'
 
 /**
  * 發票上傳頁面
@@ -51,7 +51,7 @@ import { useCitiesGrouped } from '@/hooks/use-cities'
 export default function UploadPage() {
   const t = useTranslations('invoices')
   const [selectedCityCode, setSelectedCityCode] = useState<string>('')
-  const { data: groupedCities, isLoading: isLoadingCities } = useCitiesGrouped()
+  const { data: groupedCities, isLoading: isLoadingCities } = useAccessibleCitiesGrouped()
 
   // 從分組數據中創建城市代碼到名稱的映射
   const cityCodeToName = useMemo(() => {

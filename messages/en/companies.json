@@ -187,7 +187,7 @@
       "avgConfidence": "Average Confidence"
     }
   },
-  "stats": {
+  "performanceStats": {
     "noData": "No statistics available",
     "totalDocuments": "Total Documents",
     "processedLast30Days": "Processed (30 Days)",

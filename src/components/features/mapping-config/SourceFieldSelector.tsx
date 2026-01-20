@@ -25,6 +25,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Check, Search, X, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,11 +84,12 @@ export interface SourceFieldSelectorProps {
  * 按分類分組欄位
  */
 function groupFieldsByCategory(
-  fields: SourceFieldDefinition[]
+  fields: SourceFieldDefinition[],
+  defaultCategory: string
 ): Record<string, SourceFieldDefinition[]> {
   return fields.reduce(
     (acc, field) => {
-      const category = field.category || '其他';
+      const category = field.category || defaultCategory;
       if (!acc[category]) {
         acc[category] = [];
       }
@@ -144,9 +146,13 @@ export function SourceFieldSelector({
   onChange,
   multiple = false,
   disabled = false,
-  placeholder = '選擇來源欄位',
+  placeholder,
   className,
 }: SourceFieldSelectorProps) {
+  // --- i18n ---
+  const t = useTranslations('documentPreview');
+  const resolvedPlaceholder = placeholder ?? t('sourceFieldSelector.placeholder');
+
   // --- State ---
   const [open, setOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -161,8 +167,8 @@ export function SourceFieldSelector({
   );
 
   const groupedFields = React.useMemo(
-    () => groupFieldsByCategory(filteredFields),
-    [filteredFields]
+    () => groupFieldsByCategory(filteredFields, t('sourceFieldSelector.otherCategory')),
+    [filteredFields, t]
   );
 
   const selectedFieldObjects = React.useMemo(
@@ -244,7 +250,7 @@ export function SourceFieldSelector({
         >
           <div className="flex flex-1 flex-wrap items-center gap-1 overflow-hidden">
             {selectedFieldObjects.length === 0 ? (
-              <span>{placeholder}</span>
+              <span>{resolvedPlaceholder}</span>
             ) : multiple ? (
               selectedFieldObjects.map((field) => (
                 <Badge
@@ -285,7 +291,7 @@ export function SourceFieldSelector({
           <div className="flex items-center border-b px-3">
             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
             <Input
-              placeholder="搜尋欄位..."
+              placeholder={t('sourceFieldSelector.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="h-10 border-0 focus-visible:ring-0"
@@ -293,7 +299,7 @@ export function SourceFieldSelector({
           </div>
 
           <CommandList className="max-h-[300px]">
-            <CommandEmpty>找不到符合的欄位</CommandEmpty>
+            <CommandEmpty>{t('sourceFieldSelector.noResults')}</CommandEmpty>
 
             {Object.entries(groupedFields).map(([category, fields], index) => (
               <React.Fragment key={category}>
@@ -354,7 +360,7 @@ export function SourceFieldSelector({
                               )}
                               {field.sampleValue && (
                                 <span className="text-xs italic text-muted-foreground">
-                                  範例: {field.sampleValue}
+                                  {t('sourceFieldSelector.sampleValue', { value: field.sampleValue })}
                                 </span>
                               )}
                             </div>
@@ -371,7 +377,7 @@ export function SourceFieldSelector({
           {multiple && selectedFields.length > 0 && (
             <div className="border-t p-2">
               <div className="text-xs text-muted-foreground">
-                已選擇 {selectedFields.length} 個欄位
+                {t('sourceFieldSelector.selectedCount', { count: selectedFields.length })}
               </div>
             </div>
           )}

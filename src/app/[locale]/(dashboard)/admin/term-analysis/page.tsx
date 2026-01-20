@@ -15,6 +15,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Bot, Sparkles, Plus, RefreshCw, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,9 @@ import {
 // ============================================================================
 
 export default function TermAnalysisPage() {
+  // --- Translations ---
+  const t = useTranslations('termAnalysis');
+
   // --- State ---
   const [filters, setFilters] = React.useState<TermAnalysisFilters>({});
   const [selectedTerms, setSelectedTerms] = React.useState<Set<string>>(new Set());
@@ -127,14 +131,14 @@ export default function TermAnalysisPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">術語分析</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('page.title')}</h1>
           <p className="text-muted-foreground">
-            分析歷史處理結果中的收費術語，並建立映射規則
+            {t('page.description')}
           </p>
         </div>
         <Button onClick={handleRefresh} variant="outline">
           <RefreshCw className="h-4 w-4 mr-2" />
-          重新整理
+          {t('page.refresh')}
         </Button>
       </div>
 
@@ -143,7 +147,7 @@ export default function TermAnalysisPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>唯一術語數</CardDescription>
+              <CardDescription>{t('stats.uniqueTerms')}</CardDescription>
               <CardTitle className="text-2xl">
                 {stats.uniqueTerms.toLocaleString()}
               </CardTitle>
@@ -151,7 +155,7 @@ export default function TermAnalysisPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>總出現次數</CardDescription>
+              <CardDescription>{t('stats.totalOccurrences')}</CardDescription>
               <CardTitle className="text-2xl">
                 {stats.totalOccurrences.toLocaleString()}
               </CardTitle>
@@ -159,7 +163,7 @@ export default function TermAnalysisPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>涉及公司數</CardDescription>
+              <CardDescription>{t('stats.companiesCount')}</CardDescription>
               <CardTitle className="text-2xl">
                 {stats.companiesCount.toLocaleString()}
               </CardTitle>
@@ -167,7 +171,7 @@ export default function TermAnalysisPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>涉及批次數</CardDescription>
+              <CardDescription>{t('stats.batchesCount')}</CardDescription>
               <CardTitle className="text-2xl">
                 {stats.batchesCount.toLocaleString()}
               </CardTitle>
@@ -179,7 +183,7 @@ export default function TermAnalysisPage() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">篩選條件</CardTitle>
+          <CardTitle className="text-lg">{t('filters.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <TermFilters
@@ -196,8 +200,8 @@ export default function TermAnalysisPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            載入術語資料時發生錯誤：
-            {termsError instanceof Error ? termsError.message : '未知錯誤'}
+            {t('errors.loadFailed')}
+            {termsError instanceof Error ? termsError.message : t('errors.unknownError')}
           </AlertDescription>
         </Alert>
       )}
@@ -206,7 +210,7 @@ export default function TermAnalysisPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Badge variant="outline">
-            已選取 {selectedTerms.size} 個術語
+            {t('actions.selectedCount', { count: selectedTerms.size })}
           </Badge>
           {hasSelectedTerms && unclassifiedSelectedCount > 0 && (
             <Button
@@ -217,12 +221,12 @@ export default function TermAnalysisPage() {
               {isClassifying ? (
                 <>
                   <Bot className="h-4 w-4 mr-2 animate-pulse" />
-                  AI 分類中...
+                  {t('actions.aiClassifying')}
                 </>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4 mr-2" />
-                  AI 分類 ({unclassifiedSelectedCount})
+                  {t('actions.aiClassify', { count: unclassifiedSelectedCount })}
                 </>
               )}
             </Button>
@@ -232,7 +236,7 @@ export default function TermAnalysisPage() {
           {hasSelectedTerms && (
             <Button size="sm" variant="outline">
               <Plus className="h-4 w-4 mr-2" />
-              批量建立規則
+              {t('actions.batchCreateRules')}
             </Button>
           )}
         </div>
@@ -256,8 +260,7 @@ export default function TermAnalysisPage() {
       <Alert>
         <Bot className="h-4 w-4" />
         <AlertDescription>
-          AI 分類使用 GPT-5.2 模型分析術語，並根據物流行業標準費用類別提供建議。
-          分類信心度 ≥90% 為高信心（自動通過），70-89% 為中信心（快速審核），&lt;70% 為低信心（完整審核）。
+          {t('aiInfo.description')}
         </AlertDescription>
       </Alert>
     </div>

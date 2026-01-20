@@ -155,5 +155,27 @@
       "label": "Prepend",
       "description": "Insert before parent configuration"
     }
+  },
+  "editor": {
+    "viewSource": "Source",
+    "viewPreview": "Preview",
+    "systemPromptDescription": "Define the AI's role and behavioral guidelines",
+    "userPromptDescription": "User prompt template, supports variables like '{{companyName}}', '{{knownTerms}}'",
+    "charCount": "System: {systemCount} chars | User: {userCount} chars",
+    "insertVariable": "Insert Variable",
+    "variableCategories": {
+      "static": {
+        "label": "Static Variables",
+        "description": "Fixed values, resolved at configuration time"
+      },
+      "dynamic": {
+        "label": "Dynamic Variables",
+        "description": "Values resolved at runtime based on context"
+      },
+      "context": {
+        "label": "Context Variables",
+        "description": "Document-specific contextual information"
+      }
+    }
   }
 }

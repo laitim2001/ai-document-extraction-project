@@ -53,6 +53,73 @@
       "issuer": "Issuer Identification",
       "lineitems": "Line Items",
       "raw": "Raw JSON"
+    },
+    "fileInfo": {
+      "title": "File Information",
+      "fileType": "File Type",
+      "fileSize": "File Size",
+      "processingMethod": "Processing Method",
+      "processingCost": "Processing Cost",
+      "originalName": "Original Name",
+      "mimeType": "MIME Type"
+    },
+    "timeline": {
+      "title": "Processing Timeline",
+      "totalDuration": "Total Duration: {duration}",
+      "created": "Created",
+      "typeDetection": "Type Detection",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed",
+      "waiting": "Waiting"
+    },
+    "extraction": {
+      "title": "Extraction Results",
+      "noResults": "No extraction results",
+      "invoiceInfo": "Invoice Information",
+      "invoiceNumber": "Invoice Number",
+      "invoiceDate": "Invoice Date",
+      "dueDate": "Due Date",
+      "amountInfo": "Amount Information",
+      "subtotal": "Subtotal",
+      "taxAmount": "Tax Amount",
+      "totalAmount": "Total Amount",
+      "parties": "Transaction Parties",
+      "vendor": "Vendor",
+      "customer": "Customer",
+      "vendorAddress": "Vendor Address",
+      "customerAddress": "Customer Address"
+    },
+    "issuer": {
+      "title": "Issuer Identification",
+      "noInfo": "No issuer identification information",
+      "method": {
+        "notIdentified": "Not Identified",
+        "header": "Header Identification",
+        "logo": "Logo Identification",
+        "manual": "Manual Setting"
+      },
+      "matchedCompany": "Matched Company",
+      "notMatched": "Not Matched",
+      "documentFormat": "Document Format",
+      "notClassified": "Not Classified",
+      "code": "Code",
+      "formatConfidence": "Format Confidence: {value}"
+    },
+    "lineItems": {
+      "title": "Line Items",
+      "noData": "No Line Items data",
+      "itemCount": "{count} items",
+      "columns": {
+        "description": "Description",
+        "quantity": "Quantity",
+        "unitPrice": "Unit Price",
+        "amount": "Amount",
+        "unit": "Unit",
+        "total": "Total",
+        "productCode": "Product Code",
+        "taxRate": "Tax Rate"
+      }
     }
   },
   "batchList": {

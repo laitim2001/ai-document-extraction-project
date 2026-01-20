@@ -53,6 +53,73 @@
       "issuer": "發行者識別",
       "lineitems": "Line Items",
       "raw": "原始 JSON"
+    },
+    "fileInfo": {
+      "title": "文件資訊",
+      "fileType": "文件類型",
+      "fileSize": "文件大小",
+      "processingMethod": "處理方法",
+      "processingCost": "處理成本",
+      "originalName": "原始名稱",
+      "mimeType": "MIME Type"
+    },
+    "timeline": {
+      "title": "處理時間軸",
+      "totalDuration": "總耗時: {duration}",
+      "created": "建立",
+      "typeDetection": "類型偵測",
+      "processing": "處理中",
+      "completed": "完成",
+      "failed": "失敗",
+      "waiting": "等待中"
+    },
+    "extraction": {
+      "title": "提取結果",
+      "noResults": "無提取結果",
+      "invoiceInfo": "Invoice 資訊",
+      "invoiceNumber": "Invoice 編號",
+      "invoiceDate": "Invoice 日期",
+      "dueDate": "到期日",
+      "amountInfo": "金額資訊",
+      "subtotal": "小計",
+      "taxAmount": "稅額",
+      "totalAmount": "總金額",
+      "parties": "交易對象",
+      "vendor": "供應商",
+      "customer": "客戶",
+      "vendorAddress": "供應商地址",
+      "customerAddress": "客戶地址"
+    },
+    "issuer": {
+      "title": "發行者識別",
+      "noInfo": "無發行者識別資訊",
+      "method": {
+        "notIdentified": "未識別",
+        "header": "Header 識別",
+        "logo": "Logo 識別",
+        "manual": "手動設定"
+      },
+      "matchedCompany": "匹配公司",
+      "notMatched": "未匹配",
+      "documentFormat": "文件格式",
+      "notClassified": "未分類",
+      "code": "代碼",
+      "formatConfidence": "格式信心度: {value}"
+    },
+    "lineItems": {
+      "title": "Line Items",
+      "noData": "無 Line Items 資料",
+      "itemCount": "{count} 項",
+      "columns": {
+        "description": "描述",
+        "quantity": "數量",
+        "unitPrice": "單價",
+        "amount": "金額",
+        "unit": "單位",
+        "total": "總計",
+        "productCode": "產品代碼",
+        "taxRate": "稅率"
+      }
     }
   },
   "batchList": {

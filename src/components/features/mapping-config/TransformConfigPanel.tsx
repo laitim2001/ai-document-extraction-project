@@ -26,6 +26,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Info, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -82,36 +83,21 @@ interface LookupTableOption {
 // ============================================================
 
 /**
- * 轉換類型說明
+ * 分隔符值映射（用於翻譯 key）
  */
-const TRANSFORM_DESCRIPTIONS: Record<TransformType, string> = {
-  DIRECT: '直接映射：將來源欄位值直接對應到目標欄位，不進行任何轉換。',
-  CONCAT: '串接：將多個來源欄位的值依序串接，可指定分隔符。',
-  SPLIT: '分割：將來源欄位值按分隔符拆分，選取指定索引的部分。',
-  LOOKUP: '查找：根據來源欄位值在查找表中尋找對應的目標值。',
-  CUSTOM: '自訂：使用自訂公式進行複雜的值轉換。',
-};
-
-/**
- * 空值處理選項
- */
-const NULL_HANDLING_OPTIONS = [
-  { value: 'skip', label: '跳過空值', description: '忽略空值，不加入串接結果' },
-  { value: 'empty', label: '保留為空', description: '空值以空字串加入' },
-  { value: 'default', label: '使用預設值', description: '空值替換為預設值' },
+const DELIMITER_KEYS = [
+  { value: ' ', key: 'space' },
+  { value: ', ', key: 'commaSpace' },
+  { value: '-', key: 'hyphen' },
+  { value: '/', key: 'slash' },
+  { value: '_', key: 'underscore' },
+  { value: '|', key: 'pipe' },
 ] as const;
 
 /**
- * 常用分隔符
+ * 空值處理選項 key
  */
-const COMMON_DELIMITERS = [
-  { value: ' ', label: '空格' },
-  { value: ', ', label: '逗號+空格' },
-  { value: '-', label: '連字符 (-)' },
-  { value: '/', label: '斜線 (/)' },
-  { value: '_', label: '底線 (_)' },
-  { value: '|', label: '豎線 (|)' },
-] as const;
+const NULL_HANDLING_KEYS = ['skip', 'empty', 'default'] as const;
 
 // ============================================================
 // Sub-Components
@@ -158,12 +144,16 @@ function FieldLabel({
 /**
  * DIRECT 轉換配置（無需配置）
  */
-function DirectConfig() {
+function DirectConfig({
+  t,
+}: {
+  t: ReturnType<typeof useTranslations<'documentPreview'>>
+}) {
   return (
     <Alert>
       <AlertCircle className="h-4 w-4" />
       <AlertDescription>
-        直接映射不需要額外配置，來源欄位值將直接對應到目標欄位。
+        {t('transformConfig.directHint')}
       </AlertDescription>
     </Alert>
   );
@@ -176,18 +166,20 @@ function ConcatConfig({
   params,
   onChange,
   disabled,
+  t,
 }: {
   params: TransformParams;
   onChange: (params: TransformParams) => void;
   disabled?: boolean;
+  t: ReturnType<typeof useTranslations<'documentPreview'>>
 }) {
   return (
     <div className="space-y-4">
       {/* 分隔符 */}
       <div className="space-y-2">
         <FieldLabel
-          label="分隔符"
-          tooltip="串接多個欄位值時使用的分隔符號"
+          label={t('transformConfig.delimiter.label')}
+          tooltip={t('transformConfig.delimiter.tooltip')}
         />
         <div className="flex gap-2">
           <Select
@@ -196,18 +188,18 @@ function ConcatConfig({
             disabled={disabled}
           >
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="選擇分隔符" />
+              <SelectValue placeholder={t('transformConfig.delimiter.placeholder')} />
             </SelectTrigger>
             <SelectContent>
-              {COMMON_DELIMITERS.map((d) => (
+              {DELIMITER_KEYS.map((d) => (
                 <SelectItem key={d.value} value={d.value}>
-                  {d.label}
+                  {t(`transformConfig.delimiters.${d.key}`)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Input
-            placeholder="或自訂分隔符"
+            placeholder={t('transformConfig.delimiter.customPlaceholder')}
             value={params.delimiter ?? ''}
             onChange={(e) => onChange({ ...params, delimiter: e.target.value })}
             disabled={disabled}
@@ -219,8 +211,8 @@ function ConcatConfig({
       {/* 空值處理 */}
       <div className="space-y-2">
         <FieldLabel
-          label="空值處理"
-          tooltip="當來源欄位值為空時的處理方式"
+          label={t('transformConfig.nullHandling.label')}
+          tooltip={t('transformConfig.nullHandling.tooltip')}
         />
         <Select
           value={params.nullHandling ?? 'skip'}
@@ -233,15 +225,15 @@ function ConcatConfig({
           disabled={disabled}
         >
           <SelectTrigger>
-            <SelectValue placeholder="選擇處理方式" />
+            <SelectValue placeholder={t('transformConfig.nullHandling.placeholder')} />
           </SelectTrigger>
           <SelectContent>
-            {NULL_HANDLING_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
+            {NULL_HANDLING_KEYS.map((key) => (
+              <SelectItem key={key} value={key}>
                 <div className="flex flex-col">
-                  <span>{opt.label}</span>
+                  <span>{t(`transformConfig.nullHandling.${key}`)}</span>
                   <span className="text-xs text-muted-foreground">
-                    {opt.description}
+                    {t(`transformConfig.nullHandling.${key}Desc`)}
                   </span>
                 </div>
               </SelectItem>
@@ -254,12 +246,12 @@ function ConcatConfig({
       {params.nullHandling === 'default' && (
         <div className="space-y-2">
           <FieldLabel
-            label="預設值"
-            tooltip="空值時使用的替代值"
+            label={t('transformConfig.defaultValue.label')}
+            tooltip={t('transformConfig.defaultValue.tooltip')}
             required
           />
           <Input
-            placeholder="輸入預設值"
+            placeholder={t('transformConfig.defaultValue.placeholder')}
             value={params.defaultValue ?? ''}
             onChange={(e) => onChange({ ...params, defaultValue: e.target.value })}
             disabled={disabled}
@@ -277,18 +269,20 @@ function SplitConfig({
   params,
   onChange,
   disabled,
+  t,
 }: {
   params: TransformParams;
   onChange: (params: TransformParams) => void;
   disabled?: boolean;
+  t: ReturnType<typeof useTranslations<'documentPreview'>>
 }) {
   return (
     <div className="space-y-4">
       {/* 分隔符 */}
       <div className="space-y-2">
         <FieldLabel
-          label="分隔符"
-          tooltip="用於拆分來源欄位值的分隔符號"
+          label={t('transformConfig.delimiter.label')}
+          tooltip={t('transformConfig.delimiter.splitTooltip')}
           required
         />
         <div className="flex gap-2">
@@ -298,18 +292,18 @@ function SplitConfig({
             disabled={disabled}
           >
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="選擇分隔符" />
+              <SelectValue placeholder={t('transformConfig.delimiter.placeholder')} />
             </SelectTrigger>
             <SelectContent>
-              {COMMON_DELIMITERS.map((d) => (
+              {DELIMITER_KEYS.map((d) => (
                 <SelectItem key={d.value} value={d.value}>
-                  {d.label}
+                  {t(`transformConfig.delimiters.${d.key}`)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Input
-            placeholder="或自訂分隔符"
+            placeholder={t('transformConfig.delimiter.customPlaceholder')}
             value={params.delimiter ?? ''}
             onChange={(e) => onChange({ ...params, delimiter: e.target.value })}
             disabled={disabled}
@@ -321,8 +315,8 @@ function SplitConfig({
       {/* 索引位置 */}
       <div className="space-y-2">
         <FieldLabel
-          label="取用索引"
-          tooltip="拆分後取用第幾個部分（從 0 開始）"
+          label={t('transformConfig.splitIndex.label')}
+          tooltip={t('transformConfig.splitIndex.tooltip')}
         />
         <Input
           type="number"
@@ -340,8 +334,8 @@ function SplitConfig({
       {/* 保留全部 */}
       <div className="flex items-center justify-between">
         <FieldLabel
-          label="保留全部"
-          tooltip="勾選後將保留所有拆分結果（以陣列形式）"
+          label={t('transformConfig.keepAll.label')}
+          tooltip={t('transformConfig.keepAll.tooltip')}
         />
         <Switch
           checked={params.keepAll ?? false}
@@ -360,16 +354,18 @@ function LookupConfig({
   params,
   onChange,
   disabled,
+  t,
 }: {
   params: TransformParams;
   onChange: (params: TransformParams) => void;
   disabled?: boolean;
+  t: ReturnType<typeof useTranslations<'documentPreview'>>
 }) {
   // TODO: 從 API 獲取可用的查找表列表
   const lookupTables: LookupTableOption[] = [
-    { id: 'currency', name: '貨幣代碼轉換表' },
-    { id: 'country', name: '國家代碼轉換表' },
-    { id: 'unit', name: '單位轉換表' },
+    { id: 'currency', name: t('transformConfig.lookupTable.currency') },
+    { id: 'country', name: t('transformConfig.lookupTable.country') },
+    { id: 'unit', name: t('transformConfig.lookupTable.unit') },
   ];
 
   return (
@@ -377,8 +373,8 @@ function LookupConfig({
       {/* 查找表 */}
       <div className="space-y-2">
         <FieldLabel
-          label="查找表"
-          tooltip="選擇用於值轉換的查找表"
+          label={t('transformConfig.lookupTable.label')}
+          tooltip={t('transformConfig.lookupTable.tooltip')}
           required
         />
         <Select
@@ -387,7 +383,7 @@ function LookupConfig({
           disabled={disabled}
         >
           <SelectTrigger>
-            <SelectValue placeholder="選擇查找表" />
+            <SelectValue placeholder={t('transformConfig.lookupTable.placeholder')} />
           </SelectTrigger>
           <SelectContent>
             {lookupTables.map((table) => (
@@ -402,11 +398,11 @@ function LookupConfig({
       {/* 預設值 */}
       <div className="space-y-2">
         <FieldLabel
-          label="預設值"
-          tooltip="當查找表中找不到對應值時使用的預設值"
+          label={t('transformConfig.defaultValue.label')}
+          tooltip={t('transformConfig.defaultValue.lookupTooltip')}
         />
         <Input
-          placeholder="輸入預設值（可選）"
+          placeholder={t('transformConfig.defaultValue.optionalPlaceholder')}
           value={params.defaultValue ?? ''}
           onChange={(e) => onChange({ ...params, defaultValue: e.target.value })}
           disabled={disabled}
@@ -416,8 +412,8 @@ function LookupConfig({
       {/* 區分大小寫 */}
       <div className="flex items-center justify-between">
         <FieldLabel
-          label="區分大小寫"
-          tooltip="查找時是否區分英文字母大小寫"
+          label={t('transformConfig.caseSensitive.label')}
+          tooltip={t('transformConfig.caseSensitive.tooltip')}
         />
         <Switch
           checked={params.caseSensitive ?? false}
@@ -438,30 +434,24 @@ function CustomConfig({
   params,
   onChange,
   disabled,
+  t,
 }: {
   params: TransformParams;
   onChange: (params: TransformParams) => void;
   disabled?: boolean;
+  t: ReturnType<typeof useTranslations<'documentPreview'>>
 }) {
   return (
     <div className="space-y-4">
       {/* 公式輸入 */}
       <div className="space-y-2">
         <FieldLabel
-          label="自訂公式"
-          tooltip="使用 JavaScript 表達式進行值轉換。可使用 $value 取得來源值，$fields 取得所有欄位。"
+          label={t('transformConfig.customFormula.label')}
+          tooltip={t('transformConfig.customFormula.tooltip')}
           required
         />
         <Textarea
-          placeholder={`範例：
-// 取來源值前 10 字元
-$value.substring(0, 10)
-
-// 組合多個欄位
-$fields['firstName'] + ' ' + $fields['lastName']
-
-// 條件轉換
-$value > 1000 ? 'high' : 'low'`}
+          placeholder={t('transformConfig.customFormula.placeholder')}
           value={params.customFormula ?? ''}
           onChange={(e) =>
             onChange({ ...params, customFormula: e.target.value })
@@ -475,11 +465,11 @@ $value > 1000 ? 'high' : 'low'`}
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription className="text-sm">
-          <strong>可用變數：</strong>
+          <strong>{t('transformConfig.customFormula.availableVariables')}</strong>
           <ul className="mt-1 list-disc list-inside">
-            <li><code>$value</code> - 來源欄位值</li>
-            <li><code>$fields</code> - 所有欄位的鍵值對</li>
-            <li><code>$index</code> - 當前行索引</li>
+            <li><code>{t('transformConfig.customFormula.varValue')}</code></li>
+            <li><code>{t('transformConfig.customFormula.varFields')}</code></li>
+            <li><code>{t('transformConfig.customFormula.varIndex')}</code></li>
           </ul>
         </AlertDescription>
       </Alert>
@@ -514,19 +504,22 @@ export function TransformConfigPanel({
   disabled = false,
   className,
 }: TransformConfigPanelProps) {
+  // --- i18n ---
+  const t = useTranslations('documentPreview');
+
   // --- Render Config Panel Based on Type ---
   const renderConfigPanel = () => {
     switch (transformType) {
       case 'DIRECT':
-        return <DirectConfig />;
+        return <DirectConfig t={t} />;
       case 'CONCAT':
-        return <ConcatConfig params={params} onChange={onChange} disabled={disabled} />;
+        return <ConcatConfig params={params} onChange={onChange} disabled={disabled} t={t} />;
       case 'SPLIT':
-        return <SplitConfig params={params} onChange={onChange} disabled={disabled} />;
+        return <SplitConfig params={params} onChange={onChange} disabled={disabled} t={t} />;
       case 'LOOKUP':
-        return <LookupConfig params={params} onChange={onChange} disabled={disabled} />;
+        return <LookupConfig params={params} onChange={onChange} disabled={disabled} t={t} />;
       case 'CUSTOM':
-        return <CustomConfig params={params} onChange={onChange} disabled={disabled} />;
+        return <CustomConfig params={params} onChange={onChange} disabled={disabled} t={t} />;
       default:
         return null;
     }
@@ -535,9 +528,9 @@ export function TransformConfigPanel({
   return (
     <Card className={cn('', className)}>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">轉換參數配置</CardTitle>
+        <CardTitle className="text-base">{t('transformConfig.title')}</CardTitle>
         <CardDescription className="text-sm">
-          {TRANSFORM_DESCRIPTIONS[transformType]}
+          {t(`transformConfig.descriptions.${transformType}`)}
         </CardDescription>
       </CardHeader>
       <CardContent>{renderConfigPanel()}</CardContent>

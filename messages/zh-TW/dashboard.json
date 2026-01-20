@@ -75,5 +75,11 @@
     "endBeforeStart": "結束日期不能早於起始日期",
     "exceedsMaxDays": "日期範圍不能超過 {max} 天",
     "exceedsToday": "結束日期不能超過今天"
+  },
+  "errors": {
+    "access_denied": {
+      "title": "存取被拒絕",
+      "description": "您沒有權限存取該頁面。如果您認為這是錯誤，請聯繫系統管理員。"
+    }
   }
 }
