@@ -1,0 +1,108 @@
+{
+  "page": {
+    "title": "待审核发票",
+    "description": "审核和修正 AI 提取结果",
+    "reviewDetails": "审核详情",
+    "documentNotFound": "找不到文件",
+    "documentNotFoundDesc": "指定的文件不存在或已被删除。",
+    "backToList": "返回审核列表",
+    "review": "审核：{fileName}"
+  },
+  "filters": {
+    "company": "公司/Forwarder",
+    "processingPath": "处理路径：",
+    "confidenceRange": "信心度：",
+    "clearFilters": "清除筛选",
+    "allCompanies": "所有公司",
+    "allPaths": "全部",
+    "all": "全部"
+  },
+  "confidence": {
+    "low": "低信心度",
+    "medium": "中信心度",
+    "high": "高信心度",
+    "range": "{min}% - {max}%"
+  },
+  "actions": {
+    "approve": "批准",
+    "reject": "拒绝",
+    "correct": "修正并批准",
+    "viewDetails": "查看详情",
+    "escalate": "提交上级"
+  },
+  "detail": {
+    "extractedFields": "提取字段",
+    "originalDocument": "原始文件",
+    "correctionHistory": "修正历史",
+    "noCorrections": "尚无修正记录",
+    "loadFailed": "加载失败",
+    "loadFailedDesc": "无法加载审核数据，请稍后再试。",
+    "reload": "重新加载"
+  },
+  "dialog": {
+    "approveTitle": "确认批准",
+    "approveMessage": "确定要批准此发票的提取结果吗？",
+    "rejectTitle": "拒绝原因",
+    "rejectPlaceholder": "请输入拒绝原因...",
+    "escalateTitle": "提交上级审核",
+    "escalateMessage": "请说明需要上级审核的原因",
+    "unsavedChanges": "未保存的变更",
+    "unsavedChangesDesc": "您有尚未保存的变更。离开此页面将会丢失这些变更。确定要离开吗？",
+    "continueEditing": "继续编辑",
+    "discardChanges": "放弃变更"
+  },
+  "empty": {
+    "title": "没有待审核的发票",
+    "description": "所有发票都已处理完成"
+  },
+  "processingPath": {
+    "autoApprove": "自动通过",
+    "quickReview": "快速审核",
+    "fullReview": "完整审核",
+    "manualRequired": "需人工处理"
+  },
+  "queue": {
+    "loadFailed": "加载失败",
+    "loadFailedDesc": "无法加载审核队列，请重试。",
+    "retry": "重试",
+    "totalPending": "共 {count} 条待审核",
+    "refresh": "刷新",
+    "previous": "上一页",
+    "next": "下一页"
+  },
+  "table": {
+    "fileName": "文件名",
+    "uploadTime": "上传时间",
+    "confidence": "信心度",
+    "processingPath": "处理路径",
+    "unidentified": "未识别"
+  },
+  "approval": {
+    "quickReviewMode": "快速审核模式",
+    "fullReviewMode": "完整审核模式",
+    "review": "审核",
+    "confirmTitle": "确认审核结果",
+    "confirmDesc": "您即将确认此文件的 {mode} 结果。",
+    "fieldsConfirmed": "{count} 个字段将被标记为已确认。",
+    "afterConfirm": "确认后，文件状态将更新为「已批准」并记录审计日志。",
+    "reviewNotes": "审核备注（选填）",
+    "notesPlaceholder": "输入任何要记录的备注...",
+    "cancel": "取消",
+    "confirming": "确认中...",
+    "confirm": "确认"
+  },
+  "toast": {
+    "reviewConfirmed": "审核已确认",
+    "documentApproved": "文件已标记为批准",
+    "confirmFailed": "审核确认失败",
+    "caseEscalated": "案例已升级",
+    "escalationNotified": "已通知 Super User 处理此案例",
+    "escalationFailed": "升级失败",
+    "noChanges": "没有变更需要保存",
+    "saveFailed": "保存修正失败",
+    "correctionsSaved": "修正已保存",
+    "correctionsSavedDesc": "已保存 {count} 个字段的修正",
+    "saveFailedRetry": "保存失败",
+    "tryAgainLater": "请稍后再试"
+  }
+}

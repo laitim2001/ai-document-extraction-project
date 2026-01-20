@@ -1,0 +1,88 @@
+{
+  "sections": {
+    "overview": "概览",
+    "documents": "文件处理",
+    "rules": "规则管理",
+    "reports": "报表",
+    "admin": "系统管理"
+  },
+  "topbar": {
+    "openMenu": "打开菜单",
+    "search": "搜索",
+    "searchPlaceholder": "搜索发票、Forwarder...",
+    "toggleTheme": "切换主题",
+    "notifications": {
+      "title": "通知",
+      "markAllRead": "全部标为已读",
+      "viewAll": "查看全部通知"
+    },
+    "user": {
+      "defaultName": "用户",
+      "profile": "个人资料",
+      "settings": "系统设置",
+      "logout": "登出"
+    },
+    "roles": {
+      "systemAdmin": "系统管理员",
+      "superUser": "超级用户",
+      "dataProcessor": "数据处理员",
+      "cityManager": "城市经理",
+      "regionalManager": "区域经理",
+      "auditor": "审计员"
+    },
+    "mockNotifications": {
+      "invoiceApproved": {
+        "title": "发票审核完成",
+        "message": "发票 INV-2024-001 已通过自动审核"
+      },
+      "ruleSuggestion": {
+        "title": "新规则建议",
+        "message": "系统建议为 DHL 新增映射规则"
+      },
+      "lowConfidence": {
+        "title": "低信心度警告",
+        "message": "3 张发票需要人工审核"
+      },
+      "time": {
+        "minutesAgo": "{count} 分钟前",
+        "hoursAgo": "{count} 小时前"
+      }
+    }
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "globalView": "全局视图",
+    "invoices": "发票列表",
+    "uploadInvoice": "上传发票",
+    "review": "待审核",
+    "escalations": "升级案例",
+    "mappingRules": "映射规则",
+    "companies": "公司管理",
+    "analyticsReports": "分析报表",
+    "auditLogs": "审计日志",
+    "users": "用户管理",
+    "historicalData": "历史数据初始化",
+    "documentPreview": "文件预览测试",
+    "fieldMapping": "字段映射配置",
+    "promptConfig": "Prompt 配置",
+    "termAnalysis": "术语分析",
+    "settings": "设置"
+  },
+  "user": {
+    "profile": "个人资料",
+    "preferences": "偏好设置",
+    "logout": "登出"
+  },
+  "breadcrumb": {
+    "home": "首页"
+  },
+  "app": {
+    "name": "AI Doc Extract",
+    "fullName": "AI Document Extraction",
+    "version": "Version {version}"
+  },
+  "actions": {
+    "closeMenu": "关闭菜单",
+    "toggleSidebar": "切换侧边栏"
+  }
+}

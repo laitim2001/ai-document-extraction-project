@@ -1,0 +1,181 @@
+{
+  "page": {
+    "title": "Prompt 配置管理",
+    "description": "管理 AI 处理流程中使用的 Prompt 配置",
+    "refresh": "刷新",
+    "addConfig": "新增配置",
+    "filterTitle": "筛选条件",
+    "loadError": "加载配置数据时发生错误：",
+    "unknownError": "未知错误",
+    "totalConfigs": "共 {count} 个配置",
+    "deleteDialog": {
+      "title": "确认删除配置",
+      "message": "确定要删除配置「{name}」吗？此操作无法恢复。",
+      "cancel": "取消",
+      "confirm": "确认删除",
+      "deleting": "删除中..."
+    },
+    "toast": {
+      "deleteSuccess": "删除成功",
+      "deleteSuccessDesc": "已删除配置「{name}」",
+      "deleteFailed": "删除失败",
+      "createSuccess": "创建成功",
+      "createSuccessDesc": "已成功创建配置「{name}」",
+      "createFailed": "创建失败",
+      "updateSuccess": "更新成功",
+      "updateSuccessDesc": "配置已成功更新",
+      "updateFailed": "更新失败",
+      "testFailed": "测试失败"
+    }
+  },
+  "newPage": {
+    "title": "新增 Prompt 配置",
+    "description": "创建新的 AI Prompt 配置"
+  },
+  "editPage": {
+    "title": "编辑 Prompt 配置",
+    "loadFailed": "加载失败",
+    "loadError": "无法加载配置数据：",
+    "notFound": "配置不存在或已被删除",
+    "backToList": "返回配置列表"
+  },
+  "list": {
+    "empty": "尚无 Prompt 配置",
+    "loadError": "加载失败：{error}",
+    "version": "版本 v{version}",
+    "globalConfig": "全局配置",
+    "disabled": "停用",
+    "edit": "编辑"
+  },
+  "types": {
+    "ISSUER_IDENTIFICATION": "发行者识别",
+    "TERM_CLASSIFICATION": "术语分类",
+    "FIELD_EXTRACTION": "字段提取",
+    "VALIDATION": "结果验证"
+  },
+  "filters": {
+    "search": {
+      "placeholder": "搜索配置名称..."
+    },
+    "promptType": {
+      "all": "全部类型"
+    },
+    "scope": {
+      "all": "全部范围"
+    },
+    "status": {
+      "all": "全部状态",
+      "active": "启用中",
+      "inactive": "已停用"
+    },
+    "clear": "清除筛选",
+    "label": "筛选条件："
+  },
+  "form": {
+    "basicInfo": {
+      "title": "基本信息",
+      "description": "设置 Prompt 配置的基本属性"
+    },
+    "name": {
+      "label": "配置名称",
+      "placeholder": "例如：DHL 发票术语分类"
+    },
+    "description": {
+      "label": "描述",
+      "placeholder": "配置的用途说明..."
+    },
+    "promptType": {
+      "label": "Prompt 类型",
+      "placeholder": "选择类型"
+    },
+    "scope": {
+      "label": "适用范围",
+      "placeholder": "选择范围"
+    },
+    "company": {
+      "label": "公司",
+      "placeholder": "选择公司"
+    },
+    "documentFormat": {
+      "label": "文件格式",
+      "placeholder": "选择文件格式"
+    },
+    "mergeStrategy": {
+      "label": "合并策略",
+      "placeholder": "选择策略"
+    },
+    "isActive": {
+      "label": "启用状态",
+      "description": "停用后此配置将不会被使用"
+    },
+    "promptContent": {
+      "title": "Prompt 内容",
+      "description": "编辑 System Prompt 和 User Prompt Template"
+    },
+    "validation": {
+      "typeRequired": "请选择 Prompt 类型",
+      "scopeRequired": "请选择适用范围",
+      "nameRequired": "请输入配置名称",
+      "nameMaxLength": "名称最多 100 字",
+      "descriptionMaxLength": "描述最多 500 字",
+      "systemPromptRequired": "请输入 System Prompt",
+      "userPromptRequired": "请输入 User Prompt Template"
+    },
+    "submit": {
+      "saving": "保存中...",
+      "create": "创建配置",
+      "update": "更新配置"
+    },
+    "testUnavailable": "测试功能不可用"
+  },
+  "scopes": {
+    "GLOBAL": {
+      "label": "全局",
+      "description": "适用于所有公司和文件格式"
+    },
+    "COMPANY": {
+      "label": "公司",
+      "description": "适用于特定公司"
+    },
+    "FORMAT": {
+      "label": "格式",
+      "description": "适用于特定文件格式"
+    }
+  },
+  "mergeStrategies": {
+    "OVERRIDE": {
+      "label": "覆盖",
+      "description": "完全取代父配置"
+    },
+    "APPEND": {
+      "label": "附加",
+      "description": "附加在父配置之后"
+    },
+    "PREPEND": {
+      "label": "前置",
+      "description": "插入在父配置之前"
+    }
+  },
+  "editor": {
+    "viewSource": "源代码",
+    "viewPreview": "预览",
+    "systemPromptDescription": "定义 AI 的角色和行为准则",
+    "userPromptDescription": "用户提示模板，支持变量如 '{{companyName}}', '{{knownTerms}}'",
+    "charCount": "System: {systemCount} 字 | User: {userCount} 字",
+    "insertVariable": "插入变量",
+    "variableCategories": {
+      "static": {
+        "label": "静态变量",
+        "description": "固定值，在配置时解析"
+      },
+      "dynamic": {
+        "label": "动态变量",
+        "description": "根据上下文在运行时解析的值"
+      },
+      "context": {
+        "label": "上下文变量",
+        "description": "文件特定的上下文信息"
+      }
+    }
+  }
+}

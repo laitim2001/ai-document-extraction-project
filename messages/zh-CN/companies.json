@@ -1,0 +1,248 @@
+{
+  "page": {
+    "title": "公司管理",
+    "description": "管理公司档案、映射规则和优先级设置"
+  },
+  "stats": {
+    "total": "总计",
+    "active": "启用",
+    "inactive": "停用"
+  },
+  "pagination": {
+    "showing": "显示 {start} - {end}，共 {total} 条",
+    "previous": "上一页",
+    "next": "下一页",
+    "pageOf": "{page} / {total}"
+  },
+  "list": {
+    "searchPlaceholder": "搜索名称或代码...",
+    "filters": {
+      "status": "状态",
+      "city": "城市",
+      "allStatus": "所有状态",
+      "allCities": "所有城市",
+      "clear": "清除"
+    },
+    "loadError": "加载公司列表失败，请重试。",
+    "unknownError": "未知错误",
+    "showingResults": "显示 {count} 条，共 {total} 条公司"
+  },
+  "table": {
+    "columns": {
+      "name": "名称",
+      "code": "代码",
+      "city": "城市",
+      "formats": "格式数量",
+      "rules": "规则数量",
+      "ruleCount": "规则数",
+      "priority": "优先级",
+      "status": "状态",
+      "createdAt": "创建时间",
+      "updatedAt": "最后更新",
+      "actions": "操作"
+    },
+    "empty": "找不到符合条件的公司",
+    "emptyDescription": "创建新公司开始设置",
+    "rulesCount": "{count} 个映射规则",
+    "viewDetails": "查看详情",
+    "edit": "编辑"
+  },
+  "status": {
+    "active": "启用",
+    "inactive": "停用",
+    "pending": "待设置"
+  },
+  "actions": {
+    "create": "新增公司",
+    "edit": "编辑",
+    "delete": "删除",
+    "activate": "启用",
+    "deactivate": "停用",
+    "viewFormats": "查看格式",
+    "viewRules": "查看规则",
+    "refresh": "刷新",
+    "cancel": "取消",
+    "confirm": "确认"
+  },
+  "form": {
+    "basic": "基本信息",
+    "title": "新增货代商",
+    "editTitle": "编辑货代商",
+    "description": "填写货代商基本信息",
+    "name": "公司名称",
+    "namePlaceholder": "输入公司名称",
+    "code": "公司代码",
+    "codePlaceholder": "输入唯一识别代码",
+    "codeDescription": "只能使用大写字母、数字和下划线",
+    "city": "城市",
+    "cityPlaceholder": "选择城市",
+    "descriptionField": "描述",
+    "descriptionPlaceholder": "输入公司描述（选填）",
+    "contact": "联系信息",
+    "contactPerson": "联系人",
+    "contactEmail": "联系邮箱",
+    "contactEmailPlaceholder": "输入联系邮箱",
+    "contactPhone": "联系电话",
+    "settings": "设置",
+    "autoApproveThreshold": "自动通过阈值",
+    "defaultCurrency": "默认货币",
+    "defaultConfidence": "默认信心度",
+    "defaultConfidenceDescription": "低于此信心度需要人工审核",
+    "logo": "Logo",
+    "submit": "创建货代商",
+    "submitEdit": "保存变更",
+    "submitError": "操作失败",
+    "submitErrorRetry": "操作失败，请稍后重试",
+    "codeCheck": {
+      "checking": "检查中...",
+      "available": "此代码可以使用",
+      "taken": "此代码已被使用",
+      "error": "检查失败，请稍后重试",
+      "invalidFormat": "只能使用大写字母、数字和下划线"
+    }
+  },
+  "dialog": {
+    "createTitle": "新增公司",
+    "editTitle": "编辑公司",
+    "deleteTitle": "确认删除",
+    "deleteMessage": "确定要删除公司「{name}」吗？相关的格式和规则也会被删除。",
+    "deleteWarning": "此操作无法恢复"
+  },
+  "deactivateDialog": {
+    "title": "停用公司",
+    "confirmQuestion": "确定要停用 {name} 吗？",
+    "description": "停用后，该公司的发票处理将暂停。",
+    "deactivateRulesLabel": "同时停用相关规则",
+    "deactivateRulesDescription": "将 {count} 个活跃规则标记为已停用",
+    "reasonLabel": "停用原因（选填）",
+    "reasonPlaceholder": "请输入停用原因...",
+    "confirm": "确认停用",
+    "error": "停用失败",
+    "errorRetry": "停用失败，请稍后重试"
+  },
+  "activateDialog": {
+    "title": "启用公司",
+    "confirmQuestion": "确定要启用 {name} 吗？",
+    "description": "启用后，该公司的发票处理将恢复。",
+    "reactivateRulesLabel": "同时恢复相关规则",
+    "reactivateRulesDescription": "将 {count} 个已停用规则恢复为活跃",
+    "confirm": "确认启用",
+    "error": "启用失败",
+    "errorRetry": "启用失败，请稍后重试"
+  },
+  "merge": {
+    "title": "合并公司",
+    "description": "选择要保留的主公司，其他公司将被合并到主公司中",
+    "selectPrimary": "选择主公司（保留）",
+    "documentCount": "出现 {count} 次",
+    "needTwoCompanies": "需要选择至少 2 个公司才能进行合并",
+    "previewTitle": "合并后，以下公司将被标记为已合并：",
+    "previewDescription": "这些公司的名称将成为主公司的名称变体，用于未来的自动匹配。",
+    "selectError": "请选择要合并的公司",
+    "success": "成功合并 {count} 个公司",
+    "error": "合并公司失败",
+    "merging": "合并中...",
+    "confirmMerge": "确认合并",
+    "close": "关闭"
+  },
+  "companyType": {
+    "forwarder": "货运代理商",
+    "forwarderDesc": "提供货运代理服务的公司",
+    "exporter": "出口商",
+    "exporterDesc": "从事商品出口的公司",
+    "carrier": "承运人",
+    "carrierDesc": "提供运输服务的公司",
+    "customsBroker": "报关行",
+    "customsBrokerDesc": "提供报关服务的公司",
+    "other": "其他",
+    "otherDesc": "其他类型的公司",
+    "unknown": "未分类",
+    "unknownDesc": "尚未分类的公司",
+    "selectPlaceholder": "选择公司类型"
+  },
+  "detail": {
+    "overview": "总览",
+    "formats": "格式",
+    "rules": "规则",
+    "stats": "统计",
+    "documents": "文件",
+    "history": "处理历史",
+    "backToList": "返回列表",
+    "loadFailed": "无法加载公司数据",
+    "notFound": "找不到公司",
+    "notFoundDescription": "该公司可能已被删除或您没有权限访问",
+    "basicInfo": "基本信息",
+    "rulesSummary": "规则摘要",
+    "name": "名称",
+    "code": "代码",
+    "priority": "优先级",
+    "identificationPatterns": "识别模式",
+    "totalRules": "规则总数",
+    "relatedDocuments": "关联文件",
+    "documentsUnit": "份",
+    "statsInfo": {
+      "totalInvoices": "总发票数",
+      "processedThisMonth": "本月处理",
+      "autoApproveRate": "自动通过率",
+      "avgConfidence": "平均信心度"
+    }
+  },
+  "performanceStats": {
+    "noData": "暂无统计数据",
+    "totalDocuments": "文件总数",
+    "processedLast30Days": "近 30 天处理",
+    "successRate": "成功率",
+    "avgConfidence": "平均信心度",
+    "excellent": "表现优异",
+    "good": "表现良好",
+    "needsAttention": "需要关注",
+    "highConfidence": "高信心度",
+    "mediumConfidence": "中等信心度",
+    "lowConfidence": "低信心度",
+    "trendTitle": "30 天处理趋势",
+    "chartAll": "全部",
+    "chartSuccess": "成功"
+  },
+  "recentDocs": {
+    "title": "近期文件",
+    "recentCount": "(最近 {count} 条)",
+    "loadFailed": "加载近期文件失败",
+    "noRecords": "尚无处理记录",
+    "columns": {
+      "fileName": "文件名称",
+      "status": "状态",
+      "confidence": "信心度",
+      "processedAt": "处理时间",
+      "actions": "操作"
+    }
+  },
+  "rulesTable": {
+    "title": "映射规则",
+    "totalCount": "({count} 条)",
+    "loadFailed": "加载规则列表失败",
+    "noRules": "尚无规则",
+    "noMatchingRules": "没有符合条件的规则",
+    "searchPlaceholder": "搜索字段名称...",
+    "filterStatus": "筛选状态",
+    "allStatus": "全部状态",
+    "columns": {
+      "fieldName": "字段名称",
+      "status": "状态",
+      "version": "版本",
+      "confidence": "信心度",
+      "matchCount": "匹配次数",
+      "lastMatched": "最后匹配",
+      "actions": "操作"
+    },
+    "actions": {
+      "editRule": "编辑规则",
+      "viewDetails": "查看详情"
+    },
+    "ruleStatus": {
+      "active": "启用",
+      "draft": "草稿",
+      "pendingReview": "待审核",
+      "deprecated": "已弃用"
+    }
+  }
+}

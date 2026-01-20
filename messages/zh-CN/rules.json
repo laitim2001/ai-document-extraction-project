@@ -1,0 +1,326 @@
+{
+  "page": {
+    "title": "映射规则管理",
+    "description": "管理文件字段提取的映射规则，配置公司特定或通用提取模式",
+    "addRule": "新增规则"
+  },
+  "summary": {
+    "totalRules": "总规则数",
+    "activeRules": "生效中",
+    "draftRules": "草稿",
+    "pendingReviewRules": "待审核",
+    "deprecatedRules": "已弃用",
+    "universalRules": "通用规则"
+  },
+  "tabs": {
+    "universal": "通用规则",
+    "companySpecific": "公司特定规则",
+    "learned": "学习规则"
+  },
+  "tier": {
+    "universal": "通用层",
+    "companyOverride": "公司覆盖层",
+    "llmClassification": "AI 智能分类"
+  },
+  "list": {
+    "searchPlaceholder": "搜索规则...",
+    "loadError": "加载失败",
+    "retry": "重试",
+    "refresh": "刷新",
+    "pagination": {
+      "summary": "共 {total} 条规则，第 {page} / {totalPages} 页"
+    },
+    "filters": {
+      "tier": "规则层级",
+      "company": "公司",
+      "chargeType": "费用类型",
+      "status": "状态",
+      "allTiers": "所有层级",
+      "allCompanies": "所有公司",
+      "allTypes": "所有类型"
+    }
+  },
+  "ruleTable": {
+    "forwarder": "Forwarder",
+    "fieldName": "字段名称",
+    "extractionType": "提取类型",
+    "status": "状态",
+    "version": "版本",
+    "priority": "优先级",
+    "successRate": "成功率",
+    "updatedAt": "更新时间",
+    "universalRule": "通用规则",
+    "noMatchingRules": "没有符合条件的规则"
+  },
+  "ruleFilters": {
+    "forwarder": "Forwarder",
+    "fieldName": "字段名称",
+    "status": "状态",
+    "category": "类别",
+    "all": "全部",
+    "allForwarders": "全部 Forwarder",
+    "universalRules": "通用规则",
+    "allStatuses": "全部状态",
+    "allCategories": "全部类别",
+    "searchField": "搜索字段...",
+    "clearFilters": "清除筛选"
+  },
+  "ruleStatus": {
+    "active": "生效中",
+    "draft": "草稿",
+    "pendingReview": "待审核",
+    "deprecated": "已弃用"
+  },
+  "detail": {
+    "loadFailed": "加载失败",
+    "backToList": "返回列表",
+    "universalRule": "通用规则",
+    "noDescription": "无描述",
+    "fieldLabel": "字段标签：",
+    "versionHistory": "版本历史",
+    "edit": "编辑",
+    "extractionType": "提取类型",
+    "version": "版本",
+    "priority": "优先级",
+    "confidenceThreshold": "信心度阈值",
+    "extractionPattern": "提取模式",
+    "applications": "应用记录",
+    "patternDetails": "提取模式详情",
+    "recentApplications": "最近应用记录",
+    "createdBy": "创建者：",
+    "createdAt": "创建时间：",
+    "forwarder": "Forwarder：",
+    "updatedAt": "更新时间：",
+    "category": "类别：",
+    "requiredField": "必填字段：",
+    "system": "系统",
+    "yes": "是"
+  },
+  "stats": {
+    "applicationStats": "应用统计",
+    "totalApplications": "总应用次数",
+    "successfulApplications": "成功次数",
+    "overallSuccessRate": "整体成功率",
+    "last7DaysPerformance": "近 7 天表现",
+    "last7DaysApplications": "应用次数",
+    "last7DaysSuccessRate": "近 7 天成功率",
+    "confidenceConfig": "信心度配置",
+    "confidenceThreshold": "信心度阈值",
+    "belowRequiresReview": "低于此值需人工审核"
+  },
+  "trend": {
+    "up": "上升",
+    "down": "下降",
+    "stable": "稳定"
+  },
+  "extractionType": {
+    "regex": "正则表达式",
+    "regexDesc": "使用正则表达式匹配文字模式",
+    "keyword": "关键字",
+    "keywordDesc": "根据关键字定位提取",
+    "position": "位置提取",
+    "positionDesc": "根据 PDF 坐标位置提取",
+    "azureField": "Azure 字段",
+    "azureFieldDesc": "使用 Azure Document Intelligence 字段",
+    "aiPrompt": "AI 提示词",
+    "aiPromptDesc": "使用 LLM 智能提取"
+  },
+  "applications": {
+    "document": "文件",
+    "extractedValue": "提取值",
+    "status": "状态",
+    "appliedAt": "应用时间",
+    "noRecords": "尚无应用记录",
+    "noRecordsDesc": "当规则被应用到文件提取时，记录将显示在这里",
+    "noValue": "无值"
+  },
+  "accuracy": {
+    "unverified": "未验证",
+    "correct": "正确",
+    "incorrect": "错误"
+  },
+  "table": {
+    "columns": {
+      "sourceText": "来源文字",
+      "chargeType": "费用类型",
+      "tier": "层级",
+      "company": "公司",
+      "confidence": "信心度",
+      "usageCount": "使用次数",
+      "status": "状态",
+      "actions": "操作"
+    },
+    "empty": "没有找到映射规则",
+    "emptyDescription": "创建新规则开始设置"
+  },
+  "status": {
+    "active": "启用",
+    "inactive": "停用",
+    "pending": "待验证",
+    "rejected": "已拒绝"
+  },
+  "actions": {
+    "create": "新增规则",
+    "edit": "编辑",
+    "delete": "删除",
+    "activate": "启用",
+    "deactivate": "停用",
+    "approve": "批准",
+    "reject": "拒绝",
+    "test": "测试规则",
+    "bulkImport": "批量导入",
+    "export": "导出"
+  },
+  "form": {
+    "sourceText": "来源文字",
+    "sourceTextPlaceholder": "输入发票上的文字（支持正则表达式）",
+    "chargeType": "费用类型",
+    "chargeTypePlaceholder": "选择或输入费用类型",
+    "tier": "规则层级",
+    "company": "适用公司",
+    "companyPlaceholder": "选择公司（通用规则留空）",
+    "format": "适用格式",
+    "formatPlaceholder": "选择格式（选填）",
+    "isRegex": "使用正则表达式",
+    "caseSensitive": "区分大小写",
+    "priority": "优先级",
+    "notes": "备注"
+  },
+  "dialog": {
+    "createTitle": "新增映射规则",
+    "editTitle": "编辑映射规则",
+    "deleteTitle": "确认删除",
+    "deleteMessage": "确定要删除此映射规则吗？",
+    "testTitle": "测试规则",
+    "testInput": "输入测试文字",
+    "testResult": "匹配结果",
+    "bulkImportTitle": "批量导入规则",
+    "bulkImportDescription": "上传 CSV 文件导入多个规则"
+  },
+  "test": {
+    "inputPlaceholder": "输入要测试的文字...",
+    "matched": "匹配成功",
+    "notMatched": "未匹配",
+    "matchedRule": "匹配规则",
+    "confidence": "信心度"
+  },
+  "chargeTypes": {
+    "oceanFreight": "海运费",
+    "airFreight": "空运费",
+    "documentFee": "文件费",
+    "customsClearance": "报关费",
+    "handling": "手续费",
+    "insurance": "保险费",
+    "storage": "仓储费",
+    "delivery": "派送费",
+    "other": "其他费用"
+  },
+  "learning": {
+    "title": "规则学习",
+    "description": "从人工修正中学习的规则",
+    "pendingApproval": "待批准",
+    "approved": "已批准",
+    "rejected": "已拒绝",
+    "source": "学习来源",
+    "learnedFrom": "学习自",
+    "corrections": "次修正"
+  },
+  "ruleEdit": {
+    "dialog": {
+      "title": "编辑规则：{fieldLabel}",
+      "description": "修改规则配置后提交审核，变更将在审核通过后生效"
+    },
+    "toast": {
+      "submitted": "变更已提交",
+      "submittedDesc": "规则变更请求已提交审核，待审核者批准后生效。"
+    },
+    "form": {
+      "ruleInfo": "规则信息",
+      "fieldName": "字段名称：",
+      "fieldLabel": "字段标签：",
+      "extractionType": "提取类型",
+      "patternConfig": "提取模式配置",
+      "priority": "优先级 (1-100)",
+      "priorityDesc": "数字越大优先级越高",
+      "confidence": "信心度阈值 (0-1)",
+      "confidenceDesc": "建议 0.7-0.9 之间",
+      "description": "描述（选填）",
+      "descriptionPlaceholder": "说明此规则的用途或特殊情况...",
+      "reason": "变更原因",
+      "reasonRequired": "变更原因 *",
+      "reasonPlaceholder": "请说明为什么需要修改此规则...",
+      "reasonDesc": "变更原因将记录在审核历史中"
+    },
+    "extractionTypes": {
+      "regex": {
+        "label": "正则表达式",
+        "description": "使用正则表达式匹配并提取文字"
+      },
+      "keyword": {
+        "label": "关键字",
+        "description": "根据关键字位置提取相邻文字"
+      },
+      "position": {
+        "label": "坐标位置",
+        "description": "根据 PDF 坐标提取特定区域（需 OCR 支持）"
+      },
+      "aiPrompt": {
+        "label": "AI 提示词",
+        "description": "使用 AI 理解并提取内容（需 AI 服务）"
+      },
+      "template": {
+        "label": "模板匹配",
+        "description": "使用预定义模板匹配并提取（需模板系统）"
+      }
+    },
+    "regex": {
+      "expression": "正则表达式",
+      "expressionPlaceholder": "例如: Invoice\\s*(?:No|Number)?[.:]?\\s*(\\S+)",
+      "flags": "标志 (Flags)",
+      "flagsGi": "gi (全局, 不分大小写)",
+      "flagsG": "g (全局)",
+      "flagsI": "i (不分大小写)",
+      "flagsGim": "gim (全局, 不分大小写, 多行)",
+      "groupIndex": "捕获组索引"
+    },
+    "keyword": {
+      "keywords": "关键字（每行一个）",
+      "keywordsPlaceholder": "Invoice No\nInvoice Number\nINV#",
+      "direction": "搜索方向",
+      "directionRight": "右侧",
+      "directionLeft": "左侧",
+      "directionBelow": "下方",
+      "directionAbove": "上方",
+      "extractLength": "提取长度"
+    },
+    "aiPrompt": {
+      "prompt": "AI 提示词",
+      "promptPlaceholder": "请从文件中提取发票号码...",
+      "promptDesc": "提示词将发送给 AI 模型，请清楚描述要提取的内容"
+    },
+    "position": {
+      "notice": "坐标位置提取需要 OCR 坐标信息，建议使用测试面板获取坐标"
+    },
+    "template": {
+      "notAvailable": "模板匹配编辑功能尚未开放"
+    },
+    "preview": {
+      "title": "规则预览",
+      "testPlaceholder": "粘贴测试文本内容...",
+      "button": "预览",
+      "loading": "预览中...",
+      "matched": "匹配成功",
+      "notMatched": "未匹配",
+      "confidence": "信心度: {value}%",
+      "extractedValue": "提取的值",
+      "clickToTest": "点击「预览」按钮测试规则效果"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "submit": "提交变更"
+    },
+    "validation": {
+      "reasonRequired": "请说明变更原因"
+    }
+  }
+}

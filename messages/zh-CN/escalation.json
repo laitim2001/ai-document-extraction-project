@@ -1,0 +1,131 @@
+{
+  "page": {
+    "title": "升级案例管理",
+    "description": "处理需要 Super User 审核的复杂案例"
+  },
+  "list": {
+    "loadError": "加载升级案例失败：",
+    "pagination": "共 {total} 条，第 {page} / {totalPages} 页",
+    "previous": "上一页",
+    "next": "下一页",
+    "noData": "目前没有升级案例",
+    "retry": "重试"
+  },
+  "table": {
+    "fileName": "文件名",
+    "reason": "升级原因",
+    "status": "状态",
+    "escalatedBy": "升级者",
+    "escalatedAt": "升级时间",
+    "actions": "操作",
+    "unidentified": "未识别",
+    "view": "查看"
+  },
+  "detail": {
+    "title": "升级案例详情",
+    "handleCase": "处理此案例",
+    "status": "状态",
+    "reason": "升级原因",
+    "escalatedAt": "升级时间",
+    "escalatedBy": "升级者",
+    "description": "详细说明",
+    "documentPreview": "文件预览",
+    "document": "文件：",
+    "pdfLoadError": "无法加载 PDF",
+    "extractedFields": "提取字段",
+    "empty": "(空)",
+    "noFields": "无提取字段",
+    "correctionHistory": "修正记录",
+    "resolution": "处理结果",
+    "resolvedBy": "处理者",
+    "resolvedAt": "处理时间",
+    "resolutionNotes": "处理说明",
+    "notFound": "找不到此升级案例"
+  },
+  "filters": {
+    "status": "状态：",
+    "reason": "原因：",
+    "all": "全部",
+    "clearFilters": "清除筛选"
+  },
+  "status": {
+    "pending": "待处理",
+    "inProgress": "处理中",
+    "resolved": "已解决",
+    "cancelled": "已取消"
+  },
+  "reasons": {
+    "unknownCompany": "无法识别公司",
+    "unknownCompanyDesc": "系统无法判断此发票来自哪个物流商",
+    "mappingNotApplicable": "映射规则不适用",
+    "mappingNotApplicableDesc": "现有的映射规则无法正确处理此发票格式",
+    "documentQuality": "文件质量问题",
+    "documentQualityDesc": "文件模糊、破损或无法正常读取",
+    "other": "其他",
+    "otherDesc": "其他需要 Super User 协助的情况"
+  },
+  "decisions": {
+    "approve": "核准",
+    "approveDesc": "确认提取结果正确，无需修改",
+    "approveWithCorrections": "修正后核准",
+    "approveWithCorrectionsDesc": "修正错误后核准此文件",
+    "reject": "拒绝",
+    "rejectDesc": "文件无法处理，标记为拒绝",
+    "approved": "已核准",
+    "corrected": "已修正",
+    "rejected": "已拒绝"
+  },
+  "resolve": {
+    "title": "处理升级案例",
+    "description": "选择处理决策并完成此升级案例",
+    "document": "文件：",
+    "selectDecision": "选择处理决策",
+    "corrections": "修正项目",
+    "addCorrection": "新增修正",
+    "atLeastOneCorrection": "请新增至少一项修正",
+    "correctionItem": "修正项目 #{index}",
+    "field": "字段",
+    "selectField": "选择字段",
+    "correctionType": "修正类型",
+    "normalCorrection": "一般修正",
+    "exceptionCorrection": "例外修正",
+    "originalValue": "原始值",
+    "correctedValue": "修正值",
+    "enterCorrectedValue": "输入修正后的值",
+    "notes": "备注（选填）",
+    "enterNotes": "输入处理备注...",
+    "createRuleSuggestion": "创建规则建议（连接 Epic 4 规则管理）",
+    "fieldName": "字段名称",
+    "fieldNamePlaceholder": "例如：Freight Charge",
+    "suggestedPattern": "建议模式",
+    "patternPlaceholder": "例如：/freight|运费/i",
+    "ruleDescription": "描述说明（选填）",
+    "ruleDescriptionPlaceholder": "说明此规则的用途",
+    "cancel": "取消",
+    "processing": "处理中...",
+    "confirm": "确认处理"
+  },
+  "dialog": {
+    "title": "升级案例",
+    "description": "将此发票升级给 Super User 处理。请选择升级原因。",
+    "document": "文件：",
+    "selectReason": "选择升级原因",
+    "required": "*需说明",
+    "detailedDescription": "详细说明",
+    "provideDescription": "请提供详细说明",
+    "cancel": "取消",
+    "submitting": "提交中...",
+    "confirmEscalation": "确认升级",
+    "placeholders": {
+      "unidentified": "描述无法识别的情况（选填）...",
+      "mappingRules": "请说明哪个字段的规则需要调整...",
+      "documentQuality": "请描述文件的质量问题...",
+      "other": "请提供更多详情...",
+      "default": "请提供详细说明..."
+    }
+  },
+  "toast": {
+    "caseDecision": "案例已{decision}",
+    "processingFailed": "处理失败："
+  }
+}

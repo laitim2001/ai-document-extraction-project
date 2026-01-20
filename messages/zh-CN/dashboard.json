@@ -1,0 +1,85 @@
+{
+  "page": {
+    "title": "仪表板",
+    "welcome": "欢迎回来，",
+    "welcomeUser": "用户",
+    "systemDescription": "AI 文件提取与分类系统 - 智能处理 Freight Invoice"
+  },
+  "cards": {
+    "documentUpload": {
+      "title": "文件上传",
+      "description": "上传 Freight Invoice 进行自动化处理"
+    },
+    "mappingManagement": {
+      "title": "映射管理",
+      "description": "管理术语映射规则和分类配置"
+    },
+    "reviewWorkstation": {
+      "title": "审核工作台",
+      "description": "审核和修正 AI 分类结果"
+    },
+    "dataAnalytics": {
+      "title": "数据分析",
+      "description": "查看处理统计和性能指标"
+    }
+  },
+  "sections": {
+    "systemFeatures": "系统功能",
+    "comingSoon": "即将推出",
+    "sessionInfo": "Session 信息 (开发模式)"
+  },
+  "stats": {
+    "title": "处理统计",
+    "processingVolume": "处理量",
+    "today": "今日",
+    "successRate": "成功率",
+    "automationRate": "自动化率",
+    "avgProcessingTime": "平均处理时间",
+    "pendingReview": "待审核",
+    "urgent": "紧急",
+    "lastUpdated": "最后更新：",
+    "refreshStats": "刷新统计数据",
+    "loadError": "无法加载统计数据：",
+    "retry": "重试"
+  },
+  "dateRange": {
+    "invalidRange": "日期范围无效",
+    "loading": "加载中...",
+    "days": "天",
+    "selectRange": "选择日期范围",
+    "maxDays": "最多 {max} 天",
+    "quickSelect": "快速选择时间范围",
+    "day": "日：",
+    "week": "周：",
+    "month": "月：",
+    "quarter": "季：",
+    "year": "年："
+  },
+  "presets": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "thisWeek": "本周",
+    "lastWeek": "上周",
+    "thisMonth": "本月",
+    "lastMonth": "上月",
+    "thisQuarter": "本季",
+    "lastQuarter": "上季",
+    "thisYear": "今年",
+    "lastYear": "去年",
+    "custom": "自定义范围",
+    "customRange": "自定义范围"
+  },
+  "dateValidation": {
+    "invalidStartDate": "起始日期无效",
+    "invalidEndDate": "结束日期无效",
+    "endBeforeStart": "结束日期不能早于起始日期",
+    "exceedsMaxDays": "日期范围不能超过 {max} 天",
+    "exceedsToday": "结束日期不能超过今天"
+  },
+  "errors": {
+    "access_denied": {
+      "title": "访问被拒绝",
+      "description": "您没有权限访问该页面。如果您认为这是错误，请联系系统管理员。"
+    }
+  }
+}

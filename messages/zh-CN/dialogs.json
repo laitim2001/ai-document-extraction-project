@@ -1,0 +1,72 @@
+{
+  "common": {
+    "confirmTitle": "确认操作",
+    "confirmMessage": "确定要执行此操作吗？",
+    "cancelButton": "取消",
+    "confirmButton": "确认"
+  },
+  "delete": {
+    "title": "确认删除",
+    "message": "确定要删除此项目吗？此操作无法恢复。",
+    "itemMessage": "确定要删除「{name}」吗？此操作无法恢复。",
+    "multipleMessage": "确定要删除选中的 {count} 个项目吗？此操作无法恢复。"
+  },
+  "save": {
+    "title": "保存变更",
+    "message": "您有未保存的变更，是否保存？",
+    "saveButton": "保存",
+    "discardButton": "放弃变更"
+  },
+  "leave": {
+    "title": "离开页面",
+    "message": "您有未保存的变更，确定要离开吗？"
+  },
+  "approve": {
+    "title": "确认批准",
+    "message": "确定要批准此项目吗？",
+    "batchMessage": "确定要批准选中的 {count} 个项目吗？"
+  },
+  "reject": {
+    "title": "确认拒绝",
+    "message": "请输入拒绝原因：",
+    "reasonPlaceholder": "输入拒绝原因...",
+    "reasonRequired": "请填写拒绝原因"
+  },
+  "upload": {
+    "title": "上传文件",
+    "dropzone": "拖放文件到此处，或点击选择",
+    "selectedFiles": "已选择 {count} 个文件",
+    "uploading": "正在上传...",
+    "uploadComplete": "上传完成",
+    "uploadFailed": "上传失败"
+  },
+  "export": {
+    "title": "导出数据",
+    "formatLabel": "选择格式",
+    "rangeLabel": "日期范围",
+    "exportButton": "导出",
+    "exporting": "正在导出...",
+    "success": "导出成功",
+    "failed": "导出失败"
+  },
+  "filter": {
+    "title": "高级筛选",
+    "applyButton": "应用筛选",
+    "resetButton": "重置",
+    "noFilters": "没有设置筛选条件"
+  },
+  "error": {
+    "title": "操作失败",
+    "defaultMessage": "发生错误，请稍后再试。",
+    "networkMessage": "网络连接失败，请检查网络后重试。",
+    "retryButton": "重试"
+  },
+  "success": {
+    "title": "操作成功",
+    "defaultMessage": "操作已成功完成。"
+  },
+  "loading": {
+    "title": "请稍候",
+    "message": "正在处理中..."
+  }
+}
