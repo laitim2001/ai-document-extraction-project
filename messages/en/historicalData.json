@@ -245,6 +245,52 @@
     },
     "confidence": "Confidence: {value}%"
   },
+  "processingDialog": {
+    "loading": {
+      "title": "Processing Confirmation",
+      "description": "Calculating processing cost..."
+    },
+    "empty": {
+      "title": "No Files to Process",
+      "description": "No eligible files to process",
+      "hint": "Please ensure files have been uploaded and metadata detection is complete."
+    },
+    "confirm": {
+      "title": "Confirm Processing",
+      "description": "The following files are about to start AI processing. Please confirm the cost estimate.",
+      "descriptionWithBatch": "Batch \"{name}\" is about to start AI processing"
+    },
+    "methods": {
+      "azureDI": {
+        "title": "Azure Document Intelligence",
+        "description": "Native PDF text extraction (lower cost)"
+      },
+      "gptVision": {
+        "title": "GPT-5.2 Vision",
+        "description": "Scanned PDF and image OCR (higher accuracy)"
+      }
+    },
+    "card": {
+      "fileCount": "{count} files",
+      "estimatedPages": "Estimated Pages",
+      "pageCount": "{count} pages",
+      "costPerPage": "Cost per Page",
+      "estimatedCost": "Estimated Cost"
+    },
+    "summary": {
+      "totalCost": "Total Estimated Cost",
+      "filesAndPages": "{files} files / {pages} pages"
+    },
+    "notes": {
+      "costDisclaimer": "Actual costs may vary depending on file pages. Please do not close the page during processing."
+    },
+    "actions": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "startProcessing": "Start Processing ({count} files)",
+      "processing": "Processing..."
+    }
+  },
   "createBatchDialog": {
     "trigger": "Create Batch",
     "title": "Create New Batch",

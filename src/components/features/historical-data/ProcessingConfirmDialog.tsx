@@ -8,16 +8,18 @@
  *
  * @module src/components/features/historical-data/ProcessingConfirmDialog
  * @since Epic 0 - Story 0.2
- * @lastModified 2025-12-23
+ * @lastModified 2026-01-20
  *
  * @features
  *   - 顯示文件分類統計（Azure DI / GPT Vision）
  *   - 顯示成本估算明細
  *   - 確認/取消按鈕
+ *   - 多語言支援 (Epic 17)
  *
  * @dependencies
  *   - Dialog UI 組件
  *   - cost-estimation.service
+ *   - next-intl
  *
  * @related
  *   - src/services/cost-estimation.service.ts - 成本估算服務
@@ -25,6 +27,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Loader2, FileText, FileImage, AlertCircle, DollarSign } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -76,6 +79,7 @@ function ProcessingMethodCard({
   costPerPage,
   totalCost,
   variant = 'default',
+  t,
 }: {
   icon: React.ElementType
   title: string
@@ -85,6 +89,7 @@ function ProcessingMethodCard({
   costPerPage: number
   totalCost: number
   variant?: 'default' | 'ai'
+  t: ReturnType<typeof useTranslations<'historicalData.processingDialog'>>
 }) {
   if (fileCount === 0) return null
 
@@ -111,7 +116,7 @@ function ProcessingMethodCard({
             </div>
           </div>
           <Badge variant={variant === 'ai' ? 'secondary' : 'outline'}>
-            {fileCount} 個文件
+            {t('card.fileCount', { count: fileCount })}
           </Badge>
         </div>
 
@@ -119,15 +124,15 @@ function ProcessingMethodCard({
 
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="text-muted-foreground">預估頁數</p>
-            <p className="font-medium">{pages} 頁</p>
+            <p className="text-muted-foreground">{t('card.estimatedPages')}</p>
+            <p className="font-medium">{t('card.pageCount', { count: pages })}</p>
           </div>
           <div>
-            <p className="text-muted-foreground">每頁成本</p>
+            <p className="text-muted-foreground">{t('card.costPerPage')}</p>
             <p className="font-medium">${costPerPage.toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-muted-foreground">預估成本</p>
+            <p className="text-muted-foreground">{t('card.estimatedCost')}</p>
             <p className="font-medium text-primary">${totalCost.toFixed(2)}</p>
           </div>
         </div>
@@ -141,8 +146,10 @@ function ProcessingMethodCard({
  */
 function CostSummary({
   estimation,
+  t,
 }: {
   estimation: BatchCostEstimation
+  t: ReturnType<typeof useTranslations<'historicalData.processingDialog'>>
 }) {
   return (
     <Card className="bg-muted/50 border-2">
@@ -150,14 +157,17 @@ function CostSummary({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <DollarSign className="h-5 w-5 text-muted-foreground" />
-            <span className="font-medium">總預估成本</span>
+            <span className="font-medium">{t('summary.totalCost')}</span>
           </div>
           <div className="text-right">
             <p className="text-2xl font-bold text-primary">
               ${estimation.totalCost.toFixed(2)}
             </p>
             <p className="text-sm text-muted-foreground">
-              {estimation.totalFiles} 個文件 / {estimation.totalPages} 頁
+              {t('summary.filesAndPages', {
+                files: estimation.totalFiles,
+                pages: estimation.totalPages
+              })}
             </p>
           </div>
         </div>
@@ -185,15 +195,17 @@ export function ProcessingConfirmDialog({
   isProcessing = false,
   batchName,
 }: ProcessingConfirmDialogProps) {
+  const t = useTranslations('historicalData.processingDialog')
+
   // 如果沒有估算資料，顯示空狀態
   if (!costEstimation) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>處理確認</DialogTitle>
+            <DialogTitle>{t('loading.title')}</DialogTitle>
             <DialogDescription>
-              正在計算處理成本...
+              {t('loading.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center justify-center py-8">
@@ -210,20 +222,20 @@ export function ProcessingConfirmDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>無文件處理</DialogTitle>
+            <DialogTitle>{t('empty.title')}</DialogTitle>
             <DialogDescription>
-              沒有符合條件的文件需要處理
+              {t('empty.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground">
-              請確保已上傳文件並完成元數據檢測。
+              {t('empty.hint')}
             </p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              關閉
+              {t('actions.close')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -235,13 +247,11 @@ export function ProcessingConfirmDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>確認開始處理</DialogTitle>
+          <DialogTitle>{t('confirm.title')}</DialogTitle>
           <DialogDescription>
-            {batchName ? (
-              <>批次「{batchName}」即將開始 AI 處理</>
-            ) : (
-              <>以下文件即將開始 AI 處理，請確認成本估算</>
-            )}
+            {batchName
+              ? t('confirm.descriptionWithBatch', { name: batchName })
+              : t('confirm.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -249,36 +259,37 @@ export function ProcessingConfirmDialog({
           {/* Azure DI 處理 */}
           <ProcessingMethodCard
             icon={FileText}
-            title="Azure Document Intelligence"
-            description="原生 PDF 文字提取（成本較低）"
+            title={t('methods.azureDI.title')}
+            description={t('methods.azureDI.description')}
             fileCount={costEstimation.azureDI.fileCount}
             pages={costEstimation.azureDI.estimatedPages}
             costPerPage={costEstimation.azureDI.costPerPage}
             totalCost={costEstimation.azureDI.estimatedCost}
             variant="default"
+            t={t}
           />
 
           {/* GPT Vision 處理 */}
           <ProcessingMethodCard
             icon={FileImage}
-            title="GPT-5.2 Vision"
-            description="掃描 PDF 和圖片 OCR（精確度更高）"
+            title={t('methods.gptVision.title')}
+            description={t('methods.gptVision.description')}
             fileCount={costEstimation.gptVision.fileCount}
             pages={costEstimation.gptVision.estimatedPages}
             costPerPage={costEstimation.gptVision.costPerPage}
             totalCost={costEstimation.gptVision.estimatedCost}
             variant="ai"
+            t={t}
           />
 
           {/* 總成本 */}
-          <CostSummary estimation={costEstimation} />
+          <CostSummary estimation={costEstimation} t={t} />
 
           {/* 注意事項 */}
           <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
             <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
             <p>
-              實際成本可能因文件頁數而有所不同。
-              處理過程中請勿關閉頁面。
+              {t('notes.costDisclaimer')}
             </p>
           </div>
         </div>
@@ -290,7 +301,7 @@ export function ProcessingConfirmDialog({
             onClick={() => onOpenChange(false)}
             disabled={isProcessing}
           >
-            取消
+            {t('actions.cancel')}
           </Button>
           <Button
             onClick={onConfirm}
@@ -299,10 +310,10 @@ export function ProcessingConfirmDialog({
             {isProcessing ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                處理中...
+                {t('actions.processing')}
               </>
             ) : (
-              <>開始處理 ({costEstimation.totalFiles} 個文件)</>
+              t('actions.startProcessing', { count: costEstimation.totalFiles })
             )}
           </Button>
         </DialogFooter>

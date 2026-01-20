@@ -245,6 +245,52 @@
     },
     "confidence": "置信度：{value}%"
   },
+  "processingDialog": {
+    "loading": {
+      "title": "处理确认",
+      "description": "正在计算处理成本..."
+    },
+    "empty": {
+      "title": "无文件处理",
+      "description": "没有符合条件的文件需要处理",
+      "hint": "请确保已上传文件并完成元数据检测。"
+    },
+    "confirm": {
+      "title": "确认开始处理",
+      "description": "以下文件即将开始 AI 处理，请确认成本估算",
+      "descriptionWithBatch": "批次「{name}」即将开始 AI 处理"
+    },
+    "methods": {
+      "azureDI": {
+        "title": "Azure Document Intelligence",
+        "description": "原生 PDF 文字提取（成本较低）"
+      },
+      "gptVision": {
+        "title": "GPT-5.2 Vision",
+        "description": "扫描 PDF 和图片 OCR（精确度更高）"
+      }
+    },
+    "card": {
+      "fileCount": "{count} 个文件",
+      "estimatedPages": "预估页数",
+      "pageCount": "{count} 页",
+      "costPerPage": "每页成本",
+      "estimatedCost": "预估成本"
+    },
+    "summary": {
+      "totalCost": "总预估成本",
+      "filesAndPages": "{files} 个文件 / {pages} 页"
+    },
+    "notes": {
+      "costDisclaimer": "实际成本可能因文件页数而有所不同。处理过程中请勿关闭页面。"
+    },
+    "actions": {
+      "close": "关闭",
+      "cancel": "取消",
+      "startProcessing": "开始处理 ({count} 个文件)",
+      "processing": "处理中..."
+    }
+  },
   "createBatchDialog": {
     "trigger": "创建批次",
     "title": "创建新批次",
