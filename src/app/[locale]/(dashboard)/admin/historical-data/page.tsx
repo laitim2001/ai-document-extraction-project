@@ -20,7 +20,7 @@
  *   - 批次操作管理
  */
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import { useRouter, usePathname } from '@/i18n/routing'
@@ -64,9 +64,16 @@ export default function HistoricalDataPage() {
   const searchParams = useSearchParams()
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'files' | 'upload'>('files')
+  // 用於追蹤用戶手動返回列表，避免 useEffect 競態條件
+  const isReturningToList = useRef(false)
 
   // 從 URL 參數讀取 batchId（從文件詳情頁返回時使用）
   useEffect(() => {
+    // 如果用戶正在手動返回列表，跳過自動設置
+    if (isReturningToList.current) {
+      isReturningToList.current = false
+      return
+    }
     const batchIdFromUrl = searchParams.get('batchId')
     if (batchIdFromUrl && !selectedBatchId) {
       setSelectedBatchId(batchIdFromUrl)
@@ -207,9 +214,11 @@ export default function HistoricalDataPage() {
   )
 
   const handleBackToList = useCallback(() => {
+    // 標記正在返回列表，避免 useEffect 競態條件又設置回 batchId
+    isReturningToList.current = true
     setSelectedBatchId(null)
     refetchBatches()
-    // 清除 URL 參數，避免 useEffect 又把 batchId 設回來
+    // 清除 URL 參數
     if (searchParams.get('batchId')) {
       router.replace(pathname)
     }
