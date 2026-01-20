@@ -65,6 +65,22 @@ function formatDate(dateStr: string | undefined, locale: Locale): string {
 // ============================================================
 
 /**
+ * 格式化信心度為百分比字串
+ * @description
+ *   修復信心度顯示問題
+ *   資料庫存儲格式可能是：
+ *   - 整數 (如 96 表示 96%)
+ *   - 小數 (如 0.96 表示 96%)
+ *   需要判斷數值範圍來決定是否需要轉換
+ */
+function formatConfidencePercent(confidence: number | undefined): string {
+  if (confidence === undefined) return '-';
+  // 判斷是整數百分比還是小數
+  const percentValue = confidence > 1 ? confidence : confidence * 100;
+  return `${percentValue.toFixed(1)}%`;
+}
+
+/**
  * @component ExtractionResultPanel
  * @description 顯示提取結果摘要的面板組件
  */
@@ -122,9 +138,13 @@ export function ExtractionResultPanel({ extractionResult }: ExtractionResultPane
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">{t('title')}</CardTitle>
           {confidence !== undefined && (
-            <Badge variant={confidence >= 0.9 ? 'default' : confidence >= 0.7 ? 'secondary' : 'outline'}>
+            <Badge variant={
+              // 判斷是整數百分比還是小數
+              (confidence > 1 ? confidence / 100 : confidence) >= 0.9 ? 'default' :
+              (confidence > 1 ? confidence / 100 : confidence) >= 0.7 ? 'secondary' : 'outline'
+            }>
               <Percent className="mr-1 h-3 w-3" />
-              {(confidence * 100).toFixed(1)}%
+              {formatConfidencePercent(confidence)}
             </Badge>
           )}
         </div>

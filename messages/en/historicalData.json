@@ -214,6 +214,37 @@
       "confirm": "Delete"
     }
   },
+  "fileUploader": {
+    "dropzone": {
+      "active": "Drop files here",
+      "default": "Drag and drop files here, or click to select",
+      "formats": "Supports PDF, JPG, PNG, TIFF formats, max {maxSize}MB per file, up to {maxFiles} files"
+    },
+    "stats": {
+      "selected": "{count} files selected",
+      "success": "Success {count}",
+      "failed": "Failed {count}",
+      "pending": "Pending {count}"
+    },
+    "actions": {
+      "upload": "Upload {count} files",
+      "clearAll": "Clear All"
+    },
+    "progress": {
+      "uploading": "Uploading...",
+      "percent": "{percent}%"
+    },
+    "fileType": {
+      "nativePdf": "Native PDF",
+      "scannedPdf": "Scanned PDF",
+      "image": "Image"
+    },
+    "errors": {
+      "uploadFailed": "Upload failed",
+      "networkError": "Network error"
+    },
+    "confidence": "Confidence: {value}%"
+  },
   "createBatchDialog": {
     "trigger": "Create Batch",
     "title": "Create New Batch",

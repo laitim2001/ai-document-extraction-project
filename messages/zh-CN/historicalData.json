@@ -214,6 +214,37 @@
       "confirm": "删除"
     }
   },
+  "fileUploader": {
+    "dropzone": {
+      "active": "释放以上传文件",
+      "default": "拖放文件到此处，或点击选择",
+      "formats": "支持 PDF、JPG、PNG、TIFF 格式，每个文件最大 {maxSize}MB，最多 {maxFiles} 个文件"
+    },
+    "stats": {
+      "selected": "已选择 {count} 个文件",
+      "success": "成功 {count}",
+      "failed": "失败 {count}",
+      "pending": "待上传 {count}"
+    },
+    "actions": {
+      "upload": "上传 {count} 个文件",
+      "clearAll": "清除全部"
+    },
+    "progress": {
+      "uploading": "上传中...",
+      "percent": "{percent}%"
+    },
+    "fileType": {
+      "nativePdf": "原生 PDF",
+      "scannedPdf": "扫描 PDF",
+      "image": "图片"
+    },
+    "errors": {
+      "uploadFailed": "上传失败",
+      "networkError": "网络错误"
+    },
+    "confidence": "置信度：{value}%"
+  },
   "createBatchDialog": {
     "trigger": "创建批次",
     "title": "创建新批次",

@@ -14,9 +14,10 @@
 'use client';
 
 import * as React from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import { ArrowLeft, FileText, Loader2 } from 'lucide-react';
+import { useRouter } from '@/i18n/routing';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -62,7 +63,12 @@ export default function FileDetailPage() {
   // --- Handlers ---
 
   const handleBack = () => {
-    router.back();
+    // 導航回歷史數據頁面，並帶上 batchId 以便自動選中該批次
+    if (file?.batch?.id) {
+      router.push(`/admin/historical-data?batchId=${file.batch.id}`);
+    } else {
+      router.push('/admin/historical-data');
+    }
   };
 
   // --- Loading State ---

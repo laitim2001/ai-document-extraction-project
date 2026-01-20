@@ -20,8 +20,9 @@
  *   - 批次操作管理
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
+import { useSearchParams } from 'next/navigation'
 import { ArrowLeft, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -57,8 +58,17 @@ import {
 export default function HistoricalDataPage() {
   const t = useTranslations('historicalData')
   const { toast } = useToast()
+  const searchParams = useSearchParams()
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'files' | 'upload'>('files')
+
+  // 從 URL 參數讀取 batchId（從文件詳情頁返回時使用）
+  useEffect(() => {
+    const batchIdFromUrl = searchParams.get('batchId')
+    if (batchIdFromUrl && !selectedBatchId) {
+      setSelectedBatchId(batchIdFromUrl)
+    }
+  }, [searchParams, selectedBatchId])
 
   // 處理確認對話框狀態
   const [processingDialogOpen, setProcessingDialogOpen] = useState(false)

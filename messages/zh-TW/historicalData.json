@@ -214,6 +214,37 @@
       "confirm": "刪除"
     }
   },
+  "fileUploader": {
+    "dropzone": {
+      "active": "放開以上傳文件",
+      "default": "拖放文件到此處，或點擊選擇",
+      "formats": "支援 PDF、JPG、PNG、TIFF 格式，每個文件最大 {maxSize}MB，最多 {maxFiles} 個文件"
+    },
+    "stats": {
+      "selected": "已選擇 {count} 個文件",
+      "success": "成功 {count}",
+      "failed": "失敗 {count}",
+      "pending": "待上傳 {count}"
+    },
+    "actions": {
+      "upload": "上傳 {count} 個文件",
+      "clearAll": "清除全部"
+    },
+    "progress": {
+      "uploading": "上傳中...",
+      "percent": "{percent}%"
+    },
+    "fileType": {
+      "nativePdf": "原生 PDF",
+      "scannedPdf": "掃描 PDF",
+      "image": "圖片"
+    },
+    "errors": {
+      "uploadFailed": "上傳失敗",
+      "networkError": "網絡錯誤"
+    },
+    "confidence": "信心度：{value}%"
+  },
   "createBatchDialog": {
     "trigger": "建立批次",
     "title": "建立新批次",
