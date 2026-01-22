@@ -168,6 +168,66 @@
 | `/api/learning/generate-suggestions` | POST | 生成規則建議 | 內部 | - | 4-4 |
 | `/api/learning/impact-analysis` | POST | 分析規則影響 | 是 | ADMIN | 4-5 |
 
+### 模版欄位映射 (Epic 19)
+
+> 路徑前綴: `/api/v1/template-field-mappings`
+>
+> 三層優先級映射系統：FORMAT > COMPANY > GLOBAL
+
+| 端點 | 方法 | 描述 | 認證 | 權限 | Story |
+|------|------|------|------|------|-------|
+| `/api/v1/template-field-mappings` | GET | 列出映射配置（支援篩選、分頁） | 是 | ADMIN | 19-1 |
+| `/api/v1/template-field-mappings` | POST | 創建映射配置 | 是 | ADMIN | 19-1 |
+| `/api/v1/template-field-mappings/[id]` | GET | 取得配置詳情 | 是 | ADMIN | 19-1 |
+| `/api/v1/template-field-mappings/[id]` | PATCH | 更新配置（部分更新） | 是 | ADMIN | 19-1 |
+| `/api/v1/template-field-mappings/[id]` | DELETE | 刪除配置（軟刪除） | 是 | ADMIN | 19-1 |
+| `/api/v1/template-field-mappings/resolve` | POST | 解析三層優先級配置 | 是 | USER+ | 19-1 |
+
+**篩選參數 (GET /api/v1/template-field-mappings)**:
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `dataTemplateId` | string | 按數據模版篩選 |
+| `scope` | string | 按範圍篩選（GLOBAL/COMPANY/FORMAT） |
+| `companyId` | string | 按公司篩選 |
+| `documentFormatId` | string | 按文件格式篩選 |
+| `isActive` | boolean | 按啟用狀態篩選 |
+| `search` | string | 搜尋名稱/說明 |
+| `page` | number | 頁碼（預設: 1） |
+| `limit` | number | 每頁數量（預設: 20，最大: 100） |
+
+**解析請求 (POST /api/v1/template-field-mappings/resolve)**:
+```json
+{
+  "dataTemplateId": "cuid...",
+  "companyId": "uuid...",       // 可選
+  "documentFormatId": "cuid..." // 可選
+}
+```
+
+**解析回應**:
+```json
+{
+  "success": true,
+  "data": {
+    "dataTemplateId": "cuid...",
+    "resolvedFrom": [
+      { "id": "...", "scope": "FORMAT", "name": "格式專屬配置" },
+      { "id": "...", "scope": "GLOBAL", "name": "全域配置" }
+    ],
+    "mappings": [
+      {
+        "id": "rule_123",
+        "sourceField": "sea_freight",
+        "targetField": "shipping_cost",
+        "transformType": "DIRECT",
+        "isRequired": true,
+        "order": 0
+      }
+    ]
+  }
+}
+```
+
 ---
 
 ## Forwarder 管理 API

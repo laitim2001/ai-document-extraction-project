@@ -671,6 +671,7 @@ model Company {
   fieldMappingConfigs       FieldMappingConfig[] // Story 13.4: 欄位映射配置
   promptConfigs             PromptConfig[]       // Story 14.1: Prompt 配置
   dataTemplates             DataTemplate[]       // Story 16.7: 數據模版
+  templateFieldMappings     TemplateFieldMapping[] // Story 19-1: 模版欄位映射配置
 
   @@index([type])
   @@index([status])
@@ -5100,8 +5101,9 @@ model DocumentFormat {
   files           HistoricalFile[]
 
   // 欄位映射配置
-  fieldMappingConfigs FieldMappingConfig[] // Story 13.4: 格式專屬的欄位映射配置
-  promptConfigs       PromptConfig[]       // Story 14.1: 格式專屬的 Prompt 配置
+  fieldMappingConfigs   FieldMappingConfig[] // Story 13.4: 格式專屬的欄位映射配置
+  promptConfigs         PromptConfig[]       // Story 14.1: 格式專屬的 Prompt 配置
+  templateFieldMappings TemplateFieldMapping[] // Story 19-1: 模版欄位映射配置
 
   // 唯一約束：每個公司的每種格式類型只有一個記錄
   @@unique([companyId, documentType, documentSubtype])
@@ -5165,11 +5167,12 @@ enum FieldMappingScope {
 /// Transform types for field mapping rules
 /// Defines how source fields are transformed to target fields
 enum FieldTransformType {
-  DIRECT // 直接映射，無轉換
-  CONCAT // 字串合併
-  SPLIT // 字串分割
-  LOOKUP // 查表轉換
-  CUSTOM // 自定義轉換（JavaScript 表達式）
+  DIRECT  // 直接映射，無轉換
+  CONCAT  // 字串合併
+  SPLIT   // 字串分割
+  LOOKUP  // 查表轉換
+  CUSTOM  // 自定義轉換（JavaScript 表達式）
+  FORMULA // 公式計算（Story 19-1: 支援 {field} + {field} 格式）
 }
 
 /// Field Mapping Configuration
@@ -5412,7 +5415,8 @@ model DataTemplate {
   isSystem        Boolean           @default(false) @map("is_system")
 
   // 關聯
-  fieldMappingConfigs FieldMappingConfig[]
+  fieldMappingConfigs   FieldMappingConfig[]
+  templateFieldMappings TemplateFieldMapping[] // Story 19-1: 模版欄位映射配置
 
   // 時間戳
   createdAt       DateTime          @default(now()) @map("created_at")
@@ -5424,5 +5428,101 @@ model DataTemplate {
   @@index([isActive])
   @@index([isSystem])
   @@map("data_templates")
+}
+
+// ============================================================================
+// Epic 19 - Story 19-1: Template Field Mapping
+// ============================================================================
+
+/**
+ * 模版欄位映射範圍
+ * 定義映射配置的作用範圍
+ * @since Epic 19 - Story 19.1
+ */
+enum TemplateFieldMappingScope {
+  GLOBAL  // 全局預設
+  COMPANY // 公司級別
+  FORMAT  // 文件格式級別
+}
+
+/**
+ * 模版欄位映射配置
+ * 定義標準欄位到數據模版欄位的映射規則
+ *
+ * @description
+ *   - 支援三層優先級：FORMAT > COMPANY > GLOBAL
+ *   - 每個 DataTemplate 可有多個映射配置
+ *   - 映射規則支援直接映射、公式計算、查表映射
+ *
+ * @since Epic 19 - Story 19.1
+ */
+model TemplateFieldMapping {
+  id                String    @id @default(cuid())
+
+  // ================================
+  // 關聯到數據模版
+  // ================================
+  dataTemplateId    String    @map("data_template_id")
+  dataTemplate      DataTemplate @relation(fields: [dataTemplateId], references: [id], onDelete: Cascade)
+
+  // ================================
+  // 範圍和優先級
+  // ================================
+  scope             TemplateFieldMappingScope @default(GLOBAL)
+
+  // COMPANY 範圍時關聯
+  companyId         String?   @map("company_id")
+  company           Company?  @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  // FORMAT 範圍時關聯
+  documentFormatId  String?   @map("document_format_id")
+  documentFormat    DocumentFormat? @relation(fields: [documentFormatId], references: [id], onDelete: SetNull)
+
+  // ================================
+  // 配置內容
+  // ================================
+  name              String    @db.VarChar(200)  // 配置名稱
+  description       String?   @db.Text          // 說明
+
+  /**
+   * 映射規則陣列 (JSON)
+   * @type TemplateFieldMappingRule[]
+   * 結構: {
+   *   id: string,
+   *   sourceField: string,     // 標準欄位名
+   *   targetField: string,     // 模版欄位名
+   *   transformType: 'DIRECT' | 'FORMULA' | 'LOOKUP',
+   *   transformParams?: { formula?: string, lookupTable?: object, defaultValue?: any },
+   *   isRequired: boolean,
+   *   order: number,
+   *   description?: string
+   * }[]
+   */
+  mappings          Json      @default("[]")
+
+  // ================================
+  // 狀態和排序
+  // ================================
+  priority          Int       @default(0)       // 同範圍內的優先級
+  isActive          Boolean   @default(true) @map("is_active")
+
+  // ================================
+  // 時間戳
+  // ================================
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  createdBy         String?   @map("created_by")
+
+  // ================================
+  // 索引和約束
+  // ================================
+  // 確保同一模版+範圍+公司/格式的組合唯一
+  @@unique([dataTemplateId, scope, companyId, documentFormatId], name: "unique_template_mapping")
+  @@index([dataTemplateId])
+  @@index([scope])
+  @@index([companyId])
+  @@index([documentFormatId])
+  @@index([isActive])
+  @@map("template_field_mappings")
 }
 

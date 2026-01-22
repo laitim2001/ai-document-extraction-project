@@ -552,3 +552,35 @@ export {
 
 // 術語學習相關 (Epic 15: Story 15.4)
 export * from './term-learning'
+
+// 模版欄位映射相關 (Epic 19: Story 19.1)
+// 注意：FieldTransformType 與 dynamic-config.ts 衝突，使用命名導出區分
+export {
+  // Types
+  type TemplateFieldMappingScope,
+  type FieldTransformType as TemplateFieldTransformType,
+  type FormulaTransformParams,
+  type LookupTransformParams,
+  type ConcatTransformParams,
+  type SplitTransformParams,
+  type CustomTransformParams,
+  type TransformParams as TemplateTransformParams,
+  type TemplateFieldMappingRule,
+  type TemplateFieldMappingRuleInput,
+  type TemplateFieldMapping,
+  type TemplateFieldMappingSummary,
+  type TemplateFieldMappingDetail,
+  type ResolvedMappingConfig,
+  type CreateTemplateFieldMappingInput,
+  type UpdateTemplateFieldMappingInput,
+  type TemplateFieldMappingFilters,
+  type ResolveMappingParams,
+  type TemplateFieldMappingQueryParams,
+  type TemplateFieldMappingListResponse,
+  // Constants
+  SCOPE_LABELS,
+  SCOPE_PRIORITY,
+  TRANSFORM_TYPE_LABELS as TEMPLATE_TRANSFORM_TYPE_LABELS,
+  SCOPE_OPTIONS,
+  TRANSFORM_TYPE_OPTIONS as TEMPLATE_TRANSFORM_TYPE_OPTIONS,
+} from './template-field-mapping'
