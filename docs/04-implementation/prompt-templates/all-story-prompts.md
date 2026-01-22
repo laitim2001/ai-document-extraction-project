@@ -7379,3 +7379,361 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 - **Epic 06**: 多城市功能可能需要回頭調整早期 Story
 - **Epic 17**: Story 17-1 是 i18n 基礎，必須先完成；其他 Stories 可平行開發
 - **Epic 18**: Story 18-1 是認證基礎，必須先完成；18-2 依賴 18-1；18-3 依賴 18-1、18-2；18-4 依賴 18-1
+
+---
+
+## Epic 18: 數據模版匹配與輸出
+
+> **說明**：此 Epic 實現第二層映射系統，將提取的標準化數據填入用戶定義的數據模版，並支援導出。
+
+### Story 18-1: Template Field Mapping 數據模型與服務
+
+```
+# 開發任務：Story 18-1 Template Field Mapping 數據模型與服務
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-template-matching/18-1-template-field-mapping-model.md
+3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-18-template-matching/epic-18-overview.md
+- docs/04-implementation/stories/epic-16-format-management/16-7-data-template-management.md
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的 Prisma Schema 設計
+2. 實現三層優先級解析（FORMAT → COMPANY → GLOBAL）
+3. 實現映射規則的 CRUD 和快取機制
+4. 新增的 API 需更新 api-registry.md
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-2: Template Instance 數據模型與管理服務
+
+```
+# 開發任務：Story 18-2 Template Instance 數據模型與管理服務
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-template-matching/18-2-template-instance-model.md
+3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 18-1 的實現（TemplateFieldMapping 模型）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的 Prisma Schema 設計
+2. 實現 TemplateInstance 和 TemplateInstanceRow 模型
+3. 實現行驗證邏輯（根據 DataTemplate.fields）
+4. 實現統計數據自動更新
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-3: 模版匹配引擎服務
+
+```
+# 開發任務：Story 18-3 模版匹配引擎服務
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-template-matching/18-3-template-matching-engine.md
+3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 18-1（TemplateFieldMapping 服務）
+- Story 18-2（TemplateInstance 服務）
+
+## 開發要求
+1. 實現核心的 TemplateMatchingEngineService
+2. 實現三種轉換器（DIRECT、FORMULA、LOOKUP）
+3. 實現批量處理和事務一致性
+4. 實現同 rowKey 多文件合併邏輯
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-4: Template Field Mapping 配置 UI
+
+```
+# 開發任務：Story 18-4 Template Field Mapping 配置 UI
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-template-matching/18-4-template-field-mapping-ui.md
+3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 18-1（TemplateFieldMapping API）
+- src/constants/standard-fields.ts（標準欄位列表）
+
+## 開發要求
+1. 實現映射配置列表頁面
+2. 實現可視化映射規則編輯器
+3. 實現公式編輯器和查表編輯器
+4. 實現映射測試預覽功能
+5. 完整 i18n 支援
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-5: Template Instance 管理介面
+
+```
+# 開發任務：Story 18-5 Template Instance 管理介面
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-template-matching/18-5-template-instance-ui.md
+3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 18-2（TemplateInstance API）
+- Story 18-3（匹配引擎服務）
+
+## 開發要求
+1. 實現實例列表頁面和詳情頁面
+2. 實現根據 DataTemplate.fields 動態生成表格列
+3. 實現錯誤行高亮和編輯功能
+4. 實現批量操作（刪除、重新驗證）
+5. 完整 i18n 支援
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-6: 模版實例導出功能
+
+```
+# 開發任務：Story 18-6 模版實例導出功能
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-template-matching/18-6-template-export.md
+3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-6.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 18-5（Template Instance UI）
+
+## 開發要求
+1. 安裝 exceljs 依賴
+2. 實現 Excel 和 CSV 導出功能
+3. 實現導出對話框（格式選擇、行篩選、欄位選擇）
+4. 實現導出 API（支援串流）
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-7: 批量文件自動匹配到模版
+
+```
+# 開發任務：Story 18-7 批量文件自動匹配到模版
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-template-matching/18-7-batch-auto-matching.md
+3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-7.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 18-3（匹配引擎服務）
+- 現有的 Document 模型和處理流程
+
+## 開發要求
+1. 更新 Document、DocumentFormat、Company 模型
+2. 實現自動匹配服務（三層優先級規則解析）
+3. 實現手動匹配和批量匹配 UI
+4. 整合到現有處理流程
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-8: 模版匹配整合測試與驗證
+
+```
+# 開發任務：Story 18-8 模版匹配整合測試與驗證
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-template-matching/18-8-integration-testing.md
+3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-8.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 18-1 ~ 18-7 的所有實現
+
+## 開發要求
+1. 實現測試向導頁面（6 個步驟）
+2. 實現模擬數據生成功能
+3. 實現端到端測試流程
+4. 實現測試報告生成
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
