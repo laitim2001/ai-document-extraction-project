@@ -1,0 +1,228 @@
+{
+  "page": {
+    "title": "模板字段映射",
+    "description": "配置标准字段到模板字段的映射关系",
+    "createTitle": "创建映射配置",
+    "createDescription": "创建新的字段映射配置",
+    "editTitle": "编辑：{name}",
+    "editDescription": "修改映射配置和规则",
+    "notFound": "找不到映射配置"
+  },
+  "list": {
+    "title": "映射配置列表",
+    "total": "共 {count} 个配置",
+    "emptyTitle": "暂无映射配置",
+    "emptyDescription": "创建您的第一个映射配置开始使用。",
+    "error": "加载映射配置失败",
+    "unknownError": "未知错误"
+  },
+  "table": {
+    "name": "名称",
+    "template": "数据模板",
+    "scope": "范围",
+    "target": "目标",
+    "ruleCount": "规则数",
+    "priority": "优先级",
+    "status": "状态",
+    "actions": "操作"
+  },
+  "filters": {
+    "searchPlaceholder": "搜索名称...",
+    "search": "搜索",
+    "scope": "范围",
+    "allScopes": "全部范围"
+  },
+  "scope": {
+    "global": "全局",
+    "company": "公司",
+    "format": "格式"
+  },
+  "status": {
+    "active": "启用",
+    "inactive": "停用"
+  },
+  "actions": {
+    "create": "创建配置",
+    "edit": "编辑",
+    "delete": "删除",
+    "retry": "重试"
+  },
+  "pagination": {
+    "showing": "显示 {start} - {end}，共 {total} 条",
+    "previous": "上一页",
+    "next": "下一页"
+  },
+  "deleteDialog": {
+    "title": "删除映射配置",
+    "description": "确定要删除此配置吗？此操作无法撤销。",
+    "cancel": "取消",
+    "confirm": "删除",
+    "deleting": "删除中..."
+  },
+  "toast": {
+    "created": {
+      "title": "配置已创建",
+      "description": "映射配置已成功创建。"
+    },
+    "createError": {
+      "title": "创建失败"
+    },
+    "updated": {
+      "title": "配置已更新",
+      "description": "映射配置已成功更新。"
+    },
+    "updateError": {
+      "title": "更新失败"
+    },
+    "deleted": {
+      "title": "配置已删除",
+      "description": "映射配置已被删除。"
+    },
+    "deleteError": {
+      "title": "删除失败"
+    }
+  },
+  "form": {
+    "basicInfo": {
+      "title": "基本信息",
+      "description": "设置此映射的基本配置"
+    },
+    "name": "配置名称",
+    "namePlaceholder": "例如：DHL 特殊字段映射",
+    "description": "说明",
+    "descriptionPlaceholder": "描述此映射的用途...",
+    "dataTemplate": "数据模板",
+    "dataTemplatePlaceholder": "选择数据模板",
+    "dataTemplateDescription": "映射目标的模板",
+    "scope": "范围",
+    "scopeDescription": "决定此映射的适用范围",
+    "company": "公司",
+    "companyPlaceholder": "选择公司",
+    "documentFormat": "文档格式",
+    "documentFormatPlaceholder": "选择文档格式",
+    "priority": "优先级",
+    "priorityDescription": "较高优先级会覆盖较低的映射（0-1000）",
+    "isActive": "启用",
+    "isActiveDescription": "启用或停用此映射",
+    "mappingRules": {
+      "title": "映射规则",
+      "description": "定义标准字段到模板字段的映射方式",
+      "selectTemplateFirst": "请先选择数据模板"
+    },
+    "cancel": "取消",
+    "create": "创建",
+    "update": "保存更改",
+    "saving": "保存中...",
+    "errors": {
+      "noRules": "请至少添加一条映射规则",
+      "incompleteRules": "请完成所有映射规则"
+    }
+  },
+  "mappingRules": {
+    "title": "映射规则",
+    "description": "已定义 {count} 条规则",
+    "addRule": "添加规则",
+    "addFirstRule": "添加第一条规则",
+    "empty": "尚未定义映射规则。添加规则来配置字段映射。",
+    "totalRules": "共 {count} 条规则",
+    "requiredRules": "必填：{count}",
+    "unmappedTemplateFields": "未映射的模板字段：{count}"
+  },
+  "rule": {
+    "noSourceField": "选择源字段",
+    "noTargetField": "选择目标字段",
+    "required": "必填",
+    "markRequired": "标记为必填",
+    "description": "说明（选填）",
+    "descriptionPlaceholder": "为此规则添加说明..."
+  },
+  "sourceField": {
+    "placeholder": "选择源字段",
+    "searchPlaceholder": "搜索字段...",
+    "noResults": "找不到匹配的字段",
+    "alreadyUsed": "已使用"
+  },
+  "targetField": {
+    "placeholder": "选择目标字段",
+    "searchPlaceholder": "搜索模板字段...",
+    "noResults": "找不到匹配的字段",
+    "alreadyMapped": "已映射",
+    "required": "必填",
+    "noTemplate": "请先选择数据模板"
+  },
+  "transformType": {
+    "label": "转换类型",
+    "placeholder": "选择转换类型",
+    "direct": "直接映射",
+    "formula": "公式计算",
+    "lookup": "查表映射",
+    "concat": "字符串合并",
+    "split": "字符串分割",
+    "custom": "自定义"
+  },
+  "direct": {
+    "description": "将源值直接映射到目标字段，不做任何转换。"
+  },
+  "formula": {
+    "label": "公式",
+    "help": "使用 {field_name} 引用字段。支持 +、-、*、/ 和括号。",
+    "example": "示例",
+    "insertField": "插入字段",
+    "quickInsert": "快速插入",
+    "valid": "公式格式正确",
+    "usedVariables": "使用的变量",
+    "operators": "支持的运算符"
+  },
+  "lookup": {
+    "label": "查表映射",
+    "addEntry": "添加项目",
+    "addFirstEntry": "添加第一个项目",
+    "sourceValue": "源值",
+    "targetValue": "目标值",
+    "keyPlaceholder": "例如：USD",
+    "valuePlaceholder": "例如：美元",
+    "emptyTable": "暂无对照项目。添加项目来创建对照表。",
+    "duplicateKeyError": "对照表中有重复的源值",
+    "defaultValue": "默认值",
+    "defaultValuePlaceholder": "找不到对应时使用的值",
+    "defaultValueHelp": "当源值在对照表中找不到时使用",
+    "entriesCount": "已定义 {count} 个项目"
+  },
+  "concat": {
+    "fields": "要合并的字段",
+    "fieldsPlaceholder": "field1, field2, field3",
+    "fieldsHelp": "输入字段名称，以逗号分隔",
+    "separator": "分隔符",
+    "separatorPlaceholder": "例如：- 或 空格"
+  },
+  "split": {
+    "separator": "分隔符",
+    "separatorPlaceholder": "例如：- 或 /",
+    "index": "获取部分",
+    "indexHelp": "0 = 第一部分，1 = 第二部分，以此类推"
+  },
+  "custom": {
+    "expression": "JavaScript 表达式",
+    "expressionPlaceholder": "value.toUpperCase()",
+    "expressionHelp": "可用变量：value（当前值）、row（整行数据）"
+  },
+  "test": {
+    "title": "测试映射",
+    "expand": "展开",
+    "collapse": "收起",
+    "inputLabel": "输入数据（JSON）",
+    "inputPlaceholder": "输入 JSON 格式的测试数据...",
+    "generateSample": "生成示例",
+    "runTest": "执行测试",
+    "reset": "重置",
+    "outputLabel": "输出结果",
+    "success": "成功",
+    "hasErrors": "{count} 个错误",
+    "errorDetails": "错误详情",
+    "copy": "复制",
+    "copied": "已复制！",
+    "emptyInput": "请输入测试数据",
+    "invalidJson": "无效的 JSON 格式",
+    "parseError": "解析 JSON 失败"
+  }
+}

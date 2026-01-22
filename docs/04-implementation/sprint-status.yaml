@@ -293,7 +293,7 @@ development_status:
   19-1-template-field-mapping-model: done  # Completed 2026-01-22: TemplateFieldMapping model (GLOBAL/COMPANY/FORMAT scope), TemplateFieldMappingRule (DIRECT/FORMULA/LOOKUP/CONCAT/SPLIT/CUSTOM transforms), template-field-mapping.service.ts (CRUD + resolveMapping with 3-tier priority), template-field-mapping.ts types, Zod validation, CRUD APIs
   19-2-template-instance-model: done  # Completed 2026-01-22: TemplateInstance model (DRAFT/PROCESSING/COMPLETED/EXPORTED/ERROR status), TemplateInstanceRow model (rowKey + sourceDocumentIds merge), template-instance.service.ts (instance+row CRUD, validation, statistics), template-instance.ts types, Zod validation, instance/row CRUD APIs
   19-3-template-matching-engine: done  # Completed 2026-01-22: TemplateMatchingEngineService (matchDocuments/previewMatch/validateMapping), Transform module (DIRECT/FORMULA/LOOKUP/CONCAT/SPLIT transforms, TransformExecutor factory), template-matching-engine.ts types, Zod validation, execute/preview/validate APIs
-  19-4-template-field-mapping-ui: backlog
+  19-4-template-field-mapping-ui: done  # Completed 2026-01-22: TemplateFieldMappingList (列表頁), TemplateFieldMappingForm (創建/編輯表單), MappingRuleEditor (規則編輯器), SourceFieldSelector/TargetFieldSelector (欄位選擇器), FormulaEditor (公式編輯器+安全解析器), LookupTableEditor (查表編輯器), MappingTestPanel (測試預覽), TransformConfigEditor (轉換配置), standard-fields.ts (50+標準欄位), use-template-field-mappings.ts hooks, templateFieldMapping.json i18n (en/zh-TW/zh-CN)
   19-5-template-instance-ui: backlog
   19-6-template-export: backlog
   19-7-batch-auto-matching: backlog

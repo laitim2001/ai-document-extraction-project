@@ -1,0 +1,228 @@
+{
+  "page": {
+    "title": "Template Field Mapping",
+    "description": "Configure mappings from standard fields to template fields",
+    "createTitle": "Create Mapping Configuration",
+    "createDescription": "Create a new field mapping configuration",
+    "editTitle": "Edit: {name}",
+    "editDescription": "Modify mapping configuration and rules",
+    "notFound": "Mapping Not Found"
+  },
+  "list": {
+    "title": "Mapping Configurations",
+    "total": "{count} configurations",
+    "emptyTitle": "No Mapping Configurations",
+    "emptyDescription": "Create your first mapping configuration to start.",
+    "error": "Failed to load mapping configurations",
+    "unknownError": "Unknown error"
+  },
+  "table": {
+    "name": "Name",
+    "template": "Data Template",
+    "scope": "Scope",
+    "target": "Target",
+    "ruleCount": "Rules",
+    "priority": "Priority",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "filters": {
+    "searchPlaceholder": "Search by name...",
+    "search": "Search",
+    "scope": "Scope",
+    "allScopes": "All Scopes"
+  },
+  "scope": {
+    "global": "Global",
+    "company": "Company",
+    "format": "Format"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "actions": {
+    "create": "Create Configuration",
+    "edit": "Edit",
+    "delete": "Delete",
+    "retry": "Retry"
+  },
+  "pagination": {
+    "showing": "Showing {start} - {end} of {total}",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "deleteDialog": {
+    "title": "Delete Mapping Configuration",
+    "description": "Are you sure you want to delete this configuration? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "deleting": "Deleting..."
+  },
+  "toast": {
+    "created": {
+      "title": "Configuration Created",
+      "description": "Mapping configuration has been created successfully."
+    },
+    "createError": {
+      "title": "Failed to Create"
+    },
+    "updated": {
+      "title": "Configuration Updated",
+      "description": "Mapping configuration has been updated successfully."
+    },
+    "updateError": {
+      "title": "Failed to Update"
+    },
+    "deleted": {
+      "title": "Configuration Deleted",
+      "description": "Mapping configuration has been deleted."
+    },
+    "deleteError": {
+      "title": "Failed to Delete"
+    }
+  },
+  "form": {
+    "basicInfo": {
+      "title": "Basic Information",
+      "description": "Configure the basic settings for this mapping"
+    },
+    "name": "Configuration Name",
+    "namePlaceholder": "e.g., DHL Special Field Mapping",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the purpose of this mapping...",
+    "dataTemplate": "Data Template",
+    "dataTemplatePlaceholder": "Select a data template",
+    "dataTemplateDescription": "The template to map fields to",
+    "scope": "Scope",
+    "scopeDescription": "Determines when this mapping is applied",
+    "company": "Company",
+    "companyPlaceholder": "Select a company",
+    "documentFormat": "Document Format",
+    "documentFormatPlaceholder": "Select a document format",
+    "priority": "Priority",
+    "priorityDescription": "Higher priority mappings override lower ones (0-1000)",
+    "isActive": "Active",
+    "isActiveDescription": "Enable or disable this mapping",
+    "mappingRules": {
+      "title": "Mapping Rules",
+      "description": "Define how standard fields map to template fields",
+      "selectTemplateFirst": "Please select a data template first"
+    },
+    "cancel": "Cancel",
+    "create": "Create",
+    "update": "Save Changes",
+    "saving": "Saving...",
+    "errors": {
+      "noRules": "Please add at least one mapping rule",
+      "incompleteRules": "Please complete all mapping rules"
+    }
+  },
+  "mappingRules": {
+    "title": "Mapping Rules",
+    "description": "{count} rules defined",
+    "addRule": "Add Rule",
+    "addFirstRule": "Add First Rule",
+    "empty": "No mapping rules defined. Add rules to configure field mappings.",
+    "totalRules": "Total: {count} rules",
+    "requiredRules": "Required: {count}",
+    "unmappedTemplateFields": "Unmapped template fields: {count}"
+  },
+  "rule": {
+    "noSourceField": "Select source field",
+    "noTargetField": "Select target field",
+    "required": "Required",
+    "markRequired": "Mark as required",
+    "description": "Description (optional)",
+    "descriptionPlaceholder": "Add a note about this rule..."
+  },
+  "sourceField": {
+    "placeholder": "Select source field",
+    "searchPlaceholder": "Search fields...",
+    "noResults": "No matching fields",
+    "alreadyUsed": "Used"
+  },
+  "targetField": {
+    "placeholder": "Select target field",
+    "searchPlaceholder": "Search template fields...",
+    "noResults": "No matching fields",
+    "alreadyMapped": "Mapped",
+    "required": "Required",
+    "noTemplate": "Select a data template first"
+  },
+  "transformType": {
+    "label": "Transform Type",
+    "placeholder": "Select transform type",
+    "direct": "Direct Mapping",
+    "formula": "Formula",
+    "lookup": "Lookup Table",
+    "concat": "Concatenate",
+    "split": "Split",
+    "custom": "Custom"
+  },
+  "direct": {
+    "description": "Maps the source value directly to the target field without transformation."
+  },
+  "formula": {
+    "label": "Formula",
+    "help": "Use {field_name} to reference fields. Supports +, -, *, /, and parentheses.",
+    "example": "Example",
+    "insertField": "Insert Field",
+    "quickInsert": "Quick Insert",
+    "valid": "Formula is valid",
+    "usedVariables": "Variables used",
+    "operators": "Supported operators"
+  },
+  "lookup": {
+    "label": "Lookup Table",
+    "addEntry": "Add Entry",
+    "addFirstEntry": "Add First Entry",
+    "sourceValue": "Source Value",
+    "targetValue": "Target Value",
+    "keyPlaceholder": "e.g., USD",
+    "valuePlaceholder": "e.g., US Dollar",
+    "emptyTable": "No lookup entries. Add entries to create the lookup table.",
+    "duplicateKeyError": "Duplicate keys found in lookup table",
+    "defaultValue": "Default Value",
+    "defaultValuePlaceholder": "Value when no match found",
+    "defaultValueHelp": "Used when the source value is not found in the lookup table",
+    "entriesCount": "{count} entries defined"
+  },
+  "concat": {
+    "fields": "Fields to Concatenate",
+    "fieldsPlaceholder": "field1, field2, field3",
+    "fieldsHelp": "Enter field names separated by commas",
+    "separator": "Separator",
+    "separatorPlaceholder": "e.g., - or space"
+  },
+  "split": {
+    "separator": "Separator",
+    "separatorPlaceholder": "e.g., - or /",
+    "index": "Part Index",
+    "indexHelp": "0 = first part, 1 = second part, etc."
+  },
+  "custom": {
+    "expression": "JavaScript Expression",
+    "expressionPlaceholder": "value.toUpperCase()",
+    "expressionHelp": "Available variables: value (current value), row (entire row data)"
+  },
+  "test": {
+    "title": "Test Mapping",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "inputLabel": "Input Data (JSON)",
+    "inputPlaceholder": "Enter test data in JSON format...",
+    "generateSample": "Generate Sample",
+    "runTest": "Run Test",
+    "reset": "Reset",
+    "outputLabel": "Output Result",
+    "success": "Success",
+    "hasErrors": "{count} errors",
+    "errorDetails": "Error Details",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "emptyInput": "Please enter test data",
+    "invalidJson": "Invalid JSON format",
+    "parseError": "Failed to parse JSON"
+  }
+}

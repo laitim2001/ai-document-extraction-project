@@ -1,0 +1,228 @@
+{
+  "page": {
+    "title": "模版欄位映射",
+    "description": "配置標準欄位到模版欄位的映射關係",
+    "createTitle": "建立映射配置",
+    "createDescription": "建立新的欄位映射配置",
+    "editTitle": "編輯：{name}",
+    "editDescription": "修改映射配置和規則",
+    "notFound": "找不到映射配置"
+  },
+  "list": {
+    "title": "映射配置列表",
+    "total": "共 {count} 個配置",
+    "emptyTitle": "尚無映射配置",
+    "emptyDescription": "建立您的第一個映射配置開始使用。",
+    "error": "載入映射配置失敗",
+    "unknownError": "未知錯誤"
+  },
+  "table": {
+    "name": "名稱",
+    "template": "數據模版",
+    "scope": "範圍",
+    "target": "目標",
+    "ruleCount": "規則數",
+    "priority": "優先級",
+    "status": "狀態",
+    "actions": "操作"
+  },
+  "filters": {
+    "searchPlaceholder": "搜尋名稱...",
+    "search": "搜尋",
+    "scope": "範圍",
+    "allScopes": "全部範圍"
+  },
+  "scope": {
+    "global": "全局",
+    "company": "公司",
+    "format": "格式"
+  },
+  "status": {
+    "active": "啟用",
+    "inactive": "停用"
+  },
+  "actions": {
+    "create": "建立配置",
+    "edit": "編輯",
+    "delete": "刪除",
+    "retry": "重試"
+  },
+  "pagination": {
+    "showing": "顯示 {start} - {end}，共 {total} 筆",
+    "previous": "上一頁",
+    "next": "下一頁"
+  },
+  "deleteDialog": {
+    "title": "刪除映射配置",
+    "description": "確定要刪除此配置嗎？此操作無法復原。",
+    "cancel": "取消",
+    "confirm": "刪除",
+    "deleting": "刪除中..."
+  },
+  "toast": {
+    "created": {
+      "title": "配置已建立",
+      "description": "映射配置已成功建立。"
+    },
+    "createError": {
+      "title": "建立失敗"
+    },
+    "updated": {
+      "title": "配置已更新",
+      "description": "映射配置已成功更新。"
+    },
+    "updateError": {
+      "title": "更新失敗"
+    },
+    "deleted": {
+      "title": "配置已刪除",
+      "description": "映射配置已被刪除。"
+    },
+    "deleteError": {
+      "title": "刪除失敗"
+    }
+  },
+  "form": {
+    "basicInfo": {
+      "title": "基本資訊",
+      "description": "設定此映射的基本配置"
+    },
+    "name": "配置名稱",
+    "namePlaceholder": "例如：DHL 特殊欄位映射",
+    "description": "說明",
+    "descriptionPlaceholder": "描述此映射的用途...",
+    "dataTemplate": "數據模版",
+    "dataTemplatePlaceholder": "選擇數據模版",
+    "dataTemplateDescription": "映射目標的模版",
+    "scope": "範圍",
+    "scopeDescription": "決定此映射的適用範圍",
+    "company": "公司",
+    "companyPlaceholder": "選擇公司",
+    "documentFormat": "文件格式",
+    "documentFormatPlaceholder": "選擇文件格式",
+    "priority": "優先級",
+    "priorityDescription": "較高優先級會覆蓋較低的映射（0-1000）",
+    "isActive": "啟用",
+    "isActiveDescription": "啟用或停用此映射",
+    "mappingRules": {
+      "title": "映射規則",
+      "description": "定義標準欄位到模版欄位的映射方式",
+      "selectTemplateFirst": "請先選擇數據模版"
+    },
+    "cancel": "取消",
+    "create": "建立",
+    "update": "儲存變更",
+    "saving": "儲存中...",
+    "errors": {
+      "noRules": "請至少新增一條映射規則",
+      "incompleteRules": "請完成所有映射規則"
+    }
+  },
+  "mappingRules": {
+    "title": "映射規則",
+    "description": "已定義 {count} 條規則",
+    "addRule": "新增規則",
+    "addFirstRule": "新增第一條規則",
+    "empty": "尚未定義映射規則。新增規則來配置欄位映射。",
+    "totalRules": "共 {count} 條規則",
+    "requiredRules": "必填：{count}",
+    "unmappedTemplateFields": "未映射的模版欄位：{count}"
+  },
+  "rule": {
+    "noSourceField": "選擇來源欄位",
+    "noTargetField": "選擇目標欄位",
+    "required": "必填",
+    "markRequired": "標記為必填",
+    "description": "說明（選填）",
+    "descriptionPlaceholder": "為此規則添加說明..."
+  },
+  "sourceField": {
+    "placeholder": "選擇來源欄位",
+    "searchPlaceholder": "搜尋欄位...",
+    "noResults": "找不到符合的欄位",
+    "alreadyUsed": "已使用"
+  },
+  "targetField": {
+    "placeholder": "選擇目標欄位",
+    "searchPlaceholder": "搜尋模版欄位...",
+    "noResults": "找不到符合的欄位",
+    "alreadyMapped": "已映射",
+    "required": "必填",
+    "noTemplate": "請先選擇數據模版"
+  },
+  "transformType": {
+    "label": "轉換類型",
+    "placeholder": "選擇轉換類型",
+    "direct": "直接映射",
+    "formula": "公式計算",
+    "lookup": "查表映射",
+    "concat": "字串合併",
+    "split": "字串分割",
+    "custom": "自定義"
+  },
+  "direct": {
+    "description": "將來源值直接映射到目標欄位，不做任何轉換。"
+  },
+  "formula": {
+    "label": "公式",
+    "help": "使用 {field_name} 引用欄位。支援 +、-、*、/ 和括號。",
+    "example": "範例",
+    "insertField": "插入欄位",
+    "quickInsert": "快速插入",
+    "valid": "公式格式正確",
+    "usedVariables": "使用的變數",
+    "operators": "支援的運算符"
+  },
+  "lookup": {
+    "label": "查表映射",
+    "addEntry": "新增項目",
+    "addFirstEntry": "新增第一個項目",
+    "sourceValue": "來源值",
+    "targetValue": "目標值",
+    "keyPlaceholder": "例如：USD",
+    "valuePlaceholder": "例如：美金",
+    "emptyTable": "尚無對照項目。新增項目來建立對照表。",
+    "duplicateKeyError": "對照表中有重複的來源值",
+    "defaultValue": "預設值",
+    "defaultValuePlaceholder": "找不到對應時使用的值",
+    "defaultValueHelp": "當來源值在對照表中找不到時使用",
+    "entriesCount": "已定義 {count} 個項目"
+  },
+  "concat": {
+    "fields": "要合併的欄位",
+    "fieldsPlaceholder": "field1, field2, field3",
+    "fieldsHelp": "輸入欄位名稱，以逗號分隔",
+    "separator": "分隔符",
+    "separatorPlaceholder": "例如：- 或 空格"
+  },
+  "split": {
+    "separator": "分隔符",
+    "separatorPlaceholder": "例如：- 或 /",
+    "index": "取得部分",
+    "indexHelp": "0 = 第一部分，1 = 第二部分，以此類推"
+  },
+  "custom": {
+    "expression": "JavaScript 表達式",
+    "expressionPlaceholder": "value.toUpperCase()",
+    "expressionHelp": "可用變數：value（當前值）、row（整行數據）"
+  },
+  "test": {
+    "title": "測試映射",
+    "expand": "展開",
+    "collapse": "收起",
+    "inputLabel": "輸入數據（JSON）",
+    "inputPlaceholder": "輸入 JSON 格式的測試數據...",
+    "generateSample": "生成範例",
+    "runTest": "執行測試",
+    "reset": "重置",
+    "outputLabel": "輸出結果",
+    "success": "成功",
+    "hasErrors": "{count} 個錯誤",
+    "errorDetails": "錯誤詳情",
+    "copy": "複製",
+    "copied": "已複製！",
+    "emptyInput": "請輸入測試數據",
+    "invalidJson": "無效的 JSON 格式",
+    "parseError": "解析 JSON 失敗"
+  }
+}
