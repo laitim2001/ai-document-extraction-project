@@ -584,3 +584,6 @@ export {
   SCOPE_OPTIONS,
   TRANSFORM_TYPE_OPTIONS as TEMPLATE_TRANSFORM_TYPE_OPTIONS,
 } from './template-field-mapping'
+
+// 模版實例相關 (Epic 19: Story 19.2)
+export * from './template-instance'

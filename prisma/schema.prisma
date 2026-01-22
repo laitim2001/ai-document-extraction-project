@@ -5417,6 +5417,7 @@ model DataTemplate {
   // 關聯
   fieldMappingConfigs   FieldMappingConfig[]
   templateFieldMappings TemplateFieldMapping[] // Story 19-1: 模版欄位映射配置
+  templateInstances     TemplateInstance[]     // Story 19-2: 模版實例
 
   // 時間戳
   createdAt       DateTime          @default(now()) @map("created_at")
@@ -5524,5 +5525,163 @@ model TemplateFieldMapping {
   @@index([documentFormatId])
   @@index([isActive])
   @@map("template_field_mappings")
+}
+
+// ============================================================================
+// Epic 19 - Story 19-2: Template Instance
+// ============================================================================
+
+/**
+ * 模版實例狀態
+ * 定義模版實例的處理狀態
+ * @since Epic 19 - Story 19.2
+ */
+enum TemplateInstanceStatus {
+  DRAFT       // 草稿，可編輯
+  PROCESSING  // 處理中
+  COMPLETED   // 完成，數據已填充
+  EXPORTED    // 已導出
+  ERROR       // 錯誤
+}
+
+/**
+ * 模版實例行狀態
+ * 定義單行數據的驗證狀態
+ * @since Epic 19 - Story 19.2
+ */
+enum TemplateInstanceRowStatus {
+  PENDING   // 待驗證
+  VALID     // 驗證通過
+  INVALID   // 驗證失敗
+  SKIPPED   // 跳過
+}
+
+/**
+ * 模版實例模型
+ * @description
+ *   存儲填充後的模版數據，包含元數據和狀態
+ *   每個實例對應一個 DataTemplate，包含多個 TemplateInstanceRow
+ *
+ * @since Epic 19 - Story 19.2
+ *
+ * @example
+ *   DataTemplate: "海運費用報表"
+ *   TemplateInstance: "2026年1月海運費用"
+ *     - Row 1: { shipment_no: 'S001', shipping_cost: 500 }
+ *     - Row 2: { shipment_no: 'S002', shipping_cost: 450 }
+ */
+model TemplateInstance {
+  id                String    @id @default(cuid())
+
+  // ================================
+  // 關聯到數據模版
+  // ================================
+  dataTemplateId    String    @map("data_template_id")
+  dataTemplate      DataTemplate @relation(fields: [dataTemplateId], references: [id])
+
+  // ================================
+  // 基本資訊
+  // ================================
+  name              String    @db.VarChar(200)
+  description       String?   @db.Text
+
+  // ================================
+  // 狀態
+  // ================================
+  status            TemplateInstanceStatus @default(DRAFT)
+
+  // ================================
+  // 統計
+  // ================================
+  rowCount          Int       @default(0) @map("row_count")
+  validRowCount     Int       @default(0) @map("valid_row_count")
+  errorRowCount     Int       @default(0) @map("error_row_count")
+
+  // ================================
+  // 行數據
+  // ================================
+  rows              TemplateInstanceRow[]
+
+  // ================================
+  // 導出記錄
+  // ================================
+  exportedAt        DateTime? @map("exported_at")
+  exportedBy        String?   @map("exported_by")
+  exportFormat      String?   @db.VarChar(20) @map("export_format")  // xlsx, csv, json
+
+  // ================================
+  // 時間戳
+  // ================================
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  createdBy         String?   @map("created_by")
+
+  // ================================
+  // 索引
+  // ================================
+  @@index([dataTemplateId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("template_instances")
+}
+
+/**
+ * 模版實例行模型
+ * @description
+ *   存儲模版實例中的每一行數據
+ *   以 rowKey（如 shipment_no 或 invoice_no）為主鍵
+ *   支持多對一（多個文件合併為一行）
+ *
+ * @since Epic 19 - Story 19.2
+ */
+model TemplateInstanceRow {
+  id                    String    @id @default(cuid())
+
+  // ================================
+  // 關聯到實例
+  // ================================
+  templateInstanceId    String    @map("template_instance_id")
+  templateInstance      TemplateInstance @relation(fields: [templateInstanceId], references: [id], onDelete: Cascade)
+
+  // ================================
+  // 行標識
+  // ================================
+  rowKey                String    @map("row_key")    // 如 shipment_no 或 invoice_no
+  rowIndex              Int       @map("row_index")  // 順序索引
+
+  // ================================
+  // 來源文件（多對一支持）
+  // ================================
+  sourceDocumentIds     String[]  @map("source_document_ids")
+
+  // ================================
+  // 欄位值 (JSON)
+  // ================================
+  // 結構: Record<string, unknown>
+  // { field_name: value, ... }
+  fieldValues           Json      @map("field_values")
+
+  // ================================
+  // 驗證
+  // ================================
+  // 結構: Record<string, string> | null
+  // { field_name: error_message, ... }
+  validationErrors      Json?     @map("validation_errors")
+  status                TemplateInstanceRowStatus @default(PENDING)
+
+  // ================================
+  // 時間戳
+  // ================================
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  // ================================
+  // 索引和約束
+  // ================================
+  // 確保同一實例中 rowKey 唯一
+  @@unique([templateInstanceId, rowKey])
+  @@index([templateInstanceId])
+  @@index([status])
+  @@map("template_instance_rows")
 }
 

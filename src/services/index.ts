@@ -395,6 +395,9 @@ export * from './data-template.service'
 // Epic 19: Template Matching & Export (Story 19.1 - Template Field Mapping)
 export * from './template-field-mapping.service'
 
+// Epic 19: Template Matching & Export (Story 19.2 - Template Instance)
+export * from './template-instance.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';
