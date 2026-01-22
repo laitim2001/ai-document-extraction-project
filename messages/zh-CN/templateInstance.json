@@ -1,0 +1,171 @@
+{
+  "pageTitle": "模板实例管理",
+  "pageDescription": "查看和管理填充后的模板数据实例",
+  "list": {
+    "emptyTitle": "暂无实例",
+    "emptyDescription": "创建您的第一个模板实例以开始管理数据",
+    "errorTitle": "加载实例失败",
+    "errorDescription": "无法获取实例列表，请重试",
+    "noResultsTitle": "无匹配结果",
+    "noResultsDescription": "当前筛选条件下没有匹配的实例",
+    "clearFilters": "清除筛选",
+    "retry": "重试",
+    "totalInstances": "{count, plural, =0 {没有实例} =1 {1 个实例} other {{count} 个实例}}"
+  },
+  "filters": {
+    "allStatuses": "全部状态",
+    "allTemplates": "全部模板",
+    "status": "状态",
+    "template": "模板",
+    "dateRange": "日期范围",
+    "search": "搜索实例...",
+    "searchPlaceholder": "按名称或描述搜索..."
+  },
+  "status": {
+    "DRAFT": "草稿",
+    "PROCESSING": "处理中",
+    "COMPLETED": "完成",
+    "ERROR": "有错误",
+    "EXPORTED": "已导出"
+  },
+  "rowStatus": {
+    "PENDING": "待验证",
+    "VALID": "有效",
+    "INVALID": "无效",
+    "SKIPPED": "跳过"
+  },
+  "card": {
+    "rows": "{count} 行",
+    "validRows": "{count} 有效",
+    "errorRows": "{count} 错误",
+    "updatedAt": "更新于 {date}",
+    "exportedAt": "导出于 {date}",
+    "viewDetails": "查看详情",
+    "export": "导出"
+  },
+  "createDialog": {
+    "title": "创建新实例",
+    "description": "创建新的模板实例以存储数据",
+    "triggerButton": "新增实例",
+    "templateLabel": "数据模板",
+    "templatePlaceholder": "选择模板...",
+    "templateDescription": "选择定义数据结构的模板",
+    "nameLabel": "实例名称",
+    "namePlaceholder": "例如：2026年1月海运费用",
+    "nameDescription": "为您的实例取一个描述性的名称",
+    "descriptionLabel": "描述",
+    "descriptionPlaceholder": "选填描述...",
+    "submitButton": "创建实例",
+    "creating": "创建中..."
+  },
+  "detail": {
+    "backToList": "返回列表",
+    "instanceName": "实例：{name}",
+    "templateName": "模板：{name}",
+    "stats": {
+      "totalRows": "总行数",
+      "validRows": "有效行数",
+      "errorRows": "错误行数",
+      "status": "状态"
+    },
+    "actions": {
+      "addFile": "添加文件",
+      "export": "导出",
+      "exportExcel": "导出为 Excel",
+      "exportCsv": "导出为 CSV",
+      "exportJson": "导出为 JSON",
+      "settings": "设置"
+    }
+  },
+  "rows": {
+    "title": "数据行",
+    "filters": {
+      "allStatuses": "全部状态",
+      "onlyErrors": "仅显示错误",
+      "searchPlaceholder": "按行标识搜索..."
+    },
+    "columns": {
+      "index": "#",
+      "rowKey": "主键",
+      "status": "状态",
+      "actions": "操作"
+    },
+    "empty": {
+      "title": "没有数据行",
+      "description": "此实例暂无任何数据行"
+    },
+    "noResults": {
+      "title": "无匹配的行",
+      "description": "当前筛选条件下没有匹配的行"
+    },
+    "showing": "显示 {start} - {end}，共 {total} 行"
+  },
+  "rowActions": {
+    "view": "查看详情",
+    "edit": "编辑行",
+    "delete": "删除行",
+    "revalidate": "重新验证"
+  },
+  "editDialog": {
+    "title": "编辑行",
+    "description": "修改字段值并重新验证",
+    "rowKeyLabel": "行标识",
+    "fieldsSection": "字段值",
+    "validationErrors": "验证错误",
+    "noErrors": "所有字段验证通过",
+    "saveAndValidate": "保存并验证",
+    "saving": "保存中..."
+  },
+  "rowDetail": {
+    "title": "行详情",
+    "rowKey": "行标识",
+    "rowIndex": "行索引",
+    "status": "状态",
+    "sourceDocuments": "来源文件",
+    "noSourceDocuments": "未关联来源文件",
+    "viewDocument": "查看文件",
+    "fieldValues": "字段值",
+    "validationErrors": "验证错误",
+    "noErrors": "无验证错误",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间"
+  },
+  "bulkActions": {
+    "title": "批量操作",
+    "selected": "已选 {count} 项",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "delete": "删除所选",
+    "revalidate": "重新验证所选",
+    "confirmDelete": "删除 {count} 行？",
+    "deleteWarning": "此操作无法撤销。所选行将被永久删除。",
+    "deleting": "删除中...",
+    "revalidating": "验证中..."
+  },
+  "validation": {
+    "required": "此字段为必填",
+    "invalidType": "数据类型无效",
+    "minLength": "至少需要 {min} 个字符",
+    "maxLength": "不能超过 {max} 个字符",
+    "min": "不能小于 {min}",
+    "max": "不能大于 {max}",
+    "pattern": "格式不符合要求",
+    "allowedValues": "必须是以下之一：{values}"
+  },
+  "toast": {
+    "createSuccess": "实例创建成功",
+    "createError": "创建实例失败",
+    "updateSuccess": "实例更新成功",
+    "updateError": "更新实例失败",
+    "deleteSuccess": "实例删除成功",
+    "deleteError": "删除实例失败",
+    "rowUpdateSuccess": "行更新成功",
+    "rowUpdateError": "更新行失败",
+    "rowDeleteSuccess": "行删除成功",
+    "rowDeleteError": "删除行失败",
+    "bulkDeleteSuccess": "成功删除 {count} 行",
+    "bulkDeleteError": "批量删除失败",
+    "revalidateSuccess": "重新验证完成",
+    "revalidateError": "重新验证失败"
+  }
+}

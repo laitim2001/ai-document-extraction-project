@@ -40,17 +40,22 @@ interface RouteParams {
 /**
  * GET /api/v1/template-instances/:id
  * @description
- *   取得模版實例詳情
+ *   取得模版實例詳情，包含完整的 DataTemplate 欄位定義
  *
- * @param _request - Next.js 請求物件
+ * @param request - Next.js 請求物件
  * @param context - 路由參數
- * @returns 實例詳情
+ * @returns 實例詳情（含 DataTemplate）
  */
-export async function GET(_request: NextRequest, context: RouteParams) {
+export async function GET(request: NextRequest, context: RouteParams) {
   try {
     const { id } = await context.params;
+    const { searchParams } = new URL(request.url);
+    const includeTemplate = searchParams.get('includeTemplate') !== 'false';
 
-    const instance = await templateInstanceService.getById(id);
+    // 根據是否需要 template 資訊選擇不同的方法
+    const instance = includeTemplate
+      ? await templateInstanceService.getByIdWithTemplate(id)
+      : await templateInstanceService.getById(id);
 
     if (!instance) {
       return NextResponse.json(

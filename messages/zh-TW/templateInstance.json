@@ -1,0 +1,171 @@
+{
+  "pageTitle": "模版實例管理",
+  "pageDescription": "查看和管理填充後的模版數據實例",
+  "list": {
+    "emptyTitle": "尚無實例",
+    "emptyDescription": "建立您的第一個模版實例以開始管理數據",
+    "errorTitle": "載入實例失敗",
+    "errorDescription": "無法取得實例列表，請重試",
+    "noResultsTitle": "無符合結果",
+    "noResultsDescription": "目前篩選條件下沒有符合的實例",
+    "clearFilters": "清除篩選",
+    "retry": "重試",
+    "totalInstances": "{count, plural, =0 {沒有實例} =1 {1 個實例} other {{count} 個實例}}"
+  },
+  "filters": {
+    "allStatuses": "全部狀態",
+    "allTemplates": "全部模版",
+    "status": "狀態",
+    "template": "模版",
+    "dateRange": "日期範圍",
+    "search": "搜尋實例...",
+    "searchPlaceholder": "依名稱或描述搜尋..."
+  },
+  "status": {
+    "DRAFT": "草稿",
+    "PROCESSING": "處理中",
+    "COMPLETED": "完成",
+    "ERROR": "有錯誤",
+    "EXPORTED": "已導出"
+  },
+  "rowStatus": {
+    "PENDING": "待驗證",
+    "VALID": "有效",
+    "INVALID": "無效",
+    "SKIPPED": "跳過"
+  },
+  "card": {
+    "rows": "{count} 行",
+    "validRows": "{count} 有效",
+    "errorRows": "{count} 錯誤",
+    "updatedAt": "更新於 {date}",
+    "exportedAt": "導出於 {date}",
+    "viewDetails": "查看詳情",
+    "export": "導出"
+  },
+  "createDialog": {
+    "title": "建立新實例",
+    "description": "建立新的模版實例以儲存數據",
+    "triggerButton": "新增實例",
+    "templateLabel": "數據模版",
+    "templatePlaceholder": "選擇模版...",
+    "templateDescription": "選擇定義數據結構的模版",
+    "nameLabel": "實例名稱",
+    "namePlaceholder": "例如：2026年1月海運費用",
+    "nameDescription": "為您的實例取一個描述性的名稱",
+    "descriptionLabel": "描述",
+    "descriptionPlaceholder": "選填描述...",
+    "submitButton": "建立實例",
+    "creating": "建立中..."
+  },
+  "detail": {
+    "backToList": "返回列表",
+    "instanceName": "實例：{name}",
+    "templateName": "模版：{name}",
+    "stats": {
+      "totalRows": "總行數",
+      "validRows": "有效行數",
+      "errorRows": "錯誤行數",
+      "status": "狀態"
+    },
+    "actions": {
+      "addFile": "添加文件",
+      "export": "導出",
+      "exportExcel": "導出為 Excel",
+      "exportCsv": "導出為 CSV",
+      "exportJson": "導出為 JSON",
+      "settings": "設定"
+    }
+  },
+  "rows": {
+    "title": "數據行",
+    "filters": {
+      "allStatuses": "全部狀態",
+      "onlyErrors": "僅顯示錯誤",
+      "searchPlaceholder": "依行識別碼搜尋..."
+    },
+    "columns": {
+      "index": "#",
+      "rowKey": "主鍵",
+      "status": "狀態",
+      "actions": "操作"
+    },
+    "empty": {
+      "title": "沒有數據行",
+      "description": "此實例尚無任何數據行"
+    },
+    "noResults": {
+      "title": "無符合的行",
+      "description": "目前篩選條件下沒有符合的行"
+    },
+    "showing": "顯示 {start} - {end}，共 {total} 行"
+  },
+  "rowActions": {
+    "view": "查看詳情",
+    "edit": "編輯行",
+    "delete": "刪除行",
+    "revalidate": "重新驗證"
+  },
+  "editDialog": {
+    "title": "編輯行",
+    "description": "修改欄位值並重新驗證",
+    "rowKeyLabel": "行識別碼",
+    "fieldsSection": "欄位值",
+    "validationErrors": "驗證錯誤",
+    "noErrors": "所有欄位驗證通過",
+    "saveAndValidate": "保存並驗證",
+    "saving": "保存中..."
+  },
+  "rowDetail": {
+    "title": "行詳情",
+    "rowKey": "行識別碼",
+    "rowIndex": "行索引",
+    "status": "狀態",
+    "sourceDocuments": "來源文件",
+    "noSourceDocuments": "未關聯來源文件",
+    "viewDocument": "查看文件",
+    "fieldValues": "欄位值",
+    "validationErrors": "驗證錯誤",
+    "noErrors": "無驗證錯誤",
+    "createdAt": "建立時間",
+    "updatedAt": "更新時間"
+  },
+  "bulkActions": {
+    "title": "批量操作",
+    "selected": "已選 {count} 項",
+    "selectAll": "全選",
+    "deselectAll": "取消全選",
+    "delete": "刪除所選",
+    "revalidate": "重新驗證所選",
+    "confirmDelete": "刪除 {count} 行？",
+    "deleteWarning": "此操作無法撤銷。所選行將被永久刪除。",
+    "deleting": "刪除中...",
+    "revalidating": "驗證中..."
+  },
+  "validation": {
+    "required": "此欄位為必填",
+    "invalidType": "資料類型無效",
+    "minLength": "至少需要 {min} 個字元",
+    "maxLength": "不能超過 {max} 個字元",
+    "min": "不能小於 {min}",
+    "max": "不能大於 {max}",
+    "pattern": "格式不符合要求",
+    "allowedValues": "必須是以下之一：{values}"
+  },
+  "toast": {
+    "createSuccess": "實例建立成功",
+    "createError": "建立實例失敗",
+    "updateSuccess": "實例更新成功",
+    "updateError": "更新實例失敗",
+    "deleteSuccess": "實例刪除成功",
+    "deleteError": "刪除實例失敗",
+    "rowUpdateSuccess": "行更新成功",
+    "rowUpdateError": "更新行失敗",
+    "rowDeleteSuccess": "行刪除成功",
+    "rowDeleteError": "刪除行失敗",
+    "bulkDeleteSuccess": "成功刪除 {count} 行",
+    "bulkDeleteError": "批量刪除失敗",
+    "revalidateSuccess": "重新驗證完成",
+    "revalidateError": "重新驗證失敗"
+  }
+}

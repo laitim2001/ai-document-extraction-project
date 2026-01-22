@@ -71,6 +71,15 @@ interface DataTemplateField {
   order: number;
 }
 
+/**
+ * DataTemplate 資訊（用於詳情頁面）
+ */
+interface DataTemplateInfo {
+  id: string;
+  name: string;
+  fields: DataTemplateField[];
+}
+
 // ============================================================================
 // Service Class
 // ============================================================================
@@ -178,6 +187,36 @@ export class TemplateInstanceService {
     }
 
     return this.mapInstanceToDto(instance);
+  }
+
+  /**
+   * 取得實例詳情（含完整 DataTemplate）
+   * @param id - 實例 ID
+   * @returns 完整實例資訊（含 DataTemplate）或 null
+   */
+  async getByIdWithTemplate(id: string): Promise<(TemplateInstance & { dataTemplate: DataTemplateInfo | null }) | null> {
+    const instance = await prisma.templateInstance.findUnique({
+      where: { id },
+      include: {
+        dataTemplate: true,
+      },
+    });
+
+    if (!instance) {
+      return null;
+    }
+
+    const dto = this.mapInstanceToDto(instance);
+    return {
+      ...dto,
+      dataTemplate: instance.dataTemplate
+        ? {
+            id: instance.dataTemplate.id,
+            name: instance.dataTemplate.name,
+            fields: instance.dataTemplate.fields as unknown as DataTemplateField[],
+          }
+        : null,
+    };
   }
 
   // --------------------------------------------------------------------------

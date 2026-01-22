@@ -1,0 +1,171 @@
+{
+  "pageTitle": "Template Instances",
+  "pageDescription": "View and manage filled template data instances",
+  "list": {
+    "emptyTitle": "No Instances Yet",
+    "emptyDescription": "Create your first template instance to start managing data",
+    "errorTitle": "Failed to Load Instances",
+    "errorDescription": "Unable to retrieve instance list. Please try again.",
+    "noResultsTitle": "No Matching Results",
+    "noResultsDescription": "No instances match the current filter criteria",
+    "clearFilters": "Clear Filters",
+    "retry": "Retry",
+    "totalInstances": "{count, plural, =0 {No instances} =1 {1 instance} other {{count} instances}}"
+  },
+  "filters": {
+    "allStatuses": "All Statuses",
+    "allTemplates": "All Templates",
+    "status": "Status",
+    "template": "Template",
+    "dateRange": "Date Range",
+    "search": "Search instances...",
+    "searchPlaceholder": "Search by name or description..."
+  },
+  "status": {
+    "DRAFT": "Draft",
+    "PROCESSING": "Processing",
+    "COMPLETED": "Completed",
+    "ERROR": "Has Errors",
+    "EXPORTED": "Exported"
+  },
+  "rowStatus": {
+    "PENDING": "Pending",
+    "VALID": "Valid",
+    "INVALID": "Invalid",
+    "SKIPPED": "Skipped"
+  },
+  "card": {
+    "rows": "{count} rows",
+    "validRows": "{count} valid",
+    "errorRows": "{count} errors",
+    "updatedAt": "Updated {date}",
+    "exportedAt": "Exported {date}",
+    "viewDetails": "View Details",
+    "export": "Export"
+  },
+  "createDialog": {
+    "title": "Create New Instance",
+    "description": "Create a new template instance to store data",
+    "triggerButton": "New Instance",
+    "templateLabel": "Data Template",
+    "templatePlaceholder": "Select a template...",
+    "templateDescription": "Select the template that defines the data structure",
+    "nameLabel": "Instance Name",
+    "namePlaceholder": "e.g., January 2026 Freight Costs",
+    "nameDescription": "Give your instance a descriptive name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Optional description...",
+    "submitButton": "Create Instance",
+    "creating": "Creating..."
+  },
+  "detail": {
+    "backToList": "Back to List",
+    "instanceName": "Instance: {name}",
+    "templateName": "Template: {name}",
+    "stats": {
+      "totalRows": "Total Rows",
+      "validRows": "Valid Rows",
+      "errorRows": "Error Rows",
+      "status": "Status"
+    },
+    "actions": {
+      "addFile": "Add File",
+      "export": "Export",
+      "exportExcel": "Export as Excel",
+      "exportCsv": "Export as CSV",
+      "exportJson": "Export as JSON",
+      "settings": "Settings"
+    }
+  },
+  "rows": {
+    "title": "Data Rows",
+    "filters": {
+      "allStatuses": "All Statuses",
+      "onlyErrors": "Only Errors",
+      "searchPlaceholder": "Search by row key..."
+    },
+    "columns": {
+      "index": "#",
+      "rowKey": "Row Key",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No Data Rows",
+      "description": "This instance doesn't have any data rows yet"
+    },
+    "noResults": {
+      "title": "No Matching Rows",
+      "description": "No rows match the current filter criteria"
+    },
+    "showing": "Showing {start} - {end} of {total} rows"
+  },
+  "rowActions": {
+    "view": "View Details",
+    "edit": "Edit Row",
+    "delete": "Delete Row",
+    "revalidate": "Revalidate"
+  },
+  "editDialog": {
+    "title": "Edit Row",
+    "description": "Modify field values and revalidate",
+    "rowKeyLabel": "Row Key",
+    "fieldsSection": "Field Values",
+    "validationErrors": "Validation Errors",
+    "noErrors": "All fields passed validation",
+    "saveAndValidate": "Save & Validate",
+    "saving": "Saving..."
+  },
+  "rowDetail": {
+    "title": "Row Details",
+    "rowKey": "Row Key",
+    "rowIndex": "Row Index",
+    "status": "Status",
+    "sourceDocuments": "Source Documents",
+    "noSourceDocuments": "No source documents linked",
+    "viewDocument": "View Document",
+    "fieldValues": "Field Values",
+    "validationErrors": "Validation Errors",
+    "noErrors": "No validation errors",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At"
+  },
+  "bulkActions": {
+    "title": "Bulk Actions",
+    "selected": "{count} selected",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "delete": "Delete Selected",
+    "revalidate": "Revalidate Selected",
+    "confirmDelete": "Delete {count} rows?",
+    "deleteWarning": "This action cannot be undone. The selected rows will be permanently deleted.",
+    "deleting": "Deleting...",
+    "revalidating": "Revalidating..."
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidType": "Invalid data type",
+    "minLength": "Must be at least {min} characters",
+    "maxLength": "Cannot exceed {max} characters",
+    "min": "Must be at least {min}",
+    "max": "Cannot exceed {max}",
+    "pattern": "Invalid format",
+    "allowedValues": "Must be one of: {values}"
+  },
+  "toast": {
+    "createSuccess": "Instance created successfully",
+    "createError": "Failed to create instance",
+    "updateSuccess": "Instance updated successfully",
+    "updateError": "Failed to update instance",
+    "deleteSuccess": "Instance deleted successfully",
+    "deleteError": "Failed to delete instance",
+    "rowUpdateSuccess": "Row updated successfully",
+    "rowUpdateError": "Failed to update row",
+    "rowDeleteSuccess": "Row deleted successfully",
+    "rowDeleteError": "Failed to delete row",
+    "bulkDeleteSuccess": "{count} rows deleted successfully",
+    "bulkDeleteError": "Failed to delete rows",
+    "revalidateSuccess": "Revalidation completed",
+    "revalidateError": "Revalidation failed"
+  }
+}
