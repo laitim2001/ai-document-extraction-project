@@ -285,3 +285,17 @@ development_status:
   18-3-password-reset: done  # Completed 2026-01-19: forgot-password/reset-password/verify-reset-token APIs, sendPasswordChangedEmail (email.ts), forgot-password/reset-password pages (RHF+Zod, token verification, password strength indicator), auth.json i18n (forgotPassword/resetPassword namespaces)
   18-4-email-verification: done  # Completed 2026-01-19: GET /api/auth/verify-email (token validation, redirect), POST /api/auth/resend-verification (rate limit 5/hr), verify-email/page.tsx (status display, resend form), email.ts (API-based verify URL with locale), LoginForm (verified success, resend link), auth.json i18n (verifyEmail namespace en/zh-TW/zh-CN)
   epic-18-retrospective: optional
+
+  # ============================================================
+  # Epic 19: 數據模版匹配與輸出
+  # ============================================================
+  epic-19: in-progress  # Template Matching & Export
+  19-1-template-field-mapping-model: done  # Completed 2026-01-22: TemplateFieldMapping model (GLOBAL/COMPANY/FORMAT scope), TemplateFieldMappingRule (DIRECT/FORMULA/LOOKUP/CONCAT/SPLIT/CUSTOM transforms), template-field-mapping.service.ts (CRUD + resolveMapping with 3-tier priority), template-field-mapping.ts types, Zod validation, CRUD APIs
+  19-2-template-instance-model: done  # Completed 2026-01-22: TemplateInstance model (DRAFT/PROCESSING/COMPLETED/EXPORTED/ERROR status), TemplateInstanceRow model (rowKey + sourceDocumentIds merge), template-instance.service.ts (instance+row CRUD, validation, statistics), template-instance.ts types, Zod validation, instance/row CRUD APIs
+  19-3-template-matching-engine: done  # Completed 2026-01-22: TemplateMatchingEngineService (matchDocuments/previewMatch/validateMapping), Transform module (DIRECT/FORMULA/LOOKUP/CONCAT/SPLIT transforms, TransformExecutor factory), template-matching-engine.ts types, Zod validation, execute/preview/validate APIs
+  19-4-template-field-mapping-ui: backlog
+  19-5-template-instance-ui: backlog
+  19-6-template-export: backlog
+  19-7-batch-auto-matching: backlog
+  19-8-integration-testing: backlog
+  epic-19-retrospective: optional
