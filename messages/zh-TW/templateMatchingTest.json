@@ -1,0 +1,251 @@
+{
+  "page": {
+    "title": "模版匹配整合測試",
+    "description": "驗證完整的模版匹配流程，從數據選擇到導出"
+  },
+  "wizard": {
+    "steps": {
+      "selectData": "選擇數據",
+      "selectTemplate": "選擇模版",
+      "reviewMapping": "查看映射",
+      "executeMatch": "執行匹配",
+      "viewResults": "檢視結果",
+      "testExport": "導出測試"
+    },
+    "navigation": {
+      "previous": "上一步",
+      "next": "下一步",
+      "cancel": "取消",
+      "finish": "完成"
+    },
+    "progress": {
+      "step": "步驟 {current} / {total}",
+      "completed": "已完成 {count} 個步驟"
+    }
+  },
+  "selectData": {
+    "title": "選擇測試數據",
+    "description": "選擇要測試的數據來源",
+    "sourceType": {
+      "label": "數據來源",
+      "documents": "現有文件",
+      "mockData": "模擬數據"
+    },
+    "documents": {
+      "title": "選擇文件",
+      "description": "選擇已處理完成的文件作為測試數據",
+      "searchPlaceholder": "搜尋文件...",
+      "selected": "已選 {count} 個文件",
+      "noDocuments": "沒有已處理的文件",
+      "loadMore": "載入更多"
+    },
+    "mockData": {
+      "title": "使用模擬數據",
+      "description": "使用預設的模擬數據進行測試",
+      "generate": "生成模擬數據",
+      "count": "文件數量",
+      "generated": "已生成 {count} 個模擬文件",
+      "preview": "預覽數據",
+      "includeErrors": "包含錯誤場景",
+      "includeErrorsHelp": "生成包含缺少必填欄位的數據用於測試錯誤處理"
+    },
+    "preview": {
+      "title": "數據預覽",
+      "empty": "尚未選擇數據",
+      "fields": "欄位",
+      "value": "值"
+    }
+  },
+  "selectTemplate": {
+    "title": "選擇數據模版",
+    "description": "選擇目標數據模版",
+    "searchPlaceholder": "搜尋模版...",
+    "noTemplates": "沒有可用的模版",
+    "selected": "已選擇：{name}",
+    "fieldCount": "{count} 個欄位",
+    "requiredFields": "{count} 個必填欄位",
+    "preview": {
+      "title": "模版欄位",
+      "name": "欄位名稱",
+      "label": "顯示名稱",
+      "type": "類型",
+      "required": "必填"
+    }
+  },
+  "reviewMapping": {
+    "title": "查看映射規則",
+    "description": "查看將應用於此匹配的映射規則",
+    "loading": "載入映射規則中...",
+    "noMapping": "沒有找到適用的映射規則",
+    "sources": {
+      "title": "映射來源",
+      "GLOBAL": "全域",
+      "COMPANY": "公司",
+      "FORMAT": "格式"
+    },
+    "rules": {
+      "title": "映射規則",
+      "count": "{count} 條規則",
+      "sourceField": "來源欄位",
+      "targetField": "目標欄位",
+      "transformType": "轉換類型",
+      "order": "順序"
+    },
+    "transformTypes": {
+      "DIRECT": "直接映射",
+      "FORMULA": "公式計算",
+      "LOOKUP": "查表映射",
+      "CONCAT": "字串合併",
+      "SPLIT": "字串分割",
+      "CUSTOM": "自定義"
+    },
+    "tempEdit": {
+      "title": "臨時修改",
+      "description": "可在此臨時修改映射規則進行測試",
+      "enable": "啟用臨時修改",
+      "reset": "重置為原始規則"
+    }
+  },
+  "executeMatch": {
+    "title": "執行匹配",
+    "description": "執行文件到模版的匹配操作",
+    "options": {
+      "title": "匹配選項",
+      "createInstance": "建立新實例",
+      "selectInstance": "選擇現有實例",
+      "instanceName": "實例名稱",
+      "instanceNamePlaceholder": "測試實例 - {date}",
+      "skipValidation": "跳過驗證",
+      "skipValidationHelp": "跳過欄位驗證（僅用於測試）"
+    },
+    "actions": {
+      "execute": "開始匹配",
+      "cancel": "取消"
+    },
+    "progress": {
+      "title": "匹配進度",
+      "processing": "處理中 {current} / {total}",
+      "percentage": "{percent}%",
+      "completed": "匹配完成"
+    },
+    "status": {
+      "idle": "等待執行",
+      "running": "執行中",
+      "completed": "已完成",
+      "error": "執行失敗"
+    }
+  },
+  "viewResults": {
+    "title": "檢視結果",
+    "description": "查看匹配結果和驗證狀態",
+    "summary": {
+      "title": "匹配摘要",
+      "totalDocuments": "處理文件",
+      "totalRows": "產生行數",
+      "validRows": "有效行",
+      "invalidRows": "無效行",
+      "errorRows": "錯誤行"
+    },
+    "table": {
+      "title": "結果數據",
+      "rowKey": "主鍵",
+      "status": "狀態",
+      "errors": "錯誤",
+      "noData": "沒有數據"
+    },
+    "rowStatus": {
+      "VALID": "有效",
+      "INVALID": "無效",
+      "ERROR": "錯誤"
+    },
+    "actions": {
+      "viewDetails": "查看詳情",
+      "editRow": "編輯行",
+      "showOnlyErrors": "僅顯示錯誤"
+    },
+    "editRow": {
+      "title": "編輯行數據",
+      "description": "修改欄位值以測試驗證邏輯",
+      "save": "保存變更",
+      "cancel": "取消"
+    }
+  },
+  "testExport": {
+    "title": "導出測試",
+    "description": "測試導出功能",
+    "format": {
+      "label": "導出格式",
+      "excel": "Excel (.xlsx)",
+      "csv": "CSV (.csv)"
+    },
+    "actions": {
+      "exportExcel": "導出 Excel",
+      "exportCsv": "導出 CSV",
+      "exporting": "導出中..."
+    },
+    "result": {
+      "title": "導出結果",
+      "success": "導出成功",
+      "filename": "文件名",
+      "fileSize": "文件大小",
+      "rowCount": "行數",
+      "download": "下載文件"
+    }
+  },
+  "report": {
+    "title": "測試報告",
+    "description": "生成完整的測試報告",
+    "generate": "生成報告",
+    "generating": "生成中...",
+    "sections": {
+      "config": "測試配置",
+      "results": "測試結果",
+      "summary": "總結"
+    },
+    "config": {
+      "testTime": "測試時間",
+      "dataSource": "數據來源",
+      "template": "目標模版",
+      "mappingSource": "映射配置"
+    },
+    "stepResults": {
+      "title": "步驟 {step}: {name}",
+      "passed": "通過",
+      "failed": "失敗",
+      "warning": "警告",
+      "details": "詳情"
+    },
+    "summary": {
+      "passRate": "通過率",
+      "passedSteps": "通過步驟",
+      "failedSteps": "失敗步驟",
+      "totalSteps": "總步驟數",
+      "recommendations": "建議"
+    },
+    "actions": {
+      "copy": "複製到剪貼板",
+      "download": "下載報告",
+      "copied": "已複製！",
+      "downloadSuccess": "報告已下載"
+    }
+  },
+  "errors": {
+    "loadFailed": "載入失敗",
+    "executeFailed": "執行失敗",
+    "exportFailed": "導出失敗",
+    "noDataSelected": "請先選擇測試數據",
+    "noTemplateSelected": "請先選擇數據模版",
+    "noMappingFound": "找不到適用的映射規則"
+  },
+  "toast": {
+    "dataSelected": "已選擇 {count} 個測試數據",
+    "mockDataGenerated": "已生成模擬數據",
+    "templateSelected": "已選擇模版：{name}",
+    "matchCompleted": "匹配完成：{valid} 有效，{invalid} 無效",
+    "matchFailed": "匹配失敗：{error}",
+    "exportSuccess": "導出成功",
+    "exportError": "導出失敗：{error}",
+    "reportGenerated": "報告已生成",
+    "reportCopied": "報告已複製到剪貼板"
+  }
+}

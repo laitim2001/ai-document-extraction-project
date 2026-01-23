@@ -289,7 +289,7 @@ development_status:
   # ============================================================
   # Epic 19: 數據模版匹配與輸出
   # ============================================================
-  epic-19: in-progress  # Template Matching & Export
+  epic-19: done  # All 8 stories completed 2026-01-23 - Template Matching & Export
   19-1-template-field-mapping-model: done  # Completed 2026-01-22: TemplateFieldMapping model (GLOBAL/COMPANY/FORMAT scope), TemplateFieldMappingRule (DIRECT/FORMULA/LOOKUP/CONCAT/SPLIT/CUSTOM transforms), template-field-mapping.service.ts (CRUD + resolveMapping with 3-tier priority), template-field-mapping.ts types, Zod validation, CRUD APIs
   19-2-template-instance-model: done  # Completed 2026-01-22: TemplateInstance model (DRAFT/PROCESSING/COMPLETED/EXPORTED/ERROR status), TemplateInstanceRow model (rowKey + sourceDocumentIds merge), template-instance.service.ts (instance+row CRUD, validation, statistics), template-instance.ts types, Zod validation, instance/row CRUD APIs
   19-3-template-matching-engine: done  # Completed 2026-01-22: TemplateMatchingEngineService (matchDocuments/previewMatch/validateMapping), Transform module (DIRECT/FORMULA/LOOKUP/CONCAT/SPLIT transforms, TransformExecutor factory), template-matching-engine.ts types, Zod validation, execute/preview/validate APIs
@@ -297,5 +297,5 @@ development_status:
   19-5-template-instance-ui: done  # Completed 2026-01-22: TemplateInstanceList (列表頁), TemplateInstanceCard (卡片), TemplateInstanceFilters (篩選器), CreateInstanceDialog (創建對話框), TemplateInstanceDetail (詳情頁), InstanceStatsOverview (統計), InstanceRowsTable (數據行表格), RowEditDialog (編輯對話框), RowDetailDrawer (詳情抽屜), BulkActionsMenu (批量操作), use-template-instances.ts hooks, templateInstance.json i18n (en/zh-TW/zh-CN)
   19-6-template-export: done  # Completed 2026-01-23: TemplateExportService (Excel/CSV export, exceljs), exportToExcel/exportToCsv (row filter, field selection, format options), GET /api/v1/template-instances/[id]/export API (xlsx/csv/rowFilter/fields params), ExportDialog (format/row/field selection), ExportFieldSelector (draggable field selection), templateInstance.json i18n export section (en/zh-TW/zh-CN)
   19-7-batch-auto-matching: done  # Completed 2026-01-23: AutoTemplateMatchingService (resolveDefaultTemplate 3-tier priority, autoMatch, batchMatch, unmatch), Document/Company/DocumentFormat.defaultTemplateId relations, POST /api/v1/documents/match (batch), POST /api/v1/documents/[id]/match (single), POST /api/v1/documents/[id]/unmatch, MatchToTemplateDialog, BulkMatchDialog, DefaultTemplateSelector, MatchStatusBadge components, templateInstance.json i18n match/unmatch sections (en/zh-TW/zh-CN)
-  19-8-integration-testing: backlog
+  19-8-integration-testing: done  # Completed 2026-01-23: 6-step TestWizard (TestDataSelector, TemplateSelector, MappingPreview, MatchExecutor, ResultViewer, ExportTester), mock data generation (3 documents with error case), TestReportGenerator (Markdown format, copy/download), templateMatchingTest.json i18n (en/zh-TW/zh-CN)
   epic-19-retrospective: optional

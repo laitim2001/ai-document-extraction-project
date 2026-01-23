@@ -1,0 +1,251 @@
+{
+  "page": {
+    "title": "Template Matching Integration Test",
+    "description": "Verify the complete template matching flow from data selection to export"
+  },
+  "wizard": {
+    "steps": {
+      "selectData": "Select Data",
+      "selectTemplate": "Select Template",
+      "reviewMapping": "Review Mapping",
+      "executeMatch": "Execute Match",
+      "viewResults": "View Results",
+      "testExport": "Test Export"
+    },
+    "navigation": {
+      "previous": "Previous",
+      "next": "Next",
+      "cancel": "Cancel",
+      "finish": "Finish"
+    },
+    "progress": {
+      "step": "Step {current} / {total}",
+      "completed": "{count} steps completed"
+    }
+  },
+  "selectData": {
+    "title": "Select Test Data",
+    "description": "Choose the data source for testing",
+    "sourceType": {
+      "label": "Data Source",
+      "documents": "Existing Documents",
+      "mockData": "Mock Data"
+    },
+    "documents": {
+      "title": "Select Documents",
+      "description": "Select processed documents as test data",
+      "searchPlaceholder": "Search documents...",
+      "selected": "{count} documents selected",
+      "noDocuments": "No processed documents available",
+      "loadMore": "Load more"
+    },
+    "mockData": {
+      "title": "Use Mock Data",
+      "description": "Use preset mock data for testing",
+      "generate": "Generate Mock Data",
+      "count": "Number of documents",
+      "generated": "{count} mock documents generated",
+      "preview": "Preview Data",
+      "includeErrors": "Include error scenarios",
+      "includeErrorsHelp": "Generate data with missing required fields for testing error handling"
+    },
+    "preview": {
+      "title": "Data Preview",
+      "empty": "No data selected",
+      "fields": "Fields",
+      "value": "Value"
+    }
+  },
+  "selectTemplate": {
+    "title": "Select Data Template",
+    "description": "Choose the target data template",
+    "searchPlaceholder": "Search templates...",
+    "noTemplates": "No templates available",
+    "selected": "Selected: {name}",
+    "fieldCount": "{count} fields",
+    "requiredFields": "{count} required fields",
+    "preview": {
+      "title": "Template Fields",
+      "name": "Field Name",
+      "label": "Label",
+      "type": "Type",
+      "required": "Required"
+    }
+  },
+  "reviewMapping": {
+    "title": "Review Mapping Rules",
+    "description": "Review mapping rules to be applied",
+    "loading": "Loading mapping rules...",
+    "noMapping": "No applicable mapping rules found",
+    "sources": {
+      "title": "Mapping Sources",
+      "GLOBAL": "Global",
+      "COMPANY": "Company",
+      "FORMAT": "Format"
+    },
+    "rules": {
+      "title": "Mapping Rules",
+      "count": "{count} rules",
+      "sourceField": "Source Field",
+      "targetField": "Target Field",
+      "transformType": "Transform Type",
+      "order": "Order"
+    },
+    "transformTypes": {
+      "DIRECT": "Direct Mapping",
+      "FORMULA": "Formula",
+      "LOOKUP": "Lookup Table",
+      "CONCAT": "Concatenate",
+      "SPLIT": "Split",
+      "CUSTOM": "Custom"
+    },
+    "tempEdit": {
+      "title": "Temporary Modification",
+      "description": "Temporarily modify mapping rules for testing",
+      "enable": "Enable temporary edit",
+      "reset": "Reset to original rules"
+    }
+  },
+  "executeMatch": {
+    "title": "Execute Match",
+    "description": "Execute the document to template matching operation",
+    "options": {
+      "title": "Match Options",
+      "createInstance": "Create New Instance",
+      "selectInstance": "Select Existing Instance",
+      "instanceName": "Instance Name",
+      "instanceNamePlaceholder": "Test Instance - {date}",
+      "skipValidation": "Skip Validation",
+      "skipValidationHelp": "Skip field validation (for testing only)"
+    },
+    "actions": {
+      "execute": "Start Matching",
+      "cancel": "Cancel"
+    },
+    "progress": {
+      "title": "Match Progress",
+      "processing": "Processing {current} / {total}",
+      "percentage": "{percent}%",
+      "completed": "Match Completed"
+    },
+    "status": {
+      "idle": "Waiting to execute",
+      "running": "Running",
+      "completed": "Completed",
+      "error": "Execution failed"
+    }
+  },
+  "viewResults": {
+    "title": "View Results",
+    "description": "Review match results and validation status",
+    "summary": {
+      "title": "Match Summary",
+      "totalDocuments": "Processed Documents",
+      "totalRows": "Generated Rows",
+      "validRows": "Valid Rows",
+      "invalidRows": "Invalid Rows",
+      "errorRows": "Error Rows"
+    },
+    "table": {
+      "title": "Result Data",
+      "rowKey": "Row Key",
+      "status": "Status",
+      "errors": "Errors",
+      "noData": "No data"
+    },
+    "rowStatus": {
+      "VALID": "Valid",
+      "INVALID": "Invalid",
+      "ERROR": "Error"
+    },
+    "actions": {
+      "viewDetails": "View Details",
+      "editRow": "Edit Row",
+      "showOnlyErrors": "Show only errors"
+    },
+    "editRow": {
+      "title": "Edit Row Data",
+      "description": "Modify field values to test validation logic",
+      "save": "Save Changes",
+      "cancel": "Cancel"
+    }
+  },
+  "testExport": {
+    "title": "Export Test",
+    "description": "Test the export functionality",
+    "format": {
+      "label": "Export Format",
+      "excel": "Excel (.xlsx)",
+      "csv": "CSV (.csv)"
+    },
+    "actions": {
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV",
+      "exporting": "Exporting..."
+    },
+    "result": {
+      "title": "Export Result",
+      "success": "Export successful",
+      "filename": "Filename",
+      "fileSize": "File Size",
+      "rowCount": "Row Count",
+      "download": "Download File"
+    }
+  },
+  "report": {
+    "title": "Test Report",
+    "description": "Generate a complete test report",
+    "generate": "Generate Report",
+    "generating": "Generating...",
+    "sections": {
+      "config": "Test Configuration",
+      "results": "Test Results",
+      "summary": "Summary"
+    },
+    "config": {
+      "testTime": "Test Time",
+      "dataSource": "Data Source",
+      "template": "Target Template",
+      "mappingSource": "Mapping Configuration"
+    },
+    "stepResults": {
+      "title": "Step {step}: {name}",
+      "passed": "Passed",
+      "failed": "Failed",
+      "warning": "Warning",
+      "details": "Details"
+    },
+    "summary": {
+      "passRate": "Pass Rate",
+      "passedSteps": "Passed Steps",
+      "failedSteps": "Failed Steps",
+      "totalSteps": "Total Steps",
+      "recommendations": "Recommendations"
+    },
+    "actions": {
+      "copy": "Copy to Clipboard",
+      "download": "Download Report",
+      "copied": "Copied!",
+      "downloadSuccess": "Report downloaded"
+    }
+  },
+  "errors": {
+    "loadFailed": "Load failed",
+    "executeFailed": "Execution failed",
+    "exportFailed": "Export failed",
+    "noDataSelected": "Please select test data first",
+    "noTemplateSelected": "Please select a data template first",
+    "noMappingFound": "No applicable mapping rules found"
+  },
+  "toast": {
+    "dataSelected": "{count} test data selected",
+    "mockDataGenerated": "Mock data generated",
+    "templateSelected": "Template selected: {name}",
+    "matchCompleted": "Match completed: {valid} valid, {invalid} invalid",
+    "matchFailed": "Match failed: {error}",
+    "exportSuccess": "Export successful",
+    "exportError": "Export failed: {error}",
+    "reportGenerated": "Report generated",
+    "reportCopied": "Report copied to clipboard"
+  }
+}
