@@ -7044,7 +7044,7 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
 2. docs/04-implementation/stories/epic-18-local-auth/18-1-user-registration.md
-3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-1.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-1.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
@@ -7129,11 +7129,11 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
 2. docs/04-implementation/stories/epic-18-local-auth/18-2-local-account-login.md
-3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-2.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-2.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-1.md（依賴）
+- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-1.md（依賴）
 - src/lib/auth.config.ts（需修改 Credentials Provider）
 - src/lib/auth.ts（需修改 JWT Callback）
 - src/lib/password.ts（Story 18-1 建立）
@@ -7157,7 +7157,7 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
 
 ## 依賴
-- Story 18-1（用戶註冊）必須先完成
+- Story 19-1（用戶註冊）必須先完成
 
 請開始實作此 Story。
 
@@ -7204,11 +7204,11 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
 2. docs/04-implementation/stories/epic-18-local-auth/18-3-password-reset.md
-3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-3.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-3.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-1.md（依賴）
+- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-1.md（依賴）
 - src/lib/token.ts（Token 工具）
 - src/lib/email.ts（郵件服務）
 - src/lib/password.ts（密碼工具）
@@ -7235,8 +7235,8 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 9. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
 
 ## 依賴
-- Story 18-1（用戶註冊）必須先完成
-- Story 18-2（本地帳號登入）必須先完成
+- Story 19-1（用戶註冊）必須先完成
+- Story 19-2（本地帳號登入）必須先完成
 
 請開始實作此 Story。
 
@@ -7283,11 +7283,11 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
 2. docs/04-implementation/stories/epic-18-local-auth/18-4-email-verification.md
-3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-4.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-4.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-18-1.md（依賴）
+- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-1.md（依賴）
 - src/lib/token.ts（Token 工具）
 - src/lib/email.ts（郵件服務）
 - messages/{locale}/auth.json（i18n 翻譯）
@@ -7311,7 +7311,7 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 8. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
 
 ## 依賴
-- Story 18-1（用戶註冊）必須先完成
+- Story 19-1（用戶註冊）必須先完成
 
 請開始實作此 Story。
 
@@ -7382,23 +7382,23 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
-## Epic 18: 數據模版匹配與輸出
+## Epic 19: 數據模版匹配與輸出
 
 > **說明**：此 Epic 實現第二層映射系統，將提取的標準化數據填入用戶定義的數據模版，並支援導出。
 
-### Story 18-1: Template Field Mapping 數據模型與服務
+### Story 19-1: Template Field Mapping 數據模型與服務
 
 ```
-# 開發任務：Story 18-1 Template Field Mapping 數據模型與服務
+# 開發任務：Story 19-1 Template Field Mapping 數據模型與服務
 
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
-2. docs/04-implementation/stories/epic-18-template-matching/18-1-template-field-mapping-model.md
-3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-1.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-1-template-field-mapping-model.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-1.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- docs/04-implementation/stories/epic-18-template-matching/epic-18-overview.md
+- docs/04-implementation/stories/epic-19-template-matching/epic-19-overview.md
 - docs/04-implementation/stories/epic-16-format-management/16-7-data-template-management.md
 
 ## 開發要求
@@ -7430,19 +7430,19 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
-### Story 18-2: Template Instance 數據模型與管理服務
+### Story 19-2: Template Instance 數據模型與管理服務
 
 ```
-# 開發任務：Story 18-2 Template Instance 數據模型與管理服務
+# 開發任務：Story 19-2 Template Instance 數據模型與管理服務
 
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
-2. docs/04-implementation/stories/epic-18-template-matching/18-2-template-instance-model.md
-3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-2.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-2-template-instance-model.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-2.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- Story 18-1 的實現（TemplateFieldMapping 模型）
+- Story 19-1 的實現（TemplateFieldMapping 模型）
 
 ## 開發要求
 1. 嚴格遵循 Tech Spec 的 Prisma Schema 設計
@@ -7473,20 +7473,20 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
-### Story 18-3: 模版匹配引擎服務
+### Story 19-3: 模版匹配引擎服務
 
 ```
-# 開發任務：Story 18-3 模版匹配引擎服務
+# 開發任務：Story 19-3 模版匹配引擎服務
 
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
-2. docs/04-implementation/stories/epic-18-template-matching/18-3-template-matching-engine.md
-3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-3.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-3-template-matching-engine.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-3.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- Story 18-1（TemplateFieldMapping 服務）
-- Story 18-2（TemplateInstance 服務）
+- Story 19-1（TemplateFieldMapping 服務）
+- Story 19-2（TemplateInstance 服務）
 
 ## 開發要求
 1. 實現核心的 TemplateMatchingEngineService
@@ -7517,19 +7517,19 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
-### Story 18-4: Template Field Mapping 配置 UI
+### Story 19-4: Template Field Mapping 配置 UI
 
 ```
-# 開發任務：Story 18-4 Template Field Mapping 配置 UI
+# 開發任務：Story 19-4 Template Field Mapping 配置 UI
 
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
-2. docs/04-implementation/stories/epic-18-template-matching/18-4-template-field-mapping-ui.md
-3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-4.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-4-template-field-mapping-ui.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-4.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- Story 18-1（TemplateFieldMapping API）
+- Story 19-1（TemplateFieldMapping API）
 - src/constants/standard-fields.ts（標準欄位列表）
 
 ## 開發要求
@@ -7562,20 +7562,20 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
-### Story 18-5: Template Instance 管理介面
+### Story 19-5: Template Instance 管理介面
 
 ```
-# 開發任務：Story 18-5 Template Instance 管理介面
+# 開發任務：Story 19-5 Template Instance 管理介面
 
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
-2. docs/04-implementation/stories/epic-18-template-matching/18-5-template-instance-ui.md
-3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-5.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-5-template-instance-ui.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-5.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- Story 18-2（TemplateInstance API）
-- Story 18-3（匹配引擎服務）
+- Story 19-2（TemplateInstance API）
+- Story 19-3（匹配引擎服務）
 
 ## 開發要求
 1. 實現實例列表頁面和詳情頁面
@@ -7607,19 +7607,19 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
-### Story 18-6: 模版實例導出功能
+### Story 19-6: 模版實例導出功能
 
 ```
-# 開發任務：Story 18-6 模版實例導出功能
+# 開發任務：Story 19-6 模版實例導出功能
 
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
-2. docs/04-implementation/stories/epic-18-template-matching/18-6-template-export.md
-3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-6.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-6-template-export.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-6.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- Story 18-5（Template Instance UI）
+- Story 19-5（Template Instance UI）
 
 ## 開發要求
 1. 安裝 exceljs 依賴
@@ -7650,19 +7650,19 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
-### Story 18-7: 批量文件自動匹配到模版
+### Story 19-7: 批量文件自動匹配到模版
 
 ```
-# 開發任務：Story 18-7 批量文件自動匹配到模版
+# 開發任務：Story 19-7 批量文件自動匹配到模版
 
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
-2. docs/04-implementation/stories/epic-18-template-matching/18-7-batch-auto-matching.md
-3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-7.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-7-batch-auto-matching.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-7.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- Story 18-3（匹配引擎服務）
+- Story 19-3（匹配引擎服務）
 - 現有的 Document 模型和處理流程
 
 ## 開發要求
@@ -7694,19 +7694,19 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
-### Story 18-8: 模版匹配整合測試與驗證
+### Story 19-8: 模版匹配整合測試與驗證
 
 ```
-# 開發任務：Story 18-8 模版匹配整合測試與驗證
+# 開發任務：Story 19-8 模版匹配整合測試與驗證
 
 ## 必讀文件 (請依序閱讀)
 1. docs/04-implementation/implementation-context.md
-2. docs/04-implementation/stories/epic-18-template-matching/18-8-integration-testing.md
-3. docs/04-implementation/tech-specs/epic-18-template-matching/tech-spec-story-18-8.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-8-integration-testing.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-8.md
 
 ## 參考文件 (開發時查閱)
 - docs/04-implementation/dev-checklist.md
-- Story 18-1 ~ 18-7 的所有實現
+- Story 19-1 ~ 19-7 的所有實現
 
 ## 開發要求
 1. 實現測試向導頁面（6 個步驟）

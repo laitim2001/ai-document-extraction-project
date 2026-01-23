@@ -1,4 +1,4 @@
-# Tech Spec: Story 18.6 - 模版實例導出功能
+# Tech Spec: Story 19.6 - 模版實例導出功能
 
 > **Version**: 1.0.0
 > **Created**: 2026-01-22
@@ -11,10 +11,10 @@
 
 | 項目 | 內容 |
 |------|------|
-| **Story ID** | 18.6 |
-| **Epic** | Epic 18 - 數據模版匹配與輸出 |
+| **Story ID** | 19.6 |
+| **Epic** | Epic 19 - 數據模版匹配與輸出 |
 | **Estimated Effort** | 5 Story Points |
-| **Dependencies** | Story 18-5 |
+| **Dependencies** | Story 19-5 |
 
 ---
 

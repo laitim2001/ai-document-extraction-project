@@ -1,4 +1,4 @@
-# Epic 18: 數據模版匹配與輸出
+# Epic 19: 數據模版匹配與輸出
 
 **Status:** draft
 
@@ -72,7 +72,7 @@ Document 記錄 → 選擇數據模版 → 第二層 Mapping → 填入模版 �
 │                                                │                                        │
 │                                                ▼                                        │
 │  ┌────────────────────────────────────────────────────────────────────────┐            │
-│  │ 第二階段：模版匹配與輸出 (新增 - Epic 18)                                │            │
+│  │ 第二階段：模版匹配與輸出 (新增 - Epic 19)                                │            │
 │  │                                                                        │            │
 │  │  選擇數據模版 → TemplateFieldMapping → 填入模版 → 導出                   │            │
 │  │                        │                                               │            │
@@ -202,27 +202,27 @@ Document 記錄 → 選擇數據模版 → 第二層 Mapping → 填入模版 �
 └── Epic 16: 文件格式管理（DataTemplate）
 
 Story 依賴圖：
-Story 18-1 (TemplateFieldMapping 模型)
+Story 19-1 (TemplateFieldMapping 模型)
     │
     ├──────────────────┐
     │                  │
     ▼                  ▼
-Story 18-2         Story 18-4
+Story 19-2         Story 19-4
 (TemplateInstance) (Mapping UI)
     │
     ▼
-Story 18-3 (匹配引擎)
+Story 19-3 (匹配引擎)
     │
     ├──────────────────┬──────────────────┐
     │                  │                  │
     ▼                  ▼                  ▼
-Story 18-5         Story 18-6         Story 18-7
+Story 19-5         Story 19-6         Story 19-7
 (Instance UI)      (導出功能)         (批量匹配)
     │                  │                  │
     └──────────────────┴──────────────────┘
                        │
                        ▼
-                  Story 18-8
+                  Story 19-8
                (整合測試)
 ```
 

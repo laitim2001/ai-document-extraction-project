@@ -1,4 +1,4 @@
-# Story 18.5: Template Instance 管理介面
+# Story 19.5: Template Instance 管理介面
 
 **Status:** draft
 
@@ -16,7 +16,7 @@
 
 ### 問題陳述
 
-Story 18-2 和 18-3 建立了 TemplateInstance 的數據模型和匹配引擎，但缺少前端管理介面。用戶需要：
+Story 19-2 和 18-3 建立了 TemplateInstance 的數據模型和匹配引擎，但缺少前端管理介面。用戶需要：
 
 1. 查看所有模版實例列表
 2. 檢視單一實例的詳細數據（分頁行列表）
@@ -192,8 +192,8 @@ Story 18-2 和 18-3 建立了 TemplateInstance 的數據模型和匹配引擎，
 
 ### 依賴項
 
-- **Story 18-2**: TemplateInstance API
-- **Story 18-3**: 匹配引擎服務
+- **Story 19-2**: TemplateInstance API
+- **Story 19-3**: 匹配引擎服務
 - **Story 16-7**: DataTemplate（欄位定義）
 
 ### 新增文件

@@ -1,4 +1,4 @@
-# Story 18.2: Template Instance 數據模型與管理服務
+# Story 19.2: Template Instance 數據模型與管理服務
 
 **Status:** draft
 
@@ -141,7 +141,7 @@ DataTemplate (模版定義)         TemplateInstance (填充後的實例)
 
 ### 依賴項
 
-- **Story 18-1**: TemplateFieldMapping（用於映射規則）
+- **Story 19-1**: TemplateFieldMapping（用於映射規則）
 - **Story 16-7**: DataTemplate（模版定義）
 
 ### 新增文件

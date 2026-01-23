@@ -1,4 +1,4 @@
-# Tech Spec: Story 18.2 - Template Instance 數據模型與管理服務
+# Tech Spec: Story 19.2 - Template Instance 數據模型與管理服務
 
 > **Version**: 1.0.0
 > **Created**: 2026-01-22
@@ -11,11 +11,11 @@
 
 | 項目 | 內容 |
 |------|------|
-| **Story ID** | 18.2 |
-| **Epic** | Epic 18 - 數據模版匹配與輸出 |
+| **Story ID** | 19.2 |
+| **Epic** | Epic 19 - 數據模版匹配與輸出 |
 | **Estimated Effort** | 6 Story Points |
-| **Dependencies** | Story 18-1 |
-| **Blocking** | Story 18-3, 18-5, 18-6 |
+| **Dependencies** | Story 19-1 |
+| **Blocking** | Story 19-3, 18-5, 18-6 |
 
 ---
 

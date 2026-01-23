@@ -1,4 +1,4 @@
-# Tech Spec: Story 18.3 - 模版匹配引擎服務
+# Tech Spec: Story 19.3 - 模版匹配引擎服務
 
 > **Version**: 1.0.0
 > **Created**: 2026-01-22
@@ -11,11 +11,11 @@
 
 | 項目 | 內容 |
 |------|------|
-| **Story ID** | 18.3 |
-| **Epic** | Epic 18 - 數據模版匹配與輸出 |
+| **Story ID** | 19.3 |
+| **Epic** | Epic 19 - 數據模版匹配與輸出 |
 | **Estimated Effort** | 10 Story Points |
-| **Dependencies** | Story 18-1, 18-2 |
-| **Blocking** | Story 18-5, 18-6, 18-7 |
+| **Dependencies** | Story 19-1, 18-2 |
+| **Blocking** | Story 19-5, 18-6, 18-7 |
 
 ---
 

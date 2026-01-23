@@ -1,4 +1,4 @@
-# Tech Spec: Story 18.8 - 模版匹配整合測試與驗證
+# Tech Spec: Story 19.8 - 模版匹配整合測試與驗證
 
 > **Version**: 1.0.0
 > **Created**: 2026-01-22
@@ -11,10 +11,10 @@
 
 | 項目 | 內容 |
 |------|------|
-| **Story ID** | 18.8 |
-| **Epic** | Epic 18 - 數據模版匹配與輸出 |
+| **Story ID** | 19.8 |
+| **Epic** | Epic 19 - 數據模版匹配與輸出 |
 | **Estimated Effort** | 4 Story Points |
-| **Dependencies** | Story 18-1 ~ 18-7 |
+| **Dependencies** | Story 19-1 ~ 18-7 |
 
 ---
 

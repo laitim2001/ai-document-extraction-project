@@ -1,4 +1,4 @@
-# Tech Spec: Story 18.1 - Template Field Mapping 數據模型與服務
+# Tech Spec: Story 19.1 - Template Field Mapping 數據模型與服務
 
 > **Version**: 1.0.0
 > **Created**: 2026-01-22
@@ -11,11 +11,11 @@
 
 | 項目 | 內容 |
 |------|------|
-| **Story ID** | 18.1 |
-| **Epic** | Epic 18 - 數據模版匹配與輸出 |
+| **Story ID** | 19.1 |
+| **Epic** | Epic 19 - 數據模版匹配與輸出 |
 | **Estimated Effort** | 8 Story Points |
 | **Dependencies** | Story 16-7（DataTemplate） |
-| **Blocking** | Story 18-2, 18-3, 18-4 |
+| **Blocking** | Story 19-2, 18-3, 18-4 |
 
 ---
 
@@ -41,12 +41,12 @@
 
 | AC ID | 驗收條件 | 實現方式 |
 |-------|----------|----------|
-| AC-18.1.1 | TemplateFieldMapping 模型 | Prisma Schema |
-| AC-18.1.2 | 三層優先級支援 | resolveMapping 方法 |
-| AC-18.1.3 | 映射規則結構 | JSON Schema 定義 |
-| AC-18.1.4 | CRUD API | REST API 端點 |
-| AC-18.1.5 | 配置解析服務 | TemplateFieldMappingService |
-| AC-18.1.6 | 預設映射配置 | Seed Data |
+| AC-19.1.1 | TemplateFieldMapping 模型 | Prisma Schema |
+| AC-19.1.2 | 三層優先級支援 | resolveMapping 方法 |
+| AC-19.1.3 | 映射規則結構 | JSON Schema 定義 |
+| AC-19.1.4 | CRUD API | REST API 端點 |
+| AC-19.1.5 | 配置解析服務 | TemplateFieldMappingService |
+| AC-19.1.6 | 預設映射配置 | Seed Data |
 
 ---
 
@@ -61,7 +61,7 @@
 
 /**
  * 模版欄位映射範圍
- * @since Epic 18 - Story 18.1
+ * @since Epic 19 - Story 19.1
  */
 enum TemplateFieldMappingScope {
   GLOBAL    // 全局預設
@@ -71,7 +71,7 @@ enum TemplateFieldMappingScope {
 
 /**
  * 欄位轉換類型
- * @since Epic 18 - Story 18.1
+ * @since Epic 19 - Story 19.1
  */
 enum FieldTransformType {
   DIRECT    // 直接映射（1:1）
@@ -88,7 +88,7 @@ enum FieldTransformType {
  *   - 每個 DataTemplate 可有多個映射配置
  *   - 映射規則支援直接映射、公式計算、查表映射
  *
- * @since Epic 18 - Story 18.1
+ * @since Epic 19 - Story 19.1
  */
 model TemplateFieldMapping {
   id                String    @id @default(cuid())
@@ -193,7 +193,7 @@ model DocumentFormat {
  *   定義第二層映射（標準欄位 → 模版欄位）的 TypeScript 類型
  *
  * @module src/types/template-field-mapping
- * @since Epic 18 - Story 18.1
+ * @since Epic 19 - Story 19.1
  * @lastModified 2026-01-22
  */
 
@@ -442,7 +442,7 @@ export const TRANSFORM_TYPE_LABELS: Record<FieldTransformType, string> = {
 /**
  * @fileoverview 模版欄位映射驗證 Schema
  * @module src/validations/template-field-mapping
- * @since Epic 18 - Story 18.1
+ * @since Epic 19 - Story 19.1
  */
 
 import { z } from 'zod';
@@ -558,7 +558,7 @@ export type TemplateFieldMappingRuleInput = z.infer<typeof templateFieldMappingR
  *   提供第二層映射配置的 CRUD 操作和三層優先級解析
  *
  * @module src/services/template-field-mapping
- * @since Epic 18 - Story 18.1
+ * @since Epic 19 - Story 19.1
  * @lastModified 2026-01-22
  *
  * @features

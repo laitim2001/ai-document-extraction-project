@@ -1,4 +1,4 @@
-# Tech Spec: Story 18.7 - 批量文件自動匹配到模版
+# Tech Spec: Story 19.7 - 批量文件自動匹配到模版
 
 > **Version**: 1.0.0
 > **Created**: 2026-01-22
@@ -11,10 +11,10 @@
 
 | 項目 | 內容 |
 |------|------|
-| **Story ID** | 18.7 |
-| **Epic** | Epic 18 - 數據模版匹配與輸出 |
+| **Story ID** | 19.7 |
+| **Epic** | Epic 19 - 數據模版匹配與輸出 |
 | **Estimated Effort** | 8 Story Points |
-| **Dependencies** | Story 18-3 |
+| **Dependencies** | Story 19-3 |
 
 ---
 
