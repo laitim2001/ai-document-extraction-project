@@ -97,7 +97,7 @@ export function TemplateSelector({
     const selectedTemplate: SelectedTemplate = {
       id: template.id,
       name: template.name,
-      fields: template.fields,
+      fields: template.fields || [],
     };
 
     onUpdate({
@@ -108,14 +108,15 @@ export function TemplateSelector({
     toast.success(tToast('templateSelected', { name: template.name }));
 
     // 記錄步驟結果
-    const requiredFields = template.fields.filter((f) => f.isRequired);
+    const fields = template.fields || [];
+    const requiredFields = fields.filter((f) => f.isRequired);
     onRecordResult({
       status: 'passed',
       message: `Selected template: ${template.name}`,
       details: {
         templateId: template.id,
         templateName: template.name,
-        fieldCount: template.fields.length,
+        fieldCount: fields.length,
         requiredFieldCount: requiredFields.length,
       },
       timestamp: new Date().toISOString(),
@@ -123,7 +124,8 @@ export function TemplateSelector({
   };
 
   // 計算必填欄位數
-  const getRequiredFieldCount = (fields: DataTemplateField[]): number => {
+  const getRequiredFieldCount = (fields?: DataTemplateField[]): number => {
+    if (!fields || !Array.isArray(fields)) return 0;
     return fields.filter((f) => f.isRequired).length;
   };
 
@@ -212,7 +214,7 @@ export function TemplateSelector({
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">
-                          {t('fieldCount', { count: template.fields.length })}
+                          {t('fieldCount', { count: template.fields?.length || 0 })}
                         </Badge>
                         {requiredCount > 0 && (
                           <Badge variant="secondary">
@@ -251,7 +253,7 @@ export function TemplateSelector({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {testState.selectedTemplate.fields
+                  {(testState.selectedTemplate.fields || [])
                     .sort((a, b) => a.order - b.order)
                     .map((field) => (
                       <TableRow key={field.name}>

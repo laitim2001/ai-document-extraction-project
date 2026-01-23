@@ -49,21 +49,37 @@ interface ResolveMappingResponse {
 
 /**
  * 獲取解析後的映射規則
+ * @description 如果 API 失敗或沒有映射規則，返回空結果而不是拋出錯誤
  */
 async function fetchResolvedMapping(
   dataTemplateId: string
 ): Promise<ResolvedMappingInfo> {
-  const response = await fetch(
-    `/api/v1/template-field-mappings/resolve?dataTemplateId=${dataTemplateId}`
-  );
-  if (!response.ok) {
-    throw new Error('Failed to resolve mapping');
+  try {
+    const response = await fetch(`/api/v1/template-field-mappings/resolve`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ dataTemplateId }),
+    });
+
+    if (!response.ok) {
+      // API 錯誤時返回空結果（測試頁面可以繼續）
+      console.warn(
+        `[MappingPreview] API returned ${response.status}, using empty mappings`
+      );
+      return { sources: [], mappings: [] };
+    }
+
+    const data: ResolveMappingResponse = await response.json();
+    return {
+      sources: data.data.resolvedFrom || [],
+      mappings: data.data.mappings || [],
+    };
+  } catch (error) {
+    console.error('[MappingPreview] Failed to fetch mappings:', error);
+    return { sources: [], mappings: [] };
   }
-  const data: ResolveMappingResponse = await response.json();
-  return {
-    sources: data.data.resolvedFrom,
-    mappings: data.data.mappings,
-  };
 }
 
 /**
