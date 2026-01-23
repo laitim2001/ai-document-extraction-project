@@ -67,6 +67,9 @@
     "fieldMapping": "欄位映射配置",
     "promptConfig": "Prompt 配置",
     "termAnalysis": "術語分析",
+    "templateFieldMappings": "模版欄位映射",
+    "templateInstances": "模版實例管理",
+    "templateMatchingTest": "模版匹配測試",
     "settings": "設定"
   },
   "user": {

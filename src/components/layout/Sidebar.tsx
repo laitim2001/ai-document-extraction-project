@@ -17,9 +17,10 @@
  *   - 歷史數據初始化入口 (Epic 0)
  *   - 文件預覽測試入口 (Epic 13)
  *   - i18n 國際化支援 (Epic 17)
+ *   - 模版匹配功能入口 (Epic 19)
  *
  * @since CHANGE-001 - Dashboard Layout Redesign
- * @lastModified 2026-01-17
+ * @lastModified 2026-01-23
  *
  * @dependencies
  *   - next-intl - 國際化
@@ -54,6 +55,9 @@ import {
   MessageSquareCode,
   Tags,
   FileSpreadsheet,
+  Grid3X3,
+  FileStack,
+  TestTube2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -131,6 +135,9 @@ const navigation: NavSection[] = [
       { nameKey: 'sidebar.fieldMapping', href: '/admin/field-mapping-configs', icon: ArrowRightLeft },
       { nameKey: 'sidebar.promptConfig', href: '/admin/prompt-configs', icon: MessageSquareCode },
       { nameKey: 'sidebar.termAnalysis', href: '/admin/term-analysis', icon: Tags },
+      { nameKey: 'sidebar.templateFieldMappings', href: '/admin/template-field-mappings', icon: Grid3X3 },
+      { nameKey: 'sidebar.templateInstances', href: '/template-instances', icon: FileStack },
+      { nameKey: 'sidebar.templateMatchingTest', href: '/admin/test/template-matching', icon: TestTube2 },
     ],
   },
 ]

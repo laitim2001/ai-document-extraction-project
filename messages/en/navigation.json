@@ -67,6 +67,9 @@
     "fieldMapping": "Field Mapping Config",
     "promptConfig": "Prompt Config",
     "termAnalysis": "Term Analysis",
+    "templateFieldMappings": "Template Field Mappings",
+    "templateInstances": "Template Instances",
+    "templateMatchingTest": "Template Matching Test",
     "settings": "Settings"
   },
   "user": {
