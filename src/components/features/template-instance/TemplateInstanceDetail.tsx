@@ -20,9 +20,7 @@ import {
   ArrowLeft,
   Download,
   Plus,
-  Settings,
   ChevronDown,
-  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,6 +32,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { InstanceStatsOverview } from './InstanceStatsOverview';
 import { InstanceRowsTable } from './InstanceRowsTable';
+import { ExportDialog } from './ExportDialog';
 import { useTemplateInstance } from '@/hooks/use-template-instances';
 
 // ============================================================================
@@ -89,6 +88,7 @@ export function TemplateInstanceDetail({ instanceId, className }: TemplateInstan
   const tCommon = useTranslations('common');
 
   const { data, isLoading, error } = useTemplateInstance(instanceId);
+  const [showExportDialog, setShowExportDialog] = React.useState(false);
 
   // Loading state
   if (isLoading) {
@@ -134,27 +134,15 @@ export function TemplateInstanceDetail({ instanceId, className }: TemplateInstan
         </div>
 
         <div className="flex items-center gap-2 pl-10 md:pl-0">
-          {/* Export dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" disabled={!canExport}>
-                <Download className="mr-2 h-4 w-4" />
-                {t('detail.actions.export')}
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                {t('detail.actions.exportExcel')}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                {t('detail.actions.exportCsv')}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                {t('detail.actions.exportJson')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Export button */}
+          <Button
+            variant="outline"
+            disabled={!canExport}
+            onClick={() => setShowExportDialog(true)}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {t('detail.actions.export')}
+          </Button>
 
           {/* Add file button */}
           <Button variant="outline">
@@ -172,6 +160,16 @@ export function TemplateInstanceDetail({ instanceId, className }: TemplateInstan
         instanceId={instanceId}
         templateFields={data.dataTemplate?.fields ?? []}
       />
+
+      {/* Export Dialog */}
+      {data.dataTemplate && (
+        <ExportDialog
+          open={showExportDialog}
+          onClose={() => setShowExportDialog(false)}
+          instance={instance}
+          templateFields={data.dataTemplate.fields}
+        />
+      )}
     </div>
   );
 }

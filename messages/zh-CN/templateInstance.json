@@ -166,6 +166,39 @@
     "bulkDeleteSuccess": "成功删除 {count} 行",
     "bulkDeleteError": "批量删除失败",
     "revalidateSuccess": "重新验证完成",
-    "revalidateError": "重新验证失败"
+    "revalidateError": "重新验证失败",
+    "exportSuccess": "导出成功",
+    "exportError": "导出失败"
+  },
+  "export": {
+    "title": "导出数据",
+    "description": "导出实例数据：{name}",
+    "exportButton": "导出",
+    "exporting": "导出中...",
+    "format": {
+      "label": "导出格式",
+      "excel": "Excel (.xlsx)",
+      "csv": "CSV (.csv)"
+    },
+    "rowFilter": {
+      "label": "行筛选",
+      "all": "全部行 ({count})",
+      "valid": "仅有效行 ({count})",
+      "invalid": "仅错误行 ({count})"
+    },
+    "fields": {
+      "label": "导出字段",
+      "selected": "已选 {selected} / {total} 个字段",
+      "selectAll": "全选",
+      "deselectAll": "取消全选",
+      "reset": "重置",
+      "noFieldsWarning": "请至少选择一个字段进行导出"
+    },
+    "advanced": {
+      "label": "高级选项",
+      "dateFormat": "日期格式",
+      "useThousandSeparator": "数字使用千分位",
+      "includeValidationErrors": "包含验证错误列"
+    }
   }
 }

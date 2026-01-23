@@ -166,6 +166,39 @@
     "bulkDeleteSuccess": "{count} rows deleted successfully",
     "bulkDeleteError": "Failed to delete rows",
     "revalidateSuccess": "Revalidation completed",
-    "revalidateError": "Revalidation failed"
+    "revalidateError": "Revalidation failed",
+    "exportSuccess": "Export completed successfully",
+    "exportError": "Failed to export data"
+  },
+  "export": {
+    "title": "Export Data",
+    "description": "Export data from instance: {name}",
+    "exportButton": "Export",
+    "exporting": "Exporting...",
+    "format": {
+      "label": "Export Format",
+      "excel": "Excel (.xlsx)",
+      "csv": "CSV (.csv)"
+    },
+    "rowFilter": {
+      "label": "Row Filter",
+      "all": "All rows ({count})",
+      "valid": "Valid rows only ({count})",
+      "invalid": "Invalid rows only ({count})"
+    },
+    "fields": {
+      "label": "Fields to Export",
+      "selected": "{selected} of {total} fields selected",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "reset": "Reset",
+      "noFieldsWarning": "Please select at least one field to export"
+    },
+    "advanced": {
+      "label": "Advanced Options",
+      "dateFormat": "Date Format",
+      "useThousandSeparator": "Use thousand separator for numbers",
+      "includeValidationErrors": "Include validation errors column"
+    }
   }
 }
