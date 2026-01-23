@@ -170,6 +170,54 @@
     "exportSuccess": "Export completed successfully",
     "exportError": "Failed to export data"
   },
+  "match": {
+    "title": "Match to Template",
+    "description": "Match selected documents to a template instance",
+    "selectTemplate": "Select Template",
+    "selectInstance": "Select Instance",
+    "createNewInstance": "Create New Instance",
+    "selectedDocuments": "{count} documents selected",
+    "matchButton": "Match Documents",
+    "matching": "Matching...",
+    "autoMatchEnabled": "Auto-match enabled",
+    "autoMatchDisabled": "Auto-match disabled",
+    "matchSource": {
+      "FORMAT": "Format default",
+      "COMPANY": "Company default",
+      "GLOBAL": "Global default"
+    },
+    "status": {
+      "matched": "Matched",
+      "unmatched": "Unmatched",
+      "pending": "Pending Review"
+    }
+  },
+  "bulkMatch": {
+    "title": "Bulk Match Documents",
+    "description": "Match multiple documents to the same template instance",
+    "maxDocuments": "Maximum {max} documents per batch",
+    "progress": "Processing {current} of {total}...",
+    "results": {
+      "title": "Match Results",
+      "success": "{count} documents matched successfully",
+      "errors": "{count} documents failed"
+    }
+  },
+  "unmatch": {
+    "title": "Remove Match",
+    "description": "Remove document from template instance",
+    "warning": "This will remove the document from the template instance. The data in the instance will not be deleted.",
+    "confirmButton": "Remove Match",
+    "removing": "Removing..."
+  },
+  "defaultTemplate": {
+    "title": "Default Template",
+    "description": "Set default template for auto-matching",
+    "selectPlaceholder": "Select default template...",
+    "none": "No default template",
+    "saveButton": "Save",
+    "saving": "Saving..."
+  },
   "export": {
     "title": "Export Data",
     "description": "Export data from instance: {name}",

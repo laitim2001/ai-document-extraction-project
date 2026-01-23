@@ -31,7 +31,6 @@ import { TransformExecutor } from './transform';
 import type {
   MatchDocumentsParams,
   MatchResult,
-  MatchProgress,
   RowResult,
   UpsertRowParams,
   PreviewMatchParams,
@@ -444,7 +443,7 @@ export class TemplateMatchingEngineService {
         if (transformedValue !== undefined) {
           result[mapping.targetField] = transformedValue;
         }
-      } catch (error) {
+      } catch {
         // 轉換失敗時，使用原始值或跳過
         if (sourceValue !== undefined) {
           result[mapping.targetField] = sourceValue;

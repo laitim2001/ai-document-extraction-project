@@ -147,6 +147,65 @@ export const validateMappingRequestSchema = z.object({
 export type ValidateMappingRequest = z.infer<typeof validateMappingRequestSchema>;
 
 // ============================================================================
+// Story 19.7 - Document Batch Matching Schema
+// ============================================================================
+
+/**
+ * 批量匹配請求 Schema
+ */
+export const batchMatchDocumentsRequestSchema = z.object({
+  /**
+   * 文件 ID 列表（最多 500 個）
+   */
+  documentIds: z.array(z.string().uuid()).min(1).max(500),
+
+  /**
+   * 目標模版實例 ID
+   */
+  templateInstanceId: z.string().cuid(),
+
+  /**
+   * 匹配選項
+   */
+  options: z.object({
+    /**
+     * 批量處理大小
+     */
+    batchSize: z.number().int().min(1).max(100).optional(),
+  }).optional(),
+});
+
+/**
+ * 批量匹配請求類型
+ */
+export type BatchMatchDocumentsRequest = z.infer<typeof batchMatchDocumentsRequestSchema>;
+
+/**
+ * 單一文件匹配請求 Schema
+ */
+export const singleMatchDocumentRequestSchema = z.object({
+  /**
+   * 目標模版實例 ID
+   */
+  templateInstanceId: z.string().cuid(),
+});
+
+/**
+ * 單一文件匹配請求類型
+ */
+export type SingleMatchDocumentRequest = z.infer<typeof singleMatchDocumentRequestSchema>;
+
+/**
+ * 取消匹配請求 Schema（空物件，無需請求體）
+ */
+export const unmatchDocumentRequestSchema = z.object({}).optional();
+
+/**
+ * 取消匹配請求類型
+ */
+export type UnmatchDocumentRequest = z.infer<typeof unmatchDocumentRequestSchema>;
+
+// ============================================================================
 // Export
 // ============================================================================
 
@@ -154,4 +213,7 @@ export const templateMatchingSchemas = {
   executeMatch: executeMatchRequestSchema,
   previewMatch: previewMatchRequestSchema,
   validateMapping: validateMappingRequestSchema,
+  batchMatchDocuments: batchMatchDocumentsRequestSchema,
+  singleMatchDocument: singleMatchDocumentRequestSchema,
+  unmatchDocument: unmatchDocumentRequestSchema,
 };

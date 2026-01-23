@@ -402,6 +402,9 @@ export * from './template-instance.service'
 export * from './template-matching-engine.service'
 export * from './transform'
 
+// Epic 19: Template Matching & Export (Story 19.7 - Auto Template Matching)
+export * from './auto-template-matching.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

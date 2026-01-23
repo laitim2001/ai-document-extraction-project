@@ -170,6 +170,54 @@
     "exportSuccess": "导出成功",
     "exportError": "导出失败"
   },
+  "match": {
+    "title": "匹配到模板",
+    "description": "将选中的文件匹配到模板实例",
+    "selectTemplate": "选择模板",
+    "selectInstance": "选择实例",
+    "createNewInstance": "创建新实例",
+    "selectedDocuments": "已选 {count} 个文件",
+    "matchButton": "匹配文件",
+    "matching": "匹配中...",
+    "autoMatchEnabled": "自动匹配已启用",
+    "autoMatchDisabled": "自动匹配已禁用",
+    "matchSource": {
+      "FORMAT": "格式默认",
+      "COMPANY": "公司默认",
+      "GLOBAL": "全局默认"
+    },
+    "status": {
+      "matched": "已匹配",
+      "unmatched": "未匹配",
+      "pending": "待审核"
+    }
+  },
+  "bulkMatch": {
+    "title": "批量匹配文件",
+    "description": "将多个文件匹配到同一模板实例",
+    "maxDocuments": "每批次最多 {max} 个文件",
+    "progress": "处理中 {current} / {total}...",
+    "results": {
+      "title": "匹配结果",
+      "success": "{count} 个文件匹配成功",
+      "errors": "{count} 个文件匹配失败"
+    }
+  },
+  "unmatch": {
+    "title": "移除匹配",
+    "description": "从模板实例中移除文件",
+    "warning": "这将从模板实例中移除文件。实例中的数据不会被删除。",
+    "confirmButton": "移除匹配",
+    "removing": "移除中..."
+  },
+  "defaultTemplate": {
+    "title": "默认模板",
+    "description": "设置自动匹配的默认模板",
+    "selectPlaceholder": "选择默认模板...",
+    "none": "无默认模板",
+    "saveButton": "保存",
+    "saving": "保存中..."
+  },
   "export": {
     "title": "导出数据",
     "description": "导出实例数据：{name}",

@@ -18,7 +18,7 @@
  *   - src/types/template-instance.ts - 實例類型
  */
 
-import type { TemplateInstanceRowStatus } from './template-instance';
+// TemplateInstanceRowStatus 已在 types 中直接定義，無需從 template-instance 導入
 
 // ============================================================================
 // Match Parameters
