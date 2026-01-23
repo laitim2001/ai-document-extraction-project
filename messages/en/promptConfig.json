@@ -156,6 +156,22 @@
       "description": "Insert before parent configuration"
     }
   },
+  "tester": {
+    "title": "Test Prompt",
+    "uploadLabel": "Upload Test File",
+    "dropzone": "Drop file here, or click to select",
+    "supportedFormats": "Supports PDF, PNG, JPG, JPEG",
+    "runTest": "Run Test",
+    "testing": "Testing...",
+    "saveFirst": "Please save the configuration before testing",
+    "success": "Test Successful",
+    "failed": "Test Failed",
+    "extractedResult": "Extracted Result:",
+    "rawResponse": "Raw Response:",
+    "tokenUsage": "Token Usage:",
+    "tokenPrompt": "Prompt",
+    "tokenCompletion": "Completion"
+  },
   "editor": {
     "viewSource": "Source",
     "viewPreview": "Preview",

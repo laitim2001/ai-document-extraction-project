@@ -156,6 +156,22 @@
       "description": "插入在父配置之前"
     }
   },
+  "tester": {
+    "title": "測試 Prompt",
+    "uploadLabel": "上傳測試文件",
+    "dropzone": "拖放文件到此處，或點擊選擇",
+    "supportedFormats": "支援 PDF, PNG, JPG, JPEG",
+    "runTest": "執行測試",
+    "testing": "測試中...",
+    "saveFirst": "請先儲存配置後再進行測試",
+    "success": "測試成功",
+    "failed": "測試失敗",
+    "extractedResult": "提取結果：",
+    "rawResponse": "原始回應：",
+    "tokenUsage": "Token 使用量：",
+    "tokenPrompt": "Prompt",
+    "tokenCompletion": "Completion"
+  },
   "editor": {
     "viewSource": "原始碼",
     "viewPreview": "預覽",

@@ -9,7 +9,7 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.1
- * @lastModified 2026-01-14
+ * @lastModified 2026-01-20
  *
  * @dependencies
  *   - @/hooks/use-company-formats - 數據獲取
@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { FormatCard } from './FormatCard';
 import { FormatFilters } from './FormatFilters';
 import { CreateFormatDialog } from './CreateFormatDialog';
@@ -71,18 +72,20 @@ function FormatListSkeleton() {
 function FormatListEmpty({
   companyId,
   onSuccess,
+  t,
 }: {
   companyId: string;
   onSuccess?: () => void;
+  t: (key: string) => string;
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="rounded-full bg-muted p-4 mb-4">
         <FileText className="h-8 w-8 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-medium mb-2">尚無已識別的格式</h3>
+      <h3 className="text-lg font-medium mb-2">{t('list.emptyTitle')}</h3>
       <p className="text-sm text-muted-foreground max-w-md mb-4">
-        上傳文件後系統會自動識別格式，或者您可以手動建立格式。
+        {t('list.emptyDescription')}
       </p>
       <CreateFormatDialog
         companyId={companyId}
@@ -99,22 +102,24 @@ function FormatListEmpty({
 function FormatListError({
   error,
   onRetry,
+  t,
 }: {
   error: Error;
   onRetry: () => void;
+  t: (key: string) => string;
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="rounded-full bg-destructive/10 p-4 mb-4">
         <AlertCircle className="h-8 w-8 text-destructive" />
       </div>
-      <h3 className="text-lg font-medium mb-2">載入失敗</h3>
+      <h3 className="text-lg font-medium mb-2">{t('list.errorTitle')}</h3>
       <p className="text-sm text-muted-foreground mb-4 max-w-md">
-        {error.message || '無法載入格式列表，請稍後再試。'}
+        {error.message || t('list.errorDescription')}
       </p>
       <Button variant="outline" onClick={onRetry}>
         <RefreshCw className="mr-2 h-4 w-4" />
-        重試
+        {t('list.retry')}
       </Button>
     </div>
   );
@@ -123,18 +128,18 @@ function FormatListError({
 /**
  * 無符合篩選條件
  */
-function FormatListNoResults({ onReset }: { onReset: () => void }) {
+function FormatListNoResults({ onReset, t }: { onReset: () => void; t: (key: string) => string }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="rounded-full bg-muted p-4 mb-4">
         <FileText className="h-8 w-8 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-medium mb-2">無符合條件的格式</h3>
+      <h3 className="text-lg font-medium mb-2">{t('list.noResultsTitle')}</h3>
       <p className="text-sm text-muted-foreground mb-4">
-        調整篩選條件以查看更多格式。
+        {t('list.noResultsDescription')}
       </p>
       <Button variant="outline" onClick={onReset}>
-        清除篩選
+        {t('list.clearFilters')}
       </Button>
     </div>
   );
@@ -156,6 +161,8 @@ function FormatListNoResults({ onReset }: { onReset: () => void }) {
  * @param props - 組件屬性
  */
 export function FormatList({ companyId, className }: FormatListProps) {
+  const t = useTranslations('formats');
+
   // --- 篩選狀態 ---
   const [filters, setFilters] = React.useState<FormatFiltersState>({
     documentType: null,
@@ -196,7 +203,7 @@ export function FormatList({ companyId, className }: FormatListProps) {
 
   // --- 錯誤狀態 ---
   if (error) {
-    return <FormatListError error={error} onRetry={refetch} />;
+    return <FormatListError error={error} onRetry={refetch} t={t} />;
   }
 
   // --- 檢查是否有篩選條件 ---
@@ -205,7 +212,7 @@ export function FormatList({ companyId, className }: FormatListProps) {
 
   // --- 空狀態（無格式） ---
   if (!formats.length && !hasFilters) {
-    return <FormatListEmpty companyId={companyId} onSuccess={refetch} />;
+    return <FormatListEmpty companyId={companyId} onSuccess={refetch} t={t} />;
   }
 
   // --- 無符合篩選條件 ---
@@ -213,7 +220,7 @@ export function FormatList({ companyId, className }: FormatListProps) {
     return (
       <div className={className}>
         <FormatFilters value={filters} onChange={setFilters} className="mb-4" />
-        <FormatListNoResults onReset={handleReset} />
+        <FormatListNoResults onReset={handleReset} t={t} />
       </div>
     );
   }
@@ -227,7 +234,7 @@ export function FormatList({ companyId, className }: FormatListProps) {
       {/* 統計資訊和建立按鈕 */}
       <div className="mb-4 flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
-          共 {pagination.total} 個格式
+          {t('list.totalFormats', { count: pagination.total })}
         </span>
         <CreateFormatDialog
           companyId={companyId}

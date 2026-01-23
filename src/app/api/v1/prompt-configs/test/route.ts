@@ -174,19 +174,98 @@ async function convertPdfToImages(pdfPath: string, maxPages: number = 10): Promi
 
 /**
  * 解析 GPT 回應中的 JSON
+ *
+ * 處理多種情況：
+ * 1. 純 JSON 字符串
+ * 2. Markdown 代碼塊包裹的 JSON（```json ... ```）
+ * 3. JSON 後面帶有額外說明文字
+ * 4. 多個 JSON 對象（只取第一個）
  */
 function parseGPTResponse(content: string): Record<string, unknown> {
+  let cleanedContent = content.trim();
+
+  // Step 1: 移除 markdown 代碼塊標記
+  // 處理 ```json ... ``` 或 ``` ... ``` 格式
+  const codeBlockMatch = cleanedContent.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (codeBlockMatch) {
+    cleanedContent = codeBlockMatch[1].trim();
+  }
+
+  // Step 2: 嘗試直接解析
   try {
-    return JSON.parse(content);
+    return JSON.parse(cleanedContent);
   } catch {
-    // 嘗試提取 JSON 塊
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    // 繼續嘗試其他方法
+  }
+
+  // Step 3: 嘗試匹配平衡的 JSON 對象（只取第一個完整的 JSON）
+  try {
+    const firstJsonMatch = extractFirstJson(cleanedContent);
+    if (firstJsonMatch) {
+      return JSON.parse(firstJsonMatch);
+    }
+  } catch {
+    // 繼續嘗試其他方法
+  }
+
+  // Step 4: 使用貪婪正則作為最後手段
+  try {
+    const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
-    // 如果無法解析 JSON，返回原始文字
-    return { rawText: content };
+  } catch {
+    // 解析失敗
   }
+
+  // Step 5: 如果所有方法都失敗，返回原始文字
+  console.warn('[Prompt Test API] Could not parse JSON, returning raw text');
+  return { rawText: content };
+}
+
+/**
+ * 提取第一個平衡的 JSON 對象
+ * 通過計數括號來找到完整的 JSON 對象
+ */
+function extractFirstJson(content: string): string | null {
+  const start = content.indexOf('{');
+  if (start === -1) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+
+  for (let i = start; i < content.length; i++) {
+    const char = content[i];
+
+    if (escape) {
+      escape = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      escape = true;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (inString) continue;
+
+    if (char === '{') {
+      depth++;
+    } else if (char === '}') {
+      depth--;
+      if (depth === 0) {
+        return content.substring(start, i + 1);
+      }
+    }
+  }
+
+  return null;
 }
 
 // ============================================================================

@@ -144,7 +144,14 @@ export function PromptConfigForm({
 
   // 處理提交
   const handleSubmit = async (data: FormValues) => {
-    await onSubmit(data);
+    // 清理空字符串，轉換為 undefined（避免 CUID 驗證錯誤）
+    const cleanedData: PromptConfigFormData = {
+      ...data,
+      description: data.description || undefined,
+      companyId: data.companyId || undefined,
+      documentFormatId: data.documentFormatId || undefined,
+    };
+    await onSubmit(cleanedData);
   };
 
   // 測試處理器

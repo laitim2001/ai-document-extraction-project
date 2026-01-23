@@ -1,0 +1,71 @@
+{
+  "filters": {
+    "allTypes": "全部類型",
+    "allSubtypes": "全部子類型",
+    "documentType": "文件類型",
+    "subtype": "子類型",
+    "sortBy": "排序",
+    "clearFilters": "清除篩選",
+    "sortOrderAsc": "切換為升序",
+    "sortOrderDesc": "切換為降序"
+  },
+  "sort": {
+    "fileCount": "文件數量",
+    "updatedAt": "更新時間"
+  },
+  "documentTypes": {
+    "INVOICE": "發票",
+    "DEBIT_NOTE": "借項通知單",
+    "CREDIT_NOTE": "貸項通知單",
+    "STATEMENT": "對帳單",
+    "QUOTATION": "報價單",
+    "BILL_OF_LADING": "提單",
+    "CUSTOMS_DECLARATION": "報關單",
+    "OTHER": "其他"
+  },
+  "documentSubtypes": {
+    "OCEAN_FREIGHT": "海運",
+    "AIR_FREIGHT": "空運",
+    "LAND_TRANSPORT": "陸運",
+    "CUSTOMS_CLEARANCE": "報關",
+    "WAREHOUSING": "倉儲",
+    "GENERAL": "一般"
+  },
+  "card": {
+    "files": "{count} 個文件",
+    "terms": "{count} 個術語",
+    "prompt": "Prompt:",
+    "mapping": "映射:",
+    "openMenu": "開啟選單"
+  },
+  "list": {
+    "totalFormats": "共 {count} 個格式",
+    "createFormat": "建立格式",
+    "emptyTitle": "尚無已識別的格式",
+    "emptyDescription": "上傳文件後系統會自動識別格式，或者您可以手動建立格式。",
+    "errorTitle": "載入失敗",
+    "errorDescription": "無法載入格式列表，請稍後再試。",
+    "retry": "重試",
+    "noResultsTitle": "無符合條件的格式",
+    "noResultsDescription": "調整篩選條件以查看更多格式。",
+    "clearFilters": "清除篩選"
+  },
+  "createDialog": {
+    "triggerButton": "建立格式",
+    "title": "建立文件格式",
+    "description": "為此公司建立新的文件格式，用於管理特定類型文件的處理配置。",
+    "documentTypeLabel": "文件類型 *",
+    "documentTypePlaceholder": "請選擇文件類型",
+    "documentSubtypeLabel": "文件子類型 *",
+    "documentSubtypePlaceholder": "請選擇文件子類型",
+    "nameLabel": "格式名稱（選填）",
+    "namePlaceholder": "留空時將自動生成",
+    "nameDescription": "自動生成的名稱格式：「公司名 - 子類型類型」",
+    "advancedOptions": "進階選項",
+    "fieldMappingLabel": "建立欄位映射配置",
+    "fieldMappingDescription": "自動建立格式專屬的欄位映射配置",
+    "promptConfigLabel": "建立 Prompt 配置",
+    "promptConfigDescription": "自動建立格式專屬的 AI Prompt 配置",
+    "submitButton": "建立格式"
+  }
+}

@@ -156,10 +156,16 @@ export const createPromptConfigSchema = z
       .nullable(),
 
     /** 公司 ID（COMPANY 或 FORMAT 範圍時必填） */
-    companyId: z.string().cuid('無效的公司 ID').optional().nullable(),
+    companyId: z.preprocess(
+      (val) => (val === '' || val === undefined ? null : val),
+      z.string().cuid('無效的公司 ID').nullable()
+    ),
 
     /** 文件格式 ID（FORMAT 範圍時必填） */
-    documentFormatId: z.string().cuid('無效的文件格式 ID').optional().nullable(),
+    documentFormatId: z.preprocess(
+      (val) => (val === '' || val === undefined ? null : val),
+      z.string().cuid('無效的文件格式 ID').nullable()
+    ),
 
     /** 系統提示詞 */
     systemPrompt: z.string().min(1, '系統提示詞不能為空'),
@@ -299,10 +305,16 @@ export const getPromptConfigsQuerySchema = z.object({
   scope: promptScopeSchema.optional(),
 
   /** 篩選公司 */
-  companyId: z.string().cuid().optional(),
+  companyId: z.preprocess(
+    (val) => (val === '' || val === undefined ? undefined : val),
+    z.string().cuid().optional()
+  ),
 
   /** 篩選文件格式 */
-  documentFormatId: z.string().cuid().optional(),
+  documentFormatId: z.preprocess(
+    (val) => (val === '' || val === undefined ? undefined : val),
+    z.string().cuid().optional()
+  ),
 
   /** 篩選啟用狀態 */
   isActive: z

@@ -8,11 +8,12 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.1
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-20
  */
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,10 +25,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreVertical, FileText, Check, X, Files, Hash } from 'lucide-react';
 import type { DocumentFormatListItem } from '@/types/document-format';
-import {
-  DOCUMENT_TYPE_LABELS_ZH,
-  DOCUMENT_SUBTYPE_LABELS_ZH,
-} from '@/types/document-format';
 
 // ============================================================================
 // Types
@@ -57,6 +54,8 @@ export interface FormatCardProps {
  */
 export function FormatCard({ format, className }: FormatCardProps) {
   const router = useRouter();
+  const t = useTranslations('formats');
+  const tCommon = useTranslations('common');
 
   // --- Handlers ---
   const handleClick = React.useCallback(() => {
@@ -66,18 +65,16 @@ export function FormatCard({ format, className }: FormatCardProps) {
   const handleEdit = React.useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      router.push(`/companies/${format.companyId}/formats/${format.id}/edit`);
+      // 導航到詳情頁並自動打開編輯模式
+      router.push(`/companies/${format.companyId}/formats/${format.id}?edit=true`);
     },
     [router, format.companyId, format.id]
   );
 
   // --- 計算顯示名稱 ---
-  const displayName =
-    format.name ||
-    `${DOCUMENT_SUBTYPE_LABELS_ZH[format.documentSubtype]} ${DOCUMENT_TYPE_LABELS_ZH[format.documentType]}`;
-
-  const typeLabel = DOCUMENT_TYPE_LABELS_ZH[format.documentType];
-  const subtypeLabel = DOCUMENT_SUBTYPE_LABELS_ZH[format.documentSubtype];
+  const subtypeLabel = t(`documentSubtypes.${format.documentSubtype}`);
+  const typeLabel = t(`documentTypes.${format.documentType}`);
+  const displayName = format.name || `${subtypeLabel} ${typeLabel}`;
   const termCount = format.commonTerms?.length || 0;
 
   // --- Render ---
@@ -95,12 +92,12 @@ export function FormatCard({ format, className }: FormatCardProps) {
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">開啟選單</span>
+              <span className="sr-only">{t('card.openMenu')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleEdit}>編輯</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">刪除</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleEdit}>{tCommon('actions.edit')}</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">{tCommon('actions.delete')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
@@ -115,18 +112,18 @@ export function FormatCard({ format, className }: FormatCardProps) {
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <Files className="h-3.5 w-3.5" />
-            {format.fileCount} 個文件
+            {t('card.files', { count: format.fileCount })}
           </span>
           <span className="flex items-center gap-1">
             <Hash className="h-3.5 w-3.5" />
-            {termCount} 個術語
+            {t('card.terms', { count: termCount })}
           </span>
         </div>
 
         {/* 配置狀態 */}
         <div className="flex gap-4 text-xs">
           <span className="flex items-center gap-1">
-            Prompt:
+            {t('card.prompt')}
             {format.hasPromptConfig ? (
               <Check className="h-3 w-3 text-green-500" />
             ) : (
@@ -134,7 +131,7 @@ export function FormatCard({ format, className }: FormatCardProps) {
             )}
           </span>
           <span className="flex items-center gap-1">
-            映射:
+            {t('card.mapping')}
             {format.hasMappingConfig ? (
               <Check className="h-3 w-3 text-green-500" />
             ) : (

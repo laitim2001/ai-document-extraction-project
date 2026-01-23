@@ -1,0 +1,71 @@
+{
+  "filters": {
+    "allTypes": "All Types",
+    "allSubtypes": "All Subtypes",
+    "documentType": "Document Type",
+    "subtype": "Subtype",
+    "sortBy": "Sort By",
+    "clearFilters": "Clear Filters",
+    "sortOrderAsc": "Switch to ascending",
+    "sortOrderDesc": "Switch to descending"
+  },
+  "sort": {
+    "fileCount": "File Count",
+    "updatedAt": "Updated At"
+  },
+  "documentTypes": {
+    "INVOICE": "Invoice",
+    "DEBIT_NOTE": "Debit Note",
+    "CREDIT_NOTE": "Credit Note",
+    "STATEMENT": "Statement",
+    "QUOTATION": "Quotation",
+    "BILL_OF_LADING": "Bill of Lading",
+    "CUSTOMS_DECLARATION": "Customs Declaration",
+    "OTHER": "Other"
+  },
+  "documentSubtypes": {
+    "OCEAN_FREIGHT": "Ocean Freight",
+    "AIR_FREIGHT": "Air Freight",
+    "LAND_TRANSPORT": "Land Transport",
+    "CUSTOMS_CLEARANCE": "Customs Clearance",
+    "WAREHOUSING": "Warehousing",
+    "GENERAL": "General"
+  },
+  "card": {
+    "files": "{count} file(s)",
+    "terms": "{count} term(s)",
+    "prompt": "Prompt:",
+    "mapping": "Mapping:",
+    "openMenu": "Open menu"
+  },
+  "list": {
+    "totalFormats": "{count} format(s)",
+    "createFormat": "Create Format",
+    "emptyTitle": "No formats identified",
+    "emptyDescription": "Formats will be automatically identified after uploading files, or you can create a format manually.",
+    "errorTitle": "Load failed",
+    "errorDescription": "Unable to load format list, please try again later.",
+    "retry": "Retry",
+    "noResultsTitle": "No matching formats",
+    "noResultsDescription": "Adjust filters to see more formats.",
+    "clearFilters": "Clear Filters"
+  },
+  "createDialog": {
+    "triggerButton": "Create Format",
+    "title": "Create Document Format",
+    "description": "Create a new document format for this company to manage processing configurations for specific document types.",
+    "documentTypeLabel": "Document Type *",
+    "documentTypePlaceholder": "Select document type",
+    "documentSubtypeLabel": "Document Subtype *",
+    "documentSubtypePlaceholder": "Select document subtype",
+    "nameLabel": "Format Name (Optional)",
+    "namePlaceholder": "Leave empty to auto-generate",
+    "nameDescription": "Auto-generated format: \"Company Name - Subtype Type\"",
+    "advancedOptions": "Advanced Options",
+    "fieldMappingLabel": "Create Field Mapping Config",
+    "fieldMappingDescription": "Automatically create a format-specific field mapping configuration",
+    "promptConfigLabel": "Create Prompt Config",
+    "promptConfigDescription": "Automatically create a format-specific AI prompt configuration",
+    "submitButton": "Create Format"
+  }
+}

@@ -17,7 +17,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -143,9 +143,20 @@ function FormatNotFound({ onBack }: { onBack: () => void }) {
  */
 export function FormatDetailView({ companyId, formatId }: FormatDetailViewProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isEditing, setIsEditing] = React.useState(false);
 
   const { format, isLoading, error, refetch } = useFormatDetail(formatId);
+
+  // 處理 URL 中的 edit 參數
+  React.useEffect(() => {
+    if (searchParams.get('edit') === 'true' && format && !isEditing) {
+      setIsEditing(true);
+      // 清除 URL 中的 edit 參數
+      const newUrl = `/companies/${companyId}/formats/${formatId}`;
+      router.replace(newUrl, { scroll: false });
+    }
+  }, [searchParams, format, isEditing, companyId, formatId, router]);
 
   // --- Handlers ---
   const handleBack = React.useCallback(() => {

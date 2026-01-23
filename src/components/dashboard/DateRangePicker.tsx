@@ -38,7 +38,7 @@ import {
   validateDateRange,
   getRangeDays,
 } from '@/lib/date-range-utils';
-import { MAX_RANGE_DAYS, PRESET_LABELS } from '@/types/date-range';
+import { MAX_RANGE_DAYS } from '@/types/date-range';
 
 // ============================================================
 // Props
@@ -122,7 +122,7 @@ export function DateRangePicker({
     }
 
     if (dateRange.preset && dateRange.preset !== 'custom') {
-      return PRESET_LABELS[dateRange.preset];
+      return t(`presets.${dateRange.preset}`);
     }
 
     return formatDateRangeDisplay(dateRange);
