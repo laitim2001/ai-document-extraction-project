@@ -195,13 +195,13 @@ export const templateFieldMappingScopeSchema = z.enum(['GLOBAL', 'COMPANY', 'FOR
  */
 export const createTemplateFieldMappingSchema = z.object({
   /** 數據模版 ID */
-  dataTemplateId: z.string().cuid('無效的模版 ID'),
+  dataTemplateId: z.string().min(1, '請選擇數據模版'),
   /** 範圍 */
   scope: templateFieldMappingScopeSchema.default('GLOBAL'),
   /** 公司 ID（COMPANY 範圍時必填） */
   companyId: z.string().uuid('無效的公司 ID').optional().nullable(),
   /** 文件格式 ID（FORMAT 範圍時必填） */
-  documentFormatId: z.string().cuid('無效的格式 ID').optional().nullable(),
+  documentFormatId: z.string().min(1, '無效的格式 ID').optional().nullable(),
   /** 配置名稱 */
   name: z
     .string()
@@ -286,13 +286,13 @@ export const updateTemplateFieldMappingSchema = z.object({
  */
 export const templateFieldMappingQuerySchema = z.object({
   /** 按模版篩選 */
-  dataTemplateId: z.string().cuid().optional(),
+  dataTemplateId: z.string().min(1).optional(),
   /** 按範圍篩選 */
   scope: templateFieldMappingScopeSchema.optional(),
   /** 按公司篩選 */
   companyId: z.string().uuid().optional(),
   /** 按格式篩選 */
-  documentFormatId: z.string().cuid().optional(),
+  documentFormatId: z.string().min(1).optional(),
   /** 按啟用狀態篩選 */
   isActive: z.coerce.boolean().optional(),
   /** 搜尋關鍵字 */
@@ -308,11 +308,11 @@ export const templateFieldMappingQuerySchema = z.object({
  */
 export const resolveMappingParamsSchema = z.object({
   /** 數據模版 ID */
-  dataTemplateId: z.string().cuid('無效的模版 ID'),
+  dataTemplateId: z.string().min(1, '請選擇數據模版'),
   /** 公司 ID（可選） */
   companyId: z.string().uuid().optional(),
   /** 文件格式 ID（可選） */
-  documentFormatId: z.string().cuid().optional(),
+  documentFormatId: z.string().min(1).optional(),
 });
 
 // ============================================================================

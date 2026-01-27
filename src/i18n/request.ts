@@ -56,6 +56,7 @@ const namespaces = [
   'templateFieldMapping',
   'templateInstance',
   'templateMatchingTest',
+  'standardFields',
 ] as const
 
 export type Namespace = (typeof namespaces)[number]

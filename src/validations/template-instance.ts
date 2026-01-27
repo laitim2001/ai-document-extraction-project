@@ -60,7 +60,7 @@ export const templateInstanceRowStatusSchema = z.enum([
  */
 export const createTemplateInstanceSchema = z.object({
   /** 數據模版 ID */
-  dataTemplateId: z.string().cuid('無效的模版 ID'),
+  dataTemplateId: z.string().min(1, '請選擇數據模版'),
   /** 實例名稱 */
   name: z
     .string()
@@ -174,7 +174,7 @@ export const batchAddRowsSchema = z.object({
  */
 export const templateInstanceQuerySchema = z.object({
   /** 按數據模版篩選 */
-  dataTemplateId: z.string().cuid().optional(),
+  dataTemplateId: z.string().min(1).optional(),
   /** 按狀態篩選 */
   status: templateInstanceStatusSchema.optional(),
   /** 搜尋關鍵字 */
