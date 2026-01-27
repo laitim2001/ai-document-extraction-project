@@ -38,9 +38,9 @@ export const executeMatchOptionsSchema = z.object({
   companyId: z.string().uuid().optional(),
 
   /**
-   * 文件格式 ID（用於解析映射規則）
+   * 文件格式 ID（用於解析映射規則，DocumentFormat 使用 CUID 格式）
    */
-  formatId: z.string().uuid().optional(),
+  formatId: z.string().cuid().optional(),
 
   /**
    * 批量處理大小（1-1000）
@@ -63,9 +63,9 @@ export const executeMatchRequestSchema = z.object({
   documentIds: z.array(z.string().uuid()).min(1).max(10000),
 
   /**
-   * 目標模版實例 ID
+   * 目標模版實例 ID（TemplateInstance 使用 CUID 格式）
    */
-  templateInstanceId: z.string().uuid(),
+  templateInstanceId: z.string().cuid(),
 
   /**
    * 匹配選項
@@ -92,19 +92,19 @@ export const previewMatchRequestSchema = z.object({
   documentIds: z.array(z.string().uuid()).min(1).max(100),
 
   /**
-   * 數據模版 ID
+   * 數據模版 ID（DataTemplate 使用 CUID 格式）
    */
-  dataTemplateId: z.string().uuid(),
+  dataTemplateId: z.string().cuid(),
 
   /**
-   * 公司 ID（用於解析映射規則）
+   * 公司 ID（用於解析映射規則，Company 使用 UUID 格式）
    */
   companyId: z.string().uuid().optional(),
 
   /**
-   * 文件格式 ID（用於解析映射規則）
+   * 文件格式 ID（用於解析映射規則，DocumentFormat 使用 CUID 格式）
    */
-  formatId: z.string().uuid().optional(),
+  formatId: z.string().cuid().optional(),
 
   /**
    * 用於提取 rowKey 的欄位名稱
@@ -126,19 +126,19 @@ export type PreviewMatchRequest = z.infer<typeof previewMatchRequestSchema>;
  */
 export const validateMappingRequestSchema = z.object({
   /**
-   * 數據模版 ID
+   * 數據模版 ID（DataTemplate 使用 CUID 格式）
    */
-  dataTemplateId: z.string().uuid(),
+  dataTemplateId: z.string().cuid(),
 
   /**
-   * 公司 ID
+   * 公司 ID（Company 使用 UUID 格式）
    */
   companyId: z.string().uuid().optional(),
 
   /**
-   * 文件格式 ID
+   * 文件格式 ID（DocumentFormat 使用 CUID 格式）
    */
-  formatId: z.string().uuid().optional(),
+  formatId: z.string().cuid().optional(),
 });
 
 /**

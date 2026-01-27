@@ -591,6 +591,96 @@ async function main() {
   }
 
   // ===========================================
+  // Seed Template Field Mappings (CHANGE-013 Phase 1)
+  // ===========================================
+  console.log('\n🔗 Creating template field mappings...\n')
+
+  // GLOBAL 範圍的 erp-standard-import 欄位映射
+  const erpMappingRules = [
+    { id: 'map-01', sourceField: 'invoice_number', targetField: 'invoice_number', transformType: 'DIRECT', isRequired: true, order: 1, description: '發票號碼直接映射' },
+    { id: 'map-02', sourceField: 'invoice_date', targetField: 'invoice_date', transformType: 'DIRECT', isRequired: true, order: 2, description: '發票日期直接映射' },
+    { id: 'map-03', sourceField: 'vendor_code', targetField: 'vendor_code', transformType: 'DIRECT', isRequired: false, order: 3, description: '供應商代碼直接映射' },
+    { id: 'map-04', sourceField: 'vendor_name', targetField: 'vendor_name', transformType: 'DIRECT', isRequired: false, order: 4, description: '供應商名稱直接映射' },
+    { id: 'map-05', sourceField: 'currency', targetField: 'currency', transformType: 'DIRECT', isRequired: true, order: 5, description: '幣別直接映射' },
+    { id: 'map-06', sourceField: 'subtotal', targetField: 'subtotal', transformType: 'DIRECT', isRequired: false, order: 6, description: '小計直接映射' },
+    { id: 'map-07', sourceField: 'tax_amount', targetField: 'tax_amount', transformType: 'DIRECT', isRequired: false, order: 7, description: '稅額直接映射' },
+    { id: 'map-08', sourceField: 'total_amount', targetField: 'total_amount', transformType: 'DIRECT', isRequired: true, order: 8, description: '總金額直接映射' },
+    { id: 'map-09', sourceField: 'due_date', targetField: 'due_date', transformType: 'DIRECT', isRequired: false, order: 9, description: '付款到期日直接映射' },
+    { id: 'map-10', sourceField: 'po_number', targetField: 'po_number', transformType: 'DIRECT', isRequired: false, order: 10, description: '採購單號直接映射' },
+    { id: 'map-11', sourceField: 'tracking_number', targetField: 'tracking_number', transformType: 'DIRECT', isRequired: false, order: 11, description: '追蹤號碼直接映射' },
+    { id: 'map-12', sourceField: 'description', targetField: 'description', transformType: 'DIRECT', isRequired: false, order: 12, description: '說明直接映射' },
+  ]
+
+  const existingErpMapping = await prisma.templateFieldMapping.findFirst({
+    where: {
+      dataTemplateId: 'erp-standard-import',
+      scope: 'GLOBAL',
+      companyId: null,
+      documentFormatId: null,
+    },
+  })
+
+  if (existingErpMapping) {
+    await prisma.templateFieldMapping.update({
+      where: { id: existingErpMapping.id },
+      data: {
+        name: 'ERP 標準匯入 - 全域映射',
+        description: '適用於所有公司的 ERP 標準匯入欄位映射規則',
+        mappings: erpMappingRules as unknown as Prisma.InputJsonValue,
+      },
+    })
+    console.log('  🔄 Updated: ERP 標準匯入 - 全域映射 (GLOBAL)')
+  } else {
+    await prisma.templateFieldMapping.create({
+      data: {
+        dataTemplateId: 'erp-standard-import',
+        scope: 'GLOBAL',
+        name: 'ERP 標準匯入 - 全域映射',
+        description: '適用於所有公司的 ERP 標準匯入欄位映射規則',
+        mappings: erpMappingRules as unknown as Prisma.InputJsonValue,
+        priority: 0,
+        isActive: true,
+      },
+    })
+    console.log('  ✅ Created: ERP 標準匯入 - 全域映射 (GLOBAL)')
+  }
+
+  // ===========================================
+  // Set Company.defaultTemplateId (CHANGE-013 Phase 1)
+  // ===========================================
+  console.log('\n🏢 Setting company default templates...\n')
+
+  // 為 DHL Express 設置預設模版
+  const dhlCompany = await prisma.company.findUnique({
+    where: { code: 'DHL' },
+  })
+
+  if (dhlCompany) {
+    await prisma.company.update({
+      where: { code: 'DHL' },
+      data: { defaultTemplateId: 'erp-standard-import' },
+    })
+    console.log('  ✅ Set DHL Express defaultTemplateId → erp-standard-import')
+  } else {
+    console.log('  ⚠️ DHL company not found, skipping defaultTemplateId')
+  }
+
+  // 也為 Maersk 設置（常見海運公司）
+  const maerskCompany = await prisma.company.findUnique({
+    where: { code: 'MAERSK' },
+  })
+
+  if (maerskCompany) {
+    await prisma.company.update({
+      where: { code: 'MAERSK' },
+      data: { defaultTemplateId: 'erp-standard-import' },
+    })
+    console.log('  ✅ Set Maersk defaultTemplateId → erp-standard-import')
+  } else {
+    console.log('  ⚠️ Maersk company not found, skipping defaultTemplateId')
+  }
+
+  // ===========================================
   // Summary
   // ===========================================
   const roleCount = await prisma.role.count()
@@ -601,6 +691,7 @@ async function main() {
   const mappingRuleCount = await prisma.mappingRule.count()
   const systemConfigCount = await prisma.systemConfig.count()
   const dataTemplateCount = await prisma.dataTemplate.count()
+  const templateFieldMappingCount = await prisma.templateFieldMapping.count()
 
   console.log('\n========================================')
   console.log('✨ Seed completed successfully!')
@@ -627,6 +718,7 @@ async function main() {
   console.log(`  Total mapping rules: ${mappingRuleCount}`)
   console.log(`  Total system configs: ${systemConfigCount}`)
   console.log(`  Total data templates: ${dataTemplateCount}`)
+  console.log(`  Total template field mappings: ${templateFieldMappingCount}`)
   console.log(`  Total users: ${userCount}`)
   console.log('========================================\n')
 }

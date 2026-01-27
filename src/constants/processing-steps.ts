@@ -149,8 +149,8 @@ export const DEFAULT_STEP_CONFIGS: StepConfig[] = [
  *   - Phase 3: enableUnifiedProcessor = true（完全啟用）
  */
 export const DEFAULT_PROCESSOR_FLAGS: UnifiedProcessorFlags = {
-  // 主開關：是否啟用統一處理器
-  enableUnifiedProcessor: false, // 預設關閉，漸進式啟用
+  // 主開關：是否啟用統一處理器（可透過環境變數控制）
+  enableUnifiedProcessor: process.env.ENABLE_UNIFIED_PROCESSOR === 'true',
 
   // Story 0.8: 發行者識別
   enableIssuerIdentification: true,
