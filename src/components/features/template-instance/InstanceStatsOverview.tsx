@@ -51,7 +51,7 @@ function StatCard({ icon: Icon, label, value, valueClassName }: StatCardProps) {
         </div>
         <div>
           <p className="text-sm text-muted-foreground">{label}</p>
-          <p className={`text-2xl font-bold ${valueClassName ?? ''}`}>{value}</p>
+          <div className={`text-2xl font-bold ${valueClassName ?? ''}`}>{value}</div>
         </div>
       </CardContent>
     </Card>

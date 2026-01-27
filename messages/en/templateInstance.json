@@ -166,6 +166,7 @@
     "bulkDeleteSuccess": "{count} rows deleted successfully",
     "bulkDeleteError": "Failed to delete rows",
     "revalidateSuccess": "Revalidation completed",
+    "revalidateResult": "{valid} valid, {invalid} invalid",
     "revalidateError": "Revalidation failed",
     "exportSuccess": "Export completed successfully",
     "exportError": "Failed to export data"

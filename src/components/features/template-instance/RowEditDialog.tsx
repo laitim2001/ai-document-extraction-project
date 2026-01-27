@@ -27,6 +27,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useFieldLabel } from '@/hooks/use-field-label';
 import { useUpdateRow } from '@/hooks/use-template-instances';
 import { toast } from 'sonner';
 import type { DataTemplateField } from '@/types/data-template';
@@ -62,6 +63,7 @@ export function RowEditDialog({
 }: RowEditDialogProps) {
   const t = useTranslations('templateInstance');
   const tCommon = useTranslations('common');
+  const getFieldLabel = useFieldLabel();
 
   // --- State ---
   const [fieldValues, setFieldValues] = React.useState<Record<string, unknown>>(
@@ -190,7 +192,7 @@ export function RowEditDialog({
                       const field = templateFields.find((f) => f.name === fieldName);
                       return (
                         <li key={fieldName}>
-                          <strong>{field?.label ?? fieldName}:</strong> {error}
+                          <strong>{field ? getFieldLabel(field) : fieldName}:</strong> {error}
                         </li>
                       );
                     })}
@@ -217,7 +219,7 @@ export function RowEditDialog({
                 return (
                   <div key={field.name} className="space-y-2">
                     <Label htmlFor={field.name} className="flex items-center gap-2">
-                      {field.label}
+                      {getFieldLabel(field)}
                       {field.isRequired && <span className="text-red-500">*</span>}
                     </Label>
                     {renderFieldInput(field)}

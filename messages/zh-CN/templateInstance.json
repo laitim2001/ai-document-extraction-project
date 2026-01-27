@@ -166,6 +166,7 @@
     "bulkDeleteSuccess": "成功删除 {count} 行",
     "bulkDeleteError": "批量删除失败",
     "revalidateSuccess": "重新验证完成",
+    "revalidateResult": "{valid} 有效，{invalid} 无效",
     "revalidateError": "重新验证失败",
     "exportSuccess": "导出成功",
     "exportError": "导出失败"

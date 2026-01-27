@@ -55,6 +55,7 @@ import { RowDetailDrawer } from './RowDetailDrawer';
 import { BulkActionsMenu } from './BulkActionsMenu';
 import { getRowStatusConfig } from './status-config';
 import { useTemplateInstanceRows } from '@/hooks/use-template-instances';
+import { useFieldLabel } from '@/hooks/use-field-label';
 import { formatShortDate } from '@/lib/i18n-date';
 import { formatNumber } from '@/lib/i18n-number';
 import { formatCurrency } from '@/lib/i18n-currency';
@@ -144,7 +145,9 @@ export function InstanceRowsTable({
   className,
 }: InstanceRowsTableProps) {
   const t = useTranslations('templateInstance');
+  const tCommon = useTranslations('common');
   const locale = useLocale();
+  const getFieldLabel = useFieldLabel();
 
   // --- State ---
   const [search, setSearch] = React.useState('');
@@ -285,7 +288,7 @@ export function InstanceRowsTable({
               {/* Dynamic columns from template fields */}
               {sortedFields.slice(0, 5).map((field) => (
                 <TableHead key={field.name} className="min-w-[100px]">
-                  {field.label}
+                  {getFieldLabel(field)}
                 </TableHead>
               ))}
               {/* Status column */}
@@ -407,7 +410,7 @@ export function InstanceRowsTable({
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
             >
-              Previous
+              {tCommon('pagination.previous')}
             </Button>
             <Button
               variant="outline"
@@ -415,7 +418,7 @@ export function InstanceRowsTable({
               disabled={page >= pagination.totalPages}
               onClick={() => setPage((p) => p + 1)}
             >
-              Next
+              {tCommon('pagination.next')}
             </Button>
           </div>
         </div>

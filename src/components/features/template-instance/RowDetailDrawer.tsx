@@ -30,6 +30,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useFieldLabel } from '@/hooks/use-field-label';
 import { getRowStatusConfig } from './status-config';
 import { formatShortDate, formatDateTime } from '@/lib/i18n-date';
 import { formatNumber } from '@/lib/i18n-number';
@@ -73,7 +74,7 @@ function formatFieldValue(
     case 'date':
       return formatShortDate(new Date(String(value)), locale);
     case 'boolean':
-      return value ? '✓ Yes' : '✗ No';
+      return value ? '✓' : '✗';
     case 'array':
       return Array.isArray(value) ? value.join(', ') : String(value);
     default:
@@ -97,6 +98,7 @@ export function RowDetailDrawer({
   const t = useTranslations('templateInstance');
   const locale = useLocale();
 
+  const getFieldLabel = useFieldLabel();
   const statusConfig = getRowStatusConfig(row.status);
   const errors = row.validationErrors ?? {};
   const hasErrors = Object.keys(errors).length > 0;
@@ -183,7 +185,7 @@ export function RowDetailDrawer({
                           const field = templateFields.find((f) => f.name === fieldName);
                           return (
                             <li key={fieldName}>
-                              <strong>{field?.label ?? fieldName}:</strong> {error}
+                              <strong>{field ? getFieldLabel(field) : fieldName}:</strong> {error}
                             </li>
                           );
                         })}
@@ -223,7 +225,7 @@ export function RowDetailDrawer({
                       }`}
                     >
                       <div>
-                        <span className="text-sm text-muted-foreground">{field.label}</span>
+                        <span className="text-sm text-muted-foreground">{getFieldLabel(field)}</span>
                         {fieldError && (
                           <p className="text-xs text-red-500 mt-0.5">{fieldError}</p>
                         )}

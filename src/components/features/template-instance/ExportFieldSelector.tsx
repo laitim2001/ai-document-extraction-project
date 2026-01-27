@@ -29,6 +29,7 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useFieldLabel } from '@/hooks/use-field-label';
 import type { DataTemplateField, DataTemplateFieldType } from '@/types/data-template';
 
 // ============================================================================
@@ -79,6 +80,7 @@ export function ExportFieldSelector({
   className,
 }: ExportFieldSelectorProps) {
   const t = useTranslations('templateInstance');
+  const getFieldLabel = useFieldLabel();
 
   // --- Computed ---
   const isAllSelected = selectedFields.length === fields.length;
@@ -252,7 +254,7 @@ export function ExportFieldSelector({
                   htmlFor={`field-${field.name}`}
                   className="flex-1 cursor-pointer flex items-center gap-2"
                 >
-                  <span>{field.label}</span>
+                  <span>{getFieldLabel(field)}</span>
                   <span className="text-xs text-muted-foreground">
                     ({field.name})
                   </span>

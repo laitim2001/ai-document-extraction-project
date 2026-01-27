@@ -93,7 +93,7 @@ export function BulkActionsMenu({
     validateAllMutation.mutate(undefined, {
       onSuccess: (result) => {
         toast.success(t('toast.revalidateSuccess'), {
-          description: `${result.valid} valid, ${result.invalid} invalid`,
+          description: t('toast.revalidateResult', { valid: result.valid, invalid: result.invalid }),
         });
         onComplete?.();
       },
