@@ -169,6 +169,42 @@ export async function generateSasUrl(
 }
 
 /**
+ * 從 Azure Blob Storage 下載文件為 Buffer
+ * @description
+ *   用於統一處理管線（Epic 15）：從 Blob 下載文件供處理器消費。
+ *   將 Azure Blob 的 ReadableStream 轉換為 Node.js Buffer。
+ *
+ * @param blobName - Blob 名稱/路徑
+ * @returns 文件內容的 Buffer
+ * @throws Error 如果 blob 不存在或下載失敗
+ *
+ * @since CHANGE-014 Phase 2
+ */
+export async function downloadBlob(blobName: string): Promise<Buffer> {
+  const container = await getContainerClient()
+  const blobClient = container.getBlobClient(blobName)
+
+  // 檢查 blob 是否存在
+  const exists = await blobClient.exists()
+  if (!exists) {
+    throw new Error(`Blob not found: ${blobName}`)
+  }
+
+  const response = await blobClient.download(0)
+
+  if (!response.readableStreamBody) {
+    throw new Error(`Failed to get readable stream for blob: ${blobName}`)
+  }
+
+  // 將 ReadableStream 轉換為 Buffer
+  const chunks: Buffer[] = []
+  for await (const chunk of response.readableStreamBody) {
+    chunks.push(Buffer.from(chunk))
+  }
+  return Buffer.concat(chunks)
+}
+
+/**
  * 檢查 Azure Blob Storage 是否已配置
  * @returns 是否已配置
  */
