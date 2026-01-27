@@ -1,23 +1,26 @@
 /**
  * @fileoverview 文件統一處理觸發端點
  * @description
- *   觸發統一 11 步處理管線（Epic 15），將結果寫入 ExtractionResult 表。
+ *   觸發統一 11 步處理管線（Epic 15），將結果寫入 ExtractionResult 表，
+ *   並在處理成功後 Fire-and-Forget 觸發自動模版匹配（Epic 19）。
  *   - 從 Azure Blob 下載文件 Buffer
  *   - 呼叫 UnifiedDocumentProcessorService.processFile()
  *   - 將結果持久化到 ExtractionResult + 更新 Document 狀態
+ *   - 觸發 autoMatch 自動匹配模版（不阻塞 API 回應）
  *
  *   端點：
  *   - POST /api/documents/[id]/process - 觸發統一處理
  *
  * @module src/app/api/documents/[id]/process/route
  * @since CHANGE-014 Phase 2 — 端到端管線整合
- * @lastModified 2026-01-27
+ * @lastModified 2026-01-27 (Phase 3 — 連接 autoMatch)
  *
  * @dependencies
  *   - @/lib/auth - NextAuth 認證
  *   - @/lib/azure-blob - Azure Blob Storage 下載
  *   - @/services/unified-processor - 統一處理器
  *   - @/services/processing-result-persistence.service - 結果持久化
+ *   - @/services/auto-template-matching.service - 自動模版匹配（Phase 3）
  *
  * @related
  *   - src/app/api/documents/[id]/route.ts - 文件詳情端點
@@ -34,6 +37,7 @@ import {
   persistProcessingResult,
   markDocumentProcessingFailed,
 } from '@/services/processing-result-persistence.service';
+import { autoTemplateMatchingService } from '@/services/auto-template-matching.service';
 import type { ProcessFileInput } from '@/types/unified-processor';
 
 // ============================================================
@@ -152,6 +156,22 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       result,
       userId: session.user.id,
     });
+
+    // 8.5 觸發自動模版匹配（Fire-and-Forget）
+    //   條件：處理成功且已識別 companyId（autoMatch 需要 companyId 解析預設模版）
+    if (result.success && result.companyId) {
+      autoTemplateMatchingService.autoMatch(document.id)
+        .then((matchResult) => {
+          if (matchResult.success) {
+            console.log(`[Process] Auto-match success for ${document.id}: instance=${matchResult.templateInstanceId}`);
+          } else {
+            console.log(`[Process] Auto-match skipped for ${document.id}: ${matchResult.error}`);
+          }
+        })
+        .catch((err) => {
+          console.error(`[Process] Auto-match error for ${document.id}:`, err);
+        });
+    }
 
     // 9. 回傳摘要
     return NextResponse.json({

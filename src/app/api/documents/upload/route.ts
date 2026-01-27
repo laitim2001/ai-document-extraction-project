@@ -7,7 +7,9 @@
  *   - 文件大小驗證（最大 10MB）
  *   - 上傳到 Azure Blob Storage
  *   - 資料庫記錄創建
- *   - 自動觸發 OCR 提取（可選）
+ *   - 自動觸發統一處理管線（可選，支援 Feature Flag 切換）
+ *     - ENABLE_UNIFIED_PROCESSOR=true: 統一處理 → 持久化 → 自動匹配
+ *     - ENABLE_UNIFIED_PROCESSOR=false: Legacy OCR 提取
  *
  *   端點：
  *   - POST /api/documents/upload - 上傳文件
@@ -18,7 +20,7 @@
  * @module src/app/api/documents/upload/route
  * @author Development Team
  * @since Epic 2 - Story 2.1 (File Upload Interface & Validation)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-27 (CHANGE-015 Phase 3 — 連接統一處理管線)
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -26,7 +28,11 @@
  *   - @/lib/azure/storage - Azure Blob Storage
  *   - @/lib/upload/constants - 上傳配置和驗證
  *   - @/lib/prisma - Prisma ORM
- *   - @/services/extraction.service - OCR 提取服務
+ *   - @/services/extraction.service - OCR 提取服務（Legacy fallback）
+ *   - @/lib/azure-blob - Azure Blob Storage 下載（統一處理管線）
+ *   - @/services/unified-processor - 統一處理器（統一處理管線）
+ *   - @/services/processing-result-persistence.service - 結果持久化
+ *   - @/services/auto-template-matching.service - 自動模版匹配
  *
  * @related
  *   - src/components/features/invoice/FileUploader.tsx - 前端上傳組件
@@ -48,6 +54,10 @@ import {
 } from '@/lib/upload'
 import { PERMISSIONS } from '@/types/permissions'
 import { extractDocument } from '@/services/extraction.service'
+import { downloadBlob } from '@/lib/azure-blob'
+import { getUnifiedDocumentProcessor } from '@/services/unified-processor'
+import { persistProcessingResult } from '@/services/processing-result-persistence.service'
+import { autoTemplateMatchingService } from '@/services/auto-template-matching.service'
 
 // ===========================================
 // Types
@@ -251,6 +261,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // ===========================================
     const uploaded: UploadedFile[] = []
     const failed: FailedFile[] = []
+    // 內部追蹤：需要觸發統一處理的文件（含 blobName、fileType）
+    const documentsToProcess: Array<{
+      id: string
+      fileName: string
+      blobName: string
+      fileType: string
+    }> = []
 
     for (const file of files) {
       try {
@@ -305,6 +322,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           fileName: document.fileName,
           status: document.status,
         })
+
+        // 收集統一處理所需的文件資訊
+        documentsToProcess.push({
+          id: document.id,
+          fileName: document.fileName,
+          blobName: document.blobName,
+          fileType: document.fileType,
+        })
       } catch (error) {
         console.error(`Failed to upload ${file.name}:`, error)
         failed.push({
@@ -315,16 +340,46 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // ===========================================
-    // 7. 自動觸發 OCR 提取（Fire-and-Forget）
+    // 7. 自動觸發統一處理管線（Fire-and-Forget）
     // ===========================================
-    if (autoExtract && uploaded.length > 0) {
-      // 使用 Promise.allSettled 確保所有請求都被發送
-      // 不等待結果，讓 OCR 在背景執行
-      Promise.allSettled(
-        uploaded.map((doc) => extractDocument(doc.id))
-      ).catch((error) => {
-        console.error('Auto-extract trigger error:', error)
-      })
+    if (autoExtract && documentsToProcess.length > 0) {
+      const useUnifiedProcessor = process.env.ENABLE_UNIFIED_PROCESSOR === 'true'
+
+      if (useUnifiedProcessor) {
+        // 統一處理管線：下載 → 處理 → 持久化 → 自動匹配
+        Promise.allSettled(
+          documentsToProcess.map(async (doc) => {
+            const fileBuffer = await downloadBlob(doc.blobName)
+            const processor = getUnifiedDocumentProcessor()
+            const result = await processor.processFile({
+              fileId: doc.id,
+              fileName: doc.fileName,
+              fileBuffer,
+              mimeType: doc.fileType,
+              userId: session.user.id,
+            })
+            await persistProcessingResult({
+              documentId: doc.id,
+              result,
+              userId: session.user.id,
+            })
+
+            // 處理成功且已識別公司時觸發自動匹配
+            if (result.success && result.companyId) {
+              await autoTemplateMatchingService.autoMatch(doc.id)
+            }
+          })
+        ).catch((error) => {
+          console.error('Auto-process trigger error:', error)
+        })
+      } else {
+        // Legacy fallback：舊版 OCR 提取
+        Promise.allSettled(
+          uploaded.map((doc) => extractDocument(doc.id))
+        ).catch((error) => {
+          console.error('Auto-extract trigger error:', error)
+        })
+      }
     }
 
     // ===========================================
