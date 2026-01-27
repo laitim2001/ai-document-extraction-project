@@ -4,7 +4,7 @@
   "description": "AI-powered document extraction and processing system",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3005",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

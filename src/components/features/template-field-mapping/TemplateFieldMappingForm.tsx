@@ -4,9 +4,13 @@
  *   用於創建和編輯 TemplateFieldMapping 配置
  *   包含基本資訊、映射規則編輯和測試預覽
  *
+ *   架構說明：外層組件負責數據載入，內層組件負責表單邏輯。
+ *   這確保 useForm 只在編輯數據可用時才初始化，
+ *   避免 Radix Select 無法顯示異步載入值的問題。
+ *
  * @module src/components/features/template-field-mapping
  * @since Epic 19 - Story 19.4
- * @lastModified 2026-01-22
+ * @lastModified 2026-01-27
  */
 
 'use client';
@@ -24,7 +28,6 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -56,7 +59,6 @@ import {
 } from '@/hooks/use-template-field-mappings';
 import type {
   TemplateFieldMapping,
-  TemplateFieldMappingScope,
   TemplateFieldMappingRuleInput,
 } from '@/types/template-field-mapping';
 import { SCOPE_OPTIONS } from '@/types/template-field-mapping';
@@ -107,12 +109,13 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 // ============================================================================
-// Main Component
+// Outer Component - Data Loading
 // ============================================================================
 
 /**
  * @component TemplateFieldMappingForm
- * @description 模版欄位映射表單
+ * @description 外層組件：負責數據載入和載入狀態管理。
+ *   確保內層表單組件只在編輯數據可用時才掛載。
  */
 export function TemplateFieldMappingForm({
   mappingId,
@@ -121,8 +124,6 @@ export function TemplateFieldMappingForm({
   documentFormats,
   className,
 }: TemplateFieldMappingFormProps) {
-  const t = useTranslations('templateFieldMapping');
-  const router = useRouter();
   const isEditing = !!mappingId;
 
   // Fetch existing mapping data if editing
@@ -131,17 +132,91 @@ export function TemplateFieldMappingForm({
     isEditing
   );
 
+  // Show skeleton while loading OR when data hasn't arrived yet
+  if (isEditing && (isLoadingMapping || !existingMapping)) {
+    return <FormSkeleton />;
+  }
+
+  return (
+    <TemplateFieldMappingFormInner
+      existingMapping={existingMapping}
+      dataTemplates={dataTemplates}
+      companies={companies}
+      documentFormats={documentFormats}
+      className={className}
+    />
+  );
+}
+
+// ============================================================================
+// Inner Component - Form Logic
+// ============================================================================
+
+interface FormInnerProps {
+  existingMapping: TemplateFieldMapping | null;
+  dataTemplates: Array<{ id: string; name: string; fields: TemplateField[] }>;
+  companies: Array<{ id: string; name: string }>;
+  documentFormats: Array<{ id: string; name: string }>;
+  className?: string;
+}
+
+/**
+ * @component TemplateFieldMappingFormInner
+ * @description 內層組件：負責表單邏輯。
+ *   只在編輯數據可用（或新建模式）時才掛載，
+ *   確保 useForm 的 defaultValues 從第一次渲染就是正確的。
+ */
+function TemplateFieldMappingFormInner({
+  existingMapping,
+  dataTemplates,
+  companies,
+  documentFormats,
+  className,
+}: FormInnerProps) {
+  const t = useTranslations('templateFieldMapping');
+  const router = useRouter();
+  const isEditing = !!existingMapping;
+  const mappingId = existingMapping?.id || '';
+
   // Mutations
   const { createMapping, isCreating } = useCreateTemplateFieldMapping();
-  const { updateMapping, isUpdating } = useUpdateTemplateFieldMapping(mappingId || '');
+  const { updateMapping, isUpdating } = useUpdateTemplateFieldMapping(mappingId);
 
   // State for mapping rules (separate from form)
-  const [mappingRules, setMappingRules] = React.useState<Partial<TemplateFieldMappingRuleInput>[]>([]);
+  const [mappingRules, setMappingRules] = React.useState<Partial<TemplateFieldMappingRuleInput>[]>(
+    () => {
+      // Initialize from existing data immediately (no useEffect needed)
+      if (existingMapping) {
+        return existingMapping.mappings.map((r) => ({
+          sourceField: r.sourceField,
+          targetField: r.targetField,
+          transformType: r.transformType,
+          transformParams: r.transformParams,
+          isRequired: r.isRequired,
+          order: r.order,
+          description: r.description,
+        }));
+      }
+      return [];
+    }
+  );
 
-  // Form
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
+  // Build defaultValues - guaranteed to be correct since existingMapping
+  // is available when this component mounts in edit mode
+  const defaultValues = React.useMemo<FormValues>(() => {
+    if (existingMapping) {
+      return {
+        dataTemplateId: existingMapping.dataTemplateId,
+        scope: existingMapping.scope,
+        companyId: existingMapping.companyId || '',
+        documentFormatId: existingMapping.documentFormatId || '',
+        name: existingMapping.name,
+        description: existingMapping.description || '',
+        priority: existingMapping.priority,
+        isActive: existingMapping.isActive,
+      };
+    }
+    return {
       dataTemplateId: '',
       scope: 'GLOBAL',
       companyId: '',
@@ -150,7 +225,13 @@ export function TemplateFieldMappingForm({
       description: '',
       priority: 0,
       isActive: true,
-    },
+    };
+  }, [existingMapping]);
+
+  // Form - defaultValues is correct from first render, no values prop needed
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues,
   });
 
   // Watch scope for conditional fields
@@ -162,31 +243,6 @@ export function TemplateFieldMappingForm({
     const template = dataTemplates.find((t) => t.id === selectedTemplateId);
     return template?.fields || [];
   }, [dataTemplates, selectedTemplateId]);
-
-  // Initialize form with existing data
-  React.useEffect(() => {
-    if (existingMapping && isEditing) {
-      form.reset({
-        dataTemplateId: existingMapping.dataTemplateId,
-        scope: existingMapping.scope,
-        companyId: existingMapping.companyId || '',
-        documentFormatId: existingMapping.documentFormatId || '',
-        name: existingMapping.name,
-        description: existingMapping.description || '',
-        priority: existingMapping.priority,
-        isActive: existingMapping.isActive,
-      });
-      setMappingRules(existingMapping.mappings.map((r) => ({
-        sourceField: r.sourceField,
-        targetField: r.targetField,
-        transformType: r.transformType,
-        transformParams: r.transformParams,
-        isRequired: r.isRequired,
-        order: r.order,
-        description: r.description,
-      })));
-    }
-  }, [existingMapping, isEditing, form]);
 
   // Handle form submission
   const onSubmit = async (values: FormValues) => {
@@ -242,10 +298,6 @@ export function TemplateFieldMappingForm({
   };
 
   const isSubmitting = isCreating || isUpdating;
-
-  if (isEditing && isLoadingMapping) {
-    return <FormSkeleton />;
-  }
 
   return (
     <Form {...form}>
@@ -307,7 +359,7 @@ export function TemplateFieldMappingForm({
                   <FormLabel>{t('form.dataTemplate')}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value}
+                    defaultValue={field.value}
                     disabled={isSubmitting || isEditing}
                   >
                     <FormControl>
@@ -338,7 +390,7 @@ export function TemplateFieldMappingForm({
                   <FormLabel>{t('form.scope')}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value}
+                    defaultValue={field.value}
                     disabled={isSubmitting || isEditing}
                   >
                     <FormControl>
@@ -370,7 +422,7 @@ export function TemplateFieldMappingForm({
                     <FormLabel>{t('form.company')}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value}
+                      defaultValue={field.value}
                       disabled={isSubmitting || isEditing}
                     >
                       <FormControl>
@@ -402,7 +454,7 @@ export function TemplateFieldMappingForm({
                     <FormLabel>{t('form.documentFormat')}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value}
+                      defaultValue={field.value}
                       disabled={isSubmitting || isEditing}
                     >
                       <FormControl>
