@@ -116,7 +116,7 @@ export function InvoiceDetailStats({ document }: InvoiceDetailStatsProps) {
           <ProcessingStatus status={document.status} size="lg" />
           {document.processingPath && (
             <div className="text-sm text-gray-500">
-              {t(`processingPath.${document.processingPath}`)}
+              {t(`processingPath.${document.processingPath.toLowerCase().replace(/_([a-z])/g, (_: string, c: string) => c.toUpperCase())}`)}
             </div>
           )}
           {duration !== null && (

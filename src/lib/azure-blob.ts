@@ -18,7 +18,7 @@
  *   - 生成 SAS URL（時間或日期過期）
  */
 
-import { BlobServiceClient, ContainerClient } from '@azure/storage-blob'
+import { BlobServiceClient, BlobSASPermissions, ContainerClient } from '@azure/storage-blob'
 import { v4 as uuidv4 } from 'uuid'
 
 // =====================
@@ -277,7 +277,7 @@ export async function generateSignedUrl(
   const blockBlobClient = container.getBlockBlobClient(blobName)
 
   const sasUrl = await blockBlobClient.generateSasUrl({
-    permissions: { read: true } as unknown as import('@azure/storage-blob').BlobSASPermissions,
+    permissions: BlobSASPermissions.parse('r'),
     expiresOn: expiresAt
   })
 
