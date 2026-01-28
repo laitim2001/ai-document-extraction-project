@@ -2,7 +2,7 @@
  * @fileoverview 單個文件詳情 API 端點
  * @description
  *   提供單個文件的詳細資訊查詢，支援動態關聯加載：
- *   - 文件基本資訊 + blobUrl（SAS URL）
+ *   - 文件基本資訊 + blobUrl（Proxy URL 避免 CORS）
  *   - 上傳者 / 公司 / 城市資訊（透過 include 參數）
  *   - 提取欄位（從 ExtractionResult.fieldMappings 轉換）
  *   - 信心度（從 ExtractionResult.averageConfidence）
@@ -19,9 +19,9 @@
  *   - next/server - Next.js API 處理
  *   - @/lib/auth - NextAuth 認證
  *   - @/lib/prisma - Prisma Client
- *   - @/lib/azure-blob - Azure Blob SAS URL 生成
  *
  * @related
+ *   - src/app/api/documents/[id]/blob/route.ts - Blob Proxy（串流文件避免 CORS）
  *   - src/hooks/use-invoice-detail.ts - React Query Hook
  *   - CHANGE-018 - Invoice 詳情頁 API 增強
  */
@@ -29,7 +29,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { generateSasUrl } from '@/lib/azure-blob'
 import type { ExtractedField } from '@/types/extracted-field'
 import { getConfidenceLevelFromScore } from '@/types/extracted-field'
 
@@ -174,15 +173,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // 2. 生成 blobUrl（SAS URL）
-    let blobUrl: string | null = null
-    if (document.blobName) {
-      try {
-        blobUrl = await generateSasUrl(document.blobName, 60)
-      } catch (err) {
-        console.error(`[Document Detail] Failed to generate SAS URL for ${document.blobName}:`, err)
-      }
-    }
+    // 2. 生成 blobUrl（使用 proxy endpoint 避免 CORS 問題）
+    //    前端透過 /api/documents/[id]/blob 取得檔案串流
+    const blobUrl = document.blobName
+      ? `/api/documents/${id}/blob`
+      : null
 
     // 3. 提取 confidence 資料
     const overallConfidence = document.extractionResult?.averageConfidence ?? null
