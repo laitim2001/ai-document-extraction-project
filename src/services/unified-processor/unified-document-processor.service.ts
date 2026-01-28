@@ -9,11 +9,12 @@
  *
  * @module src/services/unified-processor
  * @since Epic 15 - Story 15.1 (處理流程重構 - 統一入口)
- * @lastModified 2026-01-03
+ * @lastModified 2026-01-28
  *
  * @features
  *   - 統一處理入口
  *   - 11 步處理管道
+ *   - 中間狀態更新（OCR_PROCESSING / MAPPING_PROCESSING）
  *   - Feature Flag 控制
  *   - Legacy 適配器支援
  *   - 完整錯誤追蹤
@@ -44,6 +45,20 @@ import {
 import { getStepHandlerFactory } from './factory/step-factory';
 import { legacyProcessorAdapter } from './adapters/legacy-processor.adapter';
 import { IStepHandler } from './interfaces/step-handler.interface';
+import { prisma } from '@/lib/prisma';
+
+// ============================================================================
+// 中間狀態映射（CHANGE-019）
+// ============================================================================
+
+/**
+ * 管線步驟 → Document 狀態映射
+ * 在進入這些關鍵步驟前，更新 Document 狀態以提供即時回饋
+ */
+const STEP_STATUS_MAP: Partial<Record<ProcessingStep, string>> = {
+  [ProcessingStep.AZURE_DI_EXTRACTION]: 'OCR_PROCESSING',
+  [ProcessingStep.FIELD_MAPPING]: 'MAPPING_PROCESSING',
+};
 
 /**
  * 處理選項
@@ -156,6 +171,23 @@ export class UnifiedDocumentProcessorService {
     for (const handler of this.stepHandlers) {
       // 更新當前步驟
       context.currentStep = handler.step;
+
+      // CHANGE-019: 在關鍵步驟前更新 Document 狀態，提供即時 UX 回饋
+      const intermediateStatus = STEP_STATUS_MAP[handler.step];
+      if (intermediateStatus) {
+        try {
+          await prisma.document.update({
+            where: { id: context.input.fileId },
+            data: { status: intermediateStatus as import('@prisma/client').DocumentStatus },
+          });
+        } catch (statusErr) {
+          // 狀態更新失敗不應中斷處理管線
+          console.warn(
+            `[UnifiedProcessor] Failed to update status to ${intermediateStatus} for ${context.input.fileId}:`,
+            statusErr
+          );
+        }
+      }
 
       // 檢查是否應該跳過
       if (!handler.shouldExecute(context, flags)) {
