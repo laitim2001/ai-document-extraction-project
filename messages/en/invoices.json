@@ -133,7 +133,20 @@
       "totalTime": "Total Time",
       "step": "Step",
       "duration": "Duration",
-      "status": "Status"
+      "status": "Status",
+      "steps": {
+        "FILE_TYPE_DETECTION": "File Type Detection",
+        "SMART_ROUTING": "Smart Routing",
+        "ISSUER_IDENTIFICATION": "Issuer Identification",
+        "FORMAT_MATCHING": "Format Matching",
+        "CONFIG_FETCHING": "Config Fetching",
+        "AZURE_DI_EXTRACTION": "Azure DI Extraction",
+        "GPT_ENHANCED_EXTRACTION": "GPT Enhanced Extraction",
+        "FIELD_MAPPING": "Field Mapping",
+        "TERM_RECORDING": "Term Recording",
+        "CONFIDENCE_CALCULATION": "Confidence Calculation",
+        "ROUTING_DECISION": "Routing Decision"
+      }
     },
     "audit": {
       "title": "Audit Log",

@@ -48,6 +48,8 @@ interface ProcessingTimelineProps {
   documentId: string
   /** 預載入的步驟（可選） */
   steps?: ProcessingStep[] | null
+  /** 總處理時間（秒） */
+  totalProcessingTime?: number | null
 }
 
 interface TraceResponse {
@@ -65,12 +67,23 @@ interface TraceResponse {
 // Constants
 // ============================================================
 
+/** 11-step pipeline 步驟標籤（fallback，優先使用 i18n） */
 const STEP_LABELS: Record<string, { en: string; zh: string }> = {
-  UPLOAD: { en: 'File Upload', zh: '文件上傳' },
-  OCR_EXTRACTION: { en: 'OCR Extraction', zh: 'OCR 提取' },
+  // 11-step unified pipeline
+  FILE_TYPE_DETECTION: { en: 'File Type Detection', zh: '文件類型檢測' },
+  SMART_ROUTING: { en: 'Smart Routing', zh: '智能路由' },
+  ISSUER_IDENTIFICATION: { en: 'Issuer Identification', zh: '發行方識別' },
+  FORMAT_MATCHING: { en: 'Format Matching', zh: '格式匹配' },
+  CONFIG_FETCHING: { en: 'Config Fetching', zh: '配置獲取' },
+  AZURE_DI_EXTRACTION: { en: 'Azure DI Extraction', zh: 'Azure DI 提取' },
+  GPT_ENHANCED_EXTRACTION: { en: 'GPT Enhanced Extraction', zh: 'GPT 增強提取' },
   FIELD_MAPPING: { en: 'Field Mapping', zh: '欄位映射' },
+  TERM_RECORDING: { en: 'Term Recording', zh: '術語記錄' },
   CONFIDENCE_CALCULATION: { en: 'Confidence Calculation', zh: '信心度計算' },
   ROUTING_DECISION: { en: 'Routing Decision', zh: '路由決策' },
+  // Legacy steps (backward compatibility)
+  UPLOAD: { en: 'File Upload', zh: '文件上傳' },
+  OCR_EXTRACTION: { en: 'OCR Extraction', zh: 'OCR 提取' },
   REVIEW: { en: 'Manual Review', zh: '人工審核' },
   COMPLETION: { en: 'Processing Complete', zh: '處理完成' },
 }
@@ -131,6 +144,7 @@ function formatDuration(seconds: number | null | undefined): string {
 export function ProcessingTimeline({
   documentId,
   steps: preloadedSteps,
+  totalProcessingTime,
 }: ProcessingTimelineProps) {
   const t = useTranslations('invoices')
   const locale = useLocale() as Locale
@@ -194,9 +208,9 @@ export function ProcessingTimeline({
       {/* 標題 */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">{t('detail.timeline.title')}</h3>
-        {data?.data?.totalDuration && (
+        {(totalProcessingTime || data?.data?.totalDuration) && (
           <span className="text-sm text-gray-500">
-            {t('detail.timeline.totalTime')}: {formatDuration(data.data.totalDuration)}
+            {t('detail.timeline.totalTime')}: {formatDuration(totalProcessingTime ?? data?.data?.totalDuration ?? null)}
           </span>
         )}
       </div>
@@ -211,9 +225,21 @@ export function ProcessingTimeline({
           {steps.map((step, index) => {
             const config = STATUS_CONFIG[step.status]
             const Icon = config.icon
-            const stepLabel = STEP_LABELS[step.step]
-              ? (isZh ? STEP_LABELS[step.step].zh : STEP_LABELS[step.step].en)
-              : step.step
+            // 優先使用 i18n 翻譯，fallback 到 STEP_LABELS
+            let stepLabel: string = step.step
+            try {
+              const i18nKey = `detail.timeline.steps.${step.step}` as Parameters<typeof t>[0]
+              const translated = t(i18nKey)
+              if (translated && translated !== i18nKey) {
+                stepLabel = translated
+              } else if (STEP_LABELS[step.step]) {
+                stepLabel = isZh ? STEP_LABELS[step.step].zh : STEP_LABELS[step.step].en
+              }
+            } catch {
+              if (STEP_LABELS[step.step]) {
+                stepLabel = isZh ? STEP_LABELS[step.step].zh : STEP_LABELS[step.step].en
+              }
+            }
 
             return (
               <div key={index} className="relative flex gap-4">

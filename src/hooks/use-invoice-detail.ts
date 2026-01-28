@@ -74,6 +74,7 @@ interface DocumentDetail {
   } | null
   extractedFields: ExtractedField[] | null
   processingSteps: ProcessingStep[] | null
+  totalProcessingTime: number | null
 }
 
 interface DocumentDetailResponse {

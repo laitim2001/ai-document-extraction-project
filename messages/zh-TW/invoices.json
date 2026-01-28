@@ -133,7 +133,20 @@
       "totalTime": "總耗時",
       "step": "步驟",
       "duration": "耗時",
-      "status": "狀態"
+      "status": "狀態",
+      "steps": {
+        "FILE_TYPE_DETECTION": "文件類型檢測",
+        "SMART_ROUTING": "智能路由",
+        "ISSUER_IDENTIFICATION": "發行方識別",
+        "FORMAT_MATCHING": "格式匹配",
+        "CONFIG_FETCHING": "配置獲取",
+        "AZURE_DI_EXTRACTION": "Azure DI 提取",
+        "GPT_ENHANCED_EXTRACTION": "GPT 增強提取",
+        "FIELD_MAPPING": "欄位映射",
+        "TERM_RECORDING": "術語記錄",
+        "CONFIDENCE_CALCULATION": "信心度計算",
+        "ROUTING_DECISION": "路由決策"
+      }
     },
     "audit": {
       "title": "審計日誌",

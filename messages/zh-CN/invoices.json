@@ -133,7 +133,20 @@
       "totalTime": "总耗时",
       "step": "步骤",
       "duration": "耗时",
-      "status": "状态"
+      "status": "状态",
+      "steps": {
+        "FILE_TYPE_DETECTION": "文件类型检测",
+        "SMART_ROUTING": "智能路由",
+        "ISSUER_IDENTIFICATION": "发行方识别",
+        "FORMAT_MATCHING": "格式匹配",
+        "CONFIG_FETCHING": "配置获取",
+        "AZURE_DI_EXTRACTION": "Azure DI 提取",
+        "GPT_ENHANCED_EXTRACTION": "GPT 增强提取",
+        "FIELD_MAPPING": "字段映射",
+        "TERM_RECORDING": "术语记录",
+        "CONFIDENCE_CALCULATION": "置信度计算",
+        "ROUTING_DECISION": "路由决策"
+      }
     },
     "audit": {
       "title": "审计日志",

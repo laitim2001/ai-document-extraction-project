@@ -41,6 +41,7 @@ interface DocumentData {
   blobUrl?: string | null
   extractedFields?: ExtractedField[] | null
   processingSteps?: ProcessingStep[] | null
+  totalProcessingTime?: number | null
 }
 
 interface ProcessingStep {
@@ -192,6 +193,7 @@ export function InvoiceDetailTabs({ document }: InvoiceDetailTabsProps) {
             <ProcessingTimeline
               documentId={document.id}
               steps={document.processingSteps}
+              totalProcessingTime={document.totalProcessingTime}
             />
           </CardContent>
         </Card>

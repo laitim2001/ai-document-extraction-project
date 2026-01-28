@@ -950,6 +950,10 @@ model ExtractionResult {
   status         ExtractionStatus @default(PENDING)
   errorMessage   String?          @map("error_message")
 
+  // Pipeline Steps (CHANGE-019: 持久化 11-step pipeline 執行結果)
+  pipelineSteps Json? @map("pipeline_steps")
+  // Structure: Array<{ step, success, error?, durationMs, skipped?, startedAt?, completedAt? }>
+
   // Unmapped Fields Tracking
   unmappedFieldDetails Json? @map("unmapped_field_details")
   // Structure: { [fieldName]: { reason: string, attempts: string[] } }

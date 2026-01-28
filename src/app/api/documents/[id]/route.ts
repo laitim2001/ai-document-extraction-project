@@ -161,6 +161,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             totalFields: true,
             mappedFields: true,
             status: true,
+            pipelineSteps: includes.has('processingSteps'),
+            processingTime: includes.has('processingSteps'),
           },
         },
       },
@@ -194,7 +196,35 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // 5. 組裝回應
+    // 5. 轉換 processingSteps
+    let processingSteps: Array<{
+      step: string
+      status: 'completed' | 'failed' | 'pending'
+      error?: string | null
+      duration?: number | null
+    }> | undefined
+    if (includes.has('processingSteps') && document.extractionResult?.pipelineSteps) {
+      try {
+        const raw = document.extractionResult.pipelineSteps as unknown as Array<{
+          step: string
+          success: boolean
+          error?: string
+          durationMs: number
+          skipped?: boolean
+        }>
+        processingSteps = raw.map((s) => ({
+          step: s.step,
+          status: s.skipped ? 'pending' as const : s.success ? 'completed' as const : 'failed' as const,
+          error: s.error ?? null,
+          duration: s.durationMs != null ? s.durationMs / 1000 : null,
+        }))
+      } catch (err) {
+        console.error(`[Document Detail] Failed to parse pipelineSteps for ${id}:`, err)
+        processingSteps = []
+      }
+    }
+
+    // 6. 組裝回應
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { extractionResult: _er, filePath: _fp, blobName: _bn, uploader, uploadedBy: _fk, ...documentBase } = document as Record<string, unknown>
 
@@ -206,6 +236,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       // 前端期望 uploadedBy 為 { id, name, email } 物件
       uploadedBy: uploader ?? null,
       ...(includes.has('extractedFields') && { extractedFields: extractedFields ?? [] }),
+      ...(includes.has('processingSteps') && {
+        processingSteps: processingSteps ?? [],
+        totalProcessingTime: document.extractionResult?.processingTime
+          ? document.extractionResult.processingTime / 1000
+          : null,
+      }),
     }
 
     return NextResponse.json({

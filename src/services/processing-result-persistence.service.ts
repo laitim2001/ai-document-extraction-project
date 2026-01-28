@@ -32,6 +32,7 @@ import type {
   UnifiedRoutingDecision,
   MappedFieldValue,
   UnmappedField,
+  StepResult,
 } from '@/types/unified-processor';
 
 // ============================================================================
@@ -157,6 +158,36 @@ function mapRoutingDecisionToProcessingPath(
   return mapping[routingDecision];
 }
 
+/**
+ * 將 StepResult[] 轉換為可持久化的 JSON 格式
+ *
+ * @description
+ *   只保留步驟元資料（step, success, error, durationMs, skipped），
+ *   不保存 data 屬性（step-specific 大資料，會造成 JSON 過大）。
+ *
+ * @param stepResults - 統一處理器的步驟結果列表
+ * @returns 持久化用 JSON 陣列
+ */
+function convertStepResultsToJson(
+  stepResults: StepResult[],
+): Array<{
+  step: string;
+  success: boolean;
+  error?: string;
+  durationMs: number;
+  skipped?: boolean;
+  retryAttempts?: number;
+}> {
+  return stepResults.map((sr) => ({
+    step: sr.step,
+    success: sr.success,
+    ...(sr.error ? { error: sr.error } : {}),
+    durationMs: sr.durationMs,
+    ...(sr.skipped ? { skipped: sr.skipped } : {}),
+    ...(sr.retryAttempts ? { retryAttempts: sr.retryAttempts } : {}),
+  }));
+}
+
 // ============================================================================
 // Main Service
 // ============================================================================
@@ -192,6 +223,11 @@ export async function persistProcessingResult(
   );
   const unmappedFieldDetails = convertUnmappedFieldsToJson(unmappedFieldsList);
 
+  // 轉換 pipeline steps
+  const pipelineSteps = result.stepResults?.length
+    ? convertStepResultsToJson(result.stepResults)
+    : null;
+
   // 構建信心度分數 JSON
   const confidenceScores = result.confidenceBreakdown
     ? {
@@ -224,6 +260,7 @@ export async function persistProcessingResult(
         status: result.success ? 'COMPLETED' : 'FAILED',
         errorMessage: result.error ?? null,
         unmappedFieldDetails: unmappedFieldDetails as unknown as Prisma.InputJsonValue,
+        pipelineSteps: pipelineSteps as unknown as Prisma.InputJsonValue,
       },
       update: {
         companyId: result.companyId ?? null,
@@ -238,6 +275,7 @@ export async function persistProcessingResult(
         status: result.success ? 'COMPLETED' : 'FAILED',
         errorMessage: result.error ?? null,
         unmappedFieldDetails: unmappedFieldDetails as unknown as Prisma.InputJsonValue,
+        pipelineSteps: pipelineSteps as unknown as Prisma.InputJsonValue,
       },
     }),
 
