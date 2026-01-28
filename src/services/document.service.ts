@@ -32,9 +32,16 @@
 
 import { prisma } from '@/lib/prisma'
 import { deleteFile } from '@/lib/azure'
-import { extractDocument } from '@/services/extraction.service'
+import { downloadBlob } from '@/lib/azure-blob'
 import { Prisma } from '@prisma/client'
 import type { DocumentStatus } from '@prisma/client'
+import { getUnifiedDocumentProcessor } from '@/services/unified-processor'
+import {
+  persistProcessingResult,
+  markDocumentProcessingFailed,
+} from '@/services/processing-result-persistence.service'
+import { autoTemplateMatchingService } from '@/services/auto-template-matching.service'
+import type { ProcessFileInput } from '@/types/unified-processor'
 
 // ===========================================
 // Types
@@ -478,11 +485,17 @@ export async function getProcessingStatsEnhanced(
 }
 
 /**
- * 重試失敗的文件處理
+ * 重試文件處理（統一管線）
  *
- * @description 重置文件狀態並重新觸發處理流程
+ * @description
+ *   重置文件狀態並觸發統一 11 步處理管線（Epic 15）。
+ *   取代舊版 extractDocument() OCR-only 流程。
+ *   處理以非阻塞方式執行，API 立即回應。
+ *
  * @param documentId - 文件 ID
  * @throws {Error} 文件不存在或狀態不可重試
+ *
+ * @since CHANGE-017 - Retry 整合統一處理管線
  *
  * @example
  * ```typescript
@@ -498,33 +511,79 @@ export async function retryProcessing(documentId: string): Promise<void> {
     throw new Error('Document not found')
   }
 
-  const retryableStatuses: DocumentStatus[] = ['OCR_FAILED', 'FAILED']
+  /** 允許重試的 Document 狀態（對齊 /process 端點 + FAILED） */
+  const retryableStatuses: DocumentStatus[] = [
+    'OCR_FAILED',
+    'FAILED',
+    'UPLOADED',
+    'OCR_COMPLETED',
+    'MAPPING_COMPLETED',
+  ]
 
   if (!retryableStatuses.includes(document.status)) {
     throw new Error(`Cannot retry document with status: ${document.status}`)
   }
 
-  // 重置文件狀態
+  // 1. 重置文件狀態（清除舊數據）
   await prisma.$transaction([
     prisma.document.update({
       where: { id: documentId },
       data: {
-        status: 'UPLOADED',
+        status: 'OCR_PROCESSING',
         processingPath: null,
         routingDecision: Prisma.JsonNull,
         errorMessage: null,
+        processingStartedAt: new Date(),
       },
     }),
-    // 移除現有的佇列條目
     prisma.processingQueue.deleteMany({
+      where: { documentId },
+    }),
+    prisma.extractionResult.deleteMany({
       where: { documentId },
     }),
   ])
 
-  // 非阻塞觸發重新處理
-  extractDocument(documentId, { force: true }).catch((error) => {
-    console.error(`Retry processing failed for ${documentId}:`, error)
-  })
+  // 2. 非阻塞觸發統一處理管線
+  ;(async () => {
+    try {
+      // 2a. 下載文件
+      const fileBuffer = await downloadBlob(document.blobName)
+
+      // 2b. 建構輸入
+      const input: ProcessFileInput = {
+        fileId: document.id,
+        fileName: document.fileName,
+        fileBuffer,
+        mimeType: document.fileType,
+        userId: document.uploadedBy ?? 'system',
+      }
+
+      // 2c. 執行統一處理
+      const processor = getUnifiedDocumentProcessor()
+      const result = await processor.processFile(input)
+
+      // 2d. 持久化結果
+      await persistProcessingResult({
+        documentId: document.id,
+        result,
+        userId: document.uploadedBy ?? 'system',
+      })
+
+      // 2e. 觸發自動模版匹配（Fire-and-Forget）
+      if (result.success && result.companyId) {
+        autoTemplateMatchingService.autoMatch(document.id).catch((err) => {
+          console.error(`[Retry] Auto-match error for ${document.id}:`, err)
+        })
+      }
+
+      console.log(`[Retry] Processing completed for ${document.id}`)
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Unknown error'
+      console.error(`[Retry] Processing failed for ${document.id}:`, msg)
+      await markDocumentProcessingFailed(documentId, msg).catch(() => {})
+    }
+  })()
 }
 
 /**
