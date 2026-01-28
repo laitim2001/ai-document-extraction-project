@@ -161,6 +161,8 @@
     "selectPlaceholder": "Select company type"
   },
   "detail": {
+    "pageTitle": "Company Detail",
+    "pageDescription": "View company configuration, rules and statistics",
     "overview": "Overview",
     "formats": "Formats",
     "rules": "Rules",

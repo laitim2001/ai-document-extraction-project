@@ -9,11 +9,13 @@
  * @module src/components/features/forwarders/ForwarderTableSkeleton
  * @author Development Team
  * @since Epic 5 - Story 5.1 (Forwarder Profile List)
- * @lastModified 2025-12-19
+ * @lastModified 2026-01-28
  *
  * @dependencies
  *   - @/components/ui - shadcn/ui 組件
  */
+
+import { useTranslations } from 'next-intl'
 
 import {
   Table,
@@ -54,18 +56,20 @@ export function ForwarderTableSkeleton({
   rows = 5,
   showActions = true,
 }: ForwarderTableSkeletonProps) {
+  const t = useTranslations('companies.table.columns')
+
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[200px]">名稱</TableHead>
-            <TableHead className="w-[120px]">代碼</TableHead>
-            <TableHead className="w-[100px] text-center">狀態</TableHead>
-            <TableHead className="w-[100px] text-center">規則數</TableHead>
-            <TableHead className="w-[100px] text-center">優先級</TableHead>
-            <TableHead className="w-[180px]">最後更新</TableHead>
-            {showActions && <TableHead className="w-[80px] text-center">操作</TableHead>}
+            <TableHead className="w-[200px]">{t('name')}</TableHead>
+            <TableHead className="w-[120px]">{t('code')}</TableHead>
+            <TableHead className="w-[100px] text-center">{t('status')}</TableHead>
+            <TableHead className="w-[100px] text-center">{t('ruleCount')}</TableHead>
+            <TableHead className="w-[100px] text-center">{t('priority')}</TableHead>
+            <TableHead className="w-[180px]">{t('updatedAt')}</TableHead>
+            {showActions && <TableHead className="w-[80px] text-center">{t('actions')}</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>

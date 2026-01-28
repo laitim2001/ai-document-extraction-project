@@ -161,6 +161,8 @@
     "selectPlaceholder": "选择公司类型"
   },
   "detail": {
+    "pageTitle": "公司详情",
+    "pageDescription": "查看公司的详细配置、规则和统计资料",
     "overview": "总览",
     "formats": "格式",
     "rules": "规则",

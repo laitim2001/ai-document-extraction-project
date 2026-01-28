@@ -13,7 +13,7 @@
  * @module src/app/(dashboard)/companies/[id]/page
  * @author Development Team
  * @since Epic 5 - Story 5.2 (Company Detail Config View)
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-28
  *
  * @dependencies
  *   - @/components/features/forwarders/ForwarderDetailView - 詳情組件
@@ -22,6 +22,8 @@
  *   - src/app/api/companies/[id]/route.ts - Detail API
  *   - src/components/features/forwarders/ForwarderDetailView.tsx - UI 組件
  */
+
+import { getTranslations } from 'next-intl/server'
 
 import { ForwarderDetailView } from '@/components/features/forwarders/ForwarderDetailView'
 
@@ -39,9 +41,12 @@ interface PageProps {
 // Metadata
 // ============================================================
 
-export const metadata = {
-  title: '公司詳情',
-  description: '查看公司的詳細配置、規則和統計資料',
+export async function generateMetadata() {
+  const t = await getTranslations('companies.detail')
+  return {
+    title: t('pageTitle'),
+    description: t('pageDescription'),
+  }
 }
 
 // ============================================================
