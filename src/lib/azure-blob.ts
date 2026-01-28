@@ -159,9 +159,8 @@ export async function generateSasUrl(
   const expiresOn = new Date()
   expiresOn.setMinutes(expiresOn.getMinutes() + expiresInMinutes)
 
-  // 注意：這需要 SAS 權限，可能需要額外設定
   const sasUrl = await blockBlobClient.generateSasUrl({
-    permissions: { read: true } as unknown as import('@azure/storage-blob').BlobSASPermissions,
+    permissions: BlobSASPermissions.parse('r'),
     expiresOn
   })
 
