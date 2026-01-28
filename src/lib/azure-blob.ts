@@ -26,7 +26,7 @@ import { v4 as uuidv4 } from 'uuid'
 // =====================
 
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
-const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || 'uploads'
+const containerName = process.env.AZURE_STORAGE_CONTAINER || 'documents'
 
 let containerClient: ContainerClient | null = null
 
