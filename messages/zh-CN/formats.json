@@ -67,5 +67,47 @@
     "promptConfigLabel": "创建 Prompt 配置",
     "promptConfigDescription": "自动创建格式专属的 AI Prompt 配置",
     "submitButton": "创建格式"
+  },
+  "detail": {
+    "loadError": "无法加载格式数据",
+    "loadErrorDescription": "加载格式详情时发生错误，请稍后再试。",
+    "retry": "重试",
+    "notFound": "找不到格式",
+    "notFoundDescription": "该格式可能已被删除或您没有权限访问。",
+    "back": "返回",
+    "refresh": "刷新",
+    "edit": "编辑",
+    "tabs": {
+      "basic": "基本信息",
+      "terms": "常见术语",
+      "files": "文件列表",
+      "rules": "识别规则",
+      "configs": "专属配置"
+    },
+    "basicInfo": {
+      "formatInfo": "格式信息",
+      "formatName": "格式名称",
+      "documentType": "文件类型",
+      "documentSubtype": "文件子类型",
+      "fileCount": "文件数量",
+      "termCount": "术语数量",
+      "fileUnit": "{count} 个",
+      "termUnit": "{count} 个",
+      "features": "格式特征",
+      "hasLineItems": "包含明细项目",
+      "hasHeaderLogo": "包含公司 Logo",
+      "currency": "货币",
+      "language": "语言",
+      "layoutPattern": "版面特征",
+      "company": "所属公司",
+      "companyName": "公司名称",
+      "companyCode": "公司代码",
+      "time": "时间信息",
+      "createdAt": "创建时间",
+      "updatedAt": "更新时间",
+      "typicalFields": "常见字段",
+      "yes": "是",
+      "no": "否"
+    }
   }
 }

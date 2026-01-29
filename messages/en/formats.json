@@ -67,5 +67,47 @@
     "promptConfigLabel": "Create Prompt Config",
     "promptConfigDescription": "Automatically create a format-specific AI prompt configuration",
     "submitButton": "Create Format"
+  },
+  "detail": {
+    "loadError": "Unable to load format data",
+    "loadErrorDescription": "An error occurred while loading format details. Please try again later.",
+    "retry": "Retry",
+    "notFound": "Format not found",
+    "notFoundDescription": "This format may have been deleted or you don't have permission to access it.",
+    "back": "Back",
+    "refresh": "Refresh",
+    "edit": "Edit",
+    "tabs": {
+      "basic": "Basic Info",
+      "terms": "Common Terms",
+      "files": "File List",
+      "rules": "Identification Rules",
+      "configs": "Dedicated Configs"
+    },
+    "basicInfo": {
+      "formatInfo": "Format Info",
+      "formatName": "Format Name",
+      "documentType": "Document Type",
+      "documentSubtype": "Document Subtype",
+      "fileCount": "File Count",
+      "termCount": "Term Count",
+      "fileUnit": "{count} file(s)",
+      "termUnit": "{count} term(s)",
+      "features": "Format Features",
+      "hasLineItems": "Has Line Items",
+      "hasHeaderLogo": "Has Company Logo",
+      "currency": "Currency",
+      "language": "Language",
+      "layoutPattern": "Layout Pattern",
+      "company": "Company",
+      "companyName": "Company Name",
+      "companyCode": "Company Code",
+      "time": "Time Info",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "typicalFields": "Typical Fields",
+      "yes": "Yes",
+      "no": "No"
+    }
   }
 }

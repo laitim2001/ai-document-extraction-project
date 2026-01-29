@@ -67,5 +67,47 @@
     "promptConfigLabel": "建立 Prompt 配置",
     "promptConfigDescription": "自動建立格式專屬的 AI Prompt 配置",
     "submitButton": "建立格式"
+  },
+  "detail": {
+    "loadError": "無法載入格式資料",
+    "loadErrorDescription": "載入格式詳情時發生錯誤，請稍後再試。",
+    "retry": "重試",
+    "notFound": "找不到格式",
+    "notFoundDescription": "該格式可能已被刪除或您沒有權限存取。",
+    "back": "返回",
+    "refresh": "重新整理",
+    "edit": "編輯",
+    "tabs": {
+      "basic": "基本資訊",
+      "terms": "常見術語",
+      "files": "文件列表",
+      "rules": "識別規則",
+      "configs": "專屬配置"
+    },
+    "basicInfo": {
+      "formatInfo": "格式資訊",
+      "formatName": "格式名稱",
+      "documentType": "文件類型",
+      "documentSubtype": "文件子類型",
+      "fileCount": "文件數量",
+      "termCount": "術語數量",
+      "fileUnit": "{count} 個",
+      "termUnit": "{count} 個",
+      "features": "格式特徵",
+      "hasLineItems": "包含明細項目",
+      "hasHeaderLogo": "包含公司 Logo",
+      "currency": "貨幣",
+      "language": "語言",
+      "layoutPattern": "版面特徵",
+      "company": "所屬公司",
+      "companyName": "公司名稱",
+      "companyCode": "公司代碼",
+      "time": "時間資訊",
+      "createdAt": "創建時間",
+      "updatedAt": "更新時間",
+      "typicalFields": "常見欄位",
+      "yes": "是",
+      "no": "否"
+    }
   }
 }
