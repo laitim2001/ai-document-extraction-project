@@ -129,6 +129,24 @@ const DEFAULT_CONFIG: Required<GptMiniExtractorConfig> = {
 // ============================================================
 
 /**
+ * 檢測是否為 reasoning 模型（o-series）
+ * Reasoning 模型有特殊的 API 要求：
+ * - 不支持 temperature
+ * - 必須使用 max_completion_tokens
+ * - system message 會被當作 developer message
+ */
+function isReasoningModel(deploymentName: string): boolean {
+  const reasoningPatterns = [
+    /^o1/i,        // o1, o1-mini, o1-preview
+    /^o3/i,        // o3, o3-mini
+    /^o4/i,        // o4-mini
+    /gpt-5-nano/i, // gpt-5-nano（可能是 o-series）
+    /gpt-5-mini/i, // gpt-5-mini（可能是 o-series）
+  ];
+  return reasoningPatterns.some(pattern => pattern.test(deploymentName));
+}
+
+/**
  * 創建 Azure OpenAI 客戶端
  */
 function createClient(config: GptMiniExtractorConfig): AzureOpenAI {
@@ -314,24 +332,64 @@ export async function extractFieldsWithGptMini(
     const systemPrompt = generateSystemPrompt(fields);
     const userPrompt = generateUserPrompt(selectedData);
 
+    const isReasoning = isReasoningModel(mergedConfig.deploymentName);
     console.log(
       `[GptMiniExtractor] Extracting ${fields.length} fields ` +
-        `with ${mergedConfig.deploymentName}...`
+        `with ${mergedConfig.deploymentName}` +
+        (isReasoning ? ' (reasoning model detected)' : '') +
+        '...'
     );
 
     // 調用 GPT
     // 注意：
     // - 新版 Azure OpenAI API 使用 max_completion_tokens 而非 max_tokens
-    // - gpt-5-nano/o1/o3 等模型不支持自定義 temperature，只能用預設值 1
-    const response = await client.chat.completions.create({
+    // - Reasoning 模型（o1/o3/gpt-5-nano/gpt-5-mini）：
+    //   - 不支持 temperature, top_p 等參數
+    //   - system message 會被當作 developer message
+    //   - 建議使用 developer role
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const messages: any[] = isReasoning
+      ? [
+          // Reasoning 模型：使用 developer role
+          { role: 'developer', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ]
+      : [
+          // 標準 GPT 模型：使用 system role
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const requestParams: any = {
       model: mergedConfig.deploymentName,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      max_completion_tokens: mergedConfig.maxTokens,
-      // 注意：某些模型（如 o1/o3/gpt-5-nano）不支持 temperature 參數
-      // temperature: mergedConfig.temperature,
+      messages,
+    };
+
+    // Reasoning 模型特殊處理
+    // 重要：reasoning_tokens 會消耗 max_completion_tokens 額度！
+    // 例如：設定 1000，可能 1000 全用於推理，輸出為空
+    // 因此 reasoning 模型需要更大的 token 限制
+    if (isReasoning) {
+      // Reasoning 模型需要更多 tokens（推理 + 輸出）
+      // 使用 low effort 減少推理 token 消耗，留更多給輸出
+      requestParams.max_completion_tokens = 4000; // 大幅增加以容納推理
+      requestParams.reasoning_effort = 'low';      // 使用 low 減少推理消耗
+    } else {
+      // 標準模型
+      requestParams.max_completion_tokens = mergedConfig.maxTokens;
+      requestParams.temperature = mergedConfig.temperature;
+    }
+
+    const response = await client.chat.completions.create(requestParams);
+
+    // 調試：輸出完整的 response 結構
+    console.log(`[GptMiniExtractor] Response structure:`, {
+      choices: response.choices?.length,
+      finishReason: response.choices?.[0]?.finish_reason,
+      messageRole: response.choices?.[0]?.message?.role,
+      contentLength: response.choices?.[0]?.message?.content?.length ?? 0,
+      usage: response.usage,
     });
 
     // 提取回應內容
@@ -529,19 +587,21 @@ export async function testConnection(): Promise<{
     }
 
     const client = createClient({});
+    const isReasoning = isReasoningModel(configCheck.deploymentName);
 
     // 使用簡單的測試請求
+    // 注意：Reasoning 模型使用 max_completion_tokens，不使用 max_tokens
     const response = await client.chat.completions.create({
       model: configCheck.deploymentName,
       messages: [{ role: 'user', content: 'Test connection. Reply with "OK".' }],
-      max_tokens: 10,
+      max_completion_tokens: 50, // 使用 max_completion_tokens（對所有模型兼容）
     });
 
     const content = response.choices[0]?.message?.content ?? '';
 
     return {
       success: true,
-      message: `Connection successful. Model response: "${content}"`,
+      message: `Connection successful. Model response: "${content}"${isReasoning ? ' (reasoning model)' : ''}`,
       latencyMs: Date.now() - startTime,
       modelUsed: configCheck.deploymentName,
     };
