@@ -313,7 +313,7 @@ export class UnifiedGptExtractionService {
         },
         body: JSON.stringify({
           messages,
-          max_tokens: this.config.maxTokens,
+          max_completion_tokens: this.config.maxTokens,
           temperature: this.config.temperature,
           response_format: { type: 'json_object' },
         }),
@@ -476,7 +476,7 @@ export class UnifiedGptExtractionService {
         },
         body: JSON.stringify({
           messages: [{ role: 'user', content: 'ping' }],
-          max_tokens: 5,
+          max_completion_tokens: 5,
         }),
         signal: AbortSignal.timeout(10000),
       });
