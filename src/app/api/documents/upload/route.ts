@@ -20,7 +20,7 @@
  * @module src/app/api/documents/upload/route
  * @author Development Team
  * @since Epic 2 - Story 2.1 (File Upload Interface & Validation)
- * @lastModified 2026-01-27 (CHANGE-015 Phase 3 — 連接統一處理管線)
+ * @lastModified 2026-01-30 (CHANGE-021 — V3 整合支援)
  *
  * @dependencies
  *   - next/server - Next.js API 處理

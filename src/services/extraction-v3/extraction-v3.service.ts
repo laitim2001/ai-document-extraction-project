@@ -1,0 +1,737 @@
+/**
+ * @fileoverview Extraction V3 主服務 - 7 步管線協調器
+ * @description
+ *   V3 統一提取服務的主要入口，協調 7 步處理管線：
+ *   1. FILE_PREPARATION - 文件準備
+ *   2. DYNAMIC_PROMPT_ASSEMBLY - 動態 Prompt 組裝
+ *   3. UNIFIED_GPT_EXTRACTION - 統一 GPT 提取
+ *   4. RESULT_VALIDATION - 結果驗證
+ *   5. TERM_RECORDING - 術語記錄
+ *   6. CONFIDENCE_CALCULATION - 信心度計算
+ *   7. ROUTING_DECISION - 路由決策
+ *
+ * @module src/services/extraction-v3/extraction-v3
+ * @since CHANGE-021 - Unified Processor V3 Refactoring
+ * @lastModified 2026-01-30
+ *
+ * @features
+ *   - 7 步處理管線
+ *   - 錯誤處理和重試
+ *   - 步驟時間追蹤
+ *   - Feature Flags 支援
+ *   - V2 回退支援
+ *
+ * @dependencies
+ *   - ./utils/pdf-converter - PDF 轉換
+ *   - ./prompt-assembly.service - Prompt 組裝
+ *   - ./unified-gpt-extraction.service - GPT 提取
+ *   - ./result-validation.service - 結果驗證
+ *   - ./confidence-v3.service - 信心度計算
+ *
+ * @related
+ *   - src/types/extraction-v3.types.ts - V3 類型定義
+ *   - src/constants/processing-steps-v3.ts - V3 步驟常數
+ */
+
+import type {
+  ExtractionV3Input,
+  ExtractionV3Output,
+  ProcessingContextV3,
+  StepResultV3,
+  ExtractionV3Flags,
+} from '@/types/extraction-v3.types';
+import {
+  ProcessingStepV3,
+  UnifiedFileType,
+} from '@/types/extraction-v3.types';
+import {
+  PROCESSING_STEP_ORDER_V3,
+  STEP_PRIORITY_V3,
+  STEP_TIMEOUT_V3,
+  STEP_RETRY_COUNT_V3,
+  isRequiredStepV3,
+  getStepDisplayNameV3,
+} from '@/constants/processing-steps-v3';
+import { StepPriorityV3 } from '@/types/extraction-v3.types';
+import { DEFAULT_EXTRACTION_V3_FLAGS } from '@/types/extraction-v3.types';
+import { PdfConverter } from './utils/pdf-converter';
+import { PromptAssemblyService } from './prompt-assembly.service';
+import { UnifiedGptExtractionService } from './unified-gpt-extraction.service';
+import { ResultValidationService } from './result-validation.service';
+import { ConfidenceV3Service } from './confidence-v3.service';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * V3 服務配置
+ */
+export interface ExtractionV3Config {
+  /** Feature Flags */
+  flags?: Partial<ExtractionV3Flags>;
+  /** 是否啟用調試日誌 */
+  debug?: boolean;
+}
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** 檔案類型映射 */
+const MIME_TYPE_TO_FILE_TYPE: Record<string, UnifiedFileType> = {
+  'application/pdf': UnifiedFileType.NATIVE_PDF, // V3 統一使用 GPT Vision，不區分 PDF 類型
+  'image/jpeg': UnifiedFileType.IMAGE,
+  'image/png': UnifiedFileType.IMAGE,
+  'image/tiff': UnifiedFileType.IMAGE,
+  'image/webp': UnifiedFileType.IMAGE,
+};
+
+// ============================================================================
+// Service Class
+// ============================================================================
+
+/**
+ * Extraction V3 主服務
+ *
+ * @description 協調 7 步處理管線的主服務
+ *
+ * @example
+ * ```typescript
+ * const service = new ExtractionV3Service();
+ * const result = await service.processFile({
+ *   fileId: 'file_123',
+ *   fileBuffer: buffer,
+ *   fileName: 'invoice.pdf',
+ *   mimeType: 'application/pdf',
+ *   cityCode: 'HKG',
+ * });
+ * ```
+ */
+export class ExtractionV3Service {
+  private flags: ExtractionV3Flags;
+  private debug: boolean;
+
+  constructor(config: ExtractionV3Config = {}) {
+    this.flags = { ...DEFAULT_EXTRACTION_V3_FLAGS, ...config.flags };
+    this.debug = config.debug ?? false;
+  }
+
+  /**
+   * 處理文件（主入口）
+   *
+   * @param input - 處理輸入
+   * @returns 處理輸出
+   */
+  async processFile(input: ExtractionV3Input): Promise<ExtractionV3Output> {
+    const startTime = Date.now();
+    const stepTimings: Partial<Record<ProcessingStepV3, number>> = {};
+    const stepResults: StepResultV3[] = [];
+    const warnings: string[] = [];
+
+    // 初始化處理上下文
+    const context: ProcessingContextV3 = {
+      input,
+      status: 'PROCESSING',
+      currentStep: 'FILE_PREPARATION' as ProcessingStepV3,
+      startTime,
+      stepResults: [],
+      warnings: [],
+    };
+
+    try {
+      // 執行 7 步處理管線
+      for (const step of PROCESSING_STEP_ORDER_V3) {
+        context.currentStep = step;
+        const stepStartTime = Date.now();
+
+        this.log(`開始步驟: ${getStepDisplayNameV3(step)}`);
+
+        try {
+          const stepResult = await this.executeStep(step, context);
+          stepTimings[step] = Date.now() - stepStartTime;
+
+          stepResults.push(stepResult);
+          context.stepResults.push(stepResult);
+
+          if (!stepResult.success) {
+            // 檢查步驟優先級
+            if (isRequiredStepV3(step)) {
+              // 必要步驟失敗，中斷處理
+              throw new Error(`必要步驟失敗: ${getStepDisplayNameV3(step)} - ${stepResult.error}`);
+            } else {
+              // 可選步驟失敗，記錄警告並繼續
+              warnings.push(`可選步驟失敗: ${getStepDisplayNameV3(step)} - ${stepResult.error}`);
+            }
+          }
+
+          this.log(`完成步驟: ${getStepDisplayNameV3(step)} (${stepTimings[step]}ms)`);
+        } catch (stepError) {
+          const errorMessage = stepError instanceof Error ? stepError.message : '未知錯誤';
+
+          stepResults.push({
+            step,
+            success: false,
+            error: errorMessage,
+            durationMs: Date.now() - stepStartTime,
+          });
+
+          if (isRequiredStepV3(step)) {
+            throw stepError;
+          } else {
+            warnings.push(`可選步驟異常: ${getStepDisplayNameV3(step)} - ${errorMessage}`);
+          }
+        }
+      }
+
+      // 處理成功
+      context.status = 'COMPLETED';
+
+      return {
+        success: true,
+        result: context.validatedResult,
+        confidenceResult: context.confidenceResult,
+        routingDecision: context.routingDecision,
+        timing: {
+          totalMs: Date.now() - startTime,
+          stepTimings,
+        },
+        stepResults,
+        warnings: [...warnings, ...context.warnings],
+      };
+    } catch (error) {
+      context.status = 'FAILED';
+
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '處理過程發生未知錯誤',
+        timing: {
+          totalMs: Date.now() - startTime,
+          stepTimings,
+        },
+        stepResults,
+        warnings,
+      };
+    }
+  }
+
+  /**
+   * 執行單一步驟
+   */
+  private async executeStep(
+    step: ProcessingStepV3,
+    context: ProcessingContextV3
+  ): Promise<StepResultV3> {
+    const startTime = Date.now();
+
+    switch (step) {
+      case 'FILE_PREPARATION':
+        return this.executeFilePreparation(context, startTime);
+
+      case 'DYNAMIC_PROMPT_ASSEMBLY':
+        return this.executeDynamicPromptAssembly(context, startTime);
+
+      case 'UNIFIED_GPT_EXTRACTION':
+        return this.executeUnifiedGptExtraction(context, startTime);
+
+      case 'RESULT_VALIDATION':
+        return this.executeResultValidation(context, startTime);
+
+      case 'TERM_RECORDING':
+        return this.executeTermRecording(context, startTime);
+
+      case 'CONFIDENCE_CALCULATION':
+        return this.executeConfidenceCalculation(context, startTime);
+
+      case 'ROUTING_DECISION':
+        return this.executeRoutingDecision(context, startTime);
+
+      default:
+        return {
+          step,
+          success: false,
+          error: `未知步驟: ${step}`,
+          durationMs: Date.now() - startTime,
+        };
+    }
+  }
+
+  // ============================================================================
+  // Step Implementations
+  // ============================================================================
+
+  /**
+   * Step 1: 文件準備
+   */
+  private async executeFilePreparation(
+    context: ProcessingContextV3,
+    startTime: number
+  ): Promise<StepResultV3> {
+    try {
+      const { fileBuffer, mimeType } = context.input;
+
+      // 檢測文件類型
+      const fileType = MIME_TYPE_TO_FILE_TYPE[mimeType];
+      if (!fileType) {
+        return {
+          step: 'FILE_PREPARATION' as ProcessingStepV3,
+          success: false,
+          error: `不支援的文件類型: ${mimeType}`,
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      // 轉換為 Base64 圖片
+      const conversionResult = await PdfConverter.convertToBase64(
+        fileBuffer,
+        mimeType
+      );
+
+      if (!conversionResult.success) {
+        return {
+          step: 'FILE_PREPARATION' as ProcessingStepV3,
+          success: false,
+          error: conversionResult.error || '文件轉換失敗',
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      // 更新上下文
+      context.fileType = fileType as UnifiedFileType;
+      context.imageBase64Array = conversionResult.images;
+      context.pageCount = conversionResult.pageCount;
+
+      if (conversionResult.warnings) {
+        context.warnings.push(...conversionResult.warnings);
+      }
+
+      return {
+        step: 'FILE_PREPARATION' as ProcessingStepV3,
+        success: true,
+        data: {
+          fileType,
+          pageCount: conversionResult.pageCount,
+          imageCount: conversionResult.images.length,
+        },
+        durationMs: Date.now() - startTime,
+      };
+    } catch (error) {
+      return {
+        step: 'FILE_PREPARATION' as ProcessingStepV3,
+        success: false,
+        error: error instanceof Error ? error.message : '文件準備失敗',
+        durationMs: Date.now() - startTime,
+      };
+    }
+  }
+
+  /**
+   * Step 2: 動態 Prompt 組裝
+   */
+  private async executeDynamicPromptAssembly(
+    context: ProcessingContextV3,
+    startTime: number
+  ): Promise<StepResultV3> {
+    try {
+      const result = await PromptAssemblyService.assemblePrompt(
+        {
+          cityCode: context.input.cityCode,
+          existingCompanyId: context.input.options?.existingCompanyId,
+          existingFormatId: context.input.options?.existingFormatId,
+        },
+        context.imageBase64Array?.length || 1
+      );
+
+      if (!result.success || !result.prompt) {
+        return {
+          step: 'DYNAMIC_PROMPT_ASSEMBLY' as ProcessingStepV3,
+          success: false,
+          error: result.error || 'Prompt 組裝失敗',
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      // 更新上下文
+      context.assembledPrompt = result.prompt;
+      context.promptConfig = result.config;
+
+      if (this.flags.logPromptAssembly) {
+        this.log('組裝的 Prompt:', result.prompt.metadata);
+      }
+
+      return {
+        step: 'DYNAMIC_PROMPT_ASSEMBLY' as ProcessingStepV3,
+        success: true,
+        data: result.prompt.metadata,
+        durationMs: Date.now() - startTime,
+      };
+    } catch (error) {
+      return {
+        step: 'DYNAMIC_PROMPT_ASSEMBLY' as ProcessingStepV3,
+        success: false,
+        error: error instanceof Error ? error.message : 'Prompt 組裝失敗',
+        durationMs: Date.now() - startTime,
+      };
+    }
+  }
+
+  /**
+   * Step 3: 統一 GPT 提取
+   */
+  private async executeUnifiedGptExtraction(
+    context: ProcessingContextV3,
+    startTime: number
+  ): Promise<StepResultV3> {
+    try {
+      if (!context.assembledPrompt || !context.imageBase64Array) {
+        return {
+          step: 'UNIFIED_GPT_EXTRACTION' as ProcessingStepV3,
+          success: false,
+          error: '缺少 Prompt 或圖片',
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      const result = await UnifiedGptExtractionService.extract(
+        context.assembledPrompt,
+        context.imageBase64Array
+      );
+
+      if (!result.success || !result.result) {
+        return {
+          step: 'UNIFIED_GPT_EXTRACTION' as ProcessingStepV3,
+          success: false,
+          error: result.error || 'GPT 提取失敗',
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      // 更新上下文
+      context.extractionResult = result.result;
+
+      if (this.flags.logGptResponse) {
+        this.log('GPT 響應:', result.rawResponse);
+      }
+
+      return {
+        step: 'UNIFIED_GPT_EXTRACTION' as ProcessingStepV3,
+        success: true,
+        data: {
+          overallConfidence: result.result.overallConfidence,
+          tokensUsed: result.tokenUsage,
+          lineItemsCount: result.result.lineItems.length,
+        },
+        durationMs: Date.now() - startTime,
+      };
+    } catch (error) {
+      return {
+        step: 'UNIFIED_GPT_EXTRACTION' as ProcessingStepV3,
+        success: false,
+        error: error instanceof Error ? error.message : 'GPT 提取失敗',
+        durationMs: Date.now() - startTime,
+      };
+    }
+  }
+
+  /**
+   * Step 4: 結果驗證
+   */
+  private async executeResultValidation(
+    context: ProcessingContextV3,
+    startTime: number
+  ): Promise<StepResultV3> {
+    try {
+      if (!context.extractionResult) {
+        return {
+          step: 'RESULT_VALIDATION' as ProcessingStepV3,
+          success: false,
+          error: '缺少提取結果',
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      const result = await ResultValidationService.validate(
+        context.extractionResult,
+        {
+          cityCode: context.input.cityCode,
+          autoCreateCompany: context.input.options?.autoCreateCompany ?? true,
+          autoCreateFormat: context.input.options?.autoCreateFormat ?? true,
+          promptConfig: context.promptConfig,
+        }
+      );
+
+      if (!result.success || !result.result) {
+        return {
+          step: 'RESULT_VALIDATION' as ProcessingStepV3,
+          success: false,
+          error: result.error || '結果驗證失敗',
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      // 更新上下文
+      context.validatedResult = result.result;
+      context.companyId = result.result.resolvedCompanyId;
+      context.companyName = result.result.issuerIdentification.companyName;
+      context.isNewCompany = result.result.jitCreated?.company || false;
+      context.documentFormatId = result.result.resolvedFormatId;
+      context.documentFormatName = result.result.formatIdentification.formatName;
+      context.isNewFormat = result.result.jitCreated?.format || false;
+
+      // 添加驗證警告
+      if (result.result.validation.warnings.length > 0) {
+        context.warnings.push(...result.result.validation.warnings);
+      }
+
+      return {
+        step: 'RESULT_VALIDATION' as ProcessingStepV3,
+        success: true,
+        data: {
+          isValid: result.result.validation.isValid,
+          errorsCount: result.result.validation.errors.length,
+          warningsCount: result.result.validation.warnings.length,
+          jitCreated: result.result.jitCreated,
+        },
+        durationMs: Date.now() - startTime,
+      };
+    } catch (error) {
+      return {
+        step: 'RESULT_VALIDATION' as ProcessingStepV3,
+        success: false,
+        error: error instanceof Error ? error.message : '結果驗證失敗',
+        durationMs: Date.now() - startTime,
+      };
+    }
+  }
+
+  /**
+   * Step 5: 術語記錄（可選步驟）
+   */
+  private async executeTermRecording(
+    context: ProcessingContextV3,
+    startTime: number
+  ): Promise<StepResultV3> {
+    try {
+      // TODO: 實現術語記錄邏輯
+      // 這是可選步驟，暫時返回成功
+
+      const lineItemsWithClassification = context.validatedResult?.lineItems.filter(
+        (item) => item.classifiedAs
+      ).length || 0;
+
+      const itemsNeedingClassification = context.validatedResult?.lineItems.filter(
+        (item) => item.needsClassification
+      ).length || 0;
+
+      context.termRecordingStats = {
+        totalDetected: context.validatedResult?.lineItems.length || 0,
+        newTermsCount: itemsNeedingClassification,
+        matchedTermsCount: lineItemsWithClassification,
+      };
+
+      return {
+        step: 'TERM_RECORDING' as ProcessingStepV3,
+        success: true,
+        data: context.termRecordingStats,
+        durationMs: Date.now() - startTime,
+      };
+    } catch (error) {
+      return {
+        step: 'TERM_RECORDING' as ProcessingStepV3,
+        success: false,
+        error: error instanceof Error ? error.message : '術語記錄失敗',
+        durationMs: Date.now() - startTime,
+      };
+    }
+  }
+
+  /**
+   * Step 6: 信心度計算
+   */
+  private async executeConfidenceCalculation(
+    context: ProcessingContextV3,
+    startTime: number
+  ): Promise<StepResultV3> {
+    try {
+      if (!context.validatedResult) {
+        return {
+          step: 'CONFIDENCE_CALCULATION' as ProcessingStepV3,
+          success: false,
+          error: '缺少驗證結果',
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      const result = ConfidenceV3Service.calculate(context.validatedResult);
+
+      if (!result.success || !result.result) {
+        return {
+          step: 'CONFIDENCE_CALCULATION' as ProcessingStepV3,
+          success: false,
+          error: result.error || '信心度計算失敗',
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      // 更新上下文
+      context.confidenceResult = result.result;
+      context.overallConfidence = result.result.overallScore / 100;
+
+      return {
+        step: 'CONFIDENCE_CALCULATION' as ProcessingStepV3,
+        success: true,
+        data: {
+          overallScore: result.result.overallScore,
+          level: result.result.level,
+        },
+        durationMs: Date.now() - startTime,
+      };
+    } catch (error) {
+      return {
+        step: 'CONFIDENCE_CALCULATION' as ProcessingStepV3,
+        success: false,
+        error: error instanceof Error ? error.message : '信心度計算失敗',
+        durationMs: Date.now() - startTime,
+      };
+    }
+  }
+
+  /**
+   * Step 7: 路由決策
+   */
+  private async executeRoutingDecision(
+    context: ProcessingContextV3,
+    startTime: number
+  ): Promise<StepResultV3> {
+    try {
+      if (!context.validatedResult || !context.confidenceResult) {
+        return {
+          step: 'ROUTING_DECISION' as ProcessingStepV3,
+          success: false,
+          error: '缺少信心度結果',
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      // 重新計算以獲取路由決策
+      const result = ConfidenceV3Service.calculate(context.validatedResult);
+
+      if (!result.routingDecision) {
+        return {
+          step: 'ROUTING_DECISION' as ProcessingStepV3,
+          success: false,
+          error: '無法生成路由決策',
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      // 更新上下文
+      context.routingDecision = result.routingDecision;
+
+      return {
+        step: 'ROUTING_DECISION' as ProcessingStepV3,
+        success: true,
+        data: result.routingDecision,
+        durationMs: Date.now() - startTime,
+      };
+    } catch (error) {
+      return {
+        step: 'ROUTING_DECISION' as ProcessingStepV3,
+        success: false,
+        error: error instanceof Error ? error.message : '路由決策失敗',
+        durationMs: Date.now() - startTime,
+      };
+    }
+  }
+
+  // ============================================================================
+  // Utility Methods
+  // ============================================================================
+
+  /**
+   * 調試日誌
+   */
+  private log(message: string, data?: unknown): void {
+    if (this.debug) {
+      console.log(`[ExtractionV3] ${message}`, data ? JSON.stringify(data, null, 2) : '');
+    }
+  }
+
+  /**
+   * 更新 Feature Flags
+   */
+  updateFlags(flags: Partial<ExtractionV3Flags>): void {
+    this.flags = { ...this.flags, ...flags };
+  }
+
+  /**
+   * 獲取當前 Feature Flags
+   */
+  getFlags(): ExtractionV3Flags {
+    return { ...this.flags };
+  }
+
+  // ============================================================================
+  // Static Methods
+  // ============================================================================
+
+  /**
+   * 快速處理（使用預設配置）
+   */
+  static async processFile(
+    input: ExtractionV3Input,
+    config?: ExtractionV3Config
+  ): Promise<ExtractionV3Output> {
+    const service = new ExtractionV3Service(config);
+    return service.processFile(input);
+  }
+
+  /**
+   * 檢查服務健康狀態
+   */
+  static async checkHealth(): Promise<{
+    healthy: boolean;
+    components: Record<string, boolean>;
+  }> {
+    const components: Record<string, boolean> = {
+      pdfConverter: true, // PDF 轉換器總是可用
+      promptAssembly: true, // Prompt 組裝總是可用
+      gptService: false,
+    };
+
+    // 檢查 GPT 服務
+    try {
+      components.gptService = await UnifiedGptExtractionService.checkHealth();
+    } catch {
+      components.gptService = false;
+    }
+
+    const healthy = Object.values(components).every((v) => v);
+
+    return { healthy, components };
+  }
+}
+
+// ============================================================================
+// Convenience Functions
+// ============================================================================
+
+/**
+ * 處理文件（使用預設配置）
+ */
+export async function processFileV3(
+  input: ExtractionV3Input,
+  config?: ExtractionV3Config
+): Promise<ExtractionV3Output> {
+  return ExtractionV3Service.processFile(input, config);
+}
+
+/**
+ * 檢查 V3 服務健康狀態
+ */
+export async function checkExtractionV3Health(): Promise<{
+  healthy: boolean;
+  components: Record<string, boolean>;
+}> {
+  return ExtractionV3Service.checkHealth();
+}

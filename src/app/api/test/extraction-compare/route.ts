@@ -481,8 +481,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<Compariso
             timeMs: resultA.azureDIResult.processingTimeMs,
           },
           gptMini: {
-            modelUsed: resultA.gptExtractionResult.modelUsed,
-            timeMs: resultA.gptExtractionResult.processingTimeMs,
+            modelUsed: resultA.gptResult.modelUsed,
+            timeMs: resultA.gptResult.processingTimeMs,
           },
           quality: resultA.qualityAnalysis.overallQuality,
         },

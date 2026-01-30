@@ -13,7 +13,7 @@
  *
  * @module src/app/api/documents/[id]/process/route
  * @since CHANGE-014 Phase 2 — 端到端管線整合
- * @lastModified 2026-01-27 (Phase 3 — 連接 autoMatch)
+ * @lastModified 2026-01-30 (CHANGE-021 — V3 整合)
  *
  * @dependencies
  *   - @/lib/auth - NextAuth 認證
@@ -187,6 +187,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         companyName: result.companyName ?? null,
         warnings: result.warnings?.length ?? 0,
         usedLegacyProcessor: result.usedLegacyProcessor,
+        // CHANGE-021: V3 相關資訊
+        usedV3: result.usedV3 ?? false,
+        usedV3Fallback: result.usedV3Fallback ?? false,
+        v3Metadata: result.v3Metadata ?? null,
       },
     });
   } catch (error) {

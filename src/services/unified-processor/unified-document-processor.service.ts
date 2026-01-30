@@ -2,21 +2,24 @@
  * @fileoverview 統一文件處理器服務
  * @description
  *   UnifiedDocumentProcessor 是 Epic 15 的核心服務，提供：
- *   - 11 步處理管道的統一入口
+ *   - 11 步處理管道的統一入口 (V2)
+ *   - 7 步純 GPT Vision 管道 (V3 - CHANGE-021)
  *   - Feature Flag 控制的漸進式部署
  *   - 與 Legacy 處理器的向後兼容
  *   - 完整的處理過程追蹤和錯誤處理
  *
  * @module src/services/unified-processor
  * @since Epic 15 - Story 15.1 (處理流程重構 - 統一入口)
- * @lastModified 2026-01-28
+ * @lastModified 2026-01-30
  *
  * @features
  *   - 統一處理入口
- *   - 11 步處理管道
+ *   - V2: 11 步處理管道 (Azure DI + GPT)
+ *   - V3: 7 步純 GPT Vision 管道 (CHANGE-021)
  *   - 中間狀態更新（OCR_PROCESSING / MAPPING_PROCESSING）
- *   - Feature Flag 控制
+ *   - Feature Flag 控制 (V2/V3 切換)
  *   - Legacy 適配器支援
+ *   - 錯誤回退機制 (V3 → V2)
  *   - 完整錯誤追蹤
  *
  * @dependencies
@@ -24,9 +27,11 @@
  *   - src/constants/processing-steps.ts - 步驟配置
  *   - src/services/unified-processor/factory/step-factory.ts - 步驟工廠
  *   - src/services/unified-processor/adapters/legacy-processor.adapter.ts - Legacy 適配器
+ *   - src/services/extraction-v3/ - V3 提取服務 (CHANGE-021)
  *
  * @related
  *   - docs/04-implementation/tech-specs/epic-15-unified-processing/tech-spec-story-15-1.md
+ *   - claudedocs/4-changes/feature-changes/CHANGE-021-unified-processor-v3-pure-gpt-vision.md
  */
 
 import {
@@ -37,6 +42,7 @@ import {
   StepResult,
   ProcessingStep,
   StepPriority,
+  UnifiedRoutingDecision,
 } from '@/types/unified-processor';
 import {
   DEFAULT_PROCESSOR_FLAGS,
@@ -46,6 +52,18 @@ import { getStepHandlerFactory } from './factory/step-factory';
 import { legacyProcessorAdapter } from './adapters/legacy-processor.adapter';
 import { IStepHandler } from './interfaces/step-handler.interface';
 import { prisma } from '@/lib/prisma';
+
+// V3 相關導入 (CHANGE-021)
+import {
+  ExtractionV3Service,
+  type ExtractionV3Input,
+  type ExtractionV3Output,
+} from '@/services/extraction-v3';
+import {
+  shouldUseExtractionV3,
+  getExtractionV3Flags,
+  type ExtractionV3FeatureFlags,
+} from '@/config/feature-flags';
 
 // ============================================================================
 // 中間狀態映射（CHANGE-019）
@@ -68,22 +86,53 @@ export interface ProcessOptions {
   flags?: Partial<UnifiedProcessorFlags>;
   /** 是否強制使用 Legacy 處理器 */
   forceLegacy?: boolean;
+  /** 是否強制使用 V3 處理器 (CHANGE-021) */
+  forceV3?: boolean;
+  /** 是否強制使用 V2 處理器 (跳過 V3 灰度檢查) */
+  forceV2?: boolean;
+  /** V3 Feature Flags 覆蓋 */
+  v3Flags?: Partial<ExtractionV3FeatureFlags>;
 }
 
 /**
  * 統一文件處理器服務
- * @description 提供統一的文件處理入口，整合 11 步處理管道
+ * @description 提供統一的文件處理入口，支援 V2 (11步) 和 V3 (7步) 處理管道
  */
 export class UnifiedDocumentProcessorService {
   /** 當前使用的 Feature Flags */
   private flags: UnifiedProcessorFlags;
 
-  /** 步驟處理器列表 */
+  /** 步驟處理器列表 (V2) */
   private stepHandlers: IStepHandler[];
+
+  /** V3 提取服務實例 (CHANGE-021) */
+  private v3Service: ExtractionV3Service | null = null;
 
   constructor(flags?: Partial<UnifiedProcessorFlags>) {
     this.flags = { ...DEFAULT_PROCESSOR_FLAGS, ...flags };
     this.stepHandlers = getStepHandlerFactory().createAllHandlers();
+  }
+
+  /**
+   * 獲取或創建 V3 服務實例
+   * @private
+   */
+  private getV3Service(): ExtractionV3Service {
+    if (!this.v3Service) {
+      const v3Flags = getExtractionV3Flags();
+      this.v3Service = new ExtractionV3Service({
+        flags: {
+          useExtractionV3: v3Flags.useExtractionV3,
+          extractionV3Percentage: v3Flags.extractionV3Percentage,
+          fallbackToV2OnError: v3Flags.fallbackToV2OnError,
+          enableAzureDIFallback: v3Flags.enableAzureDIFallback,
+          logPromptAssembly: v3Flags.logPromptAssembly,
+          logGptResponse: v3Flags.logGptResponse,
+        },
+        debug: v3Flags.logPromptAssembly || v3Flags.logGptResponse,
+      });
+    }
+    return this.v3Service;
   }
 
   /**
@@ -104,20 +153,268 @@ export class UnifiedDocumentProcessorService {
       return this.useLegacyProcessor(input);
     }
 
-    // 創建處理上下文
+    // CHANGE-021: 檢查是否使用 V3 處理器
+    const useV3 = this.shouldUseV3(input.fileId, options);
+    if (useV3) {
+      return this.processWithV3(input, options, startTime);
+    }
+
+    // V2: 創建處理上下文
     const context = this.createContext(input);
 
     try {
-      // 執行 11 步處理管道
+      // V2: 執行 11 步處理管道
       const stepResults = await this.executePipeline(context, flags);
 
-      // 構建處理結果
+      // V2: 構建處理結果
       return this.buildResult(context, stepResults, startTime);
     } catch (error) {
       // 處理未預期的錯誤
       const err = error instanceof Error ? error : new Error(String(error));
       return this.buildErrorResult(input.fileId, err, context, startTime);
     }
+  }
+
+  /**
+   * 判斷是否應該使用 V3 處理器
+   * @private
+   * @since CHANGE-021
+   */
+  private shouldUseV3(fileId: string, options?: ProcessOptions): boolean {
+    // 強制 V2
+    if (options?.forceV2) {
+      return false;
+    }
+
+    // 強制 V3
+    if (options?.forceV3) {
+      return true;
+    }
+
+    // 使用 Feature Flag 決定
+    return shouldUseExtractionV3(fileId);
+  }
+
+  /**
+   * 使用 V3 處理器處理文件
+   * @private
+   * @since CHANGE-021
+   */
+  private async processWithV3(
+    input: ProcessFileInput,
+    options: ProcessOptions | undefined,
+    startTime: number
+  ): Promise<UnifiedProcessingResult> {
+    const v3Flags = { ...getExtractionV3Flags(), ...options?.v3Flags };
+
+    try {
+      // 更新文件狀態為處理中
+      await this.updateDocumentStatus(input.fileId, 'PROCESSING');
+
+      // 構建 V3 輸入
+      const v3Input: ExtractionV3Input = {
+        fileId: input.fileId,
+        fileBuffer: input.fileBuffer,
+        fileName: input.fileName,
+        mimeType: input.mimeType,
+        cityCode: input.cityCode ?? 'HKG', // 預設城市代碼
+        options: {
+          autoCreateCompany: true,
+          autoCreateFormat: true,
+          existingCompanyId: input.companyId,
+        },
+      };
+
+      // 執行 V3 處理
+      const v3Result = await this.getV3Service().processFile(v3Input);
+
+      // 轉換 V3 結果為統一格式
+      return this.convertV3Result(input.fileId, v3Result, startTime);
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+
+      // 檢查是否需要回退到 V2
+      if (v3Flags.fallbackToV2OnError) {
+        console.warn(
+          `[UnifiedProcessor] V3 failed for ${input.fileId}, falling back to V2:`,
+          err.message
+        );
+        // 回退到 V2
+        const context = this.createContext(input);
+        try {
+          const stepResults = await this.executePipeline(context, this.flags);
+          const result = this.buildResult(context, stepResults, startTime);
+          // 標記使用了回退
+          result.usedV3Fallback = true;
+          return result;
+        } catch (v2Error) {
+          const v2Err = v2Error instanceof Error ? v2Error : new Error(String(v2Error));
+          return this.buildErrorResult(input.fileId, v2Err, context, startTime);
+        }
+      }
+
+      // 不回退，直接返回錯誤
+      return this.buildErrorResult(input.fileId, err, null, startTime);
+    }
+  }
+
+  /**
+   * 更新文件狀態
+   * @private
+   */
+  private async updateDocumentStatus(
+    fileId: string,
+    status: string
+  ): Promise<void> {
+    try {
+      await prisma.document.update({
+        where: { id: fileId },
+        data: { status: status as import('@prisma/client').DocumentStatus },
+      });
+    } catch (statusErr) {
+      console.warn(
+        `[UnifiedProcessor] Failed to update status to ${status} for ${fileId}:`,
+        statusErr
+      );
+    }
+  }
+
+  /**
+   * 轉換 V3 結果為統一格式
+   * @private
+   * @since CHANGE-021
+   */
+  private convertV3Result(
+    fileId: string,
+    v3Result: ExtractionV3Output,
+    startTime: number
+  ): UnifiedProcessingResult {
+    const totalDurationMs = Date.now() - startTime;
+
+    if (!v3Result.success || !v3Result.result) {
+      return {
+        success: false,
+        fileId,
+        status: 'FAILED',
+        totalDurationMs,
+        stepResults: v3Result.stepResults.map((sr) => ({
+          step: sr.step as unknown as ProcessingStep,
+          success: sr.success,
+          skipped: sr.skipped,
+          durationMs: sr.durationMs,
+          error: sr.error,
+        })),
+        error: v3Result.error ?? 'V3 extraction failed',
+        warnings: v3Result.warnings.map((w) => ({
+          step: ProcessingStep.FILE_TYPE_DETECTION,
+          message: w,
+          timestamp: new Date().toISOString(),
+        })),
+        usedLegacyProcessor: false,
+        usedV3: true,
+      };
+    }
+
+    // 成功結果轉換
+    const result = v3Result.result;
+
+    // 轉換 V3 標準欄位為 V2 格式
+    const extractedData = {
+      invoiceData: {
+        invoiceNumber: result.standardFields.invoiceNumber.value?.toString(),
+        invoiceDate: result.standardFields.invoiceDate.value?.toString(),
+        dueDate: result.standardFields.dueDate?.value?.toString(),
+        vendorName: result.standardFields.vendorName.value?.toString(),
+        customerName: result.standardFields.customerName?.value?.toString(),
+        totalAmount:
+          typeof result.standardFields.totalAmount.value === 'number'
+            ? result.standardFields.totalAmount.value
+            : parseFloat(result.standardFields.totalAmount.value ?? '0'),
+        currency: result.standardFields.currency.value?.toString(),
+        lineItems: result.lineItems.map((li) => ({
+          description: li.description,
+          quantity: li.quantity ?? 1,
+          unitPrice: li.unitPrice ?? li.amount,
+          amount: li.amount,
+        })),
+      },
+      lineItems: result.lineItems.map((li) => ({
+        description: li.description,
+        quantity: li.quantity ?? 1,
+        unitPrice: li.unitPrice ?? li.amount,
+        amount: li.amount,
+      })),
+      gptConfidence: result.overallConfidence / 100,
+    };
+
+    // 轉換 V3 信心度分項為 V2 格式
+    const confidenceBreakdown = v3Result.confidenceResult
+      ? {
+          extraction: v3Result.confidenceResult.dimensions.find(
+            (d) => d.dimension === 'EXTRACTION'
+          )?.rawScore,
+          issuerIdentification: v3Result.confidenceResult.dimensions.find(
+            (d) => d.dimension === 'ISSUER_IDENTIFICATION'
+          )?.rawScore,
+          formatMatching: v3Result.confidenceResult.dimensions.find(
+            (d) => d.dimension === 'FORMAT_MATCHING'
+          )?.rawScore,
+        }
+      : undefined;
+
+    // 轉換 V3 路由決策為 V2 枚舉
+    let routingDecision: UnifiedRoutingDecision | undefined;
+    if (v3Result.routingDecision?.decision) {
+      switch (v3Result.routingDecision.decision) {
+        case 'AUTO_APPROVE':
+          routingDecision = UnifiedRoutingDecision.AUTO_APPROVE;
+          break;
+        case 'QUICK_REVIEW':
+          routingDecision = UnifiedRoutingDecision.QUICK_REVIEW;
+          break;
+        case 'FULL_REVIEW':
+          routingDecision = UnifiedRoutingDecision.FULL_REVIEW;
+          break;
+      }
+    }
+
+    return {
+      success: true,
+      fileId,
+      status: 'COMPLETED',
+      totalDurationMs,
+      stepResults: v3Result.stepResults.map((sr) => ({
+        step: sr.step as unknown as ProcessingStep,
+        success: sr.success,
+        skipped: sr.skipped,
+        durationMs: sr.durationMs,
+        error: sr.error,
+      })),
+      extractedData,
+      companyId: result.resolvedCompanyId,
+      companyName: result.issuerIdentification.companyName,
+      isNewCompany: result.jitCreated?.company ?? false,
+      documentFormatId: result.resolvedFormatId,
+      documentFormatName: result.formatIdentification.formatName,
+      isNewFormat: result.jitCreated?.format ?? false,
+      overallConfidence: v3Result.confidenceResult?.overallScore
+        ? v3Result.confidenceResult.overallScore / 100
+        : result.overallConfidence / 100,
+      confidenceBreakdown,
+      routingDecision,
+      warnings: v3Result.warnings.map((w) => ({
+        step: ProcessingStep.FILE_TYPE_DETECTION,
+        message: w,
+        timestamp: new Date().toISOString(),
+      })),
+      usedLegacyProcessor: false,
+      usedV3: true,
+      v3Metadata: {
+        tokensUsed: result.metadata.tokensUsed,
+        modelUsed: result.metadata.modelUsed,
+        processingTimeMs: result.metadata.processingTimeMs,
+      },
+    };
   }
 
   /**

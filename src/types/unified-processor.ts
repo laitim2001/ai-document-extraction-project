@@ -469,6 +469,25 @@ export interface UnifiedProcessingResult {
   /** 是否使用了舊版處理器 */
   usedLegacyProcessor: boolean;
 
+  // ========== V3 相關標記 (CHANGE-021) ==========
+  /** 是否使用了 V3 處理器 */
+  usedV3?: boolean;
+  /** 是否從 V3 回退到 V2 */
+  usedV3Fallback?: boolean;
+  /** V3 處理元數據 */
+  v3Metadata?: {
+    /** Token 消耗 */
+    tokensUsed?: {
+      input: number;
+      output: number;
+      total: number;
+    };
+    /** 使用的模型 */
+    modelUsed?: string;
+    /** 處理時間（毫秒） */
+    processingTimeMs?: number;
+  };
+
   // ========== 成功時填充的資料 ==========
   /** 文件類型 */
   fileType?: UnifiedFileType;
@@ -572,6 +591,10 @@ export interface ProcessFileInput {
   mimeType: string;
   /** 用戶 ID */
   userId: string;
+  /** 城市代碼（V3 使用，可選） */
+  cityCode?: string;
+  /** 已知公司 ID（可選，跳過公司識別） */
+  companyId?: string;
 }
 
 // ============================================================================
