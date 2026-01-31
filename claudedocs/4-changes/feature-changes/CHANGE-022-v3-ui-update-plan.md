@@ -1,7 +1,8 @@
 # CHANGE-022: V3 架構 UI 更新計劃
 
 > **建立日期**: 2026-01-31
-> **狀態**: 📋 規劃中
+> **完成日期**: 2026-01-31
+> **狀態**: ✅ 已完成（Phase 1-4）| 🧪 待測試（Phase 5）
 > **優先級**: 中
 > **相關 CHANGE**: CHANGE-021 (V3 純 GPT Vision 架構重構)
 
@@ -168,28 +169,28 @@ const V3_STEP_LABELS = {
 
 ## 🔄 實施計劃
 
-### Phase 1: 類型和配置 (Day 1)
-- [ ] 更新 `src/types/confidence.ts` - 添加 V3 信心度類型
-- [ ] 更新 `src/types/processing.ts` - 添加 V3 步驟類型
-- [ ] 更新 `src/lib/confidence.ts` - 添加 V3 維度配置
-- [ ] 整合 `src/constants/processing-steps-v3.ts`
+### Phase 1: 類型和配置 (Day 1) ✅ 完成
+- [x] 更新 `src/types/confidence.ts` - 添加 V3 信心度類型
+- [x] 更新 `src/types/processing.ts` - 添加 V3 步驟類型
+- [x] 更新 `src/lib/confidence.ts` - 添加 V3 維度配置
+- [x] 整合 `src/constants/processing-steps-v3.ts`
 
-### Phase 2: i18n 翻譯 (Day 1-2)
-- [ ] 更新 `messages/*/invoices.json` - 添加 V3 步驟翻譯
-- [ ] 創建 `messages/*/confidence.json` - 信心度相關翻譯
-- [ ] 驗證所有三種語言的翻譯完整性
+### Phase 2: i18n 翻譯 (Day 1-2) ✅ 完成
+- [x] 更新 `messages/*/invoices.json` - 添加 V3 步驟翻譯
+- [x] 創建 `messages/*/confidence.json` - 信心度相關翻譯
+- [x] 驗證所有三種語言的翻譯完整性
 
-### Phase 3: 核心組件更新 (Day 2-3)
-- [ ] 更新 `ProcessingTimeline.tsx` - 支援 V3 步驟
-- [ ] 更新 `ConfidenceBreakdown.tsx` - 支援 V3 維度
-- [ ] 添加版本檢測邏輯（V2/V3 自動識別）
+### Phase 3: 核心組件更新 (Day 2-3) ✅ 完成
+- [x] 更新 `ProcessingTimeline.tsx` - 支援 V3 步驟
+- [x] 更新 `ConfidenceBreakdown.tsx` - 支援 V3 維度
+- [x] 添加版本檢測邏輯（V2/V3 自動識別）
 
-### Phase 4: 次要組件更新 (Day 3-4)
-- [ ] 更新 `InvoiceDetailStats.tsx` - 添加版本標籤
-- [ ] 更新 `FieldCard.tsx` - 統一來源顯示
-- [ ] 更新 Upload Page 進度顯示
+### Phase 4: 次要組件更新 (Day 3-4) ✅ 完成
+- [x] 更新 `InvoiceDetailStats.tsx` - 添加版本標籤
+- [ ] 更新 `FieldCard.tsx` - 統一來源顯示（非必要，延後）
+- [x] 更新 Upload/Process API - 添加 processingVersion 參數
 
-### Phase 5: 測試與驗證 (Day 4-5)
+### Phase 5: 測試與驗證 (Day 4-5) 🧪 待進行
 - [ ] V2 文件顯示測試（向後兼容）
 - [ ] V3 文件顯示測試
 - [ ] i18n 三語言測試
