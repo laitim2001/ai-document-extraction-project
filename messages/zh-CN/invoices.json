@@ -145,7 +145,15 @@
         "FIELD_MAPPING": "字段映射",
         "TERM_RECORDING": "术语记录",
         "CONFIDENCE_CALCULATION": "置信度计算",
-        "ROUTING_DECISION": "路由决策"
+        "ROUTING_DECISION": "路由决策",
+        "FILE_PREPARATION": "文件准备",
+        "DYNAMIC_PROMPT_ASSEMBLY": "Prompt 组装",
+        "UNIFIED_GPT_EXTRACTION": "GPT 统一提取",
+        "RESULT_VALIDATION": "结果验证"
+      },
+      "version": {
+        "v2": "V2（11 步骤）",
+        "v3": "V3（7 步骤）"
       }
     },
     "audit": {

@@ -145,7 +145,15 @@
         "FIELD_MAPPING": "Field Mapping",
         "TERM_RECORDING": "Term Recording",
         "CONFIDENCE_CALCULATION": "Confidence Calculation",
-        "ROUTING_DECISION": "Routing Decision"
+        "ROUTING_DECISION": "Routing Decision",
+        "FILE_PREPARATION": "File Preparation",
+        "DYNAMIC_PROMPT_ASSEMBLY": "Prompt Assembly",
+        "UNIFIED_GPT_EXTRACTION": "GPT Unified Extraction",
+        "RESULT_VALIDATION": "Result Validation"
+      },
+      "version": {
+        "v2": "V2 (11 steps)",
+        "v3": "V3 (7 steps)"
       }
     },
     "audit": {

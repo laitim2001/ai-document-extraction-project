@@ -32,13 +32,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { downloadBlob } from '@/lib/azure-blob';
 import prisma from '@/lib/prisma';
-import { getUnifiedDocumentProcessor } from '@/services/unified-processor';
+import { getUnifiedDocumentProcessor, type ProcessOptions } from '@/services/unified-processor';
 import {
   persistProcessingResult,
   markDocumentProcessingFailed,
 } from '@/services/processing-result-persistence.service';
 import { autoTemplateMatchingService } from '@/services/auto-template-matching.service';
 import type { ProcessFileInput } from '@/types/unified-processor';
+
+/**
+ * 處理版本類型
+ * @since CHANGE-021
+ */
+type ProcessingVersion = 'v2' | 'v3' | 'auto';
 
 // ============================================================
 // Types
@@ -73,6 +79,17 @@ const PROCESSABLE_STATUSES = [
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id: documentId } = await params;
+
+  // CHANGE-021: 讀取處理版本參數
+  let processingVersion: ProcessingVersion = 'auto';
+  try {
+    const body = await request.json().catch(() => ({}));
+    if (body.processingVersion && ['v2', 'v3', 'auto'].includes(body.processingVersion)) {
+      processingVersion = body.processingVersion as ProcessingVersion;
+    }
+  } catch {
+    // 使用預設值
+  }
 
   try {
     // 1. 認證檢查
@@ -147,8 +164,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     };
 
     // 7. 執行統一處理
+    // CHANGE-021: 根據 processingVersion 選擇 V2 或 V3
+    const processOptions: ProcessOptions = {
+      forceV3: processingVersion === 'v3',
+      forceV2: processingVersion === 'v2',
+      // 'auto' 時由 Feature Flag 決定
+    };
     const processor = getUnifiedDocumentProcessor();
-    const result = await processor.processFile(input);
+    const result = await processor.processFile(input, processOptions);
 
     // 8. 持久化結果
     const persistResult = await persistProcessingResult({

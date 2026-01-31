@@ -145,7 +145,15 @@
         "FIELD_MAPPING": "欄位映射",
         "TERM_RECORDING": "術語記錄",
         "CONFIDENCE_CALCULATION": "信心度計算",
-        "ROUTING_DECISION": "路由決策"
+        "ROUTING_DECISION": "路由決策",
+        "FILE_PREPARATION": "文件準備",
+        "DYNAMIC_PROMPT_ASSEMBLY": "Prompt 組裝",
+        "UNIFIED_GPT_EXTRACTION": "GPT 統一提取",
+        "RESULT_VALIDATION": "結果驗證"
+      },
+      "version": {
+        "v2": "V2（11 步驟）",
+        "v3": "V3（7 步驟）"
       }
     },
     "audit": {

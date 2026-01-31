@@ -10,12 +10,19 @@
 
 // 閾值配置與輔助函數
 export {
-  // 常數
+  // V2 常數
   CONFIDENCE_THRESHOLDS,
   ROUTING_THRESHOLDS,
   FACTOR_WEIGHTS,
   DEFAULT_FACTORS,
   FACTOR_LABELS,
+  // V3 常數 (CHANGE-022)
+  FACTOR_LABELS_V3,
+  FACTOR_WEIGHTS_V3,
+  DIMENSION_ORDER_V3,
+  // 版本檢測函數 (CHANGE-022)
+  detectConfidenceVersion,
+  detectProcessingVersion,
   // 輔助函數
   getConfidenceLevel,
   getConfidenceColor,
@@ -26,6 +33,9 @@ export {
   clampScore,
   formatScore,
 } from './thresholds'
+
+// V3 類型重新導出 (CHANGE-022)
+export type { ConfidenceDimensionV3Key } from './thresholds'
 
 // 計算器
 export {

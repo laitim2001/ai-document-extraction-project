@@ -4,7 +4,7 @@
  * @fileoverview 發票詳情統計卡片組件
  * @description
  *   顯示發票處理的四個統計摘要卡片：
- *   - 處理狀態
+ *   - 處理狀態（含 V2/V3 版本標籤）
  *   - 信心度
  *   - 上傳資訊
  *   - 來源資訊
@@ -12,16 +12,20 @@
  * @module src/components/features/invoice/detail/InvoiceDetailStats
  * @author Development Team
  * @since Epic 13 - Story 13-8 (Invoice Detail Page)
- * @lastModified 2026-01-18
+ * @lastModified 2026-01-31
+ *
+ * @change CHANGE-022 - 添加 V2/V3 版本標籤顯示
  */
 
 import * as React from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { ProcessingStatus } from '@/components/features/invoice/ProcessingStatus'
 import { ConfidenceBadge } from '@/components/features/confidence/ConfidenceBadge'
 import { DocumentSourceBadge } from '@/components/features/document-source/DocumentSourceBadge'
 import { formatRelativeTime, formatDateTime } from '@/lib/i18n-date'
+import { detectProcessingVersion } from '@/lib/confidence/thresholds'
 import {
   Activity,
   TrendingUp,
@@ -29,6 +33,7 @@ import {
   FileInput,
   Clock,
   User,
+  Cpu,
 } from 'lucide-react'
 import type { DocumentSourceType } from '@prisma/client'
 import type { DocumentStatusKey } from '@/lib/document-status'
@@ -37,6 +42,15 @@ import type { Locale } from '@/i18n/config'
 // ============================================================
 // Types
 // ============================================================
+
+interface ProcessingStep {
+  step: string
+  status: 'pending' | 'processing' | 'completed' | 'failed'
+  startedAt?: string | Date | null
+  completedAt?: string | Date | null
+  error?: string | null
+  duration?: number | null
+}
 
 interface DocumentData {
   id: string
@@ -52,6 +66,8 @@ interface DocumentData {
   } | null
   processingStartedAt?: string | Date | null
   processingCompletedAt?: string | Date | null
+  /** 處理步驟（用於判斷 V2/V3 版本）*/
+  processingSteps?: ProcessingStep[] | null
 }
 
 interface InvoiceDetailStatsProps {
@@ -102,6 +118,18 @@ export function InvoiceDetailStats({ document }: InvoiceDetailStatsProps) {
   const uploaderName = document.uploadedBy?.name || document.uploadedBy?.email || '-'
   const uploadTime = new Date(document.createdAt)
 
+  // 檢測處理版本 (V2/V3)
+  const processingVersion = React.useMemo(() => {
+    if (!document.processingSteps || document.processingSteps.length === 0) {
+      return null
+    }
+    // 轉換為 detectProcessingVersion 需要的格式
+    const stepsForDetection = document.processingSteps.map((s) => ({
+      step: s.step,
+    }))
+    return detectProcessingVersion(stepsForDetection)
+  }, [document.processingSteps])
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* 處理狀態卡片 */}
@@ -113,7 +141,23 @@ export function InvoiceDetailStats({ document }: InvoiceDetailStatsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <ProcessingStatus status={document.status} size="lg" />
+          <div className="flex items-center gap-2">
+            <ProcessingStatus status={document.status} size="lg" />
+            {/* V2/V3 版本標籤 */}
+            {processingVersion && (
+              <Badge
+                variant="outline"
+                className={
+                  processingVersion === 'v3'
+                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                    : 'bg-gray-50 text-gray-600 border-gray-200'
+                }
+              >
+                <Cpu className="h-3 w-3 mr-1" />
+                {t(`detail.timeline.version.${processingVersion}`)}
+              </Badge>
+            )}
+          </div>
           {document.processingPath && (
             <div className="text-sm text-gray-500">
               {t(`processingPath.${document.processingPath.toLowerCase().replace(/_([a-z])/g, (_: string, c: string) => c.toUpperCase())}`)}

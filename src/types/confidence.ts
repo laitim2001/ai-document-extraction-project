@@ -618,3 +618,31 @@ export function toProcessingRecommendation(decision: RoutingDecision): Processin
       return 'full_review';
   }
 }
+
+// ============================================================
+// V3 Types Re-export (CHANGE-022)
+// ============================================================
+
+/**
+ * 重新導出 V3 信心度相關類型
+ * @since CHANGE-022 - V3 架構 UI 更新
+ */
+export {
+  ConfidenceDimensionV3,
+  type ConfidenceWeightsV3,
+  type DimensionScoreV3,
+  type ConfidenceResultV3,
+  type SimplifiedConfidenceInput,
+  DEFAULT_CONFIDENCE_WEIGHTS_V3,
+} from './extraction-v3.types';
+
+/**
+ * 重新導出 V3 處理步驟相關類型
+ * @since CHANGE-022 - V3 架構 UI 更新
+ */
+export {
+  ProcessingStepV3,
+  StepPriorityV3,
+  type StepResultV3,
+  type StepConfigV3,
+} from './extraction-v3.types';

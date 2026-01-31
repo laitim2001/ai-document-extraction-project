@@ -55,9 +55,19 @@ import {
 import { PERMISSIONS } from '@/types/permissions'
 import { extractDocument } from '@/services/extraction.service'
 import { downloadBlob } from '@/lib/azure-blob'
-import { getUnifiedDocumentProcessor } from '@/services/unified-processor'
+import { getUnifiedDocumentProcessor, type ProcessOptions } from '@/services/unified-processor'
 import { persistProcessingResult } from '@/services/processing-result-persistence.service'
 import { autoTemplateMatchingService } from '@/services/auto-template-matching.service'
+
+// ===========================================
+// Types
+// ===========================================
+
+/**
+ * 處理版本類型
+ * @since CHANGE-021
+ */
+type ProcessingVersion = 'v2' | 'v3' | 'auto'
 
 // ===========================================
 // Types
@@ -101,6 +111,8 @@ interface UploadResponse {
     successCount: number
     /** 失敗數量 */
     failedCount: number
+    /** 處理版本 (CHANGE-021) */
+    processingVersion?: ProcessingVersion | 'none'
   }
 }
 
@@ -204,6 +216,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const files = formData.getAll('files') as File[]
     const cityCode = formData.get('cityCode') as string | null
     const autoExtract = formData.get('autoExtract') !== 'false' // 默認啟用
+    // CHANGE-021: 支援處理版本選擇
+    const processingVersion = (formData.get('processingVersion') as ProcessingVersion | null) || 'auto'
 
     // ===========================================
     // 5. 驗證文件數量
@@ -347,6 +361,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       if (useUnifiedProcessor) {
         // 統一處理管線：下載 → 處理 → 持久化 → 自動匹配
+        // CHANGE-021: 根據 processingVersion 選擇 V2 或 V3
+        const processOptions: ProcessOptions = {
+          forceV3: processingVersion === 'v3',
+          forceV2: processingVersion === 'v2',
+          // 'auto' 時由 Feature Flag 決定
+        }
+
         Promise.allSettled(
           documentsToProcess.map(async (doc) => {
             const fileBuffer = await downloadBlob(doc.blobName)
@@ -357,7 +378,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               fileBuffer,
               mimeType: doc.fileType,
               userId: session.user.id,
-            })
+              cityCode: cityCode || undefined,
+            }, processOptions)
             await persistProcessingResult({
               documentId: doc.id,
               result,
@@ -393,6 +415,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         total: files.length,
         successCount: uploaded.length,
         failedCount: failed.length,
+        // CHANGE-021: 返回處理版本信息
+        processingVersion: autoExtract ? processingVersion : 'none',
       },
     }
 

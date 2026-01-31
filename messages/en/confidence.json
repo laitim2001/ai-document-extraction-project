@@ -1,0 +1,60 @@
+{
+  "breakdown": {
+    "title": "Confidence Breakdown",
+    "totalScore": "Total Score",
+    "formula": "Confidence Score Calculation",
+    "v2Formula": "score = OCR(30%) + Rule(30%) + Format(25%) + History(15%)",
+    "v3Formula": "score = Extraction(30%) + Issuer(20%) + Format(15%) + Completeness(20%) + History(15%)",
+    "rawScore": "Raw Score",
+    "contribution": "Contribution",
+    "weight": "Weight",
+    "version": {
+      "v2": "V2 (7 Dimensions)",
+      "v3": "V3 (5 Dimensions)"
+    }
+  },
+  "dimensions": {
+    "v2": {
+      "EXTRACTION": "Extraction Quality",
+      "ISSUER_IDENTIFICATION": "Issuer Identification",
+      "FORMAT_MATCHING": "Format Matching",
+      "CONFIG_MATCH": "Config Match",
+      "HISTORICAL_ACCURACY": "Historical Accuracy",
+      "FIELD_COMPLETENESS": "Field Completeness",
+      "TERM_MATCHING": "Term Matching"
+    },
+    "v3": {
+      "EXTRACTION": "GPT Extraction",
+      "ISSUER_IDENTIFICATION": "Issuer Identification",
+      "FORMAT_MATCHING": "Format Matching",
+      "FIELD_COMPLETENESS": "Field Completeness",
+      "HISTORICAL_ACCURACY": "Historical Accuracy"
+    }
+  },
+  "factors": {
+    "ocrConfidence": "OCR Clarity",
+    "ruleMatchScore": "Rule Match",
+    "formatValidation": "Format Validation",
+    "historicalAccuracy": "Historical Accuracy"
+  },
+  "levels": {
+    "veryHigh": "Very High",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "veryLow": "Very Low"
+  },
+  "routing": {
+    "autoApprove": "Auto Approve",
+    "quickReview": "Quick Review",
+    "fullReview": "Full Review"
+  },
+  "document": {
+    "title": "Document Confidence",
+    "scoreRange": "Score Range",
+    "recommendation": "Recommendation",
+    "highCount": "High",
+    "mediumCount": "Medium",
+    "lowCount": "Low"
+  }
+}

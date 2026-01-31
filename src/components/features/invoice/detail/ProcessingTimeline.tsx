@@ -67,9 +67,9 @@ interface TraceResponse {
 // Constants
 // ============================================================
 
-/** 11-step pipeline 步驟標籤（fallback，優先使用 i18n） */
+/** 步驟標籤（fallback，優先使用 i18n）- 支援 V2 (11步) 和 V3 (7步) */
 const STEP_LABELS: Record<string, { en: string; zh: string }> = {
-  // 11-step unified pipeline
+  // ========== V2: 11-step unified pipeline ==========
   FILE_TYPE_DETECTION: { en: 'File Type Detection', zh: '文件類型檢測' },
   SMART_ROUTING: { en: 'Smart Routing', zh: '智能路由' },
   ISSUER_IDENTIFICATION: { en: 'Issuer Identification', zh: '發行方識別' },
@@ -81,7 +81,13 @@ const STEP_LABELS: Record<string, { en: string; zh: string }> = {
   TERM_RECORDING: { en: 'Term Recording', zh: '術語記錄' },
   CONFIDENCE_CALCULATION: { en: 'Confidence Calculation', zh: '信心度計算' },
   ROUTING_DECISION: { en: 'Routing Decision', zh: '路由決策' },
-  // Legacy steps (backward compatibility)
+  // ========== V3: 7-step pipeline (CHANGE-022) ==========
+  FILE_PREPARATION: { en: 'File Preparation', zh: '文件準備' },
+  DYNAMIC_PROMPT_ASSEMBLY: { en: 'Prompt Assembly', zh: 'Prompt 組裝' },
+  UNIFIED_GPT_EXTRACTION: { en: 'GPT Unified Extraction', zh: 'GPT 統一提取' },
+  RESULT_VALIDATION: { en: 'Result Validation', zh: '結果驗證' },
+  // TERM_RECORDING, CONFIDENCE_CALCULATION, ROUTING_DECISION 同 V2
+  // ========== Legacy steps (backward compatibility) ==========
   UPLOAD: { en: 'File Upload', zh: '文件上傳' },
   OCR_EXTRACTION: { en: 'OCR Extraction', zh: 'OCR 提取' },
   REVIEW: { en: 'Manual Review', zh: '人工審核' },
