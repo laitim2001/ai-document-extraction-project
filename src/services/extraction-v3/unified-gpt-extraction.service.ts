@@ -276,7 +276,7 @@ export class UnifiedGptExtractionService {
         type: 'image_url',
         image_url: {
           url: imageBase64,
-          detail: 'high', // 使用高解析度模式
+          detail: 'auto', // 使用自動模式以優化 Token 消耗
         },
       });
     }
