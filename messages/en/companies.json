@@ -160,6 +160,13 @@
     "unknownDesc": "Company not yet classified",
     "selectPlaceholder": "Select company type"
   },
+  "edit": {
+    "pageTitle": "Edit Company",
+    "metaDescription": "Edit company information",
+    "backToDetail": "Back to Company Details",
+    "title": "Edit Company",
+    "subtitle": "Edit basic information for {name}"
+  },
   "detail": {
     "pageTitle": "Company Detail",
     "pageDescription": "View company configuration, rules and statistics",

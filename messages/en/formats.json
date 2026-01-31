@@ -108,6 +108,79 @@
       "typicalFields": "Typical Fields",
       "yes": "Yes",
       "no": "No"
+    },
+    "terms": {
+      "title": "Common Terms",
+      "emptyTitle": "No common terms yet",
+      "emptyDescription": "After processing more files, the system will automatically identify and record common terms.",
+      "searchPlaceholder": "Search terms...",
+      "showing": "Showing {start} - {end} of {total} terms",
+      "page": "Page {page} / {total}",
+      "previous": "Previous",
+      "next": "Next",
+      "noResults": "No terms matching \"{query}\"",
+      "clearSearch": "Clear search"
+    },
+    "rules": {
+      "logoPatterns": {
+        "title": "Logo Patterns",
+        "description": "Define the position and features of logos in the document for format identification"
+      },
+      "keywords": {
+        "title": "Keywords",
+        "description": "When the document contains these keywords, it is more likely to be identified as this format",
+        "placeholder": "Type a keyword and press Enter (e.g., Ocean Freight, B/L No)"
+      },
+      "layoutHints": {
+        "title": "Layout Features",
+        "description": "Describe the layout features of this format for AI identification reference",
+        "placeholder": "Describe the layout features, e.g., Table-style invoice with company logo on the left, invoice number in the upper right, and detail table below...",
+        "maxLength": "Maximum 1000 characters"
+      },
+      "priority": {
+        "title": "Identification Priority",
+        "description": "When multiple formats match, formats with higher priority will be selected first",
+        "label": "Priority: {value}",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "lowValue": "Low (0)",
+        "mediumValue": "Medium (50)",
+        "highValue": "High (100)"
+      },
+      "actions": {
+        "reset": "Reset",
+        "save": "Save Rules",
+        "saving": "Saving..."
+      },
+      "toast": {
+        "saveSuccess": "Saved successfully",
+        "saveSuccessDescription": "Identification rules have been updated",
+        "saveError": "Save failed",
+        "saveErrorRetry": "Please try again later"
+      }
+    },
+    "configs": {
+      "loadError": "Failed to load configurations",
+      "loadErrorDescription": "Unable to retrieve configuration information, please try again later.",
+      "retry": "Retry",
+      "noData": "Unable to retrieve configuration data",
+      "prompt": {
+        "title": "Prompt Configuration",
+        "description": "Define the prompts used for AI extraction and classification. Format-specific configurations take priority over company and global configurations."
+      },
+      "mapping": {
+        "title": "Field Mapping Configuration",
+        "description": "Define field transformation rules to map extracted fields to standard format."
+      },
+      "inheritance": {
+        "title": "Configuration Inheritance",
+        "description": "Configurations follow a hierarchical structure: Format > Company > Global. Higher priority levels override lower ones.",
+        "effectiveLevel": "Effective Level",
+        "formatLevel": "Format Level",
+        "companyLevel": "Company Level",
+        "globalLevel": "Global Level"
+      }
     }
   }
 }

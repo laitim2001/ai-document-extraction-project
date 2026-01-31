@@ -7,21 +7,24 @@
  * @module src/app/(dashboard)/companies/[id]/edit/page
  * @author Development Team
  * @since Epic 5 - Story 5.5 (新增/停用公司配置)
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-31
  *
  * @features
  *   - 伺服器端權限檢查
  *   - 獲取現有公司資料
  *   - 編輯公司表單
  *   - Logo 上傳支援
+ *   - 國際化支援
  *
  * @dependencies
  *   - @/lib/auth - 認證和權限檢查
  *   - @/services/company.service - 公司資料服務
  *   - @/components/features/forwarders - Company 組件
+ *   - next-intl - 國際化
  */
 
 import { redirect, notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { auth } from '@/lib/auth'
 import { hasPermission } from '@/lib/auth/city-permission'
 import { PERMISSIONS } from '@/types/permissions'
@@ -45,9 +48,12 @@ interface PageProps {
 // Metadata
 // ============================================================
 
-export const metadata = {
-  title: '編輯公司 | AI Document Extraction',
-  description: '編輯公司資料',
+export async function generateMetadata() {
+  const t = await getTranslations('companies.edit')
+  return {
+    title: t('pageTitle'),
+    description: t('metaDescription'),
+  }
 }
 
 // ============================================================
@@ -71,6 +77,9 @@ export default async function EditCompanyPage({ params }: PageProps) {
   // 解析路由參數
   const resolvedParams = await params
   const companyId = resolvedParams.id
+
+  // 獲取翻譯
+  const t = await getTranslations('companies.edit')
 
   // 驗證認證狀態
   const session = await auth()
@@ -105,6 +114,8 @@ export default async function EditCompanyPage({ params }: PageProps) {
     logoUrl: company.logoUrl,
   }
 
+  const displayName = company.displayName || company.name
+
   return (
     <div className="space-y-6">
       {/* 返回連結 */}
@@ -112,7 +123,7 @@ export default async function EditCompanyPage({ params }: PageProps) {
         <Button variant="ghost" size="sm" asChild>
           <Link href={`/companies/${companyId}`}>
             <ChevronLeft className="mr-1 h-4 w-4" />
-            返回公司詳情
+            {t('backToDetail')}
           </Link>
         </Button>
       </div>
@@ -120,10 +131,10 @@ export default async function EditCompanyPage({ params }: PageProps) {
       {/* 頁面標題 */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          編輯公司
+          {t('title')}
         </h1>
         <p className="text-muted-foreground">
-          編輯 {company.displayName || company.name} 的基本資訊
+          {t('subtitle', { name: displayName })}
         </p>
       </div>
 

@@ -108,6 +108,79 @@
       "typicalFields": "常見欄位",
       "yes": "是",
       "no": "否"
+    },
+    "terms": {
+      "title": "常見術語",
+      "emptyTitle": "尚無常見術語",
+      "emptyDescription": "處理更多文件後，系統會自動識別並記錄常見術語。",
+      "searchPlaceholder": "搜尋術語...",
+      "showing": "顯示 {start} - {end} 共 {total} 個術語",
+      "page": "第 {page} / {total} 頁",
+      "previous": "上一頁",
+      "next": "下一頁",
+      "noResults": "找不到符合「{query}」的術語",
+      "clearSearch": "清除搜尋"
+    },
+    "rules": {
+      "logoPatterns": {
+        "title": "Logo 特徵",
+        "description": "定義文件中 Logo 的位置和特徵，用於識別此格式"
+      },
+      "keywords": {
+        "title": "關鍵字",
+        "description": "文件中包含這些關鍵字時，更可能被識別為此格式",
+        "placeholder": "輸入關鍵字後按 Enter（例如：Ocean Freight、B/L No）"
+      },
+      "layoutHints": {
+        "title": "版面特徵",
+        "description": "描述此格式的版面佈局特徵，供 AI 識別參考",
+        "placeholder": "描述此格式的版面特徵，例如：表格式發票，左側有公司 Logo，右上角有發票編號，下方有明細表格...",
+        "maxLength": "最多 1000 字元"
+      },
+      "priority": {
+        "title": "識別優先級",
+        "description": "當多個格式匹配時，優先級越高的格式會被優先選用",
+        "label": "優先級: {value}",
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "lowValue": "低 (0)",
+        "mediumValue": "中 (50)",
+        "highValue": "高 (100)"
+      },
+      "actions": {
+        "reset": "重設",
+        "save": "保存規則",
+        "saving": "保存中..."
+      },
+      "toast": {
+        "saveSuccess": "保存成功",
+        "saveSuccessDescription": "識別規則已更新",
+        "saveError": "保存失敗",
+        "saveErrorRetry": "請稍後再試"
+      }
+    },
+    "configs": {
+      "loadError": "載入配置失敗",
+      "loadErrorDescription": "無法獲取配置資訊，請稍後再試。",
+      "retry": "重試",
+      "noData": "無法獲取配置資料",
+      "prompt": {
+        "title": "Prompt 配置",
+        "description": "定義 AI 提取和分類時使用的提示詞，格式專屬配置優先於公司和全域配置"
+      },
+      "mapping": {
+        "title": "欄位映射配置",
+        "description": "定義欄位轉換規則，將提取的欄位映射到標準格式"
+      },
+      "inheritance": {
+        "title": "配置繼承",
+        "description": "配置遵循階層結構：格式 > 公司 > 全域。較高優先級會覆蓋較低優先級。",
+        "effectiveLevel": "生效層級",
+        "formatLevel": "格式層級",
+        "companyLevel": "公司層級",
+        "globalLevel": "全域層級"
+      }
     }
   }
 }

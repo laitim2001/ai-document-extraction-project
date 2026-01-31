@@ -11,10 +11,11 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.3
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-31
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -70,6 +71,7 @@ export function IdentificationRulesEditor({
   initialRules,
   onSuccess,
 }: IdentificationRulesEditorProps) {
+  const t = useTranslations('formats.detail.rules');
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isDirty, setIsDirty] = React.useState(false);
@@ -113,32 +115,32 @@ export function IdentificationRulesEditor({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error?.detail || '保存失敗');
+        throw new Error(errorData.error?.detail || t('toast.saveError'));
       }
 
       toast({
-        title: '保存成功',
-        description: '識別規則已更新',
+        title: t('toast.saveSuccess'),
+        description: t('toast.saveSuccessDescription'),
       });
       setIsDirty(false);
       onSuccess();
     } catch (error) {
       toast({
-        title: '保存失敗',
-        description: error instanceof Error ? error.message : '請稍後再試',
+        title: t('toast.saveError'),
+        description: error instanceof Error ? error.message : t('toast.saveErrorRetry'),
         variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
     }
-  }, [rules, formatId, toast, onSuccess]);
+  }, [rules, formatId, toast, onSuccess, t]);
 
   // --- Helpers ---
 
   const getPriorityLabel = (priority: number): string => {
-    if (priority >= 70) return '高';
-    if (priority >= 30) return '中';
-    return '低';
+    if (priority >= 70) return t('priority.high');
+    if (priority >= 30) return t('priority.medium');
+    return t('priority.low');
   };
 
   // --- Render ---
@@ -148,9 +150,9 @@ export function IdentificationRulesEditor({
       {/* Logo 特徵 */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Logo 特徵</CardTitle>
+          <CardTitle className="text-base">{t('logoPatterns.title')}</CardTitle>
           <CardDescription>
-            定義文件中 Logo 的位置和特徵，用於識別此格式
+            {t('logoPatterns.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -164,16 +166,16 @@ export function IdentificationRulesEditor({
       {/* 關鍵字 */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">關鍵字</CardTitle>
+          <CardTitle className="text-base">{t('keywords.title')}</CardTitle>
           <CardDescription>
-            文件中包含這些關鍵字時，更可能被識別為此格式
+            {t('keywords.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <KeywordTagInput
             keywords={rules.keywords}
             onChange={(keywords) => updateRules({ keywords })}
-            placeholder="輸入關鍵字後按 Enter（例如：Ocean Freight、B/L No）"
+            placeholder={t('keywords.placeholder')}
           />
         </CardContent>
       </Card>
@@ -181,20 +183,20 @@ export function IdentificationRulesEditor({
       {/* 版面特徵 */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">版面特徵</CardTitle>
+          <CardTitle className="text-base">{t('layoutHints.title')}</CardTitle>
           <CardDescription>
-            描述此格式的版面佈局特徵，供 AI 識別參考
+            {t('layoutHints.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Textarea
             value={rules.layoutHints}
             onChange={(e) => updateRules({ layoutHints: e.target.value })}
-            placeholder="描述此格式的版面特徵，例如：表格式發票，左側有公司 Logo，右上角有發票編號，下方有明細表格..."
+            placeholder={t('layoutHints.placeholder')}
             rows={4}
           />
           <p className="text-xs text-muted-foreground mt-2">
-            最多 1000 字元
+            {t('layoutHints.maxLength')}
           </p>
         </CardContent>
       </Card>
@@ -202,14 +204,14 @@ export function IdentificationRulesEditor({
       {/* 優先級 */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">識別優先級</CardTitle>
+          <CardTitle className="text-base">{t('priority.title')}</CardTitle>
           <CardDescription>
-            當多個格式匹配時，優先級越高的格式會被優先選用
+            {t('priority.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label>優先級: {rules.priority}</Label>
+            <Label>{t('priority.label', { value: rules.priority })}</Label>
             <span className="text-sm text-muted-foreground">
               {getPriorityLabel(rules.priority)}
             </span>
@@ -222,9 +224,9 @@ export function IdentificationRulesEditor({
             step={1}
           />
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>低 (0)</span>
-            <span>中 (50)</span>
-            <span>高 (100)</span>
+            <span>{t('priority.lowValue')}</span>
+            <span>{t('priority.mediumValue')}</span>
+            <span>{t('priority.highValue')}</span>
           </div>
         </CardContent>
       </Card>
@@ -237,11 +239,11 @@ export function IdentificationRulesEditor({
           disabled={!isDirty || isSubmitting}
         >
           <RotateCcw className="mr-2 h-4 w-4" />
-          重設
+          {t('actions.reset')}
         </Button>
         <Button onClick={handleSubmit} disabled={isSubmitting}>
           <Save className="mr-2 h-4 w-4" />
-          {isSubmitting ? '保存中...' : '保存規則'}
+          {isSubmitting ? t('actions.saving') : t('actions.save')}
         </Button>
       </div>
     </div>

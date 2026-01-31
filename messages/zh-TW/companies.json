@@ -160,6 +160,13 @@
     "unknownDesc": "尚未分類的公司",
     "selectPlaceholder": "選擇公司類型"
   },
+  "edit": {
+    "pageTitle": "編輯公司",
+    "metaDescription": "編輯公司資料",
+    "backToDetail": "返回公司詳情",
+    "title": "編輯公司",
+    "subtitle": "編輯 {name} 的基本資訊"
+  },
   "detail": {
     "pageTitle": "公司詳情",
     "pageDescription": "查看公司的詳細配置、規則和統計資料",
