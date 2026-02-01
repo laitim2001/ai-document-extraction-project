@@ -461,9 +461,22 @@ export class ExtractionV3Service {
       const totalTokenUsage = orchestrator.calculateTotalTokenUsage(threeStageResult);
       const stageAiDetails = orchestrator.getStageAiDetails(threeStageResult);
 
+      // CHANGE-025: 計算智能路由標記
+      const isNewCompany = threeStageResult.stage1?.isNewCompany || false;
+      const isNewFormat = threeStageResult.stage2?.isNewFormat || false;
+      const needsConfigReview = isNewCompany || isNewFormat;
+      const configSource = threeStageResult.stage2?.configSource || 'LLM_INFERRED';
+
       return {
         success: true,
         extractionVersion: 'v3.1',
+        // CHANGE-025: 智能路由標記
+        newCompanyDetected: isNewCompany,
+        newFormatDetected: isNewFormat,
+        needsConfigReview,
+        configSource: configSource === 'COMPANY_SPECIFIC' ? 'FORMAT'
+          : configSource === 'UNIVERSAL' ? 'GLOBAL'
+          : 'DEFAULT',
         result: threeStageResult.stage3 ? {
           standardFields: threeStageResult.stage3.standardFields,
           customFields: threeStageResult.stage3.customFields,

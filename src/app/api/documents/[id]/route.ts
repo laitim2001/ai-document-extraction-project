@@ -311,6 +311,26 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     }
 
+    // CHANGE-025: 計算智能路由標記
+    let smartRoutingMarkers: {
+      newCompanyDetected: boolean
+      newFormatDetected: boolean
+      needsConfigReview: boolean
+      configSource: string | null
+    } | undefined
+    if (document.extractionResult && isV3_1) {
+      const stage1Result = document.extractionResult.stage1Result as Record<string, unknown> | null
+      const stage2Result = document.extractionResult.stage2Result as Record<string, unknown> | null
+      const newCompanyDetected = (stage1Result?.isNewCompany as boolean) ?? false
+      const newFormatDetected = (stage2Result?.isNewFormat as boolean) ?? false
+      smartRoutingMarkers = {
+        newCompanyDetected,
+        newFormatDetected,
+        needsConfigReview: newCompanyDetected || newFormatDetected,
+        configSource: document.extractionResult.stage2ConfigSource ?? null,
+      }
+    }
+
     const responseData = {
       ...documentBase,
       blobUrl,
@@ -331,6 +351,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       ...(includes.has('aiDetails') && { aiDetails }),
       // CHANGE-024: 新增 Stage 詳情
       ...(includes.has('stageDetails') && stageDetails && { stageDetails }),
+      // CHANGE-025: 智能路由標記（V3.1 才有）
+      ...(smartRoutingMarkers && { smartRoutingMarkers }),
     }
 
     return NextResponse.json({

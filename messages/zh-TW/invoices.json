@@ -222,6 +222,25 @@
         "description": "文件尚未完成 AI 提取處理"
       }
     },
+    "smartRouting": {
+      "title": "需要配置",
+      "description": {
+        "newCompanyAndFormat": "此文件以新公司和新格式處理。請配置公司識別規則和格式映射，以提高未來處理的準確性。",
+        "newCompanyOnly": "檢測到新公司「{companyName}」。請配置公司識別規則（Logo 特徵、關鍵字）以提高準確性。",
+        "newFormatOnly": "檢測到新的文件格式。請為此公司配置格式映射。"
+      },
+      "badges": {
+        "newCompany": "新公司",
+        "newFormat": "新格式"
+      },
+      "actions": {
+        "configureCompany": "配置公司",
+        "configureFormat": "配置格式",
+        "manageCompanies": "管理公司"
+      },
+      "hint": "配置識別規則將提高未來文件的自動識別準確性。",
+      "unknownCompany": "未知公司"
+    },
     "errors": {
       "notFound": "找不到文件",
       "noFile": "文件無法下載",

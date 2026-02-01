@@ -206,21 +206,91 @@ Response format (JSON):
 
   /**
    * 解析 GPT 響應
+   *
+   * @description
+   *   嘗試多種方式解析 GPT 響應：
+   *   1. 直接 JSON.parse
+   *   2. 提取 JSON 塊（處理 markdown 代碼塊或額外文字）
+   *   3. 嘗試從 documentIssuer 嵌套結構提取
    */
   private parseCompanyResult(
     response: string
   ): GptCompanyIdentificationResponse {
+    // 嘗試直接解析
     try {
-      const parsed = JSON.parse(response) as GptCompanyIdentificationResponse;
-      return {
-        companyName: parsed.companyName || '',
-        identificationMethod: parsed.identificationMethod || 'LLM_INFERRED',
-        confidence: parsed.confidence || 0,
-        matchedKnownCompany: parsed.matchedKnownCompany || null,
-      };
+      const parsed = JSON.parse(response);
+      return this.extractCompanyFromParsed(parsed);
     } catch {
+      // 嘗試提取 JSON 塊（處理 markdown ```json ... ``` 或額外文字）
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[0]);
+          return this.extractCompanyFromParsed(parsed);
+        } catch {
+          // 繼續拋出錯誤
+        }
+      }
+
+      console.error('[Stage1] Failed to parse GPT response:', response.substring(0, 500));
       throw new Error('Failed to parse GPT company identification response');
     }
+  }
+
+  /**
+   * 從解析後的物件提取公司資訊
+   *
+   * @description 支援多種響應結構：
+   *   - 直接結構: { companyName, confidence, ... }
+   *   - 嵌套結構: { documentIssuer: { name, confidence, ... } }
+   */
+  private extractCompanyFromParsed(parsed: unknown): GptCompanyIdentificationResponse {
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Invalid parsed response');
+    }
+
+    const obj = parsed as Record<string, unknown>;
+
+    // 檢查是否為嵌套的 documentIssuer 結構
+    if (obj.documentIssuer && typeof obj.documentIssuer === 'object') {
+      const issuer = obj.documentIssuer as Record<string, unknown>;
+      return {
+        companyName: String(issuer.name || issuer.companyName || ''),
+        identificationMethod: this.parseIdentificationMethod(issuer.identificationMethod),
+        confidence: Number(issuer.confidence) || 0,
+        matchedKnownCompany: (issuer.matchedKnownCompany as string) || null,
+      };
+    }
+
+    // 直接結構
+    return {
+      companyName: String(obj.companyName || ''),
+      identificationMethod: this.parseIdentificationMethod(obj.identificationMethod),
+      confidence: Number(obj.confidence) || 0,
+      matchedKnownCompany: (obj.matchedKnownCompany as string) || null,
+    };
+  }
+
+  /**
+   * 解析並驗證識別方法
+   */
+  private parseIdentificationMethod(value: unknown): CompanyIdentificationMethod {
+    const validMethods: CompanyIdentificationMethod[] = [
+      'LOGO',
+      'HEADER',
+      'ADDRESS',
+      'TAX_ID',
+      'LLM_INFERRED',
+    ];
+
+    const strValue = String(value || '').toUpperCase();
+
+    if (validMethods.includes(strValue as CompanyIdentificationMethod)) {
+      return strValue as CompanyIdentificationMethod;
+    }
+
+    // 預設返回 LLM_INFERRED
+    return 'LLM_INFERRED';
   }
 
   /**

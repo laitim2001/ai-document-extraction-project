@@ -90,6 +90,22 @@ export interface PromptAssemblyResult {
   processingTimeMs: number;
 }
 
+/**
+ * CHANGE-025: 階段 Prompt 配置
+ */
+export interface StagePromptConfig {
+  /** System Prompt */
+  systemPrompt: string;
+  /** User Prompt 模板 */
+  userPromptTemplate: string;
+  /** 變數 */
+  variables: Record<string, unknown> | null;
+  /** 配置範圍 */
+  scope: 'GLOBAL' | 'COMPANY' | 'FORMAT';
+  /** 版本號 */
+  version: number;
+}
+
 // ============================================================================
 // Constants
 // ============================================================================
@@ -427,6 +443,176 @@ export class PromptAssemblyService {
       keys: Array.from(promptConfigCache.keys()),
     };
   }
+
+  // ==========================================================================
+  // CHANGE-025: Stage 1/2 Prompt 配置載入方法
+  // ==========================================================================
+
+  /**
+   * CHANGE-025: 載入 Stage 1 公司識別 Prompt 配置
+   *
+   * @description
+   *   從 PromptConfig 表載入 STAGE_1_COMPANY_IDENTIFICATION 類型的提示配置。
+   *   優先級：FORMAT > COMPANY > GLOBAL
+   *
+   * @param options - 載入選項
+   * @returns Stage 1 Prompt 配置（或 null 使用預設）
+   */
+  static async loadStage1PromptConfig(options: {
+    companyId?: string;
+    formatId?: string;
+  }): Promise<StagePromptConfig | null> {
+    const { companyId, formatId } = options;
+
+    try {
+      // 按優先級查找配置：FORMAT > COMPANY > GLOBAL
+      const configs = await prisma.promptConfig.findMany({
+        where: {
+          promptType: 'STAGE_1_COMPANY_IDENTIFICATION',
+          isActive: true,
+          OR: [
+            // FORMAT scope（需要同時匹配 companyId 和 formatId）
+            ...(formatId && companyId
+              ? [{ scope: 'FORMAT' as const, companyId, documentFormatId: formatId }]
+              : []),
+            // COMPANY scope
+            ...(companyId
+              ? [{ scope: 'COMPANY' as const, companyId, documentFormatId: null }]
+              : []),
+            // GLOBAL scope
+            { scope: 'GLOBAL' as const, companyId: null, documentFormatId: null },
+          ],
+        },
+        orderBy: [
+          // 優先返回更具體的配置
+          { scope: 'desc' }, // FORMAT > COMPANY > GLOBAL
+        ],
+        take: 1,
+      });
+
+      if (configs.length === 0) {
+        return null;
+      }
+
+      const config = configs[0];
+      return {
+        systemPrompt: config.systemPrompt,
+        userPromptTemplate: config.userPromptTemplate,
+        variables: config.variables as Record<string, unknown> | null,
+        scope: config.scope,
+        version: config.version,
+      };
+    } catch (error) {
+      console.warn('[PromptAssembly] Failed to load Stage 1 prompt config:', error);
+      return null;
+    }
+  }
+
+  /**
+   * CHANGE-025: 載入 Stage 2 格式識別 Prompt 配置
+   *
+   * @description
+   *   從 PromptConfig 表載入 STAGE_2_FORMAT_IDENTIFICATION 類型的提示配置。
+   *   優先級：FORMAT > COMPANY > GLOBAL
+   *
+   * @param options - 載入選項
+   * @returns Stage 2 Prompt 配置（或 null 使用預設）
+   */
+  static async loadStage2PromptConfig(options: {
+    companyId?: string;
+    formatId?: string;
+  }): Promise<StagePromptConfig | null> {
+    const { companyId, formatId } = options;
+
+    try {
+      const configs = await prisma.promptConfig.findMany({
+        where: {
+          promptType: 'STAGE_2_FORMAT_IDENTIFICATION',
+          isActive: true,
+          OR: [
+            ...(formatId && companyId
+              ? [{ scope: 'FORMAT' as const, companyId, documentFormatId: formatId }]
+              : []),
+            ...(companyId
+              ? [{ scope: 'COMPANY' as const, companyId, documentFormatId: null }]
+              : []),
+            { scope: 'GLOBAL' as const, companyId: null, documentFormatId: null },
+          ],
+        },
+        orderBy: [{ scope: 'desc' }],
+        take: 1,
+      });
+
+      if (configs.length === 0) {
+        return null;
+      }
+
+      const config = configs[0];
+      return {
+        systemPrompt: config.systemPrompt,
+        userPromptTemplate: config.userPromptTemplate,
+        variables: config.variables as Record<string, unknown> | null,
+        scope: config.scope,
+        version: config.version,
+      };
+    } catch (error) {
+      console.warn('[PromptAssembly] Failed to load Stage 2 prompt config:', error);
+      return null;
+    }
+  }
+
+  /**
+   * CHANGE-025: 載入 Stage 3 欄位提取 Prompt 配置
+   *
+   * @description
+   *   從 PromptConfig 表載入 STAGE_3_FIELD_EXTRACTION 類型的提示配置。
+   *   優先級：FORMAT > COMPANY > GLOBAL
+   *
+   * @param options - 載入選項
+   * @returns Stage 3 Prompt 配置（或 null 使用預設）
+   */
+  static async loadStage3PromptConfig(options: {
+    companyId?: string;
+    formatId?: string;
+  }): Promise<StagePromptConfig | null> {
+    const { companyId, formatId } = options;
+
+    try {
+      const configs = await prisma.promptConfig.findMany({
+        where: {
+          promptType: 'STAGE_3_FIELD_EXTRACTION',
+          isActive: true,
+          OR: [
+            ...(formatId && companyId
+              ? [{ scope: 'FORMAT' as const, companyId, documentFormatId: formatId }]
+              : []),
+            ...(companyId
+              ? [{ scope: 'COMPANY' as const, companyId, documentFormatId: null }]
+              : []),
+            { scope: 'GLOBAL' as const, companyId: null, documentFormatId: null },
+          ],
+        },
+        orderBy: [{ scope: 'desc' }],
+        take: 1,
+      });
+
+      if (configs.length === 0) {
+        return null;
+      }
+
+      const config = configs[0];
+      return {
+        systemPrompt: config.systemPrompt,
+        userPromptTemplate: config.userPromptTemplate,
+        variables: config.variables as Record<string, unknown> | null,
+        scope: config.scope,
+        version: config.version,
+      };
+    } catch (error) {
+      console.warn('[PromptAssembly] Failed to load Stage 3 prompt config:', error);
+      return null;
+    }
+  }
 }
 
 // ============================================================================
@@ -457,4 +643,38 @@ export async function loadDynamicConfig(
  */
 export function clearPromptCache(): void {
   PromptAssemblyService.clearCache();
+}
+
+// ============================================================================
+// CHANGE-025: Stage Prompt Config Convenience Functions
+// ============================================================================
+
+/**
+ * CHANGE-025: 載入 Stage 1 公司識別 Prompt 配置
+ */
+export async function loadStage1PromptConfig(options: {
+  companyId?: string;
+  formatId?: string;
+}): Promise<StagePromptConfig | null> {
+  return PromptAssemblyService.loadStage1PromptConfig(options);
+}
+
+/**
+ * CHANGE-025: 載入 Stage 2 格式識別 Prompt 配置
+ */
+export async function loadStage2PromptConfig(options: {
+  companyId?: string;
+  formatId?: string;
+}): Promise<StagePromptConfig | null> {
+  return PromptAssemblyService.loadStage2PromptConfig(options);
+}
+
+/**
+ * CHANGE-025: 載入 Stage 3 欄位提取 Prompt 配置
+ */
+export async function loadStage3PromptConfig(options: {
+  companyId?: string;
+  formatId?: string;
+}): Promise<StagePromptConfig | null> {
+  return PromptAssemblyService.loadStage3PromptConfig(options);
 }

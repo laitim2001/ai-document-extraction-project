@@ -418,6 +418,12 @@ export class UnifiedDocumentProcessorService {
       documentFormatId: result.resolvedFormatId,
       documentFormatName: result.formatIdentification.formatName,
       isNewFormat: result.jitCreated?.format ?? false,
+      // CHANGE-025: 智能路由標記（優先使用 V3 輸出的值，回退到 jitCreated）
+      newCompanyDetected: v3Result.newCompanyDetected ?? result.jitCreated?.company ?? false,
+      newFormatDetected: v3Result.newFormatDetected ?? result.jitCreated?.format ?? false,
+      needsConfigReview: v3Result.needsConfigReview ??
+        ((result.jitCreated?.company ?? false) || (result.jitCreated?.format ?? false)),
+      configSource: v3Result.configSource,
       overallConfidence: v3Result.confidenceResult?.overallScore
         ? v3Result.confidenceResult.overallScore / 100
         : result.overallConfidence / 100,

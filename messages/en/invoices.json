@@ -222,6 +222,25 @@
         "description": "Document has not been processed by AI extraction"
       }
     },
+    "smartRouting": {
+      "title": "Configuration Required",
+      "description": {
+        "newCompanyAndFormat": "This document was processed with a new company and new format. Please configure company identification rules and format mapping for better accuracy in future processing.",
+        "newCompanyOnly": "New company \"{companyName}\" detected. Please configure company identification rules (logo patterns, keywords) for better accuracy.",
+        "newFormatOnly": "New document format detected. Please configure format mapping for this company."
+      },
+      "badges": {
+        "newCompany": "New Company",
+        "newFormat": "New Format"
+      },
+      "actions": {
+        "configureCompany": "Configure Company",
+        "configureFormat": "Configure Format",
+        "manageCompanies": "Manage Companies"
+      },
+      "hint": "Configuring identification rules will improve automatic recognition accuracy for future documents.",
+      "unknownCompany": "Unknown Company"
+    },
     "errors": {
       "notFound": "Document not found",
       "noFile": "File not available for download",

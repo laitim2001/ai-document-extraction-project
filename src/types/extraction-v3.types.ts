@@ -611,6 +611,15 @@ export interface ExtractionV3Output {
   confidenceResult?: ConfidenceResultV3;
   /** 路由決策詳情 */
   routingDecision?: RoutingDecisionDetailV3;
+  // CHANGE-025: 智能路由標記
+  /** 是否檢測到新公司 */
+  newCompanyDetected?: boolean;
+  /** 是否檢測到新格式 */
+  newFormatDetected?: boolean;
+  /** 是否需要配置審核 */
+  needsConfigReview?: boolean;
+  /** 配置來源 */
+  configSource?: ConfigSourceType;
   /** CHANGE-023: AI 詳情（用於 AI 詳情 Tab 顯示，V3 單階段） */
   aiDetails?: AiDetailsV3;
   /** CHANGE-024: 三階段 AI 詳情（V3.1 三階段） */
@@ -1393,6 +1402,78 @@ export function isStage3ExtractionResult(
   if (!value || typeof value !== 'object') return false;
   const obj = value as Record<string, unknown>;
   return obj.stageName === 'STAGE_3_FIELD_EXTRACTION';
+}
+
+// ============================================================================
+// CHANGE-025: 智能路由類型定義
+// ============================================================================
+
+/**
+ * 配置來源類型（用於智能路由）
+ * @since CHANGE-025
+ */
+export type ConfigSourceType = 'FORMAT' | 'COMPANY' | 'GLOBAL' | 'DEFAULT';
+
+/**
+ * 智能路由輸入參數
+ * @description 用於智能路由決策的輸入資料
+ * @since CHANGE-025
+ */
+export interface SmartRoutingInput {
+  /** 整體信心度 (0-100) */
+  overallConfidence: number;
+  /** 是否為新公司 */
+  isNewCompany: boolean;
+  /** 是否為新格式 */
+  isNewFormat: boolean;
+  /** 配置來源 */
+  configSource: ConfigSourceType;
+}
+
+/**
+ * 智能路由輸出
+ * @description 智能路由決策的結果
+ * @since CHANGE-025
+ */
+export interface SmartRoutingOutput {
+  /** 審核類型 */
+  reviewType: 'AUTO_APPROVE' | 'QUICK_REVIEW' | 'FULL_REVIEW';
+  /** 路由原因說明 */
+  reason: string;
+  /** 是否需要配置審核 */
+  needsConfigReview: boolean;
+}
+
+/**
+ * Logo 識別模式
+ * @description 用於格式識別的 Logo 模式定義
+ * @since CHANGE-025
+ */
+export interface LogoPattern {
+  /** Logo 描述 */
+  description: string;
+  /** Logo 位置 */
+  position?: 'TOP_LEFT' | 'TOP_RIGHT' | 'TOP_CENTER' | 'BOTTOM_LEFT' | 'BOTTOM_RIGHT';
+  /** Logo 中可能包含的文字 */
+  keywords?: string[];
+}
+
+/**
+ * 擴展的格式模式定義（用於 Prompt 組裝）
+ * @description 完整使用 identificationRules 的格式模式
+ * @since CHANGE-025
+ */
+export interface FormatPatternForPromptExtended extends FormatPatternForPrompt {
+  /** 文件類型 */
+  documentType?: string;
+  /** 文件子類型 */
+  documentSubtype?: string;
+  /** Logo 識別規則 */
+  logoPatterns?: LogoPattern[];
+  /** 版面特徵提示 */
+  layoutHints?: string;
+  /** 識別優先級（數字越小優先級越高） */
+  priority?: number;
 }
 
 /**

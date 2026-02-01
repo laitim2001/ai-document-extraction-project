@@ -109,8 +109,14 @@ export {
   assemblePrompt,
   loadDynamicConfig,
   clearPromptCache,
+  // CHANGE-025: Stage Prompt 載入
+  loadStage1PromptConfig,
+  loadStage2PromptConfig,
+  loadStage3PromptConfig,
   type PromptAssemblyOptions,
   type PromptAssemblyResult,
+  // CHANGE-025: Stage Prompt 配置類型
+  type StagePromptConfig,
 } from './prompt-assembly.service';
 
 // ============================================================================
@@ -279,6 +285,11 @@ export type {
   ConfidenceWeightsV3_1,
   DimensionScoreV3_1,
   ConfidenceResultV3_1,
+
+  // CHANGE-025: Smart Routing Types
+  SmartRoutingInput,
+  SmartRoutingOutput,
+  ConfigSourceType,
 } from '@/types/extraction-v3.types';
 
 // ============================================================================
@@ -307,6 +318,8 @@ export {
   calculateConfidenceV3_1,
   quickCalculateConfidenceV3_1,
   getRoutingDecisionV3_1,
+  // CHANGE-025: 智能路由
+  getSmartReviewTypeV3_1,
   ROUTING_THRESHOLDS_V3_1,
   type ConfidenceInputV3_1,
   type ConfidenceCalculationOptionsV3_1,

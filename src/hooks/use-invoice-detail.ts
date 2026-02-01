@@ -61,6 +61,20 @@ interface AiDetails {
   imageDetailMode: string | null
 }
 
+/**
+ * CHANGE-025: 智能路由標記
+ */
+interface SmartRoutingMarkers {
+  /** 是否為新公司 */
+  newCompanyDetected: boolean
+  /** 是否為新格式 */
+  newFormatDetected: boolean
+  /** 是否需要配置審核 */
+  needsConfigReview: boolean
+  /** 配置來源 */
+  configSource: string | null
+}
+
 interface DocumentDetail {
   id: string
   fileName: string
@@ -97,6 +111,10 @@ interface DocumentDetail {
   totalProcessingTime: number | null
   /** CHANGE-023: AI 詳情 */
   aiDetails?: AiDetails | null
+  /** CHANGE-024: 提取版本 */
+  extractionVersion?: string | null
+  /** CHANGE-025: 智能路由標記 */
+  smartRoutingMarkers?: SmartRoutingMarkers | null
 }
 
 interface DocumentDetailResponse {

@@ -240,6 +240,22 @@ const STATIC_PROMPTS: Record<PromptType, StaticPromptEntry> = {
     userPrompt: VALIDATION_USER_PROMPT,
     version: '1.0.0',
   },
+  // CHANGE-025: V3.1 三階段提示（復用現有提示作為預設）
+  [PromptType.STAGE_1_COMPANY_IDENTIFICATION]: {
+    systemPrompt: ISSUER_IDENTIFICATION_SYSTEM_PROMPT,
+    userPrompt: ISSUER_IDENTIFICATION_USER_PROMPT,
+    version: '1.0.0',
+  },
+  [PromptType.STAGE_2_FORMAT_IDENTIFICATION]: {
+    systemPrompt: FIELD_EXTRACTION_SYSTEM_PROMPT,
+    userPrompt: FIELD_EXTRACTION_USER_PROMPT,
+    version: '1.0.0',
+  },
+  [PromptType.STAGE_3_FIELD_EXTRACTION]: {
+    systemPrompt: FIELD_EXTRACTION_SYSTEM_PROMPT,
+    userPrompt: FIELD_EXTRACTION_USER_PROMPT,
+    version: '1.0.0',
+  },
 };
 
 // ============================================================================

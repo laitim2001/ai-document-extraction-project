@@ -301,38 +301,66 @@ Response format (JSON):
 
   /**
    * 解析 GPT 響應
+   *
+   * @description
+   *   嘗試多種方式解析 GPT 響應：
+   *   1. 直接 JSON.parse
+   *   2. 提取 markdown 代碼塊中的 JSON
+   *   3. 提取任意 JSON 塊（處理額外文字）
    */
   private parseFormatResult(
     response: string
   ): GptFormatIdentificationResponse {
+    // 1. 嘗試直接解析
     try {
-      // 嘗試直接解析
       const parsed = JSON.parse(response) as GptFormatIdentificationResponse;
-      return {
-        formatName: parsed.formatName || '',
-        confidence: parsed.confidence || 0,
-        matchedKnownFormat: parsed.matchedKnownFormat || null,
-        formatCharacteristics: parsed.formatCharacteristics || [],
-      };
+      return this.extractFormatFromParsed(parsed);
     } catch {
-      // 嘗試提取 JSON 區塊（如果響應被 markdown 包裹）
-      const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/);
-      if (jsonMatch) {
-        try {
-          const parsed = JSON.parse(jsonMatch[1]) as GptFormatIdentificationResponse;
-          return {
-            formatName: parsed.formatName || '',
-            confidence: parsed.confidence || 0,
-            matchedKnownFormat: parsed.matchedKnownFormat || null,
-            formatCharacteristics: parsed.formatCharacteristics || [],
-          };
-        } catch {
-          // 繼續拋出原始錯誤
-        }
-      }
-
-      throw new Error(`Failed to parse GPT format identification response: ${response.substring(0, 200)}`);
+      // 繼續嘗試其他方法
     }
+
+    // 2. 嘗試提取 markdown 代碼塊 ```json ... ```
+    const markdownMatch = response.match(/```json\s*([\s\S]*?)\s*```/);
+    if (markdownMatch) {
+      try {
+        const parsed = JSON.parse(markdownMatch[1]) as GptFormatIdentificationResponse;
+        return this.extractFormatFromParsed(parsed);
+      } catch {
+        // 繼續嘗試其他方法
+      }
+    }
+
+    // 3. 嘗試提取任意 JSON 塊（處理額外文字）
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]) as GptFormatIdentificationResponse;
+        return this.extractFormatFromParsed(parsed);
+      } catch {
+        // 繼續拋出錯誤
+      }
+    }
+
+    console.error('[Stage2] Failed to parse GPT response:', response.substring(0, 500));
+    throw new Error(`Failed to parse GPT format identification response: ${response.substring(0, 200)}`);
+  }
+
+  /**
+   * 從解析後的物件提取格式資訊
+   */
+  private extractFormatFromParsed(parsed: unknown): GptFormatIdentificationResponse {
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Invalid parsed response');
+    }
+
+    const obj = parsed as Record<string, unknown>;
+
+    return {
+      formatName: String(obj.formatName || ''),
+      confidence: Number(obj.confidence) || 0,
+      matchedKnownFormat: (obj.matchedKnownFormat as string) || null,
+      formatCharacteristics: (obj.formatCharacteristics as string[]) || [],
+    };
   }
 
   /**

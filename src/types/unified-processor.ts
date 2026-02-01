@@ -558,6 +558,16 @@ export interface UnifiedProcessingResult {
     overallConfidence: number;
   };
 
+  // ========== CHANGE-025: 智能路由標記 ==========
+  /** 是否檢測到新公司（需要配置審核） */
+  newCompanyDetected?: boolean;
+  /** 是否檢測到新格式（需要配置審核） */
+  newFormatDetected?: boolean;
+  /** 是否需要配置審核（新公司 || 新格式 || 使用預設配置） */
+  needsConfigReview?: boolean;
+  /** 配置來源（用於智能路由） */
+  configSource?: 'FORMAT' | 'COMPANY' | 'GLOBAL' | 'DEFAULT';
+
   // ========== 成功時填充的資料 ==========
   /** 文件類型 */
   fileType?: UnifiedFileType;

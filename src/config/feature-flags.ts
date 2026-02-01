@@ -49,6 +49,10 @@ const PROMPT_TYPE_TO_FLAG_KEY: Record<PromptType, keyof Omit<FeatureFlags, 'dyna
   [PromptType.TERM_CLASSIFICATION]: 'dynamicTermPromptEnabled',
   [PromptType.FIELD_EXTRACTION]: 'dynamicFieldPromptEnabled',
   [PromptType.VALIDATION]: 'dynamicValidationPromptEnabled',
+  // CHANGE-025: V3.1 三階段提示類型映射
+  [PromptType.STAGE_1_COMPANY_IDENTIFICATION]: 'dynamicIssuerPromptEnabled',
+  [PromptType.STAGE_2_FORMAT_IDENTIFICATION]: 'dynamicFieldPromptEnabled',
+  [PromptType.STAGE_3_FIELD_EXTRACTION]: 'dynamicFieldPromptEnabled',
 };
 
 /**

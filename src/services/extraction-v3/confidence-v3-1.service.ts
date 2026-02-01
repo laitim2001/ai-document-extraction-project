@@ -33,6 +33,8 @@ import type {
   ConfidenceDimensionV3_1,
   FormatConfigSource,
   StandardFieldsV3,
+  SmartRoutingInput,
+  SmartRoutingOutput,
 } from '@/types/extraction-v3.types';
 import {
   DEFAULT_CONFIDENCE_WEIGHTS_V3_1,
@@ -459,6 +461,100 @@ export class ConfidenceV3_1Service {
   static getConfigSourceBonusScores(): typeof CONFIG_SOURCE_BONUS_SCORES {
     return { ...CONFIG_SOURCE_BONUS_SCORES };
   }
+
+  /**
+   * CHANGE-025: 智能路由決策
+   *
+   * @description 根據智能路由標記決定審核類型
+   *   - 新公司 + 新格式 → FULL_REVIEW（需人工配置公司和格式）
+   *   - 新公司 → FULL_REVIEW（需人工配置公司識別規則）
+   *   - 新格式 → QUICK_REVIEW（需人工配置格式映射）
+   *   - DEFAULT 配置 → 根據信心度降級一級
+   *   - 否則 → 標準信心度路由
+   *
+   * @param input - 智能路由輸入
+   * @returns 智能路由輸出（審核類型 + 原因 + 配置審核標記）
+   */
+  static getSmartReviewType(input: SmartRoutingInput): SmartRoutingOutput {
+    const { overallConfidence, isNewCompany, isNewFormat, configSource } = input;
+
+    // 1. 新公司 + 新格式：強制 FULL_REVIEW
+    if (isNewCompany && isNewFormat) {
+      return {
+        reviewType: 'FULL_REVIEW',
+        reason: '新公司且新格式：需要人工配置公司識別規則和格式映射',
+        needsConfigReview: true,
+      };
+    }
+
+    // 2. 新公司：強制 FULL_REVIEW
+    if (isNewCompany) {
+      return {
+        reviewType: 'FULL_REVIEW',
+        reason: '新公司：需要人工配置公司識別規則（Logo/關鍵字）',
+        needsConfigReview: true,
+      };
+    }
+
+    // 3. 新格式：強制 QUICK_REVIEW
+    if (isNewFormat) {
+      return {
+        reviewType: 'QUICK_REVIEW',
+        reason: '新格式：需要人工驗證格式映射',
+        needsConfigReview: true,
+      };
+    }
+
+    // 4. DEFAULT 配置來源：根據信心度但降級一級
+    if (configSource === 'DEFAULT') {
+      const baseDecision = this.getBaseDecisionByConfidence(overallConfidence);
+      const downgraded = this.downgradeDecision(baseDecision);
+      return {
+        reviewType: downgraded,
+        reason: `使用預設配置（非公司/格式特定）：${baseDecision} → ${downgraded}`,
+        needsConfigReview: false,
+      };
+    }
+
+    // 5. 標準信心度路由
+    const decision = this.getBaseDecisionByConfidence(overallConfidence);
+    return {
+      reviewType: decision,
+      reason: `標準信心度路由：${overallConfidence.toFixed(1)}% (${configSource} 配置)`,
+      needsConfigReview: false,
+    };
+  }
+
+  /**
+   * 根據信心度獲取基本決策
+   */
+  private static getBaseDecisionByConfidence(
+    confidence: number
+  ): 'AUTO_APPROVE' | 'QUICK_REVIEW' | 'FULL_REVIEW' {
+    if (confidence >= ROUTING_THRESHOLDS_V3_1.AUTO_APPROVE) {
+      return 'AUTO_APPROVE';
+    } else if (confidence >= ROUTING_THRESHOLDS_V3_1.QUICK_REVIEW) {
+      return 'QUICK_REVIEW';
+    } else {
+      return 'FULL_REVIEW';
+    }
+  }
+
+  /**
+   * 降級決策（AUTO_APPROVE → QUICK_REVIEW, QUICK_REVIEW → FULL_REVIEW）
+   */
+  private static downgradeDecision(
+    decision: 'AUTO_APPROVE' | 'QUICK_REVIEW' | 'FULL_REVIEW'
+  ): 'AUTO_APPROVE' | 'QUICK_REVIEW' | 'FULL_REVIEW' {
+    switch (decision) {
+      case 'AUTO_APPROVE':
+        return 'QUICK_REVIEW';
+      case 'QUICK_REVIEW':
+        return 'FULL_REVIEW';
+      case 'FULL_REVIEW':
+        return 'FULL_REVIEW';
+    }
+  }
 }
 
 // ============================================================================
@@ -507,4 +603,15 @@ export function getRoutingDecisionV3_1(
   } else {
     return 'FULL_REVIEW';
   }
+}
+
+/**
+ * CHANGE-025: 智能路由決策
+ *
+ * @description 根據智能路由標記（新公司/新格式）決定審核類型
+ * @param input - 智能路由輸入
+ * @returns 智能路由輸出
+ */
+export function getSmartReviewTypeV3_1(input: SmartRoutingInput): SmartRoutingOutput {
+  return ConfidenceV3_1Service.getSmartReviewType(input);
 }

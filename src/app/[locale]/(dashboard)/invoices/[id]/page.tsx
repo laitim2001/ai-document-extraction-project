@@ -33,6 +33,7 @@ import { useTranslations } from 'next-intl'
 import { InvoiceDetailHeader } from '@/components/features/invoice/detail/InvoiceDetailHeader'
 import { InvoiceDetailStats } from '@/components/features/invoice/detail/InvoiceDetailStats'
 import { InvoiceDetailTabs } from '@/components/features/invoice/detail/InvoiceDetailTabs'
+import { SmartRoutingBanner } from '@/components/features/invoice/detail/SmartRoutingBanner'
 import { useInvoiceDetail } from '@/hooks/use-invoice-detail'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AlertCircle } from 'lucide-react'
@@ -101,6 +102,13 @@ export default function InvoiceDetailPage() {
     <div className="space-y-6 p-6">
       {/* Header */}
       <InvoiceDetailHeader document={document} onRefresh={refetch} />
+
+      {/* CHANGE-025: 智能路由提示橫幅 */}
+      <SmartRoutingBanner
+        markers={document.smartRoutingMarkers}
+        companyId={document.company?.id}
+        companyName={document.company?.name}
+      />
 
       {/* Stats Cards */}
       <InvoiceDetailStats document={document} />
