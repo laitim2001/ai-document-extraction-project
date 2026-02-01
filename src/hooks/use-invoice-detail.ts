@@ -41,6 +41,26 @@ interface ProcessingStep {
   duration?: number | null
 }
 
+/**
+ * CHANGE-023: AI 詳情資訊
+ */
+interface AiDetails {
+  /** 完整的 Prompt（System + User） */
+  prompt: string | null
+  /** GPT 原始 JSON 響應 */
+  response: string | null
+  /** Token 使用統計 */
+  tokenUsage: {
+    input: number
+    output: number
+    total: number
+  }
+  /** 使用的模型名稱 */
+  model: string | null
+  /** 圖片詳情模式 */
+  imageDetailMode: string | null
+}
+
 interface DocumentDetail {
   id: string
   fileName: string
@@ -75,6 +95,8 @@ interface DocumentDetail {
   extractedFields: ExtractedField[] | null
   processingSteps: ProcessingStep[] | null
   totalProcessingTime: number | null
+  /** CHANGE-023: AI 詳情 */
+  aiDetails?: AiDetails | null
 }
 
 interface DocumentDetailResponse {
@@ -148,7 +170,8 @@ export function useInvoiceDetail(documentId: string): UseInvoiceDetailResult {
   } = useQuery<DocumentDetailResponse, Error>({
     queryKey: ['document-detail', documentId],
     queryFn: async () => {
-      const response = await fetch(`/api/documents/${documentId}?include=extractedFields,processingSteps,uploadedBy,company,city`)
+      // CHANGE-023: 加入 aiDetails 到 include 參數
+      const response = await fetch(`/api/documents/${documentId}?include=extractedFields,processingSteps,uploadedBy,company,city,aiDetails`)
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))

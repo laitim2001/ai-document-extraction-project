@@ -119,7 +119,8 @@
       "preview": "文件預覽",
       "fields": "提取欄位",
       "processing": "處理詳情",
-      "audit": "審計日誌"
+      "audit": "審計日誌",
+      "ai": "AI 詳情"
     },
     "stats": {
       "status": "處理狀態",
@@ -149,11 +150,15 @@
         "FILE_PREPARATION": "文件準備",
         "DYNAMIC_PROMPT_ASSEMBLY": "Prompt 組裝",
         "UNIFIED_GPT_EXTRACTION": "GPT 統一提取",
-        "RESULT_VALIDATION": "結果驗證"
+        "RESULT_VALIDATION": "結果驗證",
+        "STAGE_1_COMPANY_IDENTIFICATION": "階段 1：公司識別",
+        "STAGE_2_FORMAT_IDENTIFICATION": "階段 2：格式識別",
+        "STAGE_3_FIELD_EXTRACTION": "階段 3：欄位提取"
       },
       "version": {
         "v2": "V2（11 步驟）",
-        "v3": "V3（7 步驟）"
+        "v3": "V3（7 步驟）",
+        "v3_1": "V3.1（7 步驟，3 階段）"
       }
     },
     "audit": {
@@ -171,6 +176,51 @@
       "noFields": "尚無提取欄位",
       "noProcessingSteps": "尚無處理步驟記錄",
       "noAuditLogs": "尚無審計日誌"
+    },
+    "ai": {
+      "title": "AI 提取詳情",
+      "singleStage": "單階段提取",
+      "prompt": {
+        "title": "GPT Prompt",
+        "description": "發送給 GPT 的完整提示詞",
+        "copy": "複製 Prompt",
+        "copied": "已複製"
+      },
+      "response": {
+        "title": "GPT 響應",
+        "description": "GPT 返回的原始 JSON",
+        "copy": "複製響應",
+        "copied": "已複製"
+      },
+      "tokens": {
+        "title": "Token 使用",
+        "input": "輸入 Token",
+        "output": "輸出 Token",
+        "total": "總計 Token",
+        "model": "模型",
+        "imageMode": "圖片模式"
+      },
+      "stages": {
+        "title": "三階段提取",
+        "stageDetails": "階段詳情",
+        "skipped": "此階段已跳過",
+        "stage1": {
+          "title": "階段 1：公司識別",
+          "description": "使用 GPT-5-nano 識別文件的發行公司"
+        },
+        "stage2": {
+          "title": "階段 2：格式識別",
+          "description": "根據公司配置識別文件格式"
+        },
+        "stage3": {
+          "title": "階段 3：欄位提取",
+          "description": "使用完整配置和 GPT-5.2 提取欄位"
+        }
+      },
+      "empty": {
+        "noData": "尚無 AI 提取詳情",
+        "description": "文件尚未完成 AI 提取處理"
+      }
     },
     "errors": {
       "notFound": "找不到文件",

@@ -29,6 +29,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { findMatchingCompany } from '@/services/company-matcher.service';
 import type {
   UnifiedExtractionResult,
   ValidatedExtractionResult,
@@ -378,22 +379,15 @@ export class ResultValidationService {
       }
     }
 
-    // 嘗試按名稱匹配
-    const matchedCompany = await prisma.company.findFirst({
-      where: {
-        OR: [
-          { name: { equals: issuerIdentification.companyName, mode: 'insensitive' } },
-          { nameVariants: { has: issuerIdentification.companyName } },
-        ],
-        status: 'ACTIVE',
-      },
-      select: { id: true, name: true },
+    // 使用公司匹配器進行正規化匹配（支援模糊匹配）
+    const matchResult = await findMatchingCompany(issuerIdentification.companyName, {
+      fuzzyThreshold: 0.85, // 稍微降低閾值以容許細微差異
     });
 
-    if (matchedCompany) {
+    if (matchResult.matched && matchResult.companyId) {
       return {
-        companyId: matchedCompany.id,
-        companyName: matchedCompany.name,
+        companyId: matchResult.companyId,
+        companyName: matchResult.companyName!,
         isNewCompany: false,
       };
     }

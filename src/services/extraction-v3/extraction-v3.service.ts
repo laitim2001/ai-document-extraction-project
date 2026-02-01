@@ -1,7 +1,9 @@
 /**
- * @fileoverview Extraction V3 主服務 - 7 步管線協調器
+ * @fileoverview Extraction V3/V3.1 主服務 - 統一提取管線協調器
  * @description
- *   V3 統一提取服務的主要入口，協調 7 步處理管線：
+ *   V3/V3.1 統一提取服務的主要入口：
+ *
+ *   V3 (7 步管線)：
  *   1. FILE_PREPARATION - 文件準備
  *   2. DYNAMIC_PROMPT_ASSEMBLY - 動態 Prompt 組裝
  *   3. UNIFIED_GPT_EXTRACTION - 統一 GPT 提取
@@ -10,26 +12,37 @@
  *   6. CONFIDENCE_CALCULATION - 信心度計算
  *   7. ROUTING_DECISION - 路由決策
  *
+ *   V3.1 (7 步管線，3 階段提取 - CHANGE-024)：
+ *   1. FILE_PREPARATION - 文件準備
+ *   2. STAGE_1_COMPANY_IDENTIFICATION - 公司識別 (GPT-5-nano)
+ *   3. STAGE_2_FORMAT_IDENTIFICATION - 格式識別 (GPT-5-nano)
+ *   4. STAGE_3_FIELD_EXTRACTION - 欄位提取 (GPT-5.2)
+ *   5. TERM_RECORDING - 術語記錄
+ *   6. CONFIDENCE_CALCULATION - 信心度計算
+ *   7. ROUTING_DECISION - 路由決策
+ *
  * @module src/services/extraction-v3/extraction-v3
  * @since CHANGE-021 - Unified Processor V3 Refactoring
- * @lastModified 2026-01-30
+ * @lastModified 2026-02-01
  *
  * @features
- *   - 7 步處理管線
- *   - 錯誤處理和重試
+ *   - V3: 7 步處理管線（單階段 GPT 提取）
+ *   - V3.1: 7 步處理管線（三階段 GPT 提取）
+ *   - Feature Flags 控制 V3/V3.1 切換
+ *   - 錯誤處理和回退支援
  *   - 步驟時間追蹤
- *   - Feature Flags 支援
- *   - V2 回退支援
  *
  * @dependencies
  *   - ./utils/pdf-converter - PDF 轉換
- *   - ./prompt-assembly.service - Prompt 組裝
- *   - ./unified-gpt-extraction.service - GPT 提取
- *   - ./result-validation.service - 結果驗證
- *   - ./confidence-v3.service - 信心度計算
+ *   - ./prompt-assembly.service - Prompt 組裝 (V3)
+ *   - ./unified-gpt-extraction.service - GPT 提取 (V3)
+ *   - ./result-validation.service - 結果驗證 (V3)
+ *   - ./confidence-v3.service - 信心度計算 (V3)
+ *   - ./stages/stage-orchestrator.service - 三階段協調器 (V3.1)
+ *   - ./confidence-v3-1.service - 信心度計算 (V3.1)
  *
  * @related
- *   - src/types/extraction-v3.types.ts - V3 類型定義
+ *   - src/types/extraction-v3.types.ts - V3/V3.1 類型定義
  *   - src/constants/processing-steps-v3.ts - V3 步驟常數
  */
 
@@ -39,6 +52,11 @@ import type {
   ProcessingContextV3,
   StepResultV3,
   ExtractionV3Flags,
+  AiDetailsV3,
+  // V3.1 types
+  ExtractionV3_1Output,
+  ProcessingStepV3_1,
+  StepResultV3_1,
 } from '@/types/extraction-v3.types';
 import {
   ProcessingStepV3,
@@ -59,6 +77,10 @@ import { PromptAssemblyService } from './prompt-assembly.service';
 import { UnifiedGptExtractionService } from './unified-gpt-extraction.service';
 import { ResultValidationService } from './result-validation.service';
 import { ConfidenceV3Service } from './confidence-v3.service';
+// V3.1 imports (CHANGE-024)
+import { StageOrchestratorService } from './stages/stage-orchestrator.service';
+import { ConfidenceV3_1Service } from './confidence-v3-1.service';
+import { prisma } from '@/lib/prisma';
 
 // ============================================================================
 // Types
@@ -111,19 +133,78 @@ const MIME_TYPE_TO_FILE_TYPE: Record<string, UnifiedFileType> = {
 export class ExtractionV3Service {
   private flags: ExtractionV3Flags;
   private debug: boolean;
+  private stageOrchestrator: StageOrchestratorService | null = null;
 
   constructor(config: ExtractionV3Config = {}) {
     this.flags = { ...DEFAULT_EXTRACTION_V3_FLAGS, ...config.flags };
     this.debug = config.debug ?? false;
+    // V3.1: 延遲初始化 StageOrchestratorService
+  }
+
+  /**
+   * 獲取或創建 StageOrchestratorService（V3.1）
+   */
+  private getStageOrchestrator(): StageOrchestratorService {
+    if (!this.stageOrchestrator) {
+      this.stageOrchestrator = new StageOrchestratorService(prisma);
+    }
+    return this.stageOrchestrator;
+  }
+
+  /**
+   * 判斷是否應該使用 V3.1 三階段架構
+   */
+  private shouldUseV3_1(): boolean {
+    if (!this.flags.useExtractionV3_1) {
+      return false;
+    }
+
+    // 灰度發布：根據百分比決定
+    if (this.flags.extractionV3_1Percentage < 100) {
+      const random = Math.random() * 100;
+      return random < this.flags.extractionV3_1Percentage;
+    }
+
+    return true;
   }
 
   /**
    * 處理文件（主入口）
    *
+   * @description
+   *   根據 Feature Flags 決定使用 V3 或 V3.1 架構：
+   *   - V3: 單階段 GPT 提取（7 步管線）
+   *   - V3.1: 三階段 GPT 提取（7 步管線，CHANGE-024）
+   *
    * @param input - 處理輸入
    * @returns 處理輸出
    */
   async processFile(input: ExtractionV3Input): Promise<ExtractionV3Output> {
+    // 決定使用 V3 還是 V3.1
+    const useV3_1 = this.shouldUseV3_1();
+
+    if (useV3_1) {
+      this.log('使用 V3.1 三階段架構');
+      try {
+        return await this.processFileV3_1(input);
+      } catch (error) {
+        // V3.1 失敗，嘗試回退到 V3
+        if (this.flags.fallbackToV3OnError) {
+          this.log('V3.1 失敗，回退到 V3 架構');
+          return this.processFileV3(input);
+        }
+        throw error;
+      }
+    }
+
+    this.log('使用 V3 單階段架構');
+    return this.processFileV3(input);
+  }
+
+  /**
+   * V3 處理流程（原有的 7 步管線）
+   */
+  private async processFileV3(input: ExtractionV3Input): Promise<ExtractionV3Output> {
     const startTime = Date.now();
     const stepTimings: Partial<Record<ProcessingStepV3, number>> = {};
     const stepResults: StepResultV3[] = [];
@@ -192,6 +273,7 @@ export class ExtractionV3Service {
         result: context.validatedResult,
         confidenceResult: context.confidenceResult,
         routingDecision: context.routingDecision,
+        aiDetails: context.aiDetails, // CHANGE-023: 包含 AI 詳情
         timing: {
           totalMs: Date.now() - startTime,
           stepTimings,
@@ -205,6 +287,238 @@ export class ExtractionV3Service {
       return {
         success: false,
         error: error instanceof Error ? error.message : '處理過程發生未知錯誤',
+        timing: {
+          totalMs: Date.now() - startTime,
+          stepTimings,
+        },
+        stepResults,
+        warnings,
+      };
+    }
+  }
+
+  /**
+   * V3.1 處理流程（三階段 GPT 提取 - CHANGE-024）
+   *
+   * @description
+   *   執行三階段提取流程：
+   *   1. FILE_PREPARATION - 文件準備（PDF → Base64 圖片）
+   *   2. STAGE_1_COMPANY_IDENTIFICATION - 公司識別（GPT-5-nano）
+   *   3. STAGE_2_FORMAT_IDENTIFICATION - 格式識別（GPT-5-nano）
+   *   4. STAGE_3_FIELD_EXTRACTION - 欄位提取（GPT-5.2）
+   *   5. TERM_RECORDING - 術語記錄
+   *   6. CONFIDENCE_CALCULATION - 信心度計算（V3.1 5 維度）
+   *   7. ROUTING_DECISION - 路由決策
+   */
+  private async processFileV3_1(input: ExtractionV3Input): Promise<ExtractionV3Output> {
+    const startTime = Date.now();
+    const stepTimings: Partial<Record<string, number>> = {};
+    const stepResults: StepResultV3[] = [];
+    const warnings: string[] = [];
+
+    try {
+      // ========== Step 1: FILE_PREPARATION ==========
+      const filePreparationStart = Date.now();
+      this.log('V3.1 Step 1: 文件準備');
+
+      const { fileBuffer, mimeType } = input;
+      const conversionResult = await PdfConverter.convertToBase64(fileBuffer, mimeType);
+
+      if (!conversionResult.success) {
+        return {
+          success: false,
+          error: conversionResult.error || '文件轉換失敗',
+          timing: { totalMs: Date.now() - startTime, stepTimings },
+          stepResults,
+          warnings,
+        };
+      }
+
+      stepTimings['FILE_PREPARATION'] = Date.now() - filePreparationStart;
+      stepResults.push({
+        step: 'FILE_PREPARATION' as ProcessingStepV3,
+        success: true,
+        data: { pageCount: conversionResult.pageCount, imageCount: conversionResult.images.length },
+        durationMs: stepTimings['FILE_PREPARATION'],
+      });
+
+      if (conversionResult.warnings) {
+        warnings.push(...conversionResult.warnings);
+      }
+
+      // ========== Steps 2-4: 三階段提取 ==========
+      this.log('V3.1 Steps 2-4: 三階段 GPT 提取');
+      const orchestrator = this.getStageOrchestrator();
+
+      const threeStageResult = await orchestrator.execute(
+        {
+          input,
+          imageBase64Array: conversionResult.images,
+          pageCount: conversionResult.pageCount,
+        },
+        {
+          autoCreateCompany: input.options?.autoCreateCompany ?? true,
+          autoCreateFormat: input.options?.autoCreateFormat ?? true,
+          imageDetailMode: 'auto',
+          continueOnStageFailure: false,
+        }
+      );
+
+      // 記錄三階段步驟結果
+      for (const stepResult of threeStageResult.stepResults) {
+        stepTimings[stepResult.step] = stepResult.durationMs;
+        stepResults.push({
+          step: stepResult.step as unknown as ProcessingStepV3, // V3.1 步驟名稱兼容
+          success: stepResult.success,
+          data: stepResult.data,
+          durationMs: stepResult.durationMs,
+          error: stepResult.error,
+        });
+      }
+
+      if (!threeStageResult.success) {
+        return {
+          success: false,
+          error: threeStageResult.error || '三階段提取失敗',
+          timing: { totalMs: Date.now() - startTime, stepTimings },
+          stepResults,
+          warnings,
+        };
+      }
+
+      // ========== Step 5: TERM_RECORDING ==========
+      const termRecordingStart = Date.now();
+      this.log('V3.1 Step 5: 術語記錄');
+      // TODO: 實現術語記錄邏輯（與 V3 相同，可選步驟）
+      stepTimings['TERM_RECORDING'] = Date.now() - termRecordingStart;
+      stepResults.push({
+        step: 'TERM_RECORDING' as ProcessingStepV3,
+        success: true,
+        data: { newTermsCount: 0, matchedTermsCount: 0 },
+        durationMs: stepTimings['TERM_RECORDING'],
+      });
+
+      // ========== Step 6: CONFIDENCE_CALCULATION (V3.1) ==========
+      const confidenceStart = Date.now();
+      this.log('V3.1 Step 6: 信心度計算（5 維度）');
+
+      const confidenceServiceResult = ConfidenceV3_1Service.calculate({
+        stage1Result: threeStageResult.stage1!,
+        stage2Result: threeStageResult.stage2!,
+        stage3Result: threeStageResult.stage3!,
+      });
+
+      if (!confidenceServiceResult.success || !confidenceServiceResult.result) {
+        return {
+          success: false,
+          error: confidenceServiceResult.error || '信心度計算失敗',
+          timing: { totalMs: Date.now() - startTime, stepTimings },
+          stepResults,
+          warnings,
+        };
+      }
+
+      const confidenceResult = confidenceServiceResult.result;
+
+      stepTimings['CONFIDENCE_CALCULATION'] = Date.now() - confidenceStart;
+      stepResults.push({
+        step: 'CONFIDENCE_CALCULATION' as ProcessingStepV3,
+        success: true,
+        data: { overallScore: confidenceResult.overallScore, level: confidenceResult.level },
+        durationMs: stepTimings['CONFIDENCE_CALCULATION'],
+      });
+
+      // ========== Step 7: ROUTING_DECISION ==========
+      const routingStart = Date.now();
+      this.log('V3.1 Step 7: 路由決策');
+
+      // 根據信心度決定路由
+      let routingPath: 'AUTO_APPROVE' | 'QUICK_REVIEW' | 'FULL_REVIEW';
+      if (confidenceResult.overallScore >= 90) {
+        routingPath = 'AUTO_APPROVE';
+      } else if (confidenceResult.overallScore >= 70) {
+        routingPath = 'QUICK_REVIEW';
+      } else {
+        routingPath = 'FULL_REVIEW';
+      }
+
+      const routingDecision = {
+        decision: routingPath, // 與 convertV3Result 期望的結構一致
+        recommendedPath: routingPath, // 保持向後兼容
+        confidence: confidenceResult.overallScore,
+        reasons: confidenceResult.dimensions.map((d) => `${d.dimension}: ${d.rawScore}`),
+      };
+
+      stepTimings['ROUTING_DECISION'] = Date.now() - routingStart;
+      stepResults.push({
+        step: 'ROUTING_DECISION' as ProcessingStepV3,
+        success: true,
+        data: routingDecision,
+        durationMs: stepTimings['ROUTING_DECISION'],
+      });
+
+      // ========== 構建輸出結果 ==========
+      const totalTokenUsage = orchestrator.calculateTotalTokenUsage(threeStageResult);
+      const stageAiDetails = orchestrator.getStageAiDetails(threeStageResult);
+
+      return {
+        success: true,
+        extractionVersion: 'v3.1',
+        result: threeStageResult.stage3 ? {
+          standardFields: threeStageResult.stage3.standardFields,
+          customFields: threeStageResult.stage3.customFields,
+          lineItems: threeStageResult.stage3.lineItems,
+          extraCharges: threeStageResult.stage3.extraCharges,
+          overallConfidence: threeStageResult.stage3.overallConfidence,
+          // 從 Stage 1/2 獲取公司和格式信息
+          issuerIdentification: {
+            companyId: threeStageResult.stage1?.companyId,
+            companyName: threeStageResult.stage1?.companyName || '',
+            confidence: threeStageResult.stage1?.confidence || 0,
+            isNewCompany: threeStageResult.stage1?.isNewCompany || false,
+          },
+          formatIdentification: {
+            formatId: threeStageResult.stage2?.formatId,
+            formatName: threeStageResult.stage2?.formatName || '',
+            confidence: threeStageResult.stage2?.confidence || 0,
+            isNewFormat: threeStageResult.stage2?.isNewFormat || false,
+          },
+          validation: { isValid: true, errors: [], warnings: [] },
+          jitCreated: {
+            company: threeStageResult.stage1?.isNewCompany || false,
+            format: threeStageResult.stage2?.isNewFormat || false,
+          },
+        } : undefined,
+        confidenceResult: {
+          overallScore: confidenceResult.overallScore,
+          level: confidenceResult.level,
+          dimensions: confidenceResult.dimensions.map((d) => ({
+            dimension: d.dimension as string,
+            score: d.rawScore,
+            weight: d.weight,
+          })),
+          calculatedAt: confidenceResult.calculatedAt,
+        },
+        routingDecision,
+        aiDetails: {
+          prompt: stageAiDetails.stage3?.prompt || '',
+          response: stageAiDetails.stage3?.response || '',
+          tokenUsage: totalTokenUsage,
+          model: stageAiDetails.stage3?.model || 'gpt-5.2',
+        },
+        // V3.1 特有：三階段 AI 詳情
+        stageAiDetails,
+        timing: {
+          totalMs: Date.now() - startTime,
+          stepTimings,
+        },
+        stepResults,
+        warnings,
+      } as unknown as ExtractionV3Output;
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'V3.1 處理過程發生未知錯誤',
         timing: {
           totalMs: Date.now() - startTime,
           stepTimings,
@@ -408,6 +722,22 @@ export class ExtractionV3Service {
 
       // 更新上下文
       context.extractionResult = result.result;
+
+      // CHANGE-023: 收集 AI 詳情
+      if (result.fullPrompt && result.tokenUsage) {
+        context.aiDetails = {
+          prompt: result.fullPrompt.combinedPrompt,
+          response: result.rawResponse || '',
+          tokenUsage: {
+            input: result.tokenUsage.input,
+            output: result.tokenUsage.output,
+            total: result.tokenUsage.total,
+          },
+          model: result.result.metadata.modelUsed,
+          imageDetailMode: result.fullPrompt.imageDetailMode,
+          imageCount: result.fullPrompt.imageCount,
+        };
+      }
 
       if (this.flags.logGptResponse) {
         this.log('GPT 響應:', result.rawResponse);

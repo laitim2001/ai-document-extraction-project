@@ -34,6 +34,13 @@ import type {
   UnmappedField,
   StepResult,
 } from '@/types/unified-processor';
+import type {
+  ExtractionV3_1Output,
+  Stage1CompanyResult,
+  Stage2FormatResult,
+  Stage3ExtractionResult,
+  StepResultV3_1,
+} from '@/types/extraction-v3.types';
 
 // ============================================================================
 // Types
@@ -261,6 +268,25 @@ export async function persistProcessingResult(
         errorMessage: result.error ?? null,
         unmappedFieldDetails: unmappedFieldDetails as unknown as Prisma.InputJsonValue,
         pipelineSteps: pipelineSteps as unknown as Prisma.InputJsonValue,
+        // CHANGE-023: 存儲 AI 詳情
+        gptPrompt: result.aiDetails?.prompt ?? null,
+        gptResponse: result.aiDetails?.response ?? null,
+        promptTokens: result.aiDetails?.tokenUsage?.input ?? null,
+        completionTokens: result.aiDetails?.tokenUsage?.output ?? null,
+        totalTokens: result.aiDetails?.tokenUsage?.total ?? null,
+        gptModelUsed: result.aiDetails?.model ?? null,
+        imageDetailMode: result.aiDetails?.imageDetailMode ?? null,
+        // CHANGE-024: V3.1 三階段欄位
+        extractionVersion: result.extractionVersion ?? null,
+        stage1Result: result.stage1Result as unknown as Prisma.InputJsonValue ?? null,
+        stage2Result: result.stage2Result as unknown as Prisma.InputJsonValue ?? null,
+        stage3Result: result.stage3Result as unknown as Prisma.InputJsonValue ?? null,
+        stage1AiDetails: result.stageAiDetails?.stage1 as unknown as Prisma.InputJsonValue ?? null,
+        stage2AiDetails: result.stageAiDetails?.stage2 as unknown as Prisma.InputJsonValue ?? null,
+        stage3AiDetails: result.stageAiDetails?.stage3 as unknown as Prisma.InputJsonValue ?? null,
+        stage1DurationMs: result.stageAiDetails?.stage1?.durationMs ?? null,
+        stage2DurationMs: result.stageAiDetails?.stage2?.durationMs ?? null,
+        stage3DurationMs: result.stageAiDetails?.stage3?.durationMs ?? null,
       },
       update: {
         companyId: result.companyId ?? null,
@@ -276,6 +302,25 @@ export async function persistProcessingResult(
         errorMessage: result.error ?? null,
         unmappedFieldDetails: unmappedFieldDetails as unknown as Prisma.InputJsonValue,
         pipelineSteps: pipelineSteps as unknown as Prisma.InputJsonValue,
+        // CHANGE-023: 存儲 AI 詳情
+        gptPrompt: result.aiDetails?.prompt ?? null,
+        gptResponse: result.aiDetails?.response ?? null,
+        promptTokens: result.aiDetails?.tokenUsage?.input ?? null,
+        completionTokens: result.aiDetails?.tokenUsage?.output ?? null,
+        totalTokens: result.aiDetails?.tokenUsage?.total ?? null,
+        gptModelUsed: result.aiDetails?.model ?? null,
+        imageDetailMode: result.aiDetails?.imageDetailMode ?? null,
+        // CHANGE-024: V3.1 三階段欄位
+        extractionVersion: result.extractionVersion ?? null,
+        stage1Result: result.stage1Result as unknown as Prisma.InputJsonValue ?? null,
+        stage2Result: result.stage2Result as unknown as Prisma.InputJsonValue ?? null,
+        stage3Result: result.stage3Result as unknown as Prisma.InputJsonValue ?? null,
+        stage1AiDetails: result.stageAiDetails?.stage1 as unknown as Prisma.InputJsonValue ?? null,
+        stage2AiDetails: result.stageAiDetails?.stage2 as unknown as Prisma.InputJsonValue ?? null,
+        stage3AiDetails: result.stageAiDetails?.stage3 as unknown as Prisma.InputJsonValue ?? null,
+        stage1DurationMs: result.stageAiDetails?.stage1?.durationMs ?? null,
+        stage2DurationMs: result.stageAiDetails?.stage2?.durationMs ?? null,
+        stage3DurationMs: result.stageAiDetails?.stage3?.durationMs ?? null,
       },
     }),
 
@@ -329,4 +374,256 @@ export async function markDocumentProcessingFailed(
       processingEndedAt: new Date(),
     },
   });
+}
+
+// ============================================================================
+// CHANGE-024: V3.1 三階段結果持久化
+// ============================================================================
+
+/**
+ * V3.1 持久化輸入參數
+ */
+export interface PersistV3_1ResultInput {
+  /** 文件 ID */
+  documentId: string;
+  /** V3.1 處理輸出 */
+  result: ExtractionV3_1Output;
+  /** 操作用戶 ID */
+  userId: string;
+}
+
+/**
+ * V3.1 持久化輸出結果
+ */
+export interface PersistV3_1ResultOutput {
+  /** ExtractionResult 記錄 ID */
+  extractionResultId: string;
+  /** 更新後的 Document 狀態 */
+  documentStatus: string;
+  /** 提取版本 */
+  extractionVersion: 'v3.1';
+  /** Stage 統計 */
+  stageStats: {
+    stage1Success: boolean;
+    stage2Success: boolean;
+    stage3Success: boolean;
+    totalDurationMs: number;
+  };
+}
+
+/**
+ * 將 StepResultV3_1[] 轉換為可持久化的 JSON 格式
+ */
+function convertV3_1StepResultsToJson(
+  stepResults: StepResultV3_1[],
+): Array<{
+  step: string;
+  success: boolean;
+  error?: string;
+  durationMs: number;
+  skipped?: boolean;
+}> {
+  return stepResults.map((sr) => ({
+    step: sr.step,
+    success: sr.success,
+    ...(sr.error ? { error: sr.error } : {}),
+    durationMs: sr.durationMs,
+    ...(sr.skipped ? { skipped: sr.skipped } : {}),
+  }));
+}
+
+/**
+ * 持久化 V3.1 三階段處理結果
+ *
+ * @description
+ *   將 ExtractionV3_1Output 寫入資料庫：
+ *   1. 存儲三階段結果（stage1Result, stage2Result, stage3Result）
+ *   2. 存儲各階段 AI 詳情
+ *   3. 計算並存儲信心度
+ *   4. 更新 Document 狀態
+ *
+ * @param input - V3.1 持久化輸入
+ * @returns 持久化結果摘要
+ */
+export async function persistV3_1ProcessingResult(
+  input: PersistV3_1ResultInput,
+): Promise<PersistV3_1ResultOutput> {
+  const { documentId, result } = input;
+  const { stage1Result, stage2Result, stage3Result } = result;
+
+  // 計算統計
+  const stage1Success = stage1Result?.success ?? false;
+  const stage2Success = stage2Result?.success ?? false;
+  const stage3Success = stage3Result?.success ?? false;
+
+  const totalDurationMs =
+    (stage1Result?.durationMs ?? 0) +
+    (stage2Result?.durationMs ?? 0) +
+    (stage3Result?.durationMs ?? 0);
+
+  // 從 Stage 3 提取欄位信息
+  const standardFields = stage3Result?.standardFields ?? {};
+  const lineItems = stage3Result?.lineItems ?? [];
+  const extraCharges = stage3Result?.extraCharges ?? [];
+
+  // 計算欄位統計
+  const standardFieldKeys = Object.keys(standardFields);
+  const totalFields = standardFieldKeys.length + lineItems.length + extraCharges.length;
+  const mappedFields = standardFieldKeys.filter(
+    (key) => {
+      const field = (standardFields as Record<string, { value?: string | number | null }>)[key];
+      return field?.value !== null && field?.value !== undefined && field?.value !== '';
+    }
+  ).length;
+
+  // 計算整體信心度
+  const overallConfidence = result.confidenceResult?.overallScore ?? 0;
+
+  // Token 統計
+  const totalTokens =
+    (stage1Result?.aiDetails?.tokenUsage?.total ?? 0) +
+    (stage2Result?.aiDetails?.tokenUsage?.total ?? 0) +
+    (stage3Result?.tokenUsage?.total ?? 0);
+
+  // 決定 Document 狀態
+  const documentStatus = result.success ? 'MAPPING_COMPLETED' : 'OCR_FAILED';
+
+  // 構建 pipeline steps
+  const pipelineSteps = result.stepResults?.length
+    ? convertV3_1StepResultsToJson(result.stepResults)
+    : null;
+
+  // 構建信心度分數
+  const confidenceScores = result.confidenceResult
+    ? {
+        overall: overallConfidence,
+        dimensions: result.confidenceResult.dimensions,
+        level: result.confidenceResult.level,
+        routingDecision: result.routingDecision?.decision,
+      }
+    : null;
+
+  // 使用 Prisma 交易確保原子性
+  const [extractionResult] = await prisma.$transaction([
+    // 1. Upsert ExtractionResult
+    prisma.extractionResult.upsert({
+      where: { documentId },
+      create: {
+        documentId,
+        companyId: stage1Result?.companyId ?? null,
+        fieldMappings: standardFields as unknown as Prisma.InputJsonValue,
+        totalFields,
+        mappedFields,
+        unmappedFields: totalFields - mappedFields,
+        averageConfidence: overallConfidence,
+        confidenceScores: confidenceScores as unknown as Prisma.InputJsonValue,
+        processingTime: totalDurationMs,
+        rulesApplied: 0, // V3.1 不使用規則
+        status: result.success ? 'COMPLETED' : 'FAILED',
+        errorMessage: result.error ?? null,
+        pipelineSteps: pipelineSteps as unknown as Prisma.InputJsonValue,
+
+        // V3.1 三階段欄位
+        extractionVersion: 'v3.1',
+        stage1Result: stage1Result as unknown as Prisma.InputJsonValue,
+        stage2Result: stage2Result as unknown as Prisma.InputJsonValue,
+        stage3Result: stage3Result as unknown as Prisma.InputJsonValue,
+        stage1AiDetails: stage1Result?.aiDetails as unknown as Prisma.InputJsonValue,
+        stage2AiDetails: stage2Result?.aiDetails as unknown as Prisma.InputJsonValue,
+        stage3AiDetails: stage3Result?.aiDetails as unknown as Prisma.InputJsonValue,
+        stage1DurationMs: stage1Result?.durationMs ?? null,
+        stage2DurationMs: stage2Result?.durationMs ?? null,
+        stage3DurationMs: stage3Result?.durationMs ?? null,
+        stage2ConfigSource: stage2Result?.configSource ?? null,
+        stage3ConfigScope: stage3Result?.configUsed?.promptConfigScope ?? null,
+
+        // Token 統計（合計三階段）
+        totalTokens,
+        promptTokens:
+          (stage1Result?.aiDetails?.tokenUsage?.input ?? 0) +
+          (stage2Result?.aiDetails?.tokenUsage?.input ?? 0) +
+          (stage3Result?.tokenUsage?.input ?? 0),
+        completionTokens:
+          (stage1Result?.aiDetails?.tokenUsage?.output ?? 0) +
+          (stage2Result?.aiDetails?.tokenUsage?.output ?? 0) +
+          (stage3Result?.tokenUsage?.output ?? 0),
+        gptModelUsed: stage3Result?.aiDetails?.model ?? stage1Result?.aiDetails?.model ?? null,
+      },
+      update: {
+        companyId: stage1Result?.companyId ?? null,
+        fieldMappings: standardFields as unknown as Prisma.InputJsonValue,
+        totalFields,
+        mappedFields,
+        unmappedFields: totalFields - mappedFields,
+        averageConfidence: overallConfidence,
+        confidenceScores: confidenceScores as unknown as Prisma.InputJsonValue,
+        processingTime: totalDurationMs,
+        status: result.success ? 'COMPLETED' : 'FAILED',
+        errorMessage: result.error ?? null,
+        pipelineSteps: pipelineSteps as unknown as Prisma.InputJsonValue,
+
+        // V3.1 三階段欄位
+        extractionVersion: 'v3.1',
+        stage1Result: stage1Result as unknown as Prisma.InputJsonValue,
+        stage2Result: stage2Result as unknown as Prisma.InputJsonValue,
+        stage3Result: stage3Result as unknown as Prisma.InputJsonValue,
+        stage1AiDetails: stage1Result?.aiDetails as unknown as Prisma.InputJsonValue,
+        stage2AiDetails: stage2Result?.aiDetails as unknown as Prisma.InputJsonValue,
+        stage3AiDetails: stage3Result?.aiDetails as unknown as Prisma.InputJsonValue,
+        stage1DurationMs: stage1Result?.durationMs ?? null,
+        stage2DurationMs: stage2Result?.durationMs ?? null,
+        stage3DurationMs: stage3Result?.durationMs ?? null,
+        stage2ConfigSource: stage2Result?.configSource ?? null,
+        stage3ConfigScope: stage3Result?.configUsed?.promptConfigScope ?? null,
+
+        // Token 統計
+        totalTokens,
+        promptTokens:
+          (stage1Result?.aiDetails?.tokenUsage?.input ?? 0) +
+          (stage2Result?.aiDetails?.tokenUsage?.input ?? 0) +
+          (stage3Result?.tokenUsage?.input ?? 0),
+        completionTokens:
+          (stage1Result?.aiDetails?.tokenUsage?.output ?? 0) +
+          (stage2Result?.aiDetails?.tokenUsage?.output ?? 0) +
+          (stage3Result?.tokenUsage?.output ?? 0),
+        gptModelUsed: stage3Result?.aiDetails?.model ?? stage1Result?.aiDetails?.model ?? null,
+      },
+    }),
+
+    // 2. 更新 Document
+    prisma.document.update({
+      where: { id: documentId },
+      data: {
+        status: documentStatus,
+        companyId: stage1Result?.companyId ?? undefined,
+        processingPath: result.routingDecision?.decision === 'AUTO_APPROVE'
+          ? 'AUTO_APPROVE'
+          : result.routingDecision?.decision === 'QUICK_REVIEW'
+            ? 'QUICK_REVIEW'
+            : 'FULL_REVIEW',
+        routingDecision: result.routingDecision
+          ? ({
+              decision: result.routingDecision.decision,
+              confidence: overallConfidence,
+              reasons: result.routingDecision.reasons,
+            } as unknown as Prisma.InputJsonValue)
+          : undefined,
+        processingEndedAt: new Date(),
+        processingDuration: totalDurationMs,
+        errorMessage: result.success ? null : (result.error ?? 'Processing failed'),
+      },
+    }),
+  ]);
+
+  return {
+    extractionResultId: extractionResult.id,
+    documentStatus,
+    extractionVersion: 'v3.1',
+    stageStats: {
+      stage1Success,
+      stage2Success,
+      stage3Success,
+      totalDurationMs,
+    },
+  };
 }

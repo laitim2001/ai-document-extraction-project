@@ -58,6 +58,13 @@ export interface GptExtractionConfig {
   retryCount?: number;
   /** 重試延遲（毫秒） */
   retryDelay?: number;
+  /**
+   * 圖片處理模式 - CHANGE-023
+   * - 'auto': 自動根據圖片大小選擇（預設）
+   * - 'low': 低解析度模式，約 85 tokens/image，處理更快
+   * - 'high': 高解析度模式，約 765 tokens/tile，細節更好
+   */
+  imageDetailMode?: 'auto' | 'low' | 'high';
 }
 
 /**
@@ -79,6 +86,21 @@ export interface GptExtractionServiceResult {
     input: number;
     output: number;
     total: number;
+  };
+  /**
+   * CHANGE-023: 完整的 Prompt 內容（用於 AI 詳情顯示）
+   */
+  fullPrompt?: {
+    /** System Prompt */
+    systemPrompt: string;
+    /** User Prompt（不含圖片） */
+    userPrompt: string;
+    /** 組合後的完整 Prompt */
+    combinedPrompt: string;
+    /** 圖片數量 */
+    imageCount: number;
+    /** 使用的圖片詳情模式 */
+    imageDetailMode: 'auto' | 'low' | 'high';
   };
 }
 
@@ -135,6 +157,7 @@ const DEFAULT_CONFIG: Required<GptExtractionConfig> = {
   timeout: 60000, // 60 秒
   retryCount: 2,
   retryDelay: 1000,
+  imageDetailMode: 'auto', // CHANGE-023: 預設使用自動模式
 };
 
 /** API 版本 */
@@ -215,6 +238,15 @@ export class UnifiedGptExtractionService {
             Date.now() - startTime
           );
 
+          // CHANGE-023: 構建完整的 Prompt 資訊
+          const fullPrompt = {
+            systemPrompt: prompt.systemPrompt,
+            userPrompt: prompt.userPrompt,
+            combinedPrompt: `${prompt.systemPrompt}\n\n---USER PROMPT---\n\n${prompt.userPrompt}`,
+            imageCount: imageBase64Array.length,
+            imageDetailMode: this.config.imageDetailMode,
+          };
+
           return {
             success: parseResult.success,
             result: parseResult.result,
@@ -226,6 +258,7 @@ export class UnifiedGptExtractionService {
               output: response.usage.completion_tokens,
               total: response.usage.total_tokens,
             },
+            fullPrompt,
           };
         } catch (error) {
           lastError = error instanceof Error ? error : new Error(String(error));
@@ -270,13 +303,13 @@ export class UnifiedGptExtractionService {
     // User message with images
     const userContent: GptMessageContent[] = [];
 
-    // 添加圖片
+    // 添加圖片 - CHANGE-023: 使用配置的 imageDetailMode
     for (const imageBase64 of imageBase64Array) {
       userContent.push({
         type: 'image_url',
         image_url: {
           url: imageBase64,
-          detail: 'auto', // 使用自動模式以優化 Token 消耗
+          detail: this.config.imageDetailMode,
         },
       });
     }

@@ -3,16 +3,17 @@
 /**
  * @fileoverview 發票詳情選項卡組件
  * @description
- *   顯示發票詳情的四個選項卡：
+ *   顯示發票詳情的五個選項卡：
  *   - 文件預覽（PDF + 欄位高亮）
  *   - 提取欄位（欄位面板）
  *   - 處理詳情（時間軸）
  *   - 審計日誌
+ *   - AI 詳情（CHANGE-023）
  *
  * @module src/components/features/invoice/detail/InvoiceDetailTabs
  * @author Development Team
  * @since Epic 13 - Story 13-8 (Invoice Detail Page)
- * @lastModified 2026-01-18
+ * @lastModified 2026-02-01 (CHANGE-023 - AI Details Tab)
  */
 
 import * as React from 'react'
@@ -25,7 +26,8 @@ import {
 } from '@/components/features/document-preview'
 import { ProcessingTimeline } from './ProcessingTimeline'
 import { InvoiceAuditLog } from './InvoiceAuditLog'
-import { FileText, ListChecks, Clock, History } from 'lucide-react'
+import { AiDetailsTab } from './AiDetailsTab'
+import { FileText, ListChecks, Clock, History, Bot } from 'lucide-react'
 import type { ExtractedField } from '@/types/extracted-field'
 import type { DocumentStatusKey } from '@/lib/document-status'
 import type { BoundingBox } from '@/lib/pdf'
@@ -33,6 +35,19 @@ import type { BoundingBox } from '@/lib/pdf'
 // ============================================================
 // Types
 // ============================================================
+
+/** CHANGE-023: AI 詳情介面 */
+interface AiDetails {
+  prompt: string | null
+  response: string | null
+  tokenUsage: {
+    input: number
+    output: number
+    total: number
+  }
+  model: string | null
+  imageDetailMode: string | null
+}
 
 interface DocumentData {
   id: string
@@ -42,6 +57,8 @@ interface DocumentData {
   extractedFields?: ExtractedField[] | null
   processingSteps?: ProcessingStep[] | null
   totalProcessingTime?: number | null
+  /** CHANGE-023: AI 詳情 */
+  aiDetails?: AiDetails | null
 }
 
 interface ProcessingStep {
@@ -117,7 +134,8 @@ export function InvoiceDetailTabs({ document }: InvoiceDetailTabsProps) {
 
   return (
     <Tabs defaultValue="preview" className="w-full">
-      <TabsList className="grid w-full grid-cols-4 max-w-xl">
+      {/* CHANGE-023: 將 TabsList 從 4 列改為 5 列 */}
+      <TabsList className="grid w-full grid-cols-5 max-w-2xl">
         <TabsTrigger value="preview" className="flex items-center gap-2">
           <FileText className="h-4 w-4" />
           <span className="hidden sm:inline">{t('detail.tabs.preview')}</span>
@@ -133,6 +151,11 @@ export function InvoiceDetailTabs({ document }: InvoiceDetailTabsProps) {
         <TabsTrigger value="audit" className="flex items-center gap-2">
           <History className="h-4 w-4" />
           <span className="hidden sm:inline">{t('detail.tabs.audit')}</span>
+        </TabsTrigger>
+        {/* CHANGE-023: 新增 AI 詳情 Tab */}
+        <TabsTrigger value="ai" className="flex items-center gap-2">
+          <Bot className="h-4 w-4" />
+          <span className="hidden sm:inline">{t('detail.tabs.ai')}</span>
         </TabsTrigger>
       </TabsList>
 
@@ -204,6 +227,15 @@ export function InvoiceDetailTabs({ document }: InvoiceDetailTabsProps) {
         <Card>
           <CardContent className="p-4">
             <InvoiceAuditLog documentId={document.id} />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* CHANGE-023: AI 詳情 Tab */}
+      <TabsContent value="ai" className="mt-4">
+        <Card>
+          <CardContent className="p-4">
+            <AiDetailsTab aiDetails={document.aiDetails} />
           </CardContent>
         </Card>
       </TabsContent>

@@ -1,26 +1,30 @@
 /**
- * @fileoverview Extraction V3 類型定義 - 純 GPT-5.2 Vision 架構
+ * @fileoverview Extraction V3/V3.1 類型定義 - 純 GPT Vision 架構
  * @description
- *   定義 Extraction V3 統一提取服務的所有類型：
- *   - 7 步處理管線類型（FILE_PREPARATION → ROUTING_DECISION）
+ *   定義 Extraction V3 和 V3.1 統一提取服務的所有類型：
+ *   - V3: 7 步處理管線類型（FILE_PREPARATION → ROUTING_DECISION）
+ *   - V3.1: 三階段分離架構（CHANGE-024）
  *   - 統一 GPT 提取結果類型
  *   - 動態 Prompt 組裝配置
- *   - 簡化版 5 維度信心度計算
+ *   - 信心度計算（V3: 5 維度 / V3.1: 5 維度基於三階段）
  *   - Feature Flags 和配置類型
  *
  * @module src/types/extraction-v3.types
  * @since CHANGE-021 - Unified Processor V3 Refactoring
- * @lastModified 2026-01-30
+ * @lastModified 2026-02-01
  *
  * @features
- *   - ProcessingStepV3: 7 步處理管線枚舉
+ *   - ProcessingStepV3: V3 7 步處理管線枚舉
+ *   - ProcessingStepV3_1: V3.1 三階段分離處理管線枚舉 (CHANGE-024)
+ *   - Stage1/2/3 Result Types: 三階段結果類型 (CHANGE-024)
  *   - UnifiedExtractionResult: GPT Vision 統一提取結果
  *   - DynamicPromptConfig: 動態 Prompt 組裝配置
- *   - SimplifiedConfidenceWeights: 5 維度信心度權重
+ *   - ConfidenceWeightsV3_1: V3.1 基於三階段的信心度權重 (CHANGE-024)
  *   - ExtractionV3Flags: V3 Feature Flags
  *
  * @related
  *   - src/services/extraction-v3/ - V3 提取服務
+ *   - src/services/extraction-v3/stages/ - V3.1 三階段服務 (CHANGE-024)
  *   - src/constants/processing-steps-v3.ts - V3 步驟常數
  *   - src/types/unified-processor.ts - V2 類型（向下兼容）
  */
@@ -599,18 +603,28 @@ export interface StepResultV3<T = unknown> {
 export interface ExtractionV3Output {
   /** 是否成功 */
   success: boolean;
+  /** 提取版本（v3 或 v3.1） - CHANGE-024 */
+  extractionVersion?: 'v3' | 'v3.1';
   /** 提取結果（成功時填充） */
   result?: ValidatedExtractionResult;
   /** 信心度結果 */
   confidenceResult?: ConfidenceResultV3;
   /** 路由決策詳情 */
   routingDecision?: RoutingDecisionDetailV3;
+  /** CHANGE-023: AI 詳情（用於 AI 詳情 Tab 顯示，V3 單階段） */
+  aiDetails?: AiDetailsV3;
+  /** CHANGE-024: 三階段 AI 詳情（V3.1 三階段） */
+  stageAiDetails?: {
+    stage1?: StageAiDetails;
+    stage2?: StageAiDetails;
+    stage3?: StageAiDetails;
+  };
   /** 錯誤訊息（失敗時填充） */
   error?: string;
   /** 時間統計 */
   timing: {
     totalMs: number;
-    stepTimings: Partial<Record<ProcessingStepV3, number>>;
+    stepTimings: Partial<Record<ProcessingStepV3 | string, number>>;
   };
   /** 步驟結果列表 */
   stepResults: StepResultV3[];
@@ -654,6 +668,8 @@ export interface ProcessingContextV3 {
   // ========== Step 3: UNIFIED_GPT_EXTRACTION 結果 ==========
   /** GPT 原始提取結果 */
   extractionResult?: UnifiedExtractionResult;
+  /** CHANGE-023: AI 詳情（用於 AI 詳情 Tab 顯示） */
+  aiDetails?: AiDetailsV3;
 
   // ========== Step 4: RESULT_VALIDATION 結果 ==========
   /** 驗證後的提取結果 */
@@ -697,6 +713,37 @@ export interface ProcessingContextV3 {
 }
 
 // ============================================================================
+// CHANGE-023: AI Details Types
+// ============================================================================
+
+/**
+ * AI 詳情資訊
+ * @description 用於 AI 詳情 Tab 顯示的完整 GPT 提取資訊
+ * @since CHANGE-023
+ */
+export interface AiDetailsV3 {
+  /** 完整的 Prompt（System + User） */
+  prompt: string;
+  /** GPT 原始 JSON 響應 */
+  response: string;
+  /** Token 使用統計 */
+  tokenUsage: {
+    /** 輸入 Token 數 */
+    input: number;
+    /** 輸出 Token 數 */
+    output: number;
+    /** 總 Token 數 */
+    total: number;
+  };
+  /** 使用的模型名稱 */
+  model: string;
+  /** 圖片詳情模式 */
+  imageDetailMode: 'auto' | 'low' | 'high';
+  /** 圖片數量 */
+  imageCount: number;
+}
+
+// ============================================================================
 // Feature Flags Types
 // ============================================================================
 
@@ -715,6 +762,14 @@ export interface ExtractionV3Flags {
   /** GPT 失敗時使用 Azure DI 備選 */
   enableAzureDIFallback: boolean;
 
+  // V3.1 三階段架構（CHANGE-024）
+  /** 使用 V3.1 三階段架構（優先於 V3 單階段） */
+  useExtractionV3_1: boolean;
+  /** V3.1 灰度發布百分比 (0-100) */
+  extractionV3_1Percentage: number;
+  /** V3.1 失敗時回退到 V3 單階段 */
+  fallbackToV3OnError: boolean;
+
   // 調試選項
   /** 記錄組裝的 Prompt */
   logPromptAssembly: boolean;
@@ -731,6 +786,11 @@ export const DEFAULT_EXTRACTION_V3_FLAGS: ExtractionV3Flags = {
   extractionV3Percentage: 0, // 0% 流量
   fallbackToV2OnError: true, // 啟用回退
   enableAzureDIFallback: true, // 啟用 Azure DI 備選
+  // V3.1 三階段架構（CHANGE-024）
+  useExtractionV3_1: false, // 初始關閉
+  extractionV3_1Percentage: 0, // 0% 流量
+  fallbackToV3OnError: true, // 啟用回退到 V3
+  // 調試選項
   logPromptAssembly: false,
   logGptResponse: false,
 };
@@ -798,4 +858,565 @@ export function isUnifiedExtractionResult(
     'overallConfidence' in obj &&
     'metadata' in obj
   );
+}
+
+// ============================================================================
+// CHANGE-024: 三階段提取架構 V3.1 類型定義
+// ============================================================================
+
+/**
+ * V3.1 處理步驟枚舉（三階段分離架構）
+ * @description 將 V3 的 7 步重構為三階段分離的 7 步流程
+ * @since CHANGE-024
+ */
+export enum ProcessingStepV3_1 {
+  /** 階段 0: 文件準備（類型檢測 + PDF 轉換 + Base64 編碼） */
+  FILE_PREPARATION = 'FILE_PREPARATION',
+
+  /** 階段 1: 公司識別（GPT-5-nano） */
+  STAGE_1_COMPANY_IDENTIFICATION = 'STAGE_1_COMPANY_IDENTIFICATION',
+
+  /** 階段 2: 格式識別（GPT-5-nano） */
+  STAGE_2_FORMAT_IDENTIFICATION = 'STAGE_2_FORMAT_IDENTIFICATION',
+
+  /** 階段 3: 欄位提取（GPT-5.2） */
+  STAGE_3_FIELD_EXTRACTION = 'STAGE_3_FIELD_EXTRACTION',
+
+  /** 後處理 1: 術語記錄 */
+  TERM_RECORDING = 'TERM_RECORDING',
+
+  /** 後處理 2: 信心度計算（基於三階段結果） */
+  CONFIDENCE_CALCULATION = 'CONFIDENCE_CALCULATION',
+
+  /** 後處理 3: 路由決策 */
+  ROUTING_DECISION = 'ROUTING_DECISION',
+}
+
+/**
+ * V3.1 步驟執行順序
+ * @since CHANGE-024
+ */
+export const PROCESSING_STEP_ORDER_V3_1 = [
+  ProcessingStepV3_1.FILE_PREPARATION,
+  ProcessingStepV3_1.STAGE_1_COMPANY_IDENTIFICATION,
+  ProcessingStepV3_1.STAGE_2_FORMAT_IDENTIFICATION,
+  ProcessingStepV3_1.STAGE_3_FIELD_EXTRACTION,
+  ProcessingStepV3_1.TERM_RECORDING,
+  ProcessingStepV3_1.CONFIDENCE_CALCULATION,
+  ProcessingStepV3_1.ROUTING_DECISION,
+] as const;
+
+// ============================================================================
+// CHANGE-024: 階段 AI 詳情類型
+// ============================================================================
+
+/**
+ * 階段 AI 詳情
+ * @description 每個階段的 GPT 調用詳情，用於 AI 詳情 Tab 顯示
+ * @since CHANGE-024
+ */
+export interface StageAiDetails {
+  /** 階段標識 */
+  stage: 'STAGE_1' | 'STAGE_2' | 'STAGE_3';
+  /** 使用的模型名稱 */
+  model: string;
+  /** 完整的 Prompt */
+  prompt: string;
+  /** GPT 原始響應 */
+  response: string;
+  /** Token 使用統計 */
+  tokenUsage: {
+    input: number;
+    output: number;
+    total: number;
+  };
+  /** 圖片詳情模式 */
+  imageDetailMode?: 'auto' | 'low' | 'high';
+  /** 執行時間（毫秒） */
+  durationMs: number;
+}
+
+// ============================================================================
+// CHANGE-024: Stage 1 公司識別結果類型
+// ============================================================================
+
+/**
+ * 公司識別方法
+ * @since CHANGE-024
+ */
+export type CompanyIdentificationMethod =
+  | 'LOGO'
+  | 'HEADER'
+  | 'ADDRESS'
+  | 'TAX_ID'
+  | 'LLM_INFERRED';
+
+/**
+ * Stage 1: 公司識別結果
+ * @description GPT-5-nano 識別的公司信息
+ * @since CHANGE-024
+ */
+export interface Stage1CompanyResult {
+  /** 階段名稱 */
+  stageName: 'STAGE_1_COMPANY_IDENTIFICATION';
+  /** 是否成功 */
+  success: boolean;
+  /** 執行時間（毫秒） */
+  durationMs: number;
+
+  // ===== 識別結果 =====
+  /** 已匹配的公司 ID（如果匹配到已知公司） */
+  companyId?: string;
+  /** 識別出的公司名稱 */
+  companyName: string;
+  /** 識別方法 */
+  identificationMethod: CompanyIdentificationMethod;
+  /** 信心度 (0-100) */
+  confidence: number;
+  /** 是否為新公司（資料庫中不存在） */
+  isNewCompany: boolean;
+
+  // ===== AI 詳情 =====
+  /** 階段 AI 詳情 */
+  aiDetails: StageAiDetails;
+
+  // ===== 錯誤資訊 =====
+  /** 錯誤訊息（如果失敗） */
+  error?: string;
+}
+
+// ============================================================================
+// CHANGE-024: Stage 2 格式識別結果類型
+// ============================================================================
+
+/**
+ * 格式配置來源
+ * @description 標識格式識別時使用的配置來源
+ * @since CHANGE-024
+ */
+export type FormatConfigSource =
+  | 'COMPANY_SPECIFIC'  // 公司特定配置
+  | 'UNIVERSAL'         // 統一格式配置
+  | 'LLM_INFERRED';     // LLM 自行推斷
+
+/**
+ * Stage 2: 格式識別結果
+ * @description GPT-5-nano 識別的文件格式信息
+ * @since CHANGE-024
+ */
+export interface Stage2FormatResult {
+  /** 階段名稱 */
+  stageName: 'STAGE_2_FORMAT_IDENTIFICATION';
+  /** 是否成功 */
+  success: boolean;
+  /** 執行時間（毫秒） */
+  durationMs: number;
+
+  // ===== 識別結果 =====
+  /** 已匹配的格式 ID（如果匹配到已知格式） */
+  formatId?: string;
+  /** 識別出的格式名稱 */
+  formatName: string;
+  /** 信心度 (0-100) */
+  confidence: number;
+  /** 是否為新格式（資料庫中不存在） */
+  isNewFormat: boolean;
+
+  // ===== 配置來源追蹤 =====
+  /** 配置來源 */
+  configSource: FormatConfigSource;
+  /** 使用的配置詳情 */
+  configUsed?: {
+    /** 使用的格式配置 ID */
+    formatConfigId?: string;
+    /** 該公司有多少格式配置 */
+    companyConfigCount?: number;
+  };
+
+  // ===== AI 詳情 =====
+  /** 階段 AI 詳情 */
+  aiDetails: StageAiDetails;
+
+  // ===== 錯誤資訊 =====
+  /** 錯誤訊息（如果失敗） */
+  error?: string;
+}
+
+// ============================================================================
+// CHANGE-024: Stage 3 欄位提取結果類型
+// ============================================================================
+
+/**
+ * Prompt 配置範圍
+ * @since CHANGE-024
+ */
+export type PromptConfigScope = 'GLOBAL' | 'COMPANY' | 'FORMAT';
+
+/**
+ * Stage 3 配置使用詳情
+ * @description 追蹤 Stage 3 使用了哪些配置
+ * @since CHANGE-024
+ */
+export interface Stage3ConfigUsed {
+  /** Prompt 配置範圍 */
+  promptConfigScope: PromptConfigScope;
+  /** Prompt 配置 ID */
+  promptConfigId?: string;
+  /** 欄位映射配置 ID */
+  fieldMappingConfigId?: string;
+  /** 通用映射數量（Tier 1） */
+  universalMappingsCount: number;
+  /** 公司特定映射數量（Tier 2） */
+  companyMappingsCount: number;
+}
+
+/**
+ * Stage 3: 欄位提取結果
+ * @description GPT-5.2 精準提取的欄位信息
+ * @since CHANGE-024
+ */
+export interface Stage3ExtractionResult {
+  /** 階段名稱 */
+  stageName: 'STAGE_3_FIELD_EXTRACTION';
+  /** 是否成功 */
+  success: boolean;
+  /** 執行時間（毫秒） */
+  durationMs: number;
+
+  // ===== 提取結果 =====
+  /** 標準欄位（8 個核心欄位） */
+  standardFields: StandardFieldsV3;
+  /** 自定義欄位（公司/格式特定） */
+  customFields?: Record<string, FieldValue>;
+  /** 行項目（含術語預分類） */
+  lineItems: LineItemV3[];
+  /** 額外費用（含術語預分類） */
+  extraCharges?: ExtraChargeV3[];
+  /** GPT 自評信心度 (0-100) */
+  overallConfidence: number;
+
+  // ===== 配置來源追蹤 =====
+  /** 使用的配置詳情 */
+  configUsed: Stage3ConfigUsed;
+
+  // ===== Token 使用 =====
+  /** Token 使用統計 */
+  tokenUsage: {
+    input: number;
+    output: number;
+    total: number;
+  };
+
+  // ===== AI 詳情 =====
+  /** 階段 AI 詳情 */
+  aiDetails: StageAiDetails;
+
+  // ===== 錯誤資訊 =====
+  /** 錯誤訊息（如果失敗） */
+  error?: string;
+}
+
+// ============================================================================
+// CHANGE-024: V3.1 信心度計算類型
+// ============================================================================
+
+/**
+ * V3.1 信心度維度（基於三階段）
+ * @description 重新設計的 5 維度信心度計算，對應三階段架構
+ * @since CHANGE-024
+ */
+export enum ConfidenceDimensionV3_1 {
+  /** Stage 1 公司識別信心度 (20%) */
+  STAGE_1_COMPANY = 'STAGE_1_COMPANY',
+  /** Stage 2 格式識別信心度 (15%) */
+  STAGE_2_FORMAT = 'STAGE_2_FORMAT',
+  /** Stage 3 欄位提取信心度 (30%) */
+  STAGE_3_EXTRACTION = 'STAGE_3_EXTRACTION',
+  /** 欄位完整性 (20%) */
+  FIELD_COMPLETENESS = 'FIELD_COMPLETENESS',
+  /** 配置來源加成 (15%) */
+  CONFIG_SOURCE_BONUS = 'CONFIG_SOURCE_BONUS',
+}
+
+/**
+ * V3.1 信心度權重配置
+ * @since CHANGE-024
+ */
+export type ConfidenceWeightsV3_1 = Record<ConfidenceDimensionV3_1, number>;
+
+/**
+ * 預設 V3.1 信心度權重
+ * @since CHANGE-024
+ */
+export const DEFAULT_CONFIDENCE_WEIGHTS_V3_1: ConfidenceWeightsV3_1 = {
+  [ConfidenceDimensionV3_1.STAGE_1_COMPANY]: 0.20,
+  [ConfidenceDimensionV3_1.STAGE_2_FORMAT]: 0.15,
+  [ConfidenceDimensionV3_1.STAGE_3_EXTRACTION]: 0.30,
+  [ConfidenceDimensionV3_1.FIELD_COMPLETENESS]: 0.20,
+  [ConfidenceDimensionV3_1.CONFIG_SOURCE_BONUS]: 0.15,
+};
+
+/**
+ * 配置來源加成分數
+ * @description 根據配置來源給予不同的加成分數
+ * @since CHANGE-024
+ */
+export const CONFIG_SOURCE_BONUS_SCORES: Record<FormatConfigSource, number> = {
+  /** 公司特定配置：滿分加成 */
+  COMPANY_SPECIFIC: 100,
+  /** 統一配置：80 分 */
+  UNIVERSAL: 80,
+  /** LLM 推斷：50 分 */
+  LLM_INFERRED: 50,
+};
+
+/**
+ * V3.1 維度分數詳情
+ * @since CHANGE-024
+ */
+export interface DimensionScoreV3_1 {
+  /** 維度類型 */
+  dimension: ConfidenceDimensionV3_1;
+  /** 原始分數 (0-100) */
+  rawScore: number;
+  /** 加權後分數 */
+  weightedScore: number;
+  /** 權重 */
+  weight: number;
+}
+
+/**
+ * V3.1 信心度計算結果
+ * @since CHANGE-024
+ */
+export interface ConfidenceResultV3_1 {
+  /** 總信心度分數 (0-100) */
+  overallScore: number;
+  /** 信心度等級 */
+  level: ConfidenceLevelEnum;
+  /** 各維度分數詳情 */
+  dimensions: DimensionScoreV3_1[];
+  /** 計算時間戳 */
+  calculatedAt: Date;
+}
+
+// ============================================================================
+// CHANGE-024: V3.1 三階段處理上下文
+// ============================================================================
+
+/**
+ * V3.1 三階段處理上下文
+ * @description 整個 V3.1 處理流程共享的上下文
+ * @since CHANGE-024
+ */
+export interface ProcessingContextV3_1 {
+  /** 輸入資料 */
+  input: ExtractionV3Input;
+  /** 處理狀態 */
+  status: 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  /** 當前步驟 */
+  currentStep: ProcessingStepV3_1;
+  /** 開始時間（毫秒時間戳） */
+  startTime: number;
+
+  // ===== FILE_PREPARATION 結果 =====
+  /** 文件類型 */
+  fileType?: UnifiedFileType;
+  /** Base64 圖片陣列 */
+  imageBase64Array?: string[];
+  /** 頁數 */
+  pageCount?: number;
+
+  // ===== STAGE_1_COMPANY_IDENTIFICATION 結果 =====
+  /** Stage 1 結果 */
+  stage1Result?: Stage1CompanyResult;
+
+  // ===== STAGE_2_FORMAT_IDENTIFICATION 結果 =====
+  /** Stage 2 結果 */
+  stage2Result?: Stage2FormatResult;
+
+  // ===== STAGE_3_FIELD_EXTRACTION 結果 =====
+  /** Stage 3 結果 */
+  stage3Result?: Stage3ExtractionResult;
+
+  // ===== TERM_RECORDING 結果 =====
+  /** 術語記錄統計 */
+  termRecordingStats?: {
+    totalDetected: number;
+    newTermsCount: number;
+    matchedTermsCount: number;
+  };
+
+  // ===== CONFIDENCE_CALCULATION 結果 =====
+  /** V3.1 信心度結果 */
+  confidenceResult?: ConfidenceResultV3_1;
+  /** 整體信心度 (0-100) */
+  overallConfidence?: number;
+
+  // ===== ROUTING_DECISION 結果 =====
+  /** 路由決策詳情 */
+  routingDecision?: RoutingDecisionDetailV3;
+
+  // ===== 元資料 =====
+  /** 步驟結果列表 */
+  stepResults: StepResultV3_1[];
+  /** 警告列表 */
+  warnings: string[];
+}
+
+/**
+ * V3.1 步驟執行結果
+ * @since CHANGE-024
+ */
+export interface StepResultV3_1<T = unknown> {
+  /** 步驟類型 */
+  step: ProcessingStepV3_1;
+  /** 是否成功 */
+  success: boolean;
+  /** 步驟產出資料 */
+  data?: T;
+  /** 錯誤訊息（如失敗） */
+  error?: string;
+  /** 執行時間（毫秒） */
+  durationMs: number;
+  /** 是否被跳過 */
+  skipped?: boolean;
+}
+
+/**
+ * V3.1 處理輸出
+ * @description ExtractionV3_1Service.processFile() 的返回結果
+ * @since CHANGE-024
+ */
+export interface ExtractionV3_1Output {
+  /** 是否成功 */
+  success: boolean;
+
+  // ===== 三階段結果 =====
+  /** Stage 1 公司識別結果 */
+  stage1Result?: Stage1CompanyResult;
+  /** Stage 2 格式識別結果 */
+  stage2Result?: Stage2FormatResult;
+  /** Stage 3 欄位提取結果 */
+  stage3Result?: Stage3ExtractionResult;
+
+  // ===== 驗證後結果（整合三階段） =====
+  /** 驗證後的提取結果 */
+  result?: ValidatedExtractionResult;
+
+  // ===== 信心度和路由 =====
+  /** V3.1 信心度結果 */
+  confidenceResult?: ConfidenceResultV3_1;
+  /** 路由決策詳情 */
+  routingDecision?: RoutingDecisionDetailV3;
+
+  // ===== 錯誤處理 =====
+  /** 錯誤訊息（失敗時填充） */
+  error?: string;
+
+  // ===== 時間統計 =====
+  /** 時間統計 */
+  timing: {
+    totalMs: number;
+    stepTimings: Partial<Record<ProcessingStepV3_1, number>>;
+  };
+
+  /** 步驟結果列表 */
+  stepResults: StepResultV3_1[];
+  /** 警告列表 */
+  warnings: string[];
+}
+
+// ============================================================================
+// CHANGE-024: Type Guards for V3.1
+// ============================================================================
+
+/**
+ * 檢查是否為有效的 V3.1 處理步驟
+ * @since CHANGE-024
+ */
+export function isProcessingStepV3_1(
+  value: unknown
+): value is ProcessingStepV3_1 {
+  return (
+    typeof value === 'string' &&
+    Object.values(ProcessingStepV3_1).includes(value as ProcessingStepV3_1)
+  );
+}
+
+/**
+ * 檢查是否為有效的 V3.1 信心度維度
+ * @since CHANGE-024
+ */
+export function isConfidenceDimensionV3_1(
+  value: unknown
+): value is ConfidenceDimensionV3_1 {
+  return (
+    typeof value === 'string' &&
+    Object.values(ConfidenceDimensionV3_1).includes(
+      value as ConfidenceDimensionV3_1
+    )
+  );
+}
+
+/**
+ * 檢查是否為 Stage 1 結果
+ * @since CHANGE-024
+ */
+export function isStage1CompanyResult(
+  value: unknown
+): value is Stage1CompanyResult {
+  if (!value || typeof value !== 'object') return false;
+  const obj = value as Record<string, unknown>;
+  return obj.stageName === 'STAGE_1_COMPANY_IDENTIFICATION';
+}
+
+/**
+ * 檢查是否為 Stage 2 結果
+ * @since CHANGE-024
+ */
+export function isStage2FormatResult(
+  value: unknown
+): value is Stage2FormatResult {
+  if (!value || typeof value !== 'object') return false;
+  const obj = value as Record<string, unknown>;
+  return obj.stageName === 'STAGE_2_FORMAT_IDENTIFICATION';
+}
+
+/**
+ * 檢查是否為 Stage 3 結果
+ * @since CHANGE-024
+ */
+export function isStage3ExtractionResult(
+  value: unknown
+): value is Stage3ExtractionResult {
+  if (!value || typeof value !== 'object') return false;
+  const obj = value as Record<string, unknown>;
+  return obj.stageName === 'STAGE_3_FIELD_EXTRACTION';
+}
+
+/**
+ * 版本檢測邏輯：判斷是 V3 還是 V3.1 架構
+ * @since CHANGE-024
+ */
+export function detectExtractionVersion(
+  steps: Array<{ step: string }>
+): 'v3' | 'v3.1' {
+  const stepNames = steps.map((s) => s.step);
+
+  // V3.1 特有步驟
+  if (
+    stepNames.includes('STAGE_1_COMPANY_IDENTIFICATION') ||
+    stepNames.includes('STAGE_2_FORMAT_IDENTIFICATION') ||
+    stepNames.includes('STAGE_3_FIELD_EXTRACTION')
+  ) {
+    return 'v3.1';
+  }
+
+  // V3 特有步驟
+  if (stepNames.includes('UNIFIED_GPT_EXTRACTION')) {
+    return 'v3';
+  }
+
+  return 'v3'; // 預設
 }

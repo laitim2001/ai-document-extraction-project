@@ -1,8 +1,13 @@
 /**
- * @fileoverview Extraction V3 服務導出
+ * @fileoverview Extraction V3/V3.1 服務導出
  * @description
- *   統一導出 V3 提取服務的所有組件：
- *   - 主服務（ExtractionV3Service）
+ *   統一導出 V3 和 V3.1 提取服務的所有組件：
+ *   - V3 主服務（ExtractionV3Service）
+ *   - V3.1 三階段服務（CHANGE-024）：
+ *     - Stage1CompanyService - 公司識別
+ *     - Stage2FormatService - 格式識別
+ *     - Stage3ExtractionService - 欄位提取
+ *     - StageOrchestratorService - 階段協調
  *   - PDF 轉換工具（PdfConverter）
  *   - Prompt 組裝服務（PromptAssemblyService）
  *   - GPT 提取服務（UnifiedGptExtractionService）
@@ -11,10 +16,11 @@
  *
  * @module src/services/extraction-v3
  * @since CHANGE-021 - Unified Processor V3 Refactoring
- * @lastModified 2026-01-30
+ * @lastModified 2026-02-01
  *
  * @example
  * ```typescript
+ * // V3 使用方式（單次 GPT 調用）
  * import {
  *   ExtractionV3Service,
  *   processFileV3,
@@ -27,6 +33,21 @@
  *   fileName: 'invoice.pdf',
  *   mimeType: 'application/pdf',
  *   cityCode: 'HKG',
+ * });
+ *
+ * // V3.1 使用方式（三階段分離）
+ * import {
+ *   StageOrchestratorService,
+ *   Stage1CompanyService,
+ *   Stage2FormatService,
+ *   Stage3ExtractionService,
+ * } from '@/services/extraction-v3';
+ *
+ * const orchestrator = new StageOrchestratorService(prisma);
+ * const result = await orchestrator.execute({
+ *   input: extractionInput,
+ *   imageBase64Array: images,
+ *   pageCount: 1,
  * });
  * ```
  */
@@ -210,3 +231,98 @@ export {
   DEFAULT_CONFIDENCE_WEIGHTS_V3,
   DEFAULT_EXTRACTION_V3_FLAGS,
 } from '@/types/extraction-v3.types';
+
+// ============================================================================
+// CHANGE-024: V3.1 三階段服務
+// ============================================================================
+
+export {
+  Stage1CompanyService,
+  Stage2FormatService,
+  Stage3ExtractionService,
+  StageOrchestratorService,
+  type Stage1Input,
+  type Stage1Options,
+  type Stage2Input,
+  type Stage2Options,
+  type Stage3Input,
+  type Stage3Options,
+  type OrchestratorInput,
+  type OrchestratorOptions,
+} from './stages';
+
+// ============================================================================
+// CHANGE-024: V3.1 Types Re-export
+// ============================================================================
+
+export type {
+  // Processing Types V3.1
+  ProcessingStepV3_1,
+  StepResultV3_1,
+  ProcessingContextV3_1,
+  ExtractionV3_1Output,
+
+  // Stage Result Types
+  Stage1CompanyResult,
+  Stage2FormatResult,
+  Stage3ExtractionResult,
+  Stage3ConfigUsed,
+  StageAiDetails,
+
+  // Identification Types
+  CompanyIdentificationMethod,
+  FormatConfigSource,
+  PromptConfigScope,
+
+  // Confidence Types V3.1
+  ConfidenceDimensionV3_1,
+  ConfidenceWeightsV3_1,
+  DimensionScoreV3_1,
+  ConfidenceResultV3_1,
+} from '@/types/extraction-v3.types';
+
+// ============================================================================
+// CHANGE-024: V3.1 Constants Re-export
+// ============================================================================
+
+export {
+  PROCESSING_STEP_ORDER_V3_1,
+  DEFAULT_CONFIDENCE_WEIGHTS_V3_1,
+  CONFIG_SOURCE_BONUS_SCORES,
+  // Type Guards
+  isProcessingStepV3_1,
+  isConfidenceDimensionV3_1,
+  isStage1CompanyResult,
+  isStage2FormatResult,
+  isStage3ExtractionResult,
+  detectExtractionVersion,
+} from '@/types/extraction-v3.types';
+
+// ============================================================================
+// CHANGE-024: V3.1 Confidence Service
+// ============================================================================
+
+export {
+  ConfidenceV3_1Service,
+  calculateConfidenceV3_1,
+  quickCalculateConfidenceV3_1,
+  getRoutingDecisionV3_1,
+  ROUTING_THRESHOLDS_V3_1,
+  type ConfidenceInputV3_1,
+  type ConfidenceCalculationOptionsV3_1,
+  type ConfidenceServiceResultV3_1,
+  type RoutingDecisionV3_1,
+} from './confidence-v3-1.service';
+
+// ============================================================================
+// CHANGE-024: GptCallerService (共用 GPT 調用)
+// ============================================================================
+
+export {
+  GptCallerService,
+  type GptModelType,
+  type ImageDetailMode,
+  type GptCallerConfig,
+  type GptCallInput,
+  type GptCallResult,
+} from './stages/gpt-caller.service';

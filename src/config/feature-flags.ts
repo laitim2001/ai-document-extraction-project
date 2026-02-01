@@ -328,3 +328,74 @@ export function getExtractionV3FlagStatus(): string {
 
   return status.join(' | ');
 }
+
+// ============================================================================
+// Extraction V3.1 Feature Flags (CHANGE-024 - Three-Stage Architecture)
+// ============================================================================
+
+/**
+ * Extraction V3.1 Feature Flags
+ * @description 控制 V3.1 三階段提取架構的功能開關
+ * @since CHANGE-024
+ */
+export interface ExtractionV3_1FeatureFlags {
+  /** 使用 V3.1 三階段架構（主開關） */
+  useExtractionV3_1: boolean;
+  /** V3.1 灰度發布百分比 (0-100) */
+  extractionV3_1Percentage: number;
+  /** V3.1 失敗時回退到 V3 單階段 */
+  fallbackToV3OnError: boolean;
+}
+
+/**
+ * 從環境變量獲取 V3.1 Feature Flags
+ *
+ * @description
+ *   環境變量：
+ *   - FEATURE_EXTRACTION_V3_1: 主開關 ('true'/'false')
+ *   - FEATURE_EXTRACTION_V3_1_PERCENTAGE: 灰度百分比 (0-100)，預設 100
+ *   - FEATURE_EXTRACTION_V3_1_FALLBACK: V3.1 失敗時回退到 V3 ('true'/'false')
+ *
+ * @returns {ExtractionV3_1FeatureFlags} V3.1 Feature Flags
+ *
+ * @example
+ * ```typescript
+ * const v3_1Flags = getExtractionV3_1Flags();
+ * if (v3_1Flags.useExtractionV3_1) {
+ *   // Use V3.1 three-stage extraction
+ * }
+ * ```
+ */
+export function getExtractionV3_1Flags(): ExtractionV3_1FeatureFlags {
+  return {
+    useExtractionV3_1: process.env.FEATURE_EXTRACTION_V3_1 === 'true',
+    extractionV3_1Percentage: parseInt(
+      process.env.FEATURE_EXTRACTION_V3_1_PERCENTAGE ?? '100',
+      10
+    ),
+    fallbackToV3OnError: process.env.FEATURE_EXTRACTION_V3_1_FALLBACK !== 'false',
+  };
+}
+
+/**
+ * 獲取 V3.1 Feature Flags 狀態字符串
+ *
+ * @returns {string} 格式化的狀態字符串
+ *
+ * @example
+ * ```typescript
+ * console.log(getExtractionV3_1FlagStatus());
+ * // Output: "V3.1: ON | Percentage: 100% | Fallback to V3: ON"
+ * ```
+ */
+export function getExtractionV3_1FlagStatus(): string {
+  const flags = getExtractionV3_1Flags();
+
+  const status = [
+    `V3.1: ${flags.useExtractionV3_1 ? 'ON' : 'OFF'}`,
+    `Percentage: ${flags.extractionV3_1Percentage}%`,
+    `Fallback to V3: ${flags.fallbackToV3OnError ? 'ON' : 'OFF'}`,
+  ];
+
+  return status.join(' | ');
+}

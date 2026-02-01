@@ -487,6 +487,76 @@ export interface UnifiedProcessingResult {
     /** 處理時間（毫秒） */
     processingTimeMs?: number;
   };
+  /** CHANGE-023: AI 詳情（用於 AI 詳情 Tab 顯示） */
+  aiDetails?: {
+    /** 完整的 Prompt（System + User） */
+    prompt: string;
+    /** GPT 原始 JSON 響應 */
+    response: string;
+    /** Token 使用統計 */
+    tokenUsage: {
+      input: number;
+      output: number;
+      total: number;
+    };
+    /** 使用的模型名稱 */
+    model: string;
+    /** 圖片詳情模式 */
+    imageDetailMode: 'auto' | 'low' | 'high';
+    /** 圖片數量 */
+    imageCount: number;
+  };
+
+  // ========== V3.1 三階段架構 (CHANGE-024) ==========
+  /** 提取版本 */
+  extractionVersion?: 'v2' | 'v3' | 'v3.1';
+  /** V3.1 三階段 AI 詳情 */
+  stageAiDetails?: {
+    stage1?: {
+      model: string;
+      prompt: string;
+      response: string;
+      tokenUsage: { input: number; output: number; total: number };
+      durationMs: number;
+    };
+    stage2?: {
+      model: string;
+      prompt: string;
+      response: string;
+      tokenUsage: { input: number; output: number; total: number };
+      durationMs: number;
+    };
+    stage3?: {
+      model: string;
+      prompt: string;
+      response: string;
+      tokenUsage: { input: number; output: number; total: number };
+      durationMs: number;
+    };
+  };
+  /** V3.1 Stage 1 結果（公司識別） */
+  stage1Result?: {
+    companyId?: string;
+    companyName: string;
+    confidence: number;
+    isNewCompany: boolean;
+    configSource?: string;
+  };
+  /** V3.1 Stage 2 結果（格式識別） */
+  stage2Result?: {
+    formatId?: string;
+    formatName: string;
+    confidence: number;
+    isNewFormat: boolean;
+    configSource?: string;
+  };
+  /** V3.1 Stage 3 結果（欄位提取） */
+  stage3Result?: {
+    success: boolean;
+    fieldCount: number;
+    lineItemCount: number;
+    overallConfidence: number;
+  };
 
   // ========== 成功時填充的資料 ==========
   /** 文件類型 */

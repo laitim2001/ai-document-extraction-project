@@ -119,7 +119,8 @@
       "preview": "Preview",
       "fields": "Extracted Fields",
       "processing": "Processing",
-      "audit": "Audit Log"
+      "audit": "Audit Log",
+      "ai": "AI Details"
     },
     "stats": {
       "status": "Status",
@@ -149,11 +150,15 @@
         "FILE_PREPARATION": "File Preparation",
         "DYNAMIC_PROMPT_ASSEMBLY": "Prompt Assembly",
         "UNIFIED_GPT_EXTRACTION": "GPT Unified Extraction",
-        "RESULT_VALIDATION": "Result Validation"
+        "RESULT_VALIDATION": "Result Validation",
+        "STAGE_1_COMPANY_IDENTIFICATION": "Stage 1: Company ID",
+        "STAGE_2_FORMAT_IDENTIFICATION": "Stage 2: Format ID",
+        "STAGE_3_FIELD_EXTRACTION": "Stage 3: Field Extract"
       },
       "version": {
         "v2": "V2 (11 steps)",
-        "v3": "V3 (7 steps)"
+        "v3": "V3 (7 steps)",
+        "v3_1": "V3.1 (7 steps, 3 stages)"
       }
     },
     "audit": {
@@ -171,6 +176,51 @@
       "noFields": "No extracted fields available",
       "noProcessingSteps": "No processing steps recorded",
       "noAuditLogs": "No audit logs available"
+    },
+    "ai": {
+      "title": "AI Extraction Details",
+      "singleStage": "Single-stage extraction",
+      "prompt": {
+        "title": "GPT Prompt",
+        "description": "Complete prompt sent to GPT",
+        "copy": "Copy Prompt",
+        "copied": "Copied"
+      },
+      "response": {
+        "title": "GPT Response",
+        "description": "Raw JSON response from GPT",
+        "copy": "Copy Response",
+        "copied": "Copied"
+      },
+      "tokens": {
+        "title": "Token Usage",
+        "input": "Input Tokens",
+        "output": "Output Tokens",
+        "total": "Total Tokens",
+        "model": "Model",
+        "imageMode": "Image Mode"
+      },
+      "stages": {
+        "title": "Three-stage extraction",
+        "stageDetails": "Stage Details",
+        "skipped": "This stage was skipped",
+        "stage1": {
+          "title": "Stage 1: Company Identification",
+          "description": "Identify the company that issued this document using GPT-5-nano"
+        },
+        "stage2": {
+          "title": "Stage 2: Format Identification",
+          "description": "Identify the document format based on company configuration"
+        },
+        "stage3": {
+          "title": "Stage 3: Field Extraction",
+          "description": "Extract fields using full configuration and GPT-5.2"
+        }
+      },
+      "empty": {
+        "noData": "No AI extraction details available",
+        "description": "Document has not been processed by AI extraction"
+      }
     },
     "errors": {
       "notFound": "Document not found",

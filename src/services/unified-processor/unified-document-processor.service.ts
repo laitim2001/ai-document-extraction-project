@@ -62,6 +62,7 @@ import {
 import {
   shouldUseExtractionV3,
   getExtractionV3Flags,
+  getExtractionV3_1Flags,
   type ExtractionV3FeatureFlags,
 } from '@/config/feature-flags';
 
@@ -120,6 +121,7 @@ export class UnifiedDocumentProcessorService {
   private getV3Service(): ExtractionV3Service {
     if (!this.v3Service) {
       const v3Flags = getExtractionV3Flags();
+      const v3_1Flags = getExtractionV3_1Flags();
       this.v3Service = new ExtractionV3Service({
         flags: {
           useExtractionV3: v3Flags.useExtractionV3,
@@ -128,6 +130,10 @@ export class UnifiedDocumentProcessorService {
           enableAzureDIFallback: v3Flags.enableAzureDIFallback,
           logPromptAssembly: v3Flags.logPromptAssembly,
           logGptResponse: v3Flags.logGptResponse,
+          // V3.1 三階段架構 (CHANGE-024)
+          useExtractionV3_1: v3_1Flags.useExtractionV3_1,
+          extractionV3_1Percentage: v3_1Flags.extractionV3_1Percentage,
+          fallbackToV3OnError: v3_1Flags.fallbackToV3OnError,
         },
         debug: v3Flags.logPromptAssembly || v3Flags.logGptResponse,
       });
@@ -183,16 +189,31 @@ export class UnifiedDocumentProcessorService {
   private shouldUseV3(fileId: string, options?: ProcessOptions): boolean {
     // 強制 V2
     if (options?.forceV2) {
+      console.log('[CHANGE-024 DEBUG] shouldUseV3: forceV2 = true, returning false');
       return false;
     }
 
     // 強制 V3
     if (options?.forceV3) {
+      console.log('[CHANGE-024 DEBUG] shouldUseV3: forceV3 = true, returning true');
       return true;
     }
 
+    // 診斷：輸出 Feature Flags 狀態
+    const v3Flags = getExtractionV3Flags();
+    const v3_1Flags = getExtractionV3_1Flags();
+    console.log('[CHANGE-024 DEBUG] shouldUseV3 checking Feature Flags:', {
+      'FEATURE_EXTRACTION_V3': process.env.FEATURE_EXTRACTION_V3,
+      'FEATURE_EXTRACTION_V3_PERCENTAGE': process.env.FEATURE_EXTRACTION_V3_PERCENTAGE,
+      'v3Flags.useExtractionV3': v3Flags.useExtractionV3,
+      'v3Flags.extractionV3Percentage': v3Flags.extractionV3Percentage,
+      'v3_1Flags.useExtractionV3_1': v3_1Flags.useExtractionV3_1,
+    });
+
     // 使用 Feature Flag 決定
-    return shouldUseExtractionV3(fileId);
+    const result = shouldUseExtractionV3(fileId);
+    console.log('[CHANGE-024 DEBUG] shouldUseExtractionV3 result:', result);
+    return result;
   }
 
   /**
@@ -410,10 +431,38 @@ export class UnifiedDocumentProcessorService {
       usedLegacyProcessor: false,
       usedV3: true,
       v3Metadata: {
-        tokensUsed: result.metadata.tokensUsed,
-        modelUsed: result.metadata.modelUsed,
-        processingTimeMs: result.metadata.processingTimeMs,
+        // V3.1 兼容：metadata 可能不存在，從 aiDetails 獲取
+        tokensUsed: result.metadata?.tokensUsed ?? v3Result.aiDetails?.tokenUsage ?? {
+          input: 0,
+          output: 0,
+          total: 0,
+        },
+        modelUsed: result.metadata?.modelUsed ?? v3Result.aiDetails?.model ?? 'gpt-5.2',
+        processingTimeMs: result.metadata?.processingTimeMs ?? totalDurationMs,
       },
+      // CHANGE-023: 傳遞 AI 詳情
+      aiDetails: v3Result.aiDetails,
+      // CHANGE-024: V3.1 三階段欄位
+      extractionVersion: v3Result.extractionVersion as 'v2' | 'v3' | 'v3.1' | undefined,
+      stageAiDetails: v3Result.stageAiDetails,
+      stage1Result: result.issuerIdentification ? {
+        companyId: result.issuerIdentification.companyId,
+        companyName: result.issuerIdentification.companyName,
+        confidence: result.issuerIdentification.confidence,
+        isNewCompany: result.issuerIdentification.isNewCompany,
+      } : undefined,
+      stage2Result: result.formatIdentification ? {
+        formatId: result.formatIdentification.formatId,
+        formatName: result.formatIdentification.formatName,
+        confidence: result.formatIdentification.confidence,
+        isNewFormat: result.formatIdentification.isNewFormat,
+      } : undefined,
+      stage3Result: v3Result.result ? {
+        success: true,
+        fieldCount: Object.keys(result.standardFields || {}).length,
+        lineItemCount: result.lineItems?.length || 0,
+        overallConfidence: result.overallConfidence,
+      } : undefined,
     };
   }
 

@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-02-01T09:48:42.308Z",
+  "fileName": "CEVA_CEX250440_52240.pdf",
+  "results": [
+    {
+      "testCase": "V3.1 Three-Stage 100%",
+      "success": false,
+      "extractionVersion": "v3",
+      "duration": 26540,
+      "error": "Stage 2 failed: GPT-5-nano 返回空響應"
+    },
+    {
+      "testCase": "V3.1 Fallback Test",
+      "success": false,
+      "extractionVersion": "v3",
+      "duration": 16733,
+      "error": "Stage 2 failed: GPT-5-nano 返回空響應"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 0,
+    "failed": 2,
+    "passRate": "0.0%"
+  }
+}

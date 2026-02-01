@@ -67,7 +67,7 @@ interface TraceResponse {
 // Constants
 // ============================================================
 
-/** 步驟標籤（fallback，優先使用 i18n）- 支援 V2 (11步) 和 V3 (7步) */
+/** 步驟標籤（fallback，優先使用 i18n）- 支援 V2 (11步)、V3 (7步)、V3.1 (7步三階段) */
 const STEP_LABELS: Record<string, { en: string; zh: string }> = {
   // ========== V2: 11-step unified pipeline ==========
   FILE_TYPE_DETECTION: { en: 'File Type Detection', zh: '文件類型檢測' },
@@ -87,6 +87,10 @@ const STEP_LABELS: Record<string, { en: string; zh: string }> = {
   UNIFIED_GPT_EXTRACTION: { en: 'GPT Unified Extraction', zh: 'GPT 統一提取' },
   RESULT_VALIDATION: { en: 'Result Validation', zh: '結果驗證' },
   // TERM_RECORDING, CONFIDENCE_CALCULATION, ROUTING_DECISION 同 V2
+  // ========== V3.1: 7-step three-stage pipeline (CHANGE-024) ==========
+  STAGE_1_COMPANY_IDENTIFICATION: { en: 'Stage 1: Company ID', zh: 'Stage 1: 公司識別' },
+  STAGE_2_FORMAT_IDENTIFICATION: { en: 'Stage 2: Format ID', zh: 'Stage 2: 格式識別' },
+  STAGE_3_FIELD_EXTRACTION: { en: 'Stage 3: Field Extract', zh: 'Stage 3: 欄位提取' },
   // ========== Legacy steps (backward compatibility) ==========
   UPLOAD: { en: 'File Upload', zh: '文件上傳' },
   OCR_EXTRACTION: { en: 'OCR Extraction', zh: 'OCR 提取' },

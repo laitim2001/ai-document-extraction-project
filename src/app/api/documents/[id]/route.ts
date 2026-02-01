@@ -31,6 +31,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import type { ExtractedField } from '@/types/extracted-field'
 import { getConfidenceLevelFromScore } from '@/types/extracted-field'
+import { detectExtractionVersion } from '@/types/extraction-v3.types'
 
 // ============================================================
 // Types
@@ -120,8 +121,8 @@ function mapFieldMappingsToExtractedFields(
  * 獲取單個文件詳情
  *
  * @query include - 逗號分隔的關聯資料名稱
- *   可選值: extractedFields, uploadedBy, company, city, processingSteps
- *   範例: ?include=extractedFields,uploadedBy,company,city
+ *   可選值: extractedFields, uploadedBy, company, city, processingSteps, aiDetails
+ *   範例: ?include=extractedFields,uploadedBy,company,city,aiDetails
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
@@ -163,6 +164,27 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             status: true,
             pipelineSteps: includes.has('processingSteps'),
             processingTime: includes.has('processingSteps'),
+            // CHANGE-023: AI 詳情欄位
+            gptPrompt: includes.has('aiDetails'),
+            gptResponse: includes.has('aiDetails'),
+            promptTokens: includes.has('aiDetails'),
+            completionTokens: includes.has('aiDetails'),
+            totalTokens: includes.has('aiDetails'),
+            gptModelUsed: includes.has('aiDetails'),
+            imageDetailMode: includes.has('aiDetails'),
+            // CHANGE-024: V3.1 三階段欄位
+            extractionVersion: true,
+            stage1Result: includes.has('stageDetails') || includes.has('aiDetails'),
+            stage2Result: includes.has('stageDetails') || includes.has('aiDetails'),
+            stage3Result: includes.has('stageDetails') || includes.has('aiDetails'),
+            stage1AiDetails: includes.has('stageDetails') || includes.has('aiDetails'),
+            stage2AiDetails: includes.has('stageDetails') || includes.has('aiDetails'),
+            stage3AiDetails: includes.has('stageDetails') || includes.has('aiDetails'),
+            stage1DurationMs: includes.has('stageDetails'),
+            stage2DurationMs: includes.has('stageDetails'),
+            stage3DurationMs: includes.has('stageDetails'),
+            stage2ConfigSource: includes.has('stageDetails'),
+            stage3ConfigScope: includes.has('stageDetails'),
           },
         },
       },
@@ -228,11 +250,74 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { extractionResult: _er, filePath: _fp, blobName: _bn, uploader, uploadedBy: _fk, ...documentBase } = document as Record<string, unknown>
 
+    // CHANGE-024: 檢測提取版本
+    const extractionVersion = document.extractionResult?.extractionVersion as string | null
+    const isV3_1 = extractionVersion === 'v3.1'
+
+    // CHANGE-023 + CHANGE-024: 組裝 AI 詳情（支援 V3 和 V3.1）
+    let aiDetails: Record<string, unknown> | undefined
+    if (includes.has('aiDetails') && document.extractionResult) {
+      if (isV3_1) {
+        // V3.1: 提供三階段 AI 詳情
+        aiDetails = {
+          version: 'v3.1',
+          stages: {
+            stage1: document.extractionResult.stage1AiDetails ?? null,
+            stage2: document.extractionResult.stage2AiDetails ?? null,
+            stage3: document.extractionResult.stage3AiDetails ?? null,
+          },
+          tokenUsage: {
+            input: document.extractionResult.promptTokens ?? 0,
+            output: document.extractionResult.completionTokens ?? 0,
+            total: document.extractionResult.totalTokens ?? 0,
+          },
+          model: document.extractionResult.gptModelUsed ?? null,
+        }
+      } else {
+        // V3: 提供單一 AI 詳情
+        aiDetails = {
+          version: 'v3',
+          prompt: document.extractionResult.gptPrompt ?? null,
+          response: document.extractionResult.gptResponse ?? null,
+          tokenUsage: {
+            input: document.extractionResult.promptTokens ?? 0,
+            output: document.extractionResult.completionTokens ?? 0,
+            total: document.extractionResult.totalTokens ?? 0,
+          },
+          model: document.extractionResult.gptModelUsed ?? null,
+          imageDetailMode: document.extractionResult.imageDetailMode ?? null,
+        }
+      }
+    }
+
+    // CHANGE-024: 組裝 Stage 詳情
+    let stageDetails: Record<string, unknown> | undefined
+    if (includes.has('stageDetails') && document.extractionResult && isV3_1) {
+      stageDetails = {
+        stage1: {
+          result: document.extractionResult.stage1Result ?? null,
+          durationMs: document.extractionResult.stage1DurationMs ?? null,
+        },
+        stage2: {
+          result: document.extractionResult.stage2Result ?? null,
+          durationMs: document.extractionResult.stage2DurationMs ?? null,
+          configSource: document.extractionResult.stage2ConfigSource ?? null,
+        },
+        stage3: {
+          result: document.extractionResult.stage3Result ?? null,
+          durationMs: document.extractionResult.stage3DurationMs ?? null,
+          configScope: document.extractionResult.stage3ConfigScope ?? null,
+        },
+      }
+    }
+
     const responseData = {
       ...documentBase,
       blobUrl,
       overallConfidence,
       sourceType: document.sourceType,
+      // CHANGE-024: 提取版本
+      extractionVersion: extractionVersion ?? 'v3',
       // 前端期望 uploadedBy 為 { id, name, email } 物件
       uploadedBy: uploader ?? null,
       ...(includes.has('extractedFields') && { extractedFields: extractedFields ?? [] }),
@@ -242,6 +327,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           ? document.extractionResult.processingTime / 1000
           : null,
       }),
+      // CHANGE-023: 新增 AI 詳情
+      ...(includes.has('aiDetails') && { aiDetails }),
+      // CHANGE-024: 新增 Stage 詳情
+      ...(includes.has('stageDetails') && stageDetails && { stageDetails }),
     }
 
     return NextResponse.json({
@@ -251,8 +340,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Get document error:', error)
 
+    // 在開發環境輸出詳細錯誤
+    const errorMessage = error instanceof Error
+      ? `${error.name}: ${error.message}`
+      : 'Unknown error'
+
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      {
+        success: false,
+        error: process.env.NODE_ENV === 'development' ? errorMessage : 'Internal server error'
+      },
       { status: 500 }
     )
   }
