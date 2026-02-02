@@ -159,7 +159,7 @@ const DEFAULT_CONFIG: Required<GptCallerConfig> = {
     process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-5-2-vision',
   maxTokens: 4096,
   temperature: 0.1,
-  timeout: 60000,
+  timeout: 300000, // 5 分鐘 - Stage 3 欄位提取處理多頁文件可能需要較長時間
   retryCount: 2,
   retryDelay: 1000,
 };

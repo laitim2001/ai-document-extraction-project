@@ -154,7 +154,7 @@ const DEFAULT_CONFIG: Required<GptExtractionConfig> = {
   modelName: 'gpt-5.2-vision',
   maxTokens: 4096,
   temperature: 0.1, // 低溫度以獲得更一致的輸出
-  timeout: 60000, // 60 秒
+  timeout: 300000, // 5 分鐘 - GPT Vision 處理多頁文件可能需要較長時間
   retryCount: 2,
   retryDelay: 1000,
   imageDetailMode: 'auto', // CHANGE-023: 預設使用自動模式
