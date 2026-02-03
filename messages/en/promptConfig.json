@@ -51,7 +51,10 @@
     "ISSUER_IDENTIFICATION": "Issuer Identification",
     "TERM_CLASSIFICATION": "Term Classification",
     "FIELD_EXTRACTION": "Field Extraction",
-    "VALIDATION": "Result Validation"
+    "VALIDATION": "Result Validation",
+    "STAGE_1_COMPANY_IDENTIFICATION": "Stage 1 - Company Identification",
+    "STAGE_2_FORMAT_IDENTIFICATION": "Stage 2 - Format Identification",
+    "STAGE_3_FIELD_EXTRACTION": "Stage 3 - Field Extraction"
   },
   "filters": {
     "search": {

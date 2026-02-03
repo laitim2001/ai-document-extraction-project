@@ -51,7 +51,10 @@
     "ISSUER_IDENTIFICATION": "發行者識別",
     "TERM_CLASSIFICATION": "術語分類",
     "FIELD_EXTRACTION": "欄位提取",
-    "VALIDATION": "結果驗證"
+    "VALIDATION": "結果驗證",
+    "STAGE_1_COMPANY_IDENTIFICATION": "Stage 1 - 公司識別",
+    "STAGE_2_FORMAT_IDENTIFICATION": "Stage 2 - 格式識別",
+    "STAGE_3_FIELD_EXTRACTION": "Stage 3 - 欄位提取"
   },
   "filters": {
     "search": {
