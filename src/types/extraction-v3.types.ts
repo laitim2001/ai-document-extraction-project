@@ -989,6 +989,13 @@ export interface Stage1CompanyResult {
   /** 階段 AI 詳情 */
   aiDetails: StageAiDetails;
 
+  // ===== CHANGE-026: PromptConfig 來源 =====
+  /** 使用的 PromptConfig（如果使用自定義配置） */
+  promptConfigUsed?: {
+    scope: 'GLOBAL' | 'COMPANY' | 'FORMAT';
+    version: number;
+  };
+
   // ===== 錯誤資訊 =====
   /** 錯誤訊息（如果失敗） */
   error?: string;
@@ -1045,6 +1052,13 @@ export interface Stage2FormatResult {
   // ===== AI 詳情 =====
   /** 階段 AI 詳情 */
   aiDetails: StageAiDetails;
+
+  // ===== CHANGE-026: PromptConfig 來源 =====
+  /** 使用的 PromptConfig（如果使用自定義配置） */
+  promptConfigUsed?: {
+    scope: 'GLOBAL' | 'COMPANY' | 'FORMAT';
+    version: number;
+  };
 
   // ===== 錯誤資訊 =====
   /** 錯誤訊息（如果失敗） */

@@ -6,23 +6,31 @@
  *   - 模型：GPT-5-nano（成本低、速度快）
  *   - 輸出：companyId, companyName, confidence, isNewCompany
  *
+ *   CHANGE-026：整合 PromptConfig 可配置化
+ *   - 優先使用 PromptConfig 表的自定義配置
+ *   - 支援變數替換（${knownCompanies}, ${currentDate} 等）
+ *   - 無配置時回退到硬編碼 Prompt
+ *
  * @module src/services/extraction-v3/stages/stage-1-company.service
  * @since CHANGE-024 - Three-Stage Extraction Architecture
- * @lastModified 2026-02-01
+ * @lastModified 2026-02-03
  *
  * @features
  *   - 公司識別方法：LOGO / HEADER / ADDRESS / TAX_ID / LLM_INFERRED
  *   - 支援已知公司列表匹配
  *   - 低解析度圖片模式以降低成本
  *   - 完整的 AI 詳情記錄
+ *   - CHANGE-026: PromptConfig 可配置化支援
  *
  * @dependencies
  *   - UnifiedGptExtractionService - GPT 調用服務
  *   - PrismaClient - 公司 ID 解析
+ *   - PromptAssemblyService - 載入 PromptConfig
  *
  * @related
  *   - src/types/extraction-v3.types.ts - Stage1CompanyResult 類型
  *   - src/services/extraction-v3/unified-gpt-extraction.service.ts
+ *   - src/services/extraction-v3/prompt-assembly.service.ts - Prompt 組裝服務
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -33,6 +41,13 @@ import type {
   CompanyIdentificationMethod,
 } from '@/types/extraction-v3.types';
 import { GptCallerService, type GptCallResult } from './gpt-caller.service';
+// CHANGE-026: PromptConfig 整合
+import { loadStage1PromptConfig, type StagePromptConfig } from '../prompt-assembly.service';
+import {
+  replaceVariables,
+  buildStage1VariableContext,
+  type VariableContext,
+} from '../utils/variable-replacer';
 
 // ============================================================================
 // Types
@@ -48,6 +63,14 @@ export interface Stage1Input {
   knownCompanies: KnownCompanyForPrompt[];
   /** 選項 */
   options?: Stage1Options;
+
+  // CHANGE-026: PromptConfig 載入參數
+  /** 檔案名稱（用於變數替換） */
+  fileName?: string;
+  /** 公司 ID（用於載入 COMPANY/FORMAT 範圍配置） */
+  companyId?: string;
+  /** 格式 ID（用於載入 FORMAT 範圍配置） */
+  formatId?: string;
 }
 
 /**
@@ -93,18 +116,39 @@ export class Stage1CompanyService {
    */
   async execute(input: Stage1Input): Promise<Stage1CompanyResult> {
     const startTime = Date.now();
+    let promptConfigUsed: StagePromptConfig | null = null;
 
     try {
-      // 1. 組裝公司識別 Prompt
-      const prompt = this.buildCompanyIdentificationPrompt(input.knownCompanies);
+      // CHANGE-026: 嘗試載入自定義 PromptConfig
+      const customConfig = await this.loadCustomPromptConfig(input);
 
-      // 2. 調用 GPT-5-nano
+      // 組裝 Prompt（自定義配置優先，否則使用硬編碼）
+      let prompt: { system: string; user: string };
+
+      if (customConfig) {
+        // 使用自定義配置 + 變數替換
+        promptConfigUsed = customConfig;
+        const variableContext = this.buildVariableContextForConfig(input);
+        prompt = {
+          system: replaceVariables(customConfig.systemPrompt, variableContext),
+          user: replaceVariables(customConfig.userPromptTemplate, variableContext),
+        };
+        console.log(
+          `[Stage1] Using custom PromptConfig (scope: ${customConfig.scope}, version: ${customConfig.version})`
+        );
+      } else {
+        // 回退到硬編碼（現有邏輯）
+        prompt = this.buildCompanyIdentificationPrompt(input.knownCompanies);
+        console.log('[Stage1] Using default hardcoded prompt (no custom config found)');
+      }
+
+      // 調用 GPT-5-nano
       const gptResult = await this.callGptNano(prompt, input.imageBase64Array);
 
-      // 3. 解析結果
+      // 解析結果
       const parsed = this.parseCompanyResult(gptResult.response);
 
-      // 4. 解析公司 ID（從資料庫匹配或 JIT 創建）
+      // 解析公司 ID（從資料庫匹配或 JIT 創建）
       const resolved = await this.resolveCompanyId(parsed, input.options);
 
       return {
@@ -117,6 +161,10 @@ export class Stage1CompanyService {
         confidence: parsed.confidence,
         isNewCompany: resolved.isNewCompany,
         aiDetails: this.buildAiDetails(gptResult, prompt, Date.now() - startTime),
+        // CHANGE-026: 記錄使用的配置來源
+        promptConfigUsed: promptConfigUsed
+          ? { scope: promptConfigUsed.scope, version: promptConfigUsed.version }
+          : undefined,
       };
     } catch (error) {
       return {
@@ -131,6 +179,35 @@ export class Stage1CompanyService {
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
+  }
+
+  /**
+   * CHANGE-026: 載入自定義 PromptConfig
+   * @description 按優先級 (FORMAT > COMPANY > GLOBAL) 載入 Stage 1 配置
+   */
+  private async loadCustomPromptConfig(
+    input: Stage1Input
+  ): Promise<StagePromptConfig | null> {
+    try {
+      return await loadStage1PromptConfig({
+        companyId: input.companyId,
+        formatId: input.formatId,
+      });
+    } catch (error) {
+      console.warn('[Stage1] Failed to load PromptConfig, using default:', error);
+      return null;
+    }
+  }
+
+  /**
+   * CHANGE-026: 構建變數上下文（用於自定義配置）
+   */
+  private buildVariableContextForConfig(input: Stage1Input): VariableContext {
+    return buildStage1VariableContext({
+      knownCompanies: input.knownCompanies,
+      fileName: input.fileName,
+      pageCount: input.imageBase64Array.length,
+    });
   }
 
   /**

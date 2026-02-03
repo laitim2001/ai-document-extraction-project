@@ -7,23 +7,31 @@
  *   - 模型：GPT-5-nano（成本低、速度快）
  *   - 輸出：formatId, formatName, confidence, isNewFormat, configSource
  *
+ *   CHANGE-026：整合 PromptConfig 可配置化
+ *   - 優先使用 PromptConfig 表的自定義配置
+ *   - 支援變數替換（${knownFormats}, ${companyName} 等）
+ *   - 無配置時回退到硬編碼 Prompt
+ *
  * @module src/services/extraction-v3/stages/stage-2-format.service
  * @since CHANGE-024 - Three-Stage Extraction Architecture
- * @lastModified 2026-02-01
+ * @lastModified 2026-02-03
  *
  * @features
  *   - 分層配置查詢：公司特定 → 統一格式 → LLM 推斷
  *   - 配置來源追蹤（COMPANY_SPECIFIC / UNIVERSAL / LLM_INFERRED）
  *   - 低解析度圖片模式以降低成本
  *   - 完整的 AI 詳情記錄
+ *   - CHANGE-026: PromptConfig 可配置化支援
  *
  * @dependencies
  *   - UnifiedGptExtractionService - GPT 調用服務
  *   - PrismaClient - 格式配置查詢
+ *   - PromptAssemblyService - 載入 PromptConfig
  *
  * @related
  *   - src/types/extraction-v3.types.ts - Stage2FormatResult 類型
  *   - src/services/extraction-v3/stages/stage-1-company.service.ts
+ *   - src/services/extraction-v3/prompt-assembly.service.ts - Prompt 組裝服務
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -35,6 +43,13 @@ import type {
   FormatConfigSource,
 } from '@/types/extraction-v3.types';
 import { GptCallerService, type GptCallResult } from './gpt-caller.service';
+// CHANGE-026: PromptConfig 整合
+import { loadStage2PromptConfig, type StagePromptConfig } from '../prompt-assembly.service';
+import {
+  replaceVariables,
+  buildStage2VariableContext,
+  type VariableContext,
+} from '../utils/variable-replacer';
 
 // ============================================================================
 // Types
@@ -50,6 +65,12 @@ export interface Stage2Input {
   stage1Result: Stage1CompanyResult;
   /** 選項 */
   options?: Stage2Options;
+
+  // CHANGE-026: PromptConfig 載入參數
+  /** 檔案名稱（用於變數替換） */
+  fileName?: string;
+  /** 格式 ID（用於載入 FORMAT 範圍配置） */
+  formatId?: string;
 }
 
 /**
@@ -108,16 +129,39 @@ export class Stage2FormatService {
   async execute(input: Stage2Input): Promise<Stage2FormatResult> {
     const startTime = Date.now();
     const { stage1Result } = input;
+    let promptConfigUsed: StagePromptConfig | null = null;
 
     try {
       // 1. 根據公司查詢格式配置（分層決策）
       const formatConfig = await this.loadFormatConfig(stage1Result.companyId);
 
-      // 2. 組裝格式識別 Prompt（根據配置來源不同）
-      const prompt = this.buildFormatIdentificationPrompt(formatConfig);
+      // CHANGE-026: 嘗試載入自定義 PromptConfig
+      const customConfig = await this.loadCustomPromptConfig(
+        stage1Result.companyId,
+        input.formatId
+      );
+
+      // 2. 組裝格式識別 Prompt
+      let prompt: { system: string; user: string };
+
+      if (customConfig) {
+        // 使用自定義配置 + 變數替換
+        promptConfigUsed = customConfig;
+        const variableContext = this.buildVariableContextForConfig(input, formatConfig);
+        prompt = {
+          system: replaceVariables(customConfig.systemPrompt, variableContext),
+          user: replaceVariables(customConfig.userPromptTemplate, variableContext),
+        };
+        console.log(
+          `[Stage2] Using custom PromptConfig (scope: ${customConfig.scope}, version: ${customConfig.version})`
+        );
+      } else {
+        // 回退到硬編碼（現有邏輯）
+        prompt = this.buildFormatIdentificationPrompt(formatConfig);
+        console.log('[Stage2] Using default hardcoded prompt (no custom config found)');
+      }
 
       // 3. 調用 GPT-5-nano
-      // TODO: Phase 2 實現實際 GPT 調用
       const gptResult = await this.callGptNano(prompt, input.imageBase64Array);
 
       // 4. 解析結果
@@ -144,6 +188,10 @@ export class Stage2FormatService {
           companyConfigCount: formatConfig.companyFormatCount,
         },
         aiDetails: this.buildAiDetails(gptResult, prompt, Date.now() - startTime),
+        // CHANGE-026: 記錄使用的配置來源
+        promptConfigUsed: promptConfigUsed
+          ? { scope: promptConfigUsed.scope, version: promptConfigUsed.version }
+          : undefined,
       };
     } catch (error) {
       return {
@@ -158,6 +206,40 @@ export class Stage2FormatService {
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
+  }
+
+  /**
+   * CHANGE-026: 載入自定義 PromptConfig
+   */
+  private async loadCustomPromptConfig(
+    companyId?: string,
+    formatId?: string
+  ): Promise<StagePromptConfig | null> {
+    try {
+      return await loadStage2PromptConfig({ companyId, formatId });
+    } catch (error) {
+      console.warn('[Stage2] Failed to load PromptConfig, using default:', error);
+      return null;
+    }
+  }
+
+  /**
+   * CHANGE-026: 構建變數上下文（用於自定義配置）
+   */
+  private buildVariableContextForConfig(
+    input: Stage2Input,
+    formatConfig: FormatConfigLoadResult
+  ): VariableContext {
+    return buildStage2VariableContext({
+      companyName: input.stage1Result.companyName,
+      companyAliases: [], // 可從 DB 載入
+      knownFormats: formatConfig.formats.map((f) => ({
+        name: f.formatName,
+        description: f.patterns?.join(', ') || null,
+      })),
+      fileName: input.fileName,
+      pageCount: input.imageBase64Array.length,
+    });
   }
 
   /**

@@ -1,8 +1,8 @@
 # CHANGE-025：統一文件處理流程架構優化
 
 > **建立日期**: 2026-02-01
-> **完成日期**: -
-> **狀態**: 🚧 Phase 1 準備中
+> **完成日期**: 2026-02-03
+> **狀態**: ✅ 已完成
 > **優先級**: High
 > **類型**: Architecture Enhancement
 > **前置條件**: CHANGE-024 V3.1 三階段提取架構已完成
@@ -744,19 +744,98 @@ export class ConfidenceV3_1Service {
 
 | # | 事項 | 狀態 | 優先級 | 預計決策時間 |
 |---|------|------|--------|-------------|
-| 1 | 確認 GLOBAL 預設 Prompt 內容 | ⏳ 待確認 | P1 | Phase 3 開始前 |
-| 2 | 確認是否需要「配置嚮導」功能 | ⏳ 待確認 | P2 | Phase 5 後 |
-| 3 | 確認批量審核工具需求 | ⏳ 待確認 | P2 | Phase 5 後 |
+| 1 | 確認 GLOBAL 預設 Prompt 內容 | ✅ 已完成 | P1 | - |
+| 2 | 確認是否需要「配置嚮導」功能 | ⏳ 待確認 | P2 | 後續迭代 |
+| 3 | 確認批量審核工具需求 | ⏳ 待確認 | P2 | 後續迭代 |
+
+---
+
+## 9. 實際完成情況
+
+### 9.1 Phase 完成狀態
+
+| Phase | 描述 | 狀態 |
+|-------|------|------|
+| Phase 1 | 增強結果標記 | ✅ 已完成 |
+| Phase 2 | 智能路由邏輯 | ✅ 已完成 |
+| Phase 3 | Prompt 可配置化 | ✅ 已完成 |
+| Phase 4 | IdentificationRules 完整使用 | ✅ 已完成 |
+| Phase 5 | UI 提示與審核流程 | ✅ 已完成 |
+
+### 9.2 實際修改文件清單
+
+#### 類型系統
+| 文件路徑 | 修改說明 |
+|----------|----------|
+| `src/types/extraction-v3.types.ts` | 新增 SmartRoutingInput/Output 類型 |
+| `src/types/unified-processor.ts` | 新增智能路由欄位 |
+
+#### 服務層
+| 文件路徑 | 修改說明 |
+|----------|----------|
+| `src/services/extraction-v3/extraction-v3.service.ts` | 智能路由標記計算 |
+| `src/services/extraction-v3/confidence-v3-1.service.ts` | 新增 getSmartReviewType() 方法 |
+| `src/services/extraction-v3/prompt-assembly.service.ts` | Stage 1/2/3 Prompt 配置載入方法 |
+| `src/services/extraction-v3/index.ts` | 新導出 |
+| `src/services/unified-processor/unified-document-processor.service.ts` | 傳遞智能路由標記 |
+
+#### API
+| 文件路徑 | 修改說明 |
+|----------|----------|
+| `src/app/api/documents/[id]/route.ts` | 返回 smartRoutingMarkers |
+
+#### Prisma Schema
+| 文件路徑 | 修改說明 |
+|----------|----------|
+| `prisma/schema.prisma` | PromptType 枚舉新增 3 個三階段類型：`STAGE_1_COMPANY_IDENTIFICATION`、`STAGE_2_FORMAT_IDENTIFICATION`、`STAGE_3_FIELD_EXTRACTION` |
+
+#### 配置
+| 文件路徑 | 修改說明 |
+|----------|----------|
+| `src/config/feature-flags.ts` | 新類型映射 |
+| `src/services/static-prompts.ts` | 新類型靜態提示 |
+
+#### 前端
+| 文件路徑 | 修改說明 |
+|----------|----------|
+| `src/hooks/use-invoice-detail.ts` | SmartRoutingMarkers 類型 |
+| `src/components/features/invoice/detail/SmartRoutingBanner.tsx` | **新組件** - 配置提示橫幅 |
+| `src/app/[locale]/(dashboard)/invoices/[id]/page.tsx` | 使用 SmartRoutingBanner |
+
+#### 國際化
+| 文件路徑 | 修改說明 |
+|----------|----------|
+| `messages/en/invoices.json` | 新增 smartRouting 翻譯 |
+| `messages/zh-TW/invoices.json` | 新增 smartRouting 翻譯 |
+| `messages/zh-CN/invoices.json` | 新增 smartRouting 翻譯 |
+
+### 9.3 核心功能實現
+
+| # | 功能 | 說明 |
+|---|------|------|
+| 1 | **智能路由標記** | 新公司/新格式自動檢測並標記 (`isNewCompany`, `isNewFormat`) |
+| 2 | **智能審核類型** | 基於標記自動決定 FULL_REVIEW/QUICK_REVIEW |
+| 3 | **Prompt 可配置化** | Stage 1/2/3 Prompt 可從資料庫 PromptConfig 表載入 |
+| 4 | **UI 提示橫幅** | 需要配置時顯示提示並提供快速配置入口 |
+
+### 9.4 後續優化項目（可選）
+
+| # | 項目 | 優先級 | 說明 |
+|---|------|--------|------|
+| 1 | 配置嚮導功能 | P2 | 引導用戶完成新公司/格式的配置流程 |
+| 2 | 批量審核工具 | P2 | 處理大量新公司文件的批量審核需求 |
+| 3 | Prompt 編輯 UI | P2 | 在介面上直接編輯 Stage 1/2/3 Prompt 內容 |
 
 ---
 
 **文檔建立日期**: 2026-02-01
 **作者**: AI Assistant (Claude)
-**版本**: 1.0.0
-**狀態**: 🚧 計劃準備中
+**版本**: 2.0.0
+**狀態**: ✅ 已完成
 
 ### 更新記錄
 
 | 版本 | 日期 | 變更內容 |
 |------|------|---------|
 | 1.0.0 | 2026-02-01 | 初始版本 - 完整規劃文檔 |
+| 2.0.0 | 2026-02-03 | 完成所有 5 個 Phase，新增實際完成情況章節 |

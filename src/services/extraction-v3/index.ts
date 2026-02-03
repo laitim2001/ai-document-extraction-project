@@ -16,7 +16,7 @@
  *
  * @module src/services/extraction-v3
  * @since CHANGE-021 - Unified Processor V3 Refactoring
- * @lastModified 2026-02-01
+ * @lastModified 2026-02-03
  *
  * @example
  * ```typescript
@@ -99,6 +99,41 @@ export {
   STANDARD_FIELD_KEYS,
   type PromptSection,
 } from './utils/prompt-builder';
+
+// ============================================================================
+// CHANGE-026: Variable Replacer (變數替換工具)
+// ============================================================================
+
+export {
+  replaceVariables,
+  replaceVariablesWithDetails,
+  extractVariableNames,
+  validateTemplateVariables,
+  buildStage1VariableContext,
+  buildStage2VariableContext,
+  buildStage3VariableContext,
+  type VariableContext,
+  type ReplaceVariablesOptions,
+  type ReplaceVariablesResult,
+} from './utils/variable-replacer';
+
+// ============================================================================
+// CHANGE-026: Prompt Merger (Prompt 合併工具)
+// ============================================================================
+
+export {
+  mergePrompts,
+  mergePromptConfigs,
+  selectHighestPriorityConfig,
+  createMergeSummary,
+  isValidMergeStrategy,
+  getMergeStrategyDescription,
+  estimateMergedTokens,
+  type PromptConfigForMerge,
+  type MergedPromptResult,
+  type AppliedConfigInfo,
+  type MergeOptions,
+} from './utils/prompt-merger';
 
 // ============================================================================
 // Prompt Assembly Service

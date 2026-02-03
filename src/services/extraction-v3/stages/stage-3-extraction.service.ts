@@ -7,9 +7,13 @@
  *   - 模型：GPT-5.2（高精度、複雜任務）
  *   - 輸出：standardFields, lineItems, extraCharges, customFields
  *
+ *   CHANGE-026：整合 PromptConfig 可配置化
+ *   - 支援變數替換（${universalMappings}, ${companyMappings} 等）
+ *   - 保留現有分層配置載入邏輯
+ *
  * @module src/services/extraction-v3/stages/stage-3-extraction.service
  * @since CHANGE-024 - Three-Stage Extraction Architecture
- * @lastModified 2026-02-01
+ * @lastModified 2026-02-03
  *
  * @features
  *   - 分層 PromptConfig 載入：FORMAT > COMPANY > GLOBAL
@@ -17,6 +21,7 @@
  *   - JSON Schema 強制結構化輸出
  *   - 完整的配置來源追蹤
  *   - 高解析度圖片模式（auto/high）
+ *   - CHANGE-026: PromptConfig 變數替換支援
  *
  * @dependencies
  *   - UnifiedGptExtractionService - GPT 調用服務
@@ -26,6 +31,7 @@
  *   - src/types/extraction-v3.types.ts - Stage3ExtractionResult 類型
  *   - src/services/extraction-v3/stages/stage-1-company.service.ts
  *   - src/services/extraction-v3/stages/stage-2-format.service.ts
+ *   - src/services/extraction-v3/prompt-assembly.service.ts - Prompt 組裝服務
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -47,6 +53,12 @@ import {
   type GptCallResult,
   type ImageDetailMode,
 } from './gpt-caller.service';
+// CHANGE-026: 變數替換支援
+import {
+  replaceVariables,
+  buildStage3VariableContext,
+  type VariableContext,
+} from '../utils/variable-replacer';
 
 // ============================================================================
 // Types
@@ -64,6 +76,10 @@ export interface Stage3Input {
   stage2Result: Stage2FormatResult;
   /** 選項 */
   options?: Stage3Options;
+
+  // CHANGE-026: PromptConfig 變數替換參數
+  /** 檔案名稱（用於變數替換） */
+  fileName?: string;
 }
 
 /**
@@ -145,8 +161,11 @@ export class Stage3ExtractionService {
         stage2Result.formatId
       );
 
-      // 2. 組裝完整的提取 Prompt
-      const prompt = this.buildExtractionPrompt(config);
+      // CHANGE-026: 構建變數上下文
+      const variableContext = this.buildVariableContextForConfig(input, config);
+
+      // 2. 組裝完整的提取 Prompt（支援變數替換）
+      const prompt = this.buildExtractionPrompt(config, variableContext);
 
       // 3. 調用 GPT-5.2（精準提取）
       // TODO: Phase 2 實現實際 GPT 調用
@@ -483,9 +502,37 @@ export class Stage3ExtractionService {
   }
 
   /**
-   * 組裝完整的提取 Prompt
+   * CHANGE-026: 構建變數上下文（用於自定義配置）
    */
-  private buildExtractionPrompt(config: ExtractionConfig): {
+  private buildVariableContextForConfig(
+    input: Stage3Input,
+    config: ExtractionConfig
+  ): VariableContext {
+    return buildStage3VariableContext({
+      companyName: input.stage1Result.companyName,
+      documentFormatName: input.stage2Result.formatName,
+      universalMappings: Object.entries(config.universalMappings).map(
+        ([sourceTerm, targetCategory]) => ({ sourceTerm, targetCategory })
+      ),
+      companyMappings: Object.entries(config.companyMappings).map(
+        ([sourceTerm, targetCategory]) => ({ sourceTerm, targetCategory })
+      ),
+      standardFields: config.standardFields.map((f) => f.key),
+      customFields: config.customFields.map((f) => f.key),
+      fieldSchema: JSON.stringify(config.outputSchema),
+      fileName: input.fileName,
+      pageCount: input.imageBase64Array.length,
+    });
+  }
+
+  /**
+   * 組裝完整的提取 Prompt
+   * @description CHANGE-026: 支援變數替換
+   */
+  private buildExtractionPrompt(
+    config: ExtractionConfig,
+    variableContext?: VariableContext
+  ): {
     system: string;
     user: string;
   } {
@@ -501,7 +548,7 @@ export class Stage3ExtractionService {
       config.customFields
     );
 
-    const systemPrompt =
+    let systemPrompt =
       config.systemPrompt ||
       `You are an expert invoice data extraction specialist.
 Extract all requested fields accurately from the provided invoice image.
@@ -512,9 +559,18 @@ ${mappingsSection}
 
 Respond in valid JSON format matching the provided schema.`;
 
-    const userPrompt =
+    let userPrompt =
       config.userPromptTemplate ||
       'Extract all invoice data from this image according to the field definitions.';
+
+    // CHANGE-026: 執行變數替換（如果有自定義配置）
+    if (config.promptConfigId && variableContext) {
+      systemPrompt = replaceVariables(systemPrompt, variableContext);
+      userPrompt = replaceVariables(userPrompt, variableContext);
+      console.log(
+        `[Stage3] Applied variable replacement for PromptConfig (scope: ${config.promptConfigScope})`
+      );
+    }
 
     return {
       system: systemPrompt,
