@@ -173,9 +173,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             gptModelUsed: includes.has('aiDetails'),
             imageDetailMode: includes.has('aiDetails'),
             // CHANGE-024: V3.1 三階段欄位
+            // 注意：stage1Result/stage2Result 總是查詢，因為 smartRoutingMarkers 需要
             extractionVersion: true,
-            stage1Result: includes.has('stageDetails') || includes.has('aiDetails'),
-            stage2Result: includes.has('stageDetails') || includes.has('aiDetails'),
+            stage1Result: true,
+            stage2Result: true,
             stage3Result: includes.has('stageDetails') || includes.has('aiDetails'),
             stage1AiDetails: includes.has('stageDetails') || includes.has('aiDetails'),
             stage2AiDetails: includes.has('stageDetails') || includes.has('aiDetails'),
@@ -312,6 +313,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // CHANGE-025: 計算智能路由標記
+    // 修正：動態檢查公司/格式的當前配置狀態，而不是只依賴處理時的歷史標記
     let smartRoutingMarkers: {
       newCompanyDetected: boolean
       newFormatDetected: boolean
@@ -321,12 +323,40 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     if (document.extractionResult && isV3_1) {
       const stage1Result = document.extractionResult.stage1Result as Record<string, unknown> | null
       const stage2Result = document.extractionResult.stage2Result as Record<string, unknown> | null
-      const newCompanyDetected = (stage1Result?.isNewCompany as boolean) ?? false
-      const newFormatDetected = (stage2Result?.isNewFormat as boolean) ?? false
+
+      const historicalNewCompany = (stage1Result?.isNewCompany as boolean) ?? false
+      const historicalNewFormat = (stage2Result?.isNewFormat as boolean) ?? false
+
+      // 動態檢查公司當前配置狀態
+      let companyStillNeedsConfig = false
+      if (historicalNewCompany && stage1Result?.companyId) {
+        const company = await prisma.company.findUnique({
+          where: { id: stage1Result.companyId as string },
+          select: { status: true },
+        })
+        // 如果公司狀態仍是 PENDING，則仍需配置
+        companyStillNeedsConfig = company?.status === 'PENDING'
+      }
+
+      // 動態檢查格式當前配置狀態
+      // 注意：PromptConfig 是可選的進階配置，不應該強制要求
+      // 改為檢查 DocumentFormat 是否已被創建（代表格式已被系統識別）
+      let formatStillNeedsConfig = false
+      if (historicalNewFormat && stage2Result?.formatId) {
+        const documentFormat = await prisma.documentFormat.findUnique({
+          where: { id: stage2Result.formatId as string },
+          select: { id: true },
+        })
+        // 如果格式存在，則認為已配置（系統已識別出格式）
+        // 只有當格式不存在時，才需要配置
+        formatStillNeedsConfig = !documentFormat
+      }
+
       smartRoutingMarkers = {
-        newCompanyDetected,
-        newFormatDetected,
-        needsConfigReview: newCompanyDetected || newFormatDetected,
+        newCompanyDetected: historicalNewCompany,
+        newFormatDetected: historicalNewFormat,
+        // 只有當公司或格式仍然需要配置時，才顯示警告
+        needsConfigReview: companyStillNeedsConfig || formatStillNeedsConfig,
         configSource: document.extractionResult.stage2ConfigSource ?? null,
       }
     }
