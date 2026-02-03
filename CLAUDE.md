@@ -611,6 +611,44 @@ npm run test
 
 ---
 
+## 🌐 i18n 同步規則（必須遵守）
+
+> **常見問題**：開發者在 TypeScript 中新增常量（如 `PROMPT_TYPES`）但忘記更新 i18n 翻譯，導致運行時 `IntlError: MISSING_MESSAGE` 錯誤。
+
+### 常量 → i18n 映射表
+
+| 常量文件 | 常量名稱 | i18n 文件 | i18n Key 前綴 |
+|----------|----------|-----------|---------------|
+| `src/types/prompt-config.ts` | `PROMPT_TYPES` | `promptConfig.json` | `types.` |
+| `src/constants/status.ts` | `DOCUMENT_STATUS` | `common.json` | `status.` |
+| `src/constants/roles.ts` | `USER_ROLES` | `common.json` | `roles.` |
+
+### AI 助手必須遵守的規則
+
+**當修改以下文件時，必須同步檢查 i18n：**
+- `src/types/*.ts` 中含有 `label`、`description` 的 `export const` 常量
+- `src/constants/*.ts` 中的任何常量
+- 任何會在 UI 顯示的 enum/object
+
+**開發完成前必須執行：**
+```bash
+npm run i18n:check
+```
+
+### 同步更新檢查清單
+
+當新增/修改含 UI 顯示文字的常量時：
+
+- [ ] 已更新 `messages/en/*.json`
+- [ ] 已更新 `messages/zh-TW/*.json`
+- [ ] 已更新 `messages/zh-CN/*.json`
+- [ ] 已執行 `npm run i18n:check` 驗證
+- [ ] 已在瀏覽器確認無 `IntlError`
+
+> 📋 完整規範請參考: `.claude/rules/i18n.md`
+
+---
+
 ## 🚨 技術障礙處理規範（必須遵守）
 
 > **核心原則**: 遇到技術障礙時，**絕不擅自改變設計決策**。任何偏離原設計的方案必須獲得用戶確認。
@@ -799,15 +837,16 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 
 ## 版本資訊
 
-- **CLAUDE.md 版本**: 2.4.0
+- **CLAUDE.md 版本**: 2.5.0
 - **建立日期**: 2025-12-17
-- **最後更新**: 2026-01-18
+- **最後更新**: 2026-02-03
 - **維護者**: Development Team
 
 ### 更新記錄
 
 | 版本  | 日期       | 變更內容                                                                         |
 | ----- | ---------- | -------------------------------------------------------------------------------- |
+| 2.5.0 | 2026-02-03 | 新增「i18n 同步規則」章節、新增 `npm run i18n:check` 命令、防止常量與翻譯不同步  |
 | 2.4.0 | 2026-01-18 | 新增 Epic 16 (文件格式管理)、更新 Epic 總數至 18 個、Story 總數至 119 個         |
 | 2.3.0 | 2026-01-18 | 新增 Epic 17 (i18n)、新增 i18n.md 規則文件、技術棧新增 next-intl                 |
 | 2.2.0 | 2026-01-03 | Epic 13-15 全部完成、Story 13-6 整合測試頁面實作完成                             |
