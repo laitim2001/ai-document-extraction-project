@@ -1,6 +1,6 @@
 # Story 19.2: Template Instance 數據模型與管理服務
 
-**Status:** draft
+**Status:** done
 
 ---
 
@@ -320,7 +320,55 @@ DRAFT ──┬──► PROCESSING ──┬──► COMPLETED ──► EXPOR
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 完成日期
+2026-01-22
+
+### 完成內容
+
+**Task 1: Prisma Schema** ✅
+- `TemplateInstance` 模型（狀態、統計、導出資訊）
+- `TemplateInstanceRow` 模型（rowKey、fieldValues、validationErrors）
+- `TemplateInstanceStatus` 枚舉（DRAFT/PROCESSING/COMPLETED/EXPORTED/ERROR）
+- `TemplateInstanceRowStatus` 枚舉（PENDING/VALID/INVALID/SKIPPED）
+- 相關索引和唯一約束
+
+**Task 2: 類型定義** ✅
+- `src/types/template-instance.ts`：完整的 TypeScript 類型定義
+- 包含狀態枚舉、核心介面、驗證類型、篩選類型
+- 包含 API 請求/響應類型和狀態轉換常數
+
+**Task 3: Zod 驗證** ✅
+- `src/validations/template-instance.ts`：完整的驗證 Schema
+- 實例創建/更新驗證、行數據驗證
+- 查詢參數驗證、狀態轉換驗證
+
+**Task 4: 服務層** ✅
+- `src/services/template-instance.service.ts`：完整的服務實現
+- 實例 CRUD（list/getById/create/update/delete）
+- 行管理（getRows/addRow/updateRow/deleteRow）
+- 行驗證邏輯（validateRowData、validateType、validateRules）
+- 統計數據自動更新（updateStatistics）
+- 狀態轉換管理（changeStatus、markExported）
+
+**Task 5: API 端點** ✅
+- `GET/POST /api/v1/template-instances` - 列表和創建
+- `GET/PATCH/DELETE /api/v1/template-instances/:id` - 詳情、更新、刪除
+- `GET/POST /api/v1/template-instances/:id/rows` - 行列表和添加
+- `PATCH/DELETE /api/v1/template-instances/:id/rows/:rowId` - 行更新和刪除
+- `GET /api/v1/template-instances/:id/export` - 導出（Story 19-6）
+
+**Task 6: React Hooks** ✅
+- `src/hooks/use-template-instances.ts`：完整的 React Query Hooks
+- useTemplateInstances（列表）、useTemplateInstance（詳情）
+- useTemplateInstanceRows（行數據）、useDataTemplateOptions（模版選項）
+- 創建、刪除、更新行、批量刪除等 mutations
+
+### 設計決策
+
+1. **狀態轉換規則**：嚴格遵循 DRAFT → PROCESSING → COMPLETED → EXPORTED 的流程
+2. **行驗證**：根據 DataTemplate.fields 進行必填、類型、規則驗證
+3. **統計自動更新**：行操作後自動更新 rowCount/validRowCount/errorRowCount
+4. **軟刪除**：只有 DRAFT 狀態可刪除，避免數據丟失
 
 ---
 
