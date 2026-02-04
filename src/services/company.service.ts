@@ -183,20 +183,36 @@ export async function getCompanies(
     ...(source && { source: source as PrismaCompanySource }),
   }
 
-  // 構建排序條件
+  // 構建排序條件 - 使用明確的 switch 避免 Prisma 動態 key 問題
   let orderBy: Prisma.CompanyOrderByWithRelationInput | Prisma.CompanyOrderByWithRelationInput[]
 
-  if (sortBy === 'ruleCount') {
-    // ruleCount 需要按關聯數量排序
-    orderBy = {
-      mappingRules: {
-        _count: sortOrder,
-      },
-    }
-  } else {
-    orderBy = {
-      [SORT_FIELD_MAP[sortBy] || 'updatedAt']: sortOrder,
-    }
+  switch (sortBy) {
+    case 'ruleCount':
+      // ruleCount 需要按關聯數量排序
+      orderBy = {
+        mappingRules: {
+          _count: sortOrder,
+        },
+      }
+      break
+    case 'name':
+      orderBy = { name: sortOrder }
+      break
+    case 'code':
+      orderBy = { code: sortOrder }
+      break
+    case 'createdAt':
+      orderBy = { createdAt: sortOrder }
+      break
+    case 'priority':
+      orderBy = { priority: sortOrder }
+      break
+    case 'type':
+      orderBy = { type: sortOrder }
+      break
+    case 'updatedAt':
+    default:
+      orderBy = { updatedAt: sortOrder }
   }
 
   // 執行並行查詢（資料 + 總數）
