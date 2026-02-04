@@ -196,5 +196,28 @@
         "description": "Document-specific contextual information"
       }
     }
+  },
+  "templateInserter": {
+    "button": "Insert Template",
+    "dialogTitle": "Insert Default Template - {typeName}",
+    "dialogDescription": "Preview the default template and choose how to insert it",
+    "versionLabel": "Template Version",
+    "versionWithVariables": "With Variables",
+    "versionWithVariablesDesc": "Contains variable placeholders like $'{'variableName'}', will be replaced with actual values at runtime",
+    "versionExample": "Example (Plain Text)",
+    "versionExampleDesc": "Shows example values, for reference only",
+    "systemPromptPreview": "System Prompt",
+    "userPromptPreview": "User Prompt",
+    "supportedVariables": "Supported Variables",
+    "variableName": "Variable",
+    "variableDescription": "Description",
+    "variableExample": "Example",
+    "insertModeLabel": "Insert Mode",
+    "modeOverride": "Override existing content",
+    "modeOverrideDesc": "Replace current System and User prompts",
+    "modeAppend": "Append to existing content",
+    "modeAppendDesc": "Add template content after current prompts",
+    "cancel": "Cancel",
+    "confirm": "Confirm Insert"
   }
 }

@@ -196,5 +196,28 @@
         "description": "文件特定的上下文資訊"
       }
     }
+  },
+  "templateInserter": {
+    "button": "插入模板",
+    "dialogTitle": "插入預設模板 - {typeName}",
+    "dialogDescription": "預覽預設模板並選擇插入方式",
+    "versionLabel": "模板版本",
+    "versionWithVariables": "帶變數版",
+    "versionWithVariablesDesc": "包含 $'{'變數名'}' 格式的佔位符，運行時會被實際值替換",
+    "versionExample": "範例版（純文字）",
+    "versionExampleDesc": "顯示範例值，僅供參考學習",
+    "systemPromptPreview": "System Prompt",
+    "userPromptPreview": "User Prompt",
+    "supportedVariables": "支援的變數",
+    "variableName": "變數",
+    "variableDescription": "說明",
+    "variableExample": "範例",
+    "insertModeLabel": "插入模式",
+    "modeOverride": "覆蓋現有內容",
+    "modeOverrideDesc": "替換當前的 System 和 User Prompt",
+    "modeAppend": "追加到現有內容",
+    "modeAppendDesc": "將模板內容添加到當前 Prompt 之後",
+    "cancel": "取消",
+    "confirm": "確認插入"
   }
 }

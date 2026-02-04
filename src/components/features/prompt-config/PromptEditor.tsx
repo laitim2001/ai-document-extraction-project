@@ -4,19 +4,26 @@
  *   提供 System Prompt 和 User Prompt Template 的編輯器。
  *   支援變數插入、即時預覽和字數統計。
  *
+ *   CHANGE-027: 新增模板插入功能
+ *   - 當 promptType 為 Stage 1-3 時顯示「插入模板」按鈕
+ *   - 支援帶變數版/範例版模板預覽
+ *   - 支援覆蓋/追加模式
+ *
  * @module src/components/features/prompt-config/PromptEditor
  * @since Epic 14 - Story 14.2
- * @lastModified 2026-01-02
+ * @lastModified 2026-02-04
  *
  * @features
  *   - System / User Prompt 標籤頁切換
  *   - 變數插入面板
  *   - 即時預覽（變數替換）
  *   - 字數統計
+ *   - CHANGE-027: Stage 1-3 模板插入功能
  *
  * @dependencies
  *   - @/types/prompt-config-ui - UI 類型定義
  *   - @/components/ui/* - shadcn/ui 組件
+ *   - ./PromptTemplateInserter - 模板插入組件
  */
 
 'use client';
@@ -40,6 +47,8 @@ import {
   type AvailableVariable,
   type VariableCategory,
 } from '@/types/prompt-config-ui';
+import { PromptTemplateInserter } from './PromptTemplateInserter';
+import type { InsertMode } from '@/constants/stage-prompt-templates';
 
 // ============================================================================
 // 類型定義
@@ -56,6 +65,8 @@ interface PromptEditorProps {
   onUserPromptTemplateChange: (value: string) => void;
   /** 預覽用的變數上下文 */
   previewContext?: Record<string, string>;
+  /** CHANGE-027: 當前選擇的 Prompt Type（用於模板插入功能） */
+  promptType?: string;
 }
 
 // ============================================================================
@@ -68,6 +79,7 @@ export function PromptEditor({
   onSystemPromptChange,
   onUserPromptTemplateChange,
   previewContext = {},
+  promptType = '',
 }: PromptEditorProps) {
   const t = useTranslations('promptConfig');
   const [activeTab, setActiveTab] = React.useState<'system' | 'user'>('system');
@@ -77,6 +89,31 @@ export function PromptEditor({
 
   // 取得當前 tab 的 textarea ref
   const currentTextareaRef = activeTab === 'system' ? systemTextareaRef : userTextareaRef;
+
+  // CHANGE-027: 模板插入處理函數
+  const handleInsertSystemPrompt = React.useCallback(
+    (content: string, mode: InsertMode) => {
+      if (mode === 'override') {
+        onSystemPromptChange(content);
+      } else {
+        const separator = systemPrompt.trim() ? '\n\n' : '';
+        onSystemPromptChange(systemPrompt + separator + content);
+      }
+    },
+    [systemPrompt, onSystemPromptChange]
+  );
+
+  const handleInsertUserPrompt = React.useCallback(
+    (content: string, mode: InsertMode) => {
+      if (mode === 'override') {
+        onUserPromptTemplateChange(content);
+      } else {
+        const separator = userPromptTemplate.trim() ? '\n\n' : '';
+        onUserPromptTemplateChange(userPromptTemplate + separator + content);
+      }
+    },
+    [userPromptTemplate, onUserPromptTemplateChange]
+  );
 
   // 插入變數到游標位置
   const insertVariable = React.useCallback(
@@ -140,6 +177,15 @@ export function PromptEditor({
           <div className="flex items-center gap-2">
             {/* 變數插入器 */}
             <VariableInserter onInsert={insertVariable} t={t} />
+
+            {/* CHANGE-027: 模板插入按鈕（僅 Stage 1-3） */}
+            <PromptTemplateInserter
+              promptType={promptType}
+              onInsertSystemPrompt={handleInsertSystemPrompt}
+              onInsertUserPrompt={handleInsertUserPrompt}
+              currentSystemPrompt={systemPrompt}
+              currentUserPrompt={userPromptTemplate}
+            />
 
             {/* 預覽切換 */}
             <Button

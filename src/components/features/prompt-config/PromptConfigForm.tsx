@@ -416,6 +416,7 @@ export function PromptConfigForm({
               userPromptTemplate={form.watch('userPromptTemplate')}
               onSystemPromptChange={(value) => form.setValue('systemPrompt', value)}
               onUserPromptTemplateChange={(value) => form.setValue('userPromptTemplate', value)}
+              promptType={form.watch('promptType')}
             />
             {form.formState.errors.systemPrompt && (
               <p className="text-sm text-red-500 mt-2">
