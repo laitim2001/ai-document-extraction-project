@@ -219,5 +219,13 @@
     "modeAppendDesc": "将模板内容添加到当前 Prompt 之后",
     "cancel": "取消",
     "confirm": "确认插入"
+  },
+  "collapsible": {
+    "expandAll": "展开全部",
+    "collapseAll": "收起全部",
+    "showMore": "显示更多 (+{count})",
+    "showLess": "收起",
+    "configCount": "{count} 个配置",
+    "emptyGroup": "此类别暂无配置"
   }
 }

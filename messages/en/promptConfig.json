@@ -219,5 +219,13 @@
     "modeAppendDesc": "Add template content after current prompts",
     "cancel": "Cancel",
     "confirm": "Confirm Insert"
+  },
+  "collapsible": {
+    "expandAll": "Expand All",
+    "collapseAll": "Collapse All",
+    "showMore": "Show More (+{count})",
+    "showLess": "Show Less",
+    "configCount": "{count} configurations",
+    "emptyGroup": "No configurations in this category"
   }
 }
