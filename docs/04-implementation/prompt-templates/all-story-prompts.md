@@ -7737,3 +7737,627 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
+## Epic 20: Reference Number Master Setup
+
+> **說明**：此 Epic 建立 Reference Number 主檔管理功能，以「地區」為主要分類維度。
+
+### Story 20-1: 資料庫模型與基礎設施
+
+```
+# 開發任務：Story 20-1 資料庫模型與基礎設施
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-1-database-model-infrastructure.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- prisma/schema.prisma
+
+## 開發要求
+1. 新增 Region 和 ReferenceNumber 模型到 Prisma Schema
+2. 新增枚舉 ReferenceNumberType 和 ReferenceNumberStatus
+3. 執行資料庫遷移
+4. 建立預設地區種子資料（APAC, EMEA, AMER, GLOBAL）
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npx prisma migrate dev` 並確認成功
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 20-2: Region 管理 API 與 UI
+
+```
+# 開發任務：Story 20-2 Region 管理 API 與 UI
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-2-region-management-api-ui.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/services/company.service.ts（參考 Service 模式）
+
+## 開發要求
+1. 建立 Region CRUD API（GET/POST/PATCH/DELETE）
+2. 建立 RegionSelect 共用組件
+3. 新增 i18n 翻譯文件
+4. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 20-3: Reference Number CRUD API
+
+```
+# 開發任務：Story 20-3 Reference Number CRUD API
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-3-reference-number-crud-api.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/app/api/v1/prompt-configs/route.ts（參考 API 模式）
+
+## 開發要求
+1. 建立 Zod 驗證 Schema
+2. 建立 reference-number.service.ts
+3. 建立 CRUD API 端點（支援分頁、篩選、排序）
+4. 建立 React Query Hooks
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 20-4: 導入/導出與驗證 API
+
+```
+# 開發任務：Story 20-4 導入/導出與驗證 API
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-4-import-export-validate-api.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/app/api/v1/field-mapping-configs/import/route.ts（參考 Import 模式）
+
+## 開發要求
+1. 建立 Import API（POST /import）
+2. 建立 Export API（GET /export）
+3. 建立 Validate API（POST /validate）
+4. 實現 skipInvalid 和 overwriteExisting 選項
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 20-5: 管理頁面 - 列表與篩選
+
+```
+# 開發任務：Story 20-5 管理頁面 - 列表與篩選
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-5-management-page-list-filter.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/app/[locale]/(dashboard)/admin/prompt-configs/page.tsx（參考頁面模式）
+
+## 開發要求
+1. 建立 /admin/reference-numbers 列表頁
+2. 建立 ReferenceNumberList 組件
+3. 建立 ReferenceNumberFilters 組件
+4. 整合 RegionSelect 組件
+5. 新增 i18n 翻譯
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 20-6: 管理頁面 - 表單與導入
+
+```
+# 開發任務：Story 20-6 管理頁面 - 表單與導入
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-6-management-page-form-import.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-6.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/components/features/prompt-config/（參考表單組件模式）
+
+## 開發要求
+1. 建立新增/編輯頁面
+2. 建立 ReferenceNumberForm 組件
+3. 建立 ReferenceNumberImportDialog 組件
+4. 使用 React Hook Form + Zod 驗證
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+## Epic 21: Exchange Rate Management
+
+> **說明**：此 Epic 建立匯率管理功能，支援雙向匯率處理和貨幣轉換計算。
+
+### Story 21-1: 資料庫模型與遷移
+
+```
+# 開發任務：Story 21-1 資料庫模型與遷移
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-1-database-model-migration.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- prisma/schema.prisma
+
+## 開發要求
+1. 新增 ExchangeRateSource 枚舉
+2. 新增 ExchangeRate 模型（含自關聯 inverseOf/inverseRates）
+3. 設定 Decimal(18,8) 精度
+4. 執行資料庫遷移
+5. 建立類型定義和貨幣代碼常數
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npx prisma migrate dev` 並確認成功
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-2: 核心服務層
+
+```
+# 開發任務：Story 21-2 核心服務層
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-2-core-service-layer.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/services/reference-number.service.ts（參考 Service 模式）
+
+## 開發要求
+1. 建立 Zod 驗證 Schema（create, update, convert, batch）
+2. 建立 exchange-rate.service.ts
+3. 實現 CRUD 操作
+4. 實現 convert 方法（含 Fallback: direct → inverse → cross）
+5. 實現 batchGetRates 方法
+6. 實現自動反向匯率建立邏輯
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-3: CRUD API 端點
+
+```
+# 開發任務：Story 21-3 CRUD API 端點
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-3-crud-api-endpoints.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/app/api/v1/reference-numbers/route.ts（參考 API 模式）
+
+## 開發要求
+1. 建立 /api/v1/exchange-rates 端點（GET/POST）
+2. 建立 /api/v1/exchange-rates/[id] 端點（GET/PATCH/DELETE）
+3. 建立 /api/v1/exchange-rates/[id]/toggle 端點（POST）
+4. 建立 React Query Hooks
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-4: 轉換計算 API
+
+```
+# 開發任務：Story 21-4 轉換計算 API
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-4-convert-calculation-api.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+
+## 開發要求
+1. 建立 /api/v1/exchange-rates/convert 端點（POST）
+2. 建立 /api/v1/exchange-rates/batch 端點（POST）
+3. 實現 Fallback 邏輯（direct → inverse → cross via USD）
+4. 建立 useConvertCurrency 和 useBatchRates hooks
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-5: Import/Export API
+
+```
+# 開發任務：Story 21-5 Import/Export API
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-5-import-export-api.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/app/api/v1/reference-numbers/import/route.ts（參考 Import 模式）
+
+## 開發要求
+1. 建立 /api/v1/exchange-rates/export 端點（GET）
+2. 建立 /api/v1/exchange-rates/import 端點（POST）
+3. 實現 skipInvalid 和 overwriteExisting 選項
+4. 支援 createInverse 選項（導入時建立反向匯率）
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-6: 管理頁面 - 列表與篩選
+
+```
+# 開發任務：Story 21-6 管理頁面 - 列表與篩選
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-6-management-page-list-filter.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-6.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/components/features/reference-number/（參考組件模式）
+
+## 開發要求
+1. 建立 /admin/exchange-rates 列表頁
+2. 建立 ExchangeRateList 組件
+3. 建立 ExchangeRateFilters 組件
+4. 建立 CurrencySelect 組件
+5. 新增 i18n 翻譯文件
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-7: 管理頁面 - 表單
+
+```
+# 開發任務：Story 21-7 管理頁面 - 表單
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-7-management-page-form.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-7.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/components/features/exchange-rate/CurrencySelect.tsx
+
+## 開發要求
+1. 建立新增頁面（/admin/exchange-rates/new）
+2. 建立編輯頁面（/admin/exchange-rates/[id]）
+3. 建立 ExchangeRateForm 組件
+4. 實現反向匯率預覽功能
+5. 使用 React Hook Form + Zod 驗證
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-8: 管理頁面 - 計算器與 Import
+
+```
+# 開發任務：Story 21-8 管理頁面 - 計算器與 Import
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-8-management-page-calculator-import.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-8.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/components/features/exchange-rate/
+
+## 開發要求
+1. 建立 ExchangeRateCalculator 組件
+2. 建立 ExchangeRateImportDialog 組件
+3. 實現即時匯率計算預覽
+4. 實現 JSON 檔案上傳和貼上
+5. 實現導入結果統計顯示
+6. 實現導出功能
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+

@@ -157,7 +157,7 @@ const DEFAULT_CONFIG: Required<GptCallerConfig> = {
     process.env.AZURE_OPENAI_NANO_DEPLOYMENT_NAME || 'gpt-5-nano',
   fullDeploymentName:
     process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-5-2-vision',
-  maxTokens: 4096,
+  maxTokens: 8192, // 預設使用較大的 token 限制
   temperature: 0.1,
   timeout: 300000, // 5 分鐘 - Stage 3 欄位提取處理多頁文件可能需要較長時間
   retryCount: 2,
@@ -169,14 +169,14 @@ const MODEL_CONFIG = {
   'gpt-5-nano': {
     // 輕量模型：用於識別任務（Stage 1 & 2）
     // 注意：GPT-5-nano 會使用 reasoning_tokens，需要留足夠空間給實際輸出
-    // 典型情況：reasoning 用 512-1024 tokens，實際輸出需要額外 256-512 tokens
-    maxTokens: 2048, // 增加到 2048 以確保有足夠空間輸出 JSON 響應
+    // 典型情況：reasoning 用 512-2048 tokens，實際輸出需要額外 512-1024 tokens
+    maxTokens: 4096, // 增加到 4096 以確保複雜文件有足夠空間
     temperature: undefined as number | undefined, // GPT-5-nano 不支援自定義 temperature，只能使用預設值 1
     defaultImageDetail: 'low' as ImageDetailMode, // 低解析度以節省成本
   },
   'gpt-5.2': {
     // 完整模型：用於提取任務（Stage 3）
-    maxTokens: 4096, // 更多 Token
+    maxTokens: 8192, // 增加到 8192 以處理複雜文件的欄位提取
     temperature: 0.1 as number | undefined,
     defaultImageDetail: 'auto' as ImageDetailMode, // 自動選擇解析度
   },

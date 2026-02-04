@@ -169,7 +169,7 @@ export const createPromptConfigSchema = z
     /** 公司 ID（COMPANY 或 FORMAT 範圍時必填） */
     companyId: z.preprocess(
       (val) => (val === '' || val === undefined ? null : val),
-      z.string().cuid('無效的公司 ID').nullable()
+      z.string().uuid('無效的公司 ID').nullable()
     ),
 
     /** 文件格式 ID（FORMAT 範圍時必填） */
@@ -318,7 +318,7 @@ export const getPromptConfigsQuerySchema = z.object({
   /** 篩選公司 */
   companyId: z.preprocess(
     (val) => (val === '' || val === undefined ? undefined : val),
-    z.string().cuid().optional()
+    z.string().uuid().optional()
   ),
 
   /** 篩選文件格式 */
@@ -372,7 +372,7 @@ export const resolvePromptSchema = z.object({
   promptType: promptTypeSchema,
 
   /** 公司 ID（可選） */
-  companyId: z.string().cuid().optional(),
+  companyId: z.string().uuid().optional(),
 
   /** 文件格式 ID（可選） */
   documentFormatId: z.string().cuid().optional(),
