@@ -52,9 +52,20 @@ const VARIABLE_DISPLAY_NAME_MAX_LENGTH = 100;
 
 /**
  * Prompt 類型 Schema
+ * 包含原始類型 + CHANGE-025 V3.1 三階段提示類型
  */
 export const promptTypeSchema = z.enum(
-  ['ISSUER_IDENTIFICATION', 'TERM_CLASSIFICATION', 'FIELD_EXTRACTION', 'VALIDATION'],
+  [
+    // 原始類型
+    'ISSUER_IDENTIFICATION',
+    'TERM_CLASSIFICATION',
+    'FIELD_EXTRACTION',
+    'VALIDATION',
+    // CHANGE-025: V3.1 三階段提示類型
+    'STAGE_1_COMPANY_IDENTIFICATION',
+    'STAGE_2_FORMAT_IDENTIFICATION',
+    'STAGE_3_FIELD_EXTRACTION',
+  ],
   {
     message: '無效的 Prompt 類型',
   }

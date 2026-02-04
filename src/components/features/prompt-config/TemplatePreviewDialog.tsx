@@ -31,7 +31,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
@@ -110,7 +109,7 @@ export function TemplatePreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-3xl !grid !grid-rows-[auto_1fr_auto] max-h-[85vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -121,8 +120,8 @@ export function TemplatePreviewDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-6">
+        <div className="overflow-y-auto pr-4 -mr-4">
+          <div className="space-y-6 pr-4">
             {/* 版本選擇 */}
             <div className="space-y-3">
               <Label className="text-sm font-medium">{t('versionLabel')}</Label>
@@ -265,7 +264,7 @@ export function TemplatePreviewDialog({
               </RadioGroup>
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={onClose}>
