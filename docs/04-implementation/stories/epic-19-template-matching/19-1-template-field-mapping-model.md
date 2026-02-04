@@ -1,6 +1,6 @@
 # Story 19.1: Template Field Mapping 數據模型與服務
 
-**Status:** draft
+**Status:** done
 
 ---
 
