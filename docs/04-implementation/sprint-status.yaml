@@ -313,10 +313,15 @@ development_status:
   epic-20-retrospective: optional
 
   # ============================================================
-  # Epic 21: Reference Number Matching & Validation
+  # Epic 21: Exchange Rate Management (匯率管理)
   # ============================================================
-  epic-21: backlog  # Reference Number 匹配與驗證
-  21-1-matching-service: backlog
-  21-2-batch-validation-api: backlog
-  21-3-validation-ui-integration: backlog
+  epic-21: in-progress  # Exchange Rate Management
+  21-1-database-model-migration: done  # Completed 2026-02-05: ExchangeRateSource enum (MANUAL/IMPORTED/AUTO_INVERSE), ExchangeRate model (Decimal(18,8), self-relation inverseOf/inverseRates, @@unique fromCurrency+toCurrency+effectiveYear), indexes, TypeScript types (exchange-rate.ts), ISO 4217 COMMON_CURRENCIES constant
+  21-2-core-service-layer: backlog
+  21-3-crud-api-endpoints: backlog
+  21-4-convert-calculation-api: backlog
+  21-5-import-export-api: backlog
+  21-6-management-page-list-filter: backlog
+  21-7-management-page-form: backlog
+  21-8-management-page-calculator-import: backlog
   epic-21-retrospective: optional

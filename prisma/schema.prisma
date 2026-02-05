@@ -4161,3 +4161,47 @@ enum TemplateInstanceRowStatus {
   INVALID
   SKIPPED
 }
+
+/// ────────────────────────────────────────────────────────
+/// Epic 21 - Exchange Rate Management
+/// ────────────────────────────────────────────────────────
+
+/// 匯率來源類型
+/// 區分手動輸入、批次匯入、自動產生的反向記錄
+/// @since Epic 21 - Story 21.1
+enum ExchangeRateSource {
+  MANUAL        // 手動輸入
+  IMPORTED      // 批次匯入
+  AUTO_INVERSE  // 自動產生的反向記錄
+}
+
+/// 匯率記錄
+/// 儲存貨幣對的匯率資訊，支援雙向追蹤和高精度計算
+/// @since Epic 21 - Story 21.1
+model ExchangeRate {
+  id            String             @id @default(cuid())
+  fromCurrency  String             @db.VarChar(3) @map("from_currency")   // ISO 4217
+  toCurrency    String             @db.VarChar(3) @map("to_currency")     // ISO 4217
+  rate          Decimal            @db.Decimal(18, 8)                     // 高精度匯率
+  effectiveYear Int                @map("effective_year")                 // 生效年份
+  effectiveFrom DateTime?          @map("effective_from")                 // 可選：精確生效日期
+  effectiveTo   DateTime?          @map("effective_to")                   // 可選：精確結束日期
+  isActive      Boolean            @default(true) @map("is_active")
+  source        ExchangeRateSource @default(MANUAL)
+  inverseOfId   String?            @map("inverse_of_id")
+  description   String?
+  createdById   String?            @map("created_by_id")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  // 自關聯：追蹤反向匯率
+  inverseOf     ExchangeRate?      @relation("InverseRate", fields: [inverseOfId], references: [id], onDelete: SetNull)
+  inverseRates  ExchangeRate[]     @relation("InverseRate")
+
+  @@unique([fromCurrency, toCurrency, effectiveYear])
+  @@index([fromCurrency, toCurrency])
+  @@index([effectiveYear])
+  @@index([isActive])
+  @@index([source])
+  @@map("exchange_rates")
+}

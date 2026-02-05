@@ -1,6 +1,6 @@
 # Story 21.1: 資料庫模型與遷移
 
-**Status:** pending
+**Status:** done
 
 ---
 
@@ -161,7 +161,42 @@ export const COMMON_CURRENCIES = [
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 完成日期：2026-02-05
+
+### 實現摘要
+
+1. **Prisma Schema 更新** (`prisma/schema.prisma`)
+   - 新增 `ExchangeRateSource` 枚舉：`MANUAL`, `IMPORTED`, `AUTO_INVERSE`
+   - 新增 `ExchangeRate` 模型，包含：
+     - `fromCurrency` / `toCurrency`：VARCHAR(3) ISO 4217 貨幣代碼
+     - `rate`：Decimal(18, 8) 高精度匯率
+     - `effectiveYear`：生效年份
+     - `effectiveFrom` / `effectiveTo`：可選精確日期範圍
+     - `inverseOf` / `inverseRates`：自關聯追蹤反向匯率
+   - 唯一約束：`(fromCurrency, toCurrency, effectiveYear)`
+   - 索引：貨幣對、年份、isActive、source
+
+2. **資料庫同步**
+   - 使用 `prisma db push`（開發環境慣例）
+   - 執行 `prisma generate` 更新 Prisma Client
+
+3. **類型定義** (`src/types/exchange-rate.ts`)
+   - `ExchangeRate` 介面（繼承 Prisma 類型，rate 為 `number | string`）
+   - `COMMON_CURRENCIES` 常數：19 種 ISO 4217 貨幣代碼（APAC 重點）
+   - `CurrencyCode` 聯合類型
+   - `ExchangeRateWithRelations`、`ConvertResult`、`BatchRateResult` API 類型
+
+4. **類型導出** (`src/types/index.ts`)
+   - 新增 `export * from './exchange-rate'`
+
+### 技術決策
+
+- **使用 `prisma db push` 而非 `prisma migrate dev`**：
+  開發環境已存在 migration drift（遷移歷史與實際 schema 不同步），
+  此為項目既有慣例，使用 `db push` 直接同步 schema。
+- **rate 類型不使用 Prisma Decimal**：
+  `@prisma/client/runtime/library` 在 TypeScript 編譯時無法解析，
+  改用 `number | string` 覆蓋 JSON 序列化和前端計算兩種場景。
 
 ---
 

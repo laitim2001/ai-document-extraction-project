@@ -610,3 +610,6 @@ export {
 
 // 參考號碼相關 (Epic 20: Story 20.1)
 export * from './reference-number'
+
+// 匯率管理相關 (Epic 21: Story 21.1)
+export * from './exchange-rate'
