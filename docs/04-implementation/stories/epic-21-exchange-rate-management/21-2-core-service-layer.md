@@ -1,6 +1,6 @@
 # Story 21.2: 核心服務層
 
-**Status:** pending
+**Status:** done
 
 ---
 
@@ -82,34 +82,34 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Zod 驗證** (AC: #6)
-  - [ ] 1.1 新增 `src/lib/validations/exchange-rate.schema.ts`
-  - [ ] 1.2 定義 createExchangeRateSchema
-  - [ ] 1.3 定義 updateExchangeRateSchema
-  - [ ] 1.4 定義 convertSchema
-  - [ ] 1.5 定義 batchGetRatesSchema
+- [x] **Task 1: Zod 驗證** (AC: #6)
+  - [x] 1.1 新增 `src/lib/validations/exchange-rate.schema.ts`
+  - [x] 1.2 定義 createExchangeRateSchema
+  - [x] 1.3 定義 updateExchangeRateSchema
+  - [x] 1.4 定義 convertSchema
+  - [x] 1.5 定義 batchGetRatesSchema
+  - [x] 1.6 定義 getExchangeRatesQuerySchema
 
-- [ ] **Task 2: 服務層 - CRUD** (AC: #1)
-  - [ ] 2.1 新增 `src/services/exchange-rate.service.ts`
-  - [ ] 2.2 實現 list（含篩選、分頁、排序）
-  - [ ] 2.3 實現 getById
-  - [ ] 2.4 實現 create（含自動反向邏輯）
-  - [ ] 2.5 實現 update
-  - [ ] 2.6 實現 delete（含關聯刪除）
-  - [ ] 2.7 實現 toggle
+- [x] **Task 2: 服務層 - CRUD** (AC: #1)
+  - [x] 2.1 新增 `src/services/exchange-rate.service.ts`
+  - [x] 2.2 實現 list（含篩選、分頁、排序、批次反向檢查）
+  - [x] 2.3 實現 getById（含反向匯率資訊）
+  - [x] 2.4 實現 create（含自動反向邏輯、唯一約束檢查）
+  - [x] 2.5 實現 update（只更新提供的欄位）
+  - [x] 2.6 實現 delete（含關聯刪除、transaction）
+  - [x] 2.7 實現 toggle
 
-- [ ] **Task 3: 服務層 - 轉換邏輯** (AC: #2, #3, #4)
-  - [ ] 3.1 實現 createWithInverse
-  - [ ] 3.2 實現 convert（含 Fallback 邏輯）
-  - [ ] 3.3 實現 batchGetRates
-  - [ ] 3.4 實現 findDirectRate
-  - [ ] 3.5 實現 calculateInverseRate
-  - [ ] 3.6 實現 calculateCrossRate
+- [x] **Task 3: 服務層 - 轉換邏輯** (AC: #2, #3, #4)
+  - [x] 3.1 實現 createWithInverse（整合至 create 方法）
+  - [x] 3.2 實現 convert（含 Fallback: direct → inverse → cross(USD)）
+  - [x] 3.3 實現 batchGetRates（並行查詢、錯誤容錯）
+  - [x] 3.4 實現 findDirectRate（內部 helper）
+  - [x] 3.5 實現 findRate（含反向計算）
 
-- [ ] **Task 4: 刪除邏輯** (AC: #5)
-  - [ ] 4.1 實現 deleteWithInverse
+- [x] **Task 4: 刪除邏輯** (AC: #5)
+  - [x] 4.1 實現 deleteWithInverse（整合至 delete 方法，使用 transaction）
 
-- [ ] **Task 5: 單元測試**
+- [ ] **Task 5: 單元測試**（後續 Story 實作）
   - [ ] 5.1 CRUD 操作測試
   - [ ] 5.2 反向匯率建立測試
   - [ ] 5.3 Convert Fallback 邏輯測試
@@ -307,7 +307,23 @@ interface ConvertResult {
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 完成日期: 2026-02-05
+
+### 新增文件
+
+| 文件 | 說明 |
+|------|------|
+| `src/lib/validations/exchange-rate.schema.ts` | Zod 驗證 Schema（6 個 schema + 5 個 inferred types） |
+| `src/services/exchange-rate.service.ts` | 核心服務層（8 個 public 方法 + 2 個 internal helpers） |
+
+### 設計決策
+
+1. **列表反向檢查優化**: 使用 `groupBy` 批次查詢取代 N+1 個別查詢
+2. **Create 唯一約束**: 在建立前先檢查 `fromCurrency_toCurrency_effectiveYear` 唯一約束，提供清楚的錯誤訊息
+3. **Delete with Transaction**: 使用 `$transaction` 確保刪除反向記錄和主記錄的一致性
+4. **Convert Fallback**: direct → inverse → cross(USD) → throw Error，每層失敗自動往下
+5. **BatchGetRates 容錯**: 使用 try/catch 確保單一貨幣對失敗不影響其他結果
+6. **rate 類型處理**: Prisma Decimal 在 service 層一律轉為 number，避免前端需額外處理
 
 ---
 

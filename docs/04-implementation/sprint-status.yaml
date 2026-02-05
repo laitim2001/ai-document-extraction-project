@@ -317,7 +317,7 @@ development_status:
   # ============================================================
   epic-21: in-progress  # Exchange Rate Management
   21-1-database-model-migration: done  # Completed 2026-02-05: ExchangeRateSource enum (MANUAL/IMPORTED/AUTO_INVERSE), ExchangeRate model (Decimal(18,8), self-relation inverseOf/inverseRates, @@unique fromCurrency+toCurrency+effectiveYear), indexes, TypeScript types (exchange-rate.ts), ISO 4217 COMMON_CURRENCIES constant
-  21-2-core-service-layer: backlog
+  21-2-core-service-layer: done  # Completed 2026-02-05: Zod schemas (create/update/query/convert/batchGetRates), exchange-rate.service.ts (CRUD with inverse, convert with Fallback direct→inverse→cross(USD), batchGetRates, toggle, deleteWithInverse)
   21-3-crud-api-endpoints: backlog
   21-4-convert-calculation-api: backlog
   21-5-import-export-api: backlog
