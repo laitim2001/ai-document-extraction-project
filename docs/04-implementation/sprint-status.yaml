@@ -305,7 +305,7 @@ development_status:
   # ============================================================
   epic-20: in-progress  # Reference Number 主檔管理
   20-1-database-model-infrastructure: done  # Completed 2026-02-04: Region model extensions (description, isDefault, sortOrder), ReferenceNumberType/ReferenceNumberStatus enums, ReferenceNumber model (code, number, type, status, year, regionId, validFrom/Until, matchCount), region.ts/reference-number.ts types, GLOBAL region seed, unique constraint (number+type+year+regionId)
-  20-2-crud-api-endpoints: draft
+  20-2-crud-api-endpoints: done  # Completed 2026-02-05: Region CRUD APIs (/api/v1/regions GET/POST, /api/v1/regions/[id] GET/PATCH/DELETE), region.service.ts, region.schema.ts Zod validation, use-regions.ts hook, RegionSelect component, region.json i18n (en/zh-TW/zh-CN)
   20-3-reference-number-ui: draft
   epic-20-retrospective: optional
 
