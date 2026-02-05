@@ -1,0 +1,71 @@
+{
+  "title": "参考号码管理",
+  "description": "管理 Shipment/Delivery Number 等参考号码",
+  "loading": "加载中...",
+  "noData": "暂无数据",
+  "columns": {
+    "number": "号码",
+    "type": "类型",
+    "year": "年份",
+    "region": "地区",
+    "status": "状态",
+    "matchCount": "匹配次数",
+    "updatedAt": "更新时间",
+    "actions": "操作"
+  },
+  "types": {
+    "SHIPMENT": "运输单号",
+    "DELIVERY": "交货单号",
+    "BOOKING": "订舱号",
+    "CONTAINER": "柜号",
+    "HAWB": "分提单",
+    "MAWB": "主提单",
+    "BL": "提单",
+    "CUSTOMS": "报关单",
+    "OTHER": "其他"
+  },
+  "statuses": {
+    "ACTIVE": "有效",
+    "EXPIRED": "已过期",
+    "CANCELLED": "已取消"
+  },
+  "filters": {
+    "searchPlaceholder": "搜索号码...",
+    "year": "选择年份",
+    "region": "选择地区",
+    "type": "选择类型",
+    "status": "选择状态",
+    "clear": "清除筛选"
+  },
+  "actions": {
+    "add": "新增",
+    "import": "导入",
+    "export": "导出",
+    "edit": "编辑",
+    "copy": "复制号码",
+    "delete": "删除",
+    "refresh": "刷新"
+  },
+  "pagination": {
+    "showing": "显示 {from} - {to} 条，共 {total} 条",
+    "previous": "上一页",
+    "next": "下一页"
+  },
+  "deleteDialog": {
+    "title": "删除参考号码",
+    "description": "确定要删除此参考号码吗？此操作无法恢复。",
+    "cancel": "取消",
+    "confirm": "删除",
+    "deleting": "删除中..."
+  },
+  "toast": {
+    "deleteSuccess": "参考号码已删除",
+    "deleteSuccessDesc": "参考号码已成功删除。",
+    "deleteFailed": "删除失败",
+    "copySuccess": "号码已复制到剪贴板",
+    "copyFailed": "复制号码失败"
+  },
+  "summary": {
+    "total": "共 {count} 条参考号码"
+  }
+}

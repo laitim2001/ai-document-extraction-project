@@ -1,6 +1,6 @@
 # Story 20.5: 管理頁面 - 列表與篩選
 
-**Status:** draft
+**Status:** done
 
 ---
 
@@ -186,7 +186,43 @@ const STATUS_COLORS = {
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 完成日期：2026-02-05
+
+### 實現摘要
+
+1. **頁面** (`/admin/reference-numbers/page.tsx`)
+   - URL 篩選參數同步（useSearchParams + router.push）
+   - 整合 `useReferenceNumbers` hook 取得資料
+   - 支援重新整理、導入、導出、新增按鈕
+
+2. **篩選器** (`ReferenceNumberFilters.tsx`)
+   - 搜尋框（Enter 觸發搜尋）
+   - 年份下拉（最近 10 年）
+   - RegionSelect 地區選擇
+   - 類型/狀態下拉（使用 REFERENCE_NUMBER_TYPE_OPTIONS/STATUS_OPTIONS）
+   - 清除篩選按鈕（僅在有活躍篩選時顯示）
+
+3. **列表** (`ReferenceNumberList.tsx`)
+   - Table + 可排序欄位（number, year, matchCount, updatedAt）
+   - ReferenceNumberTypeBadge / StatusBadge 顯示
+   - 操作下拉選單（編輯、複製號碼、刪除）
+   - 分頁導航
+   - 載入骨架屏
+   - Locale-aware 日期格式化
+
+4. **刪除對話框** (`ReferenceNumberDeleteDialog.tsx`)
+   - AlertDialog 確認
+   - 整合 useDeleteReferenceNumber hook（軟刪除）
+   - Toast 成功/失敗通知
+
+5. **i18n** (`referenceNumber.json` × 3 語言)
+   - 完整翻譯：en, zh-TW, zh-CN
+   - navigation.json 新增 sidebar 項目
+
+### 技術決策
+- 使用 URL search params 而非 Zustand 管理篩選狀態，支援分享連結
+- 排序由 API 端處理，前端僅傳遞 sortBy/sortOrder 參數
+- Badge 組件獨立抽出，方便其他頁面重用
 
 ---
 
