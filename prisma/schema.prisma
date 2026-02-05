@@ -164,22 +164,35 @@ model UserRole {
   @@map("user_roles")
 }
 
+/**
+ * 地區配置表
+ * 用於分類管理城市和 Reference Number
+ * @since Epic 6 - Story 6.1, Epic 20 - Story 20.1
+ */
 model Region {
   id           String             @id @default(uuid())
   code         String             @unique
   name         String
+  description  String?                                           // Epic 20: 地區說明
   parentId     String?            @map("parent_id")
   timezone     String             @default("UTC")
   status       RegionStatus       @default(ACTIVE)
+  isDefault    Boolean            @default(false) @map("is_default")  // Epic 20: 是否為系統預設
+  sortOrder    Int                @default(0) @map("sort_order")      // Epic 20: 排序順序
   createdAt    DateTime           @default(now()) @map("created_at")
   updatedAt    DateTime           @updatedAt @map("updated_at")
-  cities       City[]
-  parent       Region?            @relation("RegionHierarchy", fields: [parentId], references: [id])
-  children     Region[]           @relation("RegionHierarchy")
-  userAccesses UserRegionAccess[]
+
+  // 關聯
+  cities            City[]
+  parent            Region?            @relation("RegionHierarchy", fields: [parentId], references: [id])
+  children          Region[]           @relation("RegionHierarchy")
+  userAccesses      UserRegionAccess[]
+  referenceNumbers  ReferenceNumber[]  // Epic 20: 參考號碼關聯
 
   @@index([parentId])
   @@index([status])
+  @@index([isDefault])
+  @@index([sortOrder])
   @@map("regions")
 }
 
@@ -3148,9 +3161,96 @@ model TemplateInstanceRow {
   @@map("template_instance_rows")
 }
 
+/**
+ * 參考號碼主檔
+ * 用於管理 Shipment/Delivery Number 等參考號碼
+ * @since Epic 20 - Story 20.1
+ */
+model ReferenceNumber {
+  id              String                  @id @default(cuid())
+
+  // ================================
+  // 識別資訊
+  // ================================
+  code            String                  @unique  // 唯一識別碼（導入導出用）
+  number          String                           // 號碼值
+  type            ReferenceNumberType     @default(SHIPMENT)
+  status          ReferenceNumberStatus   @default(ACTIVE)
+
+  // ================================
+  // 分類資訊
+  // ================================
+  year            Int                              // 年份
+  regionId        String                  @map("region_id")
+  region          Region                  @relation(fields: [regionId], references: [id])
+
+  // ================================
+  // 描述資訊
+  // ================================
+  description     String?
+
+  // ================================
+  // 有效期
+  // ================================
+  validFrom       DateTime?               @map("valid_from")
+  validUntil      DateTime?               @map("valid_until")
+
+  // ================================
+  // 使用追蹤
+  // ================================
+  matchCount      Int                     @default(0) @map("match_count")
+  lastMatchedAt   DateTime?               @map("last_matched_at")
+
+  // ================================
+  // 狀態與審計
+  // ================================
+  isActive        Boolean                 @default(true) @map("is_active")
+  createdById     String                  @map("created_by_id")
+  createdAt       DateTime                @default(now()) @map("created_at")
+  updatedAt       DateTime                @updatedAt @map("updated_at")
+
+  // ================================
+  // 約束與索引
+  // ================================
+  @@unique([number, type, year, regionId], name: "unique_reference_number")
+  @@index([year])
+  @@index([type])
+  @@index([status])
+  @@index([regionId])
+  @@index([isActive])
+  @@index([number])  // 用於搜尋
+  @@map("reference_numbers")
+}
+
 enum RegionStatus {
   ACTIVE
   INACTIVE
+}
+
+/**
+ * 參考號碼類型
+ * @since Epic 20 - Story 20.1
+ */
+enum ReferenceNumberType {
+  SHIPMENT        // 運輸單號
+  DELIVERY        // 交貨單號
+  BOOKING         // 訂艙號
+  CONTAINER       // 櫃號
+  HAWB            // House Air Waybill
+  MAWB            // Master Air Waybill
+  BL              // Bill of Lading
+  CUSTOMS         // 報關單號
+  OTHER           // 其他
+}
+
+/**
+ * 參考號碼狀態
+ * @since Epic 20 - Story 20.1
+ */
+enum ReferenceNumberStatus {
+  ACTIVE          // 有效
+  EXPIRED         // 已過期
+  CANCELLED       // 已取消
 }
 
 enum CityStatus {

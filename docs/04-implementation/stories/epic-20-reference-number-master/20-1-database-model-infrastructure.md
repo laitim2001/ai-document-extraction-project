@@ -1,6 +1,7 @@
 # Story 20.1: 資料庫模型與基礎設施
 
-**Status:** draft
+**Status:** done
+**Completed:** 2026-02-04
 
 ---
 
@@ -195,13 +196,66 @@ const defaultRegions = [
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 完成日期
+2026-02-04
+
+### 實作摘要
+
+1. **Region 模型擴充**
+   - 新增 `description` 欄位（地區說明）
+   - 新增 `isDefault` 欄位（系統預設標記）
+   - 新增 `sortOrder` 欄位（排序順序）
+   - 新增 `referenceNumbers` 關聯
+
+2. **ReferenceNumber 模型**
+   - 完整實作符合 Tech Spec 規格
+   - 包含 code（唯一識別碼）、number（號碼值）、type、status
+   - 年份和地區分類
+   - 有效期追蹤（validFrom/validUntil）
+   - 使用追蹤（matchCount/lastMatchedAt）
+   - 複合唯一約束：`(number, type, year, regionId)`
+
+3. **枚舉類型**
+   - `ReferenceNumberType`: 9 種類型（SHIPMENT, DELIVERY, BOOKING, CONTAINER, HAWB, MAWB, BL, CUSTOMS, OTHER）
+   - `ReferenceNumberStatus`: 3 種狀態（ACTIVE, EXPIRED, CANCELLED）
+
+4. **類型定義**
+   - `src/types/region.ts`: Region API 類型、常量、輔助函數
+   - `src/types/reference-number.ts`: ReferenceNumber 類型、常量、輔助函數
+
+5. **種子資料**
+   - 更新 seed.ts 添加 GLOBAL 地區
+   - 更新現有地區添加 description、isDefault、sortOrder
+
+### 設計決策
+
+- **保留現有 Region.status enum**：未使用 isActive boolean，因為現有系統已使用 RegionStatus enum
+- **使用 cuid() 作為 ReferenceNumber ID**：與 Tech Spec 一致，便於分散式系統
+- **複合索引設計**：針對常見查詢模式（year, type, status, regionId, number）建立索引
+
+### 遷移已完成
+
+**執行日期**: 2026-02-05
+
+```bash
+# 執行的命令
+npx prisma db push --accept-data-loss  # 同步 schema 到資料庫
+npx prisma db seed                      # 執行種子資料
+npx prisma generate                     # 重新生成 Prisma Client
+```
+
+**驗證結果**:
+- ✅ `reference_numbers` 表已建立，包含所有欄位
+- ✅ `regions` 表已更新，包含 description, is_default, sort_order 欄位
+- ✅ 4 個預設地區已建立：GLOBAL, APAC, EMEA, AMER
+- ✅ Prisma Client 已重新生成
 
 ---
 
 ## Related Files
 
 - `prisma/schema.prisma` - 更新
-- `prisma/seed/regions.ts` - 新增
+- `prisma/seed.ts` - 更新（加入 GLOBAL 地區、讀取導出資料功能）
+- `prisma/seed/exported-data.json` - 新增（導出的資料備份）
 - `src/types/region.ts` - 新增
 - `src/types/reference-number.ts` - 新增

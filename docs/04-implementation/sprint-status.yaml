@@ -299,3 +299,21 @@ development_status:
   19-7-batch-auto-matching: done  # Completed 2026-01-23: AutoTemplateMatchingService (resolveDefaultTemplate 3-tier priority, autoMatch, batchMatch, unmatch), Document/Company/DocumentFormat.defaultTemplateId relations, POST /api/v1/documents/match (batch), POST /api/v1/documents/[id]/match (single), POST /api/v1/documents/[id]/unmatch, MatchToTemplateDialog, BulkMatchDialog, DefaultTemplateSelector, MatchStatusBadge components, templateInstance.json i18n match/unmatch sections (en/zh-TW/zh-CN)
   19-8-integration-testing: done  # Completed 2026-01-23: 6-step TestWizard (TestDataSelector, TemplateSelector, MappingPreview, MatchExecutor, ResultViewer, ExportTester), mock data generation (3 documents with error case), TestReportGenerator (Markdown format, copy/download), templateMatchingTest.json i18n (en/zh-TW/zh-CN)
   epic-19-retrospective: optional
+
+  # ============================================================
+  # Epic 20: Reference Number Master Setup
+  # ============================================================
+  epic-20: in-progress  # Reference Number 主檔管理
+  20-1-database-model-infrastructure: done  # Completed 2026-02-04: Region model extensions (description, isDefault, sortOrder), ReferenceNumberType/ReferenceNumberStatus enums, ReferenceNumber model (code, number, type, status, year, regionId, validFrom/Until, matchCount), region.ts/reference-number.ts types, GLOBAL region seed, unique constraint (number+type+year+regionId)
+  20-2-crud-api-endpoints: draft
+  20-3-reference-number-ui: draft
+  epic-20-retrospective: optional
+
+  # ============================================================
+  # Epic 21: Reference Number Matching & Validation
+  # ============================================================
+  epic-21: backlog  # Reference Number 匹配與驗證
+  21-1-matching-service: backlog
+  21-2-batch-validation-api: backlog
+  21-3-validation-ui-integration: backlog
+  epic-21-retrospective: optional

@@ -13,7 +13,8 @@ services:
       POSTGRES_DB: ai_document_extraction
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+      # Note: init-db.sql mount temporarily commented due to Windows permission issue
+      # - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s

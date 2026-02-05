@@ -43,6 +43,8 @@
  */
 
 import 'dotenv/config'
+import * as fs from 'fs'
+import * as path from 'path'
 import { Prisma, PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
@@ -54,6 +56,139 @@ import {
 import { FORWARDER_SEED_DATA } from './seed-data/forwarders'
 import { getAllMappingRules } from './seed-data/mapping-rules'
 import { CONFIG_SEED_DATA } from './seed-data/config-seeds'
+
+/**
+ * 讀取導出的資料（如存在）
+ * @description 用於從 prisma/seed/exported-data.json 恢復先前導出的資料
+ */
+function loadExportedData(): ExportedData | null {
+  const exportedDataPath = path.join(__dirname, 'seed', 'exported-data.json')
+  if (fs.existsSync(exportedDataPath)) {
+    console.log('📂 Found exported-data.json, will restore additional data...\n')
+    const rawData = fs.readFileSync(exportedDataPath, 'utf-8')
+    return JSON.parse(rawData) as ExportedData
+  }
+  return null
+}
+
+interface ExportedData {
+  exportedAt: string
+  data: {
+    regions: Array<{
+      id: string
+      code: string
+      name: string
+      parentId: string | null
+      timezone: string
+      status: string
+    }>
+    cities: Array<{
+      id: string
+      code: string
+      name: string
+      regionId: string
+      timezone: string
+      currency: string
+      locale: string
+      status: string
+      config: unknown
+    }>
+    roles: Array<{
+      id: string
+      name: string
+      description: string | null
+      permissions: string[]
+      isSystem: boolean
+    }>
+    companies: Array<{
+      id: string
+      name: string
+      code: string | null
+      displayName: string
+      type: string
+      status: string
+      source: string
+      nameVariants: string[] | null
+      identificationPatterns: string[] | null
+      priority: number
+      defaultConfidence: number
+      description: string | null
+    }>
+    documentFormats: Array<{
+      id: string
+      companyId: string
+      documentType: string
+      documentSubtype: string
+      name: string | null
+      features: unknown
+      identificationRules: unknown
+      commonTerms: string[] | null
+      fileCount: number
+    }>
+    mappingRules: Array<{
+      id: string
+      forwarderId: string | null
+      companyId: string | null
+      fieldName: string
+      fieldLabel: string
+      extractionPattern: unknown
+      priority: number
+      isRequired: boolean
+      isActive: boolean
+      validationPattern: string | null
+      defaultValue: string | null
+      category: string | null
+      description: string | null
+      status: string
+      version: number
+      confidence: number
+    }>
+    dataTemplates: Array<{
+      id: string
+      name: string
+      description: string | null
+      scope: string
+      companyId: string | null
+      fields: unknown
+      isActive: boolean
+      isSystem: boolean
+    }>
+    systemConfigs: Array<{
+      id: string
+      key: string
+      value: string
+      description: string
+      category: string
+      valueType: string
+      effectType: string
+      name: string
+      defaultValue: string | null
+      impactNote: string | null
+      validation: unknown
+      isEncrypted: boolean
+      isReadOnly: boolean
+      sortOrder: number
+      scope: string
+      cityCode: string | null
+      isActive: boolean
+    }>
+    promptConfigs: Array<{
+      id: string
+      promptType: string
+      scope: string
+      name: string
+      description: string | null
+      companyId: string | null
+      documentFormatId: string | null
+      systemPrompt: string
+      userPromptTemplate: string
+      mergeStrategy: string
+      variables: unknown
+      isActive: boolean
+      version: number
+    }>
+  }
+}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -113,14 +248,16 @@ async function main() {
   }
 
   // ===========================================
-  // Seed Regions (Story 6.1)
+  // Seed Regions (Story 6.1, Story 20.1)
   // ===========================================
   console.log('\n🌍 Creating regions...\n')
 
+  // Story 20.1: 新增 GLOBAL 地區和 isDefault/sortOrder 設定
   const regionData = [
-    { code: 'APAC', name: 'Asia Pacific', timezone: 'Asia/Hong_Kong' },
-    { code: 'EMEA', name: 'Europe, Middle East & Africa', timezone: 'Europe/London' },
-    { code: 'AMER', name: 'Americas', timezone: 'America/New_York' },
+    { code: 'GLOBAL', name: 'Global', timezone: 'UTC', description: '全球通用', isDefault: true, sortOrder: 0 },
+    { code: 'APAC', name: 'Asia Pacific', timezone: 'Asia/Hong_Kong', description: '亞太地區', isDefault: true, sortOrder: 1 },
+    { code: 'EMEA', name: 'Europe, Middle East & Africa', timezone: 'Europe/London', description: '歐洲、中東、非洲', isDefault: true, sortOrder: 2 },
+    { code: 'AMER', name: 'Americas', timezone: 'America/New_York', description: '美洲', isDefault: true, sortOrder: 3 },
   ]
 
   const regionIdMap: Record<string, string> = {}
@@ -137,11 +274,17 @@ async function main() {
       update: {
         name: region.name,
         timezone: region.timezone,
+        description: region.description,
+        isDefault: region.isDefault,
+        sortOrder: region.sortOrder,
       },
       create: {
         code: region.code,
         name: region.name,
         timezone: region.timezone,
+        description: region.description,
+        isDefault: region.isDefault,
+        sortOrder: region.sortOrder,
         status: 'ACTIVE',
       },
     })
@@ -681,6 +824,255 @@ async function main() {
   }
 
   // ===========================================
+  // Restore Exported Data (if available)
+  // ===========================================
+  const exportedData = loadExportedData()
+
+  let exportedCompaniesCount = 0
+  let exportedDocFormatsCount = 0
+  let exportedPromptConfigsCount = 0
+
+  if (exportedData) {
+    console.log('\n📥 Restoring exported data...\n')
+
+    // 1. Restore additional companies (those not in FORWARDER_SEED_DATA)
+    console.log('🏢 Restoring additional companies...')
+    const existingCompanyCodes = FORWARDER_SEED_DATA.map(f => f.code)
+    const additionalCompanies = exportedData.data.companies.filter(
+      c => c.code && !existingCompanyCodes.includes(c.code)
+    )
+
+    for (const company of additionalCompanies) {
+      try {
+        const existingCompany = company.code
+          ? await prisma.company.findUnique({ where: { code: company.code } })
+          : null
+
+        if (!existingCompany) {
+          // Map old type/source values to new schema values
+          const typeMap: Record<string, string> = {
+            'FORWARDER': 'FORWARDER',
+            'CARRIER': 'CARRIER',
+            'BROKER': 'CUSTOMS_BROKER',
+            'SHIPPER': 'EXPORTER',
+            'CONSIGNEE': 'OTHER',
+            'OTHER': 'OTHER',
+          }
+          const sourceMap: Record<string, string> = {
+            'SYSTEM': 'MANUAL',
+            'USER_CREATED': 'MANUAL',
+            'AUTO_DETECTED': 'AUTO_CREATED',
+            'IMPORTED': 'IMPORTED',
+          }
+
+          await prisma.company.create({
+            data: {
+              name: company.name,
+              code: company.code,
+              displayName: company.displayName,
+              type: (typeMap[company.type] || 'OTHER') as Prisma.CompanyCreateInput['type'],
+              status: 'ACTIVE',
+              source: (sourceMap[company.source] || 'MANUAL') as Prisma.CompanyCreateInput['source'],
+              nameVariants: company.nameVariants || [],
+              identificationPatterns: company.identificationPatterns || [],
+              priority: company.priority,
+              defaultConfidence: company.defaultConfidence,
+              description: company.description,
+              creator: { connect: { id: systemUser.id } },
+            },
+          })
+          exportedCompaniesCount++
+          console.log(`  ✅ Restored company: ${company.displayName} (${company.code})`)
+        }
+      } catch (error) {
+        console.log(`  ⚠️ Skip company ${company.code}: ${(error as Error).message}`)
+      }
+    }
+
+    // 2. Restore Document Formats
+    console.log('\n📄 Restoring document formats...')
+
+    // Build company ID mapping (old ID → new ID)
+    const allCompanies = await prisma.company.findMany({ select: { id: true, code: true } })
+    const companyCodeToNewId = new Map<string, string>()
+    for (const c of allCompanies) {
+      if (c.code) {
+        companyCodeToNewId.set(c.code, c.id)
+      }
+    }
+
+    // Find company code from exported data by old ID
+    const oldCompanyIdToCode = new Map<string, string>()
+    for (const c of exportedData.data.companies) {
+      if (c.code) {
+        oldCompanyIdToCode.set(c.id, c.code)
+      }
+    }
+
+    // Map old document type/subtype values to new schema values
+    const docTypeMap: Record<string, string> = {
+      'FREIGHT_INVOICE': 'INVOICE',
+      'COMMERCIAL_INVOICE': 'INVOICE',
+      'PACKING_LIST': 'OTHER',
+      'BILL_OF_LADING': 'BILL_OF_LADING',
+      'AIRWAY_BILL': 'OTHER',
+      'CUSTOMS_DECLARATION': 'CUSTOMS_DECLARATION',
+      'CERTIFICATE_OF_ORIGIN': 'OTHER',
+      'DELIVERY_NOTE': 'OTHER',
+      'PURCHASE_ORDER': 'OTHER',
+      'QUOTATION': 'QUOTATION',
+      'CONTRACT': 'OTHER',
+      'INVOICE': 'INVOICE',
+      'DEBIT_NOTE': 'DEBIT_NOTE',
+      'CREDIT_NOTE': 'CREDIT_NOTE',
+      'STATEMENT': 'STATEMENT',
+      'OTHER': 'OTHER',
+    }
+    const docSubtypeMap: Record<string, string> = {
+      'STANDARD': 'GENERAL',
+      'CONSOLIDATED': 'GENERAL',
+      'DEBIT_NOTE': 'GENERAL',
+      'CREDIT_NOTE': 'GENERAL',
+      'PRO_FORMA': 'GENERAL',
+      'FINAL': 'GENERAL',
+      'DRAFT': 'GENERAL',
+      'CORRECTION': 'GENERAL',
+      'OCEAN_FREIGHT': 'OCEAN_FREIGHT',
+      'AIR_FREIGHT': 'AIR_FREIGHT',
+      'LAND_TRANSPORT': 'LAND_TRANSPORT',
+      'CUSTOMS_CLEARANCE': 'CUSTOMS_CLEARANCE',
+      'WAREHOUSING': 'WAREHOUSING',
+      'GENERAL': 'GENERAL',
+      'OTHER': 'GENERAL',
+    }
+
+    for (const docFormat of exportedData.data.documentFormats) {
+      try {
+        // Map old company ID to new company ID via code
+        const companyCode = oldCompanyIdToCode.get(docFormat.companyId)
+        const newCompanyId = companyCode ? companyCodeToNewId.get(companyCode) : null
+
+        if (!newCompanyId) {
+          // Skip silently - company mapping may not exist
+          continue
+        }
+
+        const mappedDocType = docTypeMap[docFormat.documentType] || 'OTHER'
+        const mappedSubtype = docSubtypeMap[docFormat.documentSubtype] || 'GENERAL'
+
+        // Check if already exists
+        const existing = await prisma.documentFormat.findFirst({
+          where: {
+            companyId: newCompanyId,
+            documentType: mappedDocType as Prisma.DocumentFormatWhereInput['documentType'],
+            documentSubtype: mappedSubtype as Prisma.DocumentFormatWhereInput['documentSubtype'],
+          },
+        })
+
+        if (!existing) {
+          await prisma.documentFormat.create({
+            data: {
+              companyId: newCompanyId,
+              documentType: mappedDocType as Prisma.DocumentFormatCreateInput['documentType'],
+              documentSubtype: mappedSubtype as Prisma.DocumentFormatCreateInput['documentSubtype'],
+              name: docFormat.name,
+              features: docFormat.features ? (docFormat.features as Prisma.InputJsonValue) : Prisma.JsonNull,
+              identificationRules: docFormat.identificationRules ? (docFormat.identificationRules as Prisma.InputJsonValue) : Prisma.JsonNull,
+              commonTerms: docFormat.commonTerms || [],
+              fileCount: docFormat.fileCount,
+            },
+          })
+          exportedDocFormatsCount++
+        }
+      } catch (error) {
+        // Skip silently
+      }
+    }
+    console.log(`  ✅ Restored ${exportedDocFormatsCount} document formats`)
+
+    // 3. Restore Prompt Configs
+    console.log('\n📝 Restoring prompt configs...')
+
+    // Map old prompt type/scope/strategy values to new schema values
+    const promptTypeMap: Record<string, string> = {
+      'EXTRACTION': 'FIELD_EXTRACTION',
+      'CLASSIFICATION': 'TERM_CLASSIFICATION',
+      'FIELD_MAPPING': 'FIELD_EXTRACTION',
+      'VALIDATION': 'VALIDATION',
+      'CUSTOM': 'FIELD_EXTRACTION',
+      'ISSUER_IDENTIFICATION': 'ISSUER_IDENTIFICATION',
+      'TERM_CLASSIFICATION': 'TERM_CLASSIFICATION',
+      'FIELD_EXTRACTION': 'FIELD_EXTRACTION',
+      'STAGE_1_COMPANY_IDENTIFICATION': 'STAGE_1_COMPANY_IDENTIFICATION',
+      'STAGE_2_FORMAT_IDENTIFICATION': 'STAGE_2_FORMAT_IDENTIFICATION',
+      'STAGE_3_FIELD_EXTRACTION': 'STAGE_3_FIELD_EXTRACTION',
+    }
+    const promptScopeMap: Record<string, string> = {
+      'GLOBAL': 'GLOBAL',
+      'COMPANY': 'COMPANY',
+      'DOCUMENT_FORMAT': 'FORMAT',
+      'FORMAT': 'FORMAT',
+    }
+    const mergeStrategyMap: Record<string, string> = {
+      'OVERRIDE': 'OVERRIDE',
+      'APPEND': 'APPEND',
+      'PREPEND': 'PREPEND',
+      'MERGE': 'APPEND', // No MERGE in new schema, use APPEND
+    }
+
+    for (const promptConfig of exportedData.data.promptConfigs) {
+      try {
+        const mappedType = promptTypeMap[promptConfig.promptType] || 'FIELD_EXTRACTION'
+        const mappedScope = promptScopeMap[promptConfig.scope] || 'GLOBAL'
+        const mappedStrategy = mergeStrategyMap[promptConfig.mergeStrategy] || 'OVERRIDE'
+
+        // Check if already exists by name and type
+        const existing = await prisma.promptConfig.findFirst({
+          where: {
+            name: promptConfig.name,
+            promptType: mappedType as Prisma.PromptConfigWhereInput['promptType'],
+          },
+        })
+
+        if (!existing) {
+          // Map company ID
+          let newCompanyId: string | null = null
+          if (promptConfig.companyId) {
+            const companyCode = oldCompanyIdToCode.get(promptConfig.companyId)
+            newCompanyId = companyCode ? companyCodeToNewId.get(companyCode) || null : null
+          }
+
+          await prisma.promptConfig.create({
+            data: {
+              promptType: mappedType as Prisma.PromptConfigCreateInput['promptType'],
+              scope: mappedScope as Prisma.PromptConfigCreateInput['scope'],
+              name: promptConfig.name,
+              description: promptConfig.description,
+              companyId: newCompanyId,
+              // Skip documentFormatId mapping for now (complex)
+              systemPrompt: promptConfig.systemPrompt,
+              userPromptTemplate: promptConfig.userPromptTemplate,
+              mergeStrategy: mappedStrategy as Prisma.PromptConfigCreateInput['mergeStrategy'],
+              variables: promptConfig.variables ? (promptConfig.variables as Prisma.InputJsonValue) : Prisma.JsonNull,
+              isActive: promptConfig.isActive,
+              version: promptConfig.version,
+            },
+          })
+          exportedPromptConfigsCount++
+          console.log(`  ✅ Restored prompt config: ${promptConfig.name}`)
+        }
+      } catch (error) {
+        console.log(`  ⚠️ Skip prompt config ${promptConfig.name}: ${(error as Error).message}`)
+      }
+    }
+
+    console.log(`\n📊 Exported data restoration summary:`)
+    console.log(`  - Additional companies: ${exportedCompaniesCount}`)
+    console.log(`  - Document formats: ${exportedDocFormatsCount}`)
+    console.log(`  - Prompt configs: ${exportedPromptConfigsCount}`)
+  }
+
+  // ===========================================
   // Summary
   // ===========================================
   const roleCount = await prisma.role.count()
@@ -692,6 +1084,8 @@ async function main() {
   const systemConfigCount = await prisma.systemConfig.count()
   const dataTemplateCount = await prisma.dataTemplate.count()
   const templateFieldMappingCount = await prisma.templateFieldMapping.count()
+  const documentFormatCount = await prisma.documentFormat.count()
+  const promptConfigCount = await prisma.promptConfig.count()
 
   console.log('\n========================================')
   console.log('✨ Seed completed successfully!')
@@ -710,6 +1104,11 @@ async function main() {
   console.log(`  System configs updated: ${configUpdatedCount}`)
   console.log(`  Data templates created: ${templateCreatedCount}`)
   console.log(`  Data templates updated: ${templateUpdatedCount}`)
+  if (exportedData) {
+    console.log(`  Exported companies restored: ${exportedCompaniesCount}`)
+    console.log(`  Document formats restored: ${exportedDocFormatsCount}`)
+    console.log(`  Prompt configs restored: ${exportedPromptConfigsCount}`)
+  }
   console.log('----------------------------------------')
   console.log(`  Total roles: ${roleCount}`)
   console.log(`  Total regions: ${regionCount}`)
@@ -719,6 +1118,8 @@ async function main() {
   console.log(`  Total system configs: ${systemConfigCount}`)
   console.log(`  Total data templates: ${dataTemplateCount}`)
   console.log(`  Total template field mappings: ${templateFieldMappingCount}`)
+  console.log(`  Total document formats: ${documentFormatCount}`)
+  console.log(`  Total prompt configs: ${promptConfigCount}`)
   console.log(`  Total users: ${userCount}`)
   console.log('========================================\n')
 }

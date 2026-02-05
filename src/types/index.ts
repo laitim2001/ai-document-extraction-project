@@ -587,3 +587,26 @@ export {
 
 // 模版實例相關 (Epic 19: Story 19.2)
 export * from './template-instance'
+
+// 地區類型相關 (Epic 20: Story 20.1)
+// 注意：與現有 Region Prisma type 可能衝突，使用命名導出
+export {
+  // Types
+  type Region as RegionInfo,
+  type RegionListItem,
+  type RegionOption,
+  type CreateRegionInput,
+  type UpdateRegionInput,
+  type RegionQueryParams,
+  type RegionListResponse,
+  type DefaultRegionCode,
+  // Constants
+  DEFAULT_REGION_CODES,
+  REGION_CODE_LABELS,
+  // Functions
+  isDefaultRegion,
+  getRegionDisplayName,
+} from './region'
+
+// 參考號碼相關 (Epic 20: Story 20.1)
+export * from './reference-number'
