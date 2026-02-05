@@ -13,6 +13,8 @@
  *   - useUpdateExchangeRate: 更新記錄（部分更新）
  *   - useDeleteExchangeRate: 刪除記錄（含反向記錄級聯刪除）
  *   - useToggleExchangeRate: 切換啟用/停用狀態
+ *   - useConvertCurrency: 貨幣轉換計算（含 Fallback 邏輯）
+ *   - useBatchRates: 批次匯率查詢
  *
  * @module src/hooks/use-exchange-rates
  * @since Epic 21 - Story 21.3
@@ -106,6 +108,78 @@ interface ExchangeRateResponse {
  */
 interface OperationResponse {
   success: boolean
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * 貨幣轉換輸入
+ */
+export interface ConvertCurrencyInput {
+  fromCurrency: string
+  toCurrency: string
+  amount: number
+  year?: number
+}
+
+/**
+ * 貨幣轉換結果
+ */
+export interface ConvertCurrencyResult {
+  fromCurrency: string
+  toCurrency: string
+  amount: number
+  convertedAmount: number
+  rate: number
+  path: string
+  rateId?: string
+  rateIds?: string[]
+  effectiveYear: number
+}
+
+/**
+ * 貨幣轉換 API 響應
+ */
+interface ConvertResponse {
+  success: boolean
+  data?: ConvertCurrencyResult
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * 批次匯率查詢輸入
+ */
+export interface BatchRatesInput {
+  pairs: Array<{ fromCurrency: string; toCurrency: string }>
+  year?: number
+}
+
+/**
+ * 批次匯率查詢結果項目
+ */
+export interface BatchRateResultItem {
+  fromCurrency: string
+  toCurrency: string
+  rate: number
+  path: string
+  found: boolean
+  rateId?: string
+}
+
+/**
+ * 批次匯率查詢 API 響應
+ */
+interface BatchRatesResponse {
+  success: boolean
+  data?: {
+    rates: BatchRateResultItem[]
+    effectiveYear: number
+  }
   type?: string
   title?: string
   status?: number
@@ -283,6 +357,48 @@ async function toggleExchangeRateApi(id: string): Promise<ExchangeRateDetail> {
   return json.data
 }
 
+/**
+ * 貨幣轉換 API 呼叫
+ */
+async function convertCurrencyApi(
+  input: ConvertCurrencyInput
+): Promise<ConvertCurrencyResult> {
+  const response = await fetch('/api/v1/exchange-rates/convert', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const json: ConvertResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to convert currency')
+  }
+
+  return json.data
+}
+
+/**
+ * 批次匯率查詢 API 呼叫
+ */
+async function batchRatesApi(
+  input: BatchRatesInput
+): Promise<{ rates: BatchRateResultItem[]; effectiveYear: number }> {
+  const response = await fetch('/api/v1/exchange-rates/batch', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const json: BatchRatesResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to fetch batch rates')
+  }
+
+  return json.data
+}
+
 // ============================================================
 // Hooks
 // ============================================================
@@ -404,5 +520,52 @@ export function useToggleExchangeRate() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
     },
+  })
+}
+
+/**
+ * 貨幣轉換 Mutation Hook
+ *
+ * @description
+ *   提供貨幣轉換功能，支援三層 Fallback 邏輯：
+ *   1. 直接匹配：fromCurrency → toCurrency
+ *   2. 反向計算：toCurrency → fromCurrency (1/rate)
+ *   3. 交叉匯率：fromCurrency → USD → toCurrency
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: convert, isPending, data } = useConvertCurrency()
+ *   convert({ fromCurrency: 'HKD', toCurrency: 'USD', amount: 1000 })
+ */
+export function useConvertCurrency() {
+  return useMutation({
+    mutationFn: convertCurrencyApi,
+  })
+}
+
+/**
+ * 批次匯率查詢 Mutation Hook
+ *
+ * @description
+ *   一次查詢多個貨幣對的匯率。
+ *   每個貨幣對獨立處理，失敗的返回 found=false。
+ *   最多支援 50 組貨幣對。
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: fetchBatch, isPending, data } = useBatchRates()
+ *   fetchBatch({
+ *     pairs: [
+ *       { fromCurrency: 'HKD', toCurrency: 'USD' },
+ *       { fromCurrency: 'USD', toCurrency: 'EUR' },
+ *     ],
+ *     year: 2026,
+ *   })
+ */
+export function useBatchRates() {
+  return useMutation({
+    mutationFn: batchRatesApi,
   })
 }

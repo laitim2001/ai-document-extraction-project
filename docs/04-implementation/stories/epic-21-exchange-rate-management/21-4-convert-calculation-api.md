@@ -1,6 +1,6 @@
 # Story 21.4: 轉換計算 API
 
-**Status:** pending
+**Status:** done
 
 ---
 
@@ -213,7 +213,30 @@ src/app/api/v1/exchange-rates/
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 完成日期: 2026-02-05
+
+### 實現摘要
+
+1. **Convert API** (`src/app/api/v1/exchange-rates/convert/route.ts`)
+   - POST 端點，接收 fromCurrency, toCurrency, amount, year
+   - 調用 service 層 `convert()` 方法，自帶三層 Fallback 邏輯
+   - 返回 convertedAmount, rate, path (direct/inverse/cross:X→USD→Y)
+   - 404 錯誤回應使用 RFC 7807 格式
+
+2. **Batch API** (`src/app/api/v1/exchange-rates/batch/route.ts`)
+   - POST 端點，接收 pairs 陣列 (最多 50 組) 和 year
+   - 調用 service 層 `batchGetRates()` 方法，並行查詢
+   - 失敗的貨幣對返回 found: false，不影響其他結果
+
+3. **React Query Hooks** (`src/hooks/use-exchange-rates.ts`)
+   - `useConvertCurrency()`: useMutation hook，呼叫 convert API
+   - `useBatchRates()`: useMutation hook，呼叫 batch API
+   - 包含完整的 TypeScript 類型定義
+
+### 設計決策
+- Convert 和 Batch 均為 useMutation（非 useQuery），因為它們是帶參數的 POST 操作
+- Batch API 的 effectiveYear 在 API 層計算預設值，與 service 層一致
+- 錯誤處理遵循現有 exchange-rate API 路由的模式
 
 ---
 

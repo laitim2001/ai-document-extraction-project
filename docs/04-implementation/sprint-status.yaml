@@ -319,7 +319,7 @@ development_status:
   21-1-database-model-migration: done  # Completed 2026-02-05: ExchangeRateSource enum (MANUAL/IMPORTED/AUTO_INVERSE), ExchangeRate model (Decimal(18,8), self-relation inverseOf/inverseRates, @@unique fromCurrency+toCurrency+effectiveYear), indexes, TypeScript types (exchange-rate.ts), ISO 4217 COMMON_CURRENCIES constant
   21-2-core-service-layer: done  # Completed 2026-02-05: Zod schemas (create/update/query/convert/batchGetRates), exchange-rate.service.ts (CRUD with inverse, convert with Fallback direct→inverse→cross(USD), batchGetRates, toggle, deleteWithInverse)
   21-3-crud-api-endpoints: done  # Completed 2026-02-05: API routes (GET/POST /exchange-rates, GET/PATCH/DELETE /exchange-rates/[id], POST /exchange-rates/[id]/toggle), React Query hooks (useExchangeRates, useExchangeRate, useCreateExchangeRate, useUpdateExchangeRate, useDeleteExchangeRate, useToggleExchangeRate), RFC 7807 error handling, Zod validation
-  21-4-convert-calculation-api: backlog
+  21-4-convert-calculation-api: done  # Completed 2026-02-05: POST /exchange-rates/convert (Fallback: direct→inverse→cross via USD, Decimal precision, year default), POST /exchange-rates/batch (parallel query, max 50 pairs, found/not_found), useConvertCurrency and useBatchRates React Query hooks
   21-5-import-export-api: backlog
   21-6-management-page-list-filter: backlog
   21-7-management-page-form: backlog
