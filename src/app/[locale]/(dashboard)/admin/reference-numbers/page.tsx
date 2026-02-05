@@ -9,7 +9,7 @@
  *
  * @module src/app/(dashboard)/admin/reference-numbers
  * @since Epic 20 - Story 20.5 (Management Page - List & Filter)
- * @lastModified 2026-02-05
+ * @lastModified 2026-02-05 (Story 20.6: Import/Export integration)
  */
 
 'use client'
@@ -17,13 +17,15 @@
 import * as React from 'react'
 import { useSearchParams, usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Plus, Upload, Download, RefreshCw, Hash } from 'lucide-react'
+import { Plus, Upload, RefreshCw, Hash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Link, useRouter } from '@/i18n/routing'
 import {
   ReferenceNumberList,
   ReferenceNumberFilters,
+  ReferenceNumberImportDialog,
+  ReferenceNumberExportButton,
 } from '@/components/features/reference-number'
 import { useReferenceNumbers } from '@/hooks/use-reference-numbers'
 import type { ReferenceNumberQueryParams } from '@/hooks/use-reference-numbers'
@@ -61,6 +63,8 @@ export default function ReferenceNumbersPage() {
   const router = useRouter()
   const pathname = usePathname()
 
+  const [importOpen, setImportOpen] = React.useState(false)
+
   // --- 從 URL 解析篩選條件 ---
   const filters = React.useMemo(
     () => parseFiltersFromParams(searchParams),
@@ -72,6 +76,17 @@ export default function ReferenceNumbersPage() {
 
   const items = data?.items ?? []
   const pagination = data?.pagination
+
+  // --- 導出篩選參數（不含分頁/排序） ---
+  const exportFilters = React.useMemo(
+    () => ({
+      year: filters.year,
+      regionId: filters.regionId,
+      type: filters.type,
+      status: filters.status,
+    }),
+    [filters.year, filters.regionId, filters.type, filters.status]
+  )
 
   // --- 更新 URL 參數 ---
   const updateFilters = React.useCallback(
@@ -97,6 +112,10 @@ export default function ReferenceNumbersPage() {
     refetch()
   }, [refetch])
 
+  const handleImportSuccess = React.useCallback(() => {
+    refetch()
+  }, [refetch])
+
   // --- Render ---
 
   return (
@@ -115,14 +134,15 @@ export default function ReferenceNumbersPage() {
             <RefreshCw className="h-4 w-4 mr-2" />
             {t('actions.refresh')}
           </Button>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setImportOpen(true)}
+          >
             <Upload className="h-4 w-4 mr-2" />
             {t('actions.import')}
           </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            {t('actions.export')}
-          </Button>
+          <ReferenceNumberExportButton filters={exportFilters} />
           <Button asChild>
             <Link href="/admin/reference-numbers/new">
               <Plus className="h-4 w-4 mr-2" />
@@ -163,6 +183,13 @@ export default function ReferenceNumbersPage() {
             sortOrder,
           })
         }
+      />
+
+      {/* 導入對話框 */}
+      <ReferenceNumberImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onSuccess={handleImportSuccess}
       />
     </div>
   )

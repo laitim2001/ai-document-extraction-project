@@ -3,6 +3,7 @@
   "description": "管理 Shipment/Delivery Number 等参考号码",
   "loading": "加载中...",
   "noData": "暂无数据",
+  "notFound": "找不到此参考号码",
   "columns": {
     "number": "号码",
     "type": "类型",
@@ -44,7 +45,8 @@
     "edit": "编辑",
     "copy": "复制号码",
     "delete": "删除",
-    "refresh": "刷新"
+    "refresh": "刷新",
+    "backToList": "返回列表"
   },
   "pagination": {
     "showing": "显示 {from} - {to} 条，共 {total} 条",
@@ -67,5 +69,62 @@
   },
   "summary": {
     "total": "共 {count} 条参考号码"
+  },
+  "form": {
+    "code": "识别码",
+    "number": "号码",
+    "numberPlaceholder": "输入号码...",
+    "type": "类型",
+    "year": "年份",
+    "region": "地区",
+    "regionPlaceholder": "选择地区...",
+    "validFrom": "有效起始日",
+    "validUntil": "有效结束日",
+    "selectDate": "选择日期",
+    "clearDate": "清除",
+    "description": "说明",
+    "descriptionPlaceholder": "输入说明...",
+    "matchCount": "匹配次数",
+    "cancel": "取消",
+    "create": "创建",
+    "update": "更新"
+  },
+  "new": {
+    "title": "新增参考号码",
+    "description": "创建新的参考号码记录"
+  },
+  "edit": {
+    "title": "编辑参考号码",
+    "description": "修改参考号码信息"
+  },
+  "import": {
+    "title": "导入参考号码",
+    "description": "从 JSON 文件批量导入参考号码",
+    "dropzone": "点击或拖放 JSON 文件",
+    "items": "条数据",
+    "overwriteExisting": "覆盖已存在的记录",
+    "skipInvalid": "跳过无效记录",
+    "import": "开始导入",
+    "cancel": "取消",
+    "close": "关闭",
+    "parseError": "无法解析文件，请确认格式是否正确。",
+    "result": {
+      "title": "导入完成",
+      "imported": "导入：{count} 条",
+      "updated": "更新：{count} 条",
+      "skipped": "跳过：{count} 条",
+      "errors": "错误：{count} 条"
+    }
+  },
+  "export": {
+    "exporting": "导出中..."
+  },
+  "messages": {
+    "created": "参考号码创建成功",
+    "createFailed": "创建参考号码失败",
+    "updated": "参考号码更新成功",
+    "updateFailed": "更新参考号码失败",
+    "importFailed": "导入失败",
+    "exportFailed": "导出失败"
   }
 }

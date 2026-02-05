@@ -3,6 +3,7 @@
   "description": "Manage Shipment/Delivery Numbers and other reference numbers",
   "loading": "Loading...",
   "noData": "No reference numbers found",
+  "notFound": "Reference number not found",
   "columns": {
     "number": "Number",
     "type": "Type",
@@ -44,7 +45,8 @@
     "edit": "Edit",
     "copy": "Copy Number",
     "delete": "Delete",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "backToList": "Back to List"
   },
   "pagination": {
     "showing": "Showing {from} - {to} of {total}",
@@ -67,5 +69,62 @@
   },
   "summary": {
     "total": "{count} reference numbers"
+  },
+  "form": {
+    "code": "Code",
+    "number": "Number",
+    "numberPlaceholder": "Enter number...",
+    "type": "Type",
+    "year": "Year",
+    "region": "Region",
+    "regionPlaceholder": "Select region...",
+    "validFrom": "Valid From",
+    "validUntil": "Valid Until",
+    "selectDate": "Select date",
+    "clearDate": "Clear",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description...",
+    "matchCount": "Match Count",
+    "cancel": "Cancel",
+    "create": "Create",
+    "update": "Update"
+  },
+  "new": {
+    "title": "New Reference Number",
+    "description": "Create a new reference number record"
+  },
+  "edit": {
+    "title": "Edit Reference Number",
+    "description": "Modify reference number information"
+  },
+  "import": {
+    "title": "Import Reference Numbers",
+    "description": "Batch import reference numbers from JSON file",
+    "dropzone": "Click or drag and drop a JSON file",
+    "items": "items",
+    "overwriteExisting": "Overwrite existing records",
+    "skipInvalid": "Skip invalid records",
+    "import": "Start Import",
+    "cancel": "Cancel",
+    "close": "Close",
+    "parseError": "Failed to parse file. Please check the format.",
+    "result": {
+      "title": "Import Complete",
+      "imported": "Imported: {count}",
+      "updated": "Updated: {count}",
+      "skipped": "Skipped: {count}",
+      "errors": "Errors: {count}"
+    }
+  },
+  "export": {
+    "exporting": "Exporting..."
+  },
+  "messages": {
+    "created": "Reference number created successfully",
+    "createFailed": "Failed to create reference number",
+    "updated": "Reference number updated successfully",
+    "updateFailed": "Failed to update reference number",
+    "importFailed": "Import failed",
+    "exportFailed": "Export failed"
   }
 }

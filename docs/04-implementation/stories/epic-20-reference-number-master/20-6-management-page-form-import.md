@@ -1,6 +1,6 @@
 # Story 20.6: 管理頁面 - 表單與導入
 
-**Status:** draft
+**Status:** done
 
 ---
 
@@ -202,7 +202,50 @@ interface ReferenceNumberImportDialogProps {
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 完成日期：2026-02-05
+
+### 實現摘要
+
+1. **表單組件** (`ReferenceNumberForm.tsx`)
+   - React Hook Form + Zod 驗證
+   - 日期選擇：Popover + Calendar（無獨立 DatePicker 組件）
+   - 表單 validFrom/validUntil 為 `Date | null`，提交時由頁面轉換為 ISO string
+   - 編輯模式顯示唯讀欄位（code, matchCount）
+   - 取消按鈕使用 Link 導回列表頁
+
+2. **新增頁面** (`new/page.tsx`)
+   - 整合 ReferenceNumberForm
+   - useCreateReferenceNumber hook
+   - Toast 成功/失敗通知
+
+3. **編輯頁面** (`[id]/page.tsx`)
+   - 載入現有資料 (useReferenceNumber hook)
+   - 顯示 Loading/NotFound 狀態
+   - useUpdateReferenceNumber 接收 `{ id, input }` 格式
+
+4. **導入對話框** (`ReferenceNumberImportDialog.tsx`)
+   - JSON 文件上傳與解析
+   - overwriteExisting / skipInvalid 選項
+   - 導入結果統計（imported, updated, skipped, errors）
+   - 錯誤可查看詳情
+
+5. **導出按鈕** (`ReferenceNumberExportButton.tsx`)
+   - 應用當前篩選條件
+   - 下載 JSON 文件（文件名含日期）
+
+6. **列表頁面更新** (`page.tsx`)
+   - Import 按鈕開啟對話框
+   - Export 按鈕替換為 ReferenceNumberExportButton 組件
+   - 導入成功後自動刷新列表
+
+7. **i18n** (`referenceNumber.json` × 3 語言)
+   - 新增 form, new, edit, import, export, messages, notFound keys
+
+### 技術決策
+- 無 DatePicker UI 組件 → 使用 Popover + Calendar 內聯實現
+- useRouter/Link 使用 `@/i18n/routing`（非 next/navigation）
+- useToast 使用 `@/hooks/use-toast`（非 sonner）
+- Tech spec 接口修正：useUpdateReferenceNumber 接收 `{ id, input }` 非 `{ id, data }`
 
 ---
 
@@ -210,6 +253,11 @@ interface ReferenceNumberImportDialogProps {
 
 - `src/app/[locale]/(dashboard)/admin/reference-numbers/new/page.tsx` - 新增
 - `src/app/[locale]/(dashboard)/admin/reference-numbers/[id]/page.tsx` - 新增
+- `src/app/[locale]/(dashboard)/admin/reference-numbers/page.tsx` - 修改（Import/Export 整合）
 - `src/components/features/reference-number/ReferenceNumberForm.tsx` - 新增
 - `src/components/features/reference-number/ReferenceNumberImportDialog.tsx` - 新增
 - `src/components/features/reference-number/ReferenceNumberExportButton.tsx` - 新增
+- `src/components/features/reference-number/index.ts` - 修改（新增匯出）
+- `messages/en/referenceNumber.json` - 修改（新增 form/import/export keys）
+- `messages/zh-TW/referenceNumber.json` - 修改（新增 form/import/export keys）
+- `messages/zh-CN/referenceNumber.json` - 修改（新增 form/import/export keys）

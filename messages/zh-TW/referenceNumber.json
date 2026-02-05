@@ -3,6 +3,7 @@
   "description": "管理 Shipment/Delivery Number 等參考號碼",
   "loading": "載入中...",
   "noData": "暫無資料",
+  "notFound": "找不到此參考號碼",
   "columns": {
     "number": "號碼",
     "type": "類型",
@@ -44,7 +45,8 @@
     "edit": "編輯",
     "copy": "複製號碼",
     "delete": "刪除",
-    "refresh": "重新整理"
+    "refresh": "重新整理",
+    "backToList": "返回列表"
   },
   "pagination": {
     "showing": "顯示 {from} - {to} 筆，共 {total} 筆",
@@ -67,5 +69,62 @@
   },
   "summary": {
     "total": "共 {count} 筆參考號碼"
+  },
+  "form": {
+    "code": "識別碼",
+    "number": "號碼",
+    "numberPlaceholder": "輸入號碼...",
+    "type": "類型",
+    "year": "年份",
+    "region": "地區",
+    "regionPlaceholder": "選擇地區...",
+    "validFrom": "有效起始日",
+    "validUntil": "有效結束日",
+    "selectDate": "選擇日期",
+    "clearDate": "清除",
+    "description": "說明",
+    "descriptionPlaceholder": "輸入說明...",
+    "matchCount": "匹配次數",
+    "cancel": "取消",
+    "create": "建立",
+    "update": "更新"
+  },
+  "new": {
+    "title": "新增參考號碼",
+    "description": "建立新的參考號碼記錄"
+  },
+  "edit": {
+    "title": "編輯參考號碼",
+    "description": "修改參考號碼資訊"
+  },
+  "import": {
+    "title": "導入參考號碼",
+    "description": "從 JSON 文件批次導入參考號碼",
+    "dropzone": "點擊或拖放 JSON 文件",
+    "items": "筆資料",
+    "overwriteExisting": "覆蓋已存在的記錄",
+    "skipInvalid": "跳過無效記錄",
+    "import": "開始導入",
+    "cancel": "取消",
+    "close": "關閉",
+    "parseError": "無法解析文件，請確認格式是否正確。",
+    "result": {
+      "title": "導入完成",
+      "imported": "導入：{count} 筆",
+      "updated": "更新：{count} 筆",
+      "skipped": "跳過：{count} 筆",
+      "errors": "錯誤：{count} 筆"
+    }
+  },
+  "export": {
+    "exporting": "導出中..."
+  },
+  "messages": {
+    "created": "參考號碼建立成功",
+    "createFailed": "建立參考號碼失敗",
+    "updated": "參考號碼更新成功",
+    "updateFailed": "更新參考號碼失敗",
+    "importFailed": "導入失敗",
+    "exportFailed": "導出失敗"
   }
 }
