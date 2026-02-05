@@ -11,6 +11,7 @@
     "region": "Region",
     "status": "Status",
     "matchCount": "Matches",
+    "createdAt": "Created",
     "updatedAt": "Updated",
     "actions": "Actions"
   },
@@ -102,6 +103,7 @@
     "description": "Batch import reference numbers from JSON file",
     "dropzone": "Click or drag and drop a JSON file",
     "items": "items",
+    "fileSize": "({size})",
     "overwriteExisting": "Overwrite existing records",
     "skipInvalid": "Skip invalid records",
     "import": "Start Import",

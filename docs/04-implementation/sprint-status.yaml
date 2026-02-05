@@ -303,7 +303,7 @@ development_status:
   # ============================================================
   # Epic 20: Reference Number Master Setup
   # ============================================================
-  epic-20: in-progress  # Reference Number 主檔管理
+  epic-20: done  # Reference Number 主檔管理
   20-1-database-model-infrastructure: done  # Completed 2026-02-04: Region model extensions (description, isDefault, sortOrder), ReferenceNumberType/ReferenceNumberStatus enums, ReferenceNumber model (code, number, type, status, year, regionId, validFrom/Until, matchCount), region.ts/reference-number.ts types, GLOBAL region seed, unique constraint (number+type+year+regionId)
   20-2-crud-api-endpoints: done  # Completed 2026-02-05: Region CRUD APIs (/api/v1/regions GET/POST, /api/v1/regions/[id] GET/PATCH/DELETE), region.service.ts, region.schema.ts Zod validation, use-regions.ts hook, RegionSelect component, region.json i18n (en/zh-TW/zh-CN)
   20-3-reference-number-crud-api: done  # Completed 2026-02-05: Reference Number CRUD APIs (/api/v1/reference-numbers GET/POST, /api/v1/reference-numbers/[id] GET/PATCH/DELETE), reference-number.service.ts, reference-number.schema.ts Zod validation, use-reference-numbers.ts hooks (list/detail/create/update/delete), auto-generated code (REF-{YEAR}-{REGION}-{RANDOM}), soft-delete, unique constraint validation

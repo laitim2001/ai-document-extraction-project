@@ -5,7 +5,7 @@
  * @description
  *   提供 Region 下拉選擇功能，支援：
  *   - 單選模式
- *   - 搜尋過濾
+ *   - 搜尋過濾（Combobox 模式）
  *   - 載入狀態顯示
  *   - 可選顯示停用的 Region
  *
@@ -16,6 +16,7 @@
  *
  * @features
  *   - 單選模式（value/onChange）
+ *   - 搜尋過濾（Popover + Command combobox）
  *   - 支援 disabled 狀態
  *   - 載入中顯示 loading 狀態
  *   - i18n 支援
@@ -23,7 +24,9 @@
  * @dependencies
  *   - next-intl - 國際化
  *   - @/hooks/use-regions - Region 查詢 Hook
- *   - @/components/ui/select - 基礎 Select 組件
+ *   - @/components/ui/popover - Popover 組件
+ *   - @/components/ui/command - Command 組件
+ *   - @/components/ui/button - Button 組件
  *
  * @example
  *   <RegionSelect
@@ -35,15 +38,23 @@
 
 import * as React from 'react'
 import { useTranslations } from 'next-intl'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { useRegions } from '@/hooks/use-regions'
+import { ChevronsUpDown, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import { useRegions } from '@/hooks/use-regions'
 
 // ============================================================
 // 類型定義
@@ -72,27 +83,14 @@ interface RegionSelectProps {
 // ============================================================
 
 /**
- * Region 選擇組件
+ * Region 選擇組件（Combobox 搜尋模式）
  *
  * @description
  *   提供 Region 下拉選擇功能，用於表單或篩選器中選擇地區。
+ *   使用 Popover + Command 實現搜尋過濾功能。
  *
  * @param props - 組件屬性
  * @returns React 元素
- *
- * @example
- *   // 基本用法
- *   <RegionSelect
- *     value={regionId}
- *     onChange={setRegionId}
- *   />
- *
- *   // 包含停用的 Region
- *   <RegionSelect
- *     value={regionId}
- *     onChange={setRegionId}
- *     includeInactive
- *   />
  */
 export function RegionSelect({
   value,
@@ -103,38 +101,66 @@ export function RegionSelect({
   className,
 }: RegionSelectProps) {
   const t = useTranslations('region')
+  const [open, setOpen] = React.useState(false)
 
   // 查詢 Region 列表
   const { data: regions, isLoading } = useRegions({
     isActive: !includeInactive ? true : undefined,
   })
 
+  // 找到當前選中的 Region 名稱
+  const selectedRegion = React.useMemo(
+    () => regions?.find((r) => r.id === value),
+    [regions, value]
+  )
+
   return (
-    <Select
-      value={value}
-      onValueChange={onChange}
-      disabled={disabled || isLoading}
-    >
-      <SelectTrigger className={cn('w-full', className)}>
-        <SelectValue placeholder={placeholder || t('select.placeholder')} />
-      </SelectTrigger>
-      <SelectContent>
-        {isLoading ? (
-          <SelectItem value="loading" disabled>
-            {t('select.loading')}
-          </SelectItem>
-        ) : regions && regions.length > 0 ? (
-          regions.map((region) => (
-            <SelectItem key={region.id} value={region.id}>
-              {region.name} ({region.code})
-            </SelectItem>
-          ))
-        ) : (
-          <SelectItem value="empty" disabled>
-            {t('select.empty')}
-          </SelectItem>
-        )}
-      </SelectContent>
-    </Select>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          disabled={disabled || isLoading}
+          className={cn('w-full justify-between font-normal', className)}
+        >
+          {isLoading
+            ? t('select.loading')
+            : selectedRegion
+              ? `${selectedRegion.name} (${selectedRegion.code})`
+              : placeholder || t('select.placeholder')
+          }
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+        <Command>
+          <CommandInput placeholder={t('select.searchPlaceholder')} />
+          <CommandList>
+            <CommandEmpty>{t('select.empty')}</CommandEmpty>
+            <CommandGroup>
+              {regions?.map((region) => (
+                <CommandItem
+                  key={region.id}
+                  value={`${region.name} ${region.code}`}
+                  onSelect={() => {
+                    onChange(region.id)
+                    setOpen(false)
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      value === region.id ? 'opacity-100' : 'opacity-0'
+                    )}
+                  />
+                  {region.name} ({region.code})
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   )
 }

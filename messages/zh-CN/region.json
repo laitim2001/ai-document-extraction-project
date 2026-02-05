@@ -4,7 +4,8 @@
   "select": {
     "placeholder": "选择地区",
     "loading": "加载中...",
-    "empty": "没有可用的地区"
+    "empty": "没有可用的地区",
+    "searchPlaceholder": "搜索地区..."
   },
   "form": {
     "code": "代码",

@@ -34,6 +34,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Upload, FileJson, Loader2, CheckCircle, AlertTriangle } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 import {
   useImportReferenceNumbers,
@@ -84,6 +85,7 @@ export function ReferenceNumberImportDialog({
   const [file, setFile] = React.useState<File | null>(null)
   const [parsedData, setParsedData] = React.useState<ParsedImportData | null>(null)
   const [parseError, setParseError] = React.useState(false)
+  const [isDragActive, setIsDragActive] = React.useState(false)
   const [overwriteExisting, setOverwriteExisting] = React.useState(false)
   const [skipInvalid, setSkipInvalid] = React.useState(true)
   const [result, setResult] = React.useState<ImportReferenceNumbersResult | null>(null)
@@ -96,39 +98,77 @@ export function ReferenceNumberImportDialog({
     setFile(null)
     setParsedData(null)
     setParseError(false)
+    setIsDragActive(false)
     setOverwriteExisting(false)
     setSkipInvalid(true)
     setResult(null)
   }, [])
 
+  /**
+   * 格式化檔案大小
+   */
+  const formatFileSize = React.useCallback((bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }, [])
+
   // --- Handlers ---
+
+  const processFile = React.useCallback(async (selectedFile: File) => {
+    setFile(selectedFile)
+    setResult(null)
+    setParseError(false)
+
+    try {
+      const text = await selectedFile.text()
+      const parsed: ParsedImportData = JSON.parse(text)
+
+      if (!parsed.items || !Array.isArray(parsed.items)) {
+        setParseError(true)
+        setParsedData(null)
+        return
+      }
+
+      setParsedData(parsed)
+    } catch {
+      setParseError(true)
+      setParsedData(null)
+    }
+  }, [])
 
   const handleFileChange = React.useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = e.target.files?.[0]
       if (!selectedFile) return
-
-      setFile(selectedFile)
-      setResult(null)
-      setParseError(false)
-
-      try {
-        const text = await selectedFile.text()
-        const parsed: ParsedImportData = JSON.parse(text)
-
-        if (!parsed.items || !Array.isArray(parsed.items)) {
-          setParseError(true)
-          setParsedData(null)
-          return
-        }
-
-        setParsedData(parsed)
-      } catch {
-        setParseError(true)
-        setParsedData(null)
-      }
+      await processFile(selectedFile)
     },
-    []
+    [processFile]
+  )
+
+  const handleDragOver = React.useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragActive(true)
+  }, [])
+
+  const handleDragLeave = React.useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragActive(false)
+  }, [])
+
+  const handleDrop = React.useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsDragActive(false)
+
+      const droppedFile = e.dataTransfer.files[0]
+      if (!droppedFile || !droppedFile.name.endsWith('.json')) return
+      await processFile(droppedFile)
+    },
+    [processFile]
   )
 
   const handleImport = React.useCallback(async () => {
@@ -171,7 +211,17 @@ export function ReferenceNumberImportDialog({
           {/* 文件上傳 */}
           {!result && (
             <>
-              <div className="border-2 border-dashed rounded-lg p-6 text-center">
+              <div
+                className={cn(
+                  'border-2 border-dashed rounded-lg p-6 text-center transition-colors',
+                  isDragActive
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
+                    : 'border-border'
+                )}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
                 <input
                   type="file"
                   accept=".json"
@@ -186,6 +236,8 @@ export function ReferenceNumberImportDialog({
                       <div className="text-left">
                         <p className="font-medium">{file.name}</p>
                         <p className="text-sm text-muted-foreground">
+                          {formatFileSize(file.size)}
+                          {' · '}
                           {parsedData
                             ? `${parsedData.items.length} ${t('items')}`
                             : parseError

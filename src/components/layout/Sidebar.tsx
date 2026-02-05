@@ -58,6 +58,7 @@ import {
   Grid3X3,
   FileStack,
   TestTube2,
+  Hash,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -138,6 +139,7 @@ const navigation: NavSection[] = [
       { nameKey: 'sidebar.templateFieldMappings', href: '/admin/template-field-mappings', icon: Grid3X3 },
       { nameKey: 'sidebar.templateInstances', href: '/template-instances', icon: FileStack },
       { nameKey: 'sidebar.templateMatchingTest', href: '/admin/test/template-matching', icon: TestTube2 },
+      { nameKey: 'sidebar.referenceNumbers', href: '/admin/reference-numbers', icon: Hash },
     ],
   },
 ]

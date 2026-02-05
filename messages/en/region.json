@@ -4,7 +4,8 @@
   "select": {
     "placeholder": "Select a region",
     "loading": "Loading...",
-    "empty": "No regions available"
+    "empty": "No regions available",
+    "searchPlaceholder": "Search regions..."
   },
   "form": {
     "code": "Code",

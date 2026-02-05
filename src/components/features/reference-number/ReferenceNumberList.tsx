@@ -193,6 +193,18 @@ export function ReferenceNumberList({
                   <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
               </TableHead>
+              {/* 建立時間 - 可排序 */}
+              <TableHead className="w-36">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-3 h-8"
+                  onClick={() => handleSort('createdAt')}
+                >
+                  {t('columns.createdAt')}
+                  <ArrowUpDown className="ml-2 h-3 w-3" />
+                </Button>
+              </TableHead>
               {/* 更新時間 - 可排序 */}
               <TableHead className="w-36">
                 <Button
@@ -212,7 +224,7 @@ export function ReferenceNumberList({
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={9} className="text-center py-8">
                   {t('noData')}
                 </TableCell>
               </TableRow>
@@ -234,6 +246,9 @@ export function ReferenceNumberList({
                   </TableCell>
                   <TableCell className="tabular-nums">
                     {item.matchCount}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {formatShortDate(item.createdAt, locale as Locale)}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {formatShortDate(item.updatedAt, locale as Locale)}

@@ -11,6 +11,7 @@
     "region": "地区",
     "status": "状态",
     "matchCount": "匹配次数",
+    "createdAt": "创建时间",
     "updatedAt": "更新时间",
     "actions": "操作"
   },
@@ -102,6 +103,7 @@
     "description": "从 JSON 文件批量导入参考号码",
     "dropzone": "点击或拖放 JSON 文件",
     "items": "条数据",
+    "fileSize": "({size})",
     "overwriteExisting": "覆盖已存在的记录",
     "skipInvalid": "跳过无效记录",
     "import": "开始导入",
