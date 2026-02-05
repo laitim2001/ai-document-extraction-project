@@ -1,0 +1,214 @@
+
+ ▐▛███▜▌   Claude Code v2.1.29
+▝▜█████▛▘  Opus 4.5 · Claude Max
+  ▘▘ ▝▝    ~\Documents\GitHub\ai-document-extraction-project
+
+✻ Sautéed for 6m 39s
+
+❯ 我建議在根目錄的CLAUDE.md 也加入相關的提醒, 這樣claude                    
+  code就會讓AI助手記下來                                                    
+
+● 好建議！讓我在根目錄的 CLAUDE.md 加入 i18n 同步提醒。
+
+● Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● 現在在「禁止事項」之後添加 i18n 同步規則：
+
+● Update(CLAUDE.md)
+  ⎿  Added 38 lines
+      611                                                                
+      612  ---                                                           
+      613                                                                
+      614 +## 🌐 i18n 同步規則（必須遵守）                                  
+            
+
+      615 +                                                              
+      616 +> **常見問題**：開發者在 TypeScript 中新增常量（如               
+                  
+
+          +`PROMPT_TYPES`）但忘記更新 i18n 翻譯，導致運行時 `IntlError:     
+                
+
+          +MISSING_MESSAGE` 錯誤。                                          
+
+      617 +                                                              
+      618 +### 常量 → i18n 映射表                                           
+       
+
+      619 +                                                              
+      620 +| 常量文件 | 常量名稱 | i18n 文件 | i18n Key 前綴 |              
+              
+
+      621 +|----------|----------|-----------|---------------|           
+      622 +| `src/types/prompt-config.ts` | `PROMPT_TYPES` |             
+          +`promptConfig.json` | `types.` |                              
+      623 +| `src/constants/status.ts` | `DOCUMENT_STATUS` |             
+          +`common.json` | `status.` |                                   
+      624 +| `src/constants/roles.ts` | `USER_ROLES` | `common.json` |   
+          +`roles.` |                                                    
+      625 +                                                              
+      626 +### AI 助手必須遵守的規則                                        
+           
+
+      627 +                                                              
+      628 +**當修改以下文件時，必須同步檢查 i18n：**                        
+                  
+
+      629 +- `src/types/*.ts` 中含有 `label`、`description` 的 `export      
+       
+
+          +const` 常量                                                     
+      630 +- `src/constants/*.ts` 中的任何常量                              
+        
+
+      631 +- 任何會在 UI 顯示的 enum/object                                 
+         
+
+      632 +                                                              
+      633 +**開發完成前必須執行：**                                         
+            
+
+      634 +```bash                                                       
+      635 +npm run i18n:check                                            
+      636 +```                                                           
+      637 +                                                              
+      638 +### 同步更新檢查清單                                             
+          
+
+      639 +                                                              
+      640 +當新增/修改含 UI 顯示文字的常量時：                              
+                 
+
+      641 +                                                              
+      642 +- [ ] 已更新 `messages/en/*.json`                                
+
+      643 +- [ ] 已更新 `messages/zh-TW/*.json`                             
+
+      644 +- [ ] 已更新 `messages/zh-CN/*.json`                             
+
+      645 +- [ ] 已執行 `npm run i18n:check` 驗證                           
+       
+
+      646 +- [ ] 已在瀏覽器確認無 `IntlError`                               
+          
+
+      647 +                                                              
+      648 +> 📋 完整規範請參考: `.claude/rules/i18n.md`                     
+         
+
+      649 +                                                              
+      650 +---                                                           
+      651 +                                                              
+      652  ## 🚨 技術障礙處理規範（必須遵守）                               
+                
+
+      653                                                                
+      654  > **核心原則**: 遇到技術障礙時，**絕不擅自改變設計決策**。任     
+                          
+
+           何偏離原設計的方案必須獲得用戶確認。                             
+                    
+
+
+● 現在更新版本資訊：
+
+● Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Update(CLAUDE.md)
+  ⎿  Added 3 lines, removed 2 lines
+      837                                                                
+      838  ## 版本資訊                                                      
+      
+
+      839                                                                
+      840 -- **CLAUDE.md 版本**: 2.4.0                                     
+      840 +- **CLAUDE.md 版本**: 2.5.0                                     
+      841  - **建立日期**: 2025-12-17                                       
+      
+
+      842 -- **最後更新**: 2026-01-18                                       
+      
+
+      842 +- **最後更新**: 2026-02-03                                       
+      
+
+      843  - **維護者**: Development Team                                   
+
+      844                                                                
+      845  ### 更新記錄                                                     
+      
+
+      846                                                                
+      847  | 版本  | 日期       | 變更內容                                  
+          
+
+                                                      |                  
+      848  | ----- | ---------- | -------------------------------------- 
+           ------------------------------------------ |                  
+      849 +| 2.5.0 | 2026-02-03 | 新增「i18n 同步規則」章節、新增 `npm      
+               
+
+          +run i18n:check` 命令、防止常量與翻譯不同步  |                    
+               
+
+      850  | 2.4.0 | 2026-01-18 | 新增 Epic 16 (文件格式管理)、更新 Epic    
+             
+
+            總數至 18 個、Story 總數至 119 個         |                     
+           
+
+      851  | 2.3.0 | 2026-01-18 | 新增 Epic 17 (i18n)、新增 i18n.md         
+       
+
+           規則文件、技術棧新增 next-intl                 |                 
+            
+
+      852  | 2.2.0 | 2026-01-03 | Epic 13-15 全部完成、Story 13-6           
+       
+
+           整合測試頁面實作完成                             |               
+            
+
+
+● 提交變更：
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       git add CLAUDE.md && git commit -m "docs(CLAUDE.md): add i18n sync rules
+      section…)
+  ⎿ [feature/change-021-extraction-v3 0f6800e] docs(CLAUDE.md): add i18n sy
+    nc rules section
+     1 file changed, 41 insertions(+), 2 deletions(-)
+    … +5 lines (ctrl+o to expand)
+
+  ⎿ API Error: 500 
+    {"type":"error","error":{"type":"api_error","message":"Internal server 
+    error"},"request_id":"req_011CXmP2Foc1faCXZ1voPXAN"}
+
+✻ Cooked for 2m 5s
+
+❯ continue  
+  ⎿ API Error: 500 
+    {"type":"error","error":{"type":"api_error","message":"Internal server 
+    error"},"request_id":"req_011CXmP5W6ft4FLjtyL9p95J"}
+
+❯ continue  
+  ⎿ API Error: 500 
+    {"type":"error","error":{"type":"api_error","message":"Internal server 
+    error"},"request_id":"req_011CXmP9FwjeuDqobkiFKqbF"}
+
+❯ continue  
+  ⎿ API Error: 500 
+    {"type":"error","error":{"type":"api_error","message":"Internal server 
+    error"},"request_id":"req_011CXmPZxibGDiKJvEgSkmPV"}
+
+❯ /login 
+  ⎿  Login successful
+
+❯ /login 
+  ⎿  Login successful
+
+❯ continue  
+  ⎿ API Error: 500 
+    {"type":"error","error":{"type":"api_error","message":"Internal server 
+    error"},"request_id":"req_011CXmPcX3LEgCvrog8scgqV"}

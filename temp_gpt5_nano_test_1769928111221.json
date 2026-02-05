@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-02-01T06:41:51.221Z",
+  "documentId": "local-1769928106735",
+  "fileName": "DHL_HEX240522_41293.pdf",
+  "results": [
+    {
+      "stage": "Company Identification",
+      "model": "gpt-5-nano",
+      "success": false,
+      "responseTimeMs": 1747,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0
+      },
+      "estimatedCost": 0,
+      "error": "400 Invalid image URL. The URL must be a valid HTTP or HTTPS URL, or a data URL with base64 encoding."
+    },
+    {
+      "stage": "Format Identification",
+      "model": "gpt-5-nano",
+      "success": false,
+      "responseTimeMs": 469,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0
+      },
+      "estimatedCost": 0,
+      "error": "400 Invalid image URL. The URL must be a valid HTTP or HTTPS URL, or a data URL with base64 encoding."
+    },
+    {
+      "stage": "Field Extraction",
+      "model": "gpt-5-nano",
+      "success": false,
+      "responseTimeMs": 266,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0
+      },
+      "estimatedCost": 0,
+      "error": "400 Invalid image URL. The URL must be a valid HTTP or HTTPS URL, or a data URL with base64 encoding."
+    }
+  ],
+  "summary": {
+    "totalTokensIn": 0,
+    "totalTokensOut": 0,
+    "totalCost": 0,
+    "successCount": 0,
+    "avgConfidence": 0,
+    "gpt52ComparisonCost": 0,
+    "savings": 0,
+    "savingsPercent": "NaN"
+  }
+}

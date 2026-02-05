@@ -1,0 +1,106 @@
+{
+  "timestamp": "2026-02-01T06:59:24.251Z",
+  "documentId": "local-1769929130929",
+  "fileName": "NIPPON EXPRESS_CEX250484_G9458.pdf",
+  "results": [
+    {
+      "stage": "Company Identification",
+      "model": "gpt-5-nano",
+      "success": true,
+      "responseTimeMs": 10789,
+      "tokensUsed": {
+        "input": 474,
+        "output": 1158
+      },
+      "estimatedCost": 0.000487,
+      "response": {
+        "companyName": "Nippon Express Logistics (Thailand) Co., Ltd.",
+        "confidence": 92,
+        "identificationMethod": "LOGO",
+        "aliases": [
+          "Nippon Express",
+          "Nippon Express Logistics (Thailand) Co., Ltd."
+        ]
+      }
+    },
+    {
+      "stage": "Format Identification",
+      "model": "gpt-5-nano",
+      "success": true,
+      "responseTimeMs": 9330,
+      "tokensUsed": {
+        "input": 483,
+        "output": 1112
+      },
+      "estimatedCost": 0.000469,
+      "response": {
+        "formatName": "Nippon Express Not Tax Invoice – Thailand Template",
+        "confidence": 82,
+        "layoutType": "PORTRAIT",
+        "characteristics": [
+          "Header with Nippon Express logo and 'INVOICE (NOT TAX INVOICE)' title",
+          "Two-section address area at top for Shipper and Consignee",
+          "Detailed item table with columns including NO, PARTICULARS, WEIGHT/HS, NON-TAXABLE (THB), TAXABLE (THB)",
+          "Financial summary block showing subtotals, VAT, net payment and total amount",
+          "Footer area containing notes, payment instructions and bank details"
+        ]
+      }
+    },
+    {
+      "stage": "Field Extraction",
+      "model": "gpt-5.2",
+      "success": true,
+      "responseTimeMs": 6145,
+      "tokensUsed": {
+        "input": 544,
+        "output": 215
+      },
+      "estimatedCost": 0.00283,
+      "response": {
+        "invoiceNumber": {
+          "value": "INV-GA9548",
+          "confidence": 92
+        },
+        "invoiceDate": {
+          "value": "2025-09-09",
+          "confidence": 90
+        },
+        "vendorName": {
+          "value": "NIPPON EXPRESS LOGISTICS (THAILAND) CO., LTD.",
+          "confidence": 96
+        },
+        "totalAmount": {
+          "value": 6527,
+          "confidence": 92
+        },
+        "currency": {
+          "value": "THB",
+          "confidence": 95
+        },
+        "lineItems": [
+          {
+            "description": "THC",
+            "amount": 1500,
+            "confidence": 78
+          },
+          {
+            "description": "SIC",
+            "amount": 4300,
+            "confidence": 78
+          }
+        ],
+        "overallConfidence": 90
+      }
+    }
+  ],
+  "summary": {
+    "totalTokensIn": 1501,
+    "totalTokensOut": 2485,
+    "totalCost": 0.0037860000000000003,
+    "successCount": 3,
+    "avgConfidence": 88,
+    "gpt52ComparisonCost": 0.026726,
+    "savings": 0.02294,
+    "savingsPercent": "85.8"
+  }
+}

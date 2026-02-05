@@ -1,0 +1,3205 @@
+
+ ▐▛███▜▌   Claude Code v2.1.19
+▝▜█████▛▘  Opus 4.5 · Claude Max
+  ▘▘ ▝▝    ~\Documents\GitHub\ai-document-extraction-project
+══════════════════ Conversation compacted · ctrl+o for history ═════════════════
+
+❯ /compact 總結討論（限400字）：1. Key decisions made + code patterns 
+established 2. 檔案狀態：✅已完成 / 🔄進行中（標註位置）/ ⏳待處理 3. Next 
+steps：compact 後立即執行的具體動作 4. Blockers（如有）Format as system prompt 
+for next chat, enabling immediate continuation. 
+  ⎿  Compacted (ctrl+o to see full summary)
+     PreCompact [node "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/pre-compact.js"] 
+     completed successfully
+  ⎿ Referenced file docs\04-implementation\tech-specs\epic-20-reference-number-m
+    aster\tech-spec-story-20-6.md
+  ⎿ Referenced file docs\04-implementation\tech-specs\epic-20-reference-number-m
+    aster\tech-spec-story-20-5.md
+  ⎿ Read docs\04-implementation\tech-specs\epic-20-reference-number-master\tech-
+    spec-story-20-4.md (466 lines)
+  ⎿ Read docs\04-implementation\tech-specs\epic-20-reference-number-master\tech-
+    spec-story-20-3.md (491 lines)
+  ⎿ Read docs\04-implementation\tech-specs\epic-20-reference-number-master\tech-
+    spec-story-20-2.md (396 lines)
+  ⎿  Plan file referenced (~\.claude\plans\gentle-rolling-llama.md)
+
+❯ 繼續跟隨 C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-pr 
+  oject\docs\04-implementation\stories 和  C:\Users\rci.ChrisLai\Documents\ 
+  GitHub\ai-document-extraction-project\docs\04-implementation\tech-specs   
+  的統一文件規格去準備新的stories和tech-specs文件 , 之後再準備              
+  C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project\doc 
+  s\04-implementation\prompt-templates\all-story-prompts.md 的內容,         
+  也是跟隨統一的格式                                                        
+
+● 我繼續創建 Epic 21 的文檔。讓我先讀取 plan 文件確認 Epic 21
+  的詳細設計，然後按統一格式創建文件。
+
+● Reading Plan(~\.claude\plans\gentle-rolling-llama.md)
+  ⎿  Read 200 lines
+
+● Search(pattern: "docs/04-implementation/stories/epic-19*/**/*.md")
+  ⎿  Found 9 files (ctrl+o to expand)
+
+● Reading Plan(~\.claude\plans\gentle-rolling-llama.md)
+  ⎿  Read 150 lines
+
+● Read(docs\04-implementation\stories\epic-19-template-matching\19-1-template-fi
+      eld-mapping-model.md)
+  ⎿  Read 293 lines
+  ⎿  Loaded .claude\rules\general.md
+
+● 現在開始創建 Epic 21 的所有文檔。首先創建目錄和 overview 文件。
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\epic-21-
+       overview.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\epic-21-overview.md
+     # Epic 21: Exchange Rate Management
+
+     > **Epic ID**: 21
+     > **Created**: 2026-02-04
+     > **Status**: Planned
+     > **Estimated Effort**: 8 Stories, 7-8 天
+
+     ---
+
+     ## Epic Summary
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-1-dat
+       abase-model-migration.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-1-database-model-migration.md
+     # Story 21.1: 資料庫模型與遷移
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統開發者,
+     **I want** 建立 ExchangeRate 的資料庫模型和遷移,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-2-cor
+       e-service-layer.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-2-core-service-layer.md
+     # Story 21.2: 核心服務層
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統開發者,
+     **I want** 建立 ExchangeRate 的核心服務層，包含轉換邏輯,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-3-cru
+       d-api-endpoints.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-3-crud-api-endpoints.md
+     # Story 21.3: CRUD API 端點
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** API 使用者,
+     **I want** 通過 RESTful API 管理匯率記錄,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-4-con
+       vert-calculation-api.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-4-convert-calculation-api.md
+     # Story 21.4: 轉換計算 API
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** API 使用者,
+     **I want** 通過 API 進行貨幣轉換計算,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-5-imp
+       ort-export-api.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-5-import-export-api.md
+     # Story 21.5: Import/Export API
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統管理員,
+     **I want** 批次導入和導出匯率記錄,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-6-man
+       agement-page-list-filter.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-6-management-page-list-filter.md
+     # Story 21.6: 管理頁面 - 列表與篩選
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統管理員,
+     **I want** 在管理介面中查看和篩選匯率記錄,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-7-man
+       agement-page-form.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-7-management-page-form.md
+     # Story 21.7: 管理頁面 - 表單
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統管理員,
+     **I want** 通過表單新增和編輯匯率記錄,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-8-man
+       agement-page-calculator-import.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-8-management-page-calculator-import.md
+     # Story 21.8: 管理頁面 - 計算器與 Import
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統管理員,
+     **I want** 使用即時計算器和批次導入功能,
+
+● Stories 完成。現在創建 Epic 21 的 Tech Specs。
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-1.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-1.md
+     # Tech Spec: Story 21.1 - 資料庫模型與遷移
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-1
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-2.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-2.md
+     # Tech Spec: Story 21.2 - 核心服務層
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-2
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-3.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-3.md
+     # Tech Spec: Story 21.3 - CRUD API 端點
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-3
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-4.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-4.md
+     # Tech Spec: Story 21.4 - 轉換計算 API
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-4
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-5.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-5.md
+     # Tech Spec: Story 21.5 - Import/Export API
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-5
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-6.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-6.md
+     # Tech Spec: Story 21.6 - 管理頁面：列表與篩選
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-6
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-7.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-7.md
+     # Tech Spec: Story 21.7 - 管理頁面：表單
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-7
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-8.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-8.md
+     # Tech Spec: Story 21.8 - 管理頁面：計算器與 Import
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-8
+
+     ---
+
+     ## Overview
+
+● Epic 21 文檔全部完成。現在更新 all-story-prompts.md。先讀取現有格式。
+
+● Read(docs\04-implementation\prompt-templates\all-story-prompts.md)
+  ⎿  Read 200 lines
+✔ Task #2 updated: status → completed
+✔ Task #1 updated: activeForm, status → in progress
+
+● Bash(wc -l "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-proj
+      ect\docs\04-implementation\prompt-templates\all-story-prompts.md")
+  ⎿ 7739 C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-proj
+    ect\docs\04-implementation\prompt-templates\all-story-prompts.md
+
+
+● Read(docs\04-implementation\prompt-templates\all-story-prompts.md)
+  ⎿  Read 61 lines
+
+● 現在添加 Epic 20 和 Epic 21 的開發提示到文件末尾。
+
+● Update(docs\04-implementation\prompt-templates\all-story-prompts.md)
+  ⎿  Error editing file
+
+● Read(docs\04-implementation\prompt-templates\all-story-prompts.md)
+  ⎿  Read 21 lines
+
+● Update(docs\04-implementation\prompt-templates\all-story-prompts.md)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 624 lines
+      7737                                                               
+      7738  ---                                                          
+      7739                                                               
+      7740 +## Epic 20: Reference Number Master Setup                    
+      7741 +                                                             
+      7742 +> **說明**：此 Epic 建立 Reference Number                       
+        
+
+           +主檔管理功能，以「地區」為主要分類維度。                        
+                      
+
+      7743 +                                                             
+      7744 +### Story 20-1: 資料庫模型與基礎設施                            
+            
+
+      7745 +                                                             
+      7746 +```                                                          
+      7747 +# 開發任務：Story 20-1 資料庫模型與基礎設施                     
+                 
+
+      7748 +                                                             
+      7749 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7750 +1. docs/04-implementation/implementation-context.md          
+      7751 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-1-database-model-infrastructure.md                  
+      7752 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-1.md                             
+      7753 +                                                             
+      7754 +## 參考文件 (開發時查閱)                                        
+           
+
+      7755 +- docs/04-implementation/dev-checklist.md                    
+      7756 +- prisma/schema.prisma                                       
+      7757 +                                                             
+      7758 +## 開發要求                                                     
+      
+
+      7759 +1. 新增 Region 和 ReferenceNumber 模型到 Prisma Schema          
+        
+
+      7760 +2. 新增枚舉 ReferenceNumberType 和 ReferenceNumberStatus        
+       
+
+      7761 +3. 執行資料庫遷移                                               
+         
+
+      7762 +4. 建立預設地區種子資料（APAC, EMEA, AMER, GLOBAL）             
+              
+
+      7763 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7764 +                                                             
+      7765 +請開始實作此 Story。                                            
+         
+
+      7766 +                                                             
+      7767 +---                                                          
+      7768 +                                                             
+      7769 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7770 +                                                             
+      7771 +### 1. 代碼品質驗證                                             
+        
+
+      7772 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7773 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7774 +- [ ] 執行 `npx prisma migrate dev` 並確認成功                  
+         
+
+      7775 +                                                             
+      7776 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7777 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7778 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7779 +                                                             
+      7780 +### 3. Git 提交                                                
+      7781 +- [ ] Git commit 並 push                                      
+      7782 +                                                             
+      7783 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      7784 +```                                                          
+      7785 +                                                             
+      7786 +---                                                          
+      7787 +                                                             
+      7788 +### Story 20-2: Region 管理 API 與 UI                           
+
+      7789 +                                                             
+      7790 +```                                                          
+      7791 +# 開發任務：Story 20-2 Region 管理 API 與 UI                    
+          
+
+      7792 +                                                             
+      7793 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7794 +1. docs/04-implementation/implementation-context.md          
+      7795 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-2-region-management-api-ui.md                       
+      7796 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-2.md                             
+      7797 +                                                             
+      7798 +## 參考文件 (開發時查閱)                                        
+           
+
+      7799 +- docs/04-implementation/dev-checklist.md                    
+      7800 +- src/services/company.service.ts（參考 Service 模式）          
+        
+
+      7801 +                                                             
+      7802 +## 開發要求                                                     
+      
+
+      7803 +1. 建立 Region CRUD API（GET/POST/PATCH/DELETE）                
+      
+
+      7804 +2. 建立 RegionSelect 共用組件                                   
+        
+
+      7805 +3. 新增 i18n 翻譯文件                                           
+        
+
+      7806 +4. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7807 +                                                             
+      7808 +請開始實作此 Story。                                            
+         
+
+      7809 +                                                             
+      7810 +---                                                          
+      7811 +                                                             
+      7812 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7813 +                                                             
+      7814 +### 1. 代碼品質驗證                                             
+        
+
+      7815 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7816 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7817 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      7818 +                                                             
+      7819 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7820 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7821 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7822 +                                                             
+      7823 +### 3. Git 提交                                                
+      7824 +- [ ] Git commit 並 push                                      
+      7825 +                                                             
+      7826 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      7827 +```                                                          
+      7828 +                                                             
+      7829 +---                                                          
+      7830 +                                                             
+      7831 +### Story 20-3: Reference Number CRUD API                    
+      7832 +                                                             
+      7833 +```                                                          
+      7834 +# 開發任務：Story 20-3 Reference Number CRUD API                
+       
+
+      7835 +                                                             
+      7836 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7837 +1. docs/04-implementation/implementation-context.md          
+      7838 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-3-reference-number-crud-api.md                      
+      7839 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-3.md                             
+      7840 +                                                             
+      7841 +## 參考文件 (開發時查閱)                                        
+           
+
+      7842 +- docs/04-implementation/dev-checklist.md                    
+      7843 +- src/app/api/v1/prompt-configs/route.ts（參考 API 模式）       
+        
+
+      7844 +                                                             
+      7845 +## 開發要求                                                     
+      
+
+      7846 +1. 建立 Zod 驗證 Schema                                         
+      
+
+      7847 +2. 建立 reference-number.service.ts                            
+      7848 +3. 建立 CRUD API 端點（支援分頁、篩選、排序）                   
+                  
+
+      7849 +4. 建立 React Query Hooks                                      
+      7850 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7851 +                                                             
+      7852 +請開始實作此 Story。                                            
+         
+
+      7853 +                                                             
+      7854 +---                                                          
+      7855 +                                                             
+      7856 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7857 +                                                             
+      7858 +### 1. 代碼品質驗證                                             
+        
+
+      7859 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7860 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7861 +                                                             
+      7862 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7863 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7864 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7865 +                                                             
+      7866 +### 3. Git 提交                                                
+      7867 +- [ ] Git commit 並 push                                      
+      7868 +                                                             
+      7869 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      7870 +```                                                          
+      7871 +                                                             
+      7872 +---                                                          
+      7873 +                                                             
+      7874 +### Story 20-4: 導入/導出與驗證 API                             
+         
+
+      7875 +                                                             
+      7876 +```                                                          
+      7877 +# 開發任務：Story 20-4 導入/導出與驗證 API                      
+              
+
+      7878 +                                                             
+      7879 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7880 +1. docs/04-implementation/implementation-context.md          
+      7881 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-4-import-export-validate-api.md                     
+      7882 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-4.md                             
+      7883 +                                                             
+      7884 +## 參考文件 (開發時查閱)                                        
+           
+
+      7885 +- docs/04-implementation/dev-checklist.md                    
+      7886 +- src/app/api/v1/field-mapping-configs/import/route.ts（參考    
+
+           + Import 模式）                                                  
+
+      7887 +                                                             
+      7888 +## 開發要求                                                     
+      
+
+      7889 +1. 建立 Import API（POST /import）                              
+      
+
+      7890 +2. 建立 Export API（GET /export）                               
+      
+
+      7891 +3. 建立 Validate API（POST /validate）                          
+      
+
+      7892 +4. 實現 skipInvalid 和 overwriteExisting 選項                   
+       
+
+      7893 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7894 +                                                             
+      7895 +請開始實作此 Story。                                            
+         
+
+      7896 +                                                             
+      7897 +---                                                          
+      7898 +                                                             
+      7899 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7900 +                                                             
+      7901 +### 1. 代碼品質驗證                                             
+        
+
+      7902 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7903 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7904 +                                                             
+      7905 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7906 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7907 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7908 +                                                             
+      7909 +### 3. Git 提交                                                
+      7910 +- [ ] Git commit 並 push                                      
+      7911 +                                                             
+      7912 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      7913 +```                                                          
+      7914 +                                                             
+      7915 +---                                                          
+      7916 +                                                             
+      7917 +### Story 20-5: 管理頁面 - 列表與篩選                           
+           
+
+      7918 +                                                             
+      7919 +```                                                          
+      7920 +# 開發任務：Story 20-5 管理頁面 - 列表與篩選                    
+                
+
+      7921 +                                                             
+      7922 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7923 +1. docs/04-implementation/implementation-context.md          
+      7924 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-5-management-page-list-filter.md                    
+      7925 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-5.md                             
+      7926 +                                                             
+      7927 +## 參考文件 (開發時查閱)                                        
+           
+
+      7928 +- docs/04-implementation/dev-checklist.md                    
+      7929 +- src/app/[locale]/(dashboard)/admin/prompt-configs/page.tsx 
+           +（參考頁面模式）                                                
+          
+
+      7930 +                                                             
+      7931 +## 開發要求                                                     
+      
+
+      7932 +1. 建立 /admin/reference-numbers 列表頁                         
+       
+
+      7933 +2. 建立 ReferenceNumberList 組件                                
+      
+
+      7934 +3. 建立 ReferenceNumberFilters 組件                             
+      
+
+      7935 +4. 整合 RegionSelect 組件                                       
+      
+
+      7936 +5. 新增 i18n 翻譯                                               
+      
+
+      7937 +6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7938 +                                                             
+      7939 +請開始實作此 Story。                                            
+         
+
+      7940 +                                                             
+      7941 +---                                                          
+      7942 +                                                             
+      7943 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7944 +                                                             
+      7945 +### 1. 代碼品質驗證                                             
+        
+
+      7946 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7947 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7948 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      7949 +                                                             
+      7950 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7951 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7952 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7953 +                                                             
+      7954 +### 3. Git 提交                                                
+      7955 +- [ ] Git commit 並 push                                      
+      7956 +                                                             
+      7957 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      7958 +```                                                          
+      7959 +                                                             
+      7960 +---                                                          
+      7961 +                                                             
+      7962 +### Story 20-6: 管理頁面 - 表單與導入                           
+           
+
+      7963 +                                                             
+      7964 +```                                                          
+      7965 +# 開發任務：Story 20-6 管理頁面 - 表單與導入                    
+                
+
+      7966 +                                                             
+      7967 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7968 +1. docs/04-implementation/implementation-context.md          
+      7969 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-6-management-page-form-import.md                    
+      7970 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-6.md                             
+      7971 +                                                             
+      7972 +## 參考文件 (開發時查閱)                                        
+           
+
+      7973 +- docs/04-implementation/dev-checklist.md                    
+      7974 +- src/components/features/prompt-config/（參考表單組件模式）    
+            
+
+      7975 +                                                             
+      7976 +## 開發要求                                                     
+      
+
+      7977 +1. 建立新增/編輯頁面                                            
+          
+
+      7978 +2. 建立 ReferenceNumberForm 組件                                
+      
+
+      7979 +3. 建立 ReferenceNumberImportDialog 組件                        
+      
+
+      7980 +4. 使用 React Hook Form + Zod 驗證                              
+      
+
+      7981 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7982 +                                                             
+      7983 +請開始實作此 Story。                                            
+         
+
+      7984 +                                                             
+      7985 +---                                                          
+      7986 +                                                             
+      7987 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7988 +                                                             
+      7989 +### 1. 代碼品質驗證                                             
+        
+
+      7990 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7991 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7992 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      7993 +                                                             
+      7994 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7995 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7996 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7997 +                                                             
+      7998 +### 3. Git 提交                                                
+      7999 +- [ ] Git commit 並 push                                      
+      8000 +                                                             
+      8001 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8002 +```                                                          
+      8003 +                                                             
+      8004 +---                                                          
+      8005 +                                                             
+      8006 +## Epic 21: Exchange Rate Management                         
+      8007 +                                                             
+      8008 +> **說明**：此 Epic                                             
+      
+
+           +建立匯率管理功能，支援雙向匯率處理和貨幣轉換計算。              
+                           
+
+      8009 +                                                             
+      8010 +### Story 21-1: 資料庫模型與遷移                                
+          
+
+      8011 +                                                             
+      8012 +```                                                          
+      8013 +# 開發任務：Story 21-1 資料庫模型與遷移                         
+               
+
+      8014 +                                                             
+      8015 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8016 +1. docs/04-implementation/implementation-context.md          
+      8017 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-1-database-model-migration.md                      
+      8018 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-1.md                            
+      8019 +                                                             
+      8020 +## 參考文件 (開發時查閱)                                        
+           
+
+      8021 +- docs/04-implementation/dev-checklist.md                    
+      8022 +- prisma/schema.prisma                                       
+      8023 +                                                             
+      8024 +## 開發要求                                                     
+      
+
+      8025 +1. 新增 ExchangeRateSource 枚舉                                 
+      
+
+      8026 +2. 新增 ExchangeRate 模型（含自關聯 inverseOf/inverseRates）    
+            
+
+      8027 +3. 設定 Decimal(18,8) 精度                                      
+      
+
+      8028 +4. 執行資料庫遷移                                               
+         
+
+      8029 +5. 建立類型定義和貨幣代碼常數                                   
+               
+
+      8030 +6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8031 +                                                             
+      8032 +請開始實作此 Story。                                            
+         
+
+      8033 +                                                             
+      8034 +---                                                          
+      8035 +                                                             
+      8036 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8037 +                                                             
+      8038 +### 1. 代碼品質驗證                                             
+        
+
+      8039 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8040 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8041 +- [ ] 執行 `npx prisma migrate dev` 並確認成功                  
+         
+
+      8042 +                                                             
+      8043 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8044 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8045 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8046 +                                                             
+      8047 +### 3. Git 提交                                                
+      8048 +- [ ] Git commit 並 push                                      
+      8049 +                                                             
+      8050 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8051 +```                                                          
+      8052 +                                                             
+      8053 +---                                                          
+      8054 +                                                             
+      8055 +### Story 21-2: 核心服務層                                      
+       
+
+      8056 +                                                             
+      8057 +```                                                          
+      8058 +# 開發任務：Story 21-2 核心服務層                               
+            
+
+      8059 +                                                             
+      8060 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8061 +1. docs/04-implementation/implementation-context.md          
+      8062 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-2-core-service-layer.md                            
+      8063 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-2.md                            
+      8064 +                                                             
+      8065 +## 參考文件 (開發時查閱)                                        
+           
+
+      8066 +- docs/04-implementation/dev-checklist.md                    
+      8067 +- src/services/reference-number.service.ts（參考 Service        
+
+           +模式）                                                          
+
+      8068 +                                                             
+      8069 +## 開發要求                                                     
+      
+
+      8070 +1. 建立 Zod 驗證 Schema（create, update, convert, batch）       
+        
+
+      8071 +2. 建立 exchange-rate.service.ts                               
+      8072 +3. 實現 CRUD 操作                                               
+      
+
+      8073 +4. 實現 convert 方法（含 Fallback: direct → inverse →           
+        
+
+           +cross）                                                       
+      8074 +5. 實現 batchGetRates 方法                                      
+      
+
+      8075 +6. 實現自動反向匯率建立邏輯                                     
+              
+
+      8076 +7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8077 +                                                             
+      8078 +請開始實作此 Story。                                            
+         
+
+      8079 +                                                             
+      8080 +---                                                          
+      8081 +                                                             
+      8082 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8083 +                                                             
+      8084 +### 1. 代碼品質驗證                                             
+        
+
+      8085 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8086 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8087 +                                                             
+      8088 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8089 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8090 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8091 +                                                             
+      8092 +### 3. Git 提交                                                
+      8093 +- [ ] Git commit 並 push                                      
+      8094 +                                                             
+      8095 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8096 +```                                                          
+      8097 +                                                             
+      8098 +---                                                          
+      8099 +                                                             
+      8100 +### Story 21-3: CRUD API 端點                                  
+      8101 +                                                             
+      8102 +```                                                          
+      8103 +# 開發任務：Story 21-3 CRUD API 端點                            
+         
+
+      8104 +                                                             
+      8105 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8106 +1. docs/04-implementation/implementation-context.md          
+      8107 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-3-crud-api-endpoints.md                            
+      8108 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-3.md                            
+      8109 +                                                             
+      8110 +## 參考文件 (開發時查閱)                                        
+           
+
+      8111 +- docs/04-implementation/dev-checklist.md                    
+      8112 +- src/app/api/v1/reference-numbers/route.ts（參考 API 模式）    
+        
+
+      8113 +                                                             
+      8114 +## 開發要求                                                     
+      
+
+      8115 +1. 建立 /api/v1/exchange-rates 端點（GET/POST）                 
+        
+
+      8116 +2. 建立 /api/v1/exchange-rates/[id] 端點（GET/PATCH/DELETE）    
+        
+
+      8117 +3. 建立 /api/v1/exchange-rates/[id]/toggle 端點（POST）         
+        
+
+      8118 +4. 建立 React Query Hooks                                      
+      8119 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8120 +                                                             
+      8121 +請開始實作此 Story。                                            
+         
+
+      8122 +                                                             
+      8123 +---                                                          
+      8124 +                                                             
+      8125 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8126 +                                                             
+      8127 +### 1. 代碼品質驗證                                             
+        
+
+      8128 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8129 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8130 +                                                             
+      8131 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8132 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8133 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8134 +                                                             
+      8135 +### 3. Git 提交                                                
+      8136 +- [ ] Git commit 並 push                                      
+      8137 +                                                             
+      8138 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8139 +```                                                          
+      8140 +                                                             
+      8141 +---                                                          
+      8142 +                                                             
+      8143 +### Story 21-4: 轉換計算 API                                    
+      
+
+      8144 +                                                             
+      8145 +```                                                          
+      8146 +# 開發任務：Story 21-4 轉換計算 API                             
+           
+
+      8147 +                                                             
+      8148 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8149 +1. docs/04-implementation/implementation-context.md          
+      8150 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-4-convert-calculation-api.md                       
+      8151 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-4.md                            
+      8152 +                                                             
+      8153 +## 參考文件 (開發時查閱)                                        
+           
+
+      8154 +- docs/04-implementation/dev-checklist.md                    
+      8155 +                                                             
+      8156 +## 開發要求                                                     
+      
+
+      8157 +1. 建立 /api/v1/exchange-rates/convert 端點（POST）             
+        
+
+      8158 +2. 建立 /api/v1/exchange-rates/batch 端點（POST）               
+        
+
+      8159 +3. 實現 Fallback 邏輯（direct → inverse → cross via USD）       
+        
+
+      8160 +4. 建立 useConvertCurrency 和 useBatchRates hooks               
+
+      8161 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8162 +                                                             
+      8163 +請開始實作此 Story。                                            
+         
+
+      8164 +                                                             
+      8165 +---                                                          
+      8166 +                                                             
+      8167 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8168 +                                                             
+      8169 +### 1. 代碼品質驗證                                             
+        
+
+      8170 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8171 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8172 +                                                             
+      8173 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8174 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8175 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8176 +                                                             
+      8177 +### 3. Git 提交                                                
+      8178 +- [ ] Git commit 並 push                                      
+      8179 +                                                             
+      8180 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8181 +```                                                          
+      8182 +                                                             
+      8183 +---                                                          
+      8184 +                                                             
+      8185 +### Story 21-5: Import/Export API                            
+      8186 +                                                             
+      8187 +```                                                          
+      8188 +# 開發任務：Story 21-5 Import/Export API                        
+       
+
+      8189 +                                                             
+      8190 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8191 +1. docs/04-implementation/implementation-context.md          
+      8192 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-5-import-export-api.md                             
+      8193 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-5.md                            
+      8194 +                                                             
+      8195 +## 參考文件 (開發時查閱)                                        
+           
+
+      8196 +- docs/04-implementation/dev-checklist.md                    
+      8197 +- src/app/api/v1/reference-numbers/import/route.ts（參考        
+
+           +Import 模式）                                                   
+
+      8198 +                                                             
+      8199 +## 開發要求                                                     
+      
+
+      8200 +1. 建立 /api/v1/exchange-rates/export 端點（GET）               
+        
+
+      8201 +2. 建立 /api/v1/exchange-rates/import 端點（POST）              
+        
+
+      8202 +3. 實現 skipInvalid 和 overwriteExisting 選項                   
+       
+
+      8203 +4. 支援 createInverse 選項（導入時建立反向匯率）                
+                 
+
+      8204 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8205 +                                                             
+      8206 +請開始實作此 Story。                                            
+         
+
+      8207 +                                                             
+      8208 +---                                                          
+      8209 +                                                             
+      8210 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8211 +                                                             
+      8212 +### 1. 代碼品質驗證                                             
+        
+
+      8213 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8214 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8215 +                                                             
+      8216 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8217 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8218 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8219 +                                                             
+      8220 +### 3. Git 提交                                                
+      8221 +- [ ] Git commit 並 push                                      
+      8222 +                                                             
+      8223 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8224 +```                                                          
+      8225 +                                                             
+      8226 +---                                                          
+      8227 +                                                             
+      8228 +### Story 21-6: 管理頁面 - 列表與篩選                           
+           
+
+      8229 +                                                             
+      8230 +```                                                          
+      8231 +# 開發任務：Story 21-6 管理頁面 - 列表與篩選                    
+                
+
+      8232 +                                                             
+      8233 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8234 +1. docs/04-implementation/implementation-context.md          
+      8235 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-6-management-page-list-filter.md                   
+      8236 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-6.md                            
+      8237 +                                                             
+      8238 +## 參考文件 (開發時查閱)                                        
+           
+
+      8239 +- docs/04-implementation/dev-checklist.md                    
+      8240 +- src/components/features/reference-number/（參考組件模式）     
+          
+
+      8241 +                                                             
+      8242 +## 開發要求                                                     
+      
+
+      8243 +1. 建立 /admin/exchange-rates 列表頁                            
+       
+
+      8244 +2. 建立 ExchangeRateList 組件                                   
+      
+
+      8245 +3. 建立 ExchangeRateFilters 組件                                
+      
+
+      8246 +4. 建立 CurrencySelect 組件                                     
+      
+
+      8247 +5. 新增 i18n 翻譯文件                                           
+        
+
+      8248 +6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8249 +                                                             
+      8250 +請開始實作此 Story。                                            
+         
+
+      8251 +                                                             
+      8252 +---                                                          
+      8253 +                                                             
+      8254 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8255 +                                                             
+      8256 +### 1. 代碼品質驗證                                             
+        
+
+      8257 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8258 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8259 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      8260 +                                                             
+      8261 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8262 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8263 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8264 +                                                             
+      8265 +### 3. Git 提交                                                
+      8266 +- [ ] Git commit 並 push                                      
+      8267 +                                                             
+      8268 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8269 +```                                                          
+      8270 +                                                             
+      8271 +---                                                          
+      8272 +                                                             
+      8273 +### Story 21-7: 管理頁面 - 表單                                 
+        
+
+      8274 +                                                             
+      8275 +```                                                          
+      8276 +# 開發任務：Story 21-7 管理頁面 - 表單                          
+             
+
+      8277 +                                                             
+      8278 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8279 +1. docs/04-implementation/implementation-context.md          
+      8280 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-7-management-page-form.md                          
+      8281 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-7.md                            
+      8282 +                                                             
+      8283 +## 參考文件 (開發時查閱)                                        
+           
+
+      8284 +- docs/04-implementation/dev-checklist.md                    
+      8285 +- src/components/features/exchange-rate/CurrencySelect.tsx   
+      8286 +                                                             
+      8287 +## 開發要求                                                     
+      
+
+      8288 +1. 建立新增頁面（/admin/exchange-rates/new）                    
+          
+
+      8289 +2. 建立編輯頁面（/admin/exchange-rates/[id]）                   
+          
+
+      8290 +3. 建立 ExchangeRateForm 組件                                   
+      
+
+      8291 +4. 實現反向匯率預覽功能                                         
+            
+
+      8292 +5. 使用 React Hook Form + Zod 驗證                              
+      
+
+      8293 +6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8294 +                                                             
+      8295 +請開始實作此 Story。                                            
+         
+
+      8296 +                                                             
+      8297 +---                                                          
+      8298 +                                                             
+      8299 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8300 +                                                             
+      8301 +### 1. 代碼品質驗證                                             
+        
+
+      8302 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8303 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8304 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      8305 +                                                             
+      8306 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8307 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8308 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8309 +                                                             
+      8310 +### 3. Git 提交                                                
+      8311 +- [ ] Git commit 並 push                                      
+      8312 +                                                             
+      8313 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8314 +```                                                          
+      8315 +                                                             
+      8316 +---                                                          
+      8317 +                                                             
+      8318 +### Story 21-8: 管理頁面 - 計算器與 Import                      
+          
+
+      8319 +                                                             
+      8320 +```                                                          
+      8321 +# 開發任務：Story 21-8 管理頁面 - 計算器與 Import               
+               
+
+      8322 +                                                             
+      8323 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8324 +1. docs/04-implementation/implementation-context.md          
+      8325 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-8-management-page-calculator-import.md             
+      8326 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-8.md                            
+      8327 +                                                             
+      8328 +## 參考文件 (開發時查閱)                                        
+           
+
+      8329 +- docs/04-implementation/dev-checklist.md                    
+      8330 +- src/components/features/exchange-rate/                     
+      8331 +                                                             
+      8332 +## 開發要求                                                     
+      
+
+      8333 +1. 建立 ExchangeRateCalculator 組件                             
+      
+
+      8334 +2. 建立 ExchangeRateImportDialog 組件                           
+      
+
+      8335 +3. 實現即時匯率計算預覽                                         
+            
+
+      8336 +4. 實現 JSON 檔案上傳和貼上                                     
+           
+
+      8337 +5. 實現導入結果統計顯示                                         
+            
+
+      8338 +6. 實現導出功能                                                 
+        
+
+      8339 +7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8340 +                                                             
+      8341 +請開始實作此 Story。                                            
+         
+
+      8342 +                                                             
+      8343 +---                                                          
+      8344 +                                                             
+      8345 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8346 +                                                             
+      8347 +### 1. 代碼品質驗證                                             
+        
+
+      8348 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8349 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8350 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      8351 +                                                             
+      8352 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8353 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8354 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8355 +                                                             
+      8356 +### 3. Git 提交                                                
+      8357 +- [ ] Git commit 並 push                                      
+      8358 +                                                             
+      8359 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8360 +```                                                          
+      8361 +                                                             
+      8362 +---                                                          
+      8363 +                                                             
+✔ Task #1 updated: status → completed
+
+● 所有文檔已創建完成！以下是總結：
+
+  創建完成的文檔
+
+  Epic 20: Reference Number Master Setup (13 files)
+
+  Stories 目錄
+  (docs/04-implementation/stories/epic-20-reference-number-master/):
+  - ✅ epic-20-overview.md
+  - ✅ 20-1-database-model-infrastructure.md
+  - ✅ 20-2-region-management-api-ui.md
+  - ✅ 20-3-reference-number-crud-api.md
+  - ✅ 20-4-import-export-validate-api.md
+  - ✅ 20-5-management-page-list-filter.md
+  - ✅ 20-6-management-page-form-import.md
+
+  Tech Specs 目錄 
+  (docs/04-implementation/tech-specs/epic-20-reference-number-master/):
+  - ✅ tech-spec-story-20-1.md ~ tech-spec-story-20-6.md
+
+  Epic 21: Exchange Rate Management (17 files)
+
+  Stories 目錄 
+  (docs/04-implementation/stories/epic-21-exchange-rate-management/):
+  - ✅ epic-21-overview.md
+  - ✅ 21-1-database-model-migration.md
+  - ✅ 21-2-core-service-layer.md
+  - ✅ 21-3-crud-api-endpoints.md
+  - ✅ 21-4-convert-calculation-api.md
+  - ✅ 21-5-import-export-api.md
+  - ✅ 21-6-management-page-list-filter.md
+  - ✅ 21-7-management-page-form.md
+  - ✅ 21-8-management-page-calculator-import.md
+
+  Tech Specs 目錄
+  (docs/04-implementation/tech-specs/epic-21-exchange-rate-management/):
+  - ✅ tech-spec-story-21-1.md ~ tech-spec-story-21-8.md
+
+  Prompts 更新
+
+  - ✅ docs/04-implementation/prompt-templates/all-story-prompts.md
+    - 新增 Epic 20 的 6 個 Story 開發提示
+    - 新增 Epic 21 的 8 個 Story 開發提示
+
+  文檔統計
+  ┌────────────┬─────────┬─────────┬──────┐
+  │    類型    │ Epic 20 │ Epic 21 │ 合計 │
+  ├────────────┼─────────┼─────────┼──────┤
+  │ Overview   │ 1       │ 1       │ 2    │
+  ├────────────┼─────────┼─────────┼──────┤
+  │ Stories    │ 6       │ 8       │ 14   │
+  ├────────────┼─────────┼─────────┼──────┤
+  │ Tech Specs │ 6       │ 8       │ 14   │
+  ├────────────┼─────────┼─────────┼──────┤
+  │ 總計       │ 13      │ 17      │ 30   │
+  └────────────┴─────────┴─────────┴──────┘
+  現在可以開始按照 Plan 文件中的實施順序進行開發了！
+
+✻ Baked for 14m 55s
+ ▐▛███▜▌   Claude Code v2.1.19
+▝▜█████▛▘  Opus 4.5 · Claude Max
+  ▘▘ ▝▝    ~\Documents\GitHub\ai-document-extraction-project
+══════════════════ Conversation compacted · ctrl+o for history ═════════════════
+
+❯ /compact 總結討論（限400字）：1. Key decisions made + code patterns 
+established 2. 檔案狀態：✅已完成 / 🔄進行中（標註位置）/ ⏳待處理 3. Next 
+steps：compact 後立即執行的具體動作 4. Blockers（如有）Format as system prompt 
+for next chat, enabling immediate continuation. 
+  ⎿  Compacted (ctrl+o to see full summary)
+     PreCompact [node "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/pre-compact.js"] 
+     completed successfully
+  ⎿ Referenced file docs\04-implementation\tech-specs\epic-20-reference-number-m
+    aster\tech-spec-story-20-6.md
+  ⎿ Referenced file docs\04-implementation\tech-specs\epic-20-reference-number-m
+    aster\tech-spec-story-20-5.md
+  ⎿ Read docs\04-implementation\tech-specs\epic-20-reference-number-master\tech-
+    spec-story-20-4.md (466 lines)
+  ⎿ Read docs\04-implementation\tech-specs\epic-20-reference-number-master\tech-
+    spec-story-20-3.md (491 lines)
+  ⎿ Read docs\04-implementation\tech-specs\epic-20-reference-number-master\tech-
+    spec-story-20-2.md (396 lines)
+  ⎿  Plan file referenced (~\.claude\plans\gentle-rolling-llama.md)
+
+❯ 繼續跟隨 C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-pr 
+  oject\docs\04-implementation\stories 和  C:\Users\rci.ChrisLai\Documents\ 
+  GitHub\ai-document-extraction-project\docs\04-implementation\tech-specs   
+  的統一文件規格去準備新的stories和tech-specs文件 , 之後再準備              
+  C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project\doc 
+  s\04-implementation\prompt-templates\all-story-prompts.md 的內容,         
+  也是跟隨統一的格式                                                        
+
+● 我繼續創建 Epic 21 的文檔。讓我先讀取 plan 文件確認 Epic 21
+  的詳細設計，然後按統一格式創建文件。
+
+● Reading Plan(~\.claude\plans\gentle-rolling-llama.md)
+  ⎿  Read 200 lines
+
+● Search(pattern: "docs/04-implementation/stories/epic-19*/**/*.md")
+  ⎿  Found 9 files (ctrl+o to expand)
+
+● Reading Plan(~\.claude\plans\gentle-rolling-llama.md)
+  ⎿  Read 150 lines
+
+● Read(docs\04-implementation\stories\epic-19-template-matching\19-1-template-fi
+      eld-mapping-model.md)
+  ⎿  Read 293 lines
+  ⎿  Loaded .claude\rules\general.md
+
+● 現在開始創建 Epic 21 的所有文檔。首先創建目錄和 overview 文件。
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\epic-21-
+       overview.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\epic-21-overview.md
+     # Epic 21: Exchange Rate Management
+
+     > **Epic ID**: 21
+     > **Created**: 2026-02-04
+     > **Status**: Planned
+     > **Estimated Effort**: 8 Stories, 7-8 天
+
+     ---
+
+     ## Epic Summary
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-1-dat
+       abase-model-migration.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-1-database-model-migration.md
+     # Story 21.1: 資料庫模型與遷移
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統開發者,
+     **I want** 建立 ExchangeRate 的資料庫模型和遷移,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-2-cor
+       e-service-layer.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-2-core-service-layer.md
+     # Story 21.2: 核心服務層
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統開發者,
+     **I want** 建立 ExchangeRate 的核心服務層，包含轉換邏輯,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-3-cru
+       d-api-endpoints.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-3-crud-api-endpoints.md
+     # Story 21.3: CRUD API 端點
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** API 使用者,
+     **I want** 通過 RESTful API 管理匯率記錄,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-4-con
+       vert-calculation-api.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-4-convert-calculation-api.md
+     # Story 21.4: 轉換計算 API
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** API 使用者,
+     **I want** 通過 API 進行貨幣轉換計算,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-5-imp
+       ort-export-api.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-5-import-export-api.md
+     # Story 21.5: Import/Export API
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統管理員,
+     **I want** 批次導入和導出匯率記錄,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-6-man
+       agement-page-list-filter.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-6-management-page-list-filter.md
+     # Story 21.6: 管理頁面 - 列表與篩選
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統管理員,
+     **I want** 在管理介面中查看和篩選匯率記錄,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-7-man
+       agement-page-form.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-7-management-page-form.md
+     # Story 21.7: 管理頁面 - 表單
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統管理員,
+     **I want** 通過表單新增和編輯匯率記錄,
+
+● Write(docs\04-implementation\stories\epic-21-exchange-rate-management\21-8-man
+       agement-page-calculator-import.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\stories\epic-21-exchange-rate-m
+     anagement\21-8-management-page-calculator-import.md
+     # Story 21.8: 管理頁面 - 計算器與 Import
+
+     **Status:** pending
+
+     ---
+
+     ## Story
+
+     **As a** 系統管理員,
+     **I want** 使用即時計算器和批次導入功能,
+
+● Stories 完成。現在創建 Epic 21 的 Tech Specs。
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-1.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-1.md
+     # Tech Spec: Story 21.1 - 資料庫模型與遷移
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-1
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-2.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-2.md
+     # Tech Spec: Story 21.2 - 核心服務層
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-2
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-3.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-3.md
+     # Tech Spec: Story 21.3 - CRUD API 端點
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-3
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-4.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-4.md
+     # Tech Spec: Story 21.4 - 轉換計算 API
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-4
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-5.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-5.md
+     # Tech Spec: Story 21.5 - Import/Export API
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-5
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-6.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-6.md
+     # Tech Spec: Story 21.6 - 管理頁面：列表與篩選
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-6
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-7.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-7.md
+     # Tech Spec: Story 21.7 - 管理頁面：表單
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-7
+
+     ---
+
+     ## Overview
+
+● Write(docs\04-implementation\tech-specs\epic-21-exchange-rate-management\tech-
+       spec-story-21-8.md)
+  ⎿  Wrote 1 lines to docs\04-implementation\tech-specs\epic-21-exchange-rat
+     e-management\tech-spec-story-21-8.md
+     # Tech Spec: Story 21.8 - 管理頁面：計算器與 Import
+
+     > **Version**: 1.0.0
+     > **Created**: 2026-02-04
+     > **Status**: Draft
+     > **Story Key**: STORY-21-8
+
+     ---
+
+     ## Overview
+
+● Epic 21 文檔全部完成。現在更新 all-story-prompts.md。先讀取現有格式。
+
+● Read(docs\04-implementation\prompt-templates\all-story-prompts.md)
+  ⎿  Read 200 lines
+✔ Task #2 updated: status → completed
+✔ Task #1 updated: activeForm, status → in progress
+
+● Bash(wc -l "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-proj
+      ect\docs\04-implementation\prompt-templates\all-story-prompts.md")
+  ⎿ 7739 C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-proj
+    ect\docs\04-implementation\prompt-templates\all-story-prompts.md
+
+
+● Read(docs\04-implementation\prompt-templates\all-story-prompts.md)
+  ⎿  Read 61 lines
+
+● 現在添加 Epic 20 和 Epic 21 的開發提示到文件末尾。
+
+● Update(docs\04-implementation\prompt-templates\all-story-prompts.md)
+  ⎿  Error editing file
+
+● Read(docs\04-implementation\prompt-templates\all-story-prompts.md)
+  ⎿  Read 21 lines
+
+● Update(docs\04-implementation\prompt-templates\all-story-prompts.md)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 624 lines
+      7737                                                               
+      7738  ---                                                          
+      7739                                                               
+      7740 +## Epic 20: Reference Number Master Setup                    
+      7741 +                                                             
+      7742 +> **說明**：此 Epic 建立 Reference Number                       
+        
+
+           +主檔管理功能，以「地區」為主要分類維度。                        
+                      
+
+      7743 +                                                             
+      7744 +### Story 20-1: 資料庫模型與基礎設施                            
+            
+
+      7745 +                                                             
+      7746 +```                                                          
+      7747 +# 開發任務：Story 20-1 資料庫模型與基礎設施                     
+                 
+
+      7748 +                                                             
+      7749 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7750 +1. docs/04-implementation/implementation-context.md          
+      7751 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-1-database-model-infrastructure.md                  
+      7752 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-1.md                             
+      7753 +                                                             
+      7754 +## 參考文件 (開發時查閱)                                        
+           
+
+      7755 +- docs/04-implementation/dev-checklist.md                    
+      7756 +- prisma/schema.prisma                                       
+      7757 +                                                             
+      7758 +## 開發要求                                                     
+      
+
+      7759 +1. 新增 Region 和 ReferenceNumber 模型到 Prisma Schema          
+        
+
+      7760 +2. 新增枚舉 ReferenceNumberType 和 ReferenceNumberStatus        
+       
+
+      7761 +3. 執行資料庫遷移                                               
+         
+
+      7762 +4. 建立預設地區種子資料（APAC, EMEA, AMER, GLOBAL）             
+              
+
+      7763 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7764 +                                                             
+      7765 +請開始實作此 Story。                                            
+         
+
+      7766 +                                                             
+      7767 +---                                                          
+      7768 +                                                             
+      7769 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7770 +                                                             
+      7771 +### 1. 代碼品質驗證                                             
+        
+
+      7772 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7773 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7774 +- [ ] 執行 `npx prisma migrate dev` 並確認成功                  
+         
+
+      7775 +                                                             
+      7776 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7777 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7778 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7779 +                                                             
+      7780 +### 3. Git 提交                                                
+      7781 +- [ ] Git commit 並 push                                      
+      7782 +                                                             
+      7783 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      7784 +```                                                          
+      7785 +                                                             
+      7786 +---                                                          
+      7787 +                                                             
+      7788 +### Story 20-2: Region 管理 API 與 UI                           
+
+      7789 +                                                             
+      7790 +```                                                          
+      7791 +# 開發任務：Story 20-2 Region 管理 API 與 UI                    
+          
+
+      7792 +                                                             
+      7793 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7794 +1. docs/04-implementation/implementation-context.md          
+      7795 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-2-region-management-api-ui.md                       
+      7796 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-2.md                             
+      7797 +                                                             
+      7798 +## 參考文件 (開發時查閱)                                        
+           
+
+      7799 +- docs/04-implementation/dev-checklist.md                    
+      7800 +- src/services/company.service.ts（參考 Service 模式）          
+        
+
+      7801 +                                                             
+      7802 +## 開發要求                                                     
+      
+
+      7803 +1. 建立 Region CRUD API（GET/POST/PATCH/DELETE）                
+      
+
+      7804 +2. 建立 RegionSelect 共用組件                                   
+        
+
+      7805 +3. 新增 i18n 翻譯文件                                           
+        
+
+      7806 +4. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7807 +                                                             
+      7808 +請開始實作此 Story。                                            
+         
+
+      7809 +                                                             
+      7810 +---                                                          
+      7811 +                                                             
+      7812 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7813 +                                                             
+      7814 +### 1. 代碼品質驗證                                             
+        
+
+      7815 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7816 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7817 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      7818 +                                                             
+      7819 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7820 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7821 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7822 +                                                             
+      7823 +### 3. Git 提交                                                
+      7824 +- [ ] Git commit 並 push                                      
+      7825 +                                                             
+      7826 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      7827 +```                                                          
+      7828 +                                                             
+      7829 +---                                                          
+      7830 +                                                             
+      7831 +### Story 20-3: Reference Number CRUD API                    
+      7832 +                                                             
+      7833 +```                                                          
+      7834 +# 開發任務：Story 20-3 Reference Number CRUD API                
+       
+
+      7835 +                                                             
+      7836 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7837 +1. docs/04-implementation/implementation-context.md          
+      7838 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-3-reference-number-crud-api.md                      
+      7839 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-3.md                             
+      7840 +                                                             
+      7841 +## 參考文件 (開發時查閱)                                        
+           
+
+      7842 +- docs/04-implementation/dev-checklist.md                    
+      7843 +- src/app/api/v1/prompt-configs/route.ts（參考 API 模式）       
+        
+
+      7844 +                                                             
+      7845 +## 開發要求                                                     
+      
+
+      7846 +1. 建立 Zod 驗證 Schema                                         
+      
+
+      7847 +2. 建立 reference-number.service.ts                            
+      7848 +3. 建立 CRUD API 端點（支援分頁、篩選、排序）                   
+                  
+
+      7849 +4. 建立 React Query Hooks                                      
+      7850 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7851 +                                                             
+      7852 +請開始實作此 Story。                                            
+         
+
+      7853 +                                                             
+      7854 +---                                                          
+      7855 +                                                             
+      7856 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7857 +                                                             
+      7858 +### 1. 代碼品質驗證                                             
+        
+
+      7859 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7860 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7861 +                                                             
+      7862 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7863 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7864 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7865 +                                                             
+      7866 +### 3. Git 提交                                                
+      7867 +- [ ] Git commit 並 push                                      
+      7868 +                                                             
+      7869 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      7870 +```                                                          
+      7871 +                                                             
+      7872 +---                                                          
+      7873 +                                                             
+      7874 +### Story 20-4: 導入/導出與驗證 API                             
+         
+
+      7875 +                                                             
+      7876 +```                                                          
+      7877 +# 開發任務：Story 20-4 導入/導出與驗證 API                      
+              
+
+      7878 +                                                             
+      7879 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7880 +1. docs/04-implementation/implementation-context.md          
+      7881 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-4-import-export-validate-api.md                     
+      7882 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-4.md                             
+      7883 +                                                             
+      7884 +## 參考文件 (開發時查閱)                                        
+           
+
+      7885 +- docs/04-implementation/dev-checklist.md                    
+      7886 +- src/app/api/v1/field-mapping-configs/import/route.ts（參考    
+
+           + Import 模式）                                                  
+
+      7887 +                                                             
+      7888 +## 開發要求                                                     
+      
+
+      7889 +1. 建立 Import API（POST /import）                              
+      
+
+      7890 +2. 建立 Export API（GET /export）                               
+      
+
+      7891 +3. 建立 Validate API（POST /validate）                          
+      
+
+      7892 +4. 實現 skipInvalid 和 overwriteExisting 選項                   
+       
+
+      7893 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7894 +                                                             
+      7895 +請開始實作此 Story。                                            
+         
+
+      7896 +                                                             
+      7897 +---                                                          
+      7898 +                                                             
+      7899 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7900 +                                                             
+      7901 +### 1. 代碼品質驗證                                             
+        
+
+      7902 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7903 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7904 +                                                             
+      7905 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7906 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7907 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7908 +                                                             
+      7909 +### 3. Git 提交                                                
+      7910 +- [ ] Git commit 並 push                                      
+      7911 +                                                             
+      7912 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      7913 +```                                                          
+      7914 +                                                             
+      7915 +---                                                          
+      7916 +                                                             
+      7917 +### Story 20-5: 管理頁面 - 列表與篩選                           
+           
+
+      7918 +                                                             
+      7919 +```                                                          
+      7920 +# 開發任務：Story 20-5 管理頁面 - 列表與篩選                    
+                
+
+      7921 +                                                             
+      7922 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7923 +1. docs/04-implementation/implementation-context.md          
+      7924 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-5-management-page-list-filter.md                    
+      7925 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-5.md                             
+      7926 +                                                             
+      7927 +## 參考文件 (開發時查閱)                                        
+           
+
+      7928 +- docs/04-implementation/dev-checklist.md                    
+      7929 +- src/app/[locale]/(dashboard)/admin/prompt-configs/page.tsx 
+           +（參考頁面模式）                                                
+          
+
+      7930 +                                                             
+      7931 +## 開發要求                                                     
+      
+
+      7932 +1. 建立 /admin/reference-numbers 列表頁                         
+       
+
+      7933 +2. 建立 ReferenceNumberList 組件                                
+      
+
+      7934 +3. 建立 ReferenceNumberFilters 組件                             
+      
+
+      7935 +4. 整合 RegionSelect 組件                                       
+      
+
+      7936 +5. 新增 i18n 翻譯                                               
+      
+
+      7937 +6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7938 +                                                             
+      7939 +請開始實作此 Story。                                            
+         
+
+      7940 +                                                             
+      7941 +---                                                          
+      7942 +                                                             
+      7943 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7944 +                                                             
+      7945 +### 1. 代碼品質驗證                                             
+        
+
+      7946 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7947 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7948 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      7949 +                                                             
+      7950 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7951 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7952 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7953 +                                                             
+      7954 +### 3. Git 提交                                                
+      7955 +- [ ] Git commit 並 push                                      
+      7956 +                                                             
+      7957 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      7958 +```                                                          
+      7959 +                                                             
+      7960 +---                                                          
+      7961 +                                                             
+      7962 +### Story 20-6: 管理頁面 - 表單與導入                           
+           
+
+      7963 +                                                             
+      7964 +```                                                          
+      7965 +# 開發任務：Story 20-6 管理頁面 - 表單與導入                    
+                
+
+      7966 +                                                             
+      7967 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      7968 +1. docs/04-implementation/implementation-context.md          
+      7969 +2. docs/04-implementation/stories/epic-20-reference-number-m 
+           +aster/20-6-management-page-form-import.md                    
+      7970 +3. docs/04-implementation/tech-specs/epic-20-reference-numbe 
+           +r-master/tech-spec-story-20-6.md                             
+      7971 +                                                             
+      7972 +## 參考文件 (開發時查閱)                                        
+           
+
+      7973 +- docs/04-implementation/dev-checklist.md                    
+      7974 +- src/components/features/prompt-config/（參考表單組件模式）    
+            
+
+      7975 +                                                             
+      7976 +## 開發要求                                                     
+      
+
+      7977 +1. 建立新增/編輯頁面                                            
+          
+
+      7978 +2. 建立 ReferenceNumberForm 組件                                
+      
+
+      7979 +3. 建立 ReferenceNumberImportDialog 組件                        
+      
+
+      7980 +4. 使用 React Hook Form + Zod 驗證                              
+      
+
+      7981 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      7982 +                                                             
+      7983 +請開始實作此 Story。                                            
+         
+
+      7984 +                                                             
+      7985 +---                                                          
+      7986 +                                                             
+      7987 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      7988 +                                                             
+      7989 +### 1. 代碼品質驗證                                             
+        
+
+      7990 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      7991 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      7992 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      7993 +                                                             
+      7994 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      7995 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      7996 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      7997 +                                                             
+      7998 +### 3. Git 提交                                                
+      7999 +- [ ] Git commit 並 push                                      
+      8000 +                                                             
+      8001 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8002 +```                                                          
+      8003 +                                                             
+      8004 +---                                                          
+      8005 +                                                             
+      8006 +## Epic 21: Exchange Rate Management                         
+      8007 +                                                             
+      8008 +> **說明**：此 Epic                                             
+      
+
+           +建立匯率管理功能，支援雙向匯率處理和貨幣轉換計算。              
+                           
+
+      8009 +                                                             
+      8010 +### Story 21-1: 資料庫模型與遷移                                
+          
+
+      8011 +                                                             
+      8012 +```                                                          
+      8013 +# 開發任務：Story 21-1 資料庫模型與遷移                         
+               
+
+      8014 +                                                             
+      8015 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8016 +1. docs/04-implementation/implementation-context.md          
+      8017 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-1-database-model-migration.md                      
+      8018 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-1.md                            
+      8019 +                                                             
+      8020 +## 參考文件 (開發時查閱)                                        
+           
+
+      8021 +- docs/04-implementation/dev-checklist.md                    
+      8022 +- prisma/schema.prisma                                       
+      8023 +                                                             
+      8024 +## 開發要求                                                     
+      
+
+      8025 +1. 新增 ExchangeRateSource 枚舉                                 
+      
+
+      8026 +2. 新增 ExchangeRate 模型（含自關聯 inverseOf/inverseRates）    
+            
+
+      8027 +3. 設定 Decimal(18,8) 精度                                      
+      
+
+      8028 +4. 執行資料庫遷移                                               
+         
+
+      8029 +5. 建立類型定義和貨幣代碼常數                                   
+               
+
+      8030 +6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8031 +                                                             
+      8032 +請開始實作此 Story。                                            
+         
+
+      8033 +                                                             
+      8034 +---                                                          
+      8035 +                                                             
+      8036 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8037 +                                                             
+      8038 +### 1. 代碼品質驗證                                             
+        
+
+      8039 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8040 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8041 +- [ ] 執行 `npx prisma migrate dev` 並確認成功                  
+         
+
+      8042 +                                                             
+      8043 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8044 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8045 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8046 +                                                             
+      8047 +### 3. Git 提交                                                
+      8048 +- [ ] Git commit 並 push                                      
+      8049 +                                                             
+      8050 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8051 +```                                                          
+      8052 +                                                             
+      8053 +---                                                          
+      8054 +                                                             
+      8055 +### Story 21-2: 核心服務層                                      
+       
+
+      8056 +                                                             
+      8057 +```                                                          
+      8058 +# 開發任務：Story 21-2 核心服務層                               
+            
+
+      8059 +                                                             
+      8060 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8061 +1. docs/04-implementation/implementation-context.md          
+      8062 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-2-core-service-layer.md                            
+      8063 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-2.md                            
+      8064 +                                                             
+      8065 +## 參考文件 (開發時查閱)                                        
+           
+
+      8066 +- docs/04-implementation/dev-checklist.md                    
+      8067 +- src/services/reference-number.service.ts（參考 Service        
+
+           +模式）                                                          
+
+      8068 +                                                             
+      8069 +## 開發要求                                                     
+      
+
+      8070 +1. 建立 Zod 驗證 Schema（create, update, convert, batch）       
+        
+
+      8071 +2. 建立 exchange-rate.service.ts                               
+      8072 +3. 實現 CRUD 操作                                               
+      
+
+      8073 +4. 實現 convert 方法（含 Fallback: direct → inverse →           
+        
+
+           +cross）                                                       
+      8074 +5. 實現 batchGetRates 方法                                      
+      
+
+      8075 +6. 實現自動反向匯率建立邏輯                                     
+              
+
+      8076 +7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8077 +                                                             
+      8078 +請開始實作此 Story。                                            
+         
+
+      8079 +                                                             
+      8080 +---                                                          
+      8081 +                                                             
+      8082 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8083 +                                                             
+      8084 +### 1. 代碼品質驗證                                             
+        
+
+      8085 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8086 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8087 +                                                             
+      8088 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8089 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8090 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8091 +                                                             
+      8092 +### 3. Git 提交                                                
+      8093 +- [ ] Git commit 並 push                                      
+      8094 +                                                             
+      8095 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8096 +```                                                          
+      8097 +                                                             
+      8098 +---                                                          
+      8099 +                                                             
+      8100 +### Story 21-3: CRUD API 端點                                  
+      8101 +                                                             
+      8102 +```                                                          
+      8103 +# 開發任務：Story 21-3 CRUD API 端點                            
+         
+
+      8104 +                                                             
+      8105 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8106 +1. docs/04-implementation/implementation-context.md          
+      8107 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-3-crud-api-endpoints.md                            
+      8108 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-3.md                            
+      8109 +                                                             
+      8110 +## 參考文件 (開發時查閱)                                        
+           
+
+      8111 +- docs/04-implementation/dev-checklist.md                    
+      8112 +- src/app/api/v1/reference-numbers/route.ts（參考 API 模式）    
+        
+
+      8113 +                                                             
+      8114 +## 開發要求                                                     
+      
+
+      8115 +1. 建立 /api/v1/exchange-rates 端點（GET/POST）                 
+        
+
+      8116 +2. 建立 /api/v1/exchange-rates/[id] 端點（GET/PATCH/DELETE）    
+        
+
+      8117 +3. 建立 /api/v1/exchange-rates/[id]/toggle 端點（POST）         
+        
+
+      8118 +4. 建立 React Query Hooks                                      
+      8119 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8120 +                                                             
+      8121 +請開始實作此 Story。                                            
+         
+
+      8122 +                                                             
+      8123 +---                                                          
+      8124 +                                                             
+      8125 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8126 +                                                             
+      8127 +### 1. 代碼品質驗證                                             
+        
+
+      8128 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8129 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8130 +                                                             
+      8131 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8132 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8133 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8134 +                                                             
+      8135 +### 3. Git 提交                                                
+      8136 +- [ ] Git commit 並 push                                      
+      8137 +                                                             
+      8138 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8139 +```                                                          
+      8140 +                                                             
+      8141 +---                                                          
+      8142 +                                                             
+      8143 +### Story 21-4: 轉換計算 API                                    
+      
+
+      8144 +                                                             
+      8145 +```                                                          
+      8146 +# 開發任務：Story 21-4 轉換計算 API                             
+           
+
+      8147 +                                                             
+      8148 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8149 +1. docs/04-implementation/implementation-context.md          
+      8150 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-4-convert-calculation-api.md                       
+      8151 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-4.md                            
+      8152 +                                                             
+      8153 +## 參考文件 (開發時查閱)                                        
+           
+
+      8154 +- docs/04-implementation/dev-checklist.md                    
+      8155 +                                                             
+      8156 +## 開發要求                                                     
+      
+
+      8157 +1. 建立 /api/v1/exchange-rates/convert 端點（POST）             
+        
+
+      8158 +2. 建立 /api/v1/exchange-rates/batch 端點（POST）               
+        
+
+      8159 +3. 實現 Fallback 邏輯（direct → inverse → cross via USD）       
+        
+
+      8160 +4. 建立 useConvertCurrency 和 useBatchRates hooks               
+
+      8161 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8162 +                                                             
+      8163 +請開始實作此 Story。                                            
+         
+
+      8164 +                                                             
+      8165 +---                                                          
+      8166 +                                                             
+      8167 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8168 +                                                             
+      8169 +### 1. 代碼品質驗證                                             
+        
+
+      8170 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8171 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8172 +                                                             
+      8173 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8174 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8175 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8176 +                                                             
+      8177 +### 3. Git 提交                                                
+      8178 +- [ ] Git commit 並 push                                      
+      8179 +                                                             
+      8180 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8181 +```                                                          
+      8182 +                                                             
+      8183 +---                                                          
+      8184 +                                                             
+      8185 +### Story 21-5: Import/Export API                            
+      8186 +                                                             
+      8187 +```                                                          
+      8188 +# 開發任務：Story 21-5 Import/Export API                        
+       
+
+      8189 +                                                             
+      8190 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8191 +1. docs/04-implementation/implementation-context.md          
+      8192 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-5-import-export-api.md                             
+      8193 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-5.md                            
+      8194 +                                                             
+      8195 +## 參考文件 (開發時查閱)                                        
+           
+
+      8196 +- docs/04-implementation/dev-checklist.md                    
+      8197 +- src/app/api/v1/reference-numbers/import/route.ts（參考        
+
+           +Import 模式）                                                   
+
+      8198 +                                                             
+      8199 +## 開發要求                                                     
+      
+
+      8200 +1. 建立 /api/v1/exchange-rates/export 端點（GET）               
+        
+
+      8201 +2. 建立 /api/v1/exchange-rates/import 端點（POST）              
+        
+
+      8202 +3. 實現 skipInvalid 和 overwriteExisting 選項                   
+       
+
+      8203 +4. 支援 createInverse 選項（導入時建立反向匯率）                
+                 
+
+      8204 +5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8205 +                                                             
+      8206 +請開始實作此 Story。                                            
+         
+
+      8207 +                                                             
+      8208 +---                                                          
+      8209 +                                                             
+      8210 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8211 +                                                             
+      8212 +### 1. 代碼品質驗證                                             
+        
+
+      8213 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8214 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8215 +                                                             
+      8216 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8217 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8218 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8219 +                                                             
+      8220 +### 3. Git 提交                                                
+      8221 +- [ ] Git commit 並 push                                      
+      8222 +                                                             
+      8223 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8224 +```                                                          
+      8225 +                                                             
+      8226 +---                                                          
+      8227 +                                                             
+      8228 +### Story 21-6: 管理頁面 - 列表與篩選                           
+           
+
+      8229 +                                                             
+      8230 +```                                                          
+      8231 +# 開發任務：Story 21-6 管理頁面 - 列表與篩選                    
+                
+
+      8232 +                                                             
+      8233 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8234 +1. docs/04-implementation/implementation-context.md          
+      8235 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-6-management-page-list-filter.md                   
+      8236 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-6.md                            
+      8237 +                                                             
+      8238 +## 參考文件 (開發時查閱)                                        
+           
+
+      8239 +- docs/04-implementation/dev-checklist.md                    
+      8240 +- src/components/features/reference-number/（參考組件模式）     
+          
+
+      8241 +                                                             
+      8242 +## 開發要求                                                     
+      
+
+      8243 +1. 建立 /admin/exchange-rates 列表頁                            
+       
+
+      8244 +2. 建立 ExchangeRateList 組件                                   
+      
+
+      8245 +3. 建立 ExchangeRateFilters 組件                                
+      
+
+      8246 +4. 建立 CurrencySelect 組件                                     
+      
+
+      8247 +5. 新增 i18n 翻譯文件                                           
+        
+
+      8248 +6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8249 +                                                             
+      8250 +請開始實作此 Story。                                            
+         
+
+      8251 +                                                             
+      8252 +---                                                          
+      8253 +                                                             
+      8254 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8255 +                                                             
+      8256 +### 1. 代碼品質驗證                                             
+        
+
+      8257 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8258 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8259 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      8260 +                                                             
+      8261 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8262 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8263 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8264 +                                                             
+      8265 +### 3. Git 提交                                                
+      8266 +- [ ] Git commit 並 push                                      
+      8267 +                                                             
+      8268 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8269 +```                                                          
+      8270 +                                                             
+      8271 +---                                                          
+      8272 +                                                             
+      8273 +### Story 21-7: 管理頁面 - 表單                                 
+        
+
+      8274 +                                                             
+      8275 +```                                                          
+      8276 +# 開發任務：Story 21-7 管理頁面 - 表單                          
+             
+
+      8277 +                                                             
+      8278 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8279 +1. docs/04-implementation/implementation-context.md          
+      8280 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-7-management-page-form.md                          
+      8281 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-7.md                            
+      8282 +                                                             
+      8283 +## 參考文件 (開發時查閱)                                        
+           
+
+      8284 +- docs/04-implementation/dev-checklist.md                    
+      8285 +- src/components/features/exchange-rate/CurrencySelect.tsx   
+      8286 +                                                             
+      8287 +## 開發要求                                                     
+      
+
+      8288 +1. 建立新增頁面（/admin/exchange-rates/new）                    
+          
+
+      8289 +2. 建立編輯頁面（/admin/exchange-rates/[id]）                   
+          
+
+      8290 +3. 建立 ExchangeRateForm 組件                                   
+      
+
+      8291 +4. 實現反向匯率預覽功能                                         
+            
+
+      8292 +5. 使用 React Hook Form + Zod 驗證                              
+      
+
+      8293 +6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8294 +                                                             
+      8295 +請開始實作此 Story。                                            
+         
+
+      8296 +                                                             
+      8297 +---                                                          
+      8298 +                                                             
+      8299 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8300 +                                                             
+      8301 +### 1. 代碼品質驗證                                             
+        
+
+      8302 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8303 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8304 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      8305 +                                                             
+      8306 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8307 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8308 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8309 +                                                             
+      8310 +### 3. Git 提交                                                
+      8311 +- [ ] Git commit 並 push                                      
+      8312 +                                                             
+      8313 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8314 +```                                                          
+      8315 +                                                             
+      8316 +---                                                          
+      8317 +                                                             
+      8318 +### Story 21-8: 管理頁面 - 計算器與 Import                      
+          
+
+      8319 +                                                             
+      8320 +```                                                          
+      8321 +# 開發任務：Story 21-8 管理頁面 - 計算器與 Import               
+               
+
+      8322 +                                                             
+      8323 +## 必讀文件 (請依序閱讀)                                        
+           
+
+      8324 +1. docs/04-implementation/implementation-context.md          
+      8325 +2. docs/04-implementation/stories/epic-21-exchange-rate-mana 
+           +gement/21-8-management-page-calculator-import.md             
+      8326 +3. docs/04-implementation/tech-specs/epic-21-exchange-rate-m 
+           +anagement/tech-spec-story-21-8.md                            
+      8327 +                                                             
+      8328 +## 參考文件 (開發時查閱)                                        
+           
+
+      8329 +- docs/04-implementation/dev-checklist.md                    
+      8330 +- src/components/features/exchange-rate/                     
+      8331 +                                                             
+      8332 +## 開發要求                                                     
+      
+
+      8333 +1. 建立 ExchangeRateCalculator 組件                             
+      
+
+      8334 +2. 建立 ExchangeRateImportDialog 組件                           
+      
+
+      8335 +3. 實現即時匯率計算預覽                                         
+            
+
+      8336 +4. 實現 JSON 檔案上傳和貼上                                     
+           
+
+      8337 +5. 實現導入結果統計顯示                                         
+            
+
+      8338 +6. 實現導出功能                                                 
+        
+
+      8339 +7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**      
+                        
+
+      8340 +                                                             
+      8341 +請開始實作此 Story。                                            
+         
+
+      8342 +                                                             
+      8343 +---                                                          
+      8344 +                                                             
+      8345 +## 🚨 強制完成檢查（不可跳過）                                  
+              
+
+      8346 +                                                             
+      8347 +### 1. 代碼品質驗證                                             
+        
+
+      8348 +- [ ] 執行 `npm run type-check` 並確認通過                      
+         
+
+      8349 +- [ ] 執行 `npm run lint` 並確認通過                            
+         
+
+      8350 +- [ ] 執行 `npm run i18n:check` 並確認通過                      
+         
+
+      8351 +                                                             
+      8352 +### 2. 狀態文檔更新（必須執行）                                 
+              
+
+      8353 +- [ ] 更新 `docs/04-implementation/sprint-status.yaml`         
+      8354 +- [ ] 更新 Story 文件 Status 改為 `done`                        
+        
+
+      8355 +                                                             
+      8356 +### 3. Git 提交                                                
+      8357 +- [ ] Git commit 並 push                                      
+      8358 +                                                             
+      8359 +**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**                
+                    
+
+      8360 +```                                                          
+      8361 +                                                             
+      8362 +---                                                          
+      8363 +                                                             
+✔ Task #1 updated: status → completed
+
+● 所有文檔已創建完成！以下是總結：
+
+  創建完成的文檔
+
+  Epic 20: Reference Number Master Setup (13 files)
+
+  Stories 目錄
+  (docs/04-implementation/stories/epic-20-reference-number-master/):
+  - ✅ epic-20-overview.md
+  - ✅ 20-1-database-model-infrastructure.md
+  - ✅ 20-2-region-management-api-ui.md
+  - ✅ 20-3-reference-number-crud-api.md
+  - ✅ 20-4-import-export-validate-api.md
+  - ✅ 20-5-management-page-list-filter.md
+  - ✅ 20-6-management-page-form-import.md
+
+  Tech Specs 目錄 
+  (docs/04-implementation/tech-specs/epic-20-reference-number-master/):
+  - ✅ tech-spec-story-20-1.md ~ tech-spec-story-20-6.md
+
+  Epic 21: Exchange Rate Management (17 files)
+
+  Stories 目錄 
+  (docs/04-implementation/stories/epic-21-exchange-rate-management/):
+  - ✅ epic-21-overview.md
+  - ✅ 21-1-database-model-migration.md
+  - ✅ 21-2-core-service-layer.md
+  - ✅ 21-3-crud-api-endpoints.md
+  - ✅ 21-4-convert-calculation-api.md
+  - ✅ 21-5-import-export-api.md
+  - ✅ 21-6-management-page-list-filter.md
+  - ✅ 21-7-management-page-form.md
+  - ✅ 21-8-management-page-calculator-import.md
+
+  Tech Specs 目錄
+  (docs/04-implementation/tech-specs/epic-21-exchange-rate-management/):
+  - ✅ tech-spec-story-21-1.md ~ tech-spec-story-21-8.md
+
+  Prompts 更新
+
+  - ✅ docs/04-implementation/prompt-templates/all-story-prompts.md
+    - 新增 Epic 20 的 6 個 Story 開發提示
+    - 新增 Epic 21 的 8 個 Story 開發提示
+
+  文檔統計
+  ┌────────────┬─────────┬─────────┬──────┐
+  │    類型    │ Epic 20 │ Epic 21 │ 合計 │
+  ├────────────┼─────────┼─────────┼──────┤
+  │ Overview   │ 1       │ 1       │ 2    │
+  ├────────────┼─────────┼─────────┼──────┤
+  │ Stories    │ 6       │ 8       │ 14   │
+  ├────────────┼─────────┼─────────┼──────┤
+  │ Tech Specs │ 6       │ 8       │ 14   │
+  ├────────────┼─────────┼─────────┼──────┤
+  │ 總計       │ 13      │ 17      │ 30   │
+  └────────────┴─────────┴─────────┴──────┘
+  現在可以開始按照 Plan 文件中的實施順序進行開發了！
+
+✻ Baked for 14m 55s

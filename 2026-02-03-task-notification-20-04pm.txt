@@ -1,0 +1,1426 @@
+
+ ▐▛███▜▌   Claude Code v2.1.29
+▝▜█████▛▘  Opus 4.5 · Claude Max
+  ▘▘ ▝▝    ~\Documents\GitHub\ai-document-extraction-project
+
+✻ Conversation compacted (ctrl+o for history)
+
+
+❯ /compact 總結討論（限400字）：1. Key decisions made + code patterns 
+established 2. 檔案狀態：✅已完成 / 🔄進行中（標註位置）/ ⏳待處理 3. Next 
+steps：compact 後立即執行的具體動作 4. Blockers（如有）Format as system prompt 
+for next chat, enabling immediate continuation. 
+  ⎿  Compacted (ctrl+o to see full summary)
+     PreCompact [node "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/pre-compact.js"] 
+     completed successfully
+  ⎿ Referenced file claudedocs\4-changes\feature-changes\CHANGE-026-prompt-confi
+    g-stage-integration.md
+  ⎿  Referenced file src\components\CLAUDE.md
+  ⎿  Read .claude\rules\components.md (171 lines)
+  ⎿  Read .claude\rules\i18n.md (422 lines)
+  ⎿  Read .claude\rules\services.md (98 lines)
+
+❯ 開始實施 CHANGE-026  , @claudedocs/4-changes/feature-changes/CHANGE-026-p 
+  rompt-config-stage-integration.md                                         
+  ⎿ Read claudedocs\4-changes\feature-changes\CHANGE-026-prompt-config-stage-int
+    egration.md (522 lines)
+  ⎿  Loaded claudedocs\CLAUDE.md
+  ⎿  Loaded .claude\rules\general.md
+
+● 好的，我將開始實施 CHANGE-026。讓我先確認文檔內容，然後依照 4 個 Phase 執行。
+
+● Read 2 files (ctrl+o to expand)
+  ⎿  Loaded .claude\rules\typescript.md
+
+● 我已閱讀文檔。讓我建立任務列表並開始實施 CHANGE-026。
+
+● 任務列表已建立。現在開始執行 Phase 1。先檢查 Prisma schema 中 PromptType enum
+  是否已包含新類型。
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● Prisma schema 已包含 V3.1 三階段類型。現在更新前端 PROMPT_TYPES 使其保持同步。
+
+● Update(src\types\prompt-config.ts)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 27 lines
+      37                                                                 
+      38  /**                                                            
+      39   * Prompt 類型選項（含 UI 顯示標籤）                              
+             
+
+      40 + *                                                             
+      41 + * @description                                                
+      42 + *   包含兩類 Prompt 類型：                                       
+         
+
+      43 + *   1. 通用類型（ISSUER_IDENTIFICATION, TERM_CLASSIFICATION,     
+       
+
+         +FIELD_EXTRACTION, VALIDATION）                                  
+      44 + *   2. V3.1 三階段類型（STAGE_1_*, STAGE_2_*, STAGE_3_*）-       
+         
+
+         +CHANGE-026                                                     
+      45   */                                                            
+      46  export const PROMPT_TYPES = {                                  
+      47 +  // ───────────────────────────────────────────────────────── 
+         +────────────────                                               
+      48 +  // 通用 Prompt 類型                                             
+      
+
+      49 +  // ───────────────────────────────────────────────────────── 
+         +────────────────                                               
+      50    ISSUER_IDENTIFICATION: {                                     
+      51      value: 'ISSUER_IDENTIFICATION',                            
+      52      label: '發行方識別',                                          
+       
+
+     ...
+      59      label: '驗證',                                               
+      60      description: '用於驗證提取結果的準確性',                      
+              
+
+      61    },                                                           
+      62 +                                                               
+      63 +  // ───────────────────────────────────────────────────────── 
+         +────────────────                                               
+      64 +  // CHANGE-026: V3.1 三階段 Prompt 類型                          
+       
+
+      65 +  // ───────────────────────────────────────────────────────── 
+         +────────────────                                               
+      66 +  STAGE_1_COMPANY_IDENTIFICATION: {                            
+      67 +    value: 'STAGE_1_COMPANY_IDENTIFICATION',                   
+      68 +    label: 'Stage 1 - 公司識別',                                  
+      
+
+      69 +    description: 'V3.1                                         
+         +三階段架構：識別文件發行公司（GPT-5-nano）',                      
+                  
+
+      70 +  },                                                           
+      71 +  STAGE_2_FORMAT_IDENTIFICATION: {                             
+      72 +    value: 'STAGE_2_FORMAT_IDENTIFICATION',                    
+      73 +    label: 'Stage 2 - 格式識別',                                  
+      
+
+      74 +    description: 'V3.1                                         
+         +三階段架構：識別文件格式/模板（GPT-5-nano）',                     
+                  
+
+      75 +  },                                                           
+      76 +  STAGE_3_FIELD_EXTRACTION: {                                  
+      77 +    value: 'STAGE_3_FIELD_EXTRACTION',                         
+      78 +    label: 'Stage 3 - 欄位提取',                                  
+      
+
+      79 +    description: 'V3.1                                         
+         +三階段架構：提取發票欄位數據（GPT-5.2）',                         
+                  
+
+      80 +  },                                                           
+      81  } as const;                                                    
+      82                                                                 
+      83  /**                                                            
+
+● Update(src\types\prompt-config.ts)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 1 line, removed 1 line
+       6   *                                                             
+       7   * @module src/types/prompt-config                             
+       8   * @since Epic 14 - Story 14.1                                 
+       9 - * @lastModified 2026-01-02                                    
+       9 + * @lastModified 2026-02-03                                    
+      10   *                                                             
+      11   * @features                                                   
+      12   *   - Prisma enum 重新導出                                       
+      
+
+
+● Phase 1 ✅ 完成。現在開始 Phase 2.1：建立 variable-replacer.ts。
+
+● Searched for 1 pattern, read 1 file (ctrl+o to expand)
+  ⎿  Loaded src\services\CLAUDE.md
+
+● 現在創建 variable-replacer.ts：
+
+● Write(src\services\extraction-v3\utils\variable-replacer.ts)
+  ⎿  PreToolUse:Write hook error
+  ⎿  Wrote 1 lines to src\services\extraction-v3\utils\variable-replacer.ts
+     /**
+      * @fileoverview 變數替換工具 - Prompt 模板變數處理
+      * @description
+      *   提供 Prompt 模板中 ${xxx} 變數的替換功能：
+      *   - 支援靜態變數（companyName, documentFormatName）
+      *   - 支援動態變數（knownCompanies, knownFormats, mappings）
+      *   - 支援上下文變數（currentDate, pageCount, fileName）
+      *   - 未知變數保留原樣並警告
+      *
+      * @module src/services/extraction-v3/utils/variable-replacer
+
+● Phase 2.1 ✅ 完成。現在創建 prompt-merger.ts：
+
+● Write(src\services\extraction-v3\utils\prompt-merger.ts)
+  ⎿  Wrote 1 lines to src\services\extraction-v3\utils\prompt-merger.ts
+     /**
+      * @fileoverview Prompt 合併工具 - 多層配置合併處理
+      * @description
+      *   實現 PromptConfig 的三層合併策略：
+      *   - OVERRIDE: 完全覆蓋父層 Prompt
+      *   - APPEND: 附加到父層 Prompt 末尾
+      *   - PREPEND: 插入到父層 Prompt 開頭
+      *
+      *   支援 Scope 優先級鏈：FORMAT > COMPANY > GLOBAL > 硬編碼預設
+      *
+
+● Read 1 file (ctrl+o to expand)
+
+● Phase 2.2 ✅ 完成。現在更新 index.ts 導出：
+
+● Update(src\services\extraction-v3\index.ts)
+  ⎿  Added 1 line, removed 1 line
+      16   *                                                             
+      17   * @module src/services/extraction-v3                          
+      18   * @since CHANGE-021 - Unified Processor V3 Refactoring        
+      19 - * @lastModified 2026-02-01                                    
+      19 + * @lastModified 2026-02-03                                    
+      20   *                                                             
+      21   * @example                                                    
+      22   * ```typescript                                               
+
+● Update(src\services\extraction-v3\index.ts)
+  ⎿  Added 35 lines
+      101  } from './utils/prompt-builder';                              
+      102                                                                
+      103  // ========================================================== 
+           ==================                                            
+      104 +// CHANGE-026: Variable Replacer (變數替換工具)                  
+        
+
+      105 +// ========================================================== 
+          +==================                                            
+      106 +                                                              
+      107 +export {                                                      
+      108 +  replaceVariables,                                           
+      109 +  replaceVariablesWithDetails,                                
+      110 +  extractVariableNames,                                       
+      111 +  validateTemplateVariables,                                  
+      112 +  buildStage1VariableContext,                                 
+      113 +  buildStage2VariableContext,                                 
+      114 +  buildStage3VariableContext,                                 
+      115 +  type VariableContext,                                       
+      116 +  type ReplaceVariablesOptions,                               
+      117 +  type ReplaceVariablesResult,                                
+      118 +} from './utils/variable-replacer';                           
+      119 +                                                              
+      120 +// ========================================================== 
+          +==================                                            
+      121 +// CHANGE-026: Prompt Merger (Prompt 合併工具)                   
+      
+
+      122 +// ========================================================== 
+          +==================                                            
+      123 +                                                              
+      124 +export {                                                      
+      125 +  mergePrompts,                                               
+      126 +  mergePromptConfigs,                                         
+      127 +  selectHighestPriorityConfig,                                
+      128 +  createMergeSummary,                                         
+      129 +  isValidMergeStrategy,                                       
+      130 +  getMergeStrategyDescription,                                
+      131 +  estimateMergedTokens,                                       
+      132 +  type PromptConfigForMerge,                                  
+      133 +  type MergedPromptResult,                                    
+      134 +  type AppliedConfigInfo,                                     
+      135 +  type MergeOptions,                                          
+      136 +} from './utils/prompt-merger';                               
+      137 +                                                              
+      138 +// ========================================================== 
+          +==================                                            
+      139  // Prompt Assembly Service                                    
+      140  // ========================================================== 
+           ==================                                            
+      141                                                                
+
+● Phase 2 ✅ 完成。現在開始 Phase 3.1：Stage 1 整合 PromptConfig。
+
+● Searched for 2 patterns, read 1 file (ctrl+o to expand)
+
+● 現在修改 Stage 1 服務以整合 PromptConfig：
+
+● Update(src\services\extraction-v3\stages\stage-1-company.service.ts)
+  ⎿  Added 16 lines, removed 1 line
+       6   *   - 模型：GPT-5-nano（成本低、速度快）                         
+              
+
+       7   *   - 輸出：companyId, companyName, confidence, isNewCompany     
+
+       8   *                                                             
+       9 + *   CHANGE-026：整合 PromptConfig 可配置化                       
+         
+
+      10 + *   - 優先使用 PromptConfig 表的自定義配置                       
+             
+
+      11 + *   - 支援變數替換（${knownCompanies}, ${currentDate} 等）       
+           
+
+      12 + *   - 無配置時回退到硬編碼 Prompt                                
+            
+
+      13 + *                                                             
+      14   * @module                                                     
+          src/services/extraction-v3/stages/stage-1-company.service      
+      15   * @since CHANGE-024 - Three-Stage Extraction Architecture     
+      16 - * @lastModified 2026-02-01                                    
+      16 + * @lastModified 2026-02-03                                    
+      17   *                                                             
+      18   * @features                                                   
+      19   *   - 公司識別方法：LOGO / HEADER / ADDRESS / TAX_ID /           
+         
+
+          LLM_INFERRED                                                   
+      20   *   - 支援已知公司列表匹配                                       
+            
+
+      21   *   - 低解析度圖片模式以降低成本                                 
+               
+
+      22   *   - 完整的 AI 詳情記錄                                         
+         
+
+      23 + *   - CHANGE-026: PromptConfig 可配置化支援                      
+        
+
+      24   *                                                             
+      25   * @dependencies                                               
+      26   *   - UnifiedGptExtractionService - GPT 調用服務                 
+      
+
+      27   *   - PrismaClient - 公司 ID 解析                                
+      
+
+      28 + *   - PromptAssemblyService - 載入 PromptConfig                 
+      29   *                                                             
+      30   * @related                                                    
+      31   *   - src/types/extraction-v3.types.ts - Stage1CompanyResult  
+          類型                                                             
+      32   *   -                                                         
+          src/services/extraction-v3/unified-gpt-extraction.service.ts   
+      33 + *   - src/services/extraction-v3/prompt-assembly.service.ts - 
+         + Prompt 組裝服務                                                  
+      
+
+      34   */                                                            
+      35                                                                 
+      36  import { PrismaClient } from '@prisma/client';                 
+     ...
+      33    CompanyIdentificationMethod,                                 
+      34  } from '@/types/extraction-v3.types';                          
+      35  import { GptCallerService, type GptCallResult } from           
+          './gpt-caller.service';                                        
+      36 +// CHANGE-026: PromptConfig 整合                                 
+      37 +import { loadStage1PromptConfig, type StagePromptConfig } from 
+         + '../prompt-assembly.service';                                 
+      38 +import {                                                       
+      39 +  replaceVariables,                                            
+      40 +  buildStage1VariableContext,                                  
+      41 +  type VariableContext,                                        
+      42 +} from '../utils/variable-replacer';                           
+      43                                                                 
+      44  // =========================================================== 
+          =================                                              
+      45  // Types                                                       
+
+● Update(src\services\extraction-v3\stages\stage-1-company.service.ts)
+  ⎿  Added 8 lines
+      63    knownCompanies: KnownCompanyForPrompt[];                     
+      64    /** 選項 */                                                    
+      65    options?: Stage1Options;                                     
+      66 +                                                               
+      67 +  // CHANGE-026: PromptConfig 載入參數                            
+      
+
+      68 +  /** 檔案名稱（用於變數替換） */                                 
+              
+
+      69 +  fileName?: string;                                           
+      70 +  /** 公司 ID（用於載入 COMPANY/FORMAT 範圍配置） */              
+              
+
+      71 +  companyId?: string;                                          
+      72 +  /** 格式 ID（用於載入 FORMAT 範圍配置） */                      
+              
+
+      73 +  formatId?: string;                                           
+      74  }                                                              
+      75                                                                 
+      76  /**                                                            
+
+● Update(src\services\extraction-v3\stages\stage-1-company.service.ts)
+  ⎿  Added 59 lines, removed 5 lines
+      116     */                                                         
+      117    async execute(input: Stage1Input):                          
+           Promise<Stage1CompanyResult> {                                
+      118      const startTime = Date.now();                             
+      119 +    let promptConfigUsed: StagePromptConfig | null = null;    
+      120                                                                
+      121      try {                                                     
+      122 -      // 1. 組裝公司識別 Prompt                                  
+        
+
+      123 -      const prompt =                                          
+          -this.buildCompanyIdentificationPrompt(input.knownCompanies);  
+      122 +      // CHANGE-026: 嘗試載入自定義 PromptConfig                 
+         
+
+      123 +      const customConfig = await                              
+          +this.loadCustomPromptConfig(input);                           
+      124                                                                
+      125 -      // 2. 調用 GPT-5-nano                                     
+      125 +      // 組裝 Prompt（自定義配置優先，否則使用硬編碼）           
+                     
+
+      126 +      let prompt: { system: string; user: string };           
+      127 +                                                              
+      128 +      if (customConfig) {                                     
+      129 +        // 使用自定義配置 + 變數替換                             
+             
+
+      130 +        promptConfigUsed = customConfig;                      
+      131 +        const variableContext =                               
+          +this.buildVariableContextForConfig(input);                    
+      132 +        prompt = {                                            
+      133 +          system: replaceVariables(customConfig.systemPrompt, 
+          + variableContext),                                            
+      134 +          user:                                               
+          +replaceVariables(customConfig.userPromptTemplate,             
+          +variableContext),                                             
+      135 +        };                                                    
+      136 +        console.log(                                          
+      137 +          `[Stage1] Using custom PromptConfig (scope:         
+          +${customConfig.scope}, version: ${customConfig.version})`     
+      138 +        );                                                    
+      139 +      } else {                                                
+      140 +        // 回退到硬編碼（現有邏輯）                              
+              
+
+      141 +        prompt =                                              
+          +this.buildCompanyIdentificationPrompt(input.knownCompanies);  
+      142 +        console.log('[Stage1] Using default hardcoded prompt  
+          +(no custom config found)');                                   
+      143 +      }                                                       
+      144 +                                                              
+      145 +      // 調用 GPT-5-nano                                        
+      146        const gptResult = await this.callGptNano(prompt,        
+           input.imageBase64Array);                                      
+      147                                                                
+      148 -      // 3. 解析結果                                             
+      
+
+      148 +      // 解析結果                                                
+      
+
+      149        const parsed =                                          
+           this.parseCompanyResult(gptResult.response);                  
+      150                                                                
+      151 -      // 4. 解析公司 ID（從資料庫匹配或 JIT 創建）               
+                 
+
+      151 +      // 解析公司 ID（從資料庫匹配或 JIT 創建）                  
+                 
+
+      152        const resolved = await this.resolveCompanyId(parsed,    
+           input.options);                                               
+      153                                                                
+      154        return {                                                
+     ...
+      140          confidence: parsed.confidence,                        
+      141          isNewCompany: resolved.isNewCompany,                  
+      142          aiDetails: this.buildAiDetails(gptResult, prompt,     
+           Date.now() - startTime),                                      
+      143 +        // CHANGE-026: 記錄使用的配置來源                        
+           
+
+      144 +        promptConfigUsed: promptConfigUsed                    
+      145 +          ? { scope: promptConfigUsed.scope, version:         
+          +promptConfigUsed.version }                                    
+      146 +          : undefined,                                        
+      147        };                                                      
+      148      } catch (error) {                                         
+      149        return {                                                
+     ...
+      157    }                                                           
+      158                                                                
+      159    /**                                                         
+      160 +   * CHANGE-026: 載入自定義 PromptConfig                         
+       
+
+      161 +   * @description 按優先級 (FORMAT > COMPANY > GLOBAL) 載入      
+        
+
+          +Stage 1 配置                                                    
+      162 +   */                                                         
+      163 +  private async loadCustomPromptConfig(                       
+      164 +    input: Stage1Input                                        
+      165 +  ): Promise<StagePromptConfig | null> {                      
+      166 +    try {                                                     
+      167 +      return await loadStage1PromptConfig({                   
+      168 +        companyId: input.companyId,                           
+      169 +        formatId: input.formatId,                             
+      170 +      });                                                     
+      171 +    } catch (error) {                                         
+      172 +      console.warn('[Stage1] Failed to load PromptConfig,     
+          +using default:', error);                                      
+      173 +      return null;                                            
+      174 +    }                                                         
+      175 +  }                                                           
+      176 +                                                              
+      177 +  /**                                                         
+      178 +   * CHANGE-026: 構建變數上下文（用於自定義配置）                
+                  
+
+      179 +   */                                                         
+      180 +  private buildVariableContextForConfig(input: Stage1Input):  
+          +VariableContext {                                             
+      181 +    return buildStage1VariableContext({                       
+      182 +      knownCompanies: input.knownCompanies,                   
+      183 +      fileName: input.fileName,                               
+      184 +      pageCount: input.imageBase64Array.length,               
+      185 +    });                                                       
+      186 +  }                                                           
+      187 +                                                              
+      188 +  /**                                                         
+      189     * 組裝公司識別 Prompt                                         
+        
+
+      190     * @param knownCompanies 已知公司列表                          
+        
+
+      191     * @returns System 和 User Prompt                            
+
+● Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Update(src\types\extraction-v3.types.ts)
+  ⎿  Added 7 lines
+       989    /** 階段 AI 詳情 */                                           
+      
+
+       990    aiDetails: StageAiDetails;                                 
+       991                                                               
+       992 +  // ===== CHANGE-026: PromptConfig 來源 =====                 
+       993 +  /** 使用的 PromptConfig（如果使用自定義配置） */              
+                
+
+       994 +  promptConfigUsed?: {                                       
+       995 +    scope: 'GLOBAL' | 'COMPANY' | 'FORMAT';                  
+       996 +    version: number;                                         
+       997 +  };                                                         
+       998 +                                                             
+       999    // ===== 錯誤資訊 =====                                       
+      
+
+      1000    /** 錯誤訊息（如果失敗） */                                   
+            
+
+      1001    error?: string;                                            
+
+● Read 1 file (ctrl+o to expand)
+
+● Phase 3.1 ✅ 完成。現在修改 Stage 2 服務整合 PromptConfig：
+
+● Update(src\services\extraction-v3\stages\stage-2-format.service.ts)
+  ⎿  Added 16 lines, removed 1 line
+       7   *   - 模型：GPT-5-nano（成本低、速度快）                         
+              
+
+       8   *   - 輸出：formatId, formatName, confidence, isNewFormat,       
+
+          configSource                                                   
+       9   *                                                             
+      10 + *   CHANGE-026：整合 PromptConfig 可配置化                       
+         
+
+      11 + *   - 優先使用 PromptConfig 表的自定義配置                       
+             
+
+      12 + *   - 支援變數替換（${knownFormats}, ${companyName} 等）         
+           
+
+      13 + *   - 無配置時回退到硬編碼 Prompt                                
+            
+
+      14 + *                                                             
+      15   * @module                                                     
+          src/services/extraction-v3/stages/stage-2-format.service       
+      16   * @since CHANGE-024 - Three-Stage Extraction Architecture     
+      17 - * @lastModified 2026-02-01                                    
+      17 + * @lastModified 2026-02-03                                    
+      18   *                                                             
+      19   * @features                                                   
+      20   *   - 分層配置查詢：公司特定 → 統一格式 → LLM 推斷               
+                   
+
+      21   *   - 配置來源追蹤（COMPANY_SPECIFIC / UNIVERSAL /               
+         
+
+          LLM_INFERRED）                                                  
+      22   *   - 低解析度圖片模式以降低成本                                 
+               
+
+      23   *   - 完整的 AI 詳情記錄                                         
+         
+
+      24 + *   - CHANGE-026: PromptConfig 可配置化支援                      
+        
+
+      25   *                                                             
+      26   * @dependencies                                               
+      27   *   - UnifiedGptExtractionService - GPT 調用服務                 
+      
+
+      28   *   - PrismaClient - 格式配置查詢                                
+        
+
+      29 + *   - PromptAssemblyService - 載入 PromptConfig                 
+      30   *                                                             
+      31   * @related                                                    
+      32   *   - src/types/extraction-v3.types.ts - Stage2FormatResult   
+          類型                                                             
+      33   *   -                                                         
+          src/services/extraction-v3/stages/stage-1-company.service.ts   
+      34 + *   - src/services/extraction-v3/prompt-assembly.service.ts - 
+         + Prompt 組裝服務                                                  
+      
+
+      35   */                                                            
+      36                                                                 
+      37  import { PrismaClient } from '@prisma/client';                 
+     ...
+      35    FormatConfigSource,                                          
+      36  } from '@/types/extraction-v3.types';                          
+      37  import { GptCallerService, type GptCallResult } from           
+          './gpt-caller.service';                                        
+      38 +// CHANGE-026: PromptConfig 整合                                 
+      39 +import { loadStage2PromptConfig, type StagePromptConfig } from 
+         + '../prompt-assembly.service';                                 
+      40 +import {                                                       
+      41 +  replaceVariables,                                            
+      42 +  buildStage2VariableContext,                                  
+      43 +  type VariableContext,                                        
+      44 +} from '../utils/variable-replacer';                           
+      45                                                                 
+      46  // =========================================================== 
+          =================                                              
+      47  // Types                                                       
+
+● Update(src\services\extraction-v3\stages\stage-2-format.service.ts)
+  ⎿  Added 6 lines
+      65    stage1Result: Stage1CompanyResult;                           
+      66    /** 選項 */                                                    
+      67    options?: Stage2Options;                                     
+      68 +                                                               
+      69 +  // CHANGE-026: PromptConfig 載入參數                            
+      
+
+      70 +  /** 檔案名稱（用於變數替換） */                                 
+              
+
+      71 +  fileName?: string;                                           
+      72 +  /** 格式 ID（用於載入 FORMAT 範圍配置） */                      
+              
+
+      73 +  formatId?: string;                                           
+      74  }                                                              
+      75                                                                 
+      76  /**                                                            
+
+● Update(src\services\extraction-v3\stages\stage-2-format.service.ts)
+  ⎿  Added 64 lines, removed 3 lines
+      129    async execute(input: Stage2Input):                          
+           Promise<Stage2FormatResult> {                                 
+      130      const startTime = Date.now();                             
+      131      const { stage1Result } = input;                           
+      132 +    let promptConfigUsed: StagePromptConfig | null = null;    
+      133                                                                
+      134      try {                                                     
+      135        // 1. 根據公司查詢格式配置（分層決策）                     
+                  
+
+      136        const formatConfig = await                              
+           this.loadFormatConfig(stage1Result.companyId);                
+      137                                                                
+      138 -      // 2. 組裝格式識別 Prompt（根據配置來源不同）              
+                  
+
+      139 -      const prompt =                                          
+          -this.buildFormatIdentificationPrompt(formatConfig);           
+      138 +      // CHANGE-026: 嘗試載入自定義 PromptConfig                 
+         
+
+      139 +      const customConfig = await this.loadCustomPromptConfig( 
+      140 +        stage1Result.companyId,                               
+      141 +        input.formatId                                        
+      142 +      );                                                      
+      143                                                                
+      144 +      // 2. 組裝格式識別 Prompt                                  
+        
+
+      145 +      let prompt: { system: string; user: string };           
+      146 +                                                              
+      147 +      if (customConfig) {                                     
+      148 +        // 使用自定義配置 + 變數替換                             
+             
+
+      149 +        promptConfigUsed = customConfig;                      
+      150 +        const variableContext =                               
+          +this.buildVariableContextForConfig(input, formatConfig);      
+      151 +        prompt = {                                            
+      152 +          system: replaceVariables(customConfig.systemPrompt, 
+          + variableContext),                                            
+      153 +          user:                                               
+          +replaceVariables(customConfig.userPromptTemplate,             
+          +variableContext),                                             
+      154 +        };                                                    
+      155 +        console.log(                                          
+      156 +          `[Stage2] Using custom PromptConfig (scope:         
+          +${customConfig.scope}, version: ${customConfig.version})`     
+      157 +        );                                                    
+      158 +      } else {                                                
+      159 +        // 回退到硬編碼（現有邏輯）                              
+              
+
+      160 +        prompt =                                              
+          +this.buildFormatIdentificationPrompt(formatConfig);           
+      161 +        console.log('[Stage2] Using default hardcoded prompt  
+          +(no custom config found)');                                   
+      162 +      }                                                       
+      163 +                                                              
+      164        // 3. 調用 GPT-5-nano                                     
+      165 -      // TODO: Phase 2 實現實際 GPT 調用                         
+        
+
+      165        const gptResult = await this.callGptNano(prompt,        
+           input.imageBase64Array);                                      
+      166                                                                
+      167        // 4. 解析結果                                             
+      
+
+     ...
+      165            companyConfigCount:                                 
+           formatConfig.companyFormatCount,                              
+      166          },                                                    
+      167          aiDetails: this.buildAiDetails(gptResult, prompt,     
+           Date.now() - startTime),                                      
+      168 +        // CHANGE-026: 記錄使用的配置來源                        
+           
+
+      169 +        promptConfigUsed: promptConfigUsed                    
+      170 +          ? { scope: promptConfigUsed.scope, version:         
+          +promptConfigUsed.version }                                    
+      171 +          : undefined,                                        
+      172        };                                                      
+      173      } catch (error) {                                         
+      174        return {                                                
+     ...
+      182    }                                                           
+      183                                                                
+      184    /**                                                         
+      185 +   * CHANGE-026: 載入自定義 PromptConfig                         
+       
+
+      186 +   */                                                         
+      187 +  private async loadCustomPromptConfig(                       
+      188 +    companyId?: string,                                       
+      189 +    formatId?: string                                         
+      190 +  ): Promise<StagePromptConfig | null> {                      
+      191 +    try {                                                     
+      192 +      return await loadStage2PromptConfig({ companyId,        
+          +formatId });                                                  
+      193 +    } catch (error) {                                         
+      194 +      console.warn('[Stage2] Failed to load PromptConfig,     
+          +using default:', error);                                      
+      195 +      return null;                                            
+      196 +    }                                                         
+      197 +  }                                                           
+      198 +                                                              
+      199 +  /**                                                         
+      200 +   * CHANGE-026: 構建變數上下文（用於自定義配置）                
+                  
+
+      201 +   */                                                         
+      202 +  private buildVariableContextForConfig(                      
+      203 +    input: Stage2Input,                                       
+      204 +    formatConfig: FormatConfigLoadResult                      
+      205 +  ): VariableContext {                                        
+      206 +    return buildStage2VariableContext({                       
+      207 +      companyName: input.stage1Result.companyName,            
+      208 +      companyAliases: [], // 可從 DB 載入                        
+      
+
+      209 +      knownFormats: formatConfig.formats.map((f) => ({        
+      210 +        name: f.formatName,                                   
+      211 +        description: f.patterns?.join(', ') || null,          
+      212 +      })),                                                    
+      213 +      fileName: input.fileName,                               
+      214 +      pageCount: input.imageBase64Array.length,               
+      215 +    });                                                       
+      216 +  }                                                           
+      217 +                                                              
+      218 +  /**                                                         
+      219     * 載入格式配置（核心分層決策流程）                            
+                  
+
+      220     * @description 實現 CHANGE-024 的配置決策流程：               
+            
+
+      221     *   1. 公司特定配置（優先）                                   
+            
+
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● Update(src\types\extraction-v3.types.ts)
+  ⎿  Error editing file
+
+● Read 1 file (ctrl+o to expand)
+
+● Update(src\types\extraction-v3.types.ts)
+  ⎿  Added 7 lines
+      1053    /** 階段 AI 詳情 */                                           
+      
+
+      1054    aiDetails: StageAiDetails;                                 
+      1055                                                               
+      1056 +  // ===== CHANGE-026: PromptConfig 來源 =====                 
+      1057 +  /** 使用的 PromptConfig（如果使用自定義配置） */              
+                
+
+      1058 +  promptConfigUsed?: {                                       
+      1059 +    scope: 'GLOBAL' | 'COMPANY' | 'FORMAT';                  
+      1060 +    version: number;                                         
+      1061 +  };                                                         
+      1062 +                                                             
+      1063    // ===== 錯誤資訊 =====                                       
+      
+
+      1064    /** 錯誤訊息（如果失敗） */                                   
+            
+
+      1065    error?: string;                                            
+
+● Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Stage 3 已有配置載入邏輯，我需要添加變數替換功能：
+
+● Update(src\services\extraction-v3\stages\stage-3-extraction.service.ts)
+  ⎿  Added 13 lines, removed 1 line
+       7   *   - 模型：GPT-5.2（高精度、複雜任務）                          
+               
+
+       8   *   - 輸出：standardFields, lineItems, extraCharges,             
+
+          customFields                                                   
+       9   *                                                             
+      10 + *   CHANGE-026：整合 PromptConfig 可配置化                       
+         
+
+      11 + *   - 支援變數替換（${universalMappings}, ${companyMappings}     
+         
+
+         +等）                                                             
+      12 + *   - 保留現有分層配置載入邏輯                                   
+              
+
+      13 + *                                                             
+      14   * @module                                                     
+          src/services/extraction-v3/stages/stage-3-extraction.service   
+      15   * @since CHANGE-024 - Three-Stage Extraction Architecture     
+      16 - * @lastModified 2026-02-01                                    
+      16 + * @lastModified 2026-02-03                                    
+      17   *                                                             
+      18   * @features                                                   
+      19   *   - 分層 PromptConfig 載入：FORMAT > COMPANY > GLOBAL          
+       
+
+     ...
+      17   *   - JSON Schema 強制結構化輸出                                 
+         
+
+      18   *   - 完整的配置來源追蹤                                         
+           
+
+      19   *   - 高解析度圖片模式（auto/high）                              
+            
+
+      20 + *   - CHANGE-026: PromptConfig 變數替換支援                      
+        
+
+      21   *                                                             
+      22   * @dependencies                                               
+      23   *   - UnifiedGptExtractionService - GPT 調用服務                 
+      
+
+     ...
+      26   *   - src/types/extraction-v3.types.ts -                      
+          Stage3ExtractionResult 類型                                      
+      27   *   -                                                         
+          src/services/extraction-v3/stages/stage-1-company.service.ts   
+      28   *   -                                                         
+          src/services/extraction-v3/stages/stage-2-format.service.ts    
+      29 + *   - src/services/extraction-v3/prompt-assembly.service.ts - 
+         + Prompt 組裝服務                                                  
+      
+
+      30   */                                                            
+      31                                                                 
+      32  import { PrismaClient } from '@prisma/client';                 
+     ...
+      47    type GptCallResult,                                          
+      48    type ImageDetailMode,                                        
+      49  } from './gpt-caller.service';                                 
+      50 +// CHANGE-026: 變數替換支援                                       
+        
+
+      51 +import {                                                       
+      52 +  replaceVariables,                                            
+      53 +  buildStage3VariableContext,                                  
+      54 +  type VariableContext,                                        
+      55 +} from '../utils/variable-replacer';                           
+      56                                                                 
+      57  // =========================================================== 
+          =================                                              
+      58  // Types                                                       
+
+● Update(src\services\extraction-v3\stages\stage-3-extraction.service.ts)
+  ⎿  Added 4 lines
+      76    stage2Result: Stage2FormatResult;                            
+      77    /** 選項 */                                                    
+      78    options?: Stage3Options;                                     
+      79 +                                                               
+      80 +  // CHANGE-026: PromptConfig 變數替換參數                        
+        
+
+      81 +  /** 檔案名稱（用於變數替換） */                                 
+              
+
+      82 +  fileName?: string;                                           
+      83  }                                                              
+      84                                                                 
+      85  /**                                                            
+
+● Update(src\services\extraction-v3\stages\stage-3-extraction.service.ts)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 5 lines, removed 2 lines
+      161          stage2Result.formatId                                 
+      162        );                                                      
+      163                                                                
+      164 -      // 2. 組裝完整的提取 Prompt                                
+         
+
+      165 -      const prompt = this.buildExtractionPrompt(config);      
+      164 +      // CHANGE-026: 構建變數上下文                              
+         
+
+      165 +      const variableContext =                                 
+          +this.buildVariableContextForConfig(input, config);            
+      166                                                                
+      167 +      // 2. 組裝完整的提取 Prompt（支援變數替換）                
+                 
+
+      168 +      const prompt = this.buildExtractionPrompt(config,       
+          +variableContext);                                             
+      169 +                                                              
+      170        // 3. 調用 GPT-5.2（精準提取）                             
+          
+
+      171        // TODO: Phase 2 實現實際 GPT 調用                         
+        
+
+      172        const gptResult = await this.callGpt52(                 
+
+● Read 1 file (ctrl+o to expand)
+
+● Update(src\services\extraction-v3\stages\stage-3-extraction.service.ts)
+  ⎿  Added 40 lines, removed 3 lines
+      502    }                                                           
+      503                                                                
+      504    /**                                                         
+      505 +   * CHANGE-026: 構建變數上下文（用於自定義配置）                
+                  
+
+      506 +   */                                                         
+      507 +  private buildVariableContextForConfig(                      
+      508 +    input: Stage3Input,                                       
+      509 +    config: ExtractionConfig                                  
+      510 +  ): VariableContext {                                        
+      511 +    return buildStage3VariableContext({                       
+      512 +      companyName: input.stage1Result.companyName,            
+      513 +      documentFormatName: input.stage2Result.formatName,      
+      514 +      universalMappings:                                      
+          +Object.entries(config.universalMappings).map(                 
+      515 +        ([sourceTerm, targetCategory]) => ({ sourceTerm,      
+          +targetCategory })                                             
+      516 +      ),                                                      
+      517 +      companyMappings:                                        
+          +Object.entries(config.companyMappings).map(                   
+      518 +        ([sourceTerm, targetCategory]) => ({ sourceTerm,      
+          +targetCategory })                                             
+      519 +      ),                                                      
+      520 +      standardFields: config.standardFields.map((f) =>        
+          +f.name),                                                      
+      521 +      customFields: config.customFields.map((f) => f.name),   
+      522 +      fieldSchema: JSON.stringify(config.outputSchema),       
+      523 +      fileName: input.fileName,                               
+      524 +      pageCount: input.imageBase64Array.length,               
+      525 +    });                                                       
+      526 +  }                                                           
+      527 +                                                              
+      528 +  /**                                                         
+      529     * 組裝完整的提取 Prompt                                       
+         
+
+      530 +   * @description CHANGE-026: 支援變數替換                       
+        
+
+      531     */                                                         
+      532 -  private buildExtractionPrompt(config: ExtractionConfig): {  
+      532 +  private buildExtractionPrompt(                              
+      533 +    config: ExtractionConfig,                                 
+      534 +    variableContext?: VariableContext                         
+      535 +  ): {                                                        
+      536      system: string;                                           
+      537      user: string;                                             
+      538    } {                                                         
+     ...
+      520        config.customFields                                     
+      521      );                                                        
+      522                                                                
+      523 -    const systemPrompt =                                      
+      523 +    let systemPrompt =                                        
+      524        config.systemPrompt ||                                  
+      525        `You are an expert invoice data extraction specialist.  
+      526  Extract all requested fields accurately from the provided     
+           invoice image.                                                
+     ...
+      531                                                                
+      532  Respond in valid JSON format matching the provided schema.`;  
+      533                                                                
+      534 -    const userPrompt =                                        
+      534 +    let userPrompt =                                          
+      535        config.userPromptTemplate ||                            
+      536        'Extract all invoice data from this image according to  
+           the field definitions.';                                      
+      537                                                                
+      538 +    // CHANGE-026: 執行變數替換（如果有自定義配置）              
+                  
+
+      539 +    if (config.promptConfigId && variableContext) {           
+      540 +      systemPrompt = replaceVariables(systemPrompt,           
+          +variableContext);                                             
+      541 +      userPrompt = replaceVariables(userPrompt,               
+          +variableContext);                                             
+      542 +      console.log(                                            
+      543 +        `[Stage3] Applied variable replacement for            
+          +PromptConfig (scope: ${config.promptConfigScope})`            
+      544 +      );                                                      
+      545 +    }                                                         
+      546 +                                                              
+      547      return {                                                  
+      548        system: systemPrompt,                                   
+      549        user: userPrompt,                                       
+
+● Searched for 2 patterns (ctrl+o to expand)
+
+● Stage 3 已有完整的配置追蹤機制（Stage3ConfigUsed 包含 promptConfigScope）。
+
+● Phase 3 ✅ 完成。現在更新 CHANGE-026 文檔狀態：
+
+● Update(claudedocs\4-changes\feature-changes\CHANGE-026-prompt-config-stage-int
+        egration.md)
+  ⎿  Added 2 lines, removed 2 lines
+      1  # CHANGE-026：Prompt 配置與 Stage 服務整合                         
+          
+
+      2                                                                  
+      3  > **建立日期**: 2026-02-03                                         
+      
+
+      4 -> **完成日期**: -                                                  
+      
+
+      5 -> **狀態**: 🚧 待實施                                              
+       
+
+      4 +> **完成日期**: 2026-02-03                                         
+      
+
+      5 +> **狀態**: ✅ 已完成                                              
+        
+
+      6  > **優先級**: High                                                 
+
+      7  > **類型**: Feature Enhancement                                   
+      8  > **前置條件**: CHANGE-025 統一文件處理流程架構優化已完成          
+                     
+
+
+● Update(claudedocs\4-changes\feature-changes\CHANGE-026-prompt-config-stage-int
+        egration.md)
+  ⎿  Added 3 lines, removed 2 lines
+      511                                                                
+      512  **文檔建立日期**: 2026-02-03                                     
+        
+
+      513  **作者**: AI Assistant (Claude)                                 
+      514 -**版本**: 1.0.0                                                 
+      515 -**狀態**: 🚧 待實施                                              
+       
+
+      514 +**版本**: 1.1.0                                                 
+      515 +**狀態**: ✅ 已完成                                              
+        
+
+      516                                                                
+      517  ### 更新記錄                                                     
+      
+
+      518                                                                
+      519  | 版本 | 日期 | 變更內容 |                                       
+          
+
+      520  |------|------|---------|                                     
+      521  | 1.0.0 | 2026-02-03 | 初始版本 - 完整規劃文檔 |                 
+            
+
+      522 +| 1.1.0 | 2026-02-03 | 實施完成 - Phase 1~3 全部完成 |           
+          
+
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       npm run type-check 2>&1 | head -50)
+  ⎿  > ai-document-extraction-project@1.0.0 type-check
+     > tsc --noEmit
+     … +110 lines (ctrl+o to expand)
+  ⎿  (timeout 2m)
+
+● 有一個類型錯誤需要修復。讓我檢查 FieldDefinition 類型：
+
+● Searched for 1 pattern (ctrl+o to expand)
+  ⎿  Loaded .claude\rules\testing.md
+
+● Update(src\services\extraction-v3\stages\stage-3-extraction.service.ts)
+  ⎿  Added 2 lines, removed 2 lines
+      517        companyMappings:                                        
+           Object.entries(config.companyMappings).map(                   
+      518          ([sourceTerm, targetCategory]) => ({ sourceTerm,      
+           targetCategory })                                             
+      519        ),                                                      
+      520 -      standardFields: config.standardFields.map((f) => f.name 
+          -),                                                            
+      521 -      customFields: config.customFields.map((f) => f.name),   
+      520 +      standardFields: config.standardFields.map((f) => f.key),
+      521 +      customFields: config.customFields.map((f) => f.key),    
+      522        fieldSchema: JSON.stringify(config.outputSchema),       
+      523        fileName: input.fileName,                               
+      524        pageCount: input.imageBase64Array.length,               
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       npm run type-check 2>&1 | grep -E "^src/|error TS")
+  ⎿ tests/unit/services/batch-processor-parallel.test.ts(15,1): error TS258
+    2: Cannot find name 'describe'. Do you need to install type definitions
+     for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save
+    … +101 lines (ctrl+o to expand)
+
+
+
+  ⎿  (timeout 2m)
+
+● src/ 目錄的類型錯誤已修復。剩餘錯誤來自 tests 目錄（預先存在的問題，缺少 Jest
+  類型定義）。
+
+● ✅ CHANGE-026 實施完成
+
+  完成的工作
+  ┌───────────┬───────────────────────────────────────────────┬──────┐
+  │   Phase   │                     任務                      │ 狀態 │
+  ├───────────┼───────────────────────────────────────────────┼──────┤
+  │ Phase 1   │ 更新 PROMPT_TYPES 常量（新增 3 個 V3.1 類型） │ ✅   │
+  ├───────────┼───────────────────────────────────────────────┼──────┤
+  │ Phase 2.1 │ 實現 variable-replacer.ts（變數替換工具）     │ ✅   │
+  ├───────────┼───────────────────────────────────────────────┼──────┤
+  │ Phase 2.2 │ 實現 prompt-merger.ts（Prompt 合併工具）      │ ✅   │
+  ├───────────┼───────────────────────────────────────────────┼──────┤
+  │ Phase 2.3 │ 更新 extraction-v3/index.ts 導出              │ ✅   │
+  ├───────────┼───────────────────────────────────────────────┼──────┤
+  │ Phase 3.1 │ Stage 1 整合 PromptConfig                     │ ✅   │
+  ├───────────┼───────────────────────────────────────────────┼──────┤
+  │ Phase 3.2 │ Stage 2 整合 PromptConfig                     │ ✅   │
+  ├───────────┼───────────────────────────────────────────────┼──────┤
+  │ Phase 3.3 │ Stage 3 整合 PromptConfig                     │ ✅   │
+  ├───────────┼───────────────────────────────────────────────┼──────┤
+  │ Phase 4   │ 更新 CHANGE-026 文檔狀態                      │ ✅   │
+  └───────────┴───────────────────────────────────────────────┴──────┘
+  修改的檔案清單
+  檔案路徑: src/types/prompt-config.ts
+  修改類型: 新增 3 個 V3.1 PROMPT_TYPES
+  ────────────────────────────────────────
+  檔案路徑: src/types/extraction-v3.types.ts
+  修改類型: 新增 promptConfigUsed 屬性到 Stage1/2 結果
+  ────────────────────────────────────────
+  檔案路徑: src/services/extraction-v3/utils/variable-replacer.ts
+  修改類型: 新增 - 變數替換工具
+  ────────────────────────────────────────
+  檔案路徑: src/services/extraction-v3/utils/prompt-merger.ts
+  修改類型: 新增 - Prompt 合併工具
+  ────────────────────────────────────────
+  檔案路徑: src/services/extraction-v3/index.ts
+  修改類型: 新增導出
+  ────────────────────────────────────────
+  檔案路徑: src/services/extraction-v3/stages/stage-1-company.service.ts
+  修改類型: 整合 PromptConfig
+  ────────────────────────────────────────
+  檔案路徑: src/services/extraction-v3/stages/stage-2-format.service.ts
+  修改類型: 整合 PromptConfig
+  ────────────────────────────────────────
+  檔案路徑: src/services/extraction-v3/stages/stage-3-extraction.service.ts
+  修改類型: 整合變數替換
+  ────────────────────────────────────────
+  檔案路徑: claudedocs/4-changes/feature-changes/CHANGE-026-*.md
+  修改類型: 狀態更新為已完成
+  核心功能
+
+  1. PromptConfig 優先使用：Stage 1/2/3 服務現在會先嘗試載入自定義配置
+  2. 變數替換：支援 ${knownCompanies}, ${companyName} 等變數
+  3. 向後兼容：無配置時自動回退到硬編碼 Prompt
+
+✻ Cooked for 13m 15s
+
+❯ commit this 
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       git status)
+  ⎿  On branch feature/change-021-extraction-v3
+     Your branch is ahead of 'origin/feature/change-021-extraction-v3' by 1
+     commit.
+     … +45 lines (ctrl+o to expand)
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       git diff --stat)
+  ⎿  ...NGE-025-unified-processing-flow-optimization.md | 93 ++++++++++++++
+    ++++++--
+     src/services/extraction-v3/index.ts                | 37 ++++++++-
+    … +27 lines (ctrl+o to expand)
+
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       git log --oneline -5)
+  ⎿ ba2b5ec fix(change-025): dynamic smart routing markers based on current
+     config state
+    0765840 fix(extraction-v3): increase GPT API timeout from 60s to 300s
+    … +5 lines (ctrl+o to expand)
+
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       git add \
+        "claudedocs/4-changes/feature-changes/CHANGE-025-unified-processing-fl…)
+  ⎿ warning: in the working copy of 'claudedocs/4-changes/feature-changes/C
+    HANGE-025-unified-processing-flow-optimization.md', LF will be replaced
+     by CRLF the next time Git touches it
+    … +23 lines (ctrl+o to expand)
+
+
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       git commit -m "feat(change-026): integrate PromptConfig with Stage 1/2/3
+      services…)
+  ⎿  [feature/change-021-extraction-v3 dba8cad] feat(change-026): integrate
+     PromptConfig with Stage 1/2/3 services
+      10 files changed, 1694 insertions(+), 25 deletions(-)
+     … +5 lines (ctrl+o to expand)
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       git log --oneline -3 && echo "" && git status)
+  ⎿ dba8cad feat(change-026): integrate PromptConfig with Stage 1/2/3 servi
+    ces
+    ba2b5ec fix(change-025): dynamic smart routing markers based on current
+    … +34 lines (ctrl+o to expand)
+
+
+
+● ✅ 提交完成
+
+  dba8cad feat(change-026): integrate PromptConfig with Stage 1/2/3 services
+
+  變更統計：
+  - 10 files changed
+  - 1,694 insertions(+), 25 deletions(-)
+  - 3 new files created
+
+  分支 feature/change-021-extraction-v3 領先 origin 2 個 commits。如需推送請執行
+   git push。
+
+✻ Cogitated for 1m 22s
+
+❯ git push 
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       git push)
+  ⎿ To https://github.com/laitim2001/ai-document-extraction-project.git
+       0765840..dba8cad  feature/change-021-extraction-v3 -> feature/change
+    -021-extraction-v3
+
+
+● ✅ Push 完成
+
+  0765840..dba8cad  feature/change-021-extraction-v3 ->
+  feature/change-021-extraction-v3
+
+❯ 經過測試之後, 發現有以下問題,                                             
+  問題1. 在 http://localhost:3005/en/admin/prompt-configs 出現報錯 :        
+  C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project\src 
+  \components\features\prompt-config\PromptConfigFilters.tsx:118 IntlError: 
+   MISSING_MESSAGE: Could not resolve                                       
+  `promptConfig.types.STAGE_1_COMPANY_IDENTIFICATION` in messages for       
+  locale `en`.                                                              
+      at getFallbackFromErrorAndNotify                                      
+  (initializeConfig-CIDVMS2E.js:254:19)                                     
+      at translateBaseFn (initializeConfig-CIDVMS2E.js:287:18)              
+      at translateFn (initializeConfig-CIDVMS2E.js:357:20)                  
+      at eval                                                               
+  (C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project\sr 
+  c\components\features\prompt-config\PromptConfigFilters.tsx:118:18)       
+      at Array.map (<anonymous>)                                            
+      at PromptConfigFilters                                                
+  (C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project\sr 
+  c\components\features\prompt-config\PromptConfigFilters.tsx:116:42)       
+  , 以上是其中一個而已                                                      
+
+● 了解，這是因為新增的 3 個 PROMPT_TYPES 缺少 i18n 翻譯。讓我修復。
+
+● Searched for 2 patterns, read 3 files (ctrl+o to expand)
+
+● 現在為三個語言文件添加缺失的翻譯：
+
+● Update(messages\en\promptConfig.json)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 4 lines, removed 1 line
+      51      "ISSUER_IDENTIFICATION": "Issuer Identification",          
+      52      "TERM_CLASSIFICATION": "Term Classification",              
+      53      "FIELD_EXTRACTION": "Field Extraction",                    
+      54 -    "VALIDATION": "Result Validation"                          
+      54 +    "VALIDATION": "Result Validation",                         
+      55 +    "STAGE_1_COMPANY_IDENTIFICATION": "Stage 1 - Company       
+         +Identification",                                               
+      56 +    "STAGE_2_FORMAT_IDENTIFICATION": "Stage 2 - Format         
+         +Identification",                                               
+      57 +    "STAGE_3_FIELD_EXTRACTION": "Stage 3 - Field Extraction"   
+      58    },                                                           
+      59    "filters": {                                                 
+      60      "search": {                                                
+
+● Update(messages\zh-TW\promptConfig.json)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 4 lines, removed 1 line
+      51      "ISSUER_IDENTIFICATION": "發行者識別",                        
+       
+
+      52      "TERM_CLASSIFICATION": "術語分類",                            
+      
+
+      53      "FIELD_EXTRACTION": "欄位提取",                               
+      
+
+      54 -    "VALIDATION": "結果驗證"                                      
+      
+
+      54 +    "VALIDATION": "結果驗證",                                     
+      
+
+      55 +    "STAGE_1_COMPANY_IDENTIFICATION": "Stage 1 - 公司識別",       
+      
+
+      56 +    "STAGE_2_FORMAT_IDENTIFICATION": "Stage 2 - 格式識別",        
+      
+
+      57 +    "STAGE_3_FIELD_EXTRACTION": "Stage 3 - 欄位提取"              
+      
+
+      58    },                                                           
+      59    "filters": {                                                 
+      60      "search": {                                                
+
+● Update(messages\zh-CN\promptConfig.json)
+  ⎿  Added 4 lines, removed 1 line
+      51      "ISSUER_IDENTIFICATION": "发行者识别",                        
+       
+
+      52      "TERM_CLASSIFICATION": "术语分类",                            
+      
+
+      53      "FIELD_EXTRACTION": "字段提取",                               
+      
+
+      54 -    "VALIDATION": "结果验证"                                      
+      
+
+      54 +    "VALIDATION": "结果验证",                                     
+      
+
+      55 +    "STAGE_1_COMPANY_IDENTIFICATION": "Stage 1 - 公司识别",       
+      
+
+      56 +    "STAGE_2_FORMAT_IDENTIFICATION": "Stage 2 - 格式识别",        
+      
+
+      57 +    "STAGE_3_FIELD_EXTRACTION": "Stage 3 - 字段提取"              
+      
+
+      58    },                                                           
+      59    "filters": {                                                 
+      60      "search": {                                                
+
+● 已添加翻譯。提交並推送修復：
+
+● Bash(cd
+      "C:\Users\rci.ChrisLai\Documents\GitHub\ai-document-extraction-project" &&
+       git add messages/en/promptConfig.json messages/zh-TW/promptConfig.json
+      messages/zh…)
+  ⎿ [feature/change-021-extraction-v3 c83eee5] fix(i18n): add missing trans
+    lations for V3.1 PROMPT_TYPES
+     3 files changed, 12 insertions(+), 3 deletions(-)
+    … +9 lines (ctrl+o to expand)
+
+
+● ✅ i18n 修復完成
+
+  c83eee5 fix(i18n): add missing translations for V3.1 PROMPT_TYPES
+
+  已為 3 個語言（en, zh-TW, zh-CN）添加以下翻譯：
+  - STAGE_1_COMPANY_IDENTIFICATION
+  - STAGE_2_FORMAT_IDENTIFICATION
+  - STAGE_3_FIELD_EXTRACTION
+
+  請重新整理頁面 http://localhost:3005/en/admin/prompt-configs 驗證。
+
+✻ Churned for 1m 39s
+
+❯  我發現組常都會有這些i18n相關的問題, 原因是什麼? 可以如何避免? 
+  ⎿  Context limit reached · /compact or /clear to continue
+
+❯ /compact 總結討論（限400字）：1. Key decisions made + code patterns 
+established 2. 檔案狀態：✅已完成 / 🔄進行中（標註位置）/ ⏳待處理 3. Next 
+steps：compact 後立即執行的具體動作 4. Blockers（如有）Format as system prompt 
+for next chat, enabling immediate continuation. 
+  ⎿  Error: Error during compaction: Error: Conversation too long. Press esc
+     twice to go up a few messages and try again.

@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-02-01T06:45:05.620Z",
+  "documentId": "local-1769928289675",
+  "fileName": "DHL_HEX240522_41293.pdf",
+  "results": [
+    {
+      "stage": "Company Identification",
+      "model": "gpt-5-nano",
+      "success": false,
+      "responseTimeMs": 4078,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0
+      },
+      "estimatedCost": 0,
+      "error": "400 Unsupported value: 'temperature' does not support 0.1 with this model. Only the default (1) value is supported."
+    },
+    {
+      "stage": "Format Identification",
+      "model": "gpt-5-nano",
+      "success": false,
+      "responseTimeMs": 2344,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0
+      },
+      "estimatedCost": 0,
+      "error": "400 Unsupported value: 'temperature' does not support 0.1 with this model. Only the default (1) value is supported."
+    },
+    {
+      "stage": "Field Extraction",
+      "model": "gpt-5-nano",
+      "success": false,
+      "responseTimeMs": 2307,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0
+      },
+      "estimatedCost": 0,
+      "error": "400 Unsupported value: 'temperature' does not support 0.1 with this model. Only the default (1) value is supported."
+    }
+  ],
+  "summary": {
+    "totalTokensIn": 0,
+    "totalTokensOut": 0,
+    "totalCost": 0,
+    "successCount": 0,
+    "avgConfidence": 0,
+    "gpt52ComparisonCost": 0,
+    "savings": 0,
+    "savingsPercent": "NaN"
+  }
+}

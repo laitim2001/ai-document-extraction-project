@@ -1,0 +1,836 @@
+
+ ▐▛███▜▌   Claude Code v2.1.29
+▝▜█████▛▘  Opus 4.5 · Claude Max
+  ▘▘ ▝▝    ~\Documents\GitHub\ai-document-extraction-project
+
+✻ Conversation compacted (ctrl+o for history)
+
+
+❯ /compact 總結討論（限400字）：1. Key decisions made + code patterns 
+established 2. 檔案狀態：✅已完成 / 🔄進行中（標註位置）/ ⏳待處理 3. Next 
+steps：compact 後立即執行的具體動作 4. Blockers（如有）Format as system prompt 
+for next chat, enabling immediate continuation. 
+  ⎿  Compacted (ctrl+o to see full summary)
+  ⎿ Referenced file claudedocs\4-changes\feature-changes\CHANGE-024-three-stage-
+    extraction-architecture.md
+  ⎿  Referenced file claudedocs\CLAUDE.md
+  ⎿ Read src\services\extraction-v3\stages\stage-1-company.service.ts (378 
+    lines)
+  ⎿ Read src\services\extraction-v3\stages\stage-2-format.service.ts (459 lines)
+
+  ⎿  Read src\services\extraction-v3\stages\index.ts (72 lines)
+
+❯ 繼續執行進行中的工作 
+
+● 我會繼續執行 CHANGE-024 Phase 3 的實作。根據摘要，我需要：
+
+  1. Phase 3.1-3.2: 創建 V3.1 信心度服務並整合 StageOrchestratorService
+
+  讓我先讀取 CHANGE-024 文檔確認規劃，然後開始實作。
+
+● Read 2 files (ctrl+o to expand)
+  ⎿  Loaded src\services\CLAUDE.md
+  ⎿  Loaded .claude\rules\general.md
+  ⎿  Loaded .claude\rules\i18n.md
+  ⎿  Loaded .claude\rules\services.md
+  ⎿  Loaded .claude\rules\typescript.md
+  ⎿  Loaded claudedocs\CLAUDE.md
+
+● 我已讀取了 CHANGE-024 文檔和現有的
+  confidence-v3.service.ts。讓我繼續閱讀需要整合的服務。
+
+● Read 2 files (ctrl+o to expand)
+
+● 現在我了解了完整的架構。讓我讀取類型定義文件，然後開始實作 Phase 3。
+
+● Read 1 file (ctrl+o to expand)
+
+● 現在我有完整的類型定義。讓我開始實作 Phase 3。我會按以下順序進行：
+
+  1. Phase 3.2: 創建 V3.1 信心度計算服務
+  2. Phase 3.1: 整合三階段到主服務
+
+  讓我先創建 V3.1 信心度服務：
+
+● Write(src\services\extraction-v3\confidence-v3-1.service.ts)
+  ⎿  Wrote 1 lines to src\services\extraction-v3\confidence-v3-1.service.ts
+     /**
+      * @fileoverview V3.1 信心度計算服務 - 基於三階段架構
+      * @description
+      *   實現基於三階段分離架構的 5 維度加權信心度計算：
+      *   - STAGE_1_COMPANY (20%): Stage 1 公司識別信心度
+      *   - STAGE_2_FORMAT (15%): Stage 2 格式識別信心度
+      *   - STAGE_3_EXTRACTION (30%): Stage 3 欄位提取信心度
+      *   - FIELD_COMPLETENESS (20%): 欄位完整性
+      *   - CONFIG_SOURCE_BONUS (15%): 配置來源加成
+      *
+
+● 已創建 V3.1 信心度服務。現在讓我更新導出並繼續 Phase 3.1 -
+  整合三階段到主服務。
+
+● Read 1 file (ctrl+o to expand)
+
+● 現在讓我更新 index.ts 來導出 V3.1 信心度服務：
+
+● Update(src\services\extraction-v3\index.ts)
+  ⎿  Added 29 lines
+      297    isStage3ExtractionResult,                                   
+      298    detectExtractionVersion,                                    
+      299  } from '@/types/extraction-v3.types';                         
+      300 +                                                              
+      301 +// ========================================================== 
+          +==================                                            
+      302 +// CHANGE-024: V3.1 Confidence Service                        
+      303 +// ========================================================== 
+          +==================                                            
+      304 +                                                              
+      305 +export {                                                      
+      306 +  ConfidenceV3_1Service,                                      
+      307 +  calculateConfidenceV3_1,                                    
+      308 +  quickCalculateConfidenceV3_1,                               
+      309 +  getRoutingDecisionV3_1,                                     
+      310 +  ROUTING_THRESHOLDS_V3_1,                                    
+      311 +  type ConfidenceInputV3_1,                                   
+      312 +  type ConfidenceCalculationOptionsV3_1,                      
+      313 +  type ConfidenceServiceResultV3_1,                           
+      314 +  type RoutingDecisionV3_1,                                   
+      315 +} from './confidence-v3-1.service';                           
+      316 +                                                              
+      317 +// ========================================================== 
+          +==================                                            
+      318 +// CHANGE-024: GptCallerService (共用 GPT 調用)                  
+      
+
+      319 +// ========================================================== 
+          +==================                                            
+      320 +                                                              
+      321 +export {                                                      
+      322 +  GptCallerService,                                           
+      323 +  type GptModelType,                                          
+      324 +  type ImageDetailMode,                                       
+      325 +  type GptCallerConfig,                                       
+      326 +  type GptCallInput,                                          
+      327 +  type GptCallResult,                                         
+      328 +} from './stages/gpt-caller.service';                         
+
+● 現在讓我驗證 TypeScript 編譯並繼續 Phase 3.3 -
+  更新結果持久化服務。首先讓我讀取當前的持久化服務：
+
+● Read 1 file (ctrl+o to expand)
+
+● 讓我檢查 Prisma schema 中 ExtractionResult 的欄位，然後決定需要新增什麼：
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● 現在我了解了 ExtractionResult 的結構。讓我根據 CHANGE-024
+  規劃新增欄位。首先更新 Prisma schema：
+
+● Read 1 file (ctrl+o to expand)
+  ⎿  Loaded .claude\rules\database.md
+
+● 現在讓我更新 Prisma schema 加入 V3.1 三階段欄位：
+
+● Update(prisma\schema.prisma)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 22 lines
+      971    gptModelUsed     String? @map("gpt_model_used")             
+      972    imageDetailMode  String? @map("image_detail_mode")          
+      973                                                                
+      974 +  // CHANGE-024: V3.1 三階段提取架構欄位                         
+           
+
+      975 +  extractionVersion   String? @map("extraction_version") //   
+          +"v3" | "v3.1"                                                 
+      976 +                                                              
+      977 +  // Stage Results (JSON)                                     
+      978 +  stage1Result        Json?   @map("stage_1_result") //       
+          +Stage1CompanyResult                                           
+      979 +  stage2Result        Json?   @map("stage_2_result") //       
+          +Stage2FormatResult                                            
+      980 +  stage3Result        Json?   @map("stage_3_result") //       
+          +Stage3ExtractionResult                                        
+      981 +                                                              
+      982 +  // Stage AI Details (JSON)                                  
+      983 +  stage1AiDetails     Json?   @map("stage_1_ai_details") //   
+          +StageAiDetails                                                
+      984 +  stage2AiDetails     Json?   @map("stage_2_ai_details") //   
+          +StageAiDetails                                                
+      985 +  stage3AiDetails     Json?   @map("stage_3_ai_details") //   
+          +StageAiDetails                                                
+      986 +                                                              
+      987 +  // Stage Durations (milliseconds)                           
+      988 +  stage1DurationMs    Int?    @map("stage_1_duration_ms")     
+      989 +  stage2DurationMs    Int?    @map("stage_2_duration_ms")     
+      990 +  stage3DurationMs    Int?    @map("stage_3_duration_ms")     
+      991 +                                                              
+      992 +  // Config Source Tracking                                   
+      993 +  stage2ConfigSource  String? @map("stage_2_config_source")   
+          +// "COMPANY_SPECIFIC" | "UNIVERSAL" | "LLM_INFERRED"          
+      994 +  stage3ConfigScope   String? @map("stage_3_config_scope")    
+          +// "GLOBAL" | "COMPANY" | "FORMAT"                            
+      995 +                                                              
+      996    // Relations                                                
+      997    document  Document   @relation(fields: [documentId],        
+           references: [id], onDelete: Cascade)                          
+      998    forwarder Forwarder? @relation(fields: [forwarderId],       
+           references: [id])                                             
+
+● 現在讓我也為新欄位加入索引並更新持久化服務。首先加入索引：
+
+● Update(prisma\schema.prisma)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 2 lines
+      1004    @@index([status])                                          
+      1005    @@index([averageConfidence])                               
+      1006    @@index([createdAt])                                       
+      1007 +  @@index([extractionVersion]) // CHANGE-024                 
+      1008 +  @@index([stage2ConfigSource]) // CHANGE-024                
+      1009    @@map("extraction_results")                                
+      1010  }                                                            
+      1011                                                               
+
+● 現在更新持久化服務以支援 V3.1 三階段結果：
+
+● Update(src\services\processing-result-persistence.service.ts)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 7 lines
+      34    UnmappedField,                                               
+      35    StepResult,                                                  
+      36  } from '@/types/unified-processor';                            
+      37 +import type {                                                  
+      38 +  ExtractionV3_1Output,                                        
+      39 +  Stage1CompanyResult,                                         
+      40 +  Stage2FormatResult,                                          
+      41 +  Stage3ExtractionResult,                                      
+      42 +  StepResultV3_1,                                              
+      43 +} from '@/types/extraction-v3.types';                          
+      44                                                                 
+      45  // =========================================================== 
+          =================                                              
+      46  // Types                                                       
+
+● Update(src\services\processing-result-persistence.service.ts)
+  ⎿  Added 252 lines
+      353      },                                                        
+      354    });                                                         
+      355  }                                                             
+      356 +                                                              
+      357 +// ========================================================== 
+          +==================                                            
+      358 +// CHANGE-024: V3.1 三階段結果持久化                             
+          
+
+      359 +// ========================================================== 
+          +==================                                            
+      360 +                                                              
+      361 +/**                                                           
+      362 + * V3.1 持久化輸入參數                                           
+         
+
+      363 + */                                                           
+      364 +export interface PersistV3_1ResultInput {                     
+      365 +  /** 文件 ID */                                                
+      366 +  documentId: string;                                         
+      367 +  /** V3.1 處理輸出 */                                           
+      
+
+      368 +  result: ExtractionV3_1Output;                               
+      369 +  /** 操作用戶 ID */                                             
+      
+
+      370 +  userId: string;                                             
+      371 +}                                                             
+      372 +                                                              
+      373 +/**                                                           
+      374 + * V3.1 持久化輸出結果                                           
+         
+
+      375 + */                                                           
+      376 +export interface PersistV3_1ResultOutput {                    
+      377 +  /** ExtractionResult 記錄 ID */                               
+      378 +  extractionResultId: string;                                 
+      379 +  /** 更新後的 Document 狀態 */                                  
+        
+
+      380 +  documentStatus: string;                                     
+      381 +  /** 提取版本 */                                                
+      
+
+      382 +  extractionVersion: 'v3.1';                                  
+      383 +  /** Stage 統計 */                                             
+      384 +  stageStats: {                                               
+      385 +    stage1Success: boolean;                                   
+      386 +    stage2Success: boolean;                                   
+      387 +    stage3Success: boolean;                                   
+      388 +    totalDurationMs: number;                                  
+      389 +  };                                                          
+      390 +}                                                             
+      391 +                                                              
+      392 +/**                                                           
+      393 + * 將 StepResultV3_1[] 轉換為可持久化的 JSON 格式                
+             
+
+      394 + */                                                           
+      395 +function convertV3_1StepResultsToJson(                        
+      396 +  stepResults: StepResultV3_1[],                              
+      397 +): Array<{                                                    
+      398 +  step: string;                                               
+      399 +  success: boolean;                                           
+      400 +  error?: string;                                             
+      401 +  durationMs: number;                                         
+      402 +  skipped?: boolean;                                          
+      403 +}> {                                                          
+      404 +  return stepResults.map((sr) => ({                           
+      405 +    step: sr.step,                                            
+      406 +    success: sr.success,                                      
+      407 +    ...(sr.error ? { error: sr.error } : {}),                 
+      408 +    durationMs: sr.durationMs,                                
+      409 +    ...(sr.skipped ? { skipped: sr.skipped } : {}),           
+      410 +  }));                                                        
+      411 +}                                                             
+      412 +                                                              
+      413 +/**                                                           
+      414 + * 持久化 V3.1 三階段處理結果                                    
+            
+
+      415 + *                                                            
+      416 + * @description                                               
+      417 + *   將 ExtractionV3_1Output 寫入資料庫：                        
+         
+
+      418 + *   1. 存儲三階段結果（stage1Result, stage2Result,              
+          
+
+          +stage3Result）                                                 
+      419 + *   2. 存儲各階段 AI 詳情                                       
+         
+
+      420 + *   3. 計算並存儲信心度                                         
+          
+
+      421 + *   4. 更新 Document 狀態                                       
+      
+
+      422 + *                                                            
+      423 + * @param input - V3.1 持久化輸入                                
+       
+
+      424 + * @returns 持久化結果摘要                                       
+         
+
+      425 + */                                                           
+      426 +export async function persistV3_1ProcessingResult(            
+      427 +  input: PersistV3_1ResultInput,                              
+      428 +): Promise<PersistV3_1ResultOutput> {                         
+      429 +  const { documentId, result } = input;                       
+      430 +  const { stage1Result, stage2Result, stage3Result } =        
+          +result;                                                       
+      431 +                                                              
+      432 +  // 計算統計                                                    
+      
+
+      433 +  const stage1Success = stage1Result?.success ?? false;       
+      434 +  const stage2Success = stage2Result?.success ?? false;       
+      435 +  const stage3Success = stage3Result?.success ?? false;       
+      436 +                                                              
+      437 +  const totalDurationMs =                                     
+      438 +    (stage1Result?.durationMs ?? 0) +                         
+      439 +    (stage2Result?.durationMs ?? 0) +                         
+      440 +    (stage3Result?.durationMs ?? 0);                          
+      441 +                                                              
+      442 +  // 從 Stage 3 提取欄位信息                                     
+         
+
+      443 +  const standardFields = stage3Result?.standardFields ?? {};  
+      444 +  const lineItems = stage3Result?.lineItems ?? [];            
+      445 +  const extraCharges = stage3Result?.extraCharges ?? [];      
+      446 +                                                              
+      447 +  // 計算欄位統計                                                
+        
+
+      448 +  const standardFieldKeys = Object.keys(standardFields);      
+      449 +  const totalFields = standardFieldKeys.length +              
+          +lineItems.length + extraCharges.length;                       
+      450 +  const mappedFields = standardFieldKeys.filter(              
+      451 +    (key) => {                                                
+      452 +      const field = standardFields[key as keyof typeof        
+          +standardFields];                                              
+      453 +      return field?.value !== null && field?.value !== '';    
+      454 +    }                                                         
+      455 +  ).length;                                                   
+      456 +                                                              
+      457 +  // 計算整體信心度                                              
+         
+
+      458 +  const overallConfidence =                                   
+          +result.confidenceResult?.overallScore ?? 0;                   
+      459 +                                                              
+      460 +  // Token 統計                                                 
+      461 +  const totalTokens =                                         
+      462 +    (stage1Result?.aiDetails?.tokenUsage?.total ?? 0) +       
+      463 +    (stage2Result?.aiDetails?.tokenUsage?.total ?? 0) +       
+      464 +    (stage3Result?.tokenUsage?.total ?? 0);                   
+      465 +                                                              
+      466 +  // 決定 Document 狀態                                          
+      
+
+      467 +  const documentStatus = result.success ? 'MAPPING_COMPLETED' 
+          + : 'OCR_FAILED';                                              
+      468 +                                                              
+      469 +  // 構建 pipeline steps                                        
+      470 +  const pipelineSteps = result.stepResults?.length            
+      471 +    ? convertV3_1StepResultsToJson(result.stepResults)        
+      472 +    : null;                                                   
+      473 +                                                              
+      474 +  // 構建信心度分數                                              
+         
+
+      475 +  const confidenceScores = result.confidenceResult            
+      476 +    ? {                                                       
+      477 +        overall: overallConfidence,                           
+      478 +        dimensions: result.confidenceResult.dimensions,       
+      479 +        level: result.confidenceResult.level,                 
+      480 +        routingDecision: result.routingDecision?.decision,    
+      481 +      }                                                       
+      482 +    : null;                                                   
+      483 +                                                              
+      484 +  // 使用 Prisma 交易確保原子性                                  
+           
+
+      485 +  const [extractionResult] = await prisma.$transaction([      
+      486 +    // 1. Upsert ExtractionResult                             
+      487 +    prisma.extractionResult.upsert({                          
+      488 +      where: { documentId },                                  
+      489 +      create: {                                               
+      490 +        documentId,                                           
+      491 +        companyId: stage1Result?.companyId ?? null,           
+      492 +        fieldMappings: standardFields as unknown as           
+          +Prisma.InputJsonValue,                                        
+      493 +        totalFields,                                          
+      494 +        mappedFields,                                         
+      495 +        unmappedFields: totalFields - mappedFields,           
+      496 +        averageConfidence: overallConfidence,                 
+      497 +        confidenceScores: confidenceScores as unknown as      
+          +Prisma.InputJsonValue,                                        
+      498 +        processingTime: totalDurationMs,                      
+      499 +        rulesApplied: 0, // V3.1 不使用規則                      
+       
+
+      500 +        status: result.success ? 'COMPLETED' : 'FAILED',      
+      501 +        errorMessage: result.error ?? null,                   
+      502 +        pipelineSteps: pipelineSteps as unknown as            
+          +Prisma.InputJsonValue,                                        
+      503 +                                                              
+      504 +        // V3.1 三階段欄位                                       
+       
+
+      505 +        extractionVersion: 'v3.1',                            
+      506 +        stage1Result: stage1Result as unknown as              
+          +Prisma.InputJsonValue,                                        
+      507 +        stage2Result: stage2Result as unknown as              
+          +Prisma.InputJsonValue,                                        
+      508 +        stage3Result: stage3Result as unknown as              
+          +Prisma.InputJsonValue,                                        
+      509 +        stage1AiDetails: stage1Result?.aiDetails as unknown   
+          +as Prisma.InputJsonValue,                                     
+      510 +        stage2AiDetails: stage2Result?.aiDetails as unknown   
+          +as Prisma.InputJsonValue,                                     
+      511 +        stage3AiDetails: stage3Result?.aiDetails as unknown   
+          +as Prisma.InputJsonValue,                                     
+      512 +        stage1DurationMs: stage1Result?.durationMs ?? null,   
+      513 +        stage2DurationMs: stage2Result?.durationMs ?? null,   
+      514 +        stage3DurationMs: stage3Result?.durationMs ?? null,   
+      515 +        stage2ConfigSource: stage2Result?.configSource ??     
+          +null,                                                         
+      516 +        stage3ConfigScope:                                    
+          +stage3Result?.configUsed?.promptConfigScope ?? null,          
+      517 +                                                              
+      518 +        // Token 統計（合計三階段）                              
+           
+
+      519 +        totalTokens,                                          
+      520 +        promptTokens:                                         
+      521 +          (stage1Result?.aiDetails?.tokenUsage?.input ?? 0) + 
+      522 +          (stage2Result?.aiDetails?.tokenUsage?.input ?? 0) + 
+      523 +          (stage3Result?.tokenUsage?.input ?? 0),             
+      524 +        completionTokens:                                     
+      525 +          (stage1Result?.aiDetails?.tokenUsage?.output ?? 0)  
+          ++                                                             
+      526 +          (stage2Result?.aiDetails?.tokenUsage?.output ?? 0)  
+          ++                                                             
+      527 +          (stage3Result?.tokenUsage?.output ?? 0),            
+      528 +        gptModelUsed: stage3Result?.aiDetails?.model ??       
+          +stage1Result?.aiDetails?.model ?? null,                       
+      529 +      },                                                      
+      530 +      update: {                                               
+      531 +        companyId: stage1Result?.companyId ?? null,           
+      532 +        fieldMappings: standardFields as unknown as           
+          +Prisma.InputJsonValue,                                        
+      533 +        totalFields,                                          
+      534 +        mappedFields,                                         
+      535 +        unmappedFields: totalFields - mappedFields,           
+      536 +        averageConfidence: overallConfidence,                 
+      537 +        confidenceScores: confidenceScores as unknown as      
+          +Prisma.InputJsonValue,                                        
+      538 +        processingTime: totalDurationMs,                      
+      539 +        status: result.success ? 'COMPLETED' : 'FAILED',      
+      540 +        errorMessage: result.error ?? null,                   
+      541 +        pipelineSteps: pipelineSteps as unknown as            
+          +Prisma.InputJsonValue,                                        
+      542 +                                                              
+      543 +        // V3.1 三階段欄位                                       
+       
+
+      544 +        extractionVersion: 'v3.1',                            
+      545 +        stage1Result: stage1Result as unknown as              
+          +Prisma.InputJsonValue,                                        
+      546 +        stage2Result: stage2Result as unknown as              
+          +Prisma.InputJsonValue,                                        
+      547 +        stage3Result: stage3Result as unknown as              
+          +Prisma.InputJsonValue,                                        
+      548 +        stage1AiDetails: stage1Result?.aiDetails as unknown   
+          +as Prisma.InputJsonValue,                                     
+      549 +        stage2AiDetails: stage2Result?.aiDetails as unknown   
+          +as Prisma.InputJsonValue,                                     
+      550 +        stage3AiDetails: stage3Result?.aiDetails as unknown   
+          +as Prisma.InputJsonValue,                                     
+      551 +        stage1DurationMs: stage1Result?.durationMs ?? null,   
+      552 +        stage2DurationMs: stage2Result?.durationMs ?? null,   
+      553 +        stage3DurationMs: stage3Result?.durationMs ?? null,   
+      554 +        stage2ConfigSource: stage2Result?.configSource ??     
+          +null,                                                         
+      555 +        stage3ConfigScope:                                    
+          +stage3Result?.configUsed?.promptConfigScope ?? null,          
+      556 +                                                              
+      557 +        // Token 統計                                           
+      558 +        totalTokens,                                          
+      559 +        promptTokens:                                         
+      560 +          (stage1Result?.aiDetails?.tokenUsage?.input ?? 0) + 
+      561 +          (stage2Result?.aiDetails?.tokenUsage?.input ?? 0) + 
+      562 +          (stage3Result?.tokenUsage?.input ?? 0),             
+      563 +        completionTokens:                                     
+      564 +          (stage1Result?.aiDetails?.tokenUsage?.output ?? 0)  
+          ++                                                             
+      565 +          (stage2Result?.aiDetails?.tokenUsage?.output ?? 0)  
+          ++                                                             
+      566 +          (stage3Result?.tokenUsage?.output ?? 0),            
+      567 +        gptModelUsed: stage3Result?.aiDetails?.model ??       
+          +stage1Result?.aiDetails?.model ?? null,                       
+      568 +      },                                                      
+      569 +    }),                                                       
+      570 +                                                              
+      571 +    // 2. 更新 Document                                         
+      572 +    prisma.document.update({                                  
+      573 +      where: { id: documentId },                              
+      574 +      data: {                                                 
+      575 +        status: documentStatus,                               
+      576 +        companyId: stage1Result?.companyId ?? undefined,      
+      577 +        processingPath: result.routingDecision?.decision ===  
+          +'AUTO_APPROVE'                                                
+      578 +          ? 'AUTO_APPROVE'                                    
+      579 +          : result.routingDecision?.decision ===              
+          +'QUICK_REVIEW'                                                
+      580 +            ? 'QUICK_REVIEW'                                  
+      581 +            : 'FULL_REVIEW',                                  
+      582 +        routingDecision: result.routingDecision               
+      583 +          ? ({                                                
+      584 +              decision: result.routingDecision.decision,      
+      585 +              confidence: overallConfidence,                  
+      586 +              reasons: result.routingDecision.reasons,        
+      587 +            } as unknown as Prisma.InputJsonValue)            
+      588 +          : undefined,                                        
+      589 +        processingEndedAt: new Date(),                        
+      590 +        processingDuration: totalDurationMs,                  
+      591 +        errorMessage: result.success ? null : (result.error   
+          +?? 'Processing failed'),                                      
+      592 +      },                                                      
+      593 +    }),                                                       
+      594 +  ]);                                                         
+      595 +                                                              
+      596 +  return {                                                    
+      597 +    extractionResultId: extractionResult.id,                  
+      598 +    documentStatus,                                           
+      599 +    extractionVersion: 'v3.1',                                
+      600 +    stageStats: {                                             
+      601 +      stage1Success,                                          
+      602 +      stage2Success,                                          
+      603 +      stage3Success,                                          
+      604 +      totalDurationMs,                                        
+      605 +    },                                                        
+      606 +  };                                                          
+      607 +}                                                             
+
+● 現在讓我驗證 TypeScript 編譯：
+
+● Bash(npx tsc --noEmit --skipLibCheck 2>&1 | head -100)
+  ⎿ src/services/processing-result-persistence.service.ts(453,21): error TS
+    2339: Property 'value' does not exist on type 'never'.
+    src/services/processing-result-persistence.service.ts(453,46): error TS
+    … +115 lines (ctrl+o to expand)
+
+
+  ⎿  (timeout 2m)
+
+● 我需要先生成 Prisma client 然後修復錯誤。讓我執行：
+
+● Bash(cd C:/Users/rci.ChrisLai/Documents/GitHub/ai-document-extraction-project
+      && npx prisma generate 2>&1)
+  ⎿  Loaded Prisma config from prisma.config.ts.
+
+     Prisma schema loaded from prisma\schema.prisma.
+     … +9 lines (ctrl+o to expand)
+  ⎿  (timeout 1m)
+
+● 現在修復持久化服務中的類型錯誤：
+
+● Read 1 file (ctrl+o to expand)
+
+● Update(src\services\processing-result-persistence.service.ts)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 2 lines, removed 2 lines
+      449    const totalFields = standardFieldKeys.length +              
+           lineItems.length + extraCharges.length;                       
+      450    const mappedFields = standardFieldKeys.filter(              
+      451      (key) => {                                                
+      452 -      const field = standardFields[key as keyof typeof        
+          -standardFields];                                              
+      453 -      return field?.value !== null && field?.value !== '';    
+      452 +      const field = (standardFields as Record<string, {       
+          +value?: string | number | null }>)[key];                      
+      453 +      return field?.value !== null && field?.value !==        
+          +undefined && field?.value !== '';                             
+      454      }                                                         
+      455    ).length;                                                   
+      456                                                                
+
+● Bash(cd C:/Users/rci.ChrisLai/Documents/GitHub/ai-document-extraction-project
+      && npx tsc --noEmit --skipLibCheck 2>&1 | grep -E "^src/services/" | head
+      -30)
+  ⎿  Running in the background (↓ to manage)
+  ⎿  (timeout 2m)
+
+● Task Output b01efe2
+  ⎿  (No content)
+
+● TypeScript 檢查通過了！讓我再做一次完整的檢查來確保所有的 Phase 3 實作都正確：
+
+● Bash(cd C:/Users/rci.ChrisLai/Documents/GitHub/ai-document-extraction-project
+      && npx tsc --noEmit --skipLibCheck 2>&1 | grep -E "^src/" | head -30)
+  ⎿  (No content)
+  ⎿  (timeout 2m)
+
+● 所有 TypeScript 檢查通過！現在讓我繼續 Phase 3.5 - 更新 API 端點以支援
+  V3.1。首先讀取當前的 API 路由：
+
+● Read 1 file (ctrl+o to expand)
+  ⎿  Loaded src\app\api\CLAUDE.md
+  ⎿  Loaded .claude\rules\api-design.md
+
+● 讓我更新 API 端點以支援 V3.1 三階段詳情：
+
+● Update(src\app\api\documents\[id]\route.ts)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 1 line
+      31  import { prisma } from '@/lib/prisma'                          
+      32  import type { ExtractedField } from '@/types/extracted-field'  
+      33  import { getConfidenceLevelFromScore } from                    
+          '@/types/extracted-field'                                      
+      34 +import { detectExtractionVersion } from                        
+         +'@/types/extraction-v3.types'                                  
+      35                                                                 
+      36  //                                                             
+          ============================================================   
+      37  // Types                                                       
+
+● Update(src\app\api\documents\[id]\route.ts)
+  ⎿  Added 13 lines
+      172              totalTokens: includes.has('aiDetails'),           
+      173              gptModelUsed: includes.has('aiDetails'),          
+      174              imageDetailMode: includes.has('aiDetails'),       
+      175 +            // CHANGE-024: V3.1 三階段欄位                       
+       
+
+      176 +            extractionVersion: true,                          
+      177 +            stage1Result: includes.has('stageDetails') ||     
+          +includes.has('aiDetails'),                                    
+      178 +            stage2Result: includes.has('stageDetails') ||     
+          +includes.has('aiDetails'),                                    
+      179 +            stage3Result: includes.has('stageDetails') ||     
+          +includes.has('aiDetails'),                                    
+      180 +            stage1AiDetails: includes.has('stageDetails') ||  
+          +includes.has('aiDetails'),                                    
+      181 +            stage2AiDetails: includes.has('stageDetails') ||  
+          +includes.has('aiDetails'),                                    
+      182 +            stage3AiDetails: includes.has('stageDetails') ||  
+          +includes.has('aiDetails'),                                    
+      183 +            stage1DurationMs: includes.has('stageDetails'),   
+      184 +            stage2DurationMs: includes.has('stageDetails'),   
+      185 +            stage3DurationMs: includes.has('stageDetails'),   
+      186 +            stage2ConfigSource: includes.has('stageDetails'), 
+      187 +            stage3ConfigScope: includes.has('stageDetails'),  
+      188            },                                                  
+      189          },                                                    
+      190        },                                                      
+
+● Update(src\app\api\documents\[id]\route.ts)
+  ⎿  Added 50 lines, removed 4 lines
+      250      // eslint-disable-next-line                               
+           @typescript-eslint/no-unused-vars                             
+      251      const { extractionResult: _er, filePath: _fp, blobName:   
+           _bn, uploader, uploadedBy: _fk, ...documentBase } = document  
+           as Record<string, unknown>                                    
+      252                                                                
+      253 -    // CHANGE-023: 組裝 AI 詳情                                  
+      
+
+      254 -    const aiDetails = includes.has('aiDetails') &&            
+          -document.extractionResult                                     
+      255 -      ? {                                                     
+      253 +    // CHANGE-024: 檢測提取版本                                  
+        
+
+      254 +    const extractionVersion =                                 
+          +document.extractionResult?.extractionVersion as string | null 
+      255 +    const isV3_1 = extractionVersion === 'v3.1'               
+      256 +                                                              
+      257 +    // CHANGE-023 + CHANGE-024: 組裝 AI 詳情（支援 V3 和         
+          
+
+          +V3.1）                                                         
+      258 +    let aiDetails: Record<string, unknown> | undefined        
+      259 +    if (includes.has('aiDetails') &&                          
+          +document.extractionResult) {                                  
+      260 +      if (isV3_1) {                                           
+      261 +        // V3.1: 提供三階段 AI 詳情                              
+         
+
+      262 +        aiDetails = {                                         
+      263 +          version: 'v3.1',                                    
+      264 +          stages: {                                           
+      265 +            stage1: document.extractionResult.stage1AiDetails 
+          + ?? null,                                                     
+      266 +            stage2: document.extractionResult.stage2AiDetails 
+          + ?? null,                                                     
+      267 +            stage3: document.extractionResult.stage3AiDetails 
+          + ?? null,                                                     
+      268 +          },                                                  
+      269 +          tokenUsage: {                                       
+      270 +            input: document.extractionResult.promptTokens ??  
+          +0,                                                            
+      271 +            output:                                           
+          +document.extractionResult.completionTokens ?? 0,              
+      272 +            total: document.extractionResult.totalTokens ??   
+          +0,                                                            
+      273 +          },                                                  
+      274 +          model: document.extractionResult.gptModelUsed ??    
+          +null,                                                         
+      275 +        }                                                     
+      276 +      } else {                                                
+      277 +        // V3: 提供單一 AI 詳情                                  
+        
+
+      278 +        aiDetails = {                                         
+      279 +          version: 'v3',                                      
+      280            prompt: document.extractionResult.gptPrompt ??      
+           null,                                                         
+      281            response: document.extractionResult.gptResponse ??  
+           null,                                                         
+      282            tokenUsage: {                                       
+     ...
+      263            model: document.extractionResult.gptModelUsed ??    
+           null,                                                         
+      264            imageDetailMode:                                    
+           document.extractionResult.imageDetailMode ?? null,            
+      265          }                                                     
+      266 -      : undefined                                             
+      266 +      }                                                       
+      267 +    }                                                         
+      268                                                                
+      269 +    // CHANGE-024: 組裝 Stage 詳情                               
+      
+
+      270 +    let stageDetails: Record<string, unknown> | undefined     
+      271 +    if (includes.has('stageDetails') &&                       
+          +document.extractionResult && isV3_1) {                        
+      272 +      stageDetails = {                                        
+      273 +        stage1: {                                             
+      274 +          result: document.extractionResult.stage1Result ??   
+          +null,                                                         
+      275 +          durationMs:                                         
+          +document.extractionResult.stage1DurationMs ?? null,           
+      276 +        },                                                    
+      277 +        stage2: {                                             
+      278 +          result: document.extractionResult.stage2Result ??   
+          +null,                                                         
+      279 +          durationMs:                                         
+          +document.extractionResult.stage2DurationMs ?? null,           
+      280 +          configSource:                                       
+          +document.extractionResult.stage2ConfigSource ?? null,         
+      281 +        },                                                    
+      282 +        stage3: {                                             
+      283 +          result: document.extractionResult.stage3Result ??   
+          +null,                                                         
+      284 +          durationMs:                                         
+          +document.extractionResult.stage3DurationMs ?? null,           
+      285 +          configScope:                                        
+          +document.extractionResult.stage3ConfigScope ?? null,          
+      286 +        },                                                    
+      287 +      }                                                       
+      288 +    }                                                         
+      289 +                                                              
+      290      const responseData = {                                    
+      291        ...documentBase,                                        
+      292        blobUrl,                                                
+
+● Update(src\app\api\documents\[id]\route.ts)
+  ⎿  PreToolUse:Edit hook error
+  ⎿  Added 4 lines
+      316        blobUrl,                                                
+      317        overallConfidence,                                      
+      318        sourceType: document.sourceType,                        
+      319 +      // CHANGE-024: 提取版本                                    
+      
+
+      320 +      extractionVersion: extractionVersion ?? 'v3',           
+      321        // 前端期望 uploadedBy 為 { id, name, email } 物件         
+         
+
+      322        uploadedBy: uploader ?? null,                           
+      323        ...(includes.has('extractedFields') && {                
+           extractedFields: extractedFields ?? [] }),                    
+     ...
+      327        }),                                                     
+      328        // CHANGE-023: 新增 AI 詳情                                
+      
+
+      329        ...(includes.has('aiDetails') && { aiDetails }),        
+      330 +      // CHANGE-024: 新增 Stage 詳情                             
+      
+
+      331 +      ...(includes.has('stageDetails') && stageDetails && {   
+          +stageDetails }),                                              
+      332      }                                                         
+      333                                                                
+      334      return NextResponse.json({                                
+
+● 現在讓我驗證 API 路由的 TypeScript 編譯：
+
+● Bash(cd C:/Users/rci.ChrisLai/Documents/GitHub/ai-document-extraction-project
+      && npx tsc --noEmit --skipLibCheck 2>&1 | grep -E "documents.*route" |
+      head -10)
+  ⎿  (No content)
+  ⎿  (timeout 1m)
+  ⎿  Context limit reached · /compact or /clear to continue
+
+✻ Cooked for 12m 32s
+
+● Background command "Check TypeScript errors in services" completed (exit code
+0)
+  ⎿  Context limit reached · /compact or /clear to continue
+
+❯ /compact 總結討論（限400字）：1. Key decisions made + code patterns 
+established 2. 檔案狀態：✅已完成 / 🔄進行中（標註位置）/ ⏳待處理 3. Next 
+steps：compact 後立即執行的具體動作 4. Blockers（如有）Format as system prompt 
+for next chat, enabling immediate continuation. 
+  ⎿  Error: Error during compaction: Error: Conversation too long. Press esc
+     twice to go up a few messages and try again.
