@@ -1,6 +1,6 @@
 # Story 21.3: CRUD API 端點
 
-**Status:** pending
+**Status:** done
 
 ---
 
@@ -79,29 +79,29 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 列表與建立 API** (AC: #1, #3)
-  - [ ] 1.1 新增 `/api/v1/exchange-rates/route.ts`
-  - [ ] 1.2 實現 GET（列表查詢）
-  - [ ] 1.3 實現 POST（建立記錄）
+- [x] **Task 1: 列表與建立 API** (AC: #1, #3)
+  - [x] 1.1 新增 `/api/v1/exchange-rates/route.ts`
+  - [x] 1.2 實現 GET（列表查詢）
+  - [x] 1.3 實現 POST（建立記錄）
 
-- [ ] **Task 2: 單一記錄 API** (AC: #2, #4, #5)
-  - [ ] 2.1 新增 `/api/v1/exchange-rates/[id]/route.ts`
-  - [ ] 2.2 實現 GET（單一查詢）
-  - [ ] 2.3 實現 PATCH（更新）
-  - [ ] 2.4 實現 DELETE（刪除）
+- [x] **Task 2: 單一記錄 API** (AC: #2, #4, #5)
+  - [x] 2.1 新增 `/api/v1/exchange-rates/[id]/route.ts`
+  - [x] 2.2 實現 GET（單一查詢）
+  - [x] 2.3 實現 PATCH（更新）
+  - [x] 2.4 實現 DELETE（刪除）
 
-- [ ] **Task 3: 切換狀態 API** (AC: #6)
-  - [ ] 3.1 新增 `/api/v1/exchange-rates/[id]/toggle/route.ts`
-  - [ ] 3.2 實現 POST（切換狀態）
+- [x] **Task 3: 切換狀態 API** (AC: #6)
+  - [x] 3.1 新增 `/api/v1/exchange-rates/[id]/toggle/route.ts`
+  - [x] 3.2 實現 POST（切換狀態）
 
-- [ ] **Task 4: React Query Hooks**
-  - [ ] 4.1 新增 `src/hooks/use-exchange-rates.ts`
-  - [ ] 4.2 實現 useExchangeRates（列表）
-  - [ ] 4.3 實現 useExchangeRate（單一）
-  - [ ] 4.4 實現 useCreateExchangeRate
-  - [ ] 4.5 實現 useUpdateExchangeRate
-  - [ ] 4.6 實現 useDeleteExchangeRate
-  - [ ] 4.7 實現 useToggleExchangeRate
+- [x] **Task 4: React Query Hooks**
+  - [x] 4.1 新增 `src/hooks/use-exchange-rates.ts`
+  - [x] 4.2 實現 useExchangeRates（列表）
+  - [x] 4.3 實現 useExchangeRate（單一）
+  - [x] 4.4 實現 useCreateExchangeRate
+  - [x] 4.5 實現 useUpdateExchangeRate
+  - [x] 4.6 實現 useDeleteExchangeRate
+  - [x] 4.7 實現 useToggleExchangeRate
 
 ---
 
@@ -172,7 +172,24 @@ src/
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 完成日期：2026-02-05
+
+### 實作摘要
+
+**API 端點（3 個 route 文件）：**
+- `src/app/api/v1/exchange-rates/route.ts` - GET 列表查詢（分頁/篩選/排序）、POST 建立（含可選反向匯率）
+- `src/app/api/v1/exchange-rates/[id]/route.ts` - GET 詳情、PATCH 部分更新、DELETE 刪除（含反向記錄級聯刪除）
+- `src/app/api/v1/exchange-rates/[id]/toggle/route.ts` - POST 切換啟用/停用狀態
+
+**React Query Hooks（1 個 hook 文件）：**
+- `src/hooks/use-exchange-rates.ts` - 6 個 hooks：useExchangeRates, useExchangeRate, useCreateExchangeRate, useUpdateExchangeRate, useDeleteExchangeRate, useToggleExchangeRate
+
+### 設計決策
+- **遵循 reference-numbers 模式**：API route 結構、錯誤處理、響應格式完全一致
+- **Next.js 15 params 處理**：使用 `Promise<{ id: string }>` 類型和 `await params`
+- **RFC 7807 錯誤格式**：所有錯誤響應遵循專案統一的 RFC 7807 標準
+- **業務錯誤映射**：服務層 Error message 映射至對應 HTTP 狀態碼（409 Conflict、404 Not Found）
+- **認證暫緩**：POST 端點使用 `'system'` 作為 createdById，後續整合認證後替換
 
 ---
 
