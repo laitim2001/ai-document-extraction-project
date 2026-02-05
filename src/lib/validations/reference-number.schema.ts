@@ -14,7 +14,7 @@
  *
  * @module src/lib/validations/reference-number.schema
  * @since Epic 20 - Story 20.3
- * @lastModified 2026-02-05
+ * @lastModified 2026-02-05 (Story 20.4: Import/Export/Validate schemas)
  *
  * @dependencies
  *   - zod - Schema 驗證庫
@@ -303,3 +303,160 @@ export const referenceNumberIdParamSchema = z.object({
 
 /** Reference Number ID 參數類型 */
 export type ReferenceNumberIdParam = z.infer<typeof referenceNumberIdParamSchema>;
+
+// ============================================================================
+// Import Reference Numbers Schema (Story 20.4)
+// ============================================================================
+
+/** 導入批次最大數量 */
+const IMPORT_MAX_ITEMS = 1000;
+
+/** Region Code 最大長度 */
+const REGION_CODE_MAX_LENGTH = 20;
+
+/** Region Code 最小長度 */
+const REGION_CODE_MIN_LENGTH = 2;
+
+/**
+ * 導入單一項目 Schema
+ */
+const importItemSchema = z.object({
+  /** 唯一識別碼（可選，用於匹配更新現有記錄） */
+  code: z.string().max(CODE_MAX_LENGTH).optional(),
+
+  /** 號碼值 */
+  number: z
+    .string()
+    .min(NUMBER_MIN_LENGTH, '號碼不能為空')
+    .max(NUMBER_MAX_LENGTH, `號碼不能超過 ${NUMBER_MAX_LENGTH} 字元`),
+
+  /** 類型 */
+  type: referenceNumberTypeSchema,
+
+  /** 年份 */
+  year: z
+    .number()
+    .int('年份必須是整數')
+    .min(YEAR_MIN, `年份不能小於 ${YEAR_MIN}`)
+    .max(YEAR_MAX, `年份不能大於 ${YEAR_MAX}`),
+
+  /** 地區代碼（使用 region.code 而非 regionId） */
+  regionCode: z
+    .string()
+    .min(REGION_CODE_MIN_LENGTH, `地區代碼至少 ${REGION_CODE_MIN_LENGTH} 字元`)
+    .max(REGION_CODE_MAX_LENGTH, `地區代碼不能超過 ${REGION_CODE_MAX_LENGTH} 字元`),
+
+  /** 描述 */
+  description: z
+    .string()
+    .max(DESCRIPTION_MAX_LENGTH, `描述不能超過 ${DESCRIPTION_MAX_LENGTH} 字元`)
+    .optional(),
+
+  /** 有效起始日 */
+  validFrom: z.string().datetime('無效的日期時間格式').optional(),
+
+  /** 有效結束日 */
+  validUntil: z.string().datetime('無效的日期時間格式').optional(),
+
+  /** 是否啟用 */
+  isActive: z.boolean().default(true),
+});
+
+/**
+ * 導入 Reference Numbers Schema
+ */
+export const importReferenceNumbersSchema = z.object({
+  /** 匯出版本（可選，用於向後兼容） */
+  exportVersion: z.string().optional(),
+
+  /** 導入項目列表 */
+  items: z
+    .array(importItemSchema)
+    .min(1, '至少需要一筆資料')
+    .max(IMPORT_MAX_ITEMS, `一次最多導入 ${IMPORT_MAX_ITEMS} 筆`),
+
+  /** 導入選項 */
+  options: z
+    .object({
+      /** 覆蓋已存在的記錄（預設 false） */
+      overwriteExisting: z.boolean().default(false),
+      /** 跳過無效記錄（預設 false，false 時整批失敗） */
+      skipInvalid: z.boolean().default(false),
+    })
+    .default({ overwriteExisting: false, skipInvalid: false }),
+});
+
+/** 導入 Reference Numbers 輸入類型 */
+export type ImportReferenceNumbersInput = z.infer<typeof importReferenceNumbersSchema>;
+
+// ============================================================================
+// Export Reference Numbers Query Schema (Story 20.4)
+// ============================================================================
+
+/**
+ * 導出 Reference Numbers 查詢 Schema
+ */
+export const exportReferenceNumbersQuerySchema = z.object({
+  /** 篩選年份 */
+  year: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int())
+    .optional(),
+
+  /** 篩選地區 ID */
+  regionId: z.string().cuid().optional(),
+
+  /** 篩選類型 */
+  type: referenceNumberTypeSchema.optional(),
+
+  /** 篩選狀態 */
+  status: referenceNumberStatusSchema.optional(),
+
+  /** 篩選啟用狀態 */
+  isActive: z
+    .string()
+    .transform((val) => val === 'true')
+    .optional(),
+});
+
+/** 導出 Reference Numbers 查詢類型 */
+export type ExportReferenceNumbersQuery = z.infer<typeof exportReferenceNumbersQuerySchema>;
+
+// ============================================================================
+// Validate Reference Numbers Schema (Story 20.4)
+// ============================================================================
+
+/** 驗證批次最大數量 */
+const VALIDATE_MAX_ITEMS = 100;
+
+/**
+ * 驗證 Reference Numbers Schema
+ */
+export const validateReferenceNumbersSchema = z.object({
+  /** 待驗證號碼列表 */
+  numbers: z
+    .array(
+      z.object({
+        /** 號碼值 */
+        value: z.string().min(1, '號碼不能為空'),
+        /** 類型（可選篩選） */
+        type: referenceNumberTypeSchema.optional(),
+      })
+    )
+    .min(1, '至少需要一筆號碼')
+    .max(VALIDATE_MAX_ITEMS, `一次最多驗證 ${VALIDATE_MAX_ITEMS} 筆`),
+
+  /** 驗證選項 */
+  options: z
+    .object({
+      /** 篩選年份 */
+      year: z.number().int().optional(),
+      /** 篩選地區 ID */
+      regionId: z.string().cuid().optional(),
+    })
+    .optional(),
+});
+
+/** 驗證 Reference Numbers 輸入類型 */
+export type ValidateReferenceNumbersInput = z.infer<typeof validateReferenceNumbersSchema>;

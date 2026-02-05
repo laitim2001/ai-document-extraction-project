@@ -12,10 +12,13 @@
  *   - useCreateReferenceNumber: 建立新記錄
  *   - useUpdateReferenceNumber: 更新記錄
  *   - useDeleteReferenceNumber: 刪除記錄（軟刪除）
+ *   - useImportReferenceNumbers: 批次導入
+ *   - useExportReferenceNumbers: 批次導出
+ *   - useValidateReferenceNumbers: 批次驗證
  *
  * @module src/hooks/use-reference-numbers
  * @since Epic 20 - Story 20.3
- * @lastModified 2026-02-05
+ * @lastModified 2026-02-05 (Story 20.4: Import/Export/Validate hooks)
  *
  * @dependencies
  *   - @tanstack/react-query - 資料查詢和緩存
@@ -369,5 +372,281 @@ export function useDeleteReferenceNumber() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
     },
+  })
+}
+
+// ============================================================
+// Import/Export/Validate 類型定義 (Story 20.4)
+// ============================================================
+
+/**
+ * 導入結果
+ */
+export interface ImportReferenceNumbersResult {
+  imported: number
+  updated: number
+  skipped: number
+  errors: Array<{ index: number; error: string }>
+}
+
+/**
+ * 導入 API 響應
+ */
+interface ImportReferenceNumbersResponse {
+  success: boolean
+  data?: ImportReferenceNumbersResult
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * 導出項目
+ */
+export interface ExportReferenceNumberItem {
+  code: string
+  number: string
+  type: string
+  status: string
+  year: number
+  regionCode: string
+  description: string | null
+  validFrom: string | null
+  validUntil: string | null
+  matchCount: number
+  isActive: boolean
+}
+
+/**
+ * 導出結果
+ */
+export interface ExportReferenceNumbersResult {
+  exportVersion: string
+  exportedAt: string
+  totalCount: number
+  items: ExportReferenceNumberItem[]
+}
+
+/**
+ * 導出 API 響應
+ */
+interface ExportReferenceNumbersResponse {
+  success: boolean
+  data?: ExportReferenceNumbersResult
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * 驗證匹配項目
+ */
+export interface ValidateReferenceNumberMatch {
+  id: string
+  number: string
+  type: string
+  year: number
+  regionCode: string
+  status: string
+}
+
+/**
+ * 驗證結果
+ */
+export interface ValidateReferenceNumbersResult {
+  results: Array<{
+    value: string
+    found: boolean
+    matches: ValidateReferenceNumberMatch[]
+  }>
+  summary: {
+    total: number
+    found: number
+    notFound: number
+  }
+}
+
+/**
+ * 驗證 API 響應
+ */
+interface ValidateReferenceNumbersResponse {
+  success: boolean
+  data?: ValidateReferenceNumbersResult
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * 導入輸入參數
+ */
+export interface ImportReferenceNumbersInput {
+  exportVersion?: string
+  items: Array<{
+    code?: string
+    number: string
+    type: string
+    year: number
+    regionCode: string
+    description?: string
+    validFrom?: string
+    validUntil?: string
+    isActive?: boolean
+  }>
+  options?: {
+    overwriteExisting?: boolean
+    skipInvalid?: boolean
+  }
+}
+
+/**
+ * 導出查詢參數
+ */
+export interface ExportReferenceNumbersParams {
+  year?: number
+  regionId?: string
+  type?: string
+  status?: string
+  isActive?: boolean
+}
+
+/**
+ * 驗證輸入參數
+ */
+export interface ValidateReferenceNumbersInput {
+  numbers: Array<{
+    value: string
+    type?: string
+  }>
+  options?: {
+    year?: number
+    regionId?: string
+  }
+}
+
+// ============================================================
+// Import/Export/Validate API 函數 (Story 20.4)
+// ============================================================
+
+/**
+ * 批次導入 Reference Numbers
+ */
+async function importReferenceNumbersApi(
+  input: ImportReferenceNumbersInput
+): Promise<ImportReferenceNumbersResult> {
+  const response = await fetch('/api/v1/reference-numbers/import', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const json: ImportReferenceNumbersResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to import reference numbers')
+  }
+
+  return json.data
+}
+
+/**
+ * 批次導出 Reference Numbers
+ */
+async function exportReferenceNumbersApi(
+  params: ExportReferenceNumbersParams = {}
+): Promise<ExportReferenceNumbersResult> {
+  const url = new URL('/api/v1/reference-numbers/export', window.location.origin)
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.set(key, String(value))
+    }
+  })
+
+  const response = await fetch(url.toString())
+  const json: ExportReferenceNumbersResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to export reference numbers')
+  }
+
+  return json.data
+}
+
+/**
+ * 批次驗證 Reference Numbers
+ */
+async function validateReferenceNumbersApi(
+  input: ValidateReferenceNumbersInput
+): Promise<ValidateReferenceNumbersResult> {
+  const response = await fetch('/api/v1/reference-numbers/validate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const json: ValidateReferenceNumbersResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to validate reference numbers')
+  }
+
+  return json.data
+}
+
+// ============================================================
+// Import/Export/Validate Hooks (Story 20.4)
+// ============================================================
+
+/**
+ * 批次導入 Reference Numbers Mutation Hook
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: importRefNums, isPending } = useImportReferenceNumbers()
+ *   importRefNums({ items: [...], options: { overwriteExisting: true } })
+ */
+export function useImportReferenceNumbers() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: importReferenceNumbersApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+    },
+  })
+}
+
+/**
+ * 批次導出 Reference Numbers Mutation Hook
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: exportRefNums, isPending } = useExportReferenceNumbers()
+ *   exportRefNums({ year: 2026 })
+ */
+export function useExportReferenceNumbers() {
+  return useMutation({
+    mutationFn: exportReferenceNumbersApi,
+  })
+}
+
+/**
+ * 批次驗證 Reference Numbers Mutation Hook
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: validate, isPending } = useValidateReferenceNumbers()
+ *   validate({ numbers: [{ value: 'SH-001' }] })
+ */
+export function useValidateReferenceNumbers() {
+  return useMutation({
+    mutationFn: validateReferenceNumbersApi,
   })
 }

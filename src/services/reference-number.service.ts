@@ -9,6 +9,9 @@
  *   - create: 建立新記錄（含自動生成 code）
  *   - update: 更新記錄
  *   - delete: 軟刪除記錄
+ *   - importReferenceNumbers: 批次導入
+ *   - exportReferenceNumbers: 批次導出
+ *   - validateReferenceNumbers: 批次驗證
  *
  *   設計決策：
  *   - code 欄位自動生成：格式為 REF-{YEAR}-{REGION_CODE}-{RANDOM}
@@ -17,7 +20,7 @@
  *
  * @module src/services/reference-number.service
  * @since Epic 20 - Story 20.3
- * @lastModified 2026-02-05
+ * @lastModified 2026-02-05 (Story 20.4: Import/Export/Validate)
  *
  * @dependencies
  *   - prisma - 資料庫 ORM
@@ -35,6 +38,9 @@ import type {
   CreateReferenceNumberInput,
   UpdateReferenceNumberInput,
   GetReferenceNumbersQuery,
+  ImportReferenceNumbersInput,
+  ExportReferenceNumbersQuery,
+  ValidateReferenceNumbersInput,
 } from '@/lib/validations/reference-number.schema';
 
 // ============================================================================
@@ -542,4 +548,354 @@ export async function referenceNumberExists(id: string): Promise<boolean> {
     where: { id },
   });
   return count > 0;
+}
+
+// ============================================================================
+// Import (Story 20.4)
+// ============================================================================
+
+/**
+ * 導入結果統計
+ */
+export interface ImportResult {
+  imported: number;
+  updated: number;
+  skipped: number;
+  errors: Array<{ index: number; error: string }>;
+}
+
+/**
+ * 批次導入 Reference Numbers
+ *
+ * @description
+ *   使用 code 匹配現有記錄，regionCode 關聯地區。
+ *   支援 overwriteExisting（覆蓋）和 skipInvalid（跳過無效）選項。
+ *   skipInvalid = false 時，遇到錯誤整批失敗。
+ *
+ * @param input - 導入請求資料
+ * @param createdById - 建立者 ID
+ * @returns 導入結果統計
+ */
+export async function importReferenceNumbers(
+  input: ImportReferenceNumbersInput,
+  createdById: string
+): Promise<ImportResult> {
+  const { items, options } = input;
+  const { overwriteExisting, skipInvalid } = options;
+
+  const result: ImportResult = {
+    imported: 0,
+    updated: 0,
+    skipped: 0,
+    errors: [],
+  };
+
+  // 預先載入所有 region 代碼映射，避免 N+1 查詢
+  const regions = await prisma.region.findMany({
+    select: { id: true, code: true },
+  });
+  const regionMap = new Map(
+    regions.map((r) => [r.code.toUpperCase(), r.id])
+  );
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    try {
+      // 查找 region
+      const regionId = regionMap.get(item.regionCode.toUpperCase());
+      if (!regionId) {
+        throw new Error(`地區代碼 ${item.regionCode} 不存在`);
+      }
+
+      // 檢查是否已存在（優先 by code，其次唯一約束）
+      let existing = null;
+      if (item.code) {
+        existing = await prisma.referenceNumber.findUnique({
+          where: { code: item.code },
+        });
+      }
+
+      if (!existing) {
+        existing = await prisma.referenceNumber.findFirst({
+          where: {
+            number: item.number,
+            type: item.type,
+            year: item.year,
+            regionId,
+          },
+        });
+      }
+
+      if (existing) {
+        if (overwriteExisting) {
+          await prisma.referenceNumber.update({
+            where: { id: existing.id },
+            data: {
+              number: item.number,
+              type: item.type,
+              year: item.year,
+              regionId,
+              description: item.description ?? null,
+              validFrom: item.validFrom ? new Date(item.validFrom) : null,
+              validUntil: item.validUntil ? new Date(item.validUntil) : null,
+              isActive: item.isActive,
+            },
+          });
+          result.updated++;
+        } else {
+          result.skipped++;
+        }
+      } else {
+        // 生成或使用提供的 code
+        const code = item.code || (await generateCode(item.year, item.regionCode));
+
+        await prisma.referenceNumber.create({
+          data: {
+            code,
+            number: item.number,
+            type: item.type,
+            year: item.year,
+            regionId,
+            description: item.description ?? null,
+            validFrom: item.validFrom ? new Date(item.validFrom) : null,
+            validUntil: item.validUntil ? new Date(item.validUntil) : null,
+            isActive: item.isActive,
+            createdById,
+          },
+        });
+        result.imported++;
+      }
+    } catch (error) {
+      if (skipInvalid) {
+        result.errors.push({
+          index: i,
+          error: error instanceof Error ? error.message : '未知錯誤',
+        });
+        result.skipped++;
+      } else {
+        // skipInvalid = false：整批失敗，拋出帶有 index 資訊的錯誤
+        throw new Error(
+          `導入第 ${i + 1} 筆時失敗：${error instanceof Error ? error.message : '未知錯誤'}`
+        );
+      }
+    }
+  }
+
+  return result;
+}
+
+// ============================================================================
+// Export (Story 20.4)
+// ============================================================================
+
+/**
+ * 導出項目結構
+ */
+export interface ExportItem {
+  code: string;
+  number: string;
+  type: string;
+  status: string;
+  year: number;
+  regionCode: string;
+  description: string | null;
+  validFrom: string | null;
+  validUntil: string | null;
+  matchCount: number;
+  isActive: boolean;
+}
+
+/**
+ * 導出結果結構
+ */
+export interface ExportResult {
+  exportVersion: string;
+  exportedAt: string;
+  totalCount: number;
+  items: ExportItem[];
+}
+
+/**
+ * 批次導出 Reference Numbers
+ *
+ * @description
+ *   支援按年份、地區、類型、狀態、啟用狀態篩選。
+ *   返回 JSON 格式，使用 code 和 regionCode（而非 ID）。
+ *
+ * @param query - 篩選條件
+ * @returns 導出結果
+ */
+export async function exportReferenceNumbers(
+  query: ExportReferenceNumbersQuery
+): Promise<ExportResult> {
+  const where: Prisma.ReferenceNumberWhereInput = {};
+
+  if (query.year !== undefined) {
+    where.year = query.year;
+  }
+  if (query.regionId) {
+    where.regionId = query.regionId;
+  }
+  if (query.type) {
+    where.type = query.type;
+  }
+  if (query.status) {
+    where.status = query.status;
+  }
+  if (query.isActive !== undefined) {
+    where.isActive = query.isActive;
+  }
+
+  const items = await prisma.referenceNumber.findMany({
+    where,
+    include: {
+      region: { select: { code: true } },
+    },
+    orderBy: [
+      { year: 'desc' },
+      { number: 'asc' },
+    ],
+  });
+
+  return {
+    exportVersion: '1.0',
+    exportedAt: new Date().toISOString(),
+    totalCount: items.length,
+    items: items.map((item) => ({
+      code: item.code,
+      number: item.number,
+      type: item.type,
+      status: item.status,
+      year: item.year,
+      regionCode: item.region.code,
+      description: item.description,
+      validFrom: formatDate(item.validFrom),
+      validUntil: formatDate(item.validUntil),
+      matchCount: item.matchCount,
+      isActive: item.isActive,
+    })),
+  };
+}
+
+// ============================================================================
+// Validate (Story 20.4)
+// ============================================================================
+
+/**
+ * 驗證匹配結果
+ */
+export interface ValidateMatch {
+  id: string;
+  number: string;
+  type: string;
+  year: number;
+  regionCode: string;
+  status: string;
+}
+
+/**
+ * 驗證單一結果
+ */
+export interface ValidateResultItem {
+  value: string;
+  found: boolean;
+  matches: ValidateMatch[];
+}
+
+/**
+ * 驗證摘要
+ */
+export interface ValidateSummary {
+  total: number;
+  found: number;
+  notFound: number;
+}
+
+/**
+ * 驗證結果
+ */
+export interface ValidateResult {
+  results: ValidateResultItem[];
+  summary: ValidateSummary;
+}
+
+/**
+ * 批次驗證 Reference Numbers
+ *
+ * @description
+ *   檢查號碼列表是否存在於系統中。
+ *   匹配成功時自動增加 matchCount 和更新 lastMatchedAt。
+ *   只匹配 isActive = true 且 status = ACTIVE 的記錄。
+ *
+ * @param input - 驗證請求資料
+ * @returns 驗證結果（含每個號碼的匹配詳情和摘要）
+ */
+export async function validateReferenceNumbers(
+  input: ValidateReferenceNumbersInput
+): Promise<ValidateResult> {
+  const { numbers, options } = input;
+
+  const results = await Promise.all(
+    numbers.map(async ({ value, type }) => {
+      const where: Prisma.ReferenceNumberWhereInput = {
+        number: { equals: value, mode: 'insensitive' },
+        isActive: true,
+        status: 'ACTIVE',
+      };
+
+      if (type) {
+        where.type = type;
+      }
+      if (options?.year) {
+        where.year = options.year;
+      }
+      if (options?.regionId) {
+        where.regionId = options.regionId;
+      }
+
+      const matches = await prisma.referenceNumber.findMany({
+        where,
+        include: {
+          region: { select: { code: true } },
+        },
+        take: 5, // 限制每個號碼最多 5 個匹配
+      });
+
+      // 更新匹配計數
+      if (matches.length > 0) {
+        await prisma.referenceNumber.updateMany({
+          where: { id: { in: matches.map((m) => m.id) } },
+          data: {
+            matchCount: { increment: 1 },
+            lastMatchedAt: new Date(),
+          },
+        });
+      }
+
+      return {
+        value,
+        found: matches.length > 0,
+        matches: matches.map((m) => ({
+          id: m.id,
+          number: m.number,
+          type: m.type,
+          year: m.year,
+          regionCode: m.region.code,
+          status: m.status,
+        })),
+      };
+    })
+  );
+
+  const foundCount = results.filter((r) => r.found).length;
+
+  return {
+    results,
+    summary: {
+      total: numbers.length,
+      found: foundCount,
+      notFound: numbers.length - foundCount,
+    },
+  };
 }

@@ -1,6 +1,6 @@
 # Story 20.4: 導入/導出與驗證 API
 
-**Status:** draft
+**Status:** done
 
 ---
 
@@ -234,7 +234,35 @@ await prisma.referenceNumber.update({
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 完成日期：2026-02-05
+
+### 實作摘要
+
+**Phase 1: Schema 擴展**
+- 在 `reference-number.schema.ts` 新增 3 個 Schema：
+  - `importReferenceNumbersSchema`：支援 items (max 1000), options (overwriteExisting/skipInvalid)
+  - `exportReferenceNumbersQuerySchema`：支援 year/regionId/type/status/isActive 篩選
+  - `validateReferenceNumbersSchema`：支援 numbers (max 100), options (year/regionId)
+
+**Phase 2: 服務層擴展**
+- `importReferenceNumbers`：預載 region 代碼映射避免 N+1，支援 code 匹配和唯一約束匹配
+- `exportReferenceNumbers`：使用 regionCode 而非 regionId，按 year desc + number asc 排序
+- `validateReferenceNumbers`：case-insensitive 匹配，自動增加 matchCount，每個號碼最多 5 個匹配
+
+**Phase 3: API 端點**
+- `POST /api/v1/reference-numbers/import`：批次導入（skipInvalid=false 時整批失敗返回 422）
+- `GET /api/v1/reference-numbers/export`：批次導出（含 exportVersion 和 exportedAt）
+- `POST /api/v1/reference-numbers/validate`：批次驗證（含 summary 統計）
+
+**Phase 4: Hooks 擴展**
+- `useImportReferenceNumbers`：導入後自動 invalidate 列表查詢
+- `useExportReferenceNumbers`：支援篩選參數
+- `useValidateReferenceNumbers`：驗證操作 mutation
+
+### 設計決策
+- Import 使用逐筆處理而非 transaction，以便在 skipInvalid=true 時部分成功
+- Validate 使用 Promise.all 並行查詢每個號碼，提升效能
+- Export 不限制數量，由前端決定是否分頁
 
 ---
 
