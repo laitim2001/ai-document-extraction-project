@@ -1,6 +1,6 @@
 # Story 20.3: Reference Number CRUD API
 
-**Status:** draft
+**Status:** done
 
 ---
 
@@ -191,7 +191,44 @@ function generateCode(year: number, regionCode: string): string {
 
 ## Implementation Notes
 
-（開發完成後填寫）
+**完成日期**: 2026-02-05
+
+### 實現摘要
+
+1. **Zod 驗證 Schema** (`src/lib/validations/reference-number.schema.ts`)
+   - `createReferenceNumberSchema`: 建立驗證（含 validFrom/validUntil 交叉驗證）
+   - `updateReferenceNumberSchema`: 更新驗證（所有欄位可選）
+   - `getReferenceNumbersQuerySchema`: 查詢參數驗證（分頁、篩選、排序）
+   - `referenceNumberIdParamSchema`: ID 參數驗證
+
+2. **服務層** (`src/services/reference-number.service.ts`)
+   - `getReferenceNumbers`: 列表查詢（分頁、篩選、排序）
+   - `getReferenceNumberById`: 單一查詢（含 region 資訊）
+   - `createReferenceNumber`: 建立（含 code 自動生成、唯一約束檢查）
+   - `updateReferenceNumber`: 更新（含唯一約束重新檢查、region 存在性驗證）
+   - `deleteReferenceNumber`: 軟刪除（isActive = false）
+   - Code 自動生成格式: `REF-{YEAR}-{REGION_CODE}-{RANDOM_6CHARS}`
+
+3. **API 端點**
+   - `GET /api/v1/reference-numbers`: 列表查詢（分頁、篩選、排序）
+   - `POST /api/v1/reference-numbers`: 建立新記錄
+   - `GET /api/v1/reference-numbers/:id`: 單一查詢
+   - `PATCH /api/v1/reference-numbers/:id`: 更新記錄
+   - `DELETE /api/v1/reference-numbers/:id`: 軟刪除
+
+4. **React Query Hooks** (`src/hooks/use-reference-numbers.ts`)
+   - `useReferenceNumbers`: 列表查詢 Hook
+   - `useReferenceNumber`: 單一查詢 Hook
+   - `useCreateReferenceNumber`: 建立 Mutation Hook
+   - `useUpdateReferenceNumber`: 更新 Mutation Hook
+   - `useDeleteReferenceNumber`: 刪除 Mutation Hook
+
+### 設計決策
+
+- 使用 `crypto.randomBytes` 替代 `nanoid`（項目未安裝 nanoid）
+- Code 自動生成時會遞迴確保唯一性
+- API 響應格式遵循專案標準（RFC 7807 錯誤格式）
+- 跟隨 Region API 的模式設計（同 Story 20-2）
 
 ---
 
