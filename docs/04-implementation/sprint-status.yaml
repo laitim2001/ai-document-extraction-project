@@ -322,6 +322,6 @@ development_status:
   21-4-convert-calculation-api: done  # Completed 2026-02-05: POST /exchange-rates/convert (Fallback: direct→inverse→cross via USD, Decimal precision, year default), POST /exchange-rates/batch (parallel query, max 50 pairs, found/not_found), useConvertCurrency and useBatchRates React Query hooks
   21-5-import-export-api: done  # Completed 2026-02-06: GET /export (year/isActive filters, exportVersion/exportedAt), POST /import (overwriteExisting/skipInvalid/createInverse options, max 500 items, error reporting), importExchangeRatesSchema/exportExchangeRatesQuerySchema Zod
   21-6-management-page-list-filter: done  # Completed 2026-02-06: /admin/exchange-rates page, ExchangeRateList (Table+sort+pagination+toggle/delete actions), ExchangeRateFilters (year+fromCurrency+toCurrency+status+source), CurrencySelect (Command+Popover combobox with search), exchangeRate.json i18n (en/zh-TW/zh-CN), useExchangeRates/useDeleteExchangeRate/useToggleExchangeRate hooks integration
-  21-7-management-page-form: backlog
+  21-7-management-page-form: done  # Completed 2026-02-06: /admin/exchange-rates/new (create page), /admin/exchange-rates/[id] (edit page), ExchangeRateForm (RHF+Zod, CurrencySelect integration, inverse rate preview, 8-decimal precision), exchangeRate.json i18n form/validation sections (en/zh-TW/zh-CN), FormSkeleton loading state
   21-8-management-page-calculator-import: backlog
   epic-21-retrospective: optional

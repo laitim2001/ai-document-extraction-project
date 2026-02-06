@@ -58,5 +58,31 @@
   "currencySelect": {
     "search": "Search currency...",
     "empty": "No currency found."
+  },
+  "form": {
+    "title": {
+      "create": "Add Exchange Rate",
+      "edit": "Edit Exchange Rate"
+    },
+    "fromCurrency": "From Currency",
+    "toCurrency": "To Currency",
+    "rate": "Exchange Rate",
+    "effectiveYear": "Effective Year",
+    "effectiveFrom": "Effective From (Optional)",
+    "effectiveTo": "Effective To (Optional)",
+    "description": "Description (Optional)",
+    "createInverse": "Create inverse rate automatically",
+    "inversePreview": "Inverse rate preview",
+    "submit": "Save",
+    "cancel": "Cancel",
+    "rateDescription": "1 {from} = {rate} {to}"
+  },
+  "validation": {
+    "sameCurrency": "From and to currency cannot be the same",
+    "invalidRate": "Please enter a valid exchange rate",
+    "requiredCurrency": "Please select a currency",
+    "requiredRate": "Exchange rate is required",
+    "requiredYear": "Effective year is required",
+    "ratePositive": "Exchange rate must be positive"
   }
 }

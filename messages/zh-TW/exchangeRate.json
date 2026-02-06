@@ -58,5 +58,31 @@
   "currencySelect": {
     "search": "搜尋貨幣...",
     "empty": "找不到貨幣。"
+  },
+  "form": {
+    "title": {
+      "create": "新增匯率",
+      "edit": "編輯匯率"
+    },
+    "fromCurrency": "來源貨幣",
+    "toCurrency": "目標貨幣",
+    "rate": "匯率",
+    "effectiveYear": "生效年份",
+    "effectiveFrom": "生效日期（選填）",
+    "effectiveTo": "結束日期（選填）",
+    "description": "說明（選填）",
+    "createInverse": "同時建立反向匯率",
+    "inversePreview": "反向匯率預覽",
+    "submit": "儲存",
+    "cancel": "取消",
+    "rateDescription": "1 {from} = {rate} {to}"
+  },
+  "validation": {
+    "sameCurrency": "來源和目標貨幣不能相同",
+    "invalidRate": "請輸入有效的匯率",
+    "requiredCurrency": "請選擇貨幣",
+    "requiredRate": "匯率為必填",
+    "requiredYear": "生效年份為必填",
+    "ratePositive": "匯率必須為正數"
   }
 }

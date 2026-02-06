@@ -1,6 +1,6 @@
 # Story 21.7: 管理頁面 - 表單
 
-**Status:** pending
+**Status:** done
 
 ---
 
@@ -74,24 +74,24 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 新增頁面** (AC: #1)
-  - [ ] 1.1 新增 `/admin/exchange-rates/new/page.tsx`
-  - [ ] 1.2 整合 ExchangeRateForm 組件
+- [x] **Task 1: 新增頁面** (AC: #1)
+  - [x] 1.1 新增 `/admin/exchange-rates/new/page.tsx`
+  - [x] 1.2 整合 ExchangeRateForm 組件
 
-- [ ] **Task 2: 編輯頁面** (AC: #2)
-  - [ ] 2.1 新增 `/admin/exchange-rates/[id]/page.tsx`
-  - [ ] 2.2 載入現有資料
-  - [ ] 2.3 處理更新邏輯
+- [x] **Task 2: 編輯頁面** (AC: #2)
+  - [x] 2.1 新增 `/admin/exchange-rates/[id]/page.tsx`
+  - [x] 2.2 載入現有資料
+  - [x] 2.3 處理更新邏輯
 
-- [ ] **Task 3: ExchangeRateForm 組件** (AC: #3, #4, #5)
-  - [ ] 3.1 建立 ExchangeRateForm 組件
-  - [ ] 3.2 整合 CurrencySelect
-  - [ ] 3.3 實現反向匯率預覽
-  - [ ] 3.4 使用 React Hook Form + Zod 驗證
+- [x] **Task 3: ExchangeRateForm 組件** (AC: #3, #4, #5)
+  - [x] 3.1 建立 ExchangeRateForm 組件
+  - [x] 3.2 整合 CurrencySelect
+  - [x] 3.3 實現反向匯率預覽
+  - [x] 3.4 使用 React Hook Form + Zod 驗證
 
-- [ ] **Task 4: 成功處理** (AC: #6)
-  - [ ] 4.1 顯示成功 Toast
-  - [ ] 4.2 重新導向列表頁
+- [x] **Task 4: 成功處理** (AC: #6)
+  - [x] 4.1 顯示成功 Toast
+  - [x] 4.2 重新導向列表頁
 
 ---
 
@@ -197,7 +197,42 @@ export function ExchangeRateForm({ initialData, onSuccess }: ExchangeRateFormPro
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 已完成功能
+
+**完成日期**: 2026-02-06
+
+#### 1. 新增頁面 (`/admin/exchange-rates/new`)
+- Server Component 使用 `getTranslations` 獲取翻譯
+- 返回連結導向列表頁
+- 整合 `ExchangeRateForm` 組件
+
+#### 2. 編輯頁面 (`/admin/exchange-rates/[id]`)
+- Client Component 使用 `useExchangeRate` hook 載入資料
+- `FormSkeleton` 載入骨架屏
+- 錯誤狀態使用 `Alert` 組件顯示
+- 編輯模式禁用貨幣對和年份欄位
+
+#### 3. ExchangeRateForm 組件
+- **貨幣選擇**: 整合 `CurrencySelect` 組件（Combobox with search）
+- **匯率輸入**: `step="0.00000001"` 支援 8 位小數精度
+- **年份選擇**: 下拉選單（當前年份 +1 到過去 9 年）
+- **日期範圍**: 可選的 `effectiveFrom` 和 `effectiveTo`
+- **反向匯率**: Checkbox + 即時計算預覽（`1 / rate`）
+- **表單驗證**: Zod schema + React Hook Form，相同貨幣檢查
+- **成功處理**: Toast 通知 + 自動導向列表頁
+
+#### 4. i18n 翻譯
+- 擴展 `exchangeRate.json`：
+  - `form.title.create/edit`
+  - `form.fromCurrency/toCurrency/rate/effectiveYear/effectiveFrom/effectiveTo/description/createInverse/inversePreview/submit/cancel`
+  - `validation.sameCurrency/invalidRate/requiredCurrency/requiredRate/requiredYear/ratePositive`
+- 支援 en, zh-TW, zh-CN 三種語言
+
+### 技術細節
+
+- 使用 `ExchangeRateDetail` 類型（來自 hooks）取代 `ExchangeRateWithRelations`
+- 日期字段處理兼容 ISO 格式和 `YYYY-MM-DD` 格式
+- 編輯模式下 `rate`、`effectiveFrom`、`effectiveTo`、`description` 可修改
 
 ---
 

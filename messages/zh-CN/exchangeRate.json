@@ -58,5 +58,31 @@
   "currencySelect": {
     "search": "搜索货币...",
     "empty": "未找到货币。"
+  },
+  "form": {
+    "title": {
+      "create": "新增汇率",
+      "edit": "编辑汇率"
+    },
+    "fromCurrency": "来源货币",
+    "toCurrency": "目标货币",
+    "rate": "汇率",
+    "effectiveYear": "生效年份",
+    "effectiveFrom": "生效日期（选填）",
+    "effectiveTo": "结束日期（选填）",
+    "description": "说明（选填）",
+    "createInverse": "同时创建反向汇率",
+    "inversePreview": "反向汇率预览",
+    "submit": "保存",
+    "cancel": "取消",
+    "rateDescription": "1 {from} = {rate} {to}"
+  },
+  "validation": {
+    "sameCurrency": "来源和目标货币不能相同",
+    "invalidRate": "请输入有效的汇率",
+    "requiredCurrency": "请选择货币",
+    "requiredRate": "汇率为必填",
+    "requiredYear": "生效年份为必填",
+    "ratePositive": "汇率必须为正数"
   }
 }
