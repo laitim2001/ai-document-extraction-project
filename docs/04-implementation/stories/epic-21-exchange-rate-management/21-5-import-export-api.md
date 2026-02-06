@@ -1,6 +1,6 @@
 # Story 21.5: Import/Export API
 
-**Status:** pending
+**Status:** done
 
 ---
 
@@ -60,23 +60,23 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Export API** (AC: #1)
-  - [ ] 1.1 新增 `/api/v1/exchange-rates/export/route.ts`
-  - [ ] 1.2 實現 GET 端點
-  - [ ] 1.3 支援篩選參數
+- [x] **Task 1: Export API** (AC: #1)
+  - [x] 1.1 新增 `/api/v1/exchange-rates/export/route.ts`
+  - [x] 1.2 實現 GET 端點
+  - [x] 1.3 支援篩選參數
 
-- [ ] **Task 2: Import API** (AC: #2, #3, #4)
-  - [ ] 2.1 新增 `/api/v1/exchange-rates/import/route.ts`
-  - [ ] 2.2 實現 POST 端點
-  - [ ] 2.3 實現驗證和錯誤處理
-  - [ ] 2.4 實現 overwrite 邏輯
-  - [ ] 2.5 處理反向匯率建立
+- [x] **Task 2: Import API** (AC: #2, #3, #4)
+  - [x] 2.1 新增 `/api/v1/exchange-rates/import/route.ts`
+  - [x] 2.2 實現 POST 端點
+  - [x] 2.3 實現驗證和錯誤處理
+  - [x] 2.4 實現 overwrite 邏輯
+  - [x] 2.5 處理反向匯率建立
 
-- [ ] **Task 3: Zod Schema 擴展**
-  - [ ] 3.1 新增 importExchangeRatesSchema
-  - [ ] 3.2 新增 exportExchangeRatesQuerySchema
+- [x] **Task 3: Zod Schema 擴展**
+  - [x] 3.1 新增 importExchangeRatesSchema
+  - [x] 3.2 新增 exportExchangeRatesQuerySchema
 
-- [ ] **Task 4: React Query Hooks**
+- [ ] **Task 4: React Query Hooks** (延後至 Story 21-8)
   - [ ] 4.1 新增 useExportExchangeRates
   - [ ] 4.2 新增 useImportExchangeRates
 
@@ -192,7 +192,31 @@ export const exportExchangeRatesQuerySchema = z.object({
 
 ## Implementation Notes
 
-（開發完成後填寫）
+**Completed: 2026-02-06**
+
+### 實作內容
+
+#### 1. Schema 擴展 (`src/lib/validations/exchange-rate.schema.ts`)
+- `exportExchangeRatesQuerySchema`: 導出查詢參數驗證 (year, isActive)
+- `importExchangeRatesSchema`: 導入資料驗證 (items 1-500, options)
+- `importExchangeRateItemSchema`: 單一導入項目驗證
+
+#### 2. 服務層擴展 (`src/services/exchange-rate.service.ts`)
+- `exportExchangeRates()`: 導出匯率為 JSON 格式，含 exportVersion 和時間戳
+- `importExchangeRates()`: 批次導入匯率，支援：
+  - `overwriteExisting`: 覆寫已存在記錄
+  - `skipInvalid`: 跳過錯誤記錄繼續處理
+  - `createInverse`: 每筆記錄同時建立反向匯率
+
+#### 3. API 端點
+- `GET /api/v1/exchange-rates/export`: 導出匯率資料
+- `POST /api/v1/exchange-rates/import`: 批次導入匯率
+
+### 技術細節
+- 導入時使用 Prisma transaction 確保 createInverse 的原子性
+- 反向記錄會自動檢查是否已存在，避免重複建立
+- skipInvalid=false 時，任何錯誤會使整批導入失敗（回報詳細錯誤位置）
+- 支援 rate 欄位輸入 number 或 string（自動轉換）
 
 ---
 

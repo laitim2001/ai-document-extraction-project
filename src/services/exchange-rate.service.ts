@@ -12,6 +12,8 @@
  *   - toggleExchangeRate: 切換啟用/停用狀態
  *   - convert: 匯率轉換計算（含 Fallback: direct → inverse → cross）
  *   - batchGetRates: 批次查詢多個貨幣對匯率
+ *   - exportExchangeRates: 導出匯率資料為 JSON（Story 21-5）
+ *   - importExchangeRates: 批次導入匯率資料（Story 21-5）
  *
  *   設計決策：
  *   - 自動反向匯率：建立時可選 createInverse，使用 transaction 確保一致性
@@ -21,7 +23,7 @@
  *
  * @module src/services/exchange-rate.service
  * @since Epic 21 - Story 21.2
- * @lastModified 2026-02-05
+ * @lastModified 2026-02-06
  *
  * @dependencies
  *   - prisma - 資料庫 ORM
@@ -38,6 +40,8 @@ import type {
   CreateExchangeRateInput,
   UpdateExchangeRateInput,
   GetExchangeRatesQuery,
+  ExportExchangeRatesQuery,
+  ImportExchangeRatesInput,
 } from '@/lib/validations/exchange-rate.schema';
 import type { ConvertResult, BatchRateResult } from '@/types/exchange-rate';
 
@@ -783,4 +787,284 @@ export async function batchGetRates(
       }
     })
   );
+}
+
+// ============================================================================
+// Export (Story 21-5)
+// ============================================================================
+
+/**
+ * 導出項目格式
+ */
+export interface ExportExchangeRateItem {
+  fromCurrency: string;
+  toCurrency: string;
+  rate: string;
+  effectiveYear: number;
+  effectiveFrom: string | null;
+  effectiveTo: string | null;
+  source: string;
+  isActive: boolean;
+  description: string | null;
+}
+
+/**
+ * 導出結果格式
+ */
+export interface ExportExchangeRatesResult {
+  exportVersion: string;
+  exportedAt: string;
+  totalCount: number;
+  items: ExportExchangeRateItem[];
+}
+
+/**
+ * 導出匯率資料
+ *
+ * @description
+ *   導出匯率記錄為 JSON 格式。
+ *   支援 year 和 isActive 篩選。
+ *   返回包含版本和時間戳的完整導出資料。
+ *
+ * @param query - 導出查詢參數（year, isActive）
+ * @returns 導出結果（含 exportVersion, exportedAt, items）
+ */
+export async function exportExchangeRates(
+  query: ExportExchangeRatesQuery
+): Promise<ExportExchangeRatesResult> {
+  const where: Prisma.ExchangeRateWhereInput = {};
+
+  if (query.year !== undefined) {
+    where.effectiveYear = query.year;
+  }
+  if (query.isActive !== undefined) {
+    where.isActive = query.isActive;
+  }
+
+  const items = await prisma.exchangeRate.findMany({
+    where,
+    orderBy: [
+      { effectiveYear: 'desc' },
+      { fromCurrency: 'asc' },
+      { toCurrency: 'asc' },
+    ],
+  });
+
+  return {
+    exportVersion: '1.0',
+    exportedAt: new Date().toISOString(),
+    totalCount: items.length,
+    items: items.map((item) => ({
+      fromCurrency: item.fromCurrency,
+      toCurrency: item.toCurrency,
+      rate: item.rate.toString(),
+      effectiveYear: item.effectiveYear,
+      effectiveFrom: item.effectiveFrom?.toISOString() ?? null,
+      effectiveTo: item.effectiveTo?.toISOString() ?? null,
+      source: item.source,
+      isActive: item.isActive,
+      description: item.description,
+    })),
+  };
+}
+
+// ============================================================================
+// Import (Story 21-5)
+// ============================================================================
+
+/**
+ * 導入錯誤項目
+ */
+export interface ImportErrorItem {
+  index: number;
+  error: string;
+}
+
+/**
+ * 導入結果統計
+ */
+export interface ImportExchangeRatesResult {
+  imported: number;
+  updated: number;
+  skipped: number;
+  errors: ImportErrorItem[];
+}
+
+/**
+ * 批次導入匯率資料
+ *
+ * @description
+ *   批次導入匯率記錄。支援以下選項：
+ *   - overwriteExisting: 若記錄已存在，是否覆寫
+ *   - skipInvalid: 遇到錯誤時，是否跳過繼續處理
+ *   - createInverse: 每筆記錄是否同時建立反向匯率
+ *
+ *   處理邏輯：
+ *   1. 驗證 fromCurrency !== toCurrency
+ *   2. 檢查唯一約束（fromCurrency, toCurrency, effectiveYear）
+ *   3. 若已存在：overwriteExisting=true 則更新，否則跳過
+ *   4. 若需 createInverse：使用 transaction 同時建立反向記錄
+ *
+ * @param input - 導入資料（items + options）
+ * @param createdById - 建立者 ID
+ * @returns 導入結果統計（imported, updated, skipped, errors）
+ * @throws Error - skipInvalid=false 且遇到錯誤時
+ */
+export async function importExchangeRates(
+  input: ImportExchangeRatesInput,
+  createdById: string
+): Promise<ImportExchangeRatesResult> {
+  const { items, options } = input;
+  const { overwriteExisting, skipInvalid } = options;
+
+  const result: ImportExchangeRatesResult = {
+    imported: 0,
+    updated: 0,
+    skipped: 0,
+    errors: [],
+  };
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    try {
+      // 驗證貨幣代碼不同
+      if (item.fromCurrency === item.toCurrency) {
+        throw new Error('來源和目標貨幣不能相同');
+      }
+
+      // 檢查是否已存在
+      const existing = await prisma.exchangeRate.findUnique({
+        where: {
+          fromCurrency_toCurrency_effectiveYear: {
+            fromCurrency: item.fromCurrency,
+            toCurrency: item.toCurrency,
+            effectiveYear: item.effectiveYear,
+          },
+        },
+      });
+
+      if (existing) {
+        if (overwriteExisting) {
+          // 更新現有記錄
+          await prisma.exchangeRate.update({
+            where: { id: existing.id },
+            data: {
+              rate: item.rate,
+              effectiveFrom: item.effectiveFrom
+                ? new Date(item.effectiveFrom)
+                : null,
+              effectiveTo: item.effectiveTo
+                ? new Date(item.effectiveTo)
+                : null,
+              description: item.description ?? null,
+              isActive: item.isActive,
+            },
+          });
+          result.updated++;
+        } else {
+          // 跳過已存在的記錄
+          result.skipped++;
+        }
+      } else {
+        // 建立新記錄
+        if (item.createInverse) {
+          // 使用 transaction 同時建立原始和反向記錄
+          await prisma.$transaction(async (tx) => {
+            const original = await tx.exchangeRate.create({
+              data: {
+                fromCurrency: item.fromCurrency,
+                toCurrency: item.toCurrency,
+                rate: item.rate,
+                effectiveYear: item.effectiveYear,
+                effectiveFrom: item.effectiveFrom
+                  ? new Date(item.effectiveFrom)
+                  : null,
+                effectiveTo: item.effectiveTo
+                  ? new Date(item.effectiveTo)
+                  : null,
+                description: item.description ?? null,
+                isActive: item.isActive,
+                source: 'IMPORTED',
+                createdById,
+              },
+            });
+
+            // 檢查反向記錄是否已存在
+            const inverseExisting = await tx.exchangeRate.findUnique({
+              where: {
+                fromCurrency_toCurrency_effectiveYear: {
+                  fromCurrency: item.toCurrency,
+                  toCurrency: item.fromCurrency,
+                  effectiveYear: item.effectiveYear,
+                },
+              },
+            });
+
+            if (!inverseExisting) {
+              const inverseRate = 1 / Number(item.rate);
+              await tx.exchangeRate.create({
+                data: {
+                  fromCurrency: item.toCurrency,
+                  toCurrency: item.fromCurrency,
+                  rate: inverseRate,
+                  effectiveYear: item.effectiveYear,
+                  effectiveFrom: item.effectiveFrom
+                    ? new Date(item.effectiveFrom)
+                    : null,
+                  effectiveTo: item.effectiveTo
+                    ? new Date(item.effectiveTo)
+                    : null,
+                  description: item.description
+                    ? `[反向] ${item.description}`
+                    : '[自動建立的反向匯率]',
+                  isActive: item.isActive,
+                  source: 'AUTO_INVERSE',
+                  inverseOfId: original.id,
+                  createdById,
+                },
+              });
+            }
+          });
+        } else {
+          // 只建立原始記錄
+          await prisma.exchangeRate.create({
+            data: {
+              fromCurrency: item.fromCurrency,
+              toCurrency: item.toCurrency,
+              rate: item.rate,
+              effectiveYear: item.effectiveYear,
+              effectiveFrom: item.effectiveFrom
+                ? new Date(item.effectiveFrom)
+                : null,
+              effectiveTo: item.effectiveTo
+                ? new Date(item.effectiveTo)
+                : null,
+              description: item.description ?? null,
+              isActive: item.isActive,
+              source: 'IMPORTED',
+              createdById,
+            },
+          });
+        }
+        result.imported++;
+      }
+    } catch (error) {
+      if (skipInvalid) {
+        // 記錄錯誤並跳過
+        result.errors.push({
+          index: i,
+          error: error instanceof Error ? error.message : '未知錯誤',
+        });
+        result.skipped++;
+      } else {
+        // 整批失敗
+        throw new Error(
+          `導入第 ${i + 1} 筆資料失敗：${error instanceof Error ? error.message : '未知錯誤'}`
+        );
+      }
+    }
+  }
+
+  return result;
 }

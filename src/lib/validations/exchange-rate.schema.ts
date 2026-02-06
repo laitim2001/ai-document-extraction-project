@@ -224,3 +224,78 @@ export type ConvertInput = z.infer<typeof convertSchema>;
 
 /** 批次匯率查詢輸入類型 */
 export type BatchGetRatesInput = z.infer<typeof batchGetRatesSchema>;
+
+// ============================================================================
+// Import/Export Schemas (Story 21-5)
+// ============================================================================
+
+/** 每批次導入最大筆數 */
+const IMPORT_MAX_ITEMS = 500;
+
+/**
+ * 匯率導出查詢的驗證 Schema
+ *
+ * @description
+ *   支援 year 和 isActive 篩選。
+ *   從 query string 解析，因此基礎類型為 string，需 transform。
+ */
+export const exportExchangeRatesQuerySchema = z.object({
+  year: z
+    .string()
+    .transform(Number)
+    .pipe(z.number().int().min(YEAR_MIN).max(YEAR_MAX))
+    .optional(),
+  isActive: z
+    .string()
+    .transform((v) => v === 'true')
+    .optional(),
+});
+
+/**
+ * 匯率導入的單一項目 Schema
+ *
+ * @description
+ *   支援 number 或 string 的 rate 輸入。
+ *   包含 createInverse 選項用於建立反向匯率。
+ */
+const importExchangeRateItemSchema = z.object({
+  fromCurrency: currencyCodeSchema,
+  toCurrency: currencyCodeSchema,
+  rate: rateValueSchema,
+  effectiveYear: z.number().int().min(YEAR_MIN).max(YEAR_MAX),
+  effectiveFrom: z.string().datetime().optional(),
+  effectiveTo: z.string().datetime().optional(),
+  description: z.string().max(DESCRIPTION_MAX_LENGTH).optional(),
+  isActive: z.boolean().default(true),
+  createInverse: z.boolean().default(false),
+});
+
+/**
+ * 匯率批次導入的驗證 Schema
+ *
+ * @description
+ *   驗證導入請求。支援 options 控制覆寫和跳過無效記錄行為。
+ *   包含 refinement: 驗證每筆記錄的 fromCurrency !== toCurrency
+ */
+export const importExchangeRatesSchema = z.object({
+  exportVersion: z.string().optional(),
+  items: z
+    .array(importExchangeRateItemSchema)
+    .min(1, { message: '至少需要一筆資料' })
+    .max(IMPORT_MAX_ITEMS, { message: `一次最多導入 ${IMPORT_MAX_ITEMS} 筆` }),
+  options: z
+    .object({
+      overwriteExisting: z.boolean().default(false),
+      skipInvalid: z.boolean().default(false),
+    })
+    .default({ overwriteExisting: false, skipInvalid: false }),
+});
+
+/** 匯率導出查詢類型 */
+export type ExportExchangeRatesQuery = z.infer<typeof exportExchangeRatesQuerySchema>;
+
+/** 匯率導入輸入類型 */
+export type ImportExchangeRatesInput = z.infer<typeof importExchangeRatesSchema>;
+
+/** 匯率導入單一項目類型 */
+export type ImportExchangeRateItem = z.infer<typeof importExchangeRateItemSchema>;
