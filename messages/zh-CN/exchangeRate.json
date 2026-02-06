@@ -1,0 +1,62 @@
+{
+  "title": "汇率管理",
+  "description": "管理货币汇率记录",
+  "list": {
+    "fromCurrency": "来源货币",
+    "toCurrency": "目标货币",
+    "rate": "汇率",
+    "effectiveYear": "年份",
+    "source": "来源",
+    "status": "状态",
+    "actions": "操作",
+    "empty": "暂无汇率记录",
+    "hasInverse": "有反向"
+  },
+  "filters": {
+    "year": "年份",
+    "fromCurrency": "来源货币",
+    "toCurrency": "目标货币",
+    "status": "状态",
+    "source": "来源",
+    "all": "全部",
+    "active": "启用",
+    "inactive": "停用",
+    "clear": "清除",
+    "searchPlaceholder": "搜索货币..."
+  },
+  "source": {
+    "MANUAL": "手动输入",
+    "IMPORTED": "批量导入",
+    "AUTO_INVERSE": "自动反向"
+  },
+  "actions": {
+    "add": "新增汇率",
+    "edit": "编辑",
+    "delete": "删除",
+    "toggle": "切换状态",
+    "export": "导出",
+    "import": "导入",
+    "refresh": "刷新"
+  },
+  "messages": {
+    "created": "汇率创建成功",
+    "updated": "汇率更新成功",
+    "deleted": "汇率删除成功",
+    "toggled": "状态切换成功",
+    "confirmDelete": "确定要删除此汇率记录吗？",
+    "deleteFailed": "删除汇率失败",
+    "toggleFailed": "切换状态失败"
+  },
+  "pagination": {
+    "showing": "显示 {from} - {to}，共 {total} 条",
+    "previous": "上一页",
+    "next": "下一页"
+  },
+  "summary": {
+    "total": "共 {count} 条汇率记录"
+  },
+  "currencySelect": {
+    "search": "搜索货币...",
+    "empty": "未找到货币。"
+  }
+}

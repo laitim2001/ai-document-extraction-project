@@ -1,0 +1,62 @@
+{
+  "title": "匯率管理",
+  "description": "管理貨幣匯率記錄",
+  "list": {
+    "fromCurrency": "來源貨幣",
+    "toCurrency": "目標貨幣",
+    "rate": "匯率",
+    "effectiveYear": "年份",
+    "source": "來源",
+    "status": "狀態",
+    "actions": "操作",
+    "empty": "尚無匯率記錄",
+    "hasInverse": "有反向"
+  },
+  "filters": {
+    "year": "年份",
+    "fromCurrency": "來源貨幣",
+    "toCurrency": "目標貨幣",
+    "status": "狀態",
+    "source": "來源",
+    "all": "全部",
+    "active": "啟用",
+    "inactive": "停用",
+    "clear": "清除",
+    "searchPlaceholder": "搜尋貨幣..."
+  },
+  "source": {
+    "MANUAL": "手動輸入",
+    "IMPORTED": "批次匯入",
+    "AUTO_INVERSE": "自動反向"
+  },
+  "actions": {
+    "add": "新增匯率",
+    "edit": "編輯",
+    "delete": "刪除",
+    "toggle": "切換狀態",
+    "export": "導出",
+    "import": "導入",
+    "refresh": "重新整理"
+  },
+  "messages": {
+    "created": "匯率建立成功",
+    "updated": "匯率更新成功",
+    "deleted": "匯率刪除成功",
+    "toggled": "狀態切換成功",
+    "confirmDelete": "確定要刪除此匯率記錄嗎？",
+    "deleteFailed": "刪除匯率失敗",
+    "toggleFailed": "切換狀態失敗"
+  },
+  "pagination": {
+    "showing": "顯示 {from} - {to}，共 {total} 筆",
+    "previous": "上一頁",
+    "next": "下一頁"
+  },
+  "summary": {
+    "total": "共 {count} 筆匯率記錄"
+  },
+  "currencySelect": {
+    "search": "搜尋貨幣...",
+    "empty": "找不到貨幣。"
+  }
+}
