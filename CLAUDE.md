@@ -191,6 +191,7 @@ ai-document-extraction-project/
 | **SITUATION-3** | `FEATURE-ENHANCEMENT.md` | 功能增強、代碼優化   |
 | **SITUATION-4** | `NEW-FEATURE-DEV.md`     | 新功能實作執行       |
 | **SITUATION-5** | `SAVE-PROGRESS.md`       | 保存進度、會話結束   |
+| **SITUATION-6** | `SERVICE-STARTUP.md`     | 服務啟動、環境重啟   |
 
 **路徑**: `claudedocs/6-ai-assistant/prompts/SITUATION-*.md`
 

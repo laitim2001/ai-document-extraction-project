@@ -88,7 +88,8 @@ claudedocs/
 │   │   ├── SITUATION-2-FEATURE-DEV-PREP.md     # 功能開發準備
 │   │   ├── SITUATION-3-FEATURE-ENHANCEMENT.md  # 功能增強
 │   │   ├── SITUATION-4-NEW-FEATURE-DEV.md      # 新功能開發
-│   │   └── SITUATION-5-SAVE-PROGRESS.md        # 保存進度
+│   │   ├── SITUATION-5-SAVE-PROGRESS.md        # 保存進度
+│   │   └── SITUATION-6-SERVICE-STARTUP.md      # 服務啟動
 │   └── session-guides/          # 會話指南
 │
 ├── 7-archive/                   # 歸檔文檔
@@ -242,7 +243,7 @@ claudedocs/6-ai-assistant/prompts/
 └── SITUATION-{N}-{DESCRIPTION}.md
 ```
 
-**SITUATION 編號**: 連續數字 (SITUATION-1 ~ SITUATION-5)
+**SITUATION 編號**: 連續數字 (SITUATION-1 ~ SITUATION-6)
 
 **SITUATION 文檔結構**:
 ```markdown
@@ -292,6 +293,7 @@ claudedocs/6-ai-assistant/prompts/
 | `6-ai-assistant/prompts/SITUATION-3-FEATURE-ENHANCEMENT.md` | 功能增強、代碼優化 |
 | `6-ai-assistant/prompts/SITUATION-4-NEW-FEATURE-DEV.md` | 新功能開發、實作執行 |
 | `6-ai-assistant/prompts/SITUATION-5-SAVE-PROGRESS.md` | 保存進度、會話結束 |
+| `6-ai-assistant/prompts/SITUATION-6-SERVICE-STARTUP.md` | 服務啟動、環境重啟 |
 
 ### 分析報告
 

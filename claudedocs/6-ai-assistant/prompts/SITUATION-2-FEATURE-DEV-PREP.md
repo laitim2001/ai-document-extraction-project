@@ -210,6 +210,7 @@ npm run lint         # ESLint 檢查
 - [情況3: 舊功能進階/修正](./SITUATION-3-FEATURE-ENHANCEMENT.md)
 - [情況4: 新功能開發](./SITUATION-4-NEW-FEATURE-DEV.md)
 - [情況5: 保存進度](./SITUATION-5-SAVE-PROGRESS.md)
+- [情況6: 服務啟動](./SITUATION-6-SERVICE-STARTUP.md)
 
 ### 架構文檔
 - [CLAUDE.md](../../../CLAUDE.md) - 開發規範
