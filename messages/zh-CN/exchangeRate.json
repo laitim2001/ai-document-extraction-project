@@ -84,5 +84,42 @@
     "requiredRate": "汇率为必填",
     "requiredYear": "生效年份为必填",
     "ratePositive": "汇率必须为正数"
+  },
+  "calculator": {
+    "title": "汇率计算器",
+    "amount": "金额",
+    "calculate": "计算",
+    "result": "结果",
+    "rate": "汇率",
+    "path": "转换路径",
+    "noRate": "未找到汇率记录",
+    "swap": "交换货币"
+  },
+  "import": {
+    "title": "导入汇率",
+    "uploadFile": "上传 JSON 文件",
+    "pasteJson": "或粘贴 JSON",
+    "preview": "预览",
+    "previewCount": "共 {count} 条记录待导入",
+    "options": "导入选项",
+    "overwriteExisting": "覆盖现有记录",
+    "skipInvalid": "跳过无效记录",
+    "submit": "开始导入",
+    "result": {
+      "title": "导入结果",
+      "imported": "新增",
+      "updated": "更新",
+      "skipped": "跳过",
+      "errors": "错误"
+    },
+    "parseError": "JSON 格式无效",
+    "done": "完成"
+  },
+  "export": {
+    "title": "导出汇率",
+    "downloading": "正在下载...",
+    "filename": "汇率记录-{year}.json",
+    "success": "导出完成",
+    "failed": "导出失败"
   }
 }

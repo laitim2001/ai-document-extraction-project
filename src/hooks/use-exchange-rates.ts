@@ -15,10 +15,12 @@
  *   - useToggleExchangeRate: 切換啟用/停用狀態
  *   - useConvertCurrency: 貨幣轉換計算（含 Fallback 邏輯）
  *   - useBatchRates: 批次匯率查詢
+ *   - useImportExchangeRates: 批次導入匯率（Story 21.8）
+ *   - useExportExchangeRates: 導出匯率為 JSON（Story 21.8）
  *
  * @module src/hooks/use-exchange-rates
  * @since Epic 21 - Story 21.3
- * @lastModified 2026-02-05
+ * @lastModified 2026-02-06
  *
  * @dependencies
  *   - @tanstack/react-query - 資料查詢和緩存
@@ -567,5 +569,160 @@ export function useConvertCurrency() {
 export function useBatchRates() {
   return useMutation({
     mutationFn: batchRatesApi,
+  })
+}
+
+// ============================================================
+// Import/Export Hooks
+// ============================================================
+
+/**
+ * 導入匯率輸入
+ */
+export interface ImportExchangeRatesInput {
+  items: Array<{
+    fromCurrency: string
+    toCurrency: string
+    rate: number
+    effectiveYear: number
+    effectiveFrom?: string
+    effectiveTo?: string
+    description?: string
+  }>
+  options: {
+    overwriteExisting: boolean
+    skipInvalid: boolean
+  }
+}
+
+/**
+ * 導入匯率結果
+ */
+export interface ImportExchangeRatesResult {
+  imported: number
+  updated: number
+  skipped: number
+  errors: Array<{ index: number; error: string }>
+}
+
+/**
+ * 導入匯率 API 響應
+ */
+interface ImportResponse {
+  success: boolean
+  data?: ImportExchangeRatesResult
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * 導入匯率 API 呼叫
+ */
+async function importExchangeRatesApi(
+  input: ImportExchangeRatesInput
+): Promise<ImportExchangeRatesResult> {
+  const response = await fetch('/api/v1/exchange-rates/import', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const json: ImportResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to import exchange rates')
+  }
+
+  return json.data
+}
+
+/**
+ * 導入匯率 Mutation Hook
+ *
+ * @description
+ *   批次導入匯率記錄。
+ *   支援覆蓋現有記錄和跳過無效記錄選項。
+ *   導入成功後自動刷新列表。
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: importRates, isPending } = useImportExchangeRates()
+ *   importRates({
+ *     items: [{ fromCurrency: 'HKD', toCurrency: 'USD', rate: 0.128, effectiveYear: 2026 }],
+ *     options: { overwriteExisting: false, skipInvalid: true },
+ *   })
+ */
+export function useImportExchangeRates() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: importExchangeRatesApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+    },
+  })
+}
+
+/**
+ * 導出匯率參數
+ */
+export interface ExportExchangeRatesParams {
+  year?: number
+  isActive?: boolean
+  fromCurrency?: string
+  toCurrency?: string
+}
+
+/**
+ * 導出匯率 API 呼叫
+ */
+async function exportExchangeRatesApi(
+  params: ExportExchangeRatesParams = {}
+): Promise<Blob> {
+  const url = new URL('/api/v1/exchange-rates/export', window.location.origin)
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      url.searchParams.set(key, String(value))
+    }
+  })
+
+  const response = await fetch(url.toString())
+
+  if (!response.ok) {
+    const json = await response.json().catch(() => ({}))
+    throw new Error(json.detail || 'Failed to export exchange rates')
+  }
+
+  return response.blob()
+}
+
+/**
+ * 導出匯率 Mutation Hook
+ *
+ * @description
+ *   導出匯率記錄為 JSON 檔案。
+ *   支援按年份、狀態、貨幣篩選。
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: exportRates, isPending } = useExportExchangeRates()
+ *   exportRates({ year: 2026 }, {
+ *     onSuccess: (blob) => {
+ *       const url = URL.createObjectURL(blob)
+ *       const a = document.createElement('a')
+ *       a.href = url
+ *       a.download = 'exchange-rates-2026.json'
+ *       a.click()
+ *     },
+ *   })
+ */
+export function useExportExchangeRates() {
+  return useMutation({
+    mutationFn: exportExchangeRatesApi,
   })
 }

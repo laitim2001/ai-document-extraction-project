@@ -84,5 +84,42 @@
     "requiredRate": "Exchange rate is required",
     "requiredYear": "Effective year is required",
     "ratePositive": "Exchange rate must be positive"
+  },
+  "calculator": {
+    "title": "Exchange Rate Calculator",
+    "amount": "Amount",
+    "calculate": "Calculate",
+    "result": "Result",
+    "rate": "Rate",
+    "path": "Conversion Path",
+    "noRate": "Exchange rate not found",
+    "swap": "Swap currencies"
+  },
+  "import": {
+    "title": "Import Exchange Rates",
+    "uploadFile": "Upload JSON File",
+    "pasteJson": "Or paste JSON",
+    "preview": "Preview",
+    "previewCount": "{count} records to import",
+    "options": "Import Options",
+    "overwriteExisting": "Overwrite existing records",
+    "skipInvalid": "Skip invalid records",
+    "submit": "Start Import",
+    "result": {
+      "title": "Import Result",
+      "imported": "Imported",
+      "updated": "Updated",
+      "skipped": "Skipped",
+      "errors": "Errors"
+    },
+    "parseError": "Invalid JSON format",
+    "done": "Done"
+  },
+  "export": {
+    "title": "Export Exchange Rates",
+    "downloading": "Downloading...",
+    "filename": "exchange-rates-{year}.json",
+    "success": "Export completed",
+    "failed": "Export failed"
   }
 }

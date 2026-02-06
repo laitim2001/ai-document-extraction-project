@@ -84,5 +84,42 @@
     "requiredRate": "匯率為必填",
     "requiredYear": "生效年份為必填",
     "ratePositive": "匯率必須為正數"
+  },
+  "calculator": {
+    "title": "匯率計算器",
+    "amount": "金額",
+    "calculate": "計算",
+    "result": "結果",
+    "rate": "匯率",
+    "path": "轉換路徑",
+    "noRate": "找不到匯率記錄",
+    "swap": "交換貨幣"
+  },
+  "import": {
+    "title": "導入匯率",
+    "uploadFile": "上傳 JSON 檔案",
+    "pasteJson": "或貼上 JSON",
+    "preview": "預覽",
+    "previewCount": "共 {count} 筆記錄待導入",
+    "options": "導入選項",
+    "overwriteExisting": "覆蓋現有記錄",
+    "skipInvalid": "跳過無效記錄",
+    "submit": "開始導入",
+    "result": {
+      "title": "導入結果",
+      "imported": "新增",
+      "updated": "更新",
+      "skipped": "跳過",
+      "errors": "錯誤"
+    },
+    "parseError": "JSON 格式無效",
+    "done": "完成"
+  },
+  "export": {
+    "title": "導出匯率",
+    "downloading": "正在下載...",
+    "filename": "匯率記錄-{year}.json",
+    "success": "導出完成",
+    "failed": "導出失敗"
   }
 }

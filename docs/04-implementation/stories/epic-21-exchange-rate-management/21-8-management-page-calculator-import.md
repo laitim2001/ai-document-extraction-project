@@ -1,6 +1,6 @@
 # Story 21.8: 管理頁面 - 計算器與 Import
 
-**Status:** pending
+**Status:** done
 
 ---
 
@@ -280,7 +280,46 @@ export function ExchangeRateImportDialog() {
 
 ## Implementation Notes
 
-（開發完成後填寫）
+### 完成日期
+2026-02-06
+
+### 實作內容
+
+#### 1. i18n 擴展
+- 新增 `calculator`, `import`, `export` 章節到所有三個語言文件
+- 支援計算器、導入對話框、導出功能的完整翻譯
+
+#### 2. ExchangeRateCalculator 組件
+- 位置: `src/components/features/exchange-rate/ExchangeRateCalculator.tsx`
+- 功能:
+  - 來源/目標貨幣選擇 (使用 CurrencySelect)
+  - 金額輸入
+  - 貨幣交換按鈕
+  - 整合 Convert API (useConvertCurrency)
+  - 顯示轉換結果、匯率和轉換路徑
+  - 支援直接/反向/交叉匯率
+
+#### 3. ExchangeRateImportDialog 組件
+- 位置: `src/components/features/exchange-rate/ExchangeRateImportDialog.tsx`
+- 功能:
+  - JSON 檔案上傳 (FileReader API)
+  - JSON 文字貼上
+  - 預覽表格 (顯示前 10 筆)
+  - 導入選項 (覆蓋現有、跳過無效)
+  - 導入結果統計 (新增/更新/跳過/錯誤)
+  - 錯誤詳情列表
+
+#### 4. Hooks 擴展
+- 新增 `useImportExchangeRates`: 批次導入匯率
+- 新增 `useExportExchangeRates`: 導出匯率為 JSON
+
+#### 5. 組件匯出
+- 更新 `index.ts` 匯出新組件
+
+### 技術決策
+- Calculator 使用 mutation 而非 query，因為這是按需計算而非持續查詢
+- Import Dialog 使用狀態機模式管理 input → preview → result 流程
+- 預覽最多顯示 10 筆以避免 DOM 過載
 
 ---
 
