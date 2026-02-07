@@ -68,6 +68,9 @@ const YEARS = Array.from({ length: 10 }, (_, i) => CURRENT_YEAR - i)
 
 const SOURCE_OPTIONS = ['MANUAL', 'IMPORTED', 'AUTO_INVERSE'] as const
 
+/** Radix Select 不允許空字串作為 value，使用佔位值代替 */
+const ALL_VALUE = '__all__'
+
 // ============================================================
 // Component
 // ============================================================
@@ -108,10 +111,10 @@ export function ExchangeRateFilters({
       <div className="space-y-1.5">
         <label className="text-sm font-medium">{t('filters.year')}</label>
         <Select
-          value={filters.year?.toString() ?? ''}
+          value={filters.year?.toString() ?? ALL_VALUE}
           onValueChange={(value) =>
             onFiltersChange({
-              year: value ? Number(value) : undefined,
+              year: value === ALL_VALUE ? undefined : Number(value),
               page: 1,
             })
           }
@@ -120,7 +123,7 @@ export function ExchangeRateFilters({
             <SelectValue placeholder={t('filters.all')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{t('filters.all')}</SelectItem>
+            <SelectItem value={ALL_VALUE}>{t('filters.all')}</SelectItem>
             {YEARS.map((year) => (
               <SelectItem key={year} value={year.toString()}>
                 {year}
@@ -168,12 +171,12 @@ export function ExchangeRateFilters({
         <Select
           value={
             filters.isActive === undefined
-              ? ''
+              ? ALL_VALUE
               : filters.isActive.toString()
           }
           onValueChange={(value) =>
             onFiltersChange({
-              isActive: value === '' ? undefined : value === 'true',
+              isActive: value === ALL_VALUE ? undefined : value === 'true',
               page: 1,
             })
           }
@@ -182,7 +185,7 @@ export function ExchangeRateFilters({
             <SelectValue placeholder={t('filters.all')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{t('filters.all')}</SelectItem>
+            <SelectItem value={ALL_VALUE}>{t('filters.all')}</SelectItem>
             <SelectItem value="true">{t('filters.active')}</SelectItem>
             <SelectItem value="false">{t('filters.inactive')}</SelectItem>
           </SelectContent>
@@ -193,10 +196,10 @@ export function ExchangeRateFilters({
       <div className="space-y-1.5">
         <label className="text-sm font-medium">{t('filters.source')}</label>
         <Select
-          value={filters.source ?? ''}
+          value={filters.source ?? ALL_VALUE}
           onValueChange={(value) =>
             onFiltersChange({
-              source: (value || undefined) as ExchangeRateSourceType | undefined,
+              source: value === ALL_VALUE ? undefined : (value as ExchangeRateSourceType),
               page: 1,
             })
           }
@@ -205,7 +208,7 @@ export function ExchangeRateFilters({
             <SelectValue placeholder={t('filters.all')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{t('filters.all')}</SelectItem>
+            <SelectItem value={ALL_VALUE}>{t('filters.all')}</SelectItem>
             {SOURCE_OPTIONS.map((source) => (
               <SelectItem key={source} value={source}>
                 {t(`source.${source}`)}
