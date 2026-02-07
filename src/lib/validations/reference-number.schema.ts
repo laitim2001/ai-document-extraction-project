@@ -130,7 +130,7 @@ export const createReferenceNumberSchema = z
       .max(YEAR_MAX, `年份不能大於 ${YEAR_MAX}`),
 
     /** 地區 ID */
-    regionId: z.string().cuid('無效的地區 ID'),
+    regionId: z.string().uuid('無效的地區 ID'),
 
     /** 描述 */
     description: z
@@ -140,10 +140,10 @@ export const createReferenceNumberSchema = z
       .nullable(),
 
     /** 有效起始日 */
-    validFrom: z.string().datetime('無效的日期時間格式').optional().nullable(),
+    validFrom: z.string().datetime({ offset: true, message: '無效的日期時間格式' }).optional().nullable(),
 
     /** 有效結束日 */
-    validUntil: z.string().datetime('無效的日期時間格式').optional().nullable(),
+    validUntil: z.string().datetime({ offset: true, message: '無效的日期時間格式' }).optional().nullable(),
   })
   .refine(
     (data) => {
@@ -193,7 +193,7 @@ export const updateReferenceNumberSchema = z
       .optional(),
 
     /** 地區 ID */
-    regionId: z.string().cuid('無效的地區 ID').optional(),
+    regionId: z.string().uuid('無效的地區 ID').optional(),
 
     /** 描述 */
     description: z
@@ -203,10 +203,10 @@ export const updateReferenceNumberSchema = z
       .nullable(),
 
     /** 有效起始日 */
-    validFrom: z.string().datetime('無效的日期時間格式').optional().nullable(),
+    validFrom: z.string().datetime({ offset: true, message: '無效的日期時間格式' }).optional().nullable(),
 
     /** 有效結束日 */
-    validUntil: z.string().datetime('無效的日期時間格式').optional().nullable(),
+    validUntil: z.string().datetime({ offset: true, message: '無效的日期時間格式' }).optional().nullable(),
 
     /** 是否啟用 */
     isActive: z.boolean().optional(),
@@ -258,7 +258,7 @@ export const getReferenceNumbersQuerySchema = z.object({
     .optional(),
 
   /** 篩選地區 ID */
-  regionId: z.string().cuid().optional(),
+  regionId: z.string().uuid().optional(),
 
   /** 篩選類型 */
   type: referenceNumberTypeSchema.optional(),
@@ -405,7 +405,7 @@ export const exportReferenceNumbersQuerySchema = z.object({
     .optional(),
 
   /** 篩選地區 ID */
-  regionId: z.string().cuid().optional(),
+  regionId: z.string().uuid().optional(),
 
   /** 篩選類型 */
   type: referenceNumberTypeSchema.optional(),
@@ -453,7 +453,7 @@ export const validateReferenceNumbersSchema = z.object({
       /** 篩選年份 */
       year: z.number().int().optional(),
       /** 篩選地區 ID */
-      regionId: z.string().cuid().optional(),
+      regionId: z.string().uuid().optional(),
     })
     .optional(),
 });
