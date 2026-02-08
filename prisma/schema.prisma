@@ -188,6 +188,7 @@ model Region {
   children          Region[]           @relation("RegionHierarchy")
   userAccesses      UserRegionAccess[]
   referenceNumbers  ReferenceNumber[]  // Epic 20: 參考號碼關聯
+  pipelineConfigs   PipelineConfig[]   // CHANGE-032: Pipeline 配置關聯
 
   @@index([parentId])
   @@index([status])
@@ -497,6 +498,7 @@ model Company {
   ruleSuggestions           RuleSuggestion[]         @relation("CompanyRuleSuggestions")
   testTasks                 RuleTestTask[]           @relation("CompanyTestTasks")
   templateFieldMappings     TemplateFieldMapping[]
+  pipelineConfigs           PipelineConfig[]           // CHANGE-032: Pipeline 配置關聯
 
   @@index([type])
   @@index([status])
@@ -4204,4 +4206,55 @@ model ExchangeRate {
   @@index([isActive])
   @@index([source])
   @@map("exchange_rates")
+}
+
+// ============================================================================
+// CHANGE-032: Pipeline Configuration
+// ============================================================================
+
+enum PipelineConfigScope {
+  GLOBAL
+  REGION
+  COMPANY
+}
+
+/// Pipeline 配置
+/// 支援 GLOBAL/REGION/COMPANY 三層 scope 配置
+/// @since CHANGE-032
+model PipelineConfig {
+  id                     String              @id @default(cuid())
+  scope                  PipelineConfigScope
+  regionId               String?             @map("region_id")
+  companyId              String?             @map("company_id")
+
+  // Reference Number Matching 配置
+  refMatchEnabled        Boolean             @default(false) @map("ref_match_enabled")
+  refMatchTypes          Json?               @map("ref_match_types")
+  refMatchFromFilename   Boolean             @default(true) @map("ref_match_from_filename")
+  refMatchFromContent    Boolean             @default(true) @map("ref_match_from_content")
+  refMatchPatterns       Json?               @map("ref_match_patterns")
+  refMatchMaxCandidates  Int                 @default(20) @map("ref_match_max_candidates")
+
+  // FX Conversion 配置
+  fxConversionEnabled    Boolean             @default(false) @map("fx_conversion_enabled")
+  fxTargetCurrency       String?             @map("fx_target_currency") @db.VarChar(3)
+  fxConvertLineItems     Boolean             @default(true) @map("fx_convert_line_items")
+  fxConvertExtraCharges  Boolean             @default(true) @map("fx_convert_extra_charges")
+  fxRoundingPrecision    Int                 @default(2) @map("fx_rounding_precision")
+  fxFallbackBehavior     String              @default("skip") @map("fx_fallback_behavior")
+
+  // 通用欄位
+  isActive               Boolean             @default(true) @map("is_active")
+  description            String?
+  createdAt              DateTime            @default(now()) @map("created_at")
+  updatedAt              DateTime            @updatedAt @map("updated_at")
+
+  // 關聯
+  region                 Region?             @relation(fields: [regionId], references: [id])
+  company                Company?            @relation(fields: [companyId], references: [id])
+
+  @@unique([scope, regionId, companyId])
+  @@index([scope])
+  @@index([isActive])
+  @@map("pipeline_configs")
 }

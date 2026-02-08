@@ -41,7 +41,7 @@ const namespaces = [
   'global',
   'escalation',
   'review',
-  'invoices',
+  'documents',
   'rules',
   'companies',
   'reports',
@@ -57,6 +57,11 @@ const namespaces = [
   'templateInstance',
   'templateMatchingTest',
   'standardFields',
+  'referenceNumber',
+  'confidence',
+  'exchangeRate',
+  'region',
+  'pipelineConfig',
 ] as const
 
 export type Namespace = (typeof namespaces)[number]

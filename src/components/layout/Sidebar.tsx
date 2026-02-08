@@ -58,6 +58,7 @@ import {
   Hash,
   DollarSign,
   Wrench,
+  Settings2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -134,6 +135,7 @@ const navigation: NavSection[] = [
       { nameKey: 'sidebar.companies', href: '/companies', icon: Building2 },
       { nameKey: 'sidebar.referenceNumbers', href: '/admin/reference-numbers', icon: Hash },
       { nameKey: 'sidebar.exchangeRates', href: '/admin/exchange-rates', icon: DollarSign },
+      { nameKey: 'sidebar.pipelineSettings', href: '/admin/pipeline-settings', icon: Settings2 },
     ],
   },
   {

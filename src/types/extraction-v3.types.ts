@@ -563,6 +563,8 @@ export interface ExtractionV3Input {
   mimeType: string;
   /** 城市代碼 */
   cityCode: string;
+  /** CHANGE-032: 地區 ID（用於 Pipeline Config resolve 和 Ref Number 匹配） */
+  regionId?: string;
   /** 選項 */
   options?: {
     /** 自動創建公司（默認 true） */
@@ -639,6 +641,10 @@ export interface ExtractionV3Output {
   stepResults: StepResultV3[];
   /** 警告列表 */
   warnings: string[];
+  /** CHANGE-032: 參考號碼匹配結果 */
+  referenceNumberMatch?: ReferenceNumberMatchResult;
+  /** CHANGE-032: 匯率轉換結果 */
+  exchangeRateConversion?: ExchangeRateConversionResult;
 }
 
 // ============================================================================
@@ -779,6 +785,12 @@ export interface ExtractionV3Flags {
   /** V3.1 失敗時回退到 V3 單階段 */
   fallbackToV3OnError: boolean;
 
+  // CHANGE-032: Pipeline 功能開關
+  /** 啟用參考號碼匹配 */
+  enableRefNumberMatching: boolean;
+  /** 啟用匯率轉換 */
+  enableFxConversion: boolean;
+
   // 調試選項
   /** 記錄組裝的 Prompt */
   logPromptAssembly: boolean;
@@ -799,6 +811,9 @@ export const DEFAULT_EXTRACTION_V3_FLAGS: ExtractionV3Flags = {
   useExtractionV3_1: false, // 初始關閉
   extractionV3_1Percentage: 0, // 0% 流量
   fallbackToV3OnError: true, // 啟用回退到 V3
+  // CHANGE-032: Pipeline 功能開關
+  enableRefNumberMatching: false, // 預設關閉
+  enableFxConversion: false, // 預設關閉
   // 調試選項
   logPromptAssembly: false,
   logGptResponse: false,
@@ -1159,6 +1174,8 @@ export enum ConfidenceDimensionV3_1 {
   FIELD_COMPLETENESS = 'FIELD_COMPLETENESS',
   /** 配置來源加成 (15%) */
   CONFIG_SOURCE_BONUS = 'CONFIG_SOURCE_BONUS',
+  /** CHANGE-032: 參考號碼匹配 (0% disabled / 5% enabled) */
+  REFERENCE_NUMBER_MATCH = 'REFERENCE_NUMBER_MATCH',
 }
 
 /**
@@ -1177,6 +1194,8 @@ export const DEFAULT_CONFIDENCE_WEIGHTS_V3_1: ConfidenceWeightsV3_1 = {
   [ConfidenceDimensionV3_1.STAGE_3_EXTRACTION]: 0.30,
   [ConfidenceDimensionV3_1.FIELD_COMPLETENESS]: 0.20,
   [ConfidenceDimensionV3_1.CONFIG_SOURCE_BONUS]: 0.15,
+  // CHANGE-032: 預設 disabled 時 weight=0，不影響現有計算
+  [ConfidenceDimensionV3_1.REFERENCE_NUMBER_MATCH]: 0,
 };
 
 /**
@@ -1514,4 +1533,114 @@ export function detectExtractionVersion(
   }
 
   return 'v3'; // 預設
+}
+
+// ============================================================================
+// CHANGE-032: Pipeline Reference Number Matching & FX Conversion Types
+// ============================================================================
+
+/**
+ * 參考號碼匹配結果中的單筆匹配
+ * @since CHANGE-032
+ */
+export interface ReferenceNumberMatch {
+  /** 候選字串（從文件名提取） */
+  candidate: string;
+  /** 匹配的 DB reference number ID */
+  referenceNumberId: string;
+  /** 匹配的 reference number value */
+  referenceNumber: string;
+  /** 參考號碼類型 */
+  type: string;
+  /** 匹配信心度 */
+  confidence: number;
+}
+
+/**
+ * 參考號碼匹配結果
+ * @since CHANGE-032
+ */
+export interface ReferenceNumberMatchResult {
+  /** 功能是否啟用 */
+  enabled: boolean;
+  /** 匹配結果列表 */
+  matches: ReferenceNumberMatch[];
+  /** 摘要 */
+  summary: {
+    /** 候選數量 */
+    candidatesFound: number;
+    /** 匹配數量 */
+    matchesFound: number;
+    /** 來源（filename/content） */
+    sources: string[];
+  };
+  /** 處理時間（毫秒） */
+  processingTimeMs: number;
+}
+
+/**
+ * 匯率轉換項目
+ * @since CHANGE-032
+ */
+export interface FxConversionItem {
+  /** 欄位名稱 */
+  field: string;
+  /** 原始金額 */
+  originalAmount: number;
+  /** 原始貨幣 */
+  originalCurrency: string;
+  /** 轉換後金額 */
+  convertedAmount: number;
+  /** 目標貨幣 */
+  targetCurrency: string;
+  /** 使用的匯率 */
+  rate: number;
+  /** 欄位路徑（如 lineItems[0].amount） */
+  path?: string;
+}
+
+/**
+ * 匯率轉換結果
+ * @since CHANGE-032
+ */
+export interface ExchangeRateConversionResult {
+  /** 功能是否啟用 */
+  enabled: boolean;
+  /** 轉換項目列表 */
+  conversions: FxConversionItem[];
+  /** 來源貨幣 */
+  sourceCurrency?: string;
+  /** 目標貨幣 */
+  targetCurrency?: string;
+  /** 警告列表 */
+  warnings: string[];
+  /** 處理時間（毫秒） */
+  processingTimeMs: number;
+}
+
+/**
+ * 有效的 Pipeline 配置（resolve 後的合併結果）
+ * @since CHANGE-032
+ */
+export interface EffectivePipelineConfig {
+  /** Reference Number Matching */
+  refMatchEnabled: boolean;
+  refMatchTypes: string[];
+  refMatchFromFilename: boolean;
+  refMatchFromContent: boolean;
+  refMatchPatterns: Record<string, string> | null;
+  refMatchMaxCandidates: number;
+  /** FX Conversion */
+  fxConversionEnabled: boolean;
+  fxTargetCurrency: string | null;
+  fxConvertLineItems: boolean;
+  fxConvertExtraCharges: boolean;
+  fxRoundingPrecision: number;
+  fxFallbackBehavior: 'skip' | 'warn' | 'error';
+  /** 配置來源摘要 */
+  resolvedFrom: {
+    global?: string;
+    region?: string;
+    company?: string;
+  };
 }

@@ -411,6 +411,35 @@ async function main() {
   console.log(`  ✅ System user ready: ${systemUser.email}`)
 
   // ===========================================
+  // Create Development User (for dev mode auth)
+  // ===========================================
+  console.log('\n👤 Creating development user...\n')
+
+  const devUser = await prisma.user.upsert({
+    where: { id: 'dev-user-1' },
+    update: {
+      name: 'Development User',
+      status: 'ACTIVE',
+      isGlobalAdmin: true,
+    },
+    create: {
+      id: 'dev-user-1',
+      email: 'dev@example.com',
+      name: 'Development User',
+      status: 'ACTIVE',
+      isGlobalAdmin: true,
+      isRegionalManager: false,
+      roles: {
+        create: {
+          roleId: systemAdminRole.id,
+        },
+      },
+    },
+  })
+
+  console.log(`  ✅ Development user ready: ${devUser.email} (${devUser.id})`)
+
+  // ===========================================
   // Seed Companies (Forwarder Type)
   // REFACTOR-001: Changed from Forwarder to Company model
   // ===========================================
@@ -1073,6 +1102,45 @@ async function main() {
   }
 
   // ===========================================
+  // Seed Pipeline Config (CHANGE-032)
+  // ===========================================
+  console.log('\n⚙️ Creating default pipeline config...\n')
+
+  const existingGlobalPipelineConfig = await prisma.pipelineConfig.findFirst({
+    where: {
+      scope: 'GLOBAL',
+      regionId: null,
+      companyId: null,
+    },
+  })
+
+  if (existingGlobalPipelineConfig) {
+    console.log('  🔄 Global pipeline config already exists, skipping')
+  } else {
+    await prisma.pipelineConfig.create({
+      data: {
+        scope: 'GLOBAL',
+        regionId: null,
+        companyId: null,
+        refMatchEnabled: false,
+        refMatchTypes: ['SHIPMENT', 'HAWB', 'MAWB', 'BL', 'CONTAINER'],
+        refMatchFromFilename: true,
+        refMatchFromContent: true,
+        refMatchMaxCandidates: 20,
+        fxConversionEnabled: false,
+        fxTargetCurrency: null,
+        fxConvertLineItems: true,
+        fxConvertExtraCharges: true,
+        fxRoundingPrecision: 2,
+        fxFallbackBehavior: 'skip',
+        isActive: true,
+        description: 'Default global pipeline configuration',
+      },
+    })
+    console.log('  ✅ Created: Global pipeline config (both features disabled by default)')
+  }
+
+  // ===========================================
   // Summary
   // ===========================================
   const roleCount = await prisma.role.count()
@@ -1086,6 +1154,7 @@ async function main() {
   const templateFieldMappingCount = await prisma.templateFieldMapping.count()
   const documentFormatCount = await prisma.documentFormat.count()
   const promptConfigCount = await prisma.promptConfig.count()
+  const pipelineConfigCount = await prisma.pipelineConfig.count()
 
   console.log('\n========================================')
   console.log('✨ Seed completed successfully!')
@@ -1120,6 +1189,7 @@ async function main() {
   console.log(`  Total template field mappings: ${templateFieldMappingCount}`)
   console.log(`  Total document formats: ${documentFormatCount}`)
   console.log(`  Total prompt configs: ${promptConfigCount}`)
+  console.log(`  Total pipeline configs: ${pipelineConfigCount}`)
   console.log(`  Total users: ${userCount}`)
   console.log('========================================\n')
 }

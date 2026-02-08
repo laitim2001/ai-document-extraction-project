@@ -58,6 +58,10 @@ export interface ConfidenceInputV3_1 {
   stage3Result: Stage3ExtractionResult;
   /** 歷史準確率（如已知） */
   historicalAccuracy?: number;
+  /** CHANGE-032: 參考號碼匹配結果 */
+  refMatchResult?: import('@/types/extraction-v3.types').ReferenceNumberMatchResult;
+  /** CHANGE-032: 參考號碼匹配是否啟用 */
+  refMatchEnabled?: boolean;
 }
 
 /**
@@ -261,17 +265,39 @@ export class ConfidenceV3_1Service {
     });
 
     // 5. CONFIG_SOURCE_BONUS 維度
+    // CHANGE-032: 若 refMatch 啟用，CONFIG_SOURCE_BONUS 從 0.15 降為 0.10
+    const configSourceWeight = input.refMatchEnabled
+      ? Math.max(0, weights['CONFIG_SOURCE_BONUS' as ConfidenceDimensionV3_1] - 0.05)
+      : weights['CONFIG_SOURCE_BONUS' as ConfidenceDimensionV3_1];
     const configSourceScore = this.calculateConfigSourceBonus(
       stage2Result.configSource
     );
     dimensions.push({
       dimension: 'CONFIG_SOURCE_BONUS' as ConfidenceDimensionV3_1,
       rawScore: configSourceScore,
-      weightedScore:
-        configSourceScore *
-        weights['CONFIG_SOURCE_BONUS' as ConfidenceDimensionV3_1],
-      weight: weights['CONFIG_SOURCE_BONUS' as ConfidenceDimensionV3_1],
+      weightedScore: configSourceScore * configSourceWeight,
+      weight: configSourceWeight,
     });
+
+    // 6. CHANGE-032: REFERENCE_NUMBER_MATCH 維度（可選）
+    if (input.refMatchEnabled && input.refMatchResult?.enabled) {
+      const refMatchScore = this.calculateRefMatchScore(input.refMatchResult);
+      const refMatchWeight = 0.05; // 從 CONFIG_SOURCE_BONUS 分出
+      dimensions.push({
+        dimension: 'REFERENCE_NUMBER_MATCH' as ConfidenceDimensionV3_1,
+        rawScore: refMatchScore,
+        weightedScore: refMatchScore * refMatchWeight,
+        weight: refMatchWeight,
+      });
+    } else {
+      // 未啟用時 weight=0，不影響計算
+      dimensions.push({
+        dimension: 'REFERENCE_NUMBER_MATCH' as ConfidenceDimensionV3_1,
+        rawScore: 0,
+        weightedScore: 0,
+        weight: 0,
+      });
+    }
 
     return dimensions;
   }
@@ -303,6 +329,28 @@ export class ConfidenceV3_1Service {
     configSource: FormatConfigSource
   ): number {
     return CONFIG_SOURCE_BONUS_SCORES[configSource] || 50;
+  }
+
+  /**
+   * CHANGE-032: 計算參考號碼匹配分數
+   */
+  private static calculateRefMatchScore(
+    refMatchResult: import('@/types/extraction-v3.types').ReferenceNumberMatchResult
+  ): number {
+    const { matchesFound, candidatesFound } = refMatchResult.summary;
+
+    if (matchesFound > 0) {
+      // 有匹配：80-100 分（依匹配數量遞增）
+      return Math.min(100, 80 + matchesFound * 5);
+    }
+
+    if (candidatesFound > 0) {
+      // 有候選但無匹配：50 分（中性）
+      return 50;
+    }
+
+    // 無候選：50 分（不懲罰）
+    return 50;
   }
 
   /**

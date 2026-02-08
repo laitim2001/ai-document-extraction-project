@@ -75,6 +75,7 @@
     "templateMatchingTest": "模板匹配测试",
     "referenceNumbers": "参考号码",
     "exchangeRates": "汇率管理",
+    "pipelineSettings": "管线设置",
     "settings": "设置"
   },
   "user": {

@@ -75,6 +75,7 @@
     "templateMatchingTest": "Template Matching Test",
     "referenceNumbers": "Reference Numbers",
     "exchangeRates": "Exchange Rates",
+    "pipelineSettings": "Pipeline Settings",
     "settings": "Settings"
   },
   "user": {

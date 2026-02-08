@@ -108,6 +108,12 @@ export interface VariableContext {
   mimeType?: string;
   /** 處理階段（1, 2, 3） */
   stage?: number | string;
+
+  // CHANGE-032: Pipeline 擴展變數
+  /** 匹配的參考號碼（格式化字串） */
+  matchedReferenceNumbers?: string;
+  /** 匯率資訊（格式化字串） */
+  exchangeRateInfo?: string;
 }
 
 /**

@@ -81,6 +81,14 @@ import { ConfidenceV3Service } from './confidence-v3.service';
 import { StageOrchestratorService } from './stages/stage-orchestrator.service';
 import { ConfidenceV3_1Service } from './confidence-v3-1.service';
 import { prisma } from '@/lib/prisma';
+// CHANGE-032 imports
+import type {
+  ReferenceNumberMatchResult,
+  ExchangeRateConversionResult,
+} from '@/types/extraction-v3.types';
+import { ReferenceNumberMatcherService } from './stages/reference-number-matcher.service';
+import { ExchangeRateConverterService } from './stages/exchange-rate-converter.service';
+import { resolveEffectiveConfig } from '@/services/pipeline-config.service';
 
 // ============================================================================
 // Types
@@ -346,6 +354,62 @@ export class ExtractionV3Service {
         warnings.push(...conversionResult.warnings);
       }
 
+      // ========== CHANGE-032: REFERENCE_NUMBER_MATCHING ==========
+      let refMatchResult: ReferenceNumberMatchResult | undefined;
+      let pipelineConfig;
+      try {
+        const refMatchStart = Date.now();
+        this.log('V3.1 CHANGE-032: 參考號碼匹配');
+
+        pipelineConfig = await resolveEffectiveConfig({
+          regionId: input.regionId,
+        });
+
+        if (pipelineConfig.refMatchEnabled) {
+          const matcher = new ReferenceNumberMatcherService();
+          refMatchResult = await matcher.match({
+            fileName: input.fileName || '',
+            config: pipelineConfig,
+            regionId: input.regionId,
+          });
+
+          stepTimings['REFERENCE_NUMBER_MATCHING'] = Date.now() - refMatchStart;
+          stepResults.push({
+            step: 'REFERENCE_NUMBER_MATCHING' as ProcessingStepV3,
+            success: true,
+            data: {
+              candidatesFound: refMatchResult.summary.candidatesFound,
+              matchesFound: refMatchResult.summary.matchesFound,
+            },
+            durationMs: stepTimings['REFERENCE_NUMBER_MATCHING'],
+          });
+        } else {
+          refMatchResult = {
+            enabled: false,
+            matches: [],
+            summary: { candidatesFound: 0, matchesFound: 0, sources: [] },
+            processingTimeMs: 0,
+          };
+          stepTimings['REFERENCE_NUMBER_MATCHING'] = Date.now() - refMatchStart;
+          stepResults.push({
+            step: 'REFERENCE_NUMBER_MATCHING' as ProcessingStepV3,
+            success: true,
+            data: { skipped: true, reason: 'disabled' },
+            durationMs: stepTimings['REFERENCE_NUMBER_MATCHING'],
+            skipped: true,
+          });
+        }
+      } catch (refMatchError) {
+        const errorMsg = refMatchError instanceof Error ? refMatchError.message : 'Unknown ref match error';
+        warnings.push(`Reference number matching failed: ${errorMsg}`);
+        stepResults.push({
+          step: 'REFERENCE_NUMBER_MATCHING' as ProcessingStepV3,
+          success: false,
+          durationMs: 0,
+          error: errorMsg,
+        });
+      }
+
       // ========== Steps 2-4: 三階段提取 ==========
       this.log('V3.1 Steps 2-4: 三階段 GPT 提取');
       const orchestrator = this.getStageOrchestrator();
@@ -386,6 +450,67 @@ export class ExtractionV3Service {
         };
       }
 
+      // ========== CHANGE-032: EXCHANGE_RATE_CONVERSION ==========
+      let fxConversionResult: ExchangeRateConversionResult | undefined;
+      try {
+        const fxStart = Date.now();
+        this.log('V3.1 CHANGE-032: 匯率轉換');
+
+        // 重新 resolve（此時已知 company，可能有 COMPANY-level override）
+        const fxConfig = await resolveEffectiveConfig({
+          regionId: input.regionId,
+          companyId: threeStageResult.stage1?.companyId || undefined,
+        });
+
+        if (fxConfig.fxConversionEnabled && threeStageResult.stage3) {
+          const converter = new ExchangeRateConverterService();
+          fxConversionResult = await converter.convert({
+            stage3Result: threeStageResult.stage3,
+            config: fxConfig,
+          });
+
+          stepTimings['EXCHANGE_RATE_CONVERSION'] = Date.now() - fxStart;
+          stepResults.push({
+            step: 'EXCHANGE_RATE_CONVERSION' as ProcessingStepV3,
+            success: true,
+            data: {
+              conversionsCount: fxConversionResult.conversions.length,
+              sourceCurrency: fxConversionResult.sourceCurrency,
+              targetCurrency: fxConversionResult.targetCurrency,
+            },
+            durationMs: stepTimings['EXCHANGE_RATE_CONVERSION'],
+          });
+
+          if (fxConversionResult.warnings.length > 0) {
+            warnings.push(...fxConversionResult.warnings);
+          }
+        } else {
+          fxConversionResult = {
+            enabled: false,
+            conversions: [],
+            warnings: [],
+            processingTimeMs: 0,
+          };
+          stepTimings['EXCHANGE_RATE_CONVERSION'] = Date.now() - fxStart;
+          stepResults.push({
+            step: 'EXCHANGE_RATE_CONVERSION' as ProcessingStepV3,
+            success: true,
+            data: { skipped: true, reason: fxConfig.fxConversionEnabled ? 'no-stage3-result' : 'disabled' },
+            durationMs: stepTimings['EXCHANGE_RATE_CONVERSION'],
+            skipped: true,
+          });
+        }
+      } catch (fxError) {
+        const errorMsg = fxError instanceof Error ? fxError.message : 'Unknown FX conversion error';
+        warnings.push(`Exchange rate conversion failed: ${errorMsg}`);
+        stepResults.push({
+          step: 'EXCHANGE_RATE_CONVERSION' as ProcessingStepV3,
+          success: false,
+          durationMs: 0,
+          error: errorMsg,
+        });
+      }
+
       // ========== Step 5: TERM_RECORDING ==========
       const termRecordingStart = Date.now();
       this.log('V3.1 Step 5: 術語記錄');
@@ -406,6 +531,8 @@ export class ExtractionV3Service {
         stage1Result: threeStageResult.stage1!,
         stage2Result: threeStageResult.stage2!,
         stage3Result: threeStageResult.stage3!,
+        refMatchResult,
+        refMatchEnabled: pipelineConfig?.refMatchEnabled ?? false,
       });
 
       if (!confidenceServiceResult.success || !confidenceServiceResult.result) {
@@ -521,6 +648,9 @@ export class ExtractionV3Service {
         },
         // V3.1 特有：三階段 AI 詳情
         stageAiDetails,
+        // CHANGE-032: Pipeline 擴展結果
+        referenceNumberMatch: refMatchResult,
+        exchangeRateConversion: fxConversionResult,
         timing: {
           totalMs: Date.now() - startTime,
           stepTimings,
