@@ -49,26 +49,47 @@
 
 ### 核心框架
 
-- **前端**: Next.js 15 (App Router) + TypeScript
-- **樣式**: Tailwind CSS + shadcn/ui
-- **資料庫**: PostgreSQL + Prisma ORM
-- **狀態管理**: Zustand (UI) + React Query (Server State)
-- **表單**: React Hook Form + Zod 驗證
-- **國際化**: next-intl (支援 en, zh-TW, zh-CN)
+- **前端**: Next.js 15.0.0 (App Router) + TypeScript 5.0 + React 18.3
+- **樣式**: Tailwind CSS 3.4 + shadcn/ui (Radix UI 20+ primitives)
+- **資料庫**: PostgreSQL 15 + Prisma ORM 7.2 (117 models)
+- **狀態管理**: Zustand 5.x (UI) + React Query 5.x (Server State)
+- **表單**: React Hook Form 7.x + Zod 4.x 驗證
+- **國際化**: next-intl 4.7 (支援 en, zh-TW, zh-CN，30 個命名空間)
+- **快取**: @upstash/redis
+- **拖放**: @dnd-kit (sortable UI)
 
 ### 外部服務
 
 - **OCR**: Azure Document Intelligence
-- **AI**: Azure OpenAI GPT-5.2
-- **認證**: Azure AD (Entra ID) SSO
+- **AI**: Azure OpenAI GPT-5.2 + OpenAI SDK
+- **認證**: Azure AD (Entra ID) SSO + 本地帳號認證
 - **工作流**: n8n
 - **文件來源**: SharePoint / Outlook / Azure Blob Storage
+- **Office 365**: Microsoft Graph Client
+
+### 文件處理
+
+- **PDF**: pdfjs-dist, pdf-parse, pdf-to-img, react-pdf, pdfkit
+- **Excel**: ExcelJS (匯出功能)
+- **Email**: Nodemailer (通知系統)
 
 ### 開發工具
 
-- **容器化**: Docker Compose (PostgreSQL + pgAdmin)
+- **容器化**: Docker Compose (PostgreSQL + pgAdmin + Azurite + Python OCR/Mapping)
 - **代碼品質**: ESLint + Prettier
+- **E2E 測試**: Playwright 1.57
 - **套件管理**: npm
+
+### 代碼規模概覽
+
+| 指標 | 數量 | 說明 |
+|------|------|------|
+| React 組件 | 165+ | `src/components/` 下所有 `.tsx` |
+| 業務服務 | 124+ | `src/services/` 下所有 `.ts` |
+| API 路由文件 | 175+ | 每個 route.ts 處理多個 HTTP 方法，約 300+ 端點 |
+| 自定義 Hooks | 89 | `src/hooks/` |
+| Prisma Models | 117 | 資料庫模型定義 |
+| i18n 命名空間 | 30/語言 | 3 種語言各 30 個 JSON 文件 |
 
 ---
 
@@ -88,15 +109,19 @@ ai-document-extraction-project/
 │   │   ├── testing.md          # 測試規範
 │   │   ├── i18n.md             # 國際化規範
 │   │   └── technical-obstacles.md  # 技術障礙處理
-│   └── settings.local.json     # 本地設定
+│   ├── agents/                 # 🤖 自定義 AI Agent（8 個）
+│   ├── skills/                 # ⚡ 自定義 Skill（4 個）
+│   ├── commands/               # 🔧 BMAD 工作流命令
+│   ├── settings.local.json     # 本地設定
+│   └── CLAUDE.md               # 詳細操作指引（服務啟動等）
 │
 ├── claudedocs/                 # 📚 AI 助手文檔目錄（見下方詳細說明）
-│   ├── 1-planning/             # 規劃文檔（Epic 架構設計）
+│   ├── 1-planning/             # 規劃文檔（Epic 架構設計 + Plan docs）
 │   ├── 2-sprints/              # Sprint 文檔
 │   ├── 3-progress/             # 進度追蹤（日報/週報）
-│   ├── 4-changes/              # 變更記錄（Bug/Feature）
+│   ├── 4-changes/              # 變更記錄（32 CHANGE + 35 FIX）
 │   ├── 5-status/               # 狀態報告
-│   ├── 6-ai-assistant/         # AI 助手相關（情境提示詞）
+│   ├── 6-ai-assistant/         # AI 助手相關（6 個 SITUATION 提示詞）
 │   ├── 7-archive/              # 歸檔文檔
 │   └── CLAUDE.md               # 目錄索引
 │
@@ -108,17 +133,17 @@ ai-document-extraction-project/
 │   └── 04-implementation/      # 實施文檔
 │
 ├── python-services/            # 🐍 Python 後端服務
-│   └── (OCR/AI 處理服務)       # Azure DI + GPT Vision
+│   ├── extraction/             # OCR 提取服務 (Azure DI + GPT Vision)
+│   └── mapping/                # 映射邏輯服務
 │
 ├── openapi/                    # 📄 OpenAPI 規格
-│   └── (API 規格文檔)          # Swagger/OpenAPI specs
 │
-├── messages/                   # 🌐 i18n 翻譯文件
+├── messages/                   # 🌐 i18n 翻譯文件（30 命名空間/語言）
 │   ├── en/                     # English 翻譯
 │   ├── zh-TW/                  # 繁體中文翻譯
 │   └── zh-CN/                  # 简体中文翻譯
 │
-├── prisma/                     # 🗄️ Prisma Schema 和遷移
+├── prisma/                     # 🗄️ Prisma Schema（117 models）和遷移
 ├── public/                     # 靜態資源
 ├── scripts/                    # 工具腳本
 │
@@ -126,29 +151,33 @@ ai-document-extraction-project/
 │   ├── app/                    # App Router 頁面
 │   │   ├── [locale]/           # 🌐 i18n 動態路由
 │   │   │   ├── (auth)/         # 認證相關頁面
-│   │   │   └── (dashboard)/    # 儀表板頁面
-│   │   └── api/                # API 路由（256+ 端點）
-│   ├── components/             # React 組件（242+ 組件）
+│   │   │   └── (dashboard)/    # 儀表板頁面（25+ admin 頁面）
+│   │   └── api/                # API 路由（175 route files, ~300 端點）
+│   ├── components/             # React 組件（165+ 組件）
 │   │   ├── ui/                 # shadcn/ui 基礎組件
-│   │   ├── features/           # 功能組件
-│   │   └── layouts/            # 佈局組件
+│   │   ├── features/           # 功能組件（10+ 子目錄）
+│   │   └── layout/             # 佈局組件
 │   ├── config/                 # ⚙️ 應用配置
 │   ├── constants/              # 📋 常數定義
 │   ├── contexts/               # React Context 提供者
 │   ├── events/                 # 事件處理系統
-│   ├── hooks/                  # 自定義 Hooks
+│   ├── hooks/                  # 自定義 Hooks（89 個）
 │   ├── i18n/                   # 🌐 i18n 配置
 │   │   ├── config.ts           # 語言配置常數
 │   │   ├── routing.ts          # next-intl 路由配置
-│   │   └── request.ts          # Server-side locale
+│   │   └── request.ts          # Server-side locale + 命名空間載入
 │   ├── jobs/                   # 背景任務和排程
-│   ├── lib/                    # 工具庫（含 i18n 格式化工具）
+│   ├── lib/                    # 工具庫
+│   │   └── validations/        # Zod 驗證 Schema（新標準位置）
 │   ├── middlewares/            # 中間件
 │   ├── providers/              # 應用程式提供者
-│   ├── services/               # 業務邏輯服務層（95+ 服務）
+│   ├── services/               # 業務邏輯服務層（124+ 服務）
+│   │   └── extraction-v3/      # V3 提取管線（3-stage architecture）
+│   │       ├── stages/         # Stage 1/2/3 服務
+│   │       └── utils/          # 提取工具函數
 │   ├── stores/                 # Zustand 狀態管理
 │   ├── types/                  # TypeScript 類型定義
-│   └── validations/            # Zod 驗證 Schema
+│   └── validations/            # Zod 驗證 Schema（舊位置，漸遷至 lib/）
 │
 ├── tests/                      # 🧪 測試文件
 │   ├── unit/                   # 單元測試
@@ -159,6 +188,30 @@ ai-document-extraction-project/
 ├── .bmad/                      # BMAD 工作流配置
 └── .vscode/                    # VS Code 設定
 ```
+
+### Claude Code 自定義基礎設施
+
+#### `.claude/agents/` - 8 個自定義 AI Agent
+
+| Agent | 模型 | 用途 | 修改代碼？ |
+|-------|------|------|------------|
+| `project-analyst` | sonnet | 文檔審計與差距分析 | 否（文檔） |
+| `requirement-analyst` | sonnet | 需求探索與影響分析 | 否（唯讀） |
+| `architecture-reviewer` | sonnet | 架構設計驗證（對照 9 規則文件） | 否（唯讀） |
+| `i18n-guardian` | haiku | 翻譯同步檢查（en/zh-TW/zh-CN） | 否（建議修復） |
+| `code-quality-checker` | sonnet | 項目品質審查 | 否（唯讀） |
+| `fullstack-scaffolder` | sonnet | 全端代碼骨架生成 | 是（新文件） |
+| `test-strategist` | sonnet | 測試計劃文檔 | 否（文檔） |
+| `session-manager` | haiku | SITUATION-5 自動化 | 否（文檔） |
+
+#### `.claude/skills/` - 4 個自定義 Skill
+
+| Skill | 觸發命令 | 用途 |
+|-------|----------|------|
+| `quickcompact` | `/quickcompact` | 快速 compact 並保留執行狀態 |
+| `plan-story` | `/plan-story` | 新功能規劃（Story + Tech Spec + Prompt） |
+| `plan-change` | `/plan-change` | 功能變更規劃（CHANGE-XXX） |
+| `plan-fix` | `/plan-fix` | Bug 修復規劃（FIX-XXX） |
 
 ---
 
@@ -199,9 +252,10 @@ ai-document-extraction-project/
 
 ```
 claudedocs/
-├── 1-planning/epics/epic-{N}/     # Epic 規劃 (N: 0-17)
-├── 4-changes/bug-fixes/FIX-{NNN}-*.md       # Bug 修復
-├── 4-changes/feature-changes/CHANGE-{NNN}-*.md  # 功能變更
+├── 1-planning/epics/epic-{N}/     # Epic 規劃 (N: 0-21)
+├── 1-planning/plan-docs/          # CHANGE/FIX 規劃文件
+├── 4-changes/bug-fixes/FIX-{NNN}-*.md       # Bug 修復 (001-035+)
+├── 4-changes/feature-changes/CHANGE-{NNN}-*.md  # 功能變更 (001-032+)
 ├── 3-progress/daily/{YYYY}-{MM}/{YYYY}-{MM}-{DD}.md  # 日報
 └── 3-progress/weekly/{YYYY}-W{WW}.md        # 週報
 ```
@@ -323,21 +377,32 @@ function process(data: DocumentMetadata) { ... }  // 好
 
 ## API 設計規範
 
-### 路由結構
+### 路由結構（175 route files，~300 端點）
 
 ```
 src/app/api/
-├── v1/
-│   ├── documents/
-│   │   ├── route.ts              # GET (list), POST (create)
-│   │   ├── [id]/
-│   │   │   ├── route.ts          # GET, PATCH, DELETE
-│   │   │   └── review/
-│   │   │       └── route.ts      # POST (submit review)
-│   ├── forwarders/
-│   │   └── route.ts
-│   └── mappings/
-│       └── route.ts
+├── admin/              # 管理端點（50+ routes）
+│   ├── alerts/         # 警報管理
+│   ├── backups/        # 備份與恢復
+│   ├── config/         # 系統配置
+│   ├── health/         # 健康檢查
+│   ├── integrations/   # 外部整合
+│   ├── logs/           # 日誌管理
+│   ├── performance/    # 效能監控
+│   ├── retention/      # 資料保留
+│   └── users/          # 用戶管理
+├── analytics/          # 統計分析
+├── auth/               # 認證 (NextAuth)
+├── cities/             # 城市管理
+├── dashboard/          # 儀表板數據
+├── documents/          # 文件處理（20+ routes）
+├── exchange-rates/     # 匯率管理
+├── field-mappings/     # 欄位映射
+├── formats/            # 文件格式
+├── reference-numbers/  # 參考編號
+├── rules/              # 映射規則（15+ routes）
+└── v1/                 # 版本化端點
+    └── pipeline-configs/ # 管線配置（新增）
 ```
 
 ### 響應格式
@@ -379,18 +444,20 @@ src/app/api/
 // 模型名稱: PascalCase 單數
 model Document {
   // 欄位名稱: camelCase
-  id            String   @id @default(cuid())
+  id            String   @id @default(uuid())  // 新模型使用 uuid()
   fileName      String   @map("file_name")
   createdAt     DateTime @default(now()) @map("created_at")
 
   // 關聯欄位
-  forwarderId   String   @map("forwarder_id")
-  forwarder     Forwarder @relation(fields: [forwarderId], references: [id])
+  companyId     String   @map("company_id")
+  company       Company  @relation(fields: [companyId], references: [id])
 
   // 表名: snake_case 複數
   @@map("documents")
 }
 ```
+
+> **ID 策略**: 新建模型一律使用 `@default(uuid())`。舊模型部分仍使用 `cuid()`，正在逐步遷移中。
 
 ### 遷移命名
 
@@ -488,12 +555,15 @@ tests/
 ### 分支命名
 
 ```
-main                    # 生產分支
-develop                 # 開發分支
-feature/epic-X-story-Y  # 功能分支
-fix/issue-description   # 修復分支
-hotfix/critical-issue   # 緊急修復
+main                                  # 生產分支
+develop                               # 開發分支
+feature/epic-X-story-Y                # Epic Story 功能分支（Phase 1 模式）
+feature/change-NNN-description        # 功能變更分支（Phase 2 模式，當前主要使用）
+fix/issue-description                 # 修復分支
+hotfix/critical-issue                 # 緊急修復
 ```
+
+> **分支演進**: 項目從 `feature/epic-X-story-Y`（Story 開發）演進到 `feature/change-NNN-description`（功能變更）模式。新的開發工作應使用 `feature/change-NNN` 格式。
 
 ### Commit Message 格式
 
@@ -616,6 +686,18 @@ npm run test
 
 > **常見問題**：開發者在 TypeScript 中新增常量（如 `PROMPT_TYPES`）但忘記更新 i18n 翻譯，導致運行時 `IntlError: MISSING_MESSAGE` 錯誤。
 
+### i18n 命名空間完整列表（30 個/語言）
+
+```
+common, navigation, dialogs, auth, validation, errors, dashboard, global,
+escalation, review, documents, rules, companies, reports, admin, confidence,
+historicalData, termAnalysis, documentPreview, fieldMappingConfig,
+promptConfig, dataTemplates, formats, templateFieldMapping, templateInstance,
+templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
+```
+
+> **重要**: 新增命名空間時，除了建立 3 個語言的 JSON 文件外，還必須在 `src/i18n/request.ts` 的 `namespaces` 陣列中加入新命名空間名稱，否則會導致 `IntlError`。
+
 ### 常量 → i18n 映射表
 
 | 常量文件 | 常量名稱 | i18n 文件 | i18n Key 前綴 |
@@ -631,6 +713,12 @@ npm run test
 - `src/constants/*.ts` 中的任何常量
 - 任何會在 UI 顯示的 enum/object
 
+**新增功能模組時，必須同時：**
+1. 建立 `messages/en/<namespace>.json`
+2. 建立 `messages/zh-TW/<namespace>.json`
+3. 建立 `messages/zh-CN/<namespace>.json`
+4. 在 `src/i18n/request.ts` 的 `namespaces` 陣列中加入新命名空間
+
 **開發完成前必須執行：**
 ```bash
 npm run i18n:check
@@ -643,6 +731,7 @@ npm run i18n:check
 - [ ] 已更新 `messages/en/*.json`
 - [ ] 已更新 `messages/zh-TW/*.json`
 - [ ] 已更新 `messages/zh-CN/*.json`
+- [ ] 已更新 `src/i18n/request.ts` 命名空間陣列（如新增命名空間）
 - [ ] 已執行 `npm run i18n:check` 驗證
 - [ ] 已在瀏覽器確認無 `IntlError`
 
@@ -796,7 +885,7 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 
 > **進度來源**: `docs/04-implementation/sprint-status.yaml` - 項目進度的唯一真實來源
 
-### Epic 結構（18 個 Epic，121 個 Stories）
+### Epic 結構（22 個 Epic，157+ 個 Stories — 全部完成）
 
 | Epic | 名稱                        | Stories | 狀態      | 完成日期   |
 | ---- | --------------------------- | ------- | --------- | ---------- |
@@ -817,36 +906,56 @@ AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
 | 14   | Prompt 配置與動態生成       | 4       | ✅ 已完成 | 2026-01-03 |
 | 15   | 統一 3 層機制到日常處理流程 | 5       | ✅ 已完成 | 2026-01-03 |
 | 16   | 文件格式管理                | 8       | ✅ 已完成 | 2026-01-14 |
-| 17   | 國際化 (i18n) 多語言支援    | 7       | 🚧 進行中 | -          |
+| 17   | 國際化 (i18n) 多語言支援    | 7       | ✅ 已完成 | 2026-01-17 |
+| 18   | 本地帳號認證系統            | 8       | ✅ 已完成 | 2026-01-19 |
+| 19   | 資料模板匹配與匯出          | 8       | ✅ 已完成 | 2026-01-23 |
+| 20   | 參考編號主檔管理            | 8       | ✅ 已完成 | 2026-02-05 |
+| 21   | 匯率管理                    | 8       | ✅ 已完成 | 2026-02-06 |
 
-### 重要重構記錄
+### 重要重構與變更記錄
 
-| 重構         | 說明                         | 狀態      | 完成 Story |
-| ------------ | ---------------------------- | --------- | ---------- |
-| REFACTOR-001 | Forwarder → Company 模型重構 | ✅ 已完成 | Story 0-3  |
+| 記錄 | 說明 | 狀態 | 備註 |
+| ---- | ---- | ---- | ---- |
+| REFACTOR-001 | Forwarder → Company 模型重構 | ✅ 已完成 | Story 0-3 |
+| CHANGE-031 | Frontend Invoice → Document 重命名 | ✅ 已完成 | 30 文件修改 |
+| CHANGE-032 | Pipeline 參考編號匹配 + 匯率轉換 | 📋 規劃中 | 下一期開發 |
+
+### 變更管理統計
+
+| 類型 | 數量 | 路徑 |
+|------|------|------|
+| 功能變更 (CHANGE) | 32 份 | `claudedocs/4-changes/feature-changes/` |
+| Bug 修復 (FIX) | 35 份 | `claudedocs/4-changes/bug-fixes/` |
 
 ---
 
-## 語言設定
+## 🗣️ 語言設定（必須遵守）
 
-- **用戶溝通語言**: 繁體中文
-- **代碼註釋**: 中文或英文（依據上下文）
-- **Commit Message**: 英文
-- **文檔**: 繁體中文為主
+> **🔴 核心規則**: AI 助手在所有對話中**必須全程使用繁體中文**回應用戶。這是最高優先級的溝通規則，無論任何情境、任何技術討論，都不可使用英文或其他語言回覆用戶。技術術語和代碼標識符保留原文即可。
+
+| 場景 | 語言 | 強制等級 |
+|------|------|----------|
+| **用戶對話與回應** | 繁體中文 | 🔴 必須（無例外） |
+| **問題解釋與建議** | 繁體中文 | 🔴 必須（無例外） |
+| **代碼註釋** | 中文或英文 | 🟡 依上下文選擇 |
+| **Commit Message** | 英文 | 🟡 遵循 Conventional Commits |
+| **技術文檔** | 繁體中文為主 | 🟡 claudedocs/ 和 docs/ |
+| **代碼中的 UI 字串** | 使用 i18n key | 🔴 禁止硬編碼 |
 
 ---
 
 ## 版本資訊
 
-- **CLAUDE.md 版本**: 2.5.0
+- **CLAUDE.md 版本**: 2.6.0
 - **建立日期**: 2025-12-17
-- **最後更新**: 2026-02-03
+- **最後更新**: 2026-02-08
 - **維護者**: Development Team
 
 ### 更新記錄
 
 | 版本  | 日期       | 變更內容                                                                         |
 | ----- | ---------- | -------------------------------------------------------------------------------- |
+| 2.6.0 | 2026-02-08 | 全面審核更新：加強語言設定措辭為必須遵守、新增 Epic 18-21（全 22 Epic 完成）、更新代碼計量（組件 165+、服務 124+、Hooks 89、Models 117）、新增 agents/skills 文檔、新增 i18n 命名空間完整列表（30 個）、更新目錄結構樹、更新 API 路由結構、新增變更管理統計、新增 Git change-NNN 分支模式、更新技術棧版本號與新增依賴 |
 | 2.5.0 | 2026-02-03 | 新增「i18n 同步規則」章節、新增 `npm run i18n:check` 命令、防止常量與翻譯不同步  |
 | 2.4.0 | 2026-01-18 | 新增 Epic 16 (文件格式管理)、更新 Epic 總數至 18 個、Story 總數至 119 個         |
 | 2.3.0 | 2026-01-18 | 新增 Epic 17 (i18n)、新增 i18n.md 規則文件、技術棧新增 next-intl                 |
