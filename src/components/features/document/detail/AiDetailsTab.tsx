@@ -8,7 +8,7 @@
  *   - V3.1: 三階段獨立 AI 詳情 (Stage 1/2/3)
  *   - Token 使用統計
  *
- * @module src/components/features/invoice/detail/AiDetailsTab
+ * @module src/components/features/document/detail/AiDetailsTab
  * @since CHANGE-023 - AI Details Tab
  * @lastModified 2026-02-01
  *
@@ -250,7 +250,7 @@ function StageCard({ stage, stageNumber, stageLabel, stageDescription, icon, t }
  * @supports V3 (單一 AI 詳情) 和 V3.1 (三階段 AI 詳情)
  */
 export function AiDetailsTab({ aiDetails }: AiDetailsTabProps) {
-  const t = useTranslations('invoices.detail.ai');
+  const t = useTranslations('documents.detail.ai');
   const [copiedField, setCopiedField] = React.useState<'prompt' | 'response' | null>(null);
 
   // 複製到剪貼板

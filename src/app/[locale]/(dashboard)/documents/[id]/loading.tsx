@@ -1,12 +1,12 @@
 /**
- * @fileoverview 發票詳情頁面載入骨架
- * @module src/app/[locale]/(dashboard)/invoices/[id]/loading
+ * @fileoverview 文件詳情頁面載入骨架
+ * @module src/app/[locale]/(dashboard)/documents/[id]/loading
  * @since Epic 13 - Story 13-8
  */
 
 import { Skeleton } from '@/components/ui/skeleton'
 
-export default function InvoiceDetailLoading() {
+export default function DocumentDetailLoading() {
   return (
     <div className="space-y-6 p-6">
       {/* Header Skeleton */}

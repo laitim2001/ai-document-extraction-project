@@ -1,26 +1,26 @@
 'use client'
 
 /**
- * @fileoverview 發票詳情頁面頭部組件
+ * @fileoverview 文件詳情頁面頭部組件
  * @description
- *   顯示發票詳情頁面的頭部區塊：
+ *   顯示文件詳情頁面的頭部區塊：
  *   - 返回按鈕
  *   - 文件名稱
  *   - 處理狀態徽章
  *   - 操作按鈕群組
  *
- * @module src/components/features/invoice/detail/InvoiceDetailHeader
+ * @module src/components/features/document/detail/DocumentDetailHeader
  * @author Development Team
- * @since Epic 13 - Story 13-8 (Invoice Detail Page)
- * @lastModified 2026-01-18
+ * @since Epic 13 - Story 13-8 (Document Detail Page)
+ * @lastModified 2026-02-07
  */
 
 import * as React from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/routing'
 import { Button } from '@/components/ui/button'
-import { ProcessingStatus } from '@/components/features/invoice/ProcessingStatus'
-import { RetryButton } from '@/components/features/invoice/RetryButton'
+import { ProcessingStatus } from '@/components/features/document/ProcessingStatus'
+import { RetryButton } from '@/components/features/document/RetryButton'
 import {
   ArrowLeft,
   Download,
@@ -53,7 +53,7 @@ interface DocumentData {
   blobUrl?: string | null
 }
 
-interface InvoiceDetailHeaderProps {
+interface DocumentDetailHeaderProps {
   /** 文件數據 */
   document: DocumentData
   /** 刷新回調 */
@@ -65,16 +65,16 @@ interface InvoiceDetailHeaderProps {
 // ============================================================
 
 /**
- * 發票詳情頁面頭部
+ * 文件詳情頁面頭部
  *
  * @description
  *   顯示文件名稱、狀態和操作按鈕
  */
-export function InvoiceDetailHeader({
+export function DocumentDetailHeader({
   document,
   onRefresh,
-}: InvoiceDetailHeaderProps) {
-  const t = useTranslations('invoices')
+}: DocumentDetailHeaderProps) {
+  const t = useTranslations('documents')
   const tc = useTranslations('common')
   const router = useRouter()
   const { toast } = useToast()
@@ -126,7 +126,7 @@ export function InvoiceDetailHeader({
         description: t('detail.deleteSuccessDescription'),
       })
 
-      router.push('/invoices')
+      router.push('/documents')
     } catch {
       toast({
         title: tc('errors.title'),
@@ -142,7 +142,7 @@ export function InvoiceDetailHeader({
     <div className="flex items-center justify-between">
       {/* Left: Back button + Title */}
       <div className="flex items-center gap-4">
-        <Link href="/invoices">
+        <Link href="/documents">
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-5 w-5" />
           </Button>

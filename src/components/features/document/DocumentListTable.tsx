@@ -1,18 +1,18 @@
 'use client'
 
 /**
- * @fileoverview 發票列表表格組件（國際化版本）
+ * @fileoverview 文件列表表格組件（國際化版本）
  * @description
- *   顯示發票文件列表的表格，包含：
+ *   顯示文件列表的表格，包含：
  *   - 文件名稱、狀態、處理路徑
  *   - 上傳時間（相對時間）
  *   - 操作按鈕（查看、重試）
  *   - 完整國際化支援
  *
- * @module src/components/features/invoice/InvoiceListTable
+ * @module src/components/features/document/DocumentListTable
  * @author Development Team
  * @since Epic 2 - Story 2.7 (Processing Status Tracking & Display)
- * @lastModified 2026-01-17
+ * @lastModified 2026-02-07
  *
  * @features
  *   - 響應式表格
@@ -30,8 +30,8 @@
  *
  * @related
  *   - src/hooks/use-documents.ts - Documents Hook
- *   - src/app/[locale]/(dashboard)/invoices/page.tsx - 發票列表頁面
- *   - messages/{locale}/invoices.json - 翻譯檔案
+ *   - src/app/[locale]/(dashboard)/documents/page.tsx - 文件列表頁面
+ *   - messages/{locale}/documents.json - 翻譯檔案
  */
 
 import * as React from 'react'
@@ -58,7 +58,7 @@ import type { DocumentListItem } from '@/hooks/use-documents'
 // Types
 // ============================================================
 
-export interface InvoiceListTableProps {
+export interface DocumentListTableProps {
   /** 文件列表 */
   documents: DocumentListItem[]
   /** 是否載入中 */
@@ -84,24 +84,24 @@ const processingPathKeys: Record<string, string> = {
 // ============================================================
 
 /**
- * 發票列表表格組件
+ * 文件列表表格組件
  *
  * @description
- *   顯示發票文件列表，包含狀態追蹤和操作功能
+ *   顯示文件列表，包含狀態追蹤和操作功能
  *
  * @example
  * ```tsx
- * <InvoiceListTable
+ * <DocumentListTable
  *   documents={documents}
  *   isLoading={isLoading}
  * />
  * ```
  */
-export function InvoiceListTable({
+export function DocumentListTable({
   documents,
   isLoading,
-}: InvoiceListTableProps) {
-  const t = useTranslations('invoices')
+}: DocumentListTableProps) {
+  const t = useTranslations('documents')
   const locale = useLocale()
 
   // 根據 locale 選擇日期格式化的 locale
@@ -195,7 +195,7 @@ export function InvoiceListTable({
                   {statusConfig.canRetry && (
                     <RetryButton documentId={doc.id} />
                   )}
-                  <Link href={`/invoices/${doc.id}`}>
+                  <Link href={`/documents/${doc.id}`}>
                     <Button variant="ghost" size="sm">
                       <Eye className="h-4 w-4" />
                     </Button>

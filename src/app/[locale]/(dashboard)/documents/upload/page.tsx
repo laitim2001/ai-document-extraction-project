@@ -1,28 +1,28 @@
 'use client'
 
 /**
- * @fileoverview 發票上傳頁面（國際化版本）
+ * @fileoverview 文件上傳頁面（國際化版本）
  * @description
- *   提供發票文件上傳功能的頁面。
+ *   提供文件上傳功能的頁面。
  *   支援拖放上傳、批量上傳和進度追蹤。
  *   支援選擇城市進行文件分類。
  *   支援完整的國際化。
  *
- * @module src/app/[locale]/(dashboard)/invoices/upload/page
+ * @module src/app/[locale]/(dashboard)/documents/upload/page
  * @author Development Team
  * @since Epic 2 - Story 2.1 (File Upload Interface & Validation)
- * @lastModified 2026-01-17
+ * @lastModified 2026-02-07
  *
  * @related
- *   - src/components/features/invoice/FileUploader.tsx - 上傳組件
+ *   - src/components/features/document/FileUploader.tsx - 上傳組件
  *   - src/app/api/documents/upload/route.ts - 上傳 API
- *   - messages/{locale}/invoices.json - 翻譯檔案
+ *   - messages/{locale}/documents.json - 翻譯檔案
  */
 
 import { useState, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { MapPin, Loader2 } from 'lucide-react'
-import { FileUploader } from '@/components/features/invoice'
+import { FileUploader } from '@/components/features/document'
 import {
   Card,
   CardContent,
@@ -43,13 +43,13 @@ import { Label } from '@/components/ui/label'
 import { useAccessibleCitiesGrouped } from '@/hooks/use-accessible-cities'
 
 /**
- * 發票上傳頁面
+ * 文件上傳頁面
  *
  * @component UploadPage
- * @description 發票文件上傳頁面，提供拖放上傳功能和城市選擇
+ * @description 文件上傳頁面，提供拖放上傳功能和城市選擇
  */
 export default function UploadPage() {
-  const t = useTranslations('invoices')
+  const t = useTranslations('documents')
   const [selectedCityCode, setSelectedCityCode] = useState<string>('')
   const { data: groupedCities, isLoading: isLoadingCities } = useAccessibleCitiesGrouped()
 

@@ -70,7 +70,7 @@ function extractLocaleFromPath(pathname: string): { locale: Locale | null; restP
  */
 function isProtectedRoute(pathname: string): boolean {
   const { restPath } = extractLocaleFromPath(pathname)
-  return restPath.startsWith('/dashboard') || restPath.startsWith('/invoices')
+  return restPath.startsWith('/dashboard') || restPath.startsWith('/documents')
 }
 
 /**

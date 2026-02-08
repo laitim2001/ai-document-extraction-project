@@ -1,18 +1,18 @@
 'use client'
 
 /**
- * @fileoverview 發票詳情統計卡片組件
+ * @fileoverview 文件詳情統計卡片組件
  * @description
- *   顯示發票處理的四個統計摘要卡片：
+ *   顯示文件處理的四個統計摘要卡片：
  *   - 處理狀態（含 V2/V3 版本標籤）
  *   - 信心度
  *   - 上傳資訊
  *   - 來源資訊
  *
- * @module src/components/features/invoice/detail/InvoiceDetailStats
+ * @module src/components/features/document/detail/DocumentDetailStats
  * @author Development Team
- * @since Epic 13 - Story 13-8 (Invoice Detail Page)
- * @lastModified 2026-01-31
+ * @since Epic 13 - Story 13-8 (Document Detail Page)
+ * @lastModified 2026-02-07
  *
  * @change CHANGE-022 - 添加 V2/V3 版本標籤顯示
  */
@@ -21,7 +21,7 @@ import * as React from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { ProcessingStatus } from '@/components/features/invoice/ProcessingStatus'
+import { ProcessingStatus } from '@/components/features/document/ProcessingStatus'
 import { ConfidenceBadge } from '@/components/features/confidence/ConfidenceBadge'
 import { DocumentSourceBadge } from '@/components/features/document-source/DocumentSourceBadge'
 import { formatRelativeTime, formatDateTime } from '@/lib/i18n-date'
@@ -70,7 +70,7 @@ interface DocumentData {
   processingSteps?: ProcessingStep[] | null
 }
 
-interface InvoiceDetailStatsProps {
+interface DocumentDetailStatsProps {
   /** 文件數據 */
   document: DocumentData
 }
@@ -101,13 +101,13 @@ function formatDuration(seconds: number | null): string {
 // ============================================================
 
 /**
- * 發票詳情統計卡片
+ * 文件詳情統計卡片
  *
  * @description
  *   顯示四個統計摘要卡片
  */
-export function InvoiceDetailStats({ document }: InvoiceDetailStatsProps) {
-  const t = useTranslations('invoices')
+export function DocumentDetailStats({ document }: DocumentDetailStatsProps) {
+  const t = useTranslations('documents')
   const locale = useLocale() as Locale
 
   const duration = calculateDuration(

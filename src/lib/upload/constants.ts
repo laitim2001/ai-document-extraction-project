@@ -13,7 +13,7 @@
  *
  * @related
  *   - src/app/api/documents/upload/route.ts - 使用這些常數驗證上傳
- *   - src/components/features/invoice/FileUploader.tsx - 使用這些常數配置 Dropzone
+ *   - src/components/features/document/FileUploader.tsx - 使用這些常數配置 Dropzone
  */
 
 // ===========================================

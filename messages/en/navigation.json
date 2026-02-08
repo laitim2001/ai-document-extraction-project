@@ -2,14 +2,17 @@
   "sections": {
     "overview": "Overview",
     "documents": "Document Processing",
+    "templates": "Template Management",
+    "extraction": "Extraction Config",
     "rules": "Rule Management",
     "reports": "Reports",
-    "admin": "System Admin"
+    "admin": "System Admin",
+    "devTools": "Dev Tools"
   },
   "topbar": {
     "openMenu": "Open Menu",
     "search": "Search",
-    "searchPlaceholder": "Search invoices, forwarders...",
+    "searchPlaceholder": "Search documents, forwarders...",
     "toggleTheme": "Toggle Theme",
     "notifications": {
       "title": "Notifications",
@@ -31,9 +34,9 @@
       "auditor": "Auditor"
     },
     "mockNotifications": {
-      "invoiceApproved": {
-        "title": "Invoice Review Completed",
-        "message": "Invoice INV-2024-001 has passed automatic review"
+      "documentApproved": {
+        "title": "Document Review Completed",
+        "message": "Document INV-2024-001 has passed automatic review"
       },
       "ruleSuggestion": {
         "title": "New Rule Suggestion",
@@ -41,7 +44,7 @@
       },
       "lowConfidence": {
         "title": "Low Confidence Warning",
-        "message": "3 invoices require manual review"
+        "message": "3 documents require manual review"
       },
       "time": {
         "minutesAgo": "{count} minutes ago",
@@ -52,8 +55,8 @@
   "sidebar": {
     "dashboard": "Dashboard",
     "globalView": "Global View",
-    "invoices": "Invoices",
-    "uploadInvoice": "Upload Invoice",
+    "documents": "Documents",
+    "uploadDocument": "Upload Document",
     "review": "Review Queue",
     "escalations": "Escalations",
     "mappingRules": "Mapping Rules",
@@ -71,6 +74,7 @@
     "templateInstances": "Template Instances",
     "templateMatchingTest": "Template Matching Test",
     "referenceNumbers": "Reference Numbers",
+    "exchangeRates": "Exchange Rates",
     "settings": "Settings"
   },
   "user": {

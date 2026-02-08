@@ -9,18 +9,15 @@
  * @component Sidebar
  *
  * @features
- *   - 分類導航選單（概覽、文件處理、規則管理、報表、系統管理）
+ *   - 分類導航選單（概覽、文件處理、模版管理、提取配置、規則管理、報表、系統管理、開發工具）
  *   - 收合/展開功能
  *   - 當前路徑高亮
  *   - 用戶資訊顯示
  *   - 響應式設計
- *   - 歷史數據初始化入口 (Epic 0)
- *   - 文件預覽測試入口 (Epic 13)
  *   - i18n 國際化支援 (Epic 17)
- *   - 模版匹配功能入口 (Epic 19)
  *
  * @since CHANGE-001 - Dashboard Layout Redesign
- * @lastModified 2026-01-23
+ * @lastModified 2026-02-06
  *
  * @dependencies
  *   - next-intl - 國際化
@@ -59,6 +56,8 @@ import {
   FileStack,
   TestTube2,
   Hash,
+  DollarSign,
+  Wrench,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -106,10 +105,26 @@ const navigation: NavSection[] = [
   {
     titleKey: 'sections.documents',
     items: [
-      { nameKey: 'sidebar.invoices', href: '/invoices', icon: FileText },
-      { nameKey: 'sidebar.uploadInvoice', href: '/invoices/upload', icon: Upload },
+      { nameKey: 'sidebar.documents', href: '/documents', icon: FileText },
+      { nameKey: 'sidebar.uploadDocument', href: '/documents/upload', icon: Upload },
       { nameKey: 'sidebar.review', href: '/review', icon: ClipboardCheck },
       { nameKey: 'sidebar.escalations', href: '/escalations', icon: AlertTriangle },
+    ],
+  },
+  {
+    titleKey: 'sections.templates',
+    items: [
+      { nameKey: 'sidebar.dataTemplates', href: '/admin/data-templates', icon: FileSpreadsheet },
+      { nameKey: 'sidebar.templateFieldMappings', href: '/admin/template-field-mappings', icon: Grid3X3 },
+      { nameKey: 'sidebar.templateInstances', href: '/template-instances', icon: FileStack },
+    ],
+  },
+  {
+    titleKey: 'sections.extraction',
+    items: [
+      { nameKey: 'sidebar.fieldMapping', href: '/admin/field-mapping-configs', icon: ArrowRightLeft },
+      { nameKey: 'sidebar.promptConfig', href: '/admin/prompt-configs', icon: MessageSquareCode },
+      { nameKey: 'sidebar.termAnalysis', href: '/admin/term-analysis', icon: Tags },
     ],
   },
   {
@@ -117,6 +132,8 @@ const navigation: NavSection[] = [
     items: [
       { nameKey: 'sidebar.mappingRules', href: '/rules', icon: GitBranch },
       { nameKey: 'sidebar.companies', href: '/companies', icon: Building2 },
+      { nameKey: 'sidebar.referenceNumbers', href: '/admin/reference-numbers', icon: Hash },
+      { nameKey: 'sidebar.exchangeRates', href: '/admin/exchange-rates', icon: DollarSign },
     ],
   },
   {
@@ -131,15 +148,13 @@ const navigation: NavSection[] = [
     items: [
       { nameKey: 'sidebar.users', href: '/admin/users', icon: Users },
       { nameKey: 'sidebar.historicalData', href: '/admin/historical-data', icon: Database },
+    ],
+  },
+  {
+    titleKey: 'sections.devTools',
+    items: [
       { nameKey: 'sidebar.documentPreview', href: '/admin/document-preview-test', icon: Layers },
-      { nameKey: 'sidebar.dataTemplates', href: '/admin/data-templates', icon: FileSpreadsheet },
-      { nameKey: 'sidebar.fieldMapping', href: '/admin/field-mapping-configs', icon: ArrowRightLeft },
-      { nameKey: 'sidebar.promptConfig', href: '/admin/prompt-configs', icon: MessageSquareCode },
-      { nameKey: 'sidebar.termAnalysis', href: '/admin/term-analysis', icon: Tags },
-      { nameKey: 'sidebar.templateFieldMappings', href: '/admin/template-field-mappings', icon: Grid3X3 },
-      { nameKey: 'sidebar.templateInstances', href: '/template-instances', icon: FileStack },
       { nameKey: 'sidebar.templateMatchingTest', href: '/admin/test/template-matching', icon: TestTube2 },
-      { nameKey: 'sidebar.referenceNumbers', href: '/admin/reference-numbers', icon: Hash },
     ],
   },
 ]

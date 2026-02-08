@@ -6,7 +6,7 @@
  *   - 新格式：提示需要配置格式映射
  *   - 提供快速配置入口連結
  *
- * @module src/components/features/invoice/detail/SmartRoutingBanner
+ * @module src/components/features/document/detail/SmartRoutingBanner
  * @since CHANGE-025 - 統一處理流程優化
  * @lastModified 2026-02-01
  */
@@ -59,7 +59,7 @@ export function SmartRoutingBanner({
   formatId,
   companyName,
 }: SmartRoutingBannerProps) {
-  const t = useTranslations('invoices.detail.smartRouting')
+  const t = useTranslations('documents.detail.smartRouting')
   const tc = useTranslations('common')
 
   // 如果沒有標記或不需要配置審核，不顯示

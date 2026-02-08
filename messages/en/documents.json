@@ -1,7 +1,7 @@
 {
   "page": {
-    "title": "Invoice Documents",
-    "description": "Manage and track uploaded invoice processing status"
+    "title": "Documents",
+    "description": "Manage and track uploaded document processing status"
   },
   "stats": {
     "total": "Total",
@@ -38,9 +38,9 @@
       "company": "Company",
       "actions": "Actions"
     },
-    "empty": "No invoices found",
+    "empty": "No documents found",
     "noDocuments": "No documents found",
-    "emptyDescription": "Upload a new invoice to get started",
+    "emptyDescription": "Upload a new document to get started",
     "loading": "Loading...",
     "processingError": "An error occurred during processing",
     "processingFailed": "Processing Failed"
@@ -65,11 +65,11 @@
     "FAILED": "Failed"
   },
   "upload": {
-    "title": "Upload Invoice Files",
-    "description": "Upload invoice files for AI processing and data extraction. Supports PDF, JPG, PNG formats.",
+    "title": "Upload Documents",
+    "description": "Upload documents for AI processing and data extraction. Supports PDF, JPG, PNG formats.",
     "selectCity": "Select City",
     "selectCityPlaceholder": "Please select a city",
-    "selectCityHint": "Please select a city before uploading invoice files.",
+    "selectCityHint": "Please select a city before uploading files.",
     "selectCityRequired": "Please select a city before uploading files",
     "dragDrop": "Drag and drop files here, or click to select",
     "dropToUpload": "Drop to upload files",
@@ -99,7 +99,7 @@
     "uploadFailed": "File upload failed, please try again",
     "noFiles": "Please select files to upload",
     "unauthorized": "Please log in",
-    "forbidden": "You don't have permission to upload invoices"
+    "forbidden": "You don't have permission to upload documents"
   },
   "actions": {
     "view": "View",
@@ -113,7 +113,7 @@
     "button": "Retry"
   },
   "detail": {
-    "title": "Invoice Details",
+    "title": "Document Details",
     "backToList": "Back to List",
     "tabs": {
       "preview": "Preview",

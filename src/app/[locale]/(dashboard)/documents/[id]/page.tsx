@@ -1,21 +1,21 @@
 'use client'
 
 /**
- * @fileoverview 發票詳情頁面
+ * @fileoverview 文件詳情頁面
  * @description
- *   顯示單一發票的詳細資訊，整合 Epic 13 的預覽組件：
+ *   顯示單一文件的詳細資訊，整合 Epic 13 的預覽組件：
  *   - PDF 文件預覽
  *   - 欄位提取結果
  *   - 處理時間軸
  *   - 審計日誌
  *
- * @module src/app/[locale]/(dashboard)/invoices/[id]/page
+ * @module src/app/[locale]/(dashboard)/documents/[id]/page
  * @author Development Team
- * @since Epic 13 - Story 13-8 (Invoice Detail Page)
- * @lastModified 2026-01-18
+ * @since Epic 13 - Story 13-8 (Document Detail Page)
+ * @lastModified 2026-02-07
  *
  * @features
- *   - 完整的發票詳情檢視
+ *   - 完整的文件詳情檢視
  *   - 四個選項卡：預覽、欄位、處理、審計
  *   - 實時狀態更新（處理中自動輪詢）
  *   - 操作按鈕：重試、下載、刪除
@@ -23,18 +23,18 @@
  *
  * @dependencies
  *   - next-intl - 國際化
- *   - @/hooks/use-invoice-detail - 數據獲取 Hook
- *   - @/components/features/invoice/detail - 詳情組件
+ *   - @/hooks/use-document-detail - 數據獲取 Hook
+ *   - @/components/features/document/detail - 詳情組件
  *   - @/components/features/document-preview - PDF 預覽組件
  */
 
 import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { InvoiceDetailHeader } from '@/components/features/invoice/detail/InvoiceDetailHeader'
-import { InvoiceDetailStats } from '@/components/features/invoice/detail/InvoiceDetailStats'
-import { InvoiceDetailTabs } from '@/components/features/invoice/detail/InvoiceDetailTabs'
-import { SmartRoutingBanner } from '@/components/features/invoice/detail/SmartRoutingBanner'
-import { useInvoiceDetail } from '@/hooks/use-invoice-detail'
+import { DocumentDetailHeader } from '@/components/features/document/detail/DocumentDetailHeader'
+import { DocumentDetailStats } from '@/components/features/document/detail/DocumentDetailStats'
+import { DocumentDetailTabs } from '@/components/features/document/detail/DocumentDetailTabs'
+import { SmartRoutingBanner } from '@/components/features/document/detail/SmartRoutingBanner'
+import { useDocumentDetail } from '@/hooks/use-document-detail'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -44,22 +44,22 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 // ============================================================
 
 /**
- * 發票詳情頁面
+ * 文件詳情頁面
  *
  * @description
- *   顯示單一發票的完整詳情，包含文件預覽、提取欄位、處理時間軸和審計日誌
+ *   顯示單一文件的完整詳情，包含文件預覽、提取欄位、處理時間軸和審計日誌
  */
-export default function InvoiceDetailPage() {
+export default function DocumentDetailPage() {
   // --- Params ---
   const params = useParams()
   const id = params.id as string
 
   // --- i18n ---
-  const t = useTranslations('invoices')
+  const t = useTranslations('documents')
   const tc = useTranslations('common')
 
   // --- Data Fetching ---
-  const { document, isLoading, isError, error, refetch } = useInvoiceDetail(id)
+  const { document, isLoading, isError, error, refetch } = useDocumentDetail(id)
 
   // --- Loading State ---
   if (isLoading) {
@@ -101,7 +101,7 @@ export default function InvoiceDetailPage() {
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
-      <InvoiceDetailHeader document={document} onRefresh={refetch} />
+      <DocumentDetailHeader document={document} onRefresh={refetch} />
 
       {/* CHANGE-025: 智能路由提示橫幅 */}
       <SmartRoutingBanner
@@ -111,10 +111,10 @@ export default function InvoiceDetailPage() {
       />
 
       {/* Stats Cards */}
-      <InvoiceDetailStats document={document} />
+      <DocumentDetailStats document={document} />
 
       {/* Tabs */}
-      <InvoiceDetailTabs document={document} />
+      <DocumentDetailTabs document={document} />
     </div>
   )
 }

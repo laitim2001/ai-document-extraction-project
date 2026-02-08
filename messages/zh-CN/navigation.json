@@ -2,14 +2,17 @@
   "sections": {
     "overview": "概览",
     "documents": "文件处理",
+    "templates": "模板管理",
+    "extraction": "提取配置",
     "rules": "规则管理",
     "reports": "报表",
-    "admin": "系统管理"
+    "admin": "系统管理",
+    "devTools": "开发工具"
   },
   "topbar": {
     "openMenu": "打开菜单",
     "search": "搜索",
-    "searchPlaceholder": "搜索发票、Forwarder...",
+    "searchPlaceholder": "搜索文件、Forwarder...",
     "toggleTheme": "切换主题",
     "notifications": {
       "title": "通知",
@@ -31,9 +34,9 @@
       "auditor": "审计员"
     },
     "mockNotifications": {
-      "invoiceApproved": {
-        "title": "发票审核完成",
-        "message": "发票 INV-2024-001 已通过自动审核"
+      "documentApproved": {
+        "title": "文件审核完成",
+        "message": "文件 INV-2024-001 已通过自动审核"
       },
       "ruleSuggestion": {
         "title": "新规则建议",
@@ -41,7 +44,7 @@
       },
       "lowConfidence": {
         "title": "低信心度警告",
-        "message": "3 张发票需要人工审核"
+        "message": "3 个文件需要人工审核"
       },
       "time": {
         "minutesAgo": "{count} 分钟前",
@@ -52,8 +55,8 @@
   "sidebar": {
     "dashboard": "Dashboard",
     "globalView": "全局视图",
-    "invoices": "发票列表",
-    "uploadInvoice": "上传发票",
+    "documents": "文件列表",
+    "uploadDocument": "上传文件",
     "review": "待审核",
     "escalations": "升级案例",
     "mappingRules": "映射规则",
@@ -71,6 +74,7 @@
     "templateInstances": "模板实例管理",
     "templateMatchingTest": "模板匹配测试",
     "referenceNumbers": "参考号码",
+    "exchangeRates": "汇率管理",
     "settings": "设置"
   },
   "user": {

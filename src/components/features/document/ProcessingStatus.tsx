@@ -9,7 +9,7 @@
  *   - 處理中動畫
  *   - 完整國際化支援
  *
- * @module src/components/features/invoice/ProcessingStatus
+ * @module src/components/features/document/ProcessingStatus
  * @author Development Team
  * @since Epic 2 - Story 2.7 (Processing Status Tracking & Display)
  * @lastModified 2026-01-17
@@ -28,8 +28,8 @@
  *
  * @related
  *   - src/lib/document-status.ts - 狀態配置
- *   - src/components/features/invoice/InvoiceListTable.tsx - 表格組件
- *   - messages/{locale}/invoices.json - 翻譯檔案
+ *   - src/components/features/document/DocumentListTable.tsx - 表格組件
+ *   - messages/{locale}/documents.json - 翻譯檔案
  */
 
 import * as React from 'react'
@@ -94,7 +94,7 @@ export function ProcessingStatus({
   size = 'md',
   className,
 }: ProcessingStatusProps) {
-  const t = useTranslations('invoices')
+  const t = useTranslations('documents')
   const config = getStatusConfig(status)
   const Icon = config.icon
 

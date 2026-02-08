@@ -35,7 +35,7 @@
  *   - @/services/auto-template-matching.service - 自動模版匹配
  *
  * @related
- *   - src/components/features/invoice/FileUploader.tsx - 前端上傳組件
+ *   - src/components/features/document/FileUploader.tsx - 前端上傳組件
  *   - src/services/document.service.ts - Document 服務層
  *   - src/services/extraction.service.ts - OCR 提取服務
  */

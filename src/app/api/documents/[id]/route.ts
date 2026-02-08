@@ -22,7 +22,7 @@
  *
  * @related
  *   - src/app/api/documents/[id]/blob/route.ts - Blob Proxy（串流文件避免 CORS）
- *   - src/hooks/use-invoice-detail.ts - React Query Hook
+ *   - src/hooks/use-document-detail.ts - React Query Hook
  *   - CHANGE-018 - Invoice 詳情頁 API 增強
  */
 

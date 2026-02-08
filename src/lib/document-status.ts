@@ -18,7 +18,7 @@
  *
  * @related
  *   - prisma/schema.prisma - DocumentStatus enum
- *   - src/components/features/invoice/ProcessingStatus.tsx - 狀態顯示組件
+ *   - src/components/features/document/ProcessingStatus.tsx - 狀態顯示組件
  */
 
 import {

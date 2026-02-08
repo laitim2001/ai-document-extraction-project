@@ -1,18 +1,18 @@
 'use client'
 
 /**
- * @fileoverview 發票詳情選項卡組件
+ * @fileoverview 文件詳情選項卡組件
  * @description
- *   顯示發票詳情的五個選項卡：
+ *   顯示文件詳情的五個選項卡：
  *   - 文件預覽（PDF + 欄位高亮）
  *   - 提取欄位（欄位面板）
  *   - 處理詳情（時間軸）
  *   - 審計日誌
  *   - AI 詳情（CHANGE-023）
  *
- * @module src/components/features/invoice/detail/InvoiceDetailTabs
+ * @module src/components/features/document/detail/DocumentDetailTabs
  * @author Development Team
- * @since Epic 13 - Story 13-8 (Invoice Detail Page)
+ * @since Epic 13 - Story 13-8 (Document Detail Page)
  * @lastModified 2026-02-01 (CHANGE-023 - AI Details Tab)
  */
 
@@ -25,7 +25,7 @@ import {
   ExtractedFieldsPanel,
 } from '@/components/features/document-preview'
 import { ProcessingTimeline } from './ProcessingTimeline'
-import { InvoiceAuditLog } from './InvoiceAuditLog'
+import { DocumentAuditLog } from './DocumentAuditLog'
 import { AiDetailsTab } from './AiDetailsTab'
 import { FileText, ListChecks, Clock, History, Bot } from 'lucide-react'
 import type { ExtractedField } from '@/types/extracted-field'
@@ -69,7 +69,7 @@ interface ProcessingStep {
   error?: string | null
 }
 
-interface InvoiceDetailTabsProps {
+interface DocumentDetailTabsProps {
   /** 文件數據 */
   document: DocumentData
 }
@@ -101,13 +101,13 @@ function fieldsToBoundingBoxes(fields: ExtractedField[]): BoundingBox[] {
 // ============================================================
 
 /**
- * 發票詳情選項卡
+ * 文件詳情選項卡
  *
  * @description
  *   整合預覽、欄位、處理和審計四個選項卡
  */
-export function InvoiceDetailTabs({ document }: InvoiceDetailTabsProps) {
-  const t = useTranslations('invoices')
+export function DocumentDetailTabs({ document }: DocumentDetailTabsProps) {
+  const t = useTranslations('documents')
   const [selectedFieldId, setSelectedFieldId] = React.useState<string | null>(null)
 
   // 將欄位轉換為邊界框格式
@@ -226,7 +226,7 @@ export function InvoiceDetailTabs({ document }: InvoiceDetailTabsProps) {
       <TabsContent value="audit" className="mt-4">
         <Card>
           <CardContent className="p-4">
-            <InvoiceAuditLog documentId={document.id} />
+            <DocumentAuditLog documentId={document.id} />
           </CardContent>
         </Card>
       </TabsContent>

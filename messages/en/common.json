@@ -95,7 +95,7 @@
   },
   "navigation": {
     "dashboard": "Dashboard",
-    "invoices": "Invoices",
+    "documents": "Documents",
     "review": "Review Queue",
     "rules": "Mapping Rules",
     "companies": "Companies",

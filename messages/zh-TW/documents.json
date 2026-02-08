@@ -1,7 +1,7 @@
 {
   "page": {
-    "title": "發票文件",
-    "description": "管理和追蹤上傳的發票處理狀態"
+    "title": "文件列表",
+    "description": "管理和追蹤上傳的文件處理狀態"
   },
   "stats": {
     "total": "總計",
@@ -38,9 +38,9 @@
       "company": "公司",
       "actions": "操作"
     },
-    "empty": "沒有找到發票文件",
+    "empty": "沒有找到文件",
     "noDocuments": "沒有找到文件",
-    "emptyDescription": "上傳新的發票文件開始處理",
+    "emptyDescription": "上傳新文件開始處理",
     "loading": "載入中...",
     "processingError": "處理過程中發生錯誤",
     "processingFailed": "處理失敗"
@@ -65,11 +65,11 @@
     "FAILED": "處理失敗"
   },
   "upload": {
-    "title": "上傳發票文件",
-    "description": "上傳發票文件以進行 AI 處理和數據提取。支援 PDF、JPG、PNG 格式。",
+    "title": "上傳文件",
+    "description": "上傳文件以進行 AI 處理和數據提取。支援 PDF、JPG、PNG 格式。",
     "selectCity": "選擇城市",
     "selectCityPlaceholder": "請選擇城市",
-    "selectCityHint": "請先選擇城市，才能上傳發票文件。",
+    "selectCityHint": "請先選擇城市，才能上傳文件。",
     "selectCityRequired": "請先選擇城市，才能上傳文件",
     "dragDrop": "拖放文件到此處，或點擊選擇",
     "dropToUpload": "放開以上傳文件",
@@ -99,7 +99,7 @@
     "uploadFailed": "文件上傳失敗，請重試",
     "noFiles": "請選擇要上傳的文件",
     "unauthorized": "請先登入",
-    "forbidden": "您沒有權限上傳發票"
+    "forbidden": "您沒有權限上傳文件"
   },
   "actions": {
     "view": "查看",
@@ -113,7 +113,7 @@
     "button": "重試"
   },
   "detail": {
-    "title": "發票詳情",
+    "title": "文件詳情",
     "backToList": "返回列表",
     "tabs": {
       "preview": "文件預覽",

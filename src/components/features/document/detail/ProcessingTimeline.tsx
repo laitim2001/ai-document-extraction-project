@@ -1,16 +1,16 @@
 'use client'
 
 /**
- * @fileoverview 發票處理時間軸組件
+ * @fileoverview 文件處理時間軸組件
  * @description
- *   顯示發票處理的各個步驟及其狀態：
+ *   顯示文件處理的各個步驟及其狀態：
  *   - 步驟狀態（待處理、處理中、完成、失敗）
  *   - 步驟耗時
  *   - 錯誤訊息
  *
- * @module src/components/features/invoice/detail/ProcessingTimeline
+ * @module src/components/features/document/detail/ProcessingTimeline
  * @author Development Team
- * @since Epic 13 - Story 13-8 (Invoice Detail Page)
+ * @since Epic 13 - Story 13-8 (Document Detail Page)
  * @lastModified 2026-01-18
  */
 
@@ -156,7 +156,7 @@ export function ProcessingTimeline({
   steps: preloadedSteps,
   totalProcessingTime,
 }: ProcessingTimelineProps) {
-  const t = useTranslations('invoices')
+  const t = useTranslations('documents')
   const locale = useLocale() as Locale
   const isZh = locale === 'zh-TW' || locale === 'zh-CN'
 

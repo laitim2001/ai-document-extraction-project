@@ -1,16 +1,16 @@
 'use client'
 
 /**
- * @fileoverview 發票審計日誌組件
+ * @fileoverview 文件審計日誌組件
  * @description
- *   顯示發票的審計日誌和變更歷史：
+ *   顯示文件的審計日誌和變更歷史：
  *   - 變更歷史時間軸
  *   - 操作記錄列表
  *   - 審核歷史
  *
- * @module src/components/features/invoice/detail/InvoiceAuditLog
+ * @module src/components/features/document/detail/DocumentAuditLog
  * @author Development Team
- * @since Epic 13 - Story 13-8 (Invoice Detail Page)
+ * @since Epic 13 - Story 13-8 (Document Detail Page)
  * @lastModified 2026-01-18
  */
 
@@ -56,7 +56,7 @@ interface AuditLogEntry {
   metadata?: Record<string, unknown> | null
 }
 
-interface InvoiceAuditLogProps {
+interface DocumentAuditLogProps {
   /** 文件 ID */
   documentId: string
 }
@@ -169,8 +169,8 @@ function getUserInitials(name?: string | null, email?: string | null): string {
 /**
  * 審計日誌組件
  */
-export function InvoiceAuditLog({ documentId }: InvoiceAuditLogProps) {
-  const t = useTranslations('invoices')
+export function DocumentAuditLog({ documentId }: DocumentAuditLogProps) {
+  const t = useTranslations('documents')
   const locale = useLocale() as Locale
   const isZh = locale === 'zh-TW' || locale === 'zh-CN'
 

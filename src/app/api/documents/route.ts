@@ -30,7 +30,7 @@
  *
  * @related
  *   - src/hooks/useDocuments.ts - React Query Hook
- *   - src/app/(dashboard)/invoices/page.tsx - 發票列表頁面
+ *   - src/app/[locale]/(dashboard)/documents/page.tsx - 文件列表頁面
  */
 
 import { NextRequest, NextResponse } from 'next/server'

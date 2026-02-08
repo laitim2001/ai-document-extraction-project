@@ -20,7 +20,7 @@
  *   - @/services/document.service - Document 服務層
  *
  * @related
- *   - src/components/features/invoice/RetryButton.tsx - 重試按鈕組件
+ *   - src/components/features/document/RetryButton.tsx - 重試按鈕組件
  *   - src/hooks/useDocuments.ts - React Query Hook
  */
 

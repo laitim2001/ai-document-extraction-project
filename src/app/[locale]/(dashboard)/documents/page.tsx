@@ -1,9 +1,9 @@
 'use client'
 
 /**
- * @fileoverview 發票列表頁面（國際化版本）
+ * @fileoverview 文件列表頁面（國際化版本）
  * @description
- *   發票文件管理的主要列表頁面，提供：
+ *   文件管理的主要列表頁面，提供：
  *   - 文件列表顯示
  *   - 處理統計卡片
  *   - 搜尋和篩選功能
@@ -11,10 +11,10 @@
  *   - 實時狀態更新
  *   - 完整的國際化支援
  *
- * @module src/app/[locale]/(dashboard)/invoices/page
+ * @module src/app/[locale]/(dashboard)/documents/page
  * @author Development Team
  * @since Epic 2 - Story 2.7 (Processing Status Tracking & Display)
- * @lastModified 2026-01-17
+ * @lastModified 2026-02-07
  *
  * @features
  *   - 動態輪詢（處理中 5s，閒置 30s）
@@ -27,19 +27,19 @@
  * @dependencies
  *   - next-intl - 國際化
  *   - @/hooks/use-documents - Documents Hook
- *   - @/components/features/invoice - 發票組件
+ *   - @/components/features/document - 文件組件
  *   - @/components/ui - shadcn/ui 組件
  *
  * @related
  *   - src/app/api/documents/route.ts - Documents API
- *   - src/components/features/invoice/InvoiceListTable.tsx - 表格組件
- *   - messages/{locale}/invoices.json - 翻譯檔案
+ *   - src/components/features/document/DocumentListTable.tsx - 表格組件
+ *   - messages/{locale}/documents.json - 翻譯檔案
  */
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useDocuments } from '@/hooks/use-documents'
-import { InvoiceListTable } from '@/components/features/invoice/InvoiceListTable'
+import { DocumentListTable } from '@/components/features/document/DocumentListTable'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -57,11 +57,11 @@ import { Search, Filter, RefreshCw } from 'lucide-react'
 // ============================================================
 
 /**
- * 發票列表頁面
+ * 文件列表頁面
  */
-export default function InvoicesPage() {
+export default function DocumentsPage() {
   // --- i18n ---
-  const t = useTranslations('invoices')
+  const t = useTranslations('documents')
   const tc = useTranslations('common')
 
   // --- State ---
@@ -205,7 +205,7 @@ export default function InvoicesPage() {
       {/* Table */}
       <Card>
         <CardContent className="p-0">
-          <InvoiceListTable
+          <DocumentListTable
             documents={data?.data || []}
             isLoading={isLoading}
           />

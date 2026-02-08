@@ -3,7 +3,7 @@
 /**
  * @fileoverview 文件上傳組件（國際化版本）
  * @description
- *   提供發票文件上傳功能，支援：
+ *   提供文件上傳功能，支援：
  *   - 拖放上傳
  *   - 點擊選擇
  *   - 批量上傳（最多 20 個）
@@ -12,7 +12,7 @@
  *   - 錯誤處理
  *   - 完整國際化支援
  *
- * @module src/components/features/invoice/FileUploader
+ * @module src/components/features/document/FileUploader
  * @author Development Team
  * @since Epic 2 - Story 2.1 (File Upload Interface & Validation)
  * @lastModified 2026-01-17
@@ -33,7 +33,7 @@
  * @related
  *   - src/app/api/documents/upload/route.ts - 上傳 API
  *   - src/lib/upload/constants.ts - 上傳配置
- *   - messages/{locale}/invoices.json - 翻譯檔案
+ *   - messages/{locale}/documents.json - 翻譯檔案
  */
 
 import { useCallback, useState } from 'react'
@@ -121,11 +121,11 @@ interface FileUploaderProps {
  * 文件上傳組件
  *
  * @component FileUploader
- * @description 提供拖放和點擊上傳功能的發票文件上傳器
+ * @description 提供拖放和點擊上傳功能的文件上傳器
  */
 export function FileUploader({ cityCode, onUploadComplete }: FileUploaderProps) {
   // --- i18n ---
-  const t = useTranslations('invoices')
+  const t = useTranslations('documents')
 
   // --- State ---
   const [files, setFiles] = useState<FileWithStatus[]>([])

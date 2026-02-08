@@ -95,7 +95,7 @@
   },
   "navigation": {
     "dashboard": "仪表板",
-    "invoices": "发票文件",
+    "documents": "文件列表",
     "review": "待审核",
     "rules": "映射规则",
     "companies": "公司管理",

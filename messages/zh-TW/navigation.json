@@ -2,14 +2,17 @@
   "sections": {
     "overview": "概覽",
     "documents": "文件處理",
+    "templates": "模版管理",
+    "extraction": "提取配置",
     "rules": "規則管理",
     "reports": "報表",
-    "admin": "系統管理"
+    "admin": "系統管理",
+    "devTools": "開發工具"
   },
   "topbar": {
     "openMenu": "開啟選單",
     "search": "搜尋",
-    "searchPlaceholder": "搜尋發票、Forwarder...",
+    "searchPlaceholder": "搜尋文件、Forwarder...",
     "toggleTheme": "切換主題",
     "notifications": {
       "title": "通知",
@@ -31,9 +34,9 @@
       "auditor": "審計員"
     },
     "mockNotifications": {
-      "invoiceApproved": {
-        "title": "發票審核完成",
-        "message": "發票 INV-2024-001 已通過自動審核"
+      "documentApproved": {
+        "title": "文件審核完成",
+        "message": "文件 INV-2024-001 已通過自動審核"
       },
       "ruleSuggestion": {
         "title": "新規則建議",
@@ -41,7 +44,7 @@
       },
       "lowConfidence": {
         "title": "低信心度警告",
-        "message": "3 張發票需要人工審核"
+        "message": "3 個文件需要人工審核"
       },
       "time": {
         "minutesAgo": "{count} 分鐘前",
@@ -52,8 +55,8 @@
   "sidebar": {
     "dashboard": "Dashboard",
     "globalView": "全局視圖",
-    "invoices": "發票列表",
-    "uploadInvoice": "上傳發票",
+    "documents": "文件列表",
+    "uploadDocument": "上傳文件",
     "review": "待審核",
     "escalations": "升級案例",
     "mappingRules": "映射規則",
@@ -71,6 +74,7 @@
     "templateInstances": "模版實例管理",
     "templateMatchingTest": "模版匹配測試",
     "referenceNumbers": "參考號碼",
+    "exchangeRates": "匯率管理",
     "settings": "設定"
   },
   "user": {

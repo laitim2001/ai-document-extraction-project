@@ -1,16 +1,16 @@
 /**
- * @fileoverview 發票詳情數據獲取 Hook
+ * @fileoverview 文件詳情數據獲取 Hook
  * @description
- *   提供發票詳情頁面所需的數據獲取功能：
+ *   提供文件詳情頁面所需的數據獲取功能：
  *   - 文件基本資訊
  *   - 提取欄位
  *   - 處理追蹤
  *   - 自動輪詢（處理中狀態）
  *
- * @module src/hooks/use-invoice-detail
+ * @module src/hooks/use-document-detail
  * @author Development Team
- * @since Epic 13 - Story 13-8 (Invoice Detail Page)
- * @lastModified 2026-01-18
+ * @since Epic 13 - Story 13-8 (Document Detail Page)
+ * @lastModified 2026-02-07
  *
  * @features
  *   - React Query 數據管理
@@ -122,7 +122,7 @@ interface DocumentDetailResponse {
   data: DocumentDetail
 }
 
-interface UseInvoiceDetailResult {
+interface UseDocumentDetailResult {
   /** 文件詳情數據 */
   document: DocumentDetail | null
   /** 是否正在載入 */
@@ -158,26 +158,26 @@ const PROCESSING_STATUSES = [
 // ============================================================
 
 /**
- * 發票詳情數據獲取 Hook
+ * 文件詳情數據獲取 Hook
  *
  * @description
- *   獲取單一發票的完整詳情，包含文件資訊、提取欄位和處理步驟。
+ *   獲取單一文件的完整詳情，包含文件資訊、提取欄位和處理步驟。
  *   處理中狀態會自動輪詢更新。
  *
  * @param documentId - 文件 ID
- * @returns UseInvoiceDetailResult
+ * @returns UseDocumentDetailResult
  *
  * @example
  * ```tsx
- * const { document, isLoading, error, refetch } = useInvoiceDetail(id)
+ * const { document, isLoading, error, refetch } = useDocumentDetail(id)
  *
  * if (isLoading) return <Loading />
  * if (error) return <Error />
  *
- * return <InvoiceDetail document={document} />
+ * return <DocumentDetail document={document} />
  * ```
  */
-export function useInvoiceDetail(documentId: string): UseInvoiceDetailResult {
+export function useDocumentDetail(documentId: string): UseDocumentDetailResult {
   const {
     data,
     isLoading,
@@ -225,14 +225,14 @@ export function useInvoiceDetail(documentId: string): UseInvoiceDetailResult {
 }
 
 /**
- * 使發票詳情緩存失效
+ * 使文件詳情緩存失效
  *
  * @description
  *   用於在操作後強制刷新緩存
  *
  * @param documentId - 文件 ID
  */
-export function useInvalidateInvoiceDetail() {
+export function useInvalidateDocumentDetail() {
   const client = useQueryClient()
 
   return (documentId: string) => {
