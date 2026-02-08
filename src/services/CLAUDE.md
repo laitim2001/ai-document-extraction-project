@@ -1,8 +1,9 @@
 # Services 目錄 - 業務邏輯服務層
 
-> **服務數量**: 95+ 服務文件
-> **最後更新**: 2026-01-18
-> **版本**: 1.1.0
+> **服務數量**: 182+ 服務文件（108 根層級 + 74 子目錄）
+> **子目錄數量**: 12 個子目錄（含巢狀共 19 個目錄）
+> **最後更新**: 2026-02-09
+> **版本**: 2.0.0
 
 ---
 
@@ -13,6 +14,33 @@
 - **依賴注入**: 透過 Prisma Client 和其他服務進行依賴
 - **類型安全**: 完整的 TypeScript 類型定義
 - **錯誤處理**: 統一的錯誤處理模式
+
+---
+
+## 目錄結構總覽
+
+```
+src/services/
+├── *.ts (108 個根層級服務文件)
+├── extraction-v3/          # V3 提取管線 (17 files)
+│   ├── stages/             # 三階段處理器 (7 files)
+│   └── utils/              # 提取工具函數 (4 files)
+├── extraction-v2/          # V2 提取服務 (3 files)
+├── unified-processor/      # 統一處理器框架 (21 files)
+│   ├── steps/              # 處理步驟 (11 files)
+│   ├── adapters/           # 適配器 (7 files)
+│   ├── factory/            # 工廠 (1 file)
+│   └── interfaces/         # 介面定義 (1 file)
+├── mapping/                # 欄位映射引擎 (6 files)
+├── transform/              # 資料轉換引擎 (7 files)
+├── prompt/                 # Prompt 子目錄 (1 file)
+├── document-processing/    # 文件處理管線步驟 (1 file)
+├── n8n/                    # n8n 工作流整合 (9 files)
+├── logging/                # 日誌服務 (2 files)
+├── similarity/             # 相似度計算 (3 files)
+├── rule-inference/         # 規則推斷引擎 (3 files)
+└── identification/         # 文件發行方識別 (1 file)
+```
 
 ---
 
@@ -27,6 +55,7 @@
 | `batch-processor.service.ts` | 批次處理引擎 | Epic 0 |
 | `batch-progress.service.ts` | 批次進度追蹤 | Epic 0 |
 | `processing-router.service.ts` | 智能處理路由 | Epic 0 |
+| `processing-result-persistence.service.ts` | 處理結果持久化 | Epic 0 |
 | `document-progress.service.ts` | 文件處理進度 | Epic 2 |
 | `document-source.service.ts` | 文件來源管理 | Epic 9 |
 | `document-format.service.ts` | 文件格式處理 | Epic 0 |
@@ -45,6 +74,7 @@
 | `batch-term-aggregation.service.ts` | 批次術語聚合 | Epic 0 |
 | `hierarchical-term-aggregation.service.ts` | 階層術語聚合 | Epic 0 |
 | `ai-cost.service.ts` | AI 成本追蹤 | Epic 7 |
+| `ai-term-validator.service.ts` | AI 術語驗證器 | Epic 4 |
 | `cost-estimation.service.ts` | 成本估算 | Epic 7 |
 
 ### 3. 映射與規則服務 (Mapping & Rules)
@@ -222,6 +252,182 @@
 | `date-similarity.ts` | 日期相似度 |
 | `numeric-similarity.ts` | 數值相似度 |
 
+### 15. V3 提取管線 (Extraction V3 Pipeline) - Epic 15
+
+> **架構**: 三階段提取管線 (3-Stage Pipeline)
+> **檔案總數**: 17 個服務文件（6 核心 + 7 stages + 4 utils）
+
+**核心服務**
+| 服務 | 說明 |
+|------|------|
+| `extraction-v3.service.ts` | V3 提取主服務入口 |
+| `unified-gpt-extraction.service.ts` | 統一 GPT 提取 |
+| `confidence-v3.service.ts` | V3 信心度計算 |
+| `confidence-v3-1.service.ts` | V3.1 信心度計算（最新版） |
+| `result-validation.service.ts` | 結果驗證服務 |
+| `prompt-assembly.service.ts` | Prompt 組裝服務 |
+
+**子目錄: `extraction-v3/stages/`** - 三階段處理器
+| 服務 | 說明 |
+|------|------|
+| `stage-orchestrator.service.ts` | 階段協調器（管理 Stage 1→2→3 流程） |
+| `stage-1-company.service.ts` | Stage 1: 公司識別 |
+| `stage-2-format.service.ts` | Stage 2: 格式匹配 |
+| `stage-3-extraction.service.ts` | Stage 3: 欄位提取 |
+| `gpt-caller.service.ts` | GPT 呼叫器（統一 GPT API 調用） |
+| `reference-number-matcher.service.ts` | 參考編號匹配（Epic 20） |
+| `exchange-rate-converter.service.ts` | 匯率轉換（Epic 21） |
+
+**子目錄: `extraction-v3/utils/`** - 提取工具函數
+| 服務 | 說明 |
+|------|------|
+| `pdf-converter.ts` | PDF 轉換工具 |
+| `prompt-builder.ts` | Prompt 構建器 |
+| `prompt-merger.ts` | Prompt 合併器 |
+| `variable-replacer.ts` | 變數替換器（支援動態 Prompt 變數） |
+
+### 16. V2 提取服務 (Extraction V2) - Epic 13
+
+> **說明**: V2 版本提取服務，用於文件預覽與欄位映射場景
+> **檔案總數**: 3 個服務文件
+
+| 服務 | 說明 |
+|------|------|
+| `azure-di-document.service.ts` | Azure DI 文件處理 |
+| `data-selector.service.ts` | 資料選擇器 |
+| `gpt-mini-extractor.service.ts` | GPT Mini 提取器 |
+
+### 17. 統一處理器框架 (Unified Processor) - Epic 0
+
+> **架構**: 步驟導向的文件處理管線，使用工廠模式和適配器模式
+> **檔案總數**: 21 個服務文件（1 核心 + 11 步驟 + 7 適配器 + 1 工廠 + 1 介面）
+
+**核心服務**
+| 服務 | 說明 |
+|------|------|
+| `unified-document-processor.service.ts` | 統一文件處理器主服務 |
+
+**子目錄: `unified-processor/steps/`** - 處理步驟
+| 服務 | 說明 |
+|------|------|
+| `azure-di-extraction.step.ts` | Azure DI 提取步驟 |
+| `confidence-calculation.step.ts` | 信心度計算步驟 |
+| `config-fetching.step.ts` | 配置獲取步驟 |
+| `field-mapping.step.ts` | 欄位映射步驟 |
+| `file-type-detection.step.ts` | 文件類型偵測步驟 |
+| `format-matching.step.ts` | 格式匹配步驟 |
+| `gpt-enhanced-extraction.step.ts` | GPT 增強提取步驟 |
+| `issuer-identification.step.ts` | 發行方識別步驟 |
+| `routing-decision.step.ts` | 路由決策步驟 |
+| `smart-routing.step.ts` | 智能路由步驟 |
+| `term-recording.step.ts` | 術語記錄步驟 |
+
+**子目錄: `unified-processor/adapters/`** - 適配器
+| 服務 | 說明 |
+|------|------|
+| `confidence-calculator-adapter.ts` | 信心度計算適配器 |
+| `config-fetcher-adapter.ts` | 配置獲取適配器 |
+| `format-matcher-adapter.ts` | 格式匹配適配器 |
+| `issuer-identifier-adapter.ts` | 發行方識別適配器 |
+| `legacy-processor.adapter.ts` | 舊版處理器適配器 |
+| `routing-decision-adapter.ts` | 路由決策適配器 |
+| `term-recorder-adapter.ts` | 術語記錄適配器 |
+
+**子目錄: `unified-processor/factory/`** - 工廠
+| 服務 | 說明 |
+|------|------|
+| `step-factory.ts` | 步驟工廠（動態建立處理步驟） |
+
+**子目錄: `unified-processor/interfaces/`** - 介面定義
+| 服務 | 說明 |
+|------|------|
+| `step-handler.interface.ts` | 步驟處理器介面 |
+
+### 18. 欄位映射與資料轉換 (Mapping & Transform) - Epic 16/19
+
+> **說明**: 欄位映射引擎與資料轉換管線，支援多種轉換策略
+> **檔案總數**: 13 個服務文件（mapping 6 + transform 7）
+
+**子目錄: `mapping/`** - 欄位映射引擎
+| 服務 | 說明 |
+|------|------|
+| `config-resolver.ts` | 映射配置解析器 |
+| `dynamic-mapping.service.ts` | 動態映射服務 |
+| `field-mapping-engine.ts` | 欄位映射引擎核心 |
+| `mapping-cache.ts` | 映射快取 |
+| `source-field.service.ts` | 來源欄位服務 |
+| `transform-executor.ts` | 映射轉換執行器 |
+
+**子目錄: `transform/`** - 資料轉換引擎
+| 服務 | 說明 |
+|------|------|
+| `types.ts` | 轉換類型定義 |
+| `transform-executor.ts` | 轉換執行器核心 |
+| `direct.transform.ts` | 直接映射轉換 |
+| `concat.transform.ts` | 串接轉換 |
+| `split.transform.ts` | 分割轉換 |
+| `formula.transform.ts` | 公式轉換 |
+| `lookup.transform.ts` | 查詢轉換 |
+
+### 19. Prompt 管理系統 (Prompt Management) - Epic 14
+
+> **說明**: 完整的 Prompt 配置、解析、快取與動態生成系統
+> **檔案總數**: 9 個服務文件（8 根層級 + 1 子目錄）
+
+**根層級 Prompt 服務**
+| 服務 | 說明 | Epic |
+|------|------|------|
+| `prompt-resolver.service.ts` | Prompt 解析器服務 | Epic 14 |
+| `prompt-resolver.factory.ts` | Prompt 解析器工廠 | Epic 14 |
+| `prompt-cache.service.ts` | Prompt 快取服務 | Epic 14 |
+| `prompt-merge-engine.service.ts` | Prompt 合併引擎 | Epic 14 |
+| `prompt-variable-engine.service.ts` | Prompt 變數引擎 | Epic 14 |
+| `hybrid-prompt-provider.service.ts` | 混合 Prompt 提供者 | Epic 14 |
+| `prompt-provider.interface.ts` | Prompt 提供者介面 | Epic 14 |
+| `static-prompts.ts` | 靜態 Prompt 定義 | Epic 14 |
+
+**子目錄: `prompt/`**
+| 服務 | 說明 |
+|------|------|
+| `identification-rules-prompt-builder.ts` | 識別規則 Prompt 構建器 |
+
+**子目錄: `document-processing/`**
+| 服務 | 說明 |
+|------|------|
+| `mapping-pipeline-step.ts` | 映射管線步驟 |
+
+### 20. 模板管理 (Template Management) - Epic 19
+
+> **說明**: 資料模板匹配與匯出系統，包含自動匹配引擎
+
+| 服務 | 說明 | Epic |
+|------|------|------|
+| `data-template.service.ts` | 資料模板 CRUD | Epic 19 |
+| `template-field-mapping.service.ts` | 模板欄位映射 | Epic 19 |
+| `template-instance.service.ts` | 模板實例管理 | Epic 19 |
+| `template-matching-engine.service.ts` | 模板匹配引擎 | Epic 19 |
+| `template-export.service.ts` | 模板匯出服務（Excel） | Epic 19 |
+| `auto-template-matching.service.ts` | 自動模板匹配 | Epic 19 |
+
+### 21. 參考編號與匯率管理 (Reference Number & Exchange Rate) - Epic 20/21
+
+> **說明**: 參考編號主檔管理、區域管理、匯率管理
+
+| 服務 | 說明 | Epic |
+|------|------|------|
+| `reference-number.service.ts` | 參考編號 CRUD 與驗證 | Epic 20 |
+| `region.service.ts` | 區域管理（參考編號歸屬） | Epic 20 |
+| `exchange-rate.service.ts` | 匯率 CRUD 與換算 | Epic 21 |
+
+### 22. 管線配置 (Pipeline Configuration) - CHANGE-032
+
+> **說明**: V3 提取管線的功能開關與配置管理
+
+| 服務 | 說明 | Epic |
+|------|------|------|
+| `pipeline-config.service.ts` | 管線配置 CRUD（參考編號匹配/匯率轉換開關） | CHANGE-032 |
+
+
 ---
 
 ## 服務設計模式
@@ -282,6 +488,53 @@ confidence.service.ts
 └─ < 70%  → FULL_REVIEW
 ```
 
+### V3 提取管線三階段架構
+
+```
+extraction-v3.service.ts（入口）
+│
+├── Stage 1: 公司識別 (stage-1-company.service.ts)
+│   └── 識別文件所屬公司
+│
+├── Stage 2: 格式匹配 (stage-2-format.service.ts)
+│   └── 匹配文件格式模板
+│
+└── Stage 3: 欄位提取 (stage-3-extraction.service.ts)
+    ├── GPT 欄位提取 (gpt-caller.service.ts)
+    ├── 參考編號匹配 (reference-number-matcher.service.ts)
+    └── 匯率轉換 (exchange-rate-converter.service.ts)
+```
+
+### 統一處理器管線架構
+
+```
+unified-document-processor.service.ts（入口）
+│
+├── step-factory.ts → 動態建立處理步驟
+│
+├── 處理步驟（按順序執行）
+│   ├── config-fetching.step.ts
+│   ├── file-type-detection.step.ts
+│   ├── azure-di-extraction.step.ts
+│   ├── issuer-identification.step.ts
+│   ├── format-matching.step.ts
+│   ├── smart-routing.step.ts
+│   ├── routing-decision.step.ts
+│   ├── gpt-enhanced-extraction.step.ts
+│   ├── field-mapping.step.ts
+│   ├── confidence-calculation.step.ts
+│   └── term-recording.step.ts
+│
+└── 適配器層（橋接步驟與現有服務）
+    ├── config-fetcher-adapter.ts
+    ├── issuer-identifier-adapter.ts
+    ├── format-matcher-adapter.ts
+    ├── routing-decision-adapter.ts
+    ├── confidence-calculator-adapter.ts
+    ├── term-recorder-adapter.ts
+    └── legacy-processor.adapter.ts
+```
+
 ---
 
 ## 服務間依賴
@@ -310,15 +563,62 @@ audit-log.service.ts
 └── security-log.ts
 ```
 
+### V3 提取管線依賴圖
+
+```
+extraction-v3.service.ts
+├── stages/stage-orchestrator.service.ts
+│   ├── stage-1-company.service.ts
+│   │   └── company.service.ts
+│   ├── stage-2-format.service.ts
+│   │   └── document-format.service.ts
+│   └── stage-3-extraction.service.ts
+│       ├── gpt-caller.service.ts
+│       │   └── Azure OpenAI SDK
+│       ├── reference-number-matcher.service.ts
+│       │   └── reference-number.service.ts
+│       └── exchange-rate-converter.service.ts
+│           └── exchange-rate.service.ts
+├── prompt-assembly.service.ts
+│   ├── prompt-resolver.service.ts
+│   └── utils/prompt-builder.ts
+├── confidence-v3-1.service.ts
+└── result-validation.service.ts
+```
+
+### Prompt 系統依賴圖
+
+```
+hybrid-prompt-provider.service.ts
+├── prompt-resolver.service.ts
+│   └── prompt-resolver.factory.ts
+├── prompt-cache.service.ts
+├── prompt-merge-engine.service.ts
+├── prompt-variable-engine.service.ts
+└── static-prompts.ts
+```
+
+### 模板管理依賴圖
+
+```
+auto-template-matching.service.ts
+├── template-matching-engine.service.ts
+├── data-template.service.ts
+├── template-field-mapping.service.ts
+└── template-instance.service.ts
+    └── template-export.service.ts
+```
+
 ---
 
 ## 新增服務指南
 
-1. **確定分類**: 根據業務領域選擇正確的分類
+1. **確定分類**: 根據業務領域選擇正確的分類（參考上方 22 個分類）
 2. **命名規範**: 使用 `[功能].service.ts` 格式
 3. **文件頭部**: 必須包含標準 JSDoc 註釋
-4. **更新 index.ts**: 在 `index.ts` 中導出新服務
+4. **更新 index.ts**: 在對應目錄的 `index.ts` 中導出新服務
 5. **更新本文檔**: 將新服務加入對應分類表格
+6. **子目錄**: 如新增子目錄，需建立 `index.ts` 並統一導出
 
 ---
 
@@ -332,5 +632,5 @@ audit-log.service.ts
 ---
 
 **維護者**: Development Team
-**最後更新**: 2026-01-18
-**版本**: 1.1.0
+**最後更新**: 2026-02-09
+**版本**: 2.0.0

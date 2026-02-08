@@ -66,6 +66,7 @@ interface ReferenceNumberFiltersProps {
 
 const CURRENT_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: 10 }, (_, i) => CURRENT_YEAR - i)
+const ALL_VALUE = '__all__'
 
 // ============================================================
 // Component
@@ -115,45 +116,53 @@ export function ReferenceNumberFilters({
   return (
     <div className="flex flex-wrap items-end gap-4">
       {/* 搜尋 */}
-      <div className="flex items-center gap-2">
-        <Input
-          placeholder={t('filters.searchPlaceholder')}
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleSearch()
-          }}
-          className="w-64"
-        />
-        <Button variant="outline" size="icon" onClick={handleSearch}>
-          <Search className="h-4 w-4" />
-        </Button>
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">{t('filters.search')}</label>
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder={t('filters.searchPlaceholder')}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSearch()
+            }}
+            className="w-[200px]"
+          />
+          <Button variant="outline" size="icon" onClick={handleSearch}>
+            <Search className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* 年份 */}
-      <Select
-        value={filters.year?.toString() ?? ''}
-        onValueChange={(value) =>
-          onFiltersChange({
-            year: value ? Number(value) : undefined,
-            page: 1,
-          })
-        }
-      >
-        <SelectTrigger className="w-32">
-          <SelectValue placeholder={t('filters.year')} />
-        </SelectTrigger>
-        <SelectContent>
-          {YEARS.map((year) => (
-            <SelectItem key={year} value={year.toString()}>
-              {year}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">{t('filters.year')}</label>
+        <Select
+          value={filters.year?.toString() ?? ALL_VALUE}
+          onValueChange={(value) =>
+            onFiltersChange({
+              year: value === ALL_VALUE ? undefined : Number(value),
+              page: 1,
+            })
+          }
+        >
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder={t('filters.all')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUE}>{t('filters.all')}</SelectItem>
+            {YEARS.map((year) => (
+              <SelectItem key={year} value={year.toString()}>
+                {year}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* 地區 */}
-      <div className="w-48">
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">{t('filters.region')}</label>
         <RegionSelect
           value={filters.regionId}
           onChange={(value) =>
@@ -162,60 +171,72 @@ export function ReferenceNumberFilters({
               page: 1,
             })
           }
-          placeholder={t('filters.region')}
+          placeholder={t('filters.all')}
+          className="w-[180px]"
         />
       </div>
 
       {/* 類型 */}
-      <Select
-        value={filters.type ?? ''}
-        onValueChange={(value) =>
-          onFiltersChange({
-            type: value || undefined,
-            page: 1,
-          })
-        }
-      >
-        <SelectTrigger className="w-36">
-          <SelectValue placeholder={t('filters.type')} />
-        </SelectTrigger>
-        <SelectContent>
-          {REFERENCE_NUMBER_TYPE_OPTIONS.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {t(`types.${option.value}` as Parameters<typeof t>[0])}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">{t('filters.type')}</label>
+        <Select
+          value={filters.type ?? ALL_VALUE}
+          onValueChange={(value) =>
+            onFiltersChange({
+              type: value === ALL_VALUE ? undefined : value,
+              page: 1,
+            })
+          }
+        >
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder={t('filters.all')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUE}>{t('filters.all')}</SelectItem>
+            {REFERENCE_NUMBER_TYPE_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {t(`types.${option.value}` as Parameters<typeof t>[0])}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* 狀態 */}
-      <Select
-        value={filters.status ?? ''}
-        onValueChange={(value) =>
-          onFiltersChange({
-            status: value || undefined,
-            page: 1,
-          })
-        }
-      >
-        <SelectTrigger className="w-32">
-          <SelectValue placeholder={t('filters.status')} />
-        </SelectTrigger>
-        <SelectContent>
-          {REFERENCE_NUMBER_STATUS_OPTIONS.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {t(`statuses.${option.value}` as Parameters<typeof t>[0])}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">{t('filters.status')}</label>
+        <Select
+          value={filters.status ?? ALL_VALUE}
+          onValueChange={(value) =>
+            onFiltersChange({
+              status: value === ALL_VALUE ? undefined : value,
+              page: 1,
+            })
+          }
+        >
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder={t('filters.all')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUE}>{t('filters.all')}</SelectItem>
+            {REFERENCE_NUMBER_STATUS_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {t(`statuses.${option.value}` as Parameters<typeof t>[0])}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* 清除 */}
       {hasActiveFilters && (
-        <Button variant="ghost" size="sm" onClick={handleClear}>
-          <X className="h-4 w-4 mr-1" />
-          {t('filters.clear')}
-        </Button>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium invisible">Action</label>
+          <Button variant="ghost" size="sm" onClick={handleClear}>
+            <X className="h-4 w-4 mr-1" />
+            {t('filters.clear')}
+          </Button>
+        </div>
       )}
     </div>
   )

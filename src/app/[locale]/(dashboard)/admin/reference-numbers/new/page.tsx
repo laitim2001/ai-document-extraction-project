@@ -17,7 +17,7 @@ import * as React from 'react'
 import { useTranslations } from 'next-intl'
 import { ArrowLeft, Hash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Link, useRouter } from '@/i18n/routing'
 import { useToast } from '@/hooks/use-toast'
 import { useCreateReferenceNumber } from '@/hooks/use-reference-numbers'
@@ -58,27 +58,25 @@ export default function NewReferenceNumberPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 max-w-2xl space-y-6">
+    <div className="container mx-auto py-6 max-w-3xl">
       {/* 返回連結 */}
-      <Button variant="ghost" size="sm" asChild>
+      <Button variant="ghost" className="mb-4" asChild>
         <Link href="/admin/reference-numbers">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          {t('actions.backToList')}
+          {t('title')}
         </Link>
       </Button>
 
-      {/* 頁面標題 */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Hash className="h-6 w-6" />
-          {t('new.title')}
-        </h1>
-        <p className="text-muted-foreground">{t('new.description')}</p>
-      </div>
-
-      {/* 表單 */}
+      {/* 表單卡片 */}
       <Card>
-        <CardContent className="pt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Hash className="h-5 w-5" />
+            {t('new.title')}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">{t('new.description')}</p>
+        </CardHeader>
+        <CardContent>
           <ReferenceNumberForm onSubmit={handleSubmit} />
         </CardContent>
       </Card>

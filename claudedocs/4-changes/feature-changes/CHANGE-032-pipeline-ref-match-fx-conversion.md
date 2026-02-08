@@ -1,7 +1,8 @@
 # CHANGE-032: Reference Number 匹配與 Exchange Rate 轉換 Pipeline 整合
 
 > **日期**: 2026-02-08
-> **狀態**: ⏳ 待實作
+> **狀態**: ✅ 已完成
+> **完成日期**: 2026-02-09
 > **優先級**: High
 > **類型**: Feature
 > **影響範圍**: extraction-v3 pipeline、新 PipelineConfig 資料模型、新 Admin UI 頁面、i18n

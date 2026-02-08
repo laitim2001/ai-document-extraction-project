@@ -173,7 +173,7 @@
   },
   "form": {
     "sourceText": "來源文字",
-    "sourceTextPlaceholder": "輸入發票上的文字（支援正則表達式）",
+    "sourceTextPlaceholder": "輸入文件上的文字（支援正則表達式）",
     "chargeType": "費用類型",
     "chargeTypePlaceholder": "選擇或輸入費用類型",
     "tier": "規則層級",

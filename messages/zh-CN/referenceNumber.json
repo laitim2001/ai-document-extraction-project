@@ -32,11 +32,13 @@
     "CANCELLED": "已取消"
   },
   "filters": {
+    "search": "搜索",
     "searchPlaceholder": "搜索号码...",
-    "year": "选择年份",
-    "region": "选择地区",
-    "type": "选择类型",
-    "status": "选择状态",
+    "all": "全部",
+    "year": "年份",
+    "region": "地区",
+    "type": "类型",
+    "status": "状态",
     "clear": "清除筛选"
   },
   "actions": {

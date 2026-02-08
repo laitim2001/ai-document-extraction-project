@@ -56,9 +56,9 @@
   },
   "reasons": {
     "unknownCompany": "無法識別公司",
-    "unknownCompanyDesc": "系統無法判斷此發票來自哪個物流商",
+    "unknownCompanyDesc": "系統無法判斷此文件來自哪個物流商",
     "mappingNotApplicable": "映射規則不適用",
-    "mappingNotApplicableDesc": "現有的映射規則無法正確處理此發票格式",
+    "mappingNotApplicableDesc": "現有的映射規則無法正確處理此文件格式",
     "documentQuality": "文件品質問題",
     "documentQualityDesc": "文件模糊、破損或無法正常讀取",
     "other": "其他",
@@ -107,7 +107,7 @@
   },
   "dialog": {
     "title": "升級案例",
-    "description": "將此發票升級給 Super User 處理。請選擇升級原因。",
+    "description": "將此文件升級給 Super User 處理。請選擇升級原因。",
     "document": "文件：",
     "selectReason": "選擇升級原因",
     "required": "*需說明",

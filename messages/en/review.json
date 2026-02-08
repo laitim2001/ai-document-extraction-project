@@ -52,8 +52,8 @@
     "discardChanges": "Discard Changes"
   },
   "empty": {
-    "title": "No invoices pending review",
-    "description": "All invoices have been processed"
+    "title": "No documents pending review",
+    "description": "All documents have been processed"
   },
   "processingPath": {
     "autoApprove": "Auto Approve",

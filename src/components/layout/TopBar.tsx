@@ -103,8 +103,8 @@ export function TopBar({ onMenuClick }: TopBarProps) {
     {
       id: 1,
       type: 'success',
-      title: t('mockNotifications.invoiceApproved.title'),
-      message: t('mockNotifications.invoiceApproved.message'),
+      title: t('mockNotifications.documentApproved.title'),
+      message: t('mockNotifications.documentApproved.message'),
       time: t('mockNotifications.time.minutesAgo', { count: 5 }),
       unread: true,
     },

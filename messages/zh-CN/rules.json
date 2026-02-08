@@ -173,7 +173,7 @@
   },
   "form": {
     "sourceText": "来源文字",
-    "sourceTextPlaceholder": "输入发票上的文字（支持正则表达式）",
+    "sourceTextPlaceholder": "输入文件上的文字（支持正则表达式）",
     "chargeType": "费用类型",
     "chargeTypePlaceholder": "选择或输入费用类型",
     "tier": "规则层级",

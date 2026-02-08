@@ -1,6 +1,6 @@
 {
   "page": {
-    "title": "待審核發票",
+    "title": "待審核文件",
     "description": "審核和修正 AI 提取結果",
     "reviewDetails": "審核詳情",
     "documentNotFound": "找不到文件",
@@ -41,7 +41,7 @@
   },
   "dialog": {
     "approveTitle": "確認批准",
-    "approveMessage": "確定要批准此發票的提取結果嗎？",
+    "approveMessage": "確定要批准此文件的提取結果嗎？",
     "rejectTitle": "拒絕原因",
     "rejectPlaceholder": "請輸入拒絕原因...",
     "escalateTitle": "提交上級審核",
@@ -52,8 +52,8 @@
     "discardChanges": "捨棄變更"
   },
   "empty": {
-    "title": "沒有待審核的發票",
-    "description": "所有發票都已處理完成"
+    "title": "沒有待審核的文件",
+    "description": "所有文件都已處理完成"
   },
   "processingPath": {
     "autoApprove": "自動通過",

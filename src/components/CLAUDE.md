@@ -1,8 +1,8 @@
 # Components 目錄 - React 組件庫
 
-> **組件數量**: 250+ 組件文件
-> **最後更新**: 2026-01-18
-> **版本**: 1.2.0
+> **組件數量**: 356+ 組件文件
+> **最後更新**: 2026-02-09
+> **版本**: 2.0.0
 
 ---
 
@@ -20,353 +20,260 @@
 
 ```
 src/components/
-├── ui/                 # shadcn/ui 基礎組件（35 個，不可修改）
-├── features/           # 功能性業務組件（26 個子目錄）
-├── layouts/            # 頁面佈局組件
-├── layout/             # 通用佈局元件
-├── admin/              # 管理員專用組件
-├── analytics/          # 分析相關組件
-├── audit/              # 審計相關組件
-├── auth/               # 認證相關組件
-├── dashboard/          # 儀表板組件
-├── export/             # 匯出功能組件
-├── filters/            # 篩選器組件
-└── reports/            # 報表組件
+├── ui/                         # shadcn/ui 基礎組件（34 個，不可修改）
+├── features/                   # 功能性業務組件（37 個子目錄）
+│   ├── admin/                  #   管理員組件 (Epic 1, 12)
+│   ├── audit/                  #   審計組件 (Epic 8)
+│   ├── auth/                   #   認證組件 (Epic 1, 18)
+│   ├── companies/              #   公司組件 (Epic 5)
+│   ├── confidence/             #   信心度組件 (Epic 2)
+│   ├── data-template/          #   資料模板組件 (Epic 19)
+│   ├── docs/                   #   API 文檔組件 (Epic 11)
+│   ├── document/               #   文件組件 (Epic 2, CHANGE-031)
+│   ├── document-preview/       #   文件預覽組件 (Epic 13)
+│   ├── document-source/        #   文件來源組件 (Epic 9)
+│   ├── escalation/             #   升級組件 (Epic 3)
+│   ├── exchange-rate/          #   匯率管理組件 (Epic 21)
+│   ├── format-analysis/        #   格式分析組件 (Epic 0)
+│   ├── formats/                #   文件格式管理組件 (Epic 16)
+│   ├── forwarders/             #   Forwarder 組件 (Epic 5, 向後兼容)
+│   ├── global/                 #   全域組件 (Epic 6, 7)
+│   ├── historical-data/        #   歷史數據組件 (Epic 0)
+│   ├── history/                #   歷史組件 (Epic 8)
+│   ├── locale/                 #   國際化組件 (Epic 17)
+│   ├── mapping-config/         #   映射配置組件 (Epic 13)
+│   ├── outlook/                #   Outlook 組件 (Epic 9)
+│   ├── pipeline-config/        #   管線配置組件 (CHANGE-032)
+│   ├── prompt-config/          #   Prompt 配置組件 (Epic 14)
+│   ├── reference-number/       #   參考編號組件 (Epic 20)
+│   ├── region/                 #   區域管理組件 (Epic 20)
+│   ├── reports/                #   報表組件 (Epic 7)
+│   ├── retention/              #   資料保留組件 (Epic 12)
+│   ├── review/                 #   審核組件 (Epic 3)
+│   ├── rule-review/            #   規則審核組件 (Epic 4)
+│   ├── rules/                  #   規則組件 (Epic 4)
+│   ├── rule-version/           #   規則版本組件 (Epic 4)
+│   ├── sharepoint/             #   SharePoint 組件 (Epic 9)
+│   ├── suggestions/            #   建議組件 (Epic 4)
+│   ├── template-field-mapping/ #   模板欄位映射組件 (Epic 19)
+│   ├── template-instance/      #   模板實例組件 (Epic 19)
+│   ├── template-match/         #   模板匹配組件 (Epic 19)
+│   └── term-analysis/          #   術語分析組件 (Epic 0)
+├── layout/                     # 通用佈局元件
+├── admin/                      # 管理員專用組件
+├── analytics/                  # 分析相關組件
+├── auth/                       # 認證相關組件
+├── dashboard/                  # 儀表板組件
+├── export/                     # 匯出功能組件
+├── filters/                    # 篩選器組件
+└── reports/                    # 報表組件
 ```
 
 ---
 
 ## 組件分類
 
-### 1. UI 基礎組件 (shadcn/ui)
+### 1. UI 基礎組件 (shadcn/ui) - 34 個
 
 > **重要**: 這些組件由 shadcn/ui CLI 生成，**不可直接修改**。如需自定義，請在 `features/` 建立包裝組件。
 
-| 組件 | 說明 |
-|------|------|
-| `accordion.tsx` | 手風琴展開/收合 |
-| `alert.tsx` | 警示訊息 |
-| `alert-dialog.tsx` | 確認對話框 |
-| `avatar.tsx` | 用戶頭像 |
-| `badge.tsx` | 標籤徽章 |
-| `button.tsx` | 按鈕 |
-| `calendar.tsx` | 日曆選擇器 |
-| `card.tsx` | 卡片容器 |
-| `checkbox.tsx` | 核取方塊 |
-| `collapsible.tsx` | 可收合區塊 |
-| `command.tsx` | 命令選單 |
-| `dialog.tsx` | 模態對話框 |
-| `dropdown-menu.tsx` | 下拉選單 |
-| `form.tsx` | 表單容器（React Hook Form 整合）|
-| `input.tsx` | 輸入框 |
-| `label.tsx` | 標籤 |
-| `month-picker.tsx` | 月份選擇器 |
-| `pagination.tsx` | 分頁 |
-| `popover.tsx` | 彈出框 |
-| `progress.tsx` | 進度條 |
-| `radio-group.tsx` | 單選群組 |
-| `resizable.tsx` | 可調整大小面板 |
-| `scroll-area.tsx` | 捲動區域 |
-| `select.tsx` | 下拉選擇 |
-| `separator.tsx` | 分隔線 |
-| `skeleton.tsx` | 載入骨架 |
-| `slider.tsx` | 滑桿 |
-| `switch.tsx` | 開關 |
-| `table.tsx` | 表格 |
-| `tabs.tsx` | 頁籤 |
-| `textarea.tsx` | 多行輸入 |
-| `toast.tsx` | 通知提示 |
-| `toaster.tsx` | Toast 容器 |
-| `tooltip.tsx` | 工具提示 |
-
-### 2. 功能組件 (Features)
-
-#### 2.1 管理員組件 (`features/admin/`) - Epic 1, 12
-
-| 子目錄 | 說明 | 組件 |
-|--------|------|------|
-| `alerts/` | 警報管理 | AlertDashboard, AlertHistory, AlertRuleManagement |
-| `api-keys/` | API 金鑰 | ApiKeyManagement, ApiKeyTable, CreateApiKeyDialog |
-| `backup/` | 備份管理 | BackupList, BackupManagement, BackupScheduleList |
-| `config/` | 系統配置 | ConfigEditDialog, ConfigHistoryDialog, ConfigManagement |
-| `logs/` | 日誌檢視 | LogViewer, LogDetailDialog, LogStreamPanel |
-| `monitoring/` | 健康監控 | HealthDashboard |
-| `restore/` | 還原管理 | RestoreList, RestoreDialog, RestoreManagement |
-| `roles/` | 角色管理 | RoleList, AddRoleDialog, PermissionSelector |
-| - | 用戶管理 | UserList, UserTable, UserFilters, AddUserDialog |
-
-#### 2.2 審計組件 (`features/audit/`) - Epic 8
-
-| 組件 | 說明 |
-|------|------|
-| `AuditReportExportDialog.tsx` | 審計報表匯出 |
-| `AuditReportJobList.tsx` | 審計任務列表 |
-| `ReportIntegrityDialog.tsx` | 報表完整性驗證 |
-
-#### 2.3 公司組件 (`features/companies/`) - Epic 5
-
-| 組件 | 說明 |
-|------|------|
-| `CompanyForm.tsx` | 公司表單 |
-| `CompanyTable.tsx` | 公司列表 |
-| `CompanyMappingEditor.tsx` | 公司映射編輯器 |
-| `DetectCompanyDialog.tsx` | 公司識別對話框 |
-
-> **注意**: 因 REFACTOR-001，原 forwarders 組件已逐步遷移至 companies
-
-#### 2.4 信心度組件 (`features/confidence/`) - Epic 2
-
-| 組件 | 說明 |
-|------|------|
-| `ConfidenceBadge.tsx` | 信心度徽章（顏色編碼）|
-| `ConfidenceBreakdown.tsx` | 信心度分解詳情 |
-| `ConfidenceIndicator.tsx` | 信心度指示器 |
-
-#### 2.5 文件來源組件 (`features/document-source/`) - Epic 9
-
-| 組件 | 說明 |
-|------|------|
-| `DocumentSourceBadge.tsx` | 來源徽章（Manual/Outlook/SharePoint）|
-| `DocumentSourceDetails.tsx` | 來源詳情 |
-| `SourceTypeFilter.tsx` | 來源類型篩選 |
-| `SourceTypeStats.tsx` | 來源統計 |
-| `SourceTypeTrend.tsx` | 來源趨勢圖 |
-
-#### 2.6 升級組件 (`features/escalation/`) - Epic 3
-
-| 組件 | 說明 |
-|------|------|
-| `EscalationFilters.tsx` | 升級篩選器 |
-| `EscalationStatusBadge.tsx` | 升級狀態徽章 |
-| `ResolveDialog.tsx` | 解決升級對話框 |
-
-#### 2.7 格式分析組件 (`features/format-analysis/`) - Epic 0
-
-| 組件 | 說明 |
-|------|------|
-| `FormatAnalysisPanel.tsx` | 格式分析面板 |
-| `FormatDistributionChart.tsx` | 格式分布圖 |
-
-#### 2.8 Forwarder 組件 (`features/forwarders/`) - Epic 5
-
-| 組件 | 說明 |
-|------|------|
-| `ForwarderForm.tsx` | Forwarder 表單 |
-| `ForwarderFilters.tsx` | Forwarder 篩選器 |
-| `ForwarderRulesTable.tsx` | 規則表格 |
-| `ForwarderStatsPanel.tsx` | 統計面板 |
-| `LogoUploader.tsx` | Logo 上傳器 |
-
-> **注意**: 向後兼容組件，新開發請使用 companies 組件
+accordion, alert, alert-dialog, avatar, badge, button, calendar, card, checkbox, collapsible, command, dialog, dropdown-menu, form, input, label, month-picker, pagination, popover, progress, radio-group, resizable, scroll-area, select, separator, skeleton, slider, switch, table, tabs, textarea, toast, toaster, tooltip
 
-#### 2.9 全域組件 (`features/global/`) - Epic 6, 7
-
-| 組件 | 說明 |
-|------|------|
-| `CityRankings.tsx` | 城市排名 |
-| `GlobalStats.tsx` | 全域統計 |
-| `GlobalTrend.tsx` | 全域趨勢 |
-| `RegionView.tsx` | 區域檢視 |
-
-#### 2.10 歷史組件 (`features/history/`) - Epic 8
-
-| 組件 | 說明 |
-|------|------|
-| `ChangeHistoryTimeline.tsx` | 變更歷史時間軸 |
-| `HistoryVersionCompareDialog.tsx` | 版本比較對話框 |
+### 2. 功能組件 (Features) - 37 個子目錄
 
-#### 2.11 歷史數據組件 (`features/historical-data/`) - Epic 0
-
-| 組件 | 說明 |
-|------|------|
-| `BatchUploadPanel.tsx` | 批次上傳面板 |
-| `BatchProgressTracker.tsx` | 批次進度追蹤 |
-| `TermAggregationView.tsx` | 術語聚合檢視 |
+#### 2.1 `features/admin/` - Epic 1, 12 (43 組件)
 
-#### 2.12 發票組件 (`features/invoice/`) - Epic 2
+**alerts/**: AlertDashboard, AlertHistory, AlertRuleManagement, AlertRuleTable, CreateAlertRuleDialog
+**api-keys/**: ApiKeyManagement, ApiKeyTable, CreateApiKeyDialog
+**backup/**: BackupList, BackupManagement, BackupScheduleList, BackupStatusCard, CreateBackupDialog, ScheduleDialog, StorageUsageCard
+**config/**: ConfigEditDialog, ConfigHistoryDialog, ConfigItem, ConfigManagement
+**logs/**: LogViewer, LogDetailDialog, LogExportDialog, LogStreamPanel
+**monitoring/**: HealthDashboard
+**restore/**: RestoreList, RestoreDialog, RestoreDetailDialog, RestoreManagement
+**roles/**: RoleList, AddRoleDialog, DeleteRoleDialog, EditRoleDialog, PermissionSelector
+**根目錄**: AddUserDialog, CitySelector, EditUserDialog, PermissionScopeIndicator, UserFilters, UserList, UserListSkeleton, UserSearchBar, UserStatusToggle, UserTable
 
-| 組件 | 說明 |
-|------|------|
-| `FileUploader.tsx` | 文件上傳器（拖放支援）|
-| `InvoiceListTable.tsx` | 發票列表表格 |
-| `ProcessingStatus.tsx` | 處理狀態顯示 |
-| `RetryButton.tsx` | 重試按鈕 |
-
-#### 2.13 Outlook 組件 (`features/outlook/`) - Epic 9
-
-| 組件 | 說明 |
-|------|------|
-| `OutlookConfigForm.tsx` | Outlook 配置表單 |
-| `OutlookConfigList.tsx` | 配置列表 |
-| `OutlookFilterRulesEditor.tsx` | 過濾規則編輯器 |
-
-#### 2.14 報表組件 (`features/reports/`) - Epic 7
-
-| 組件 | 說明 |
-|------|------|
-| `AiCostCard.tsx` | AI 成本卡片 |
-| `CityCostTable.tsx` | 城市成本表格 |
-| `CostAnomalyDialog.tsx` | 成本異常對話框 |
-
-#### 2.15 資料保留組件 (`features/retention/`) - Epic 12
+#### 2.2 `features/audit/` - Epic 8
 
-| 組件 | 說明 |
-|------|------|
-| `ArchiveRecordList.tsx` | 歸檔記錄列表 |
-| `RetentionPolicyEditor.tsx` | 保留策略編輯器 |
+AuditReportExportDialog, AuditReportJobList, ReportIntegrityDialog
 
-#### 2.16 審核組件 (`features/review/`) - Epic 3
+#### 2.3 `features/auth/` - Epic 1, 18
 
-| 組件 | 說明 |
-|------|------|
-| `ReviewQueue.tsx` | 審核隊列 |
-| `ReviewDetailPanel.tsx` | 審核詳情面板 |
-| `ApproveRejectButtons.tsx` | 批准/拒絕按鈕 |
-| `FieldCorrectionForm.tsx` | 欄位修正表單 |
+LoginForm (本地帳號登入), RegisterForm (用戶註冊), DevLoginForm (開發環境登入)
 
-#### 2.17 規則組件 (`features/rules/`) - Epic 4
+#### 2.4 `features/companies/` - Epic 5
 
-| 組件 | 說明 |
-|------|------|
-| `RuleEditor.tsx` | 規則編輯器 |
-| `RuleTestPanel.tsx` | 規則測試面板 |
-| `ImpactAnalysisView.tsx` | 影響分析檢視 |
-| `RuleAccuracyChart.tsx` | 規則準確度圖表 |
+CompanyForm, CompanyTable, CompanyMappingEditor, DetectCompanyDialog
 
-#### 2.18 規則審核組件 (`features/rule-review/`) - Epic 4
+> 因 REFACTOR-001，原 forwarders 組件已遷移至 companies
 
-| 組件 | 說明 |
-|------|------|
-| `RuleSuggestionList.tsx` | 規則建議列表 |
-| `RuleSuggestionDetail.tsx` | 建議詳情 |
-| `ApprovalWorkflow.tsx` | 審批工作流 |
+#### 2.5 `features/confidence/` - Epic 2
 
-#### 2.19 規則版本組件 (`features/rule-version/`) - Epic 4
+ConfidenceBadge (顏色編碼), ConfidenceBreakdown (分解詳情), ConfidenceIndicator
 
-| 組件 | 說明 |
-|------|------|
-| `RuleVersionHistory.tsx` | 規則版本歷史 |
-| `VersionDiffViewer.tsx` | 版本差異檢視器 |
+#### 2.6 `features/data-template/` - Epic 19
 
-#### 2.20 SharePoint 組件 (`features/sharepoint/`) - Epic 9
+DataTemplateCard, DataTemplateFieldEditor, DataTemplateFilters, DataTemplateForm, DataTemplateList
 
-| 組件 | 說明 |
-|------|------|
-| `SharePointConfigForm.tsx` | SharePoint 配置表單 |
-| `SharePointConfigList.tsx` | 配置列表 |
+#### 2.7 `features/docs/` - Epic 11
 
-#### 2.21 建議組件 (`features/suggestions/`) - Epic 4
+CodeBlock, LanguageTabs, SDKExamplesContent, SwaggerUIWrapper
 
-| 組件 | 說明 |
-|------|------|
-| `SuggestionCard.tsx` | 建議卡片 |
-| `SuggestionSimulator.tsx` | 建議模擬器 |
+#### 2.8 `features/document/` - Epic 2, CHANGE-031
 
-#### 2.22 術語分析組件 (`features/term-analysis/`) - Epic 0
+> 因 CHANGE-031 (Invoice → Document 重命名)，原 invoice/ 已重組為 document/
 
-| 組件 | 說明 |
-|------|------|
-| `TermAggregationPanel.tsx` | 術語聚合面板 |
-| `TermClassificationView.tsx` | 術語分類檢視 |
-| `HierarchicalTermTree.tsx` | 階層術語樹 |
+**根目錄**: DocumentListTable, FileUploader (拖放支援), ProcessingStatus, RetryButton
+**detail/**: DocumentDetailHeader, DocumentDetailStats, DocumentDetailTabs, AiDetailsTab, ProcessingTimeline, DocumentAuditLog, SmartRoutingBanner
 
-#### 2.23 API 文檔組件 (`features/docs/`) - Epic 11
+#### 2.9 `features/document-preview/` - Epic 13
 
-| 組件 | 說明 |
-|------|------|
-| `CodeBlock.tsx` | 代碼區塊 |
-| `LanguageTabs.tsx` | 語言切換頁籤 |
-| `SDKExamplesContent.tsx` | SDK 範例內容 |
-| `SwaggerUIWrapper.tsx` | Swagger UI 包裝器 |
+PDFViewer (react-pdf), DynamicPDFViewer (SSR 安全), PDFControls, FieldHighlightOverlay (座標轉換+信心度色碼), PDFLoadingSkeleton, PDFErrorDisplay, FieldCard (內聯編輯), FieldFilters (搜尋/篩選/排序), ExtractedFieldsPanel
 
-#### 2.24 文件預覽組件 (`features/document-preview/`) - Epic 13
+#### 2.10 `features/document-source/` - Epic 9
 
-**Story 13-1: PDF 預覽與欄位高亮**
+DocumentSourceBadge (Manual/Outlook/SharePoint), DocumentSourceDetails, SourceTypeFilter, SourceTypeStats, SourceTypeTrend
 
-| 組件 | 說明 |
-|------|------|
-| `PDFViewer.tsx` | PDF 預覽器主組件 (react-pdf 整合) |
-| `DynamicPDFViewer.tsx` | SSR 安全的動態載入版本 |
-| `PDFControls.tsx` | 導航和縮放控制工具列 |
-| `FieldHighlightOverlay.tsx` | 欄位高亮覆蓋層 (座標轉換 + 信心度色碼) |
-| `PDFLoadingSkeleton.tsx` | 載入骨架屏 |
-| `PDFErrorDisplay.tsx` | 錯誤顯示組件 |
+#### 2.11 `features/escalation/` - Epic 3
 
-**Story 13-2: 欄位提取結果面板**
+EscalationFilters, EscalationStatusBadge, ResolveDialog
 
-| 組件 | 說明 |
-|------|------|
-| `FieldCard.tsx` | 欄位卡片組件 (內聯編輯、信心度色碼、來源標籤) |
-| `FieldFilters.tsx` | 過濾器組件 (搜尋、篩選、排序控制) |
-| `ExtractedFieldsPanel.tsx` | 欄位提取結果主面板 (統計、分組、過濾)
+#### 2.12 `features/exchange-rate/` - Epic 21
 
-#### 2.25 國際化組件 (`features/locale/`) - Epic 17
+CurrencySelect (幣別選擇), ExchangeRateCalculator (匯率換算), ExchangeRateFilters, ExchangeRateForm, ExchangeRateImportDialog (批次匯入), ExchangeRateList
 
-> **Story 17-5**: 語言偏好設定
+#### 2.13 `features/format-analysis/` - Epic 0
 
-| 組件 | 說明 |
-|------|------|
-| `LocaleSwitcher.tsx` | 語言切換下拉選單（支援 en, zh-TW, zh-CN）|
+FormatAnalysisPanel, FormatDistributionChart
 
-**使用範例**:
-```typescript
-import { LocaleSwitcher } from '@/components/features/locale';
+#### 2.14 `features/formats/` - Epic 16 (17 組件)
 
-// 僅圖標模式
-<LocaleSwitcher />
+ConfigInheritanceInfo, CreateFormatDialog, FormatBasicInfo, FormatCard, FormatConfigPanel, FormatDetailView, FormatFilesTable, FormatFilters, FormatForm, FormatList, FormatTermsTable, IdentificationRulesEditor, KeywordTagInput, LinkedMappingConfig, LinkedPromptConfig, LogoPatternEditor, SourceFieldCombobox
 
-// 顯示語言名稱
-<LocaleSwitcher showLabel />
-```
+#### 2.15 `features/forwarders/` - Epic 5
 
-### 3. 佈局組件
+ForwarderForm, ForwarderFilters, ForwarderRulesTable, ForwarderStatsPanel, LogoUploader
 
-#### 3.1 Layout (`layout/`)
+> 向後兼容組件，新開發請使用 companies 組件
 
-| 組件 | 說明 |
-|------|------|
-| `Header.tsx` | 頁面標頭 |
-| `Sidebar.tsx` | 側邊導航欄 |
-| `MainLayout.tsx` | 主要佈局容器 |
+#### 2.16 `features/global/` - Epic 6, 7
 
-#### 3.2 Layouts (`layouts/`)
+CityRankings, GlobalStats, GlobalTrend, RegionView
 
-| 組件 | 說明 |
-|------|------|
-| `DashboardLayout.tsx` | 儀表板佈局 |
-| `AuthLayout.tsx` | 認證頁面佈局 |
+#### 2.17 `features/historical-data/` - Epic 0
+
+BatchUploadPanel, BatchProgressTracker, TermAggregationView
+
+#### 2.18 `features/history/` - Epic 8
+
+ChangeHistoryTimeline, HistoryVersionCompareDialog
+
+#### 2.19 `features/locale/` - Epic 17
+
+LocaleSwitcher (語言切換，支援 en/zh-TW/zh-CN)
+
+#### 2.20 `features/mapping-config/` - Epic 13 (9 組件)
+
+ConfigSelector, MappingConfigPanel, MappingPreview, MappingRuleList, RuleEditor, SortableRuleItem (拖放支援), SourceFieldSelector, TargetFieldSelector, TransformConfigPanel
+
+#### 2.21 `features/outlook/` - Epic 9
+
+OutlookConfigForm, OutlookConfigList, OutlookFilterRulesEditor
+
+#### 2.22 `features/pipeline-config/` - CHANGE-032
+
+PipelineConfigFilters, PipelineConfigForm, PipelineConfigList, PipelineConfigScopeBadge
+
+#### 2.23 `features/prompt-config/` - Epic 14 (10 組件)
+
+CollapsibleControls, CollapsiblePromptGroup, PromptConfigFilters, PromptConfigForm, PromptConfigList, PromptEditor, PromptTemplateInserter, PromptTester, ShowMoreButton, TemplatePreviewDialog
+
+#### 2.24 `features/reference-number/` - Epic 20 (8 組件)
+
+ReferenceNumberDeleteDialog, ReferenceNumberExportButton, ReferenceNumberFilters, ReferenceNumberForm, ReferenceNumberImportDialog (批次匯入), ReferenceNumberList, ReferenceNumberStatusBadge, ReferenceNumberTypeBadge
+
+#### 2.25 `features/region/` - Epic 20
+
+RegionSelect (區域選擇器)
+
+#### 2.26 `features/reports/` - Epic 7
+
+AiCostCard, CityCostTable, CostAnomalyDialog
+
+#### 2.27 `features/retention/` - Epic 12
+
+ArchiveRecordList, RetentionPolicyEditor
+
+#### 2.28 `features/review/` - Epic 3
+
+ReviewQueue, ReviewDetailPanel, ApproveRejectButtons, FieldCorrectionForm
+
+#### 2.29 `features/rules/` - Epic 4
+
+RuleEditor, RuleTestPanel, ImpactAnalysisView, RuleAccuracyChart
+
+#### 2.30 `features/rule-review/` - Epic 4
+
+RuleSuggestionList, RuleSuggestionDetail, ApprovalWorkflow
+
+#### 2.31 `features/rule-version/` - Epic 4
+
+RuleVersionHistory, VersionDiffViewer
+
+#### 2.32 `features/sharepoint/` - Epic 9
+
+SharePointConfigForm, SharePointConfigList
+
+#### 2.33 `features/suggestions/` - Epic 4
+
+SuggestionCard, SuggestionSimulator
+
+#### 2.34 `features/template-field-mapping/` - Epic 19 (10 組件)
+
+FormulaEditor, LookupTableEditor, MappingRuleEditor, MappingRuleItem, MappingTestPanel, SourceFieldSelector, TargetFieldSelector, TemplateFieldMappingForm, TemplateFieldMappingList, TransformConfigEditor
+
+#### 2.35 `features/template-instance/` - Epic 19 (12 組件)
+
+BulkActionsMenu, CreateInstanceDialog, ExportDialog, ExportFieldSelector, InstanceRowsTable, InstanceStatsOverview, RowDetailDrawer, RowEditDialog, TemplateInstanceCard, TemplateInstanceDetail, TemplateInstanceFilters, TemplateInstanceList
+
+#### 2.36 `features/template-match/` - Epic 19
+
+BulkMatchDialog, DefaultTemplateSelector, MatchStatusBadge, MatchToTemplateDialog
+
+#### 2.37 `features/term-analysis/` - Epic 0
+
+TermAggregationPanel, TermClassificationView, HierarchicalTermTree
+
+### 3. 佈局組件 (`layout/`)
+
+CityIndicator (城市指示器), DashboardHeader (儀表板標頭), DashboardLayout (儀表板佈局), Sidebar (側邊導航欄), TopBar (頂部導航列)
 
 ### 4. 儀表板組件 (`dashboard/`) - Epic 7
 
-| 組件 | 說明 |
-|------|------|
-| `DashboardStats.tsx` | 統計數據展示 |
-| `DashboardFilters.tsx` | 儀表板篩選器 |
-| `DateRangePicker.tsx` | 日期範圍選擇器 |
-| `DateRangeQuickSelect.tsx` | 快速日期選擇 |
-| `ForwarderComparisonChart.tsx` | Forwarder 比較圖表 |
-| `StatCard.tsx` | 統計卡片 |
+AccessDeniedAlert, ControlledDateRangePicker, DashboardFilters, DashboardStats, DashboardStatsWithDateRange, DateRangePicker, DateRangeQuickSelect, ForwarderComparisonChart, ForwarderMultiSelect, StatCard
 
 ### 5. 認證組件 (`auth/`) - Epic 1
 
-| 組件 | 說明 |
-|------|------|
-| `CityRestricted.tsx` | 城市存取限制 |
+CityRestricted (城市存取限制)
 
-### 6. 分析組件 (`analytics/`) - Epic 7
+> Epic 18 新增的登入/註冊表單位於 `features/auth/`
 
-| 組件 | 說明 |
-|------|------|
-| `CityComparison.tsx` | 城市比較分析 |
+### 6. 其他組件
+
+- `analytics/`: CityComparison
+- `admin/performance/`: PerformanceDashboard
+- `filters/`: CityFilter, CityMultiSelect
+- `export/`: MultiCityExportDialog
+- `reports/`: AiCostReportContent, CityComparisonTable, CityCostReportContent, CityDetailPanel, ExportDialog, MonthlyReportDialog, RegionalReportContent
 
 ---
 
 ## 組件設計模式
 
-### 標準組件結構
+### 標準結構
 
 ```typescript
-'use client';  // 如果需要客戶端互動
+'use client';
 
 /**
  * @fileoverview [組件功能描述]
@@ -375,157 +282,39 @@ import { LocaleSwitcher } from '@/components/features/locale';
  */
 
 import * as React from 'react';
-// 1. React/Next.js imports
-// 2. 第三方庫
-// 3. 本地組件
-// 4. Hooks
-// 5. Utils
-// 6. Types
-
-// ============================================================
-// Types
-// ============================================================
 
 interface ComponentProps {
-  /** Prop 描述 */
   prop1: string;
-  /** 可選 prop */
   prop2?: number;
 }
 
-// ============================================================
-// Component
-// ============================================================
-
-/**
- * @component ComponentName
- * @description 組件描述
- */
 export function ComponentName({ prop1, prop2 }: ComponentProps) {
-  // --- Hooks ---
-  const [state, setState] = React.useState();
-
-  // --- Effects ---
-  React.useEffect(() => {
-    // ...
-  }, []);
-
-  // --- Handlers ---
-  const handleClick = React.useCallback(() => {
-    // ...
-  }, []);
-
-  // --- Render ---
-  return (
-    <div>...</div>
-  );
-}
-```
-
-### Server vs Client Components
-
-```typescript
-// Server Component（預設）- 數據獲取
-// src/app/documents/page.tsx
-import { prisma } from '@/lib/prisma';
-
-export default async function DocumentsPage() {
-  const documents = await prisma.document.findMany();
-  return <DocumentList documents={documents} />;
-}
-
-// Client Component - 互動邏輯
-// src/components/features/invoice/InvoiceListTable.tsx
-'use client';
-
-export function InvoiceListTable({ documents }: Props) {
-  const [selected, setSelected] = useState<string[]>([]);
-  // 互動邏輯...
+  // Hooks → Effects → Handlers → Render
+  return (<div>...</div>);
 }
 ```
 
 ### 狀態管理
 
-```typescript
-// UI 狀態 - Zustand
-import { useUIStore } from '@/stores/ui-store';
+- **UI 狀態**: Zustand (`@/stores/`)
+- **伺服器狀態**: React Query (`@/hooks/`)
+- **表單狀態**: React Hook Form + Zod
 
-// 伺服器狀態 - React Query
-import { useDocuments } from '@/hooks/use-documents';
+### 國際化 (i18n)
 
-// 表單狀態 - React Hook Form + Zod
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-```
+> 完整規範: `.claude/rules/i18n.md`
 
-### 國際化（i18n）
-
-> **完整規範**: 請參考 `.claude/rules/i18n.md`
-
-```typescript
-'use client';
-
-import { useTranslations, useLocale } from 'next-intl';
-import { Link, useRouter } from '@/i18n/routing';
-
-export function MyComponent() {
-  const t = useTranslations('namespace');
-  const locale = useLocale();
-
-  return (
-    <div>
-      <h1>{t('title')}</h1>
-      <Link href="/dashboard">Dashboard</Link>
-    </div>
-  );
-}
-```
-
-**日期/數字格式化**:
-```typescript
-import { formatShortDate, formatRelativeTime } from '@/lib/i18n-date';
-import { formatNumber, formatPercent } from '@/lib/i18n-number';
-
-formatShortDate(date, locale);     // 2026/01/18
-formatNumber(1234567, locale);     // 1,234,567
-```
+使用 `useTranslations('namespace')` 和 `@/i18n/routing` 的 Link/Router
 
 ---
 
 ## 注意事項
 
-### 必須遵守
-
-- ❌ **不要修改** `src/components/ui/` 下的 shadcn 組件
-- ✅ 如需自定義，在 `src/components/features/` 建立包裝組件
-- ✅ 組件保持在 **300 行以內**
-- ✅ 使用 `useMemo` / `useCallback` 優化性能
-- ✅ 所有功能組件必須包含標準 JSDoc 頭部
-
-### 樣式規範
-
-```typescript
-// 使用 cn() 合併類名
-import { cn } from '@/lib/utils';
-
-<Button
-  className={cn(
-    'base-styles',
-    isActive && 'active-styles',
-    className
-  )}
-/>
-```
-
----
-
-## 新增組件指南
-
-1. **確定組件類型**: UI / Feature / Layout
-2. **選擇正確目錄**: 根據功能領域選擇 features 子目錄
-3. **建立組件文件**: 使用標準模板
-4. **添加 JSDoc 註釋**: 包含 `@fileoverview`, `@module`, `@since`
-5. **更新本文檔**: 將新組件加入對應分類表格
+- 不要修改 `src/components/ui/` 下的 shadcn 組件
+- 如需自定義，在 `src/components/features/` 建立包裝組件
+- 組件保持在 300 行以內
+- 使用 `useMemo` / `useCallback` 優化性能
+- 所有功能組件必須包含標準 JSDoc 頭部
 
 ---
 
@@ -541,5 +330,5 @@ import { cn } from '@/lib/utils';
 ---
 
 **維護者**: Development Team
-**最後更新**: 2026-01-18
-**版本**: 1.2.0
+**最後更新**: 2026-02-09
+**版本**: 2.0.0

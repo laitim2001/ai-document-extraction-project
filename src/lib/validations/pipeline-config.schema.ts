@@ -53,8 +53,8 @@ export const referenceNumberTypeSchema = z.enum([
 export const createPipelineConfigSchema = z
   .object({
     scope: pipelineConfigScopeSchema,
-    regionId: z.string().cuid().nullable().optional(),
-    companyId: z.string().cuid().nullable().optional(),
+    regionId: z.string().uuid().nullable().optional(),
+    companyId: z.string().uuid().nullable().optional(),
 
     // Reference Number Matching
     refMatchEnabled: z.boolean().default(false),
@@ -154,8 +154,8 @@ export const getPipelineConfigsQuerySchema = z.object({
 });
 
 export const resolveConfigQuerySchema = z.object({
-  regionId: z.string().cuid().optional(),
-  companyId: z.string().cuid().optional(),
+  regionId: z.string().uuid().optional(),
+  companyId: z.string().uuid().optional(),
 });
 
 // ============================================================================

@@ -134,7 +134,7 @@
       "layoutHints": {
         "title": "Layout Features",
         "description": "Describe the layout features of this format for AI identification reference",
-        "placeholder": "Describe the layout features, e.g., Table-style invoice with company logo on the left, invoice number in the upper right, and detail table below...",
+        "placeholder": "Describe the layout features, e.g., Table-style document with company logo on the left, document number in the upper right, and detail table below...",
         "maxLength": "Maximum 1000 characters"
       },
       "priority": {

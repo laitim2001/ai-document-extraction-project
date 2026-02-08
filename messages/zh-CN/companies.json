@@ -111,7 +111,7 @@
   "deactivateDialog": {
     "title": "停用公司",
     "confirmQuestion": "确定要停用 {name} 吗？",
-    "description": "停用后，该公司的发票处理将暂停。",
+    "description": "停用后，该公司的文件处理将暂停。",
     "deactivateRulesLabel": "同时停用相关规则",
     "deactivateRulesDescription": "将 {count} 个活跃规则标记为已停用",
     "reasonLabel": "停用原因（选填）",
@@ -123,7 +123,7 @@
   "activateDialog": {
     "title": "启用公司",
     "confirmQuestion": "确定要启用 {name} 吗？",
-    "description": "启用后，该公司的发票处理将恢复。",
+    "description": "启用后，该公司的文件处理将恢复。",
     "reactivateRulesLabel": "同时恢复相关规则",
     "reactivateRulesDescription": "将 {count} 个已停用规则恢复为活跃",
     "confirm": "确认启用",
@@ -190,7 +190,7 @@
     "relatedDocuments": "关联文件",
     "documentsUnit": "份",
     "statsInfo": {
-      "totalInvoices": "总发票数",
+      "totalInvoices": "总文件数",
       "processedThisMonth": "本月处理",
       "autoApproveRate": "自动通过率",
       "avgConfidence": "平均信心度"

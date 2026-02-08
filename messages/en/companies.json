@@ -111,7 +111,7 @@
   "deactivateDialog": {
     "title": "Deactivate Company",
     "confirmQuestion": "Are you sure you want to deactivate {name}?",
-    "description": "After deactivation, this company's invoice processing will be suspended.",
+    "description": "After deactivation, this company's document processing will be suspended.",
     "deactivateRulesLabel": "Also deactivate related rules",
     "deactivateRulesDescription": "Mark {count} active rules as deprecated",
     "reasonLabel": "Reason for deactivation (optional)",
@@ -123,7 +123,7 @@
   "activateDialog": {
     "title": "Activate Company",
     "confirmQuestion": "Are you sure you want to activate {name}?",
-    "description": "After activation, invoice processing for this company will resume.",
+    "description": "After activation, document processing for this company will resume.",
     "reactivateRulesLabel": "Also restore related rules",
     "reactivateRulesDescription": "Restore {count} deprecated rules to active",
     "confirm": "Confirm Activation",
@@ -190,7 +190,7 @@
     "relatedDocuments": "Related Documents",
     "documentsUnit": "files",
     "statsInfo": {
-      "totalInvoices": "Total Invoices",
+      "totalInvoices": "Total Documents",
       "processedThisMonth": "Processed This Month",
       "autoApproveRate": "Auto-Approve Rate",
       "avgConfidence": "Average Confidence"

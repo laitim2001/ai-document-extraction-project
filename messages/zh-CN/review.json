@@ -1,6 +1,6 @@
 {
   "page": {
-    "title": "待审核发票",
+    "title": "待审核文件",
     "description": "审核和修正 AI 提取结果",
     "reviewDetails": "审核详情",
     "documentNotFound": "找不到文件",
@@ -41,7 +41,7 @@
   },
   "dialog": {
     "approveTitle": "确认批准",
-    "approveMessage": "确定要批准此发票的提取结果吗？",
+    "approveMessage": "确定要批准此文件的提取结果吗？",
     "rejectTitle": "拒绝原因",
     "rejectPlaceholder": "请输入拒绝原因...",
     "escalateTitle": "提交上级审核",
@@ -52,8 +52,8 @@
     "discardChanges": "放弃变更"
   },
   "empty": {
-    "title": "没有待审核的发票",
-    "description": "所有发票都已处理完成"
+    "title": "没有待审核的文件",
+    "description": "所有文件都已处理完成"
   },
   "processingPath": {
     "autoApprove": "自动通过",

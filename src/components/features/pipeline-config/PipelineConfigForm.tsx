@@ -144,7 +144,7 @@ export function PipelineConfigForm({ initialData }: PipelineConfigFormProps) {
   const updateMutation = useUpdatePipelineConfig()
 
   // --- Companies query ---
-  const { data: companiesData } = useCompanies({ limit: 200 })
+  const { data: companiesData } = useCompanies({ limit: 100 })
   const companies = companiesData?.data ?? []
 
   // --- Form ---

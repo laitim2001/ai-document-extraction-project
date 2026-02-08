@@ -32,11 +32,13 @@
     "CANCELLED": "已取消"
   },
   "filters": {
+    "search": "搜尋",
     "searchPlaceholder": "搜尋號碼...",
-    "year": "選擇年份",
-    "region": "選擇地區",
-    "type": "選擇類型",
-    "status": "選擇狀態",
+    "all": "全部",
+    "year": "年份",
+    "region": "地區",
+    "type": "類型",
+    "status": "狀態",
     "clear": "清除篩選"
   },
   "actions": {

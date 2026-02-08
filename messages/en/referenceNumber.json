@@ -32,7 +32,9 @@
     "CANCELLED": "Cancelled"
   },
   "filters": {
+    "search": "Search",
     "searchPlaceholder": "Search by number...",
+    "all": "All",
     "year": "Year",
     "region": "Region",
     "type": "Type",

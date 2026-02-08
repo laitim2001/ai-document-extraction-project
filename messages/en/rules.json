@@ -173,7 +173,7 @@
   },
   "form": {
     "sourceText": "Source Text",
-    "sourceTextPlaceholder": "Enter text from invoice (regex supported)",
+    "sourceTextPlaceholder": "Enter text from document (regex supported)",
     "chargeType": "Charge Type",
     "chargeTypePlaceholder": "Select or enter charge type",
     "tier": "Rule Tier",
