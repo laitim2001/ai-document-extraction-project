@@ -10,7 +10,7 @@
 
 - **項目規劃**: Epic 架構設計、功能規劃、路線圖
 - **進度追蹤**: 每日/每週進度報告、Sprint 計劃
-- **變更管理**: Bug 修復記錄（37 份）、功能變更追蹤（32 份）
+- **變更管理**: Bug 修復記錄（35 份）、功能變更追蹤（33 份）
 - **AI 協作**: 情境提示詞、工作流程指南、分析報告
 - **知識傳承**: 開發經驗、故障排查、部署指南
 
@@ -87,8 +87,8 @@ claudedocs/
 │   └── weekly/                  # 每週進度報告
 │
 ├── 4-changes/                   # 變更記錄
-│   ├── bug-fixes/               # Bug 修復記錄 (37 份: FIX-001 ~ FIX-035)
-│   └── feature-changes/         # 功能變更記錄 (32 份: CHANGE-001 ~ CHANGE-032)
+│   ├── bug-fixes/               # Bug 修復記錄 (35 份: FIX-001 ~ FIX-035)
+│   └── feature-changes/         # 功能變更記錄 (33 份: CHANGE-001 ~ CHANGE-033)
 │
 ├── 5-status/                    # 狀態報告
 │   └── testing/                 # 測試文檔
@@ -111,6 +111,11 @@ claudedocs/
 │
 ├── 7-archive/                   # 歸檔文檔
 │   └── templates/               # 文檔範本
+│
+├── reference/                   # 參考資料（CHANGE-033 新增）
+│   ├── directory-structure.md   # 完整目錄結構 + API 路由 + Agents/Skills/Rules
+│   ├── dev-checklists.md        # 開發後文檔更新檢查清單
+│   └── project-progress.md      # 22 Epic 進度表 + 版本記錄
 │
 └── CLAUDE.md                    # 本文件 - 目錄索引
 ```
@@ -152,8 +157,8 @@ claudedocs/
 
 | 類型 | 數量 | 路徑 |
 |------|------|------|
-| 功能變更 (CHANGE) | 32 份 | `4-changes/feature-changes/` |
-| Bug 修復 (FIX) | 37 份 | `4-changes/bug-fixes/` |
+| 功能變更 (CHANGE) | 33 份 | `4-changes/feature-changes/` |
+| Bug 修復 (FIX) | 35 份 | `4-changes/bug-fixes/` |
 
 ### 重要重構記錄
 
@@ -167,6 +172,7 @@ claudedocs/
 | 編號 | 名稱 | 狀態 | 描述 |
 |------|------|------|------|
 | CHANGE-032 | Pipeline 參考編號匹配 + 匯率轉換 | 📋 規劃中 | 提取管線新增參考編號匹配與匯率轉換階段 |
+| CHANGE-033 | CLAUDE.md Token 優化 | ✅ 已完成 | 精簡系統提示至 ~350 行，移出參考資料 |
 
 ---
 
@@ -190,13 +196,13 @@ claudedocs/
 
 位於 `claudedocs/4-changes/feature-changes/`，命名格式 `CHANGE-{NNN}-{description}.md`
 
-**CHANGE 編號範圍**: 001-032（共 32 份）
+**CHANGE 編號範圍**: 001-033（共 33 份）
 
 ### Bug 修復 (FIX-*)
 
 位於 `claudedocs/4-changes/bug-fixes/`，命名格式 `FIX-{NNN}-{description}.md`
 
-**FIX 編號範圍**: 001-035（共 37 份，含部分重複編號）
+**FIX 編號範圍**: 001-035（共 35 份）
 
 ### 進度報告
 
@@ -277,7 +283,7 @@ claudedocs/
 
 | 文檔路徑 | 用途 |
 |----------|------|
-| `CLAUDE.md` (根目錄) | 專案總指南 (v2.6.0) |
+| `CLAUDE.md` (根目錄) | 專案總指南 (v3.0.0) |
 | `.claude/CLAUDE.md` | 詳細操作指引（服務啟動等） |
 | `docs/01-planning/prd/` | 產品需求文檔 |
 | `docs/02-architecture/` | 系統架構設計 |
@@ -341,11 +347,14 @@ claudedocs/
 | 週報 | `3-progress/weekly/` |
 | AI 工作流程 | `6-ai-assistant/prompts/` |
 | 範本 | `7-archive/templates/` |
+| 完整目錄結構 | `reference/directory-structure.md` |
+| 開發後檢查清單 | `reference/dev-checklists.md` |
+| Epic 進度與版本記錄 | `reference/project-progress.md` |
 
 ### 創建新文檔
 
 1. **確定文檔類型和目錄** - 功能規劃用 plan-docs/，變更用 feature-changes/，修復用 bug-fixes/
-2. **使用正確的命名約定** - CHANGE 下一個編號 033，FIX 下一個編號 036
+2. **使用正確的命名約定** - CHANGE 下一個編號 034，FIX 下一個編號 036
 3. **遵循格式範本** - 參考 `7-archive/templates/` 下的範本
 
 ---
@@ -362,7 +371,7 @@ claudedocs/
 ## 相關文件
 
 ### 項目級文檔
-- `CLAUDE.md` - 根目錄專案總指南 (v2.6.0)
+- `CLAUDE.md` - 根目錄專案總指南 (v3.0.0)
 - `.claude/CLAUDE.md` - 詳細操作指引
 - `docs/04-implementation/sprint-status.yaml` - Sprint 狀態追蹤
 
@@ -381,4 +390,4 @@ claudedocs/
 
 **維護者**: AI 助手 + 開發團隊
 **最後更新**: 2026-02-09
-**文檔版本**: 2.6.0
+**文檔版本**: 3.0.0

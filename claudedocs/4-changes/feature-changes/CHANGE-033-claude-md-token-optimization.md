@@ -1,7 +1,7 @@
 # CHANGE-033: CLAUDE.md Token 優化 — 精簡系統提示以降低每次 Session 成本
 
 > **日期**: 2026-02-09
-> **狀態**: 📋 規劃中
+> **狀態**: ✅ 已完成
 > **優先級**: High
 > **類型**: Optimization / Documentation Refactor
 > **影響範圍**: `CLAUDE.md`（根目錄）、`claudedocs/reference/`（新建）
