@@ -1621,15 +1621,14 @@ export interface ExchangeRateConversionResult {
 /**
  * 有效的 Pipeline 配置（resolve 後的合併結果）
  * @since CHANGE-032
+ * @modified CHANGE-036 - 移除 regex 相關欄位，改為 DB substring 匹配
  */
 export interface EffectivePipelineConfig {
   /** Reference Number Matching */
   refMatchEnabled: boolean;
   refMatchTypes: string[];
-  refMatchFromFilename: boolean;
-  refMatchFromContent: boolean;
-  refMatchPatterns: Record<string, string> | null;
-  refMatchMaxCandidates: number;
+  /** CHANGE-036: 最大匹配結果數（原 refMatchMaxCandidates） */
+  refMatchMaxResults: number;
   /** FX Conversion */
   fxConversionEnabled: boolean;
   fxTargetCurrency: string | null;

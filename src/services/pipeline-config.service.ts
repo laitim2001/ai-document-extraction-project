@@ -47,10 +47,7 @@ interface PipelineConfigCreateInput {
   companyId?: string | null;
   refMatchEnabled?: boolean;
   refMatchTypes?: string[];
-  refMatchFromFilename?: boolean;
-  refMatchFromContent?: boolean;
-  refMatchPatterns?: Record<string, string> | null;
-  refMatchMaxCandidates?: number;
+  refMatchMaxResults?: number;
   fxConversionEnabled?: boolean;
   fxTargetCurrency?: string | null;
   fxConvertLineItems?: boolean;
@@ -64,10 +61,7 @@ interface PipelineConfigCreateInput {
 interface PipelineConfigUpdateInput {
   refMatchEnabled?: boolean;
   refMatchTypes?: string[];
-  refMatchFromFilename?: boolean;
-  refMatchFromContent?: boolean;
-  refMatchPatterns?: Record<string, string> | null;
-  refMatchMaxCandidates?: number;
+  refMatchMaxResults?: number;
   fxConversionEnabled?: boolean;
   fxTargetCurrency?: string | null;
   fxConvertLineItems?: boolean;
@@ -85,10 +79,7 @@ interface PipelineConfigUpdateInput {
 const DEFAULT_EFFECTIVE_CONFIG: EffectivePipelineConfig = {
   refMatchEnabled: false,
   refMatchTypes: ['SHIPMENT', 'HAWB', 'MAWB', 'BL', 'CONTAINER'],
-  refMatchFromFilename: true,
-  refMatchFromContent: true,
-  refMatchPatterns: null,
-  refMatchMaxCandidates: 20,
+  refMatchMaxResults: 10,
   fxConversionEnabled: false,
   fxTargetCurrency: null,
   fxConvertLineItems: true,
@@ -198,10 +189,7 @@ export async function createPipelineConfig(data: PipelineConfigCreateInput) {
       companyId: data.companyId ?? null,
       refMatchEnabled: data.refMatchEnabled ?? false,
       refMatchTypes: data.refMatchTypes ?? ['SHIPMENT', 'HAWB', 'MAWB', 'BL', 'CONTAINER'],
-      refMatchFromFilename: data.refMatchFromFilename ?? true,
-      refMatchFromContent: data.refMatchFromContent ?? true,
-      refMatchPatterns: data.refMatchPatterns ?? undefined,
-      refMatchMaxCandidates: data.refMatchMaxCandidates ?? 20,
+      refMatchMaxResults: data.refMatchMaxResults ?? 10,
       fxConversionEnabled: data.fxConversionEnabled ?? false,
       fxTargetCurrency: data.fxTargetCurrency ?? null,
       fxConvertLineItems: data.fxConvertLineItems ?? true,
@@ -227,14 +215,9 @@ export async function updatePipelineConfig(id: string, data: PipelineConfigUpdat
     throw new Error('Pipeline config not found');
   }
 
-  // Transform refMatchPatterns for Prisma JSON compatibility
+  // Transform refMatchTypes for Prisma JSON compatibility
   const prismaData: Prisma.PipelineConfigUpdateInput = {
     ...data,
-    refMatchPatterns: data.refMatchPatterns === null
-      ? Prisma.JsonNull
-      : data.refMatchPatterns === undefined
-        ? undefined
-        : data.refMatchPatterns as unknown as Prisma.InputJsonValue,
     refMatchTypes: data.refMatchTypes === undefined
       ? undefined
       : data.refMatchTypes as unknown as Prisma.InputJsonValue,
@@ -327,9 +310,7 @@ export async function resolveEffectiveConfig(
     const scopeLabel = config.scope.toLowerCase();
 
     resolved.refMatchEnabled = config.refMatchEnabled;
-    resolved.refMatchFromFilename = config.refMatchFromFilename;
-    resolved.refMatchFromContent = config.refMatchFromContent;
-    resolved.refMatchMaxCandidates = config.refMatchMaxCandidates;
+    resolved.refMatchMaxResults = config.refMatchMaxResults;
     resolved.fxConversionEnabled = config.fxConversionEnabled;
     resolved.fxConvertLineItems = config.fxConvertLineItems;
     resolved.fxConvertExtraCharges = config.fxConvertExtraCharges;
@@ -338,9 +319,6 @@ export async function resolveEffectiveConfig(
 
     if (config.refMatchTypes) {
       resolved.refMatchTypes = config.refMatchTypes as string[];
-    }
-    if (config.refMatchPatterns) {
-      resolved.refMatchPatterns = config.refMatchPatterns as Record<string, string>;
     }
     if (config.fxTargetCurrency) {
       resolved.fxTargetCurrency = config.fxTargetCurrency;

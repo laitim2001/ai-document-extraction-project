@@ -32,8 +32,8 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { randomBytes } from 'crypto';
-import type { Prisma } from '@prisma/client';
 import type {
   CreateReferenceNumberInput,
   UpdateReferenceNumberInput,
@@ -898,4 +898,92 @@ export async function validateReferenceNumbers(
       notFound: numbers.length - foundCount,
     },
   };
+}
+
+// ============================================================================
+// Text Matching (CHANGE-036: DB Substring Matching)
+// ============================================================================
+
+/**
+ * DB substring 匹配結果
+ */
+export interface TextMatchResult {
+  id: string;
+  number: string;
+  type: string;
+  status: string;
+  year: number;
+  regionId: string;
+  regionCode: string;
+  regionName: string;
+}
+
+/**
+ * 從文字中匹配 Reference Numbers（DB-first substring 模式）
+ *
+ * @description
+ *   使用 PostgreSQL ILIKE 執行 DB-first substring 匹配：
+ *   `WHERE :text ILIKE '%' || number || '%'`
+ *   匹配結果按 number 長度降序排列，避免短號碼假陽性。
+ *   年份範圍為當前年 ±1。
+ *
+ * @since CHANGE-036
+ * @param options - 匹配選項
+ * @returns 匹配到的 Reference Numbers
+ */
+export async function findMatchesInText(options: {
+  text: string;
+  types: string[];
+  regionId?: string;
+  maxResults?: number;
+}): Promise<TextMatchResult[]> {
+  const { text, types, regionId, maxResults = 10 } = options;
+
+  if (!text || types.length === 0) {
+    return [];
+  }
+
+  const currentYear = new Date().getFullYear();
+  const yearFrom = currentYear - 1;
+  const yearTo = currentYear + 1;
+
+  const regionFilter = regionId
+    ? Prisma.sql`AND rn."region_id" = ${regionId}`
+    : Prisma.empty;
+
+  const results = await prisma.$queryRaw<TextMatchResult[]>(Prisma.sql`
+    SELECT
+      rn."id",
+      rn."number",
+      rn."type",
+      rn."status",
+      rn."year",
+      rn."region_id" AS "regionId",
+      r."code" AS "regionCode",
+      r."name" AS "regionName"
+    FROM "reference_numbers" rn
+    JOIN "regions" r ON rn."region_id" = r."id"
+    WHERE ${text} ILIKE '%' || rn."number" || '%'
+      AND rn."is_active" = true
+      AND rn."status" = 'ACTIVE'
+      AND rn."type" IN (${Prisma.join(types)})
+      ${regionFilter}
+      AND rn."year" BETWEEN ${yearFrom} AND ${yearTo}
+    ORDER BY LENGTH(rn."number") DESC
+    LIMIT ${maxResults}
+  `);
+
+  // 更新匹配計數
+  if (results.length > 0) {
+    const matchedIds = results.map((r) => r.id);
+    await prisma.referenceNumber.updateMany({
+      where: { id: { in: matchedIds } },
+      data: {
+        matchCount: { increment: 1 },
+        lastMatchedAt: new Date(),
+      },
+    });
+  }
+
+  return results;
 }

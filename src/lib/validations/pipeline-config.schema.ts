@@ -56,13 +56,10 @@ export const createPipelineConfigSchema = z
     regionId: z.string().uuid().nullable().optional(),
     companyId: z.string().uuid().nullable().optional(),
 
-    // Reference Number Matching
+    // Reference Number Matching (CHANGE-036: DB substring 匹配)
     refMatchEnabled: z.boolean().default(false),
     refMatchTypes: z.array(referenceNumberTypeSchema).optional(),
-    refMatchFromFilename: z.boolean().default(true),
-    refMatchFromContent: z.boolean().default(true),
-    refMatchPatterns: z.record(z.string(), z.string()).nullable().optional(),
-    refMatchMaxCandidates: z.number().int().min(1).max(100).default(20),
+    refMatchMaxResults: z.number().int().min(1).max(100).default(10),
 
     // FX Conversion
     fxConversionEnabled: z.boolean().default(false),
@@ -103,10 +100,7 @@ export const createPipelineConfigSchema = z
 export const updatePipelineConfigSchema = z.object({
   refMatchEnabled: z.boolean().optional(),
   refMatchTypes: z.array(referenceNumberTypeSchema).optional(),
-  refMatchFromFilename: z.boolean().optional(),
-  refMatchFromContent: z.boolean().optional(),
-  refMatchPatterns: z.record(z.string(), z.string()).nullable().optional(),
-  refMatchMaxCandidates: z.number().int().min(1).max(100).optional(),
+  refMatchMaxResults: z.number().int().min(1).max(100).optional(),
   fxConversionEnabled: z.boolean().optional(),
   fxTargetCurrency: z
     .string()

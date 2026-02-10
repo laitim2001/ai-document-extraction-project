@@ -4227,13 +4227,10 @@ model PipelineConfig {
   regionId               String?             @map("region_id")
   companyId              String?             @map("company_id")
 
-  // Reference Number Matching 配置
+  // Reference Number Matching 配置（CHANGE-036: 移除 regex，改用 DB substring 匹配）
   refMatchEnabled        Boolean             @default(false) @map("ref_match_enabled")
   refMatchTypes          Json?               @map("ref_match_types")
-  refMatchFromFilename   Boolean             @default(true) @map("ref_match_from_filename")
-  refMatchFromContent    Boolean             @default(true) @map("ref_match_from_content")
-  refMatchPatterns       Json?               @map("ref_match_patterns")
-  refMatchMaxCandidates  Int                 @default(20) @map("ref_match_max_candidates")
+  refMatchMaxResults     Int                 @default(10) @map("ref_match_max_results")
 
   // FX Conversion 配置
   fxConversionEnabled    Boolean             @default(false) @map("fx_conversion_enabled")

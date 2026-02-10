@@ -42,9 +42,7 @@ export interface PipelineConfigItem {
   companyId: string | null
   refMatchEnabled: boolean
   refMatchTypes: string[] | null
-  refMatchFromFilename: boolean
-  refMatchFromContent: boolean
-  refMatchMaxCandidates: number
+  refMatchMaxResults: number
   fxConversionEnabled: boolean
   fxTargetCurrency: string | null
   fxConvertLineItems: boolean
@@ -117,9 +115,7 @@ export interface CreatePipelineConfigInput {
   companyId?: string | null
   refMatchEnabled?: boolean
   refMatchTypes?: string[]
-  refMatchFromFilename?: boolean
-  refMatchFromContent?: boolean
-  refMatchMaxCandidates?: number
+  refMatchMaxResults?: number
   fxConversionEnabled?: boolean
   fxTargetCurrency?: string | null
   fxConvertLineItems?: boolean
@@ -136,9 +132,7 @@ export interface CreatePipelineConfigInput {
 export interface UpdatePipelineConfigInput {
   refMatchEnabled?: boolean
   refMatchTypes?: string[]
-  refMatchFromFilename?: boolean
-  refMatchFromContent?: boolean
-  refMatchMaxCandidates?: number
+  refMatchMaxResults?: number
   fxConversionEnabled?: boolean
   fxTargetCurrency?: string | null
   fxConvertLineItems?: boolean

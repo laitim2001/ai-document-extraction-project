@@ -98,9 +98,7 @@ const formSchema = z
     companyId: z.string().nullable().optional(),
     refMatchEnabled: z.boolean(),
     refMatchTypes: z.array(z.string()),
-    refMatchFromFilename: z.boolean(),
-    refMatchFromContent: z.boolean(),
-    refMatchMaxCandidates: z.number().int().min(1).max(100),
+    refMatchMaxResults: z.number().int().min(1).max(100),
     fxConversionEnabled: z.boolean(),
     fxTargetCurrency: z.string().nullable().optional(),
     fxConvertLineItems: z.boolean(),
@@ -162,9 +160,7 @@ export function PipelineConfigForm({ initialData }: PipelineConfigFormProps) {
         'BL',
         'CONTAINER',
       ],
-      refMatchFromFilename: initialData?.refMatchFromFilename ?? true,
-      refMatchFromContent: initialData?.refMatchFromContent ?? true,
-      refMatchMaxCandidates: initialData?.refMatchMaxCandidates ?? 20,
+      refMatchMaxResults: initialData?.refMatchMaxResults ?? 10,
       fxConversionEnabled: initialData?.fxConversionEnabled ?? false,
       fxTargetCurrency: initialData?.fxTargetCurrency ?? null,
       fxConvertLineItems: initialData?.fxConvertLineItems ?? true,
@@ -191,9 +187,7 @@ export function PipelineConfigForm({ initialData }: PipelineConfigFormProps) {
             input: {
               refMatchEnabled: values.refMatchEnabled,
               refMatchTypes: values.refMatchTypes,
-              refMatchFromFilename: values.refMatchFromFilename,
-              refMatchFromContent: values.refMatchFromContent,
-              refMatchMaxCandidates: values.refMatchMaxCandidates,
+              refMatchMaxResults: values.refMatchMaxResults,
               fxConversionEnabled: values.fxConversionEnabled,
               fxTargetCurrency: values.fxTargetCurrency,
               fxConvertLineItems: values.fxConvertLineItems,
@@ -212,9 +206,7 @@ export function PipelineConfigForm({ initialData }: PipelineConfigFormProps) {
             companyId: values.scope === 'COMPANY' ? values.companyId : null,
             refMatchEnabled: values.refMatchEnabled,
             refMatchTypes: values.refMatchTypes,
-            refMatchFromFilename: values.refMatchFromFilename,
-            refMatchFromContent: values.refMatchFromContent,
-            refMatchMaxCandidates: values.refMatchMaxCandidates,
+            refMatchMaxResults: values.refMatchMaxResults,
             fxConversionEnabled: values.fxConversionEnabled,
             fxTargetCurrency: values.fxTargetCurrency,
             fxConvertLineItems: values.fxConvertLineItems,
@@ -399,49 +391,12 @@ export function PipelineConfigForm({ initialData }: PipelineConfigFormProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="refMatchFromFilename"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                      <FormLabel className="text-sm">
-                        {t('form.refMatchFromFilename')}
-                      </FormLabel>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="refMatchFromContent"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                      <FormLabel className="text-sm">
-                        {t('form.refMatchFromContent')}
-                      </FormLabel>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
               <FormField
                 control={form.control}
-                name="refMatchMaxCandidates"
+                name="refMatchMaxResults"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('form.refMatchMaxCandidates')}</FormLabel>
+                    <FormLabel>{t('form.refMatchMaxResults')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
