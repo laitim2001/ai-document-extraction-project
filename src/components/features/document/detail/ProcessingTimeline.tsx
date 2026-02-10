@@ -91,6 +91,9 @@ const STEP_LABELS: Record<string, { en: string; zh: string }> = {
   STAGE_1_COMPANY_IDENTIFICATION: { en: 'Stage 1: Company ID', zh: 'Stage 1: 公司識別' },
   STAGE_2_FORMAT_IDENTIFICATION: { en: 'Stage 2: Format ID', zh: 'Stage 2: 格式識別' },
   STAGE_3_FIELD_EXTRACTION: { en: 'Stage 3: Field Extract', zh: 'Stage 3: 欄位提取' },
+  // ========== CHANGE-032/036: Pipeline enhancement steps ==========
+  REFERENCE_NUMBER_MATCHING: { en: 'Reference Number Matching', zh: '參考編號匹配' },
+  EXCHANGE_RATE_CONVERSION: { en: 'Exchange Rate Conversion', zh: '匯率轉換' },
   // ========== Legacy steps (backward compatibility) ==========
   UPLOAD: { en: 'File Upload', zh: '文件上傳' },
   OCR_EXTRACTION: { en: 'OCR Extraction', zh: 'OCR 提取' },

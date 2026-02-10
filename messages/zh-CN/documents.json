@@ -153,7 +153,9 @@
         "RESULT_VALIDATION": "结果验证",
         "STAGE_1_COMPANY_IDENTIFICATION": "阶段 1：公司识别",
         "STAGE_2_FORMAT_IDENTIFICATION": "阶段 2：格式识别",
-        "STAGE_3_FIELD_EXTRACTION": "阶段 3：字段提取"
+        "STAGE_3_FIELD_EXTRACTION": "阶段 3：字段提取",
+        "REFERENCE_NUMBER_MATCHING": "参考编号匹配",
+        "EXCHANGE_RATE_CONVERSION": "汇率转换"
       },
       "version": {
         "v2": "V2（11 步骤）",

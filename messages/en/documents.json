@@ -153,7 +153,9 @@
         "RESULT_VALIDATION": "Result Validation",
         "STAGE_1_COMPANY_IDENTIFICATION": "Stage 1: Company ID",
         "STAGE_2_FORMAT_IDENTIFICATION": "Stage 2: Format ID",
-        "STAGE_3_FIELD_EXTRACTION": "Stage 3: Field Extract"
+        "STAGE_3_FIELD_EXTRACTION": "Stage 3: Field Extract",
+        "REFERENCE_NUMBER_MATCHING": "Reference Number Matching",
+        "EXCHANGE_RATE_CONVERSION": "Exchange Rate Conversion"
       },
       "version": {
         "v2": "V2 (11 steps)",

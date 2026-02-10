@@ -153,7 +153,9 @@
         "RESULT_VALIDATION": "結果驗證",
         "STAGE_1_COMPANY_IDENTIFICATION": "階段 1：公司識別",
         "STAGE_2_FORMAT_IDENTIFICATION": "階段 2：格式識別",
-        "STAGE_3_FIELD_EXTRACTION": "階段 3：欄位提取"
+        "STAGE_3_FIELD_EXTRACTION": "階段 3：欄位提取",
+        "REFERENCE_NUMBER_MATCHING": "參考編號匹配",
+        "EXCHANGE_RATE_CONVERSION": "匯率轉換"
       },
       "version": {
         "v2": "V2（11 步驟）",
