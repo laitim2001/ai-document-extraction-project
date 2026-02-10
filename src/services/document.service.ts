@@ -466,6 +466,13 @@ export async function getProcessingStatsEnhanced(
     'MAPPING_PROCESSING',
     'IN_REVIEW',
   ]
+  const completedStatuses = [
+    'OCR_COMPLETED',
+    'MAPPING_COMPLETED',
+    'PENDING_REVIEW',
+    'COMPLETED',
+    'APPROVED',
+  ]
   const failedStatuses = ['OCR_FAILED', 'FAILED']
 
   for (const item of statuses) {
@@ -474,7 +481,7 @@ export async function getProcessingStatsEnhanced(
 
     if (processingStatuses.includes(item.status)) {
       processing += item._count
-    } else if (item.status === 'COMPLETED') {
+    } else if (completedStatuses.includes(item.status)) {
       completed += item._count
     } else if (failedStatuses.includes(item.status)) {
       failed += item._count
