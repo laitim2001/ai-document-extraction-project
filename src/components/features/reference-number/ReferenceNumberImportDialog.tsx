@@ -166,20 +166,25 @@ function cellToString(cell: ExcelJS.CellValue): string {
 }
 
 /**
- * Parse date string or Excel serial number to YYYY-MM-DD.
+ * Parse date string or Excel serial number to ISO 8601 datetime.
+ * The API Zod schema uses z.string().datetime() which requires full ISO format.
  */
 function parseDate(value: ExcelJS.CellValue): string | undefined {
   if (value == null) return undefined
   if (value instanceof Date) {
-    return value.toISOString().split('T')[0]
+    return value.toISOString()
   }
   const str = cellToString(value).trim()
   if (!str) return undefined
-  // Try YYYY-MM-DD format
-  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str
+  // YYYY-MM-DD → convert to ISO 8601 datetime
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    return new Date(str + 'T00:00:00.000Z').toISOString()
+  }
+  // Already ISO format
+  if (/^\d{4}-\d{2}-\d{2}T/.test(str)) return str
   // Try parsing as date
   const d = new Date(str)
-  if (!isNaN(d.getTime())) return d.toISOString().split('T')[0]
+  if (!isNaN(d.getTime())) return d.toISOString()
   return undefined
 }
 
