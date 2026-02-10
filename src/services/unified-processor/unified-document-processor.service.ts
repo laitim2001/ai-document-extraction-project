@@ -230,7 +230,7 @@ export class UnifiedDocumentProcessorService {
 
     try {
       // 更新文件狀態為處理中
-      await this.updateDocumentStatus(input.fileId, 'PROCESSING');
+      await this.updateDocumentStatus(input.fileId, 'OCR_PROCESSING');
 
       // 構建 V3 輸入
       const v3Input: ExtractionV3Input = {
@@ -285,12 +285,12 @@ export class UnifiedDocumentProcessorService {
    */
   private async updateDocumentStatus(
     fileId: string,
-    status: string
+    status: import('@prisma/client').DocumentStatus
   ): Promise<void> {
     try {
       await prisma.document.update({
         where: { id: fileId },
-        data: { status: status as import('@prisma/client').DocumentStatus },
+        data: { status },
       });
     } catch (statusErr) {
       console.warn(
