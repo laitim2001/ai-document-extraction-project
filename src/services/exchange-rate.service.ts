@@ -23,7 +23,7 @@
  *
  * @module src/services/exchange-rate.service
  * @since Epic 21 - Story 21.2
- * @lastModified 2026-02-06
+ * @lastModified 2026-02-11
  *
  * @dependencies
  *   - prisma - 資料庫 ORM
@@ -116,24 +116,60 @@ function formatDate(date: Date | null | undefined): string | null {
 /**
  * 查找直接匯率記錄
  *
- * @description 在資料庫中查找指定貨幣對和年份的啟用匯率
+ * @description
+ *   在資料庫中查找指定貨幣對和年份的啟用匯率。
+ *   FIX-037 BUG-3: 當提供具體日期時，加入 effectiveFrom/effectiveTo 日期範圍篩選，
+ *   支援同一年份內的多期匯率（如上半年/下半年）。
+ *
  * @param from - 來源貨幣代碼
  * @param to - 目標貨幣代碼
  * @param year - 生效年份
+ * @param date - 可選的具體日期，用於日期範圍篩選
  * @returns 匯率記錄（含 id 和 rate）或 null
  */
 async function findDirectRate(
   from: string,
   to: string,
-  year: number
+  year: number,
+  date?: Date
 ): Promise<{ id: string; rate: number } | null> {
+  const where: Prisma.ExchangeRateWhereInput = {
+    fromCurrency: from,
+    toCurrency: to,
+    effectiveYear: year,
+    isActive: true,
+  };
+
+  // FIX-037 BUG-3: 加入日期範圍篩選
+  if (date) {
+    where.OR = [
+      // 情況 1: effectiveFrom 和 effectiveTo 都有值，日期在範圍內
+      {
+        effectiveFrom: { lte: date },
+        effectiveTo: { gte: date },
+      },
+      // 情況 2: 只有 effectiveFrom，日期在其之後
+      {
+        effectiveFrom: { lte: date },
+        effectiveTo: null,
+      },
+      // 情況 3: 只有 effectiveTo，日期在其之前
+      {
+        effectiveFrom: null,
+        effectiveTo: { gte: date },
+      },
+      // 情況 4: 兩者都沒有（按年份匹配，現有行為）
+      {
+        effectiveFrom: null,
+        effectiveTo: null,
+      },
+    ];
+  }
+
   const item = await prisma.exchangeRate.findFirst({
-    where: {
-      fromCurrency: from,
-      toCurrency: to,
-      effectiveYear: year,
-      isActive: true,
-    },
+    where,
+    // 優先選擇有精確日期範圍的記錄
+    orderBy: [{ effectiveFrom: 'desc' }],
     select: { id: true, rate: true },
   });
 
@@ -152,17 +188,19 @@ async function findDirectRate(
  * @param from - 來源貨幣代碼
  * @param to - 目標貨幣代碼
  * @param year - 生效年份
+ * @param date - 可選的具體日期（FIX-037 BUG-3）
  * @returns 匯率資訊（含 id 和 rate）或 null
  */
 async function findRate(
   from: string,
   to: string,
-  year: number
+  year: number,
+  date?: Date
 ): Promise<{ id: string; rate: number } | null> {
-  const direct = await findDirectRate(from, to, year);
+  const direct = await findDirectRate(from, to, year, date);
   if (direct) return direct;
 
-  const inverse = await findDirectRate(to, from, year);
+  const inverse = await findDirectRate(to, from, year, date);
   if (inverse) {
     return {
       id: inverse.id,
@@ -670,6 +708,7 @@ export async function toggleExchangeRate(
  * @param toCurrency - 目標貨幣代碼
  * @param amount - 轉換金額
  * @param year - 生效年份（預設為當前年份）
+ * @param date - 可選的具體日期，用於精確日期範圍匹配（FIX-037 BUG-3）
  * @returns 轉換結果
  * @throws Error - 找不到匹配的匯率記錄
  */
@@ -677,12 +716,13 @@ export async function convert(
   fromCurrency: string,
   toCurrency: string,
   amount: number,
-  year?: number
+  year?: number,
+  date?: Date
 ): Promise<ConvertResult> {
   const effectiveYear = year ?? new Date().getFullYear();
 
   // 1. 直接查詢
-  const direct = await findDirectRate(fromCurrency, toCurrency, effectiveYear);
+  const direct = await findDirectRate(fromCurrency, toCurrency, effectiveYear, date);
   if (direct) {
     return {
       fromCurrency,
@@ -697,7 +737,7 @@ export async function convert(
   }
 
   // 2. 反向計算
-  const inverse = await findDirectRate(toCurrency, fromCurrency, effectiveYear);
+  const inverse = await findDirectRate(toCurrency, fromCurrency, effectiveYear, date);
   if (inverse) {
     const rate = 1 / inverse.rate;
     return {
@@ -714,8 +754,8 @@ export async function convert(
 
   // 3. 交叉匯率（通過 USD）
   if (fromCurrency !== 'USD' && toCurrency !== 'USD') {
-    const toUsd = await findRate(fromCurrency, 'USD', effectiveYear);
-    const fromUsd = await findRate('USD', toCurrency, effectiveYear);
+    const toUsd = await findRate(fromCurrency, 'USD', effectiveYear, date);
+    const fromUsd = await findRate('USD', toCurrency, effectiveYear, date);
 
     if (toUsd && fromUsd) {
       const rate = toUsd.rate * fromUsd.rate;

@@ -590,6 +590,7 @@ model ExtractionResult {
   stage3DurationMs     Int?             @map("stage_3_duration_ms")
   stage3Result         Json?            @map("stage_3_result")
   referenceNumberMatch Json?            @map("reference_number_match")
+  fxConversionResult   Json?            @map("fx_conversion_result")
   company              Company?         @relation("CompanyExtractionResults", fields: [companyId], references: [id])
   document             Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
   forwarder            Forwarder?       @relation(fields: [forwarderId], references: [id])

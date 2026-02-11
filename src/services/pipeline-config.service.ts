@@ -7,7 +7,7 @@
  *
  * @module src/services/pipeline-config
  * @since CHANGE-032 - Pipeline Reference Number Matching & FX Conversion
- * @lastModified 2026-02-08
+ * @lastModified 2026-02-11
  *
  * @features
  *   - CRUD 操作（列表、取得、建立、更新、刪除）
@@ -88,6 +88,37 @@ const DEFAULT_EFFECTIVE_CONFIG: EffectivePipelineConfig = {
   fxFallbackBehavior: 'skip',
   resolvedFrom: {},
 };
+
+// ============================================================================
+// FIX-037 BUG-4: Prisma 預設值對照表
+// 用於區分「管理員明確設定」vs「Prisma schema 預設值」
+// ============================================================================
+
+const PRISMA_DEFAULTS: Record<string, unknown> = {
+  refMatchEnabled: false,
+  refMatchMaxResults: 10,
+  fxConversionEnabled: false,
+  fxConvertLineItems: true,
+  fxConvertExtraCharges: true,
+  fxRoundingPrecision: 2,
+  fxFallbackBehavior: 'skip',
+};
+
+/**
+ * 合併配置欄位 - 只有明確設定（非 Prisma 預設值）的值才覆蓋
+ *
+ * GLOBAL scope 的值一律採用；非 GLOBAL scope 則只有與預設值不同的欄位才覆蓋。
+ */
+function mergeConfigField<T>(
+  current: T,
+  incoming: T,
+  prismaDefault: T,
+  isGlobalScope: boolean
+): T {
+  if (isGlobalScope) return incoming;
+  if (incoming === prismaDefault) return current;
+  return incoming;
+}
 
 // ============================================================================
 // Service Functions
@@ -308,15 +339,42 @@ export async function resolveEffectiveConfig(
 
   for (const config of configs) {
     const scopeLabel = config.scope.toLowerCase();
+    const isGlobal = config.scope === 'GLOBAL';
 
-    resolved.refMatchEnabled = config.refMatchEnabled;
-    resolved.refMatchMaxResults = config.refMatchMaxResults;
-    resolved.fxConversionEnabled = config.fxConversionEnabled;
-    resolved.fxConvertLineItems = config.fxConvertLineItems;
-    resolved.fxConvertExtraCharges = config.fxConvertExtraCharges;
-    resolved.fxRoundingPrecision = config.fxRoundingPrecision;
-    resolved.fxFallbackBehavior = config.fxFallbackBehavior as 'skip' | 'warn' | 'error';
+    // FIX-037 BUG-4: 使用顯式覆蓋策略
+    // GLOBAL scope 的值一律採用；REGION/COMPANY scope 只有與 Prisma 預設值不同的欄位才覆蓋
+    resolved.refMatchEnabled = mergeConfigField(
+      resolved.refMatchEnabled, config.refMatchEnabled,
+      PRISMA_DEFAULTS.refMatchEnabled as boolean, isGlobal
+    );
+    resolved.refMatchMaxResults = mergeConfigField(
+      resolved.refMatchMaxResults, config.refMatchMaxResults,
+      PRISMA_DEFAULTS.refMatchMaxResults as number, isGlobal
+    );
+    resolved.fxConversionEnabled = mergeConfigField(
+      resolved.fxConversionEnabled, config.fxConversionEnabled,
+      PRISMA_DEFAULTS.fxConversionEnabled as boolean, isGlobal
+    );
+    resolved.fxConvertLineItems = mergeConfigField(
+      resolved.fxConvertLineItems, config.fxConvertLineItems,
+      PRISMA_DEFAULTS.fxConvertLineItems as boolean, isGlobal
+    );
+    resolved.fxConvertExtraCharges = mergeConfigField(
+      resolved.fxConvertExtraCharges, config.fxConvertExtraCharges,
+      PRISMA_DEFAULTS.fxConvertExtraCharges as boolean, isGlobal
+    );
+    resolved.fxRoundingPrecision = mergeConfigField(
+      resolved.fxRoundingPrecision, config.fxRoundingPrecision,
+      PRISMA_DEFAULTS.fxRoundingPrecision as number, isGlobal
+    );
+    resolved.fxFallbackBehavior = mergeConfigField(
+      resolved.fxFallbackBehavior,
+      config.fxFallbackBehavior as 'skip' | 'warn' | 'error',
+      PRISMA_DEFAULTS.fxFallbackBehavior as 'skip' | 'warn' | 'error',
+      isGlobal
+    );
 
+    // nullable 欄位：只有非 null 時才覆蓋（原有邏輯已正確）
     if (config.refMatchTypes) {
       resolved.refMatchTypes = config.refMatchTypes as string[];
     }

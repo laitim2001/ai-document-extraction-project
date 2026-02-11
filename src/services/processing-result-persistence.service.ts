@@ -41,6 +41,7 @@ import type {
   Stage3ExtractionResult,
   StepResultV3_1,
   ReferenceNumberMatchResult,
+  ExchangeRateConversionResult,
 } from '@/types/extraction-v3.types';
 
 // ============================================================================
@@ -397,6 +398,8 @@ export interface PersistV3_1ResultInput {
   userId: string;
   /** FIX-036: 參考編號匹配結果（從 V3 pipeline 傳入） */
   referenceNumberMatch?: ReferenceNumberMatchResult;
+  /** FIX-037 BUG-2: 匯率轉換結果（從 V3 pipeline 傳入） */
+  exchangeRateConversion?: ExchangeRateConversionResult;
 }
 
 /**
@@ -455,7 +458,7 @@ function convertV3_1StepResultsToJson(
 export async function persistV3_1ProcessingResult(
   input: PersistV3_1ResultInput,
 ): Promise<PersistV3_1ResultOutput> {
-  const { documentId, result, referenceNumberMatch } = input;
+  const { documentId, result, referenceNumberMatch, exchangeRateConversion } = input;
   const { stage1Result, stage2Result, stage3Result } = result;
 
   // 計算統計
@@ -552,6 +555,11 @@ export async function persistV3_1ProcessingResult(
           ? (referenceNumberMatch as unknown as Prisma.InputJsonValue)
           : undefined,
 
+        // FIX-037 BUG-2: 保存 exchangeRateConversion 結果
+        fxConversionResult: exchangeRateConversion
+          ? (exchangeRateConversion as unknown as Prisma.InputJsonValue)
+          : undefined,
+
         // Token 統計（合計三階段）
         totalTokens,
         promptTokens:
@@ -594,6 +602,11 @@ export async function persistV3_1ProcessingResult(
         // FIX-036: 保存 referenceNumberMatch 結果
         referenceNumberMatch: referenceNumberMatch
           ? (referenceNumberMatch as unknown as Prisma.InputJsonValue)
+          : undefined,
+
+        // FIX-037 BUG-2: 保存 exchangeRateConversion 結果
+        fxConversionResult: exchangeRateConversion
+          ? (exchangeRateConversion as unknown as Prisma.InputJsonValue)
           : undefined,
 
         // Token 統計

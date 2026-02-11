@@ -7,7 +7,7 @@
  *
  * @module src/services/extraction-v3/stages/exchange-rate-converter
  * @since CHANGE-032 - Pipeline Reference Number Matching & FX Conversion
- * @lastModified 2026-02-08
+ * @lastModified 2026-02-11
  *
  * @features
  *   - 轉換 totalAmount, subtotal 等標準欄位
@@ -100,40 +100,83 @@ export class ExchangeRateConverterService {
     const warnings: string[] = [];
     const precision = config.fxRoundingPrecision;
 
+    // FIX-037 BUG-1: 從 invoiceDate 提取年份
+    const invoiceDateValue = stage3Result.standardFields.invoiceDate?.value?.toString();
+    let invoiceYear: number | undefined;
+    let invoiceDate: Date | undefined;
+    if (invoiceDateValue) {
+      const parsed = new Date(invoiceDateValue);
+      if (!isNaN(parsed.getTime())) {
+        invoiceYear = parsed.getFullYear();
+        invoiceDate = parsed;
+      } else {
+        warnings.push(`Invalid invoiceDate "${invoiceDateValue}", falling back to current year`);
+      }
+    }
+
+    // FIX-037 BUG-5: 預查匯率，避免 N+1 查詢
+    // 主貨幣對只查一次
+    const rateCache = new Map<string, { rate: number; rateId?: string; path: string }>();
+    try {
+      const mainResult = await convert(sourceCurrency, targetCurrency, 1, invoiceYear, invoiceDate);
+      rateCache.set(
+        `${sourceCurrency.toUpperCase()}->${targetCurrency.toUpperCase()}`,
+        { rate: mainResult.rate, rateId: mainResult.rateId, path: mainResult.path }
+      );
+    } catch (error) {
+      // 主匯率查詢失敗 — 根據 fallback 策略處理
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      if (config.fxFallbackBehavior === 'error') {
+        throw new Error(`FX rate lookup failed for ${sourceCurrency}->${targetCurrency}: ${errorMsg}`);
+      }
+      warnings.push(`FX rate lookup failed for ${sourceCurrency}->${targetCurrency}: ${errorMsg}`);
+      return {
+        enabled: true,
+        conversions: [],
+        sourceCurrency,
+        targetCurrency,
+        warnings,
+        processingTimeMs: Date.now() - startTime,
+      };
+    }
+
     // 轉換標準金額欄位
-    await this.convertStandardFields(
+    this.convertStandardFieldsCached(
       stage3Result,
       sourceCurrency,
       targetCurrency,
       precision,
       config.fxFallbackBehavior,
       conversions,
-      warnings
+      warnings,
+      rateCache
     );
 
     // 轉換 lineItems
     if (config.fxConvertLineItems && stage3Result.lineItems?.length > 0) {
-      await this.convertLineItems(
+      this.convertLineItemsCached(
         stage3Result,
         sourceCurrency,
         targetCurrency,
         precision,
-        config.fxFallbackBehavior,
         conversions,
-        warnings
+        rateCache
       );
     }
 
-    // 轉換 extraCharges
+    // 轉換 extraCharges（可能有不同貨幣）
     if (config.fxConvertExtraCharges && stage3Result.extraCharges?.length) {
-      await this.convertExtraCharges(
+      await this.convertExtraChargesCached(
         stage3Result,
         sourceCurrency,
         targetCurrency,
         precision,
         config.fxFallbackBehavior,
         conversions,
-        warnings
+        warnings,
+        rateCache,
+        invoiceYear,
+        invoiceDate
       );
     }
 
@@ -148,21 +191,29 @@ export class ExchangeRateConverterService {
   }
 
   /**
-   * 轉換標準欄位（totalAmount, subtotal）
+   * FIX-037: 使用快取匯率轉換標準欄位（totalAmount, subtotal）
    */
-  private async convertStandardFields(
+  private convertStandardFieldsCached(
     stage3Result: Stage3ExtractionResult,
     sourceCurrency: string,
     targetCurrency: string,
     precision: number,
     fallbackBehavior: string,
     conversions: FxConversionItem[],
-    warnings: string[]
-  ): Promise<void> {
+    warnings: string[],
+    rateCache: Map<string, { rate: number; rateId?: string; path: string }>
+  ): void {
     const amountFields = [
       { field: 'totalAmount', path: 'standardFields.totalAmount' },
       { field: 'subtotal', path: 'standardFields.subtotal' },
     ];
+
+    const cacheKey = `${sourceCurrency.toUpperCase()}->${targetCurrency.toUpperCase()}`;
+    const cached = rateCache.get(cacheKey);
+    if (!cached) {
+      warnings.push(`No cached rate for ${cacheKey}, skipping standard fields`);
+      return;
+    }
 
     for (const { field, path } of amountFields) {
       const fieldValue = stage3Result.standardFields[field as keyof typeof stage3Result.standardFields];
@@ -171,77 +222,63 @@ export class ExchangeRateConverterService {
       const amount = parseFloat(String(fieldValue.value));
       if (isNaN(amount)) continue;
 
-      try {
-        const result = await convert(sourceCurrency, targetCurrency, amount);
-        conversions.push({
-          field,
-          originalAmount: amount,
-          originalCurrency: sourceCurrency,
-          convertedAmount: this.round(result.convertedAmount, precision),
-          targetCurrency,
-          rate: result.rate,
-          path,
-        });
-      } catch (error) {
-        this.handleConversionError(
-          error,
-          field,
-          fallbackBehavior,
-          warnings
-        );
-      }
+      conversions.push({
+        field,
+        originalAmount: amount,
+        originalCurrency: sourceCurrency,
+        convertedAmount: this.round(amount * cached.rate, precision),
+        targetCurrency,
+        rate: cached.rate,
+        path,
+      });
     }
   }
 
   /**
-   * 轉換 lineItems
+   * FIX-037: 使用快取匯率轉換 lineItems
    */
-  private async convertLineItems(
+  private convertLineItemsCached(
     stage3Result: Stage3ExtractionResult,
     sourceCurrency: string,
     targetCurrency: string,
     precision: number,
-    fallbackBehavior: string,
     conversions: FxConversionItem[],
-    warnings: string[]
-  ): Promise<void> {
+    rateCache: Map<string, { rate: number; rateId?: string; path: string }>
+  ): void {
+    const cacheKey = `${sourceCurrency.toUpperCase()}->${targetCurrency.toUpperCase()}`;
+    const cached = rateCache.get(cacheKey);
+    if (!cached) return;
+
     for (let i = 0; i < stage3Result.lineItems.length; i++) {
       const item = stage3Result.lineItems[i];
       if (item.amount === undefined || item.amount === null) continue;
 
-      try {
-        const result = await convert(sourceCurrency, targetCurrency, item.amount);
-        conversions.push({
-          field: 'lineItem.amount',
-          originalAmount: item.amount,
-          originalCurrency: sourceCurrency,
-          convertedAmount: this.round(result.convertedAmount, precision),
-          targetCurrency,
-          rate: result.rate,
-          path: `lineItems[${i}].amount`,
-        });
-      } catch (error) {
-        this.handleConversionError(
-          error,
-          `lineItems[${i}].amount`,
-          fallbackBehavior,
-          warnings
-        );
-      }
+      conversions.push({
+        field: 'lineItem.amount',
+        originalAmount: item.amount,
+        originalCurrency: sourceCurrency,
+        convertedAmount: this.round(item.amount * cached.rate, precision),
+        targetCurrency,
+        rate: cached.rate,
+        path: `lineItems[${i}].amount`,
+      });
     }
   }
 
   /**
-   * 轉換 extraCharges
+   * FIX-037: 轉換 extraCharges（支援不同貨幣的快取查詢）
    */
-  private async convertExtraCharges(
+  private async convertExtraChargesCached(
     stage3Result: Stage3ExtractionResult,
     sourceCurrency: string,
     targetCurrency: string,
     precision: number,
     fallbackBehavior: string,
     conversions: FxConversionItem[],
-    warnings: string[]
+    warnings: string[],
+    rateCache: Map<string, { rate: number; rateId?: string; path: string }>,
+    invoiceYear?: number,
+    invoiceDate?: Date
   ): Promise<void> {
     const charges = stage3Result.extraCharges || [];
     for (let i = 0; i < charges.length; i++) {
@@ -252,25 +289,30 @@ export class ExchangeRateConverterService {
       const chargeCurrency = charge.currency || sourceCurrency;
       if (chargeCurrency.toUpperCase() === targetCurrency.toUpperCase()) continue;
 
-      try {
-        const result = await convert(chargeCurrency, targetCurrency, charge.amount);
-        conversions.push({
-          field: 'extraCharge.amount',
-          originalAmount: charge.amount,
-          originalCurrency: chargeCurrency,
-          convertedAmount: this.round(result.convertedAmount, precision),
-          targetCurrency,
-          rate: result.rate,
-          path: `extraCharges[${i}].amount`,
-        });
-      } catch (error) {
-        this.handleConversionError(
-          error,
-          `extraCharges[${i}].amount`,
-          fallbackBehavior,
-          warnings
-        );
+      const cacheKey = `${chargeCurrency.toUpperCase()}->${targetCurrency.toUpperCase()}`;
+      let cached = rateCache.get(cacheKey);
+
+      // 如果快取中沒有此貨幣對，查詢一次
+      if (!cached) {
+        try {
+          const result = await convert(chargeCurrency, targetCurrency, 1, invoiceYear, invoiceDate);
+          cached = { rate: result.rate, rateId: result.rateId, path: result.path };
+          rateCache.set(cacheKey, cached);
+        } catch (error) {
+          this.handleConversionError(error, `extraCharges[${i}].amount`, fallbackBehavior, warnings);
+          continue;
+        }
       }
+
+      conversions.push({
+        field: 'extraCharge.amount',
+        originalAmount: charge.amount,
+        originalCurrency: chargeCurrency,
+        convertedAmount: this.round(charge.amount * cached.rate, precision),
+        targetCurrency,
+        rate: cached.rate,
+        path: `extraCharges[${i}].amount`,
+      });
     }
   }
 
