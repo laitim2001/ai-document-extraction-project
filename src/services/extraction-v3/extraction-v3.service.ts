@@ -374,15 +374,37 @@ export class ExtractionV3Service {
           });
 
           stepTimings['REFERENCE_NUMBER_MATCHING'] = Date.now() - refMatchStart;
+
+          // FIX-036: 啟用即阻塞 — matchesFound === 0 時中止 pipeline
+          const hasMatches = refMatchResult.summary.matchesFound > 0;
+
           stepResults.push({
             step: 'REFERENCE_NUMBER_MATCHING' as ProcessingStepV3,
-            success: true,
+            success: hasMatches,
             data: {
               candidatesFound: refMatchResult.summary.candidatesFound,
               matchesFound: refMatchResult.summary.matchesFound,
             },
             durationMs: stepTimings['REFERENCE_NUMBER_MATCHING'],
           });
+
+          if (!hasMatches) {
+            // FIX-036: 啟用 ref match 但未匹配到任何結果 → 中止 pipeline
+            return {
+              success: false,
+              error: `Reference number matching enabled but no matches found in filename "${input.fileName}". Pipeline aborted.`,
+              referenceNumberMatch: refMatchResult,
+              timing: {
+                totalMs: Date.now() - startTime,
+                stepTimings,
+              },
+              stepResults,
+              warnings: [
+                ...warnings,
+                'REF_MATCH_ABORT: No reference numbers matched. File processing stopped.',
+              ],
+            } as unknown as ExtractionV3Output;
+          }
         } else {
           refMatchResult = {
             enabled: false,

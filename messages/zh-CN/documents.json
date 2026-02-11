@@ -23,7 +23,8 @@
       "pendingReview": "待审核",
       "inReview": "审核中",
       "completed": "已完成",
-      "failed": "处理失败"
+      "failed": "处理失败",
+      "refMatchFailed": "参考编号匹配失败"
     }
   },
   "table": {
@@ -62,7 +63,8 @@
     "PENDING_REVIEW": "待审核",
     "IN_REVIEW": "审核中",
     "COMPLETED": "已完成",
-    "FAILED": "处理失败"
+    "FAILED": "处理失败",
+    "REF_MATCH_FAILED": "参考编号匹配失败"
   },
   "upload": {
     "title": "上传文件",
@@ -249,7 +251,8 @@
       "downloadFailed": "文件下载失败",
       "deleteFailed": "文件删除失败",
       "traceFailed": "处理追踪加载失败",
-      "auditFailed": "审计日志加载失败"
+      "auditFailed": "审计日志加载失败",
+      "refMatchFailed": "在文件名称中未匹配到参考编号，文件无法在没有有效参考编号的情况下处理。"
     },
     "deleteConfirmTitle": "删除文件",
     "deleteConfirmDescription": "确定要删除「{fileName}」吗？此操作无法撤销。",

@@ -1576,6 +1576,8 @@ export interface ReferenceNumberMatchResult {
   };
   /** 處理時間（毫秒） */
   processingTimeMs: number;
+  /** FIX-036: 是否應中止 pipeline（enabled=true 且 matchesFound=0） */
+  shouldAbortPipeline?: boolean;
 }
 
 /**

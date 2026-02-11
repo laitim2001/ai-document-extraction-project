@@ -9,7 +9,7 @@
  *
  * @module src/services/processing-result-persistence
  * @since CHANGE-014 Phase 2 — 端到端管線整合
- * @lastModified 2026-01-27
+ * @lastModified 2026-02-11 (FIX-036: REF_MATCH_FAILED 狀態 + referenceNumberMatch 持久化)
  *
  * @features
  *   - UnifiedProcessingResult → ExtractionResult 轉換
@@ -40,6 +40,7 @@ import type {
   Stage2FormatResult,
   Stage3ExtractionResult,
   StepResultV3_1,
+  ReferenceNumberMatchResult,
 } from '@/types/extraction-v3.types';
 
 // ============================================================================
@@ -245,7 +246,11 @@ export async function persistProcessingResult(
     : null;
 
   // 決定 Document 狀態
-  const documentStatus = result.success ? 'MAPPING_COMPLETED' : 'OCR_FAILED';
+  // FIX-036: REF_MATCH_FAILED 狀態判斷
+  const isRefMatchFailed = !result.success && result.error?.includes('REF_MATCH_ABORT');
+  const documentStatus = isRefMatchFailed
+    ? 'REF_MATCH_FAILED'
+    : result.success ? 'MAPPING_COMPLETED' : 'OCR_FAILED';
   const processingPath = mapRoutingDecisionToProcessingPath(result.routingDecision);
 
   // 使用 Prisma 交易確保原子性
@@ -390,6 +395,8 @@ export interface PersistV3_1ResultInput {
   result: ExtractionV3_1Output;
   /** 操作用戶 ID */
   userId: string;
+  /** FIX-036: 參考編號匹配結果（從 V3 pipeline 傳入） */
+  referenceNumberMatch?: ReferenceNumberMatchResult;
 }
 
 /**
@@ -448,7 +455,7 @@ function convertV3_1StepResultsToJson(
 export async function persistV3_1ProcessingResult(
   input: PersistV3_1ResultInput,
 ): Promise<PersistV3_1ResultOutput> {
-  const { documentId, result } = input;
+  const { documentId, result, referenceNumberMatch } = input;
   const { stage1Result, stage2Result, stage3Result } = result;
 
   // 計算統計
@@ -485,8 +492,11 @@ export async function persistV3_1ProcessingResult(
     (stage2Result?.aiDetails?.tokenUsage?.total ?? 0) +
     (stage3Result?.tokenUsage?.total ?? 0);
 
-  // 決定 Document 狀態
-  const documentStatus = result.success ? 'MAPPING_COMPLETED' : 'OCR_FAILED';
+  // FIX-036: REF_MATCH_FAILED 狀態判斷
+  const isRefMatchAbort = !result.success && result.error?.includes('REF_MATCH_ABORT');
+  const documentStatus = isRefMatchAbort
+    ? 'REF_MATCH_FAILED'
+    : result.success ? 'MAPPING_COMPLETED' : 'OCR_FAILED';
 
   // 構建 pipeline steps
   const pipelineSteps = result.stepResults?.length
@@ -537,6 +547,11 @@ export async function persistV3_1ProcessingResult(
         stage2ConfigSource: stage2Result?.configSource ?? null,
         stage3ConfigScope: stage3Result?.configUsed?.promptConfigScope ?? null,
 
+        // FIX-036: 保存 referenceNumberMatch 結果
+        referenceNumberMatch: referenceNumberMatch
+          ? (referenceNumberMatch as unknown as Prisma.InputJsonValue)
+          : undefined,
+
         // Token 統計（合計三階段）
         totalTokens,
         promptTokens:
@@ -575,6 +590,11 @@ export async function persistV3_1ProcessingResult(
         stage3DurationMs: stage3Result?.durationMs ?? null,
         stage2ConfigSource: stage2Result?.configSource ?? null,
         stage3ConfigScope: stage3Result?.configUsed?.promptConfigScope ?? null,
+
+        // FIX-036: 保存 referenceNumberMatch 結果
+        referenceNumberMatch: referenceNumberMatch
+          ? (referenceNumberMatch as unknown as Prisma.InputJsonValue)
+          : undefined,
 
         // Token 統計
         totalTokens,

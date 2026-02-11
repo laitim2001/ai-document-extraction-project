@@ -23,7 +23,8 @@
       "pendingReview": "Pending Review",
       "inReview": "In Review",
       "completed": "Completed",
-      "failed": "Failed"
+      "failed": "Failed",
+      "refMatchFailed": "Ref Match Failed"
     }
   },
   "table": {
@@ -62,7 +63,8 @@
     "PENDING_REVIEW": "Pending Review",
     "IN_REVIEW": "In Review",
     "COMPLETED": "Completed",
-    "FAILED": "Failed"
+    "FAILED": "Failed",
+    "REF_MATCH_FAILED": "Ref Match Failed"
   },
   "upload": {
     "title": "Upload Documents",
@@ -249,7 +251,8 @@
       "downloadFailed": "Failed to download file",
       "deleteFailed": "Failed to delete document",
       "traceFailed": "Failed to load processing trace",
-      "auditFailed": "Failed to load audit logs"
+      "auditFailed": "Failed to load audit logs",
+      "refMatchFailed": "No reference number matched in the filename. The file cannot be processed without a valid reference number match."
     },
     "deleteConfirmTitle": "Delete Document",
     "deleteConfirmDescription": "Are you sure you want to delete \"{fileName}\"? This action cannot be undone.",

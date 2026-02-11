@@ -13,7 +13,8 @@
  *   - DB-first substring 匹配（CHANGE-036）
  *   - 按 number 長度降序排列，避免短號碼假陽性
  *   - 支援可配置的 reference number types
- *   - 非阻塞：失敗不中斷 pipeline
+ *   - 條件阻塞：當 refMatchEnabled=true 且 matchesFound=0 時，
+ *     由調用方（extraction-v3.service.ts）決定中止 pipeline（FIX-036）
  *
  * @dependencies
  *   - src/services/reference-number.service.ts - findMatchesInText
@@ -101,6 +102,8 @@ export class ReferenceNumberMatcherService {
         sources: dbMatches.length > 0 ? ['filename'] : [],
       },
       processingTimeMs: Date.now() - startTime,
+      // FIX-036: 啟用且無匹配時標記為應中止
+      shouldAbortPipeline: matches.length === 0,
     };
   }
 }

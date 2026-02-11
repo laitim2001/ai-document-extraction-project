@@ -332,25 +332,26 @@ export class ConfidenceV3_1Service {
   }
 
   /**
-   * CHANGE-032: 計算參考號碼匹配分數
+   * CHANGE-032 + FIX-036: 計算參考號碼匹配分數
+   *
+   * @description
+   *   FIX-036: 調整分數策略，無匹配時給予懲罰性分數。
+   *   注意：當 refMatchEnabled=true 且 matchesFound=0 時，
+   *   pipeline 已在上游被中止，此分數計算理論上不會被觸及。
+   *   但作為防禦性設計，仍給予低分。
    */
   private static calculateRefMatchScore(
     refMatchResult: import('@/types/extraction-v3.types').ReferenceNumberMatchResult
   ): number {
-    const { matchesFound, candidatesFound } = refMatchResult.summary;
+    const { matchesFound } = refMatchResult.summary;
 
     if (matchesFound > 0) {
       // 有匹配：80-100 分（依匹配數量遞增）
       return Math.min(100, 80 + matchesFound * 5);
     }
 
-    if (candidatesFound > 0) {
-      // 有候選但無匹配：50 分（中性）
-      return 50;
-    }
-
-    // 無候選：50 分（不懲罰）
-    return 50;
+    // FIX-036: 無匹配時改為懲罰性分數（防禦性設計）
+    return 0;
   }
 
   /**

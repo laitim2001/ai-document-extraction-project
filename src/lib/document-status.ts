@@ -9,10 +9,10 @@
  * @module src/lib/document-status
  * @author Development Team
  * @since Epic 2 - Story 2.7 (Processing Status Tracking & Display)
- * @lastModified 2025-12-18
+ * @lastModified 2026-02-11 (FIX-036: 新增 REF_MATCH_FAILED 狀態)
  *
  * @features
- *   - 11 種文件狀態配置
+ *   - 12 種文件狀態配置
  *   - 狀態查詢輔助函數
  *   - 處理階段計算
  *
@@ -51,6 +51,7 @@ export type DocumentStatusKey =
   | 'MAPPING_COMPLETED'
   | 'PENDING_REVIEW'
   | 'IN_REVIEW'
+  | 'REF_MATCH_FAILED'
   | 'COMPLETED'
   | 'FAILED'
 
@@ -172,6 +173,18 @@ export const DOCUMENT_STATUS_CONFIG: Record<DocumentStatusKey, StatusConfig> = {
     canRetry: false,
     order: 7,
   },
+  REF_MATCH_FAILED: {
+    label: 'Ref Match Failed',
+    labelZh: '參考編號匹配失敗',
+    icon: AlertCircle,
+    color: 'orange',
+    bgColor: 'bg-orange-100',
+    textColor: 'text-orange-700',
+    isProcessing: false,
+    isError: true,
+    canRetry: true,
+    order: 8,
+  },
   PENDING_REVIEW: {
     label: 'Pending Review',
     labelZh: '待審核',
@@ -182,7 +195,7 @@ export const DOCUMENT_STATUS_CONFIG: Record<DocumentStatusKey, StatusConfig> = {
     isProcessing: false,
     isError: false,
     canRetry: false,
-    order: 8,
+    order: 9,
   },
   IN_REVIEW: {
     label: 'In Review',
@@ -194,7 +207,7 @@ export const DOCUMENT_STATUS_CONFIG: Record<DocumentStatusKey, StatusConfig> = {
     isProcessing: true,
     isError: false,
     canRetry: false,
-    order: 9,
+    order: 10,
   },
   COMPLETED: {
     label: 'Completed',
@@ -206,7 +219,7 @@ export const DOCUMENT_STATUS_CONFIG: Record<DocumentStatusKey, StatusConfig> = {
     isProcessing: false,
     isError: false,
     canRetry: false,
-    order: 10,
+    order: 11,
   },
   FAILED: {
     label: 'Failed',
@@ -218,7 +231,7 @@ export const DOCUMENT_STATUS_CONFIG: Record<DocumentStatusKey, StatusConfig> = {
     isProcessing: false,
     isError: true,
     canRetry: true,
-    order: 11,
+    order: 12,
   },
 }
 
@@ -285,6 +298,7 @@ export function getProcessingStage(status: string): number {
     OCR_FAILED: 2,
     MAPPING_PROCESSING: 3,
     MAPPING_COMPLETED: 3,
+    REF_MATCH_FAILED: 3,
     PENDING_REVIEW: 4,
     IN_REVIEW: 4,
     COMPLETED: 5,
