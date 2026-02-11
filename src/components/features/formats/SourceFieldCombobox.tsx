@@ -8,7 +8,7 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.6
- * @lastModified 2026-01-13
+ * @lastModified 2026-02-11
  *
  * @features
  *   - 分組顯示欄位（基本資訊、運輸資訊、費用明細等）
@@ -68,6 +68,8 @@ interface SourceFieldComboboxProps {
   formatId?: string;
   /** GPT 提取數據（可選，用於動態欄位） */
   extractedData?: Record<string, unknown>;
+  /** 已使用的欄位名稱列表（用於標記已被其他規則使用的欄位） */
+  usedFields?: string[];
   /** 佔位文字 */
   placeholder?: string;
   /** 是否禁用 */
@@ -92,6 +94,7 @@ export function SourceFieldCombobox({
   multiple = false,
   formatId,
   extractedData,
+  usedFields = [],
   placeholder = '選擇來源欄位...',
   disabled = false,
   className,
@@ -275,26 +278,36 @@ export function SourceFieldCombobox({
                     category
                   }
                 >
-                  {filteredGroupedFields[category].map((field) => (
-                    <CommandItem
-                      key={field.name}
-                      value={field.name}
-                      onSelect={() => handleSelect(field.name)}
-                    >
-                      <Check
-                        className={cn(
-                          'mr-2 h-4 w-4',
-                          selectedValues.includes(field.name)
-                            ? 'opacity-100'
-                            : 'opacity-0'
+                  {filteredGroupedFields[category].map((field) => {
+                    const isUsed = usedFields.includes(field.name) && !selectedValues.includes(field.name);
+                    return (
+                      <CommandItem
+                        key={field.name}
+                        value={field.name}
+                        onSelect={() => !isUsed && handleSelect(field.name)}
+                        className={cn(isUsed && 'opacity-50')}
+                        disabled={isUsed}
+                      >
+                        <Check
+                          className={cn(
+                            'mr-2 h-4 w-4',
+                            selectedValues.includes(field.name)
+                              ? 'opacity-100'
+                              : 'opacity-0'
+                          )}
+                        />
+                        <span className="flex-1">{field.label}</span>
+                        {isUsed && (
+                          <Badge variant="secondary" className="mr-2 text-[10px]">
+                            已使用
+                          </Badge>
                         )}
-                      />
-                      <span className="flex-1">{field.label}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {field.name}
-                      </span>
-                    </CommandItem>
-                  ))}
+                        <span className="text-xs text-muted-foreground">
+                          {field.name}
+                        </span>
+                      </CommandItem>
+                    );
+                  })}
                 </CommandGroup>
               </React.Fragment>
             ))}

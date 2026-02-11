@@ -5,7 +5,7 @@
  *
  * @module src/components/features/template-field-mapping
  * @since Epic 19 - Story 19.4
- * @lastModified 2026-01-22
+ * @lastModified 2026-02-11
  */
 
 'use client';
@@ -26,7 +26,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 
-import { SourceFieldSelector, SourceFieldDisplay } from './SourceFieldSelector';
+import { SourceFieldCombobox } from '../formats/SourceFieldCombobox';
 import { TargetFieldSelector, TargetFieldDisplay, type TemplateField } from './TargetFieldSelector';
 import { TransformConfigEditor } from './TransformConfigEditor';
 import type {
@@ -48,6 +48,8 @@ interface MappingRuleItemProps {
   templateFields: TemplateField[];
   usedSourceFields: string[];
   usedTargetFields: string[];
+  /** 文件格式 ID（用於載入動態提取欄位） */
+  formatId?: string;
   isExpanded?: boolean;
   onExpandToggle?: () => void;
   disabled?: boolean;
@@ -71,6 +73,7 @@ export function MappingRuleItem({
   templateFields,
   usedSourceFields,
   usedTargetFields,
+  formatId,
   isExpanded = false,
   onExpandToggle,
   disabled = false,
@@ -87,7 +90,8 @@ export function MappingRuleItem({
 
   // Handle field changes
   const handleSourceFieldChange = React.useCallback(
-    (sourceField: string) => {
+    (value: string | string[]) => {
+      const sourceField = Array.isArray(value) ? value[0] || '' : value;
       onChange({ ...rule, sourceField });
     },
     [rule, onChange]
@@ -166,11 +170,13 @@ export function MappingRuleItem({
         {/* Source Field */}
         <div className="flex-1 min-w-0">
           {isExpanded ? (
-            <SourceFieldSelector
+            <SourceFieldCombobox
               value={rule.sourceField || ''}
               onChange={handleSourceFieldChange}
+              formatId={formatId}
               usedFields={filteredUsedSourceFields}
               disabled={disabled}
+              className="w-full"
             />
           ) : (
             <div className="text-sm truncate">

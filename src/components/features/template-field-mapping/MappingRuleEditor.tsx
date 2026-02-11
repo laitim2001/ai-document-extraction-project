@@ -6,7 +6,7 @@
  *
  * @module src/components/features/template-field-mapping
  * @since Epic 19 - Story 19.4
- * @lastModified 2026-01-22
+ * @lastModified 2026-02-11
  */
 
 'use client';
@@ -34,6 +34,8 @@ interface MappingRuleEditorProps {
   rules: Partial<TemplateFieldMappingRuleInput>[];
   onChange: (rules: Partial<TemplateFieldMappingRuleInput>[]) => void;
   templateFields: TemplateField[];
+  /** 文件格式 ID（用於載入動態提取欄位，僅 FORMAT scope 時傳入） */
+  formatId?: string;
   disabled?: boolean;
   error?: string;
   className?: string;
@@ -51,6 +53,7 @@ export function MappingRuleEditor({
   rules,
   onChange,
   templateFields,
+  formatId,
   disabled = false,
   error,
   className,
@@ -187,6 +190,7 @@ export function MappingRuleEditor({
               templateFields={templateFields}
               usedSourceFields={usedSourceFields}
               usedTargetFields={usedTargetFields}
+              formatId={formatId}
               isExpanded={expandedIndex === index}
               onExpandToggle={() => handleExpandToggle(index)}
               disabled={disabled}

@@ -10,7 +10,7 @@
  *
  * @module src/components/features/template-field-mapping
  * @since Epic 19 - Story 19.4
- * @lastModified 2026-01-27
+ * @lastModified 2026-02-11
  */
 
 'use client';
@@ -237,6 +237,10 @@ function TemplateFieldMappingFormInner({
   // Watch scope for conditional fields
   const scope = form.watch('scope');
   const selectedTemplateId = form.watch('dataTemplateId');
+  const watchedFormatId = form.watch('documentFormatId');
+
+  // Only pass formatId when scope is FORMAT
+  const effectiveFormatId = scope === 'FORMAT' ? watchedFormatId : undefined;
 
   // Get template fields for selected template
   const templateFields = React.useMemo(() => {
@@ -540,6 +544,7 @@ function TemplateFieldMappingFormInner({
                 rules={mappingRules}
                 onChange={setMappingRules}
                 templateFields={templateFields}
+                formatId={effectiveFormatId}
                 disabled={isSubmitting}
               />
             )}
