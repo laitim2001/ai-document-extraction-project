@@ -99,6 +99,10 @@
       "taken": "此代碼已被使用",
       "error": "檢查失敗，請稍後重試",
       "invalidFormat": "只能使用大寫字母、數字和底線"
+    },
+    "defaultTemplate": {
+      "configured": "已設定預設模板",
+      "notConfigured": "尚未設定預設模板，此公司的自動匹配功能將無法使用。"
     }
   },
   "dialog": {

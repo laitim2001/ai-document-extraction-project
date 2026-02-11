@@ -25,8 +25,10 @@
     "DRAFT": "草稿",
     "PROCESSING": "處理中",
     "COMPLETED": "完成",
+    "AUTO_COMPLETED": "自動完成",
     "ERROR": "有錯誤",
-    "EXPORTED": "已導出"
+    "EXPORTED": "已導出",
+    "draftWithErrors": "草稿 - 有驗證錯誤，需要手動審查"
   },
   "rowStatus": {
     "PENDING": "待驗證",
@@ -74,7 +76,8 @@
       "exportExcel": "導出為 Excel",
       "exportCsv": "導出為 CSV",
       "exportJson": "導出為 JSON",
-      "settings": "設定"
+      "settings": "設定",
+      "completeManually": "手動完成"
     }
   },
   "rows": {

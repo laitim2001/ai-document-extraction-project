@@ -99,6 +99,10 @@
       "taken": "This code is already in use",
       "error": "Check failed, please try again",
       "invalidFormat": "Only uppercase letters, numbers, and underscores allowed"
+    },
+    "defaultTemplate": {
+      "configured": "Default template configured",
+      "notConfigured": "Default template not configured. Auto-matching will not work for this company."
     }
   },
   "dialog": {

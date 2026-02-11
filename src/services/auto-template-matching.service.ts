@@ -8,14 +8,16 @@
  *
  * @module src/services/auto-template-matching
  * @since Epic 19 - Story 19.7
- * @lastModified 2026-01-23
+ * @lastModified 2026-02-11
  *
  * @features
  *   - 三層優先級規則解析（FORMAT > COMPANY > GLOBAL）
  *   - 自動匹配觸發（處理完成後）
  *   - 批量手動匹配
- *   - 取消匹配
+ *   - 取消匹配（含 TemplateInstanceRow 清理）
  *   - 進度回調
+ *   - FORMAT 級別預設模版解析（CHANGE-037）
+ *   - 自動完成（DRAFT → COMPLETED，CHANGE-037）
  *
  * @dependencies
  *   - prisma - 資料庫操作
@@ -26,6 +28,7 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { templateMatchingEngineService } from './template-matching-engine.service';
+import { templateInstanceService } from './template-instance.service';
 import type { MatchResult, MatchProgress } from '@/types/template-matching-engine';
 
 // ============================================================================
@@ -344,11 +347,11 @@ export class AutoTemplateMatchingService {
         };
       }
 
-      // 2. 解析預設模版（目前只支援 COMPANY 和 GLOBAL 級別）
-      // 注意：FORMAT 級別需要 Document 有 formatId 欄位，目前未實現
+      // 2. 解析預設模版（CHANGE-037: 支援 FORMAT > COMPANY > GLOBAL 三層優先級）
+      const formatId = await this.resolveFormatId(documentId);
       const resolved = await this.resolveDefaultTemplate(
         document.companyId,
-        undefined // formatId 暫不支援
+        formatId
       );
 
       if (!resolved) {
@@ -378,6 +381,9 @@ export class AutoTemplateMatchingService {
           templateMatchedAt: new Date(),
         },
       });
+
+      // 6. CHANGE-037: 自動完成（若所有行通過驗證 → DRAFT → COMPLETED）
+      await this.tryAutoComplete(instance.id);
 
       return {
         success: true,
@@ -539,7 +545,7 @@ export class AutoTemplateMatchingService {
    *
    * @description
    *   移除文件與模版實例的關聯
-   *   不會刪除 TemplateInstanceRow 中的數據
+   *   CHANGE-037: 同時清理 TemplateInstanceRow 中的相關數據
    *
    * @param params - 取消匹配參數
    * @returns 取消結果
@@ -573,6 +579,11 @@ export class AutoTemplateMatchingService {
       },
     });
 
+    // CHANGE-037: 清理 TemplateInstanceRow 中的相關數據
+    if (previousInstanceId) {
+      await this.cleanupRowsForDocument(previousInstanceId, documentId);
+    }
+
     return {
       success: true,
       previousInstanceId,
@@ -582,6 +593,9 @@ export class AutoTemplateMatchingService {
   /**
    * 批量取消匹配
    *
+   * @description
+   *   CHANGE-037: 批量取消匹配同時清理 TemplateInstanceRow 中的相關數據
+   *
    * @param documentIds - 文件 ID 列表
    * @returns 取消的文件數量
    */
@@ -590,6 +604,21 @@ export class AutoTemplateMatchingService {
       return 0;
     }
 
+    // CHANGE-037: 先記錄每個文件對應的 instanceId，用於後續清理
+    const documents = await prisma.document.findMany({
+      where: { id: { in: documentIds }, templateInstanceId: { not: null } },
+      select: { id: true, templateInstanceId: true },
+    });
+
+    // 按 instanceId 分組
+    const instanceDocumentMap = new Map<string, string[]>();
+    for (const doc of documents) {
+      if (!doc.templateInstanceId) continue;
+      const existing = instanceDocumentMap.get(doc.templateInstanceId) ?? [];
+      instanceDocumentMap.set(doc.templateInstanceId, [...existing, doc.id]);
+    }
+
+    // 清除匹配關聯
     const result = await prisma.document.updateMany({
       where: { id: { in: documentIds } },
       data: {
@@ -598,12 +627,105 @@ export class AutoTemplateMatchingService {
       },
     });
 
+    // CHANGE-037: 清理每個 instance 中的相關行數據
+    for (const [instanceId, docIds] of instanceDocumentMap) {
+      for (const docId of docIds) {
+        await this.cleanupRowsForDocument(instanceId, docId);
+      }
+    }
+
     return result.count;
   }
 
   // --------------------------------------------------------------------------
   // Helper Methods
   // --------------------------------------------------------------------------
+
+  /**
+   * 從 ExtractionResult.stage2Result 解析 formatId
+   *
+   * @description
+   *   CHANGE-037: FORMAT 級別自動匹配支援
+   *   從 V3.1 pipeline Stage 2 的結果中提取 matchedFormatId
+   *
+   * @param documentId - 文件 ID
+   * @returns formatId 或 undefined
+   */
+  private async resolveFormatId(documentId: string): Promise<string | undefined> {
+    const extraction = await prisma.extractionResult.findUnique({
+      where: { documentId },
+      select: { stage2Result: true },
+    });
+    if (!extraction?.stage2Result) return undefined;
+    const stage2 = extraction.stage2Result as Record<string, unknown>;
+    return (stage2.matchedFormatId ?? stage2.formatId) as string | undefined;
+  }
+
+  /**
+   * 嘗試自動完成實例
+   *
+   * @description
+   *   CHANGE-037: 自動匹配完成後，若所有行通過驗證（errorRowCount === 0 且有行數據），
+   *   自動將實例從 DRAFT 轉為 COMPLETED。失敗時不影響匹配結果。
+   *
+   * @param instanceId - 模版實例 ID
+   */
+  private async tryAutoComplete(instanceId: string): Promise<void> {
+    try {
+      // 驗證所有行
+      const validationResult = await templateInstanceService.validateAllRows(instanceId);
+
+      // 只有所有行通過驗證且有行數據時才自動完成
+      if (validationResult.invalid === 0 && validationResult.total > 0) {
+        await templateInstanceService.changeStatus(instanceId, 'COMPLETED');
+      }
+    } catch {
+      // 自動完成失敗不影響匹配結果（實例保持 DRAFT）
+    }
+  }
+
+  /**
+   * 清理文件在 TemplateInstanceRow 中的相關數據
+   *
+   * @description
+   *   CHANGE-037: unmatch 時清理 TemplateInstanceRow
+   *   - 從 sourceDocumentIds 中移除此 documentId
+   *   - 若移除後 sourceDocumentIds 為空 → 刪除整行
+   *   - 更新實例統計數據
+   *
+   * @param instanceId - 模版實例 ID
+   * @param documentId - 文件 ID
+   */
+  private async cleanupRowsForDocument(
+    instanceId: string,
+    documentId: string
+  ): Promise<void> {
+    // 查找包含此 documentId 的所有行
+    const rows = await prisma.templateInstanceRow.findMany({
+      where: {
+        templateInstanceId: instanceId,
+        sourceDocumentIds: { has: documentId },
+      },
+    });
+
+    for (const row of rows) {
+      const updatedIds = row.sourceDocumentIds.filter((id) => id !== documentId);
+
+      if (updatedIds.length === 0) {
+        // 該行只有這一個文件，刪除整行
+        await prisma.templateInstanceRow.delete({ where: { id: row.id } });
+      } else {
+        // 仍有其他文件，僅移除此 documentId
+        await prisma.templateInstanceRow.update({
+          where: { id: row.id },
+          data: { sourceDocumentIds: updatedIds },
+        });
+      }
+    }
+
+    // 更新實例統計
+    await templateInstanceService.updateStatistics(instanceId);
+  }
 
   /**
    * 獲取或創建模版實例

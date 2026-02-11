@@ -36,6 +36,7 @@ import { ForwarderStatsPanel } from './ForwarderStatsPanel'
 import { ForwarderRulesTable } from './ForwarderRulesTable'
 import { RecentDocumentsTable } from './RecentDocumentsTable'
 import { FormatList } from '@/components/features/formats'
+import { TemplateMatchingConfigAlert } from '@/components/features/template-match/TemplateMatchingConfigAlert'
 // REFACTOR-001: 從 company.ts 導入 ForwarderDetailView 類型（已棄用的 forwarder 類型）
 import type { ForwarderDetailView } from '@/types/company'
 import {
@@ -230,6 +231,8 @@ export function ForwarderDetailView({ forwarderId }: ForwarderDetailViewProps) {
 
         {/* 總覽 Tab */}
         <TabsContent value="overview" className="space-y-4">
+          {/* CHANGE-037: 自動匹配配置狀態提醒 */}
+          <TemplateMatchingConfigAlert companyId={forwarderId} />
           <ForwarderInfo forwarder={forwarder} />
         </TabsContent>
 

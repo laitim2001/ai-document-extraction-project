@@ -295,14 +295,14 @@ export interface MarkExportedInput {
  * @description
  *   定義每個狀態可以轉換到的目標狀態列表
  *
- *   DRAFT → PROCESSING, DELETED
+ *   DRAFT → PROCESSING, COMPLETED (CHANGE-037: 自動匹配完成後可直接轉為 COMPLETED)
  *   PROCESSING → COMPLETED, ERROR
  *   COMPLETED → EXPORTED
  *   EXPORTED → (終態)
  *   ERROR → PROCESSING (重試)
  */
 export const STATUS_TRANSITIONS: Record<TemplateInstanceStatus, TemplateInstanceStatus[]> = {
-  DRAFT: ['PROCESSING'],
+  DRAFT: ['PROCESSING', 'COMPLETED'],
   PROCESSING: ['COMPLETED', 'ERROR'],
   COMPLETED: ['EXPORTED'],
   EXPORTED: [],

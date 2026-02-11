@@ -25,8 +25,10 @@
     "DRAFT": "Draft",
     "PROCESSING": "Processing",
     "COMPLETED": "Completed",
+    "AUTO_COMPLETED": "Auto-completed",
     "ERROR": "Has Errors",
-    "EXPORTED": "Exported"
+    "EXPORTED": "Exported",
+    "draftWithErrors": "Draft - has validation errors, manual review required"
   },
   "rowStatus": {
     "PENDING": "Pending",
@@ -74,7 +76,8 @@
       "exportExcel": "Export as Excel",
       "exportCsv": "Export as CSV",
       "exportJson": "Export as JSON",
-      "settings": "Settings"
+      "settings": "Settings",
+      "completeManually": "Complete Manually"
     }
   },
   "rows": {

@@ -99,6 +99,10 @@
       "taken": "此代码已被使用",
       "error": "检查失败，请稍后重试",
       "invalidFormat": "只能使用大写字母、数字和下划线"
+    },
+    "defaultTemplate": {
+      "configured": "已设置默认模板",
+      "notConfigured": "尚未设置默认模板，此公司的自动匹配功能将无法使用。"
     }
   },
   "dialog": {
