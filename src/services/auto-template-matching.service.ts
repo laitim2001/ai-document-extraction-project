@@ -8,7 +8,7 @@
  *
  * @module src/services/auto-template-matching
  * @since Epic 19 - Story 19.7
- * @lastModified 2026-02-11
+ * @lastModified 2026-02-11 (FIX-038)
  *
  * @features
  *   - 三層優先級規則解析（FORMAT > COMPANY > GLOBAL）
@@ -18,6 +18,7 @@
  *   - 進度回調
  *   - FORMAT 級別預設模版解析（CHANGE-037）
  *   - 自動完成（DRAFT → COMPLETED，CHANGE-037）
+ *   - FIX-038: formatId 傳遞修正 + matchSingle/batchMatch autoComplete
  *
  * @dependencies
  *   - prisma - 資料庫操作
@@ -370,6 +371,7 @@ export class AutoTemplateMatchingService {
         templateInstanceId: instance.id,
         options: {
           companyId: document.companyId,
+          formatId, // FIX-038: 傳遞 formatId 啟用 FORMAT 級映射
         },
       });
 
@@ -427,12 +429,16 @@ export class AutoTemplateMatchingService {
       throw new Error('文件不存在');
     }
 
+    // FIX-038: 解析 formatId 以啟用 FORMAT 級映射規則
+    const formatId = await this.resolveFormatId(documentId);
+
     // 執行匹配
     const result = await templateMatchingEngineService.matchDocuments({
       documentIds: [documentId],
       templateInstanceId,
       options: {
         companyId: document.companyId || undefined,
+        formatId, // FIX-038: 傳遞 formatId 啟用 FORMAT 級映射
       },
     });
 
@@ -444,6 +450,9 @@ export class AutoTemplateMatchingService {
         templateMatchedAt: new Date(),
       },
     });
+
+    // FIX-038: 手動匹配後嘗試自動完成（DRAFT → COMPLETED）
+    await this.tryAutoComplete(templateInstanceId);
 
     return result;
   }
@@ -485,6 +494,18 @@ export class AutoTemplateMatchingService {
       throw new Error('模版實例不存在');
     }
 
+    // FIX-038: 批量查詢文件的 companyId，用於映射解析
+    const documents = await prisma.document.findMany({
+      where: { id: { in: documentIds } },
+      select: { id: true, companyId: true },
+    });
+    const firstDoc = documents[0];
+
+    // FIX-038: 解析 formatId（使用第一個文件，同批文件通常來自相同格式）
+    const formatId = firstDoc
+      ? await this.resolveFormatId(firstDoc.id)
+      : undefined;
+
     const results: MatchResult[] = [];
     let successCount = 0;
     let errorCount = 0;
@@ -497,6 +518,10 @@ export class AutoTemplateMatchingService {
         const result = await templateMatchingEngineService.matchDocuments({
           documentIds: batch,
           templateInstanceId,
+          options: {
+            companyId: firstDoc?.companyId || undefined,
+            formatId, // FIX-038: 傳遞 companyId + formatId 啟用三層映射
+          },
         });
 
         results.push(result);
@@ -527,6 +552,9 @@ export class AutoTemplateMatchingService {
         });
       }
     }
+
+    // FIX-038: 批量匹配完成後嘗試自動完成（DRAFT → COMPLETED）
+    await this.tryAutoComplete(templateInstanceId);
 
     return {
       totalDocuments: documentIds.length,
