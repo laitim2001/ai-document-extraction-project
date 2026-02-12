@@ -8,7 +8,7 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.6
- * @lastModified 2026-02-11
+ * @lastModified 2026-02-12
  *
  * @features
  *   - 分組顯示欄位（基本資訊、運輸資訊、費用明細等）
@@ -24,6 +24,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Check, ChevronsUpDown, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -95,10 +96,13 @@ export function SourceFieldCombobox({
   formatId,
   extractedData,
   usedFields = [],
-  placeholder = '選擇來源欄位...',
+  placeholder,
   disabled = false,
   className,
 }: SourceFieldComboboxProps) {
+  const t = useTranslations('formats.sourceFieldCombobox');
+  const effectivePlaceholder = placeholder ?? t('placeholder');
+
   // --- State ---
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -231,7 +235,7 @@ export function SourceFieldCombobox({
           disabled={disabled}
         >
           {selectedValues.length === 0 ? (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="text-muted-foreground">{effectivePlaceholder}</span>
           ) : multiple ? (
             <span className="flex flex-wrap gap-1">
               {selectedValues.length <= 2 ? (
@@ -242,7 +246,7 @@ export function SourceFieldCombobox({
                 ))
               ) : (
                 <Badge variant="secondary" className="text-xs">
-                  {selectedValues.length} 個欄位
+                  {t('fieldsCount', { count: selectedValues.length })}
                 </Badge>
               )}
             </span>
@@ -255,18 +259,18 @@ export function SourceFieldCombobox({
       <PopoverContent className="w-[400px] p-0" align="start">
         <Command shouldFilter={false}>
           <CommandInput
-            placeholder="搜尋欄位..."
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onValueChange={setSearchQuery}
           />
           <CommandList>
             {isLoadingDynamic && (
               <div className="px-4 py-2 text-sm text-muted-foreground">
-                載入動態欄位中...
+                {t('loadingDynamic')}
               </div>
             )}
             {filteredFields.length === 0 && !canAddCustomField && (
-              <CommandEmpty>找不到匹配的欄位</CommandEmpty>
+              <CommandEmpty>{t('noResults')}</CommandEmpty>
             )}
             {/* 分組顯示欄位 */}
             {Object.keys(filteredGroupedFields).map((category, index) => (
@@ -274,8 +278,9 @@ export function SourceFieldCombobox({
                 {index > 0 && <CommandSeparator />}
                 <CommandGroup
                   heading={
-                    CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] ||
-                    category
+                    t.has(`categoryLabels.${category}`)
+                      ? t(`categoryLabels.${category}` as 'categoryLabels.basic')
+                      : CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] || category
                   }
                 >
                   {filteredGroupedFields[category].map((field) => {
@@ -299,7 +304,7 @@ export function SourceFieldCombobox({
                         <span className="flex-1">{field.label}</span>
                         {isUsed && (
                           <Badge variant="secondary" className="mr-2 text-[10px]">
-                            已使用
+                            {t('usedBadge')}
                           </Badge>
                         )}
                         <span className="text-xs text-muted-foreground">
@@ -315,11 +320,11 @@ export function SourceFieldCombobox({
             {canAddCustomField && (
               <>
                 <CommandSeparator />
-                <CommandGroup heading="自訂欄位">
+                <CommandGroup heading={t('customFields')}>
                   <CommandItem onSelect={handleAddCustomField}>
                     <Plus className="mr-2 h-4 w-4" />
                     <span>
-                      新增自訂欄位: <strong>{searchQuery}</strong>
+                      {t('addCustomField')} <strong>{searchQuery}</strong>
                     </span>
                   </CommandItem>
                 </CommandGroup>

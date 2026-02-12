@@ -68,6 +68,27 @@
     "promptConfigDescription": "Automatically create a format-specific AI prompt configuration",
     "submitButton": "Create Format"
   },
+  "sourceFieldCombobox": {
+    "placeholder": "Select source field...",
+    "searchPlaceholder": "Search fields...",
+    "loadingDynamic": "Loading dynamic fields...",
+    "noResults": "No matching fields found",
+    "customFields": "Custom Fields",
+    "addCustomField": "Add custom field:",
+    "fieldsCount": "{count} field(s)",
+    "usedBadge": "Used",
+    "categoryLabels": {
+      "basic": "Basic Info",
+      "shipper": "Shipper Info",
+      "consignee": "Consignee Info",
+      "shipping": "Shipping Info",
+      "charges": "Charges",
+      "reference": "Reference Numbers",
+      "payment": "Payment Info",
+      "extracted": "Extracted Fields",
+      "custom": "Custom Fields"
+    }
+  },
   "detail": {
     "loadError": "Unable to load format data",
     "loadErrorDescription": "An error occurred while loading format details. Please try again later.",

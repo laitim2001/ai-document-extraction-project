@@ -68,6 +68,27 @@
     "promptConfigDescription": "自動建立格式專屬的 AI Prompt 配置",
     "submitButton": "建立格式"
   },
+  "sourceFieldCombobox": {
+    "placeholder": "選擇來源欄位...",
+    "searchPlaceholder": "搜尋欄位...",
+    "loadingDynamic": "載入動態欄位中...",
+    "noResults": "找不到匹配的欄位",
+    "customFields": "自訂欄位",
+    "addCustomField": "新增自訂欄位：",
+    "fieldsCount": "{count} 個欄位",
+    "usedBadge": "已使用",
+    "categoryLabels": {
+      "basic": "基本資訊",
+      "shipper": "發貨人資訊",
+      "consignee": "收貨人資訊",
+      "shipping": "運輸資訊",
+      "charges": "費用明細",
+      "reference": "參考編號",
+      "payment": "付款資訊",
+      "extracted": "提取欄位",
+      "custom": "自訂欄位"
+    }
+  },
   "detail": {
     "loadError": "無法載入格式資料",
     "loadErrorDescription": "載入格式詳情時發生錯誤，請稍後再試。",

@@ -68,6 +68,27 @@
     "promptConfigDescription": "自动创建格式专属的 AI Prompt 配置",
     "submitButton": "创建格式"
   },
+  "sourceFieldCombobox": {
+    "placeholder": "选择来源字段...",
+    "searchPlaceholder": "搜索字段...",
+    "loadingDynamic": "加载动态字段中...",
+    "noResults": "找不到匹配的字段",
+    "customFields": "自定义字段",
+    "addCustomField": "添加自定义字段：",
+    "fieldsCount": "{count} 个字段",
+    "usedBadge": "已使用",
+    "categoryLabels": {
+      "basic": "基本信息",
+      "shipper": "发货人信息",
+      "consignee": "收货人信息",
+      "shipping": "运输信息",
+      "charges": "费用明细",
+      "reference": "参考编号",
+      "payment": "付款信息",
+      "extracted": "提取字段",
+      "custom": "自定义字段"
+    }
+  },
   "detail": {
     "loadError": "无法加载格式数据",
     "loadErrorDescription": "加载格式详情时发生错误，请稍后再试。",
