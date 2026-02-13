@@ -161,6 +161,7 @@ ai-document-extraction-project/
 | **SITUATION-4** | `NEW-FEATURE-DEV.md`     | 新功能實作執行       |
 | **SITUATION-5** | `SAVE-PROGRESS.md`       | 保存進度、會話結束   |
 | **SITUATION-6** | `SERVICE-STARTUP.md`     | 服務啟動、環境重啟   |
+| **SITUATION-7** | `SEED-DATA-MAINTENANCE.md` | Seed 數據維護、部署 |
 
 **路徑**: `claudedocs/6-ai-assistant/prompts/SITUATION-*.md`
 

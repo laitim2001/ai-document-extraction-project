@@ -56,6 +56,11 @@ import {
 import { FORWARDER_SEED_DATA } from './seed-data/forwarders'
 import { getAllMappingRules } from './seed-data/mapping-rules'
 import { CONFIG_SEED_DATA } from './seed-data/config-seeds'
+import { PROMPT_CONFIG_SEEDS } from './seed-data/prompt-configs'
+import { FIELD_MAPPING_CONFIG_SEEDS } from './seed-data/field-mapping-configs'
+import { ALERT_RULE_SEEDS } from './seed-data/alert-rules'
+import { EXCHANGE_RATE_SEEDS } from './seed-data/exchange-rates'
+import { hashPassword } from '../src/lib/password'
 
 /**
  * 讀取導出的資料（如存在）
@@ -438,6 +443,37 @@ async function main() {
   })
 
   console.log(`  ✅ Development user ready: ${devUser.email} (${devUser.id})`)
+
+  // ===========================================
+  // Create Production Admin User (CHANGE-039)
+  // Credentials-based login for new deployments
+  // ===========================================
+  console.log('\n👤 Creating production admin user...\n')
+
+  const adminPassword = await hashPassword('ChangeMe@2026!')
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@ai-document-extraction.com' },
+    update: {
+      status: 'ACTIVE',
+    },
+    create: {
+      email: 'admin@ai-document-extraction.com',
+      name: 'Admin',
+      password: adminPassword,
+      status: 'ACTIVE',
+      isGlobalAdmin: true,
+      emailVerified: new Date(),
+      roles: {
+        create: {
+          roleId: systemAdminRole.id,
+        },
+      },
+    },
+  })
+
+  console.log(`  ✅ Admin user ready: ${adminUser.email}`)
+  console.warn('  ⚠️  WARNING: Change the default password immediately in production!')
+  console.warn('  ⚠️  Default credentials: admin@ai-document-extraction.com / ChangeMe@2026!')
 
   // ===========================================
   // Seed Companies (Forwarder Type)
@@ -853,6 +889,207 @@ async function main() {
   }
 
   // ===========================================
+  // Seed Prompt Configs (CHANGE-039)
+  // ===========================================
+  console.log('\n📝 Creating prompt configs...\n')
+
+  let promptConfigCreatedCount = 0
+  let promptConfigUpdatedCount = 0
+
+  for (const seedConfig of PROMPT_CONFIG_SEEDS) {
+    const existing = await prisma.promptConfig.findFirst({
+      where: {
+        promptType: seedConfig.promptType as Prisma.PromptConfigWhereInput['promptType'],
+        scope: seedConfig.scope as Prisma.PromptConfigWhereInput['scope'],
+        companyId: null,
+        documentFormatId: null,
+      },
+    })
+
+    if (existing) {
+      // Only update metadata, not the actual prompt content (user may have customized)
+      await prisma.promptConfig.update({
+        where: { id: existing.id },
+        data: {
+          name: seedConfig.name,
+          description: seedConfig.description,
+        },
+      })
+      promptConfigUpdatedCount++
+      console.log(`  🔄 Updated: ${seedConfig.name}`)
+    } else {
+      await prisma.promptConfig.create({
+        data: {
+          promptType: seedConfig.promptType as Prisma.PromptConfigCreateInput['promptType'],
+          scope: seedConfig.scope as Prisma.PromptConfigCreateInput['scope'],
+          name: seedConfig.name,
+          description: seedConfig.description,
+          systemPrompt: seedConfig.systemPrompt,
+          userPromptTemplate: seedConfig.userPromptTemplate,
+          mergeStrategy: seedConfig.mergeStrategy as Prisma.PromptConfigCreateInput['mergeStrategy'],
+          variables: seedConfig.variables as Prisma.InputJsonValue,
+          isActive: seedConfig.isActive,
+          version: seedConfig.version,
+        },
+      })
+      promptConfigCreatedCount++
+      console.log(`  ✅ Created: ${seedConfig.name}`)
+    }
+  }
+
+  // ===========================================
+  // Seed Field Mapping Configs (CHANGE-039)
+  // ===========================================
+  console.log('\n🔗 Creating field mapping configs...\n')
+
+  let fieldMappingConfigCreatedCount = 0
+  let fieldMappingConfigUpdatedCount = 0
+
+  for (const seedConfig of FIELD_MAPPING_CONFIG_SEEDS) {
+    const existing = await prisma.fieldMappingConfig.findFirst({
+      where: {
+        scope: seedConfig.scope as Prisma.FieldMappingConfigWhereInput['scope'],
+        companyId: null,
+        documentFormatId: null,
+      },
+    })
+
+    if (existing) {
+      await prisma.fieldMappingConfig.update({
+        where: { id: existing.id },
+        data: {
+          name: seedConfig.name,
+          description: seedConfig.description,
+        },
+      })
+      fieldMappingConfigUpdatedCount++
+      console.log(`  🔄 Updated: ${seedConfig.name}`)
+    } else {
+      const config = await prisma.fieldMappingConfig.create({
+        data: {
+          scope: seedConfig.scope as Prisma.FieldMappingConfigCreateInput['scope'],
+          name: seedConfig.name,
+          description: seedConfig.description,
+          isActive: seedConfig.isActive,
+          version: seedConfig.version,
+          dataTemplateId: seedConfig.dataTemplateId,
+        },
+      })
+
+      // Create associated mapping rules
+      for (const rule of seedConfig.rules) {
+        await prisma.fieldMappingRule.create({
+          data: {
+            configId: config.id,
+            sourceFields: rule.sourceFields as Prisma.InputJsonValue,
+            targetField: rule.targetField,
+            transformType: rule.transformType as Prisma.FieldMappingRuleCreateInput['transformType'],
+            transformParams: rule.transformParams
+              ? (rule.transformParams as Prisma.InputJsonValue)
+              : Prisma.JsonNull,
+            priority: rule.priority,
+            isActive: rule.isActive,
+            description: rule.description,
+          },
+        })
+      }
+
+      fieldMappingConfigCreatedCount++
+      console.log(`  ✅ Created: ${seedConfig.name} (${seedConfig.rules.length} rules)`)
+    }
+  }
+
+  // ===========================================
+  // Seed Alert Rules (CHANGE-039)
+  // ===========================================
+  console.log('\n🔔 Creating alert rules...\n')
+
+  let alertRuleCreatedCount = 0
+  let alertRuleUpdatedCount = 0
+
+  for (const seedRule of ALERT_RULE_SEEDS) {
+    const existing = await prisma.alertRule.findFirst({
+      where: { name: seedRule.name },
+    })
+
+    if (existing) {
+      await prisma.alertRule.update({
+        where: { id: existing.id },
+        data: {
+          description: seedRule.description,
+          threshold: seedRule.threshold,
+          duration: seedRule.duration,
+          severity: seedRule.severity as Prisma.AlertRuleUpdateInput['severity'],
+        },
+      })
+      alertRuleUpdatedCount++
+      console.log(`  🔄 Updated: ${seedRule.name}`)
+    } else {
+      await prisma.alertRule.create({
+        data: {
+          name: seedRule.name,
+          description: seedRule.description,
+          conditionType: seedRule.conditionType as Prisma.AlertRuleCreateInput['conditionType'],
+          metric: seedRule.metric,
+          operator: seedRule.operator as Prisma.AlertRuleCreateInput['operator'],
+          threshold: seedRule.threshold,
+          duration: seedRule.duration,
+          serviceName: seedRule.serviceName,
+          severity: seedRule.severity as Prisma.AlertRuleCreateInput['severity'],
+          channels: seedRule.channels as Prisma.InputJsonValue,
+          recipients: seedRule.recipients as Prisma.InputJsonValue,
+          cooldownMinutes: seedRule.cooldownMinutes,
+          createdBy: { connect: { id: systemUser.id } },
+        },
+      })
+      alertRuleCreatedCount++
+      console.log(`  ✅ Created: ${seedRule.name} (${seedRule.severity})`)
+    }
+  }
+
+  // ===========================================
+  // Seed Exchange Rates (CHANGE-039)
+  // ===========================================
+  console.log('\n💱 Creating exchange rates...\n')
+
+  let exchangeRateCreatedCount = 0
+  let exchangeRateSkippedCount = 0
+
+  for (const seedRate of EXCHANGE_RATE_SEEDS) {
+    const existing = await prisma.exchangeRate.findFirst({
+      where: {
+        fromCurrency: seedRate.fromCurrency,
+        toCurrency: seedRate.toCurrency,
+        effectiveYear: seedRate.effectiveYear,
+      },
+    })
+
+    if (existing) {
+      exchangeRateSkippedCount++
+    } else {
+      await prisma.exchangeRate.create({
+        data: {
+          fromCurrency: seedRate.fromCurrency,
+          toCurrency: seedRate.toCurrency,
+          rate: seedRate.rate,
+          effectiveYear: seedRate.effectiveYear,
+          source: seedRate.source as Prisma.ExchangeRateCreateInput['source'],
+          description: seedRate.description,
+          isActive: true,
+        },
+      })
+      exchangeRateCreatedCount++
+    }
+  }
+
+  if (exchangeRateCreatedCount > 0) {
+    console.log(`  ✅ Created ${exchangeRateCreatedCount} exchange rates`)
+  }
+  if (exchangeRateSkippedCount > 0) {
+    console.log(`  🔄 Skipped ${exchangeRateSkippedCount} existing exchange rates`)
+  }
+
+  // ===========================================
   // Restore Exported Data (if available)
   // ===========================================
   const exportedData = loadExportedData()
@@ -1153,6 +1390,9 @@ async function main() {
   const documentFormatCount = await prisma.documentFormat.count()
   const promptConfigCount = await prisma.promptConfig.count()
   const pipelineConfigCount = await prisma.pipelineConfig.count()
+  const fieldMappingConfigCount = await prisma.fieldMappingConfig.count()
+  const alertRuleCount = await prisma.alertRule.count()
+  const exchangeRateCount = await prisma.exchangeRate.count()
 
   console.log('\n========================================')
   console.log('✨ Seed completed successfully!')
@@ -1171,6 +1411,14 @@ async function main() {
   console.log(`  System configs updated: ${configUpdatedCount}`)
   console.log(`  Data templates created: ${templateCreatedCount}`)
   console.log(`  Data templates updated: ${templateUpdatedCount}`)
+  console.log(`  Prompt configs created: ${promptConfigCreatedCount}`)
+  console.log(`  Prompt configs updated: ${promptConfigUpdatedCount}`)
+  console.log(`  Field mapping configs created: ${fieldMappingConfigCreatedCount}`)
+  console.log(`  Field mapping configs updated: ${fieldMappingConfigUpdatedCount}`)
+  console.log(`  Alert rules created: ${alertRuleCreatedCount}`)
+  console.log(`  Alert rules updated: ${alertRuleUpdatedCount}`)
+  console.log(`  Exchange rates created: ${exchangeRateCreatedCount}`)
+  console.log(`  Exchange rates skipped: ${exchangeRateSkippedCount}`)
   if (exportedData) {
     console.log(`  Exported companies restored: ${exportedCompaniesCount}`)
     console.log(`  Document formats restored: ${exportedDocFormatsCount}`)
@@ -1187,7 +1435,10 @@ async function main() {
   console.log(`  Total template field mappings: ${templateFieldMappingCount}`)
   console.log(`  Total document formats: ${documentFormatCount}`)
   console.log(`  Total prompt configs: ${promptConfigCount}`)
+  console.log(`  Total field mapping configs: ${fieldMappingConfigCount}`)
   console.log(`  Total pipeline configs: ${pipelineConfigCount}`)
+  console.log(`  Total alert rules: ${alertRuleCount}`)
+  console.log(`  Total exchange rates: ${exchangeRateCount}`)
   console.log(`  Total users: ${userCount}`)
   console.log('========================================\n')
 }

@@ -100,13 +100,14 @@ claudedocs/
 │
 ├── 6-ai-assistant/              # AI 助手相關
 │   ├── analysis/                # 分析報告
-│   ├── prompts/                 # 情境提示詞 (SITUATION-1 ~ SITUATION-6)
+│   ├── prompts/                 # 情境提示詞 (SITUATION-1 ~ SITUATION-7)
 │   │   ├── SITUATION-1-PROJECT-ONBOARDING.md   # 項目入門
 │   │   ├── SITUATION-2-FEATURE-DEV-PREP.md     # 功能開發準備
 │   │   ├── SITUATION-3-FEATURE-ENHANCEMENT.md  # 功能增強
 │   │   ├── SITUATION-4-NEW-FEATURE-DEV.md      # 新功能開發
 │   │   ├── SITUATION-5-SAVE-PROGRESS.md        # 保存進度
-│   │   └── SITUATION-6-SERVICE-STARTUP.md      # 服務啟動
+│   │   ├── SITUATION-6-SERVICE-STARTUP.md      # 服務啟動
+│   │   └── SITUATION-7-SEED-DATA-MAINTENANCE.md # Seed 數據維護
 │   └── session-guides/          # 會話指南
 │
 ├── 7-archive/                   # 歸檔文檔
@@ -215,7 +216,7 @@ claudedocs/
 
 ### 情境提示詞 (SITUATION-*)
 
-位於 `claudedocs/6-ai-assistant/prompts/`，SITUATION-1 ~ SITUATION-6
+位於 `claudedocs/6-ai-assistant/prompts/`，SITUATION-1 ~ SITUATION-7
 
 ---
 
@@ -264,6 +265,7 @@ claudedocs/
 | `6-ai-assistant/prompts/SITUATION-4-NEW-FEATURE-DEV.md` | 新功能開發、實作執行 |
 | `6-ai-assistant/prompts/SITUATION-5-SAVE-PROGRESS.md` | 保存進度、會話結束 |
 | `6-ai-assistant/prompts/SITUATION-6-SERVICE-STARTUP.md` | 服務啟動、環境重啟 |
+| `6-ai-assistant/prompts/SITUATION-7-SEED-DATA-MAINTENANCE.md` | Seed 數據維護、新環境部署 |
 
 ### 分析報告
 
