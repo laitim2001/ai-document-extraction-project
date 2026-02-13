@@ -57,7 +57,6 @@ hierarchical-terms-report.xlsx
 .playwright-mcp/
 
 # Sample/Archive folders
-claudedocs_sample/
 docs/Doc Sample/
 
 # Debug/Test scripts (temporary)
