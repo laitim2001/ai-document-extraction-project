@@ -206,6 +206,9 @@ export default function DocumentsPage() {
             <SelectItem value="OCR_FAILED">
               {t('filters.status.ocrFailed')}
             </SelectItem>
+            <SelectItem value="REF_MATCH_FAILED">
+              {t('filters.status.refMatchFailed')}
+            </SelectItem>
             <SelectItem value="FAILED">{t('filters.status.failed')}</SelectItem>
           </SelectContent>
         </Select>

@@ -473,7 +473,7 @@ export async function getProcessingStatsEnhanced(
     'COMPLETED',
     'APPROVED',
   ]
-  const failedStatuses = ['OCR_FAILED', 'FAILED']
+  const failedStatuses = ['OCR_FAILED', 'REF_MATCH_FAILED', 'FAILED']
 
   for (const item of statuses) {
     byStatus[item.status] = item._count
@@ -521,6 +521,7 @@ export async function retryProcessing(documentId: string): Promise<void> {
   /** 允許重試的 Document 狀態（對齊 /process 端點 + FAILED） */
   const retryableStatuses: DocumentStatus[] = [
     'OCR_FAILED',
+    'REF_MATCH_FAILED',
     'FAILED',
     'UPLOADED',
     'OCR_COMPLETED',

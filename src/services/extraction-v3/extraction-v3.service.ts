@@ -390,9 +390,10 @@ export class ExtractionV3Service {
 
           if (!hasMatches) {
             // FIX-036: 啟用 ref match 但未匹配到任何結果 → 中止 pipeline
+            // NOTE: error 必須包含 'REF_MATCH_ABORT' 標記，供 persistence service 判定 REF_MATCH_FAILED 狀態
             return {
               success: false,
-              error: `Reference number matching enabled but no matches found in filename "${input.fileName}". Pipeline aborted.`,
+              error: `REF_MATCH_ABORT: Reference number matching enabled but no matches found in filename "${input.fileName}". Pipeline aborted.`,
               referenceNumberMatch: refMatchResult,
               timing: {
                 totalMs: Date.now() - startTime,
