@@ -84,7 +84,6 @@ export function AddFileDialog({
       setIsLoading(true);
       try {
         const params = new URLSearchParams({
-          status: 'COMPLETED',
           pageSize: '50',
         });
         if (search) {
