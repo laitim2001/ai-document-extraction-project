@@ -172,7 +172,18 @@
     "revalidateResult": "{valid} valid, {invalid} invalid",
     "revalidateError": "Revalidation failed",
     "exportSuccess": "Export completed successfully",
-    "exportError": "Failed to export data"
+    "exportError": "Failed to export data",
+    "addFileSuccess": "{count} files matched successfully",
+    "addFileError": "Failed to add files"
+  },
+  "addFileDialog": {
+    "title": "Add File",
+    "description": "Select completed documents to match to this instance",
+    "searchPlaceholder": "Search by file name...",
+    "noDocuments": "No documents found",
+    "selected": "{count} files selected",
+    "addButton": "Add {count} Files",
+    "adding": "Adding..."
   },
   "match": {
     "title": "Match to Template",

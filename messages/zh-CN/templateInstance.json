@@ -172,7 +172,18 @@
     "revalidateResult": "{valid} 有效，{invalid} 无效",
     "revalidateError": "重新验证失败",
     "exportSuccess": "导出成功",
-    "exportError": "导出失败"
+    "exportError": "导出失败",
+    "addFileSuccess": "成功匹配 {count} 个文件",
+    "addFileError": "添加文件失败"
+  },
+  "addFileDialog": {
+    "title": "添加文件",
+    "description": "选择已完成处理的文件匹配到此实例",
+    "searchPlaceholder": "搜索文件名称...",
+    "noDocuments": "找不到文件",
+    "selected": "已选择 {count} 个文件",
+    "addButton": "添加 {count} 个文件",
+    "adding": "添加中..."
   },
   "match": {
     "title": "匹配到模板",

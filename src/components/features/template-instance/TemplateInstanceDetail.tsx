@@ -10,7 +10,7 @@
  *
  * @module src/components/features/template-instance/TemplateInstanceDetail
  * @since Epic 19 - Story 19.5
- * @lastModified 2026-01-22
+ * @lastModified 2026-02-14
  */
 
 import * as React from 'react';
@@ -33,6 +33,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { InstanceStatsOverview } from './InstanceStatsOverview';
 import { InstanceRowsTable } from './InstanceRowsTable';
 import { ExportDialog } from './ExportDialog';
+import { AddFileDialog } from './AddFileDialog';
 import { useTemplateInstance } from '@/hooks/use-template-instances';
 
 // ============================================================================
@@ -87,8 +88,9 @@ export function TemplateInstanceDetail({ instanceId, className }: TemplateInstan
   const t = useTranslations('templateInstance');
   const tCommon = useTranslations('common');
 
-  const { data, isLoading, error } = useTemplateInstance(instanceId);
+  const { data, isLoading, error, refetch } = useTemplateInstance(instanceId);
   const [showExportDialog, setShowExportDialog] = React.useState(false);
+  const [showAddFileDialog, setShowAddFileDialog] = React.useState(false);
 
   // Loading state
   if (isLoading) {
@@ -145,7 +147,7 @@ export function TemplateInstanceDetail({ instanceId, className }: TemplateInstan
           </Button>
 
           {/* Add file button */}
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setShowAddFileDialog(true)}>
             <Plus className="mr-2 h-4 w-4" />
             {t('detail.actions.addFile')}
           </Button>
@@ -170,6 +172,14 @@ export function TemplateInstanceDetail({ instanceId, className }: TemplateInstan
           templateFields={data.dataTemplate.fields}
         />
       )}
+
+      {/* Add File Dialog */}
+      <AddFileDialog
+        instanceId={instanceId}
+        open={showAddFileDialog}
+        onClose={() => setShowAddFileDialog(false)}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 }
