@@ -135,6 +135,15 @@ export class TemplateMatchingEngineService {
       documentFormatId: options.formatId,
     });
 
+    // 2.1 檢查映射配置是否為空
+    if (mappingConfig.mappings.length === 0) {
+      throw new MatchingEngineError(
+        '找不到映射配置，請先為此模板建立 Template Field Mapping（至少需要 GLOBAL 級別配置）',
+        'MAPPING_NOT_FOUND' as MatchingErrorCode,
+        { dataTemplateId: template.id, resolvedFrom: mappingConfig.resolvedFrom }
+      );
+    }
+
     // 3. 載入 Documents
     const documents = await this.loadDocuments(documentIds);
 
@@ -226,6 +235,15 @@ export class TemplateMatchingEngineService {
       companyId,
       documentFormatId: formatId,
     });
+
+    // 檢查映射配置是否為空
+    if (mappingConfig.mappings.length === 0) {
+      throw new MatchingEngineError(
+        '找不到映射配置，請先為此模板建立 Template Field Mapping（至少需要 GLOBAL 級別配置）',
+        'MAPPING_NOT_FOUND' as MatchingErrorCode,
+        { dataTemplateId, resolvedFrom: mappingConfig.resolvedFrom }
+      );
+    }
 
     // 載入文件
     const documents = await this.loadDocuments(documentIds);

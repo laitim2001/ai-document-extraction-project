@@ -1,7 +1,7 @@
 # CHANGE-040: 阻擋無映射配置的匹配操作
 
 > **日期**: 2026-02-14
-> **狀態**: ⏳ 待實作
+> **狀態**: ✅ 已完成
 > **優先級**: High
 > **類型**: Feature Enhancement
 > **影響範圍**: `template-matching-engine.service.ts`
