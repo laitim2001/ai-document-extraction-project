@@ -137,7 +137,7 @@ export function BulkMatchDialog({
     const loadInstances = async () => {
       try {
         const response = await fetch(
-          `/api/v1/template-instances?dataTemplateId=${selectedTemplateId}&status=DRAFT,ACTIVE`
+          `/api/v1/template-instances?dataTemplateId=${selectedTemplateId}&status=DRAFT`
         );
         if (response.ok) {
           const data = await response.json();
@@ -162,12 +162,33 @@ export function BulkMatchDialog({
     setResult(null);
 
     try {
+      // 如果選擇了「建立新實例」，先建立一個新的 TemplateInstance
+      let instanceId = selectedInstanceId;
+      if (instanceId === '__new__') {
+        const createRes = await fetch('/api/v1/template-instances', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dataTemplateId: selectedTemplateId,
+            name: `Batch Match ${new Date().toISOString().slice(0, 10)}`,
+          }),
+        });
+        if (!createRes.ok) {
+          throw new Error('Failed to create new instance');
+        }
+        const createData = await createRes.json();
+        instanceId = createData.data?.id;
+        if (!instanceId) {
+          throw new Error('No instance ID returned');
+        }
+      }
+
       const response = await fetch('/api/v1/documents/match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           documentIds,
-          templateInstanceId: selectedInstanceId,
+          templateInstanceId: instanceId,
           options: {
             batchSize: 50,
           },
