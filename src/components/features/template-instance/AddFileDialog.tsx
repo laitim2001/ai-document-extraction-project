@@ -38,7 +38,7 @@ interface DocumentItem {
   id: string;
   fileName: string;
   status: string;
-  companyName?: string;
+  cityCode?: string | null;
   createdAt: string;
 }
 
@@ -85,7 +85,7 @@ export function AddFileDialog({
       try {
         const params = new URLSearchParams({
           status: 'COMPLETED',
-          limit: '50',
+          pageSize: '50',
         });
         if (search) {
           params.set('search', search);
@@ -93,8 +93,9 @@ export function AddFileDialog({
 
         const response = await fetch(`/api/documents?${params}`);
         if (response.ok) {
-          const data = await response.json();
-          const items = data.data?.documents ?? data.data?.items ?? data.data ?? [];
+          const json = await response.json();
+          // API returns { success, data: DocumentSummary[], meta, stats }
+          const items = json.data ?? [];
           setDocuments(Array.isArray(items) ? items : []);
         }
       } catch (error) {
@@ -215,9 +216,9 @@ export function AddFileDialog({
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{doc.fileName}</p>
-                    {doc.companyName && (
+                    {doc.cityCode && (
                       <p className="truncate text-xs text-muted-foreground">
-                        {doc.companyName}
+                        {doc.cityCode}
                       </p>
                     )}
                   </div>
