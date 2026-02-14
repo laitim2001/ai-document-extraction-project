@@ -7,7 +7,7 @@
  *
  * @module src/hooks/use-field-label
  * @since Epic 17 - i18n
- * @lastModified 2026-01-27
+ * @lastModified 2026-02-14
  *
  * @dependencies
  *   - next-intl (useTranslations)
@@ -42,15 +42,12 @@ export function useFieldLabel() {
 
   return useCallback(
     (field: DataTemplateField): string => {
-      try {
-        // Attempt to resolve from standardFields translations
-        // Key format: fields.{field_name} e.g. "fields.invoice_number"
-        const key = `fields.${field.name}` as Parameters<typeof tFields>[0];
+      const key = `fields.${field.name}` as Parameters<typeof tFields>[0];
+      if (tFields.has(key)) {
         return tFields(key);
-      } catch {
-        // Not a standard field or translation missing — use stored label
-        return field.label;
       }
+      // Non-standard field — use stored label
+      return field.label;
     },
     [tFields]
   );
