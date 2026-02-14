@@ -46,6 +46,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { ProcessingStatus } from './ProcessingStatus'
 import { RetryButton } from './RetryButton'
 import { getStatusConfig } from '@/lib/document-status'
@@ -63,6 +64,10 @@ export interface DocumentListTableProps {
   documents: DocumentListItem[]
   /** 是否載入中 */
   isLoading?: boolean
+  /** 已選擇的文件 ID 集合 */
+  selectedIds?: Set<string>
+  /** 選擇變更回調 */
+  onSelectionChange?: (ids: Set<string>) => void
 }
 
 // ============================================================
@@ -100,12 +105,39 @@ const processingPathKeys: Record<string, string> = {
 export function DocumentListTable({
   documents,
   isLoading,
+  selectedIds,
+  onSelectionChange,
 }: DocumentListTableProps) {
   const t = useTranslations('documents')
   const locale = useLocale()
 
   // 根據 locale 選擇日期格式化的 locale
   const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
+
+  // --- Selection Helpers ---
+  const hasSelection = selectedIds !== undefined && onSelectionChange !== undefined
+  const allSelected = hasSelection && documents.length > 0 && documents.every((d) => selectedIds.has(d.id))
+  const someSelected = hasSelection && documents.some((d) => selectedIds.has(d.id)) && !allSelected
+
+  const handleSelectAll = React.useCallback(() => {
+    if (!onSelectionChange) return
+    if (allSelected) {
+      onSelectionChange(new Set())
+    } else {
+      onSelectionChange(new Set(documents.map((d) => d.id)))
+    }
+  }, [allSelected, documents, onSelectionChange])
+
+  const handleSelectOne = React.useCallback((id: string, checked: boolean) => {
+    if (!onSelectionChange || !selectedIds) return
+    const next = new Set(selectedIds)
+    if (checked) {
+      next.add(id)
+    } else {
+      next.delete(id)
+    }
+    onSelectionChange(next)
+  }, [selectedIds, onSelectionChange])
 
   // 載入中狀態
   if (isLoading) {
@@ -130,6 +162,15 @@ export function DocumentListTable({
     <Table>
       <TableHeader>
         <TableRow>
+          {hasSelection && (
+            <TableHead className="w-[40px]">
+              <Checkbox
+                checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                onCheckedChange={handleSelectAll}
+                aria-label={t('table.columns.select')}
+              />
+            </TableHead>
+          )}
           <TableHead>{t('table.columns.filename')}</TableHead>
           <TableHead>{t('table.columns.status')}</TableHead>
           <TableHead>{t('table.columns.processingPath')}</TableHead>
@@ -142,7 +183,18 @@ export function DocumentListTable({
           const statusConfig = getStatusConfig(doc.status)
 
           return (
-            <TableRow key={doc.id}>
+            <TableRow key={doc.id} data-state={selectedIds?.has(doc.id) ? 'selected' : undefined}>
+              {/* 選擇 */}
+              {hasSelection && (
+                <TableCell>
+                  <Checkbox
+                    checked={selectedIds.has(doc.id)}
+                    onCheckedChange={(checked) => handleSelectOne(doc.id, !!checked)}
+                    aria-label={`${t('table.columns.select')} ${doc.fileName}`}
+                  />
+                </TableCell>
+              )}
+
               {/* 文件名稱 */}
               <TableCell className="font-medium">
                 <div className="flex items-center gap-2">

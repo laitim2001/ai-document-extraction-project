@@ -36,10 +36,11 @@
  *   - messages/{locale}/documents.json - 翻譯檔案
  */
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useDocuments } from '@/hooks/use-documents'
 import { DocumentListTable } from '@/components/features/document/DocumentListTable'
+import { BulkMatchDialog } from '@/components/features/template-match/BulkMatchDialog'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -50,7 +51,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Search, Filter, RefreshCw } from 'lucide-react'
+import { Search, Filter, RefreshCw, ListChecks, X } from 'lucide-react'
 
 // ============================================================
 // Page Component
@@ -68,6 +69,8 @@ export default function DocumentsPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('')
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkMatchOpen, setBulkMatchOpen] = useState(false)
 
   // --- Data Fetching ---
   const { data, isLoading, isRefetching, refetch } = useDocuments({
@@ -78,6 +81,12 @@ export default function DocumentsPage() {
   })
 
   const stats = data?.stats
+
+  // --- Handlers ---
+  const handleMatchSuccess = useCallback(() => {
+    setSelectedIds(new Set())
+    refetch()
+  }, [refetch])
 
   // --- Render ---
   return (
@@ -208,9 +217,43 @@ export default function DocumentsPage() {
           <DocumentListTable
             documents={data?.data || []}
             isLoading={isLoading}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
           />
         </CardContent>
       </Card>
+
+      {/* Bulk Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-lg border bg-background px-4 py-3 shadow-lg">
+          <span className="text-sm font-medium">
+            {t('bulkActions.selected', { count: selectedIds.size })}
+          </span>
+          <Button
+            size="sm"
+            onClick={() => setBulkMatchOpen(true)}
+          >
+            <ListChecks className="h-4 w-4 mr-2" />
+            {t('bulkActions.matchToTemplate')}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedIds(new Set())}
+          >
+            <X className="h-4 w-4 mr-1" />
+            {t('bulkActions.clearSelection')}
+          </Button>
+        </div>
+      )}
+
+      {/* Bulk Match Dialog */}
+      <BulkMatchDialog
+        documentIds={Array.from(selectedIds)}
+        open={bulkMatchOpen}
+        onClose={() => setBulkMatchOpen(false)}
+        onSuccess={handleMatchSuccess}
+      />
 
       {/* Pagination */}
       {data?.meta && data.meta.totalPages > 1 && (

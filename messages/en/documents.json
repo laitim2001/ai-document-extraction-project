@@ -37,7 +37,8 @@
       "processingPath": "Processing Path",
       "confidence": "Confidence",
       "company": "Company",
-      "actions": "Actions"
+      "actions": "Actions",
+      "select": "Select"
     },
     "empty": "No documents found",
     "noDocuments": "No documents found",
@@ -102,6 +103,11 @@
     "noFiles": "Please select files to upload",
     "unauthorized": "Please log in",
     "forbidden": "You don't have permission to upload documents"
+  },
+  "bulkActions": {
+    "selected": "{count} selected",
+    "matchToTemplate": "Match to Template",
+    "clearSelection": "Clear"
   },
   "actions": {
     "view": "View",

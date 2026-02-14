@@ -1,7 +1,7 @@
 # CHANGE-041: 文件列表頁整合批量匹配對話框
 
 > **日期**: 2026-02-14
-> **狀態**: ⏳ 待實作
+> **狀態**: ✅ 已完成
 > **優先級**: High
 > **類型**: UI Enhancement
 > **影響範圍**: `DocumentListTable.tsx`、`documents/page.tsx`、i18n

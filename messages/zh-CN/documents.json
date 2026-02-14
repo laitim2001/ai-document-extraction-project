@@ -37,7 +37,8 @@
       "processingPath": "处理路径",
       "confidence": "置信度",
       "company": "公司",
-      "actions": "操作"
+      "actions": "操作",
+      "select": "选择"
     },
     "empty": "没有找到文件",
     "noDocuments": "没有找到文件",
@@ -102,6 +103,11 @@
     "noFiles": "请选择要上传的文件",
     "unauthorized": "请先登录",
     "forbidden": "您没有权限上传文件"
+  },
+  "bulkActions": {
+    "selected": "已选择 {count} 个",
+    "matchToTemplate": "匹配到模板",
+    "clearSelection": "清除"
   },
   "actions": {
     "view": "查看",
