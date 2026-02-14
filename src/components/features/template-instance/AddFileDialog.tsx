@@ -13,6 +13,7 @@
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { FileText, Loader2, Search, Check } from 'lucide-react';
 import {
   Dialog,
@@ -68,6 +69,7 @@ export function AddFileDialog({
 }: AddFileDialogProps) {
   const t = useTranslations('templateInstance');
   const tCommon = useTranslations('common');
+  const queryClient = useQueryClient();
 
   // --- State ---
   const [documents, setDocuments] = React.useState<DocumentItem[]>([]);
@@ -147,6 +149,10 @@ export function AddFileDialog({
         })
       );
 
+      // Invalidate both instance detail and rows queries
+      await queryClient.invalidateQueries({
+        queryKey: ['template-instances', 'detail', instanceId],
+      });
       onSuccess?.();
       handleClose();
     } catch (error) {
