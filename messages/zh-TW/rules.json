@@ -41,7 +41,7 @@
     }
   },
   "ruleTable": {
-    "forwarder": "Forwarder",
+    "company": "公司",
     "fieldName": "欄位名稱",
     "extractionType": "提取類型",
     "status": "狀態",
@@ -53,12 +53,12 @@
     "noMatchingRules": "沒有符合條件的規則"
   },
   "ruleFilters": {
-    "forwarder": "Forwarder",
+    "company": "公司",
     "fieldName": "欄位名稱",
     "status": "狀態",
     "category": "類別",
     "all": "全部",
-    "allForwarders": "全部 Forwarder",
+    "allCompanies": "所有公司",
     "universalRules": "通用規則",
     "allStatuses": "全部狀態",
     "allCategories": "全部類別",
@@ -89,7 +89,7 @@
     "recentApplications": "最近應用記錄",
     "createdBy": "創建者：",
     "createdAt": "創建時間：",
-    "forwarder": "Forwarder：",
+    "company": "公司：",
     "updatedAt": "更新時間：",
     "category": "類別：",
     "requiredField": "必填欄位：",
@@ -224,6 +224,130 @@
     "source": "學習來源",
     "learnedFrom": "學習自",
     "corrections": "次修正"
+  },
+  "newRule": {
+    "pageTitle": "建議新映射規則",
+    "pageDescription": "創建新的提取規則建議，經審核後將應用於文件處理",
+    "instructions": {
+      "title": "建議規則流程",
+      "step1": "選擇公司（如適用於特定公司）或設為通用規則",
+      "step2": "選擇要提取的目標欄位",
+      "step3": "配置提取模式（正則表達式、關鍵字等）",
+      "step4": "使用測試功能驗證提取效果",
+      "step5": "提交建議等待審核，或先存為草稿"
+    },
+    "basicSettings": {
+      "title": "基本設定",
+      "description": "選擇此規則適用的公司和目標欄位"
+    },
+    "company": {
+      "label": "公司",
+      "placeholder": "選擇公司...",
+      "universalRule": "通用規則",
+      "universalRuleAppliesAll": "（適用所有公司）",
+      "universalRuleDescription": "選擇「通用規則」將適用於所有公司"
+    },
+    "fieldName": {
+      "label": "欄位名稱",
+      "placeholder": "例如：invoice_number",
+      "description": "輸入欄位名稱或點擊建議"
+    },
+    "description": {
+      "label": "描述（選填）",
+      "placeholder": "說明此規則的用途或特殊情況..."
+    },
+    "extractionMode": {
+      "title": "提取模式",
+      "description": "配置如何從文件中提取目標欄位的值",
+      "typeLabel": "提取類型",
+      "patternLabel": "提取模式配置"
+    },
+    "extractionTypes": {
+      "regex": {
+        "label": "正則表達式",
+        "description": "使用正則表達式匹配並提取文字"
+      },
+      "keyword": {
+        "label": "關鍵字",
+        "description": "根據關鍵字位置提取相鄰文字"
+      },
+      "position": {
+        "label": "座標位置",
+        "description": "根據 PDF 座標提取特定區域（需 OCR 支援）",
+        "notAvailable": "座標位置提取需要 OCR 座標數據，此功能正在開發中。"
+      },
+      "aiPrompt": {
+        "label": "AI 提示詞",
+        "description": "使用 AI 理解並提取內容（需 AI 服務）",
+        "notAvailable": "AI 提示詞提取需要 Azure OpenAI 整合，此功能正在開發中。"
+      },
+      "template": {
+        "label": "模板匹配",
+        "description": "使用預定義模板匹配並提取",
+        "notAvailable": "模板匹配有專用的測試頁面，請使用模板匹配測試頁。",
+        "linkText": "前往模板匹配測試"
+      }
+    },
+    "regex": {
+      "placeholder": "輸入正則表達式，例如：^Invoice No[.:]?\\\\s*(\\\\S+)",
+      "presetInvoiceNumber": "發票號碼",
+      "presetDateFormat": "日期格式",
+      "presetAmountFormat": "金額格式"
+    },
+    "keyword": {
+      "placeholder": "輸入 JSON 格式：\n'{'\\n  \"keywords\": [\"Invoice No\", \"Invoice Number\"],\\n  \"position\": \"after\",\\n  \"maxDistance\": 100\\n'}'"
+    },
+    "aiPrompt": {
+      "placeholder": "輸入 AI 提示詞，例如：請從發票中提取發票號碼"
+    },
+    "priority": {
+      "label": "優先級 (0-100)",
+      "description": "數字越大優先級越高"
+    },
+    "confidence": {
+      "label": "預設信心度 (0-1)",
+      "description": "建議 0.7-0.9 之間"
+    },
+    "buttons": {
+      "saveDraft": "存為草稿",
+      "submitReview": "提交審核"
+    },
+    "toast": {
+      "success": "成功",
+      "error": "錯誤",
+      "draftError": "無法存為草稿",
+      "draftMinFields": "請至少填寫公司、欄位名稱和提取模式"
+    },
+    "validation": {
+      "companyRequired": "請選擇公司或通用規則",
+      "fieldNameRequired": "請輸入欄位名稱",
+      "extractionTypeRequired": "請選擇提取類型",
+      "patternRequired": "請輸入提取模式"
+    }
+  },
+  "testPanel": {
+    "title": "測試規則",
+    "description": "在提交前測試提取效果，確保規則正確運作",
+    "configureFirst": "請先在上方配置提取模式，然後再進行測試",
+    "testText": "測試文本",
+    "useSample": "使用範例",
+    "clear": "清除",
+    "placeholder": "貼上發票文本內容進行測試...",
+    "testing": "測試中...",
+    "runTest": "執行測試",
+    "result": "測試結果",
+    "matched": "匹配成功",
+    "notMatched": "未匹配",
+    "confidenceLabel": "信心度",
+    "extractedValue": "提取的值",
+    "matchPositions": "匹配位置",
+    "matchPositionCount": "{count} 處匹配",
+    "lineColumn": "行 {line}, 列 {column} (字元 {start}-{end})",
+    "moreMatches": "還有 {count} 處匹配...",
+    "debugInfo": "調試資訊",
+    "processingTime": "處理時間：{time} ms",
+    "matchAttempts": "嘗試次數：{count}",
+    "errors": "錯誤訊息："
   },
   "ruleEdit": {
     "dialog": {

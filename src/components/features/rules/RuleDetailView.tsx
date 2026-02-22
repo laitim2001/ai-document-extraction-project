@@ -307,7 +307,7 @@ export function RuleDetailView({ ruleId }: RuleDetailViewProps) {
               </span>
             </div>
             <div>
-              <span className="text-muted-foreground">{t('detail.forwarder')}</span>
+              <span className="text-muted-foreground">{t('detail.company')}</span>
               <span className="ml-2">
                 {rule.company
                   ? `${rule.company.name} (${rule.company.code})`

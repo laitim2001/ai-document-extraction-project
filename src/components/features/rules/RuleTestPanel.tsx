@@ -12,13 +12,15 @@
  *
  * @module src/components/features/rules/RuleTestPanel
  * @since Epic 4 - Story 4.2 (建議新映射規則)
- * @lastModified 2025-12-18
+ * @lastModified 2026-02-22
  *
  * @dependencies
  *   - @/hooks/useTestRule - 規則測試 Hook
+ *   - next-intl - 國際化翻譯
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -104,6 +106,7 @@ Payment Terms: Net 30 Days
  * 測試結果顯示組件
  */
 function TestResultDisplay({ result }: { result: TestResultData }) {
+  const t = useTranslations('rules')
   const [showDebug, setShowDebug] = React.useState(false)
 
   return (
@@ -114,16 +117,16 @@ function TestResultDisplay({ result }: { result: TestResultData }) {
           <>
             <Badge variant="default" className="bg-green-600">
               <CheckCircle2 className="h-3 w-3 mr-1" />
-              匹配成功
+              {t('testPanel.matched')}
             </Badge>
             <Badge variant="outline">
-              信心度: {(result.confidence * 100).toFixed(0)}%
+              {t('testPanel.confidenceLabel')}: {(result.confidence * 100).toFixed(0)}%
             </Badge>
           </>
         ) : (
           <Badge variant="destructive">
             <XCircle className="h-3 w-3 mr-1" />
-            未匹配
+            {t('testPanel.notMatched')}
           </Badge>
         )}
       </div>
@@ -131,7 +134,7 @@ function TestResultDisplay({ result }: { result: TestResultData }) {
       {/* 提取值 */}
       {result.matched && result.extractedValue && (
         <div className="rounded-md border p-4 bg-muted/50">
-          <Label className="text-sm text-muted-foreground">提取的值</Label>
+          <Label className="text-sm text-muted-foreground">{t('testPanel.extractedValue')}</Label>
           <p className="mt-1 font-mono text-lg">{result.extractedValue}</p>
         </div>
       )}
@@ -140,7 +143,7 @@ function TestResultDisplay({ result }: { result: TestResultData }) {
       {result.matchPositions && result.matchPositions.length > 0 && (
         <div className="space-y-2">
           <Label className="text-sm text-muted-foreground">
-            匹配位置 ({result.matchPositions.length} 處)
+            {t('testPanel.matchPositions')} ({t('testPanel.matchPositionCount', { count: result.matchPositions.length })})
           </Label>
           <div className="space-y-2">
             {result.matchPositions.slice(0, 3).map((pos, idx) => (
@@ -151,7 +154,7 @@ function TestResultDisplay({ result }: { result: TestResultData }) {
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Target className="h-3 w-3" />
                   <span>
-                    行 {pos.line}, 列 {pos.column} (字元 {pos.start}-{pos.end})
+                    {t('testPanel.lineColumn', { line: pos.line ?? 0, column: pos.column ?? 0, start: pos.start, end: pos.end })}
                   </span>
                 </div>
                 {pos.context && (
@@ -163,7 +166,7 @@ function TestResultDisplay({ result }: { result: TestResultData }) {
             ))}
             {result.matchPositions.length > 3 && (
               <p className="text-sm text-muted-foreground">
-                還有 {result.matchPositions.length - 3} 處匹配...
+                {t('testPanel.moreMatches', { count: result.matchPositions.length - 3 })}
               </p>
             )}
           </div>
@@ -180,22 +183,22 @@ function TestResultDisplay({ result }: { result: TestResultData }) {
               ) : (
                 <ChevronDown className="h-4 w-4" />
               )}
-              調試資訊
+              {t('testPanel.debugInfo')}
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-2">
             <div className="rounded border p-3 bg-muted/30 space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <Clock className="h-3 w-3 text-muted-foreground" />
-                <span>處理時間: {result.debugInfo.processingTime.toFixed(2)} ms</span>
+                <span>{t('testPanel.processingTime', { time: result.debugInfo.processingTime.toFixed(2) })}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Target className="h-3 w-3 text-muted-foreground" />
-                <span>嘗試次數: {result.debugInfo.matchAttempts}</span>
+                <span>{t('testPanel.matchAttempts', { count: result.debugInfo.matchAttempts })}</span>
               </div>
               {result.debugInfo.errors && result.debugInfo.errors.length > 0 && (
                 <div className="mt-2">
-                  <Label className="text-xs text-destructive">錯誤訊息:</Label>
+                  <Label className="text-xs text-destructive">{t('testPanel.errors')}</Label>
                   {result.debugInfo.errors.map((err, idx) => (
                     <p key={idx} className="text-xs text-destructive mt-1">
                       {err}
@@ -218,6 +221,7 @@ function TestResultDisplay({ result }: { result: TestResultData }) {
  *   提供測試提取規則的界面，支持輸入測試文本或使用範例內容
  */
 export function RuleTestPanel({ extractionType, pattern }: RuleTestPanelProps) {
+  const t = useTranslations('rules')
   const [testContent, setTestContent] = React.useState('')
   const { mutate: testRule, isPending, data: testResult, reset } = useTestRule()
 
@@ -257,7 +261,7 @@ export function RuleTestPanel({ extractionType, pattern }: RuleTestPanelProps) {
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            請先在上方配置提取模式，然後再進行測試
+            {t('testPanel.configureFirst')}
           </AlertDescription>
         </Alert>
       )}
@@ -265,7 +269,7 @@ export function RuleTestPanel({ extractionType, pattern }: RuleTestPanelProps) {
       {/* 測試內容輸入 */}
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <Label>測試文本</Label>
+          <Label>{t('testPanel.testText')}</Label>
           <div className="flex gap-2">
             <Button
               type="button"
@@ -273,7 +277,7 @@ export function RuleTestPanel({ extractionType, pattern }: RuleTestPanelProps) {
               size="sm"
               onClick={handleUseSample}
             >
-              使用範例
+              {t('testPanel.useSample')}
             </Button>
             <Button
               type="button"
@@ -281,12 +285,12 @@ export function RuleTestPanel({ extractionType, pattern }: RuleTestPanelProps) {
               size="sm"
               onClick={handleClear}
             >
-              清除
+              {t('testPanel.clear')}
             </Button>
           </div>
         </div>
         <Textarea
-          placeholder="貼上發票文本內容進行測試..."
+          placeholder={t('testPanel.placeholder')}
           className="min-h-[200px] font-mono text-sm"
           value={testContent}
           onChange={(e) => {
@@ -306,12 +310,12 @@ export function RuleTestPanel({ extractionType, pattern }: RuleTestPanelProps) {
         {isPending ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            測試中...
+            {t('testPanel.testing')}
           </>
         ) : (
           <>
             <Play className="h-4 w-4 mr-2" />
-            執行測試
+            {t('testPanel.runTest')}
           </>
         )}
       </Button>
@@ -321,7 +325,7 @@ export function RuleTestPanel({ extractionType, pattern }: RuleTestPanelProps) {
         <>
           <Separator />
           <div>
-            <Label className="text-sm font-medium mb-2 block">測試結果</Label>
+            <Label className="text-sm font-medium mb-2 block">{t('testPanel.result')}</Label>
             <TestResultDisplay result={testResult} />
           </div>
         </>

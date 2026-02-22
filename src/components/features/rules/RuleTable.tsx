@@ -156,7 +156,7 @@ export function RuleTable({
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            <TableHead className="w-[160px]">{t('ruleTable.forwarder')}</TableHead>
+            <TableHead className="w-[160px]">{t('ruleTable.company')}</TableHead>
             <TableHead
               className="cursor-pointer hover:bg-muted/70 transition-colors"
               onClick={() => handleSort('fieldName')}

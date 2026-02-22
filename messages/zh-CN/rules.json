@@ -41,7 +41,7 @@
     }
   },
   "ruleTable": {
-    "forwarder": "Forwarder",
+    "company": "公司",
     "fieldName": "字段名称",
     "extractionType": "提取类型",
     "status": "状态",
@@ -53,12 +53,12 @@
     "noMatchingRules": "没有符合条件的规则"
   },
   "ruleFilters": {
-    "forwarder": "Forwarder",
+    "company": "公司",
     "fieldName": "字段名称",
     "status": "状态",
     "category": "类别",
     "all": "全部",
-    "allForwarders": "全部 Forwarder",
+    "allCompanies": "所有公司",
     "universalRules": "通用规则",
     "allStatuses": "全部状态",
     "allCategories": "全部类别",
@@ -89,7 +89,7 @@
     "recentApplications": "最近应用记录",
     "createdBy": "创建者：",
     "createdAt": "创建时间：",
-    "forwarder": "Forwarder：",
+    "company": "公司：",
     "updatedAt": "更新时间：",
     "category": "类别：",
     "requiredField": "必填字段：",
@@ -224,6 +224,130 @@
     "source": "学习来源",
     "learnedFrom": "学习自",
     "corrections": "次修正"
+  },
+  "newRule": {
+    "pageTitle": "建议新映射规则",
+    "pageDescription": "创建新的提取规则建议，经审核后将应用于文件处理",
+    "instructions": {
+      "title": "建议规则流程",
+      "step1": "选择公司（如适用于特定公司）或设为通用规则",
+      "step2": "选择要提取的目标字段",
+      "step3": "配置提取模式（正则表达式、关键字等）",
+      "step4": "使用测试功能验证提取效果",
+      "step5": "提交建议等待审核，或先存为草稿"
+    },
+    "basicSettings": {
+      "title": "基本设置",
+      "description": "选择此规则适用的公司和目标字段"
+    },
+    "company": {
+      "label": "公司",
+      "placeholder": "选择公司...",
+      "universalRule": "通用规则",
+      "universalRuleAppliesAll": "（适用所有公司）",
+      "universalRuleDescription": "选择「通用规则」将适用于所有公司"
+    },
+    "fieldName": {
+      "label": "字段名称",
+      "placeholder": "例如：invoice_number",
+      "description": "输入字段名称或点击建议"
+    },
+    "description": {
+      "label": "描述（选填）",
+      "placeholder": "说明此规则的用途或特殊情况..."
+    },
+    "extractionMode": {
+      "title": "提取模式",
+      "description": "配置如何从文件中提取目标字段的值",
+      "typeLabel": "提取类型",
+      "patternLabel": "提取模式配置"
+    },
+    "extractionTypes": {
+      "regex": {
+        "label": "正则表达式",
+        "description": "使用正则表达式匹配并提取文字"
+      },
+      "keyword": {
+        "label": "关键字",
+        "description": "根据关键字位置提取相邻文字"
+      },
+      "position": {
+        "label": "坐标位置",
+        "description": "根据 PDF 坐标提取特定区域（需 OCR 支持）",
+        "notAvailable": "坐标位置提取需要 OCR 坐标数据，此功能正在开发中。"
+      },
+      "aiPrompt": {
+        "label": "AI 提示词",
+        "description": "使用 AI 理解并提取内容（需 AI 服务）",
+        "notAvailable": "AI 提示词提取需要 Azure OpenAI 集成，此功能正在开发中。"
+      },
+      "template": {
+        "label": "模板匹配",
+        "description": "使用预定义模板匹配并提取",
+        "notAvailable": "模板匹配有专用的测试页面，请使用模板匹配测试页。",
+        "linkText": "前往模板匹配测试"
+      }
+    },
+    "regex": {
+      "placeholder": "输入正则表达式，例如：^Invoice No[.:]?\\\\s*(\\\\S+)",
+      "presetInvoiceNumber": "发票号码",
+      "presetDateFormat": "日期格式",
+      "presetAmountFormat": "金额格式"
+    },
+    "keyword": {
+      "placeholder": "输入 JSON 格式：\n'{'\\n  \"keywords\": [\"Invoice No\", \"Invoice Number\"],\\n  \"position\": \"after\",\\n  \"maxDistance\": 100\\n'}'"
+    },
+    "aiPrompt": {
+      "placeholder": "输入 AI 提示词，例如：请从发票中提取发票号码"
+    },
+    "priority": {
+      "label": "优先级 (0-100)",
+      "description": "数字越大优先级越高"
+    },
+    "confidence": {
+      "label": "默认信心度 (0-1)",
+      "description": "建议 0.7-0.9 之间"
+    },
+    "buttons": {
+      "saveDraft": "存为草稿",
+      "submitReview": "提交审核"
+    },
+    "toast": {
+      "success": "成功",
+      "error": "错误",
+      "draftError": "无法存为草稿",
+      "draftMinFields": "请至少填写公司、字段名称和提取模式"
+    },
+    "validation": {
+      "companyRequired": "请选择公司或通用规则",
+      "fieldNameRequired": "请输入字段名称",
+      "extractionTypeRequired": "请选择提取类型",
+      "patternRequired": "请输入提取模式"
+    }
+  },
+  "testPanel": {
+    "title": "测试规则",
+    "description": "在提交前测试提取效果，确保规则正确运作",
+    "configureFirst": "请先在上方配置提取模式，然后再进行测试",
+    "testText": "测试文本",
+    "useSample": "使用示例",
+    "clear": "清除",
+    "placeholder": "粘贴发票文本内容进行测试...",
+    "testing": "测试中...",
+    "runTest": "执行测试",
+    "result": "测试结果",
+    "matched": "匹配成功",
+    "notMatched": "未匹配",
+    "confidenceLabel": "信心度",
+    "extractedValue": "提取的值",
+    "matchPositions": "匹配位置",
+    "matchPositionCount": "{count} 处匹配",
+    "lineColumn": "行 {line}, 列 {column} (字符 {start}-{end})",
+    "moreMatches": "还有 {count} 处匹配...",
+    "debugInfo": "调试信息",
+    "processingTime": "处理时间：{time} ms",
+    "matchAttempts": "尝试次数：{count}",
+    "errors": "错误信息："
   },
   "ruleEdit": {
     "dialog": {

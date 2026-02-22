@@ -140,7 +140,7 @@ export function RuleFilters({
     <div className="flex items-end gap-4 flex-wrap">
       {/* Forwarder 篩選 */}
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">{t('ruleFilters.forwarder')}</Label>
+        <Label className="text-xs text-muted-foreground">{t('ruleFilters.company')}</Label>
         <Select
           value={forwarderId || 'all'}
           onValueChange={(v) => onForwarderChange(v === 'all' ? undefined : v)}
@@ -150,7 +150,7 @@ export function RuleFilters({
             <SelectValue placeholder={t('ruleFilters.all')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t('ruleFilters.allForwarders')}</SelectItem>
+            <SelectItem value="all">{t('ruleFilters.allCompanies')}</SelectItem>
             <SelectItem value="universal">{t('ruleFilters.universalRules')}</SelectItem>
             {forwarders?.map((fw) => (
               <SelectItem key={fw.id} value={fw.id}>

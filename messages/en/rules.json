@@ -41,7 +41,7 @@
     }
   },
   "ruleTable": {
-    "forwarder": "Forwarder",
+    "company": "Company",
     "fieldName": "Field Name",
     "extractionType": "Extraction Type",
     "status": "Status",
@@ -53,12 +53,12 @@
     "noMatchingRules": "No matching rules found"
   },
   "ruleFilters": {
-    "forwarder": "Forwarder",
+    "company": "Company",
     "fieldName": "Field Name",
     "status": "Status",
     "category": "Category",
     "all": "All",
-    "allForwarders": "All Forwarders",
+    "allCompanies": "All Companies",
     "universalRules": "Universal Rules",
     "allStatuses": "All Statuses",
     "allCategories": "All Categories",
@@ -89,7 +89,7 @@
     "recentApplications": "Recent Applications",
     "createdBy": "Created by:",
     "createdAt": "Created at:",
-    "forwarder": "Forwarder:",
+    "company": "Company:",
     "updatedAt": "Updated at:",
     "category": "Category:",
     "requiredField": "Required field:",
@@ -224,6 +224,130 @@
     "source": "Learning Source",
     "learnedFrom": "Learned From",
     "corrections": "corrections"
+  },
+  "newRule": {
+    "pageTitle": "Suggest New Mapping Rule",
+    "pageDescription": "Create a new extraction rule suggestion. It will be applied to document processing after review.",
+    "instructions": {
+      "title": "Rule Suggestion Process",
+      "step1": "Select a company (if applicable to a specific company) or set as universal rule",
+      "step2": "Select the target field to extract",
+      "step3": "Configure extraction pattern (regex, keyword, etc.)",
+      "step4": "Use the test function to verify extraction results",
+      "step5": "Submit for review, or save as draft first"
+    },
+    "basicSettings": {
+      "title": "Basic Settings",
+      "description": "Select the company and target field for this rule"
+    },
+    "company": {
+      "label": "Company",
+      "placeholder": "Select company...",
+      "universalRule": "Universal Rule",
+      "universalRuleAppliesAll": "(Applies to all companies)",
+      "universalRuleDescription": "Selecting \"Universal Rule\" will apply to all companies"
+    },
+    "fieldName": {
+      "label": "Field Name",
+      "placeholder": "e.g.: invoice_number",
+      "description": "Enter field name or click a suggestion"
+    },
+    "description": {
+      "label": "Description (Optional)",
+      "placeholder": "Describe the purpose or special cases of this rule..."
+    },
+    "extractionMode": {
+      "title": "Extraction Mode",
+      "description": "Configure how to extract the target field value from documents",
+      "typeLabel": "Extraction Type",
+      "patternLabel": "Pattern Configuration"
+    },
+    "extractionTypes": {
+      "regex": {
+        "label": "Regex",
+        "description": "Match and extract text using regular expressions"
+      },
+      "keyword": {
+        "label": "Keyword",
+        "description": "Extract adjacent text based on keyword position"
+      },
+      "position": {
+        "label": "Position",
+        "description": "Extract based on PDF coordinate position (requires OCR)",
+        "notAvailable": "Position extraction requires OCR coordinate data. This feature is under development."
+      },
+      "aiPrompt": {
+        "label": "AI Prompt",
+        "description": "Use AI to understand and extract content (requires AI service)",
+        "notAvailable": "AI Prompt extraction requires Azure OpenAI integration. This feature is under development."
+      },
+      "template": {
+        "label": "Template",
+        "description": "Use predefined templates for matching and extraction",
+        "notAvailable": "Template matching has a dedicated test page. Please use the Template Matching Test page.",
+        "linkText": "Go to Template Matching Test"
+      }
+    },
+    "regex": {
+      "placeholder": "Enter regex, e.g.: ^Invoice No[.:]?\\\\s*(\\\\S+)",
+      "presetInvoiceNumber": "Invoice Number",
+      "presetDateFormat": "Date Format",
+      "presetAmountFormat": "Amount Format"
+    },
+    "keyword": {
+      "placeholder": "Enter JSON format:\n'{'\\n  \"keywords\": [\"Invoice No\", \"Invoice Number\"],\\n  \"position\": \"after\",\\n  \"maxDistance\": 100\\n'}'"
+    },
+    "aiPrompt": {
+      "placeholder": "Enter AI prompt, e.g.: Extract the invoice number from the document"
+    },
+    "priority": {
+      "label": "Priority (0-100)",
+      "description": "Higher number means higher priority"
+    },
+    "confidence": {
+      "label": "Default Confidence (0-1)",
+      "description": "Recommended between 0.7-0.9"
+    },
+    "buttons": {
+      "saveDraft": "Save as Draft",
+      "submitReview": "Submit for Review"
+    },
+    "toast": {
+      "success": "Success",
+      "error": "Error",
+      "draftError": "Cannot Save as Draft",
+      "draftMinFields": "Please fill in at least Company, Field Name, and Pattern"
+    },
+    "validation": {
+      "companyRequired": "Please select a company or universal rule",
+      "fieldNameRequired": "Please enter field name",
+      "extractionTypeRequired": "Please select extraction type",
+      "patternRequired": "Please enter extraction pattern"
+    }
+  },
+  "testPanel": {
+    "title": "Test Rule",
+    "description": "Test extraction results before submitting to ensure the rule works correctly",
+    "configureFirst": "Please configure the extraction pattern above before testing",
+    "testText": "Test Text",
+    "useSample": "Use Sample",
+    "clear": "Clear",
+    "placeholder": "Paste invoice text content for testing...",
+    "testing": "Testing...",
+    "runTest": "Run Test",
+    "result": "Test Result",
+    "matched": "Matched",
+    "notMatched": "Not Matched",
+    "confidenceLabel": "Confidence",
+    "extractedValue": "Extracted Value",
+    "matchPositions": "Match Positions",
+    "matchPositionCount": "{count} matches",
+    "lineColumn": "Line {line}, Col {column} (char {start}-{end})",
+    "moreMatches": "{count} more matches...",
+    "debugInfo": "Debug Info",
+    "processingTime": "Processing Time: {time} ms",
+    "matchAttempts": "Match Attempts: {count}",
+    "errors": "Errors:"
   },
   "ruleEdit": {
     "dialog": {

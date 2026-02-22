@@ -5,25 +5,26 @@
  * @description
  *   Story 4-2: 建議新映射規則
  *   提供創建新規則建議的功能：
- *   - 選擇 Forwarder 和欄位
+ *   - 選擇 Company 和欄位
  *   - 配置提取模式（REGEX, POSITION, KEYWORD, AI_PROMPT, TEMPLATE）
  *   - 即時測試提取效果
  *   - 提交建議或存為草稿
  *
  * @module src/app/(dashboard)/rules/new/page
  * @since Epic 4 - Story 4.2 (建議新映射規則)
- * @lastModified 2025-12-18
+ * @lastModified 2026-02-22
  *
  * @dependencies
  *   - @/components/features/rules/NewRuleForm - 新規則表單
  */
 
 import { Suspense } from 'react'
+import { useTranslations } from 'next-intl'
 import { NewRuleForm } from '@/components/features/rules/NewRuleForm'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 // ============================================================
 // Loading Skeleton
@@ -35,7 +36,7 @@ import Link from 'next/link'
 function NewRuleFormSkeleton() {
   return (
     <div className="space-y-6">
-      {/* Forwarder 選擇區 */}
+      {/* Company 選擇區 */}
       <div className="space-y-2">
         <Skeleton className="h-4 w-24" />
         <Skeleton className="h-10 w-full" />
@@ -88,13 +89,15 @@ function NewRuleFormSkeleton() {
  *
  * @description
  *   提供創建新規則建議的完整界面：
- *   1. 選擇 Forwarder（或通用）
+ *   1. 選擇 Company（或通用）
  *   2. 選擇目標欄位
  *   3. 配置提取模式
  *   4. 測試提取效果
  *   5. 提交建議或存為草稿
  */
 export default function NewRulePage() {
+  const t = useTranslations('rules')
+
   return (
     <div className="container mx-auto py-6 space-y-6 max-w-4xl">
       {/* 頁面標題 */}
@@ -105,22 +108,22 @@ export default function NewRulePage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">建議新映射規則</h1>
+          <h1 className="text-2xl font-bold">{t('newRule.pageTitle')}</h1>
           <p className="text-muted-foreground mt-1">
-            創建新的提取規則建議，經審核後將應用於文件處理
+            {t('newRule.pageDescription')}
           </p>
         </div>
       </div>
 
       {/* 說明卡片 */}
       <div className="bg-muted/50 border rounded-lg p-4">
-        <h3 className="font-medium mb-2">建議規則流程</h3>
+        <h3 className="font-medium mb-2">{t('newRule.instructions.title')}</h3>
         <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-          <li>選擇 Forwarder（如適用於特定 Forwarder）或設為通用規則</li>
-          <li>選擇要提取的目標欄位</li>
-          <li>配置提取模式（正則表達式、位置、關鍵字等）</li>
-          <li>使用測試功能驗證提取效果</li>
-          <li>提交建議等待審核，或先存為草稿</li>
+          <li>{t('newRule.instructions.step1')}</li>
+          <li>{t('newRule.instructions.step2')}</li>
+          <li>{t('newRule.instructions.step3')}</li>
+          <li>{t('newRule.instructions.step4')}</li>
+          <li>{t('newRule.instructions.step5')}</li>
         </ol>
       </div>
 
