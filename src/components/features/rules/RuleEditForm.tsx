@@ -13,7 +13,8 @@
  *
  * @module src/components/features/rules/RuleEditForm
  * @since Epic 5 - Story 5.3 (編輯 Forwarder 映射規則)
- * @lastModified 2025-12-19
+ * @lastModified 2026-02-22
+ * @fix FIX-042 - forwarderId→companyId
  *
  * @dependencies
  *   - react-hook-form - 表單狀態管理
@@ -129,7 +130,7 @@ interface RuleData {
   priority: number
   confidence: number
   description?: string
-  forwarderId: string
+  companyId: string | null
 }
 
 interface RuleEditFormProps {
@@ -465,7 +466,7 @@ export function RuleEditForm({ rule, onSuccess, onCancel }: RuleEditFormProps) {
   // --- Handlers ---
   const handleSubmit = (values: FormValues) => {
     updateRule({
-      forwarderId: rule.forwarderId,
+      companyId: rule.companyId,
       ruleId: rule.id,
       updates: {
         extractionType: values.extractionType

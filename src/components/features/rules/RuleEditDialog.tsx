@@ -11,7 +11,8 @@
  *
  * @module src/components/features/rules/RuleEditDialog
  * @since Epic 5 - Story 5.3 (編輯 Forwarder 映射規則)
- * @lastModified 2025-12-19
+ * @lastModified 2026-02-22
+ * @fix FIX-042 - forwarderId→companyId
  *
  * @dependencies
  *   - @/components/ui/dialog - shadcn Dialog 組件
@@ -47,7 +48,7 @@ interface RuleData {
   priority: number
   confidence: number
   description?: string
-  forwarderId: string
+  companyId: string | null
 }
 
 interface RuleEditDialogProps {

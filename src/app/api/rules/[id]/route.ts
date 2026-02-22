@@ -9,11 +9,13 @@
  *
  *   端點：
  *   - GET /api/rules/[id] - 獲取規則詳情
+ *   - PATCH /api/rules/[id] - 更新規則（創建變更請求）
  *
  * @module src/app/api/rules/[id]/route
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-22
+ * @lastModified 2026-02-22
  * @refactor REFACTOR-001 (Forwarder → Company)
+ * @fix FIX-042 - 新增 PATCH handler（無需 companyId 路徑參數）
  *
  * @dependencies
  *   - next/server - Next.js API 處理
@@ -27,9 +29,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { PERMISSIONS } from '@/types/permissions'
+import { hasPermission } from '@/lib/auth/city-permission'
+import { createUpdateRequest } from '@/services/rule-change.service'
+import { ExtractionType } from '@prisma/client'
 import type {
   ExtractionPattern,
   RuleDetail,
@@ -303,6 +309,216 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         title: 'Internal Server Error',
         status: 500,
         detail: 'Failed to fetch rule detail',
+      },
+      { status: 500 }
+    )
+  }
+}
+
+// ============================================================
+// Validation Schemas (PATCH)
+// ============================================================
+
+/**
+ * 更新規則請求 Schema
+ * FIX-042: 新增 PATCH handler，無需 companyId 路徑參數
+ */
+const UpdateRuleRequestSchema = z.object({
+  extractionType: z.nativeEnum(ExtractionType).optional(),
+  pattern: z.record(z.string(), z.unknown()).optional(),
+  priority: z.number().int().min(1).max(100).optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  description: z.string().max(500).optional(),
+  reason: z.string().min(1, '請說明變更原因').max(1000),
+})
+
+// ============================================================
+// PATCH /api/rules/[id]
+// ============================================================
+
+/**
+ * PATCH /api/rules/[id]
+ * 更新現有規則（創建變更請求）
+ *
+ * @description
+ *   FIX-042 BUG-2: 新增此端點以支援通用規則（companyId=null）更新。
+ *   從 DB 查詢規則的 companyId，無需在 URL 路徑中傳遞。
+ *   實際上會創建一個變更請求，需要審核者批准後才會生效。
+ */
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
+  try {
+    // 1. 認證檢查
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'https://api.example.com/errors/unauthorized',
+            title: 'Unauthorized',
+            status: 401,
+            detail: '請先登入',
+          },
+        },
+        { status: 401 }
+      )
+    }
+
+    // 2. 權限檢查
+    const canManageRules = hasPermission(session.user, PERMISSIONS.RULE_MANAGE)
+    if (!canManageRules) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'https://api.example.com/errors/forbidden',
+            title: 'Forbidden',
+            status: 403,
+            detail: '您沒有編輯規則的權限',
+          },
+        },
+        { status: 403 }
+      )
+    }
+
+    const { id: ruleId } = await params
+
+    // 3. 查詢規則以獲取 companyId
+    const rule = await prisma.mappingRule.findUnique({
+      where: { id: ruleId },
+      select: { id: true, companyId: true },
+    })
+
+    if (!rule) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'https://api.example.com/errors/not-found',
+            title: 'Not Found',
+            status: 404,
+            detail: `Rule ${ruleId} not found`,
+          },
+        },
+        { status: 404 }
+      )
+    }
+
+    // 4. 解析並驗證請求內容
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'https://api.example.com/errors/validation',
+            title: 'Validation Error',
+            status: 400,
+            detail: '無效的 JSON 格式',
+          },
+        },
+        { status: 400 }
+      )
+    }
+
+    const bodyValidation = UpdateRuleRequestSchema.safeParse(body)
+
+    if (!bodyValidation.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'https://api.example.com/errors/validation',
+            title: 'Validation Error',
+            status: 400,
+            detail: '請求資料驗證失敗',
+            errors: bodyValidation.error.flatten().fieldErrors,
+          },
+        },
+        { status: 400 }
+      )
+    }
+
+    const { extractionType, pattern, priority, confidence, description, reason } =
+      bodyValidation.data
+
+    // 5. 創建變更請求（companyId 從 DB 查詢，支援 null）
+    const changeRequest = await createUpdateRequest({
+      ruleId,
+      forwarderId: rule.companyId ?? '',
+      requesterId: session.user.id,
+      updates: {
+        extractionType,
+        pattern,
+        priority,
+        confidence,
+        description,
+      },
+      reason,
+    })
+
+    // 6. 返回成功響應
+    return NextResponse.json({
+      success: true,
+      data: {
+        changeRequestId: changeRequest.id,
+        status: changeRequest.status,
+        message: '規則變更已提交審核',
+        rule: {
+          id: ruleId,
+          fieldName: changeRequest.beforeContent?.fieldName,
+        },
+      },
+    })
+  } catch (error) {
+    console.error('Update rule error:', error)
+
+    if (error instanceof Error) {
+      if (error.message.includes('待審核')) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              type: 'https://api.example.com/errors/conflict',
+              title: 'Conflict',
+              status: 409,
+              detail: error.message,
+            },
+          },
+          { status: 409 }
+        )
+      }
+
+      if (
+        error.message.includes('找不到') ||
+        error.message.includes('不屬於')
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              type: 'https://api.example.com/errors/not-found',
+              title: 'Not Found',
+              status: 404,
+              detail: error.message,
+            },
+          },
+          { status: 404 }
+        )
+      }
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          type: 'https://api.example.com/errors/internal-server-error',
+          title: 'Internal Server Error',
+          status: 500,
+          detail: '更新規則時發生錯誤',
+        },
       },
       { status: 500 }
     )
