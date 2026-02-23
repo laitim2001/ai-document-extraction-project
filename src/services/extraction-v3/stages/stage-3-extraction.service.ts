@@ -47,7 +47,14 @@ import type {
   FieldValue,
   FieldDefinition,
   PromptConfigScope,
+  FieldDefinitionEntry,
 } from '@/types/extraction-v3.types';
+import { toFieldDefinition } from '@/types/extraction-v3.types';
+import {
+  INVOICE_FIELDS,
+  findFieldByAlias,
+  type InvoiceFieldDefinition,
+} from '@/types/invoice-fields';
 import {
   GptCallerService,
   type GptCallResult,
@@ -105,6 +112,10 @@ interface ExtractionConfig {
   standardFields: FieldDefinition[];
   customFields: FieldDefinition[];
 
+  // CHANGE-042: 動態欄位定義
+  fieldDefinitions: FieldDefinitionEntry[];
+  fieldDefinitionSetId?: string;
+
   // 術語映射（三層映射系統）
   universalMappings: Record<string, string>;
   companyMappings: Record<string, string>;
@@ -124,6 +135,8 @@ interface ExtractionConfig {
 interface GptExtractionResponse {
   standardFields: StandardFieldsV3;
   customFields?: Record<string, FieldValue>;
+  /** CHANGE-042: 動態欄位（所有欄位統一為 Record） */
+  fields?: Record<string, FieldValue>;
   lineItems: LineItemV3[];
   extraCharges?: ExtraChargeV3[];
   overallConfidence: number;
@@ -176,13 +189,16 @@ export class Stage3ExtractionService {
         input.options?.imageDetailMode || config.imageDetailMode
       );
 
-      // 4. 解析和驗證結果
-      const parsed = this.parseExtractionResult(gptResult.response);
+      // 4. CHANGE-042: 解析和驗證結果（傳入 fieldDefinitions 以支援動態映射）
+      const parsed = this.parseExtractionResult(
+        gptResult.response,
+        config.fieldDefinitions
+      );
 
-      // 計算 overallConfidence（如果 GPT 沒有返回，從欄位信心度平均計算）
+      // 計算 overallConfidence（優先使用動態 fields，fallback 到 standardFields）
       const overallConfidence = parsed.overallConfidence > 0
         ? parsed.overallConfidence
-        : this.calculateOverallConfidence(parsed.standardFields);
+        : this.calculateOverallConfidence(parsed.standardFields, parsed.fields);
 
       return {
         stageName: 'STAGE_3_FIELD_EXTRACTION',
@@ -190,9 +206,11 @@ export class Stage3ExtractionService {
         durationMs: Date.now() - startTime,
         standardFields: parsed.standardFields,
         customFields: parsed.customFields,
+        fields: parsed.fields,
         lineItems: parsed.lineItems,
         extraCharges: parsed.extraCharges,
         overallConfidence,
+        fieldDefinitionSetId: config.fieldDefinitionSetId,
         configUsed: {
           promptConfigScope: config.promptConfigScope,
           promptConfigId: config.promptConfigId,
@@ -238,11 +256,13 @@ export class Stage3ExtractionService {
       formatId
     );
 
-    // 2. 載入 FieldMappingConfig
-    const fieldMappingConfig = await this.loadFieldMappingConfig(
-      companyId,
-      formatId
-    );
+    // 2. CHANGE-042: 載入 FieldDefinitionSet（取代舊的 loadFieldMappingConfig stub）
+    const fieldDefSet = await this.loadFieldDefinitionSet(companyId, formatId);
+
+    // 將 FieldDefinitionEntry[] 轉為 FieldDefinition[]（向下兼容 buildFieldsSection）
+    const allFieldDefs = fieldDefSet.fields.map(toFieldDefinition);
+    const standardFields = allFieldDefs.filter((f) => f.required);
+    const customFields = allFieldDefs.filter((f) => !f.required);
 
     // 3. 載入術語映射（Tier 1 + Tier 2）
     const universalMappings = await this.loadTier1Mappings();
@@ -250,14 +270,9 @@ export class Stage3ExtractionService {
       ? await this.loadTier2Mappings(companyId)
       : {};
 
-    // 4. 載入格式特定欄位定義
-    const customFields = formatId
-      ? await this.loadFormatCustomFields(formatId)
-      : [];
-
-    // 5. 生成 JSON Schema
+    // 4. 生成 JSON Schema
     const outputSchema = this.generateOutputSchema(
-      fieldMappingConfig.standardFields,
+      standardFields,
       customFields
     );
 
@@ -266,9 +281,11 @@ export class Stage3ExtractionService {
       promptConfigId: promptConfig.id,
       systemPrompt: promptConfig.systemPrompt,
       userPromptTemplate: promptConfig.userPromptTemplate,
-      fieldMappingConfigId: fieldMappingConfig.id,
-      standardFields: fieldMappingConfig.standardFields,
+      fieldMappingConfigId: fieldDefSet.id,
+      standardFields,
       customFields,
+      fieldDefinitions: fieldDefSet.fields,
+      fieldDefinitionSetId: fieldDefSet.id,
       universalMappings,
       companyMappings,
       universalMappingsCount: Object.keys(universalMappings).length,
@@ -361,20 +378,119 @@ export class Stage3ExtractionService {
   }
 
   /**
-   * 載入 FieldMappingConfig
+   * CHANGE-042: 從 DB 載入 FieldDefinitionSet（三層解析）
+   * @description 查詢優先級: FORMAT > COMPANY > GLOBAL，合併後返回完整欄位定義
    */
-  private async loadFieldMappingConfig(
-    _companyId?: string,
-    _formatId?: string
+  private async loadFieldDefinitionSet(
+    companyId?: string,
+    formatId?: string
   ): Promise<{
     id?: string;
-    standardFields: FieldDefinition[];
+    fields: FieldDefinitionEntry[];
   }> {
-    // TODO: Phase 2 - 從資料庫載入 FieldMappingConfig
-    // 目前返回預設標準欄位
-    return {
-      standardFields: this.getDefaultStandardFieldDefinitions(),
+    // 1. 查 FORMAT scope (companyId + formatId)
+    let formatSet: { id: string; fields: unknown } | null = null;
+    if (companyId && formatId) {
+      formatSet = await this.prisma.fieldDefinitionSet.findFirst({
+        where: {
+          scope: 'FORMAT',
+          companyId,
+          documentFormatId: formatId,
+          isActive: true,
+        },
+        select: { id: true, fields: true },
+      });
+    }
+
+    // 2. 查 COMPANY scope (companyId, formatId=null)
+    let companySet: { id: string; fields: unknown } | null = null;
+    if (companyId) {
+      companySet = await this.prisma.fieldDefinitionSet.findFirst({
+        where: {
+          scope: 'COMPANY',
+          companyId,
+          documentFormatId: null,
+          isActive: true,
+        },
+        select: { id: true, fields: true },
+      });
+    }
+
+    // 3. 查 GLOBAL scope
+    const globalSet = await this.prisma.fieldDefinitionSet.findFirst({
+      where: {
+        scope: 'GLOBAL',
+        companyId: null,
+        documentFormatId: null,
+        isActive: true,
+      },
+      select: { id: true, fields: true },
+    });
+
+    // 4. 合併: GLOBAL 為基底 → COMPANY 覆蓋/追加 → FORMAT 覆蓋/追加
+    const mergedFields = new Map<string, FieldDefinitionEntry>();
+
+    const parseFields = (raw: unknown): FieldDefinitionEntry[] => {
+      if (!raw || !Array.isArray(raw)) return [];
+      return raw as FieldDefinitionEntry[];
     };
+
+    // GLOBAL base
+    if (globalSet) {
+      for (const f of parseFields(globalSet.fields)) {
+        mergedFields.set(f.key, f);
+      }
+    }
+
+    // COMPANY override
+    if (companySet) {
+      for (const f of parseFields(companySet.fields)) {
+        mergedFields.set(f.key, f);
+      }
+    }
+
+    // FORMAT override
+    if (formatSet) {
+      for (const f of parseFields(formatSet.fields)) {
+        mergedFields.set(f.key, f);
+      }
+    }
+
+    // 5. 如果全部沒找到 → fallback 到 invoice-fields.ts 的 isRequired 欄位
+    if (mergedFields.size === 0) {
+      return {
+        fields: this.getFallbackFieldDefinitions(),
+      };
+    }
+
+    // 返回最具體的 set ID（FORMAT > COMPANY > GLOBAL）
+    const setId = formatSet?.id || companySet?.id || globalSet?.id;
+
+    return {
+      id: setId,
+      fields: Array.from(mergedFields.values()),
+    };
+  }
+
+  /**
+   * CHANGE-042: Fallback 欄位定義（從 invoice-fields.ts 生成）
+   * @description 當 DB 中沒有任何 FieldDefinitionSet 時使用
+   */
+  private getFallbackFieldDefinitions(): FieldDefinitionEntry[] {
+    return Object.values(INVOICE_FIELDS)
+      .filter((f: InvoiceFieldDefinition) => f.isRequired)
+      .map((f: InvoiceFieldDefinition): FieldDefinitionEntry => ({
+        key: f.name,
+        label: f.label,
+        category: f.category,
+        dataType: f.dataType === 'address' || f.dataType === 'phone' || f.dataType === 'email'
+          || f.dataType === 'weight' || f.dataType === 'dimension'
+          ? 'string'
+          : f.dataType as 'string' | 'number' | 'date' | 'currency',
+        required: f.isRequired,
+        description: f.description,
+        aliases: f.aliases,
+      }));
   }
 
   /**
@@ -426,45 +542,6 @@ export class Stage3ExtractionService {
     );
   }
 
-  /**
-   * 載入格式特定欄位定義
-   * @description 從格式的 features 欄位中提取自定義欄位定義
-   */
-  private async loadFormatCustomFields(
-    formatId: string
-  ): Promise<FieldDefinition[]> {
-    const format = await this.prisma.documentFormat.findUnique({
-      where: { id: formatId },
-      select: { features: true },
-    });
-
-    if (!format?.features) return [];
-
-    // 從 features JSON 中提取自定義欄位
-    // features 結構可能包含 typicalFields 等資訊
-    const featuresJson = format.features as {
-      typicalFields?: string[];
-      customFields?: Record<
-        string,
-        { type: string; required?: boolean; hints?: string[] }
-      >;
-    };
-
-    // 如果有 customFields 定義，使用它
-    if (featuresJson.customFields) {
-      return Object.entries(featuresJson.customFields).map(([key, value]) => ({
-        key,
-        displayName: key,
-        type:
-          (value.type as 'string' | 'number' | 'date' | 'currency') || 'string',
-        required: value.required || false,
-        extractionHints: value.hints,
-      }));
-    }
-
-    // 否則返回空陣列
-    return [];
-  }
 
   /**
    * 生成輸出 JSON Schema
@@ -670,126 +747,243 @@ Respond in valid JSON format matching the provided schema.`;
   }
 
   /**
-   * 解析 GPT 響應
-   * @description 支援兩種格式：
-   *   1. 標準格式：包含 standardFields 結構
-   *   2. 原始格式：GPT 返回的原始發票數據，需要轉換
+   * CHANGE-042: 解析 GPT 響應（支援三種格式）
+   * @description
+   *   Case 1: 有 "fields" key（新格式） → 直接使用，同時生成 standardFields 向下兼容
+   *   Case 2: 有 "standardFields" key（舊格式） → 展平為 fields Record
+   *   Case 3: 原始格式（GPT 直接回傳 key-value） → 用 fieldDefinitions + aliases 動態查找
    */
-  private parseExtractionResult(response: string): GptExtractionResponse {
+  private parseExtractionResult(
+    response: string,
+    fieldDefinitions?: FieldDefinitionEntry[]
+  ): GptExtractionResponse {
     try {
       const parsed = JSON.parse(response) as Record<string, unknown>;
 
-      // 檢查是否為標準格式（包含 standardFields）
+      // Case 1: 新格式 — 有 "fields" key
+      if (parsed.fields && typeof parsed.fields === 'object') {
+        const fieldsRecord = parsed.fields as Record<string, unknown>;
+        const fields: Record<string, FieldValue> = {};
+
+        for (const [key, val] of Object.entries(fieldsRecord)) {
+          if (val && typeof val === 'object' && 'value' in (val as Record<string, unknown>)) {
+            fields[key] = val as FieldValue;
+          } else {
+            fields[key] = { value: val as string | number | null, confidence: 85 };
+          }
+        }
+
+        // 從 fields 生成向下兼容的 standardFields
+        const standardFields = this.buildStandardFieldsFromRecord(fields);
+
+        return {
+          standardFields,
+          fields,
+          lineItems: this.convertRawLineItems(
+            (parsed.lineItems ?? parsed.line_items) as unknown[] | undefined
+          ),
+          extraCharges: parsed.extraCharges as ExtraChargeV3[] | undefined,
+          overallConfidence: (parsed.overallConfidence as number) || 0,
+        };
+      }
+
+      // Case 2: 舊格式 — 有 "standardFields" key
       if (parsed.standardFields) {
         const typedParsed = parsed as unknown as GptExtractionResponse;
+        const standardFields =
+          typedParsed.standardFields || this.buildEmptyStandardFields();
+
+        // 展平 standardFields 為 fields Record
+        const fields = this.flattenStandardFieldsToRecord(
+          standardFields,
+          typedParsed.customFields
+        );
+
         return {
-          standardFields: typedParsed.standardFields || this.buildEmptyStandardFields(),
+          standardFields,
           customFields: typedParsed.customFields,
+          fields,
           lineItems: typedParsed.lineItems || [],
           extraCharges: typedParsed.extraCharges,
           overallConfidence: typedParsed.overallConfidence || 0,
         };
       }
 
-      // 原始格式：轉換為標準格式
-      return this.convertRawResponseToStandardFormat(parsed);
+      // Case 3: 原始格式 — 用 fieldDefinitions + aliases 動態映射
+      return this.convertRawResponseDynamic(parsed, fieldDefinitions);
     } catch {
       throw new Error('Failed to parse GPT extraction response');
     }
   }
 
   /**
-   * 將 GPT 原始響應轉換為標準格式
-   * @description 處理 GPT 返回的原始發票數據結構
+   * CHANGE-042: 動態映射原始 GPT 響應
+   * @description 基於 fieldDefinitions + invoice-fields.ts aliases 進行智能匹配
    */
-  private convertRawResponseToStandardFormat(
-    raw: Record<string, unknown>
+  private convertRawResponseDynamic(
+    raw: Record<string, unknown>,
+    fieldDefinitions?: FieldDefinitionEntry[]
   ): GptExtractionResponse {
-    // 預設信心度（原始格式沒有欄位級別信心度，使用預設值）
     const DEFAULT_CONFIDENCE = 85;
+    const fields: Record<string, FieldValue> = {};
 
-    // 提取標準欄位
-    const invoiceNumber = this.extractFieldValue(
-      raw,
-      ['invoice_number', 'invoiceNumber', 'InvoiceNumber'],
-      DEFAULT_CONFIDENCE
-    );
+    // 建立搜索清單: fieldDefinitions + invoice-fields.ts 全部欄位
+    const searchEntries: Array<{
+      key: string;
+      aliases: string[];
+    }> = [];
 
-    const invoiceDate = this.extractFieldValue(
-      raw,
-      ['invoice_date', 'invoiceDate', 'InvoiceDate'],
-      DEFAULT_CONFIDENCE,
-      // 也檢查 nested 結構
-      raw.invoice_metadata as Record<string, unknown> | undefined
-    );
+    // 從 fieldDefinitions 構建
+    if (fieldDefinitions && fieldDefinitions.length > 0) {
+      for (const def of fieldDefinitions) {
+        const baseAliases = [
+          def.key,
+          this.toCamelCase(def.key),
+          this.toPascalCase(def.key),
+        ];
+        // 加入 DB 定義的 aliases
+        const dbAliases = def.aliases || [];
+        // 加入 invoice-fields.ts 的 aliases
+        const invoiceField = findFieldByAlias(def.key);
+        const invoiceAliases = invoiceField?.aliases || [];
 
-    const vendorName = this.extractFieldValue(
-      raw,
-      ['vendor_name', 'vendorName', 'seller_name', 'name'],
-      DEFAULT_CONFIDENCE,
-      raw.seller as Record<string, unknown> | undefined
-    );
+        searchEntries.push({
+          key: def.key,
+          aliases: [...new Set([...baseAliases, ...dbAliases, ...invoiceAliases])],
+        });
+      }
+    } else {
+      // Fallback: 使用 invoice-fields.ts 所有欄位
+      for (const field of Object.values(INVOICE_FIELDS)) {
+        const baseAliases = [
+          field.name,
+          this.toCamelCase(field.name),
+          this.toPascalCase(field.name),
+        ];
+        searchEntries.push({
+          key: field.name,
+          aliases: [...new Set([...baseAliases, ...(field.aliases || [])])],
+        });
+      }
+    }
 
-    const totalAmount = this.extractFieldValue(
-      raw,
-      ['total_amount', 'totalAmount', 'total', 'amount'],
-      DEFAULT_CONFIDENCE,
-      raw.totals as Record<string, unknown> | undefined
-    );
+    // 對每個欄位進行搜索
+    for (const entry of searchEntries) {
+      const value = this.findValueInRaw(raw, entry.aliases);
+      if (value !== undefined) {
+        fields[entry.key] =
+          value && typeof value === 'object' && 'value' in (value as Record<string, unknown>)
+            ? (value as FieldValue)
+            : { value: value as string | number | null, confidence: DEFAULT_CONFIDENCE };
+      }
+    }
 
-    const currency = this.extractFieldValue(
-      raw,
-      ['currency', 'Currency'],
-      DEFAULT_CONFIDENCE
-    );
-
-    const standardFields: StandardFieldsV3 = {
-      invoiceNumber,
-      invoiceDate,
-      vendorName,
-      totalAmount,
-      currency,
-    };
+    // 向下兼容 standardFields
+    const standardFields = this.buildStandardFieldsFromRecord(fields);
 
     // 轉換 line items
-    const lineItems = this.convertRawLineItems(raw.line_items as unknown[] | undefined);
+    const lineItems = this.convertRawLineItems(
+      (raw.lineItems ?? raw.line_items) as unknown[] | undefined
+    );
 
-    // 計算整體信心度
-    const overallConfidence = this.calculateFieldsConfidence(standardFields);
+    // 計算信心度
+    const overallConfidence = this.calculateDynamicFieldsConfidence(fields);
 
     return {
       standardFields,
+      fields,
       lineItems,
+      extraCharges: raw.extraCharges as ExtraChargeV3[] | undefined,
       overallConfidence,
     };
   }
 
   /**
-   * 從原始數據中提取欄位值
+   * CHANGE-042: 在原始數據中搜索值
    */
-  private extractFieldValue(
-    data: Record<string, unknown>,
-    possibleKeys: string[],
-    confidence: number,
-    nestedData?: Record<string, unknown>
-  ): FieldValue {
-    // 先檢查主數據
-    for (const key of possibleKeys) {
-      if (data[key] !== undefined && data[key] !== null) {
-        return { value: data[key] as string | number | null, confidence };
+  private findValueInRaw(
+    raw: Record<string, unknown>,
+    aliases: string[]
+  ): unknown | undefined {
+    for (const alias of aliases) {
+      if (raw[alias] !== undefined && raw[alias] !== null) {
+        return raw[alias];
       }
     }
-
-    // 再檢查嵌套數據
-    if (nestedData) {
-      for (const key of possibleKeys) {
-        if (nestedData[key] !== undefined && nestedData[key] !== null) {
-          return { value: nestedData[key] as string | number | null, confidence };
+    // 嵌套搜索（常見嵌套 key）
+    const nestedKeys = ['invoice_metadata', 'seller', 'totals', 'header'];
+    for (const nk of nestedKeys) {
+      if (raw[nk] && typeof raw[nk] === 'object') {
+        const nested = raw[nk] as Record<string, unknown>;
+        for (const alias of aliases) {
+          if (nested[alias] !== undefined && nested[alias] !== null) {
+            return nested[alias];
+          }
         }
       }
     }
+    return undefined;
+  }
 
-    return { value: null, confidence: 0 };
+  /**
+   * CHANGE-042: snake_case → camelCase
+   */
+  private toCamelCase(str: string): string {
+    return str.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
+  }
+
+  /**
+   * CHANGE-042: snake_case → PascalCase
+   */
+  private toPascalCase(str: string): string {
+    const camel = this.toCamelCase(str);
+    return camel.charAt(0).toUpperCase() + camel.slice(1);
+  }
+
+  /**
+   * CHANGE-042: 從 fields Record 建構向下兼容的 StandardFieldsV3
+   */
+  private buildStandardFieldsFromRecord(
+    fields: Record<string, FieldValue>
+  ): StandardFieldsV3 {
+    const emptyField: FieldValue = { value: null, confidence: 0 };
+    return {
+      invoiceNumber: fields['invoice_number'] || fields['invoiceNumber'] || emptyField,
+      invoiceDate: fields['invoice_date'] || fields['invoiceDate'] || emptyField,
+      dueDate: fields['due_date'] || fields['dueDate'],
+      vendorName: fields['vendor_name'] || fields['vendorName']
+        || fields['forwarder_name'] || fields['forwarderName'] || emptyField,
+      customerName: fields['customer_name'] || fields['customerName']
+        || fields['shipper_name'] || fields['shipperName'],
+      totalAmount: fields['total_amount'] || fields['totalAmount'] || emptyField,
+      subtotal: fields['subtotal'],
+      currency: fields['currency'] || emptyField,
+    };
+  }
+
+  /**
+   * CHANGE-042: 展平 StandardFieldsV3 + customFields 為 fields Record
+   */
+  private flattenStandardFieldsToRecord(
+    sf: StandardFieldsV3,
+    customFields?: Record<string, FieldValue>
+  ): Record<string, FieldValue> {
+    const fields: Record<string, FieldValue> = {
+      invoice_number: sf.invoiceNumber,
+      invoice_date: sf.invoiceDate,
+      vendor_name: sf.vendorName,
+      total_amount: sf.totalAmount,
+      currency: sf.currency,
+    };
+    if (sf.dueDate) fields['due_date'] = sf.dueDate;
+    if (sf.customerName) fields['customer_name'] = sf.customerName;
+    if (sf.subtotal) fields['subtotal'] = sf.subtotal;
+    if (customFields) {
+      for (const [k, v] of Object.entries(customFields)) {
+        fields[k] = v;
+      }
+    }
+    return fields;
   }
 
   /**
@@ -817,7 +1011,7 @@ Respond in valid JSON format matching the provided schema.`;
   }
 
   /**
-   * 計算欄位的平均信心度
+   * 計算欄位的平均信心度（StandardFieldsV3 向下兼容版本）
    */
   private calculateFieldsConfidence(fields: StandardFieldsV3): number {
     const fieldList = [
@@ -834,6 +1028,29 @@ Respond in valid JSON format matching the provided schema.`;
 
     if (validFields.length === 0) {
       return 0;
+    }
+
+    return Math.round(
+      validFields.reduce((sum, f) => sum + f.confidence, 0) / validFields.length
+    );
+  }
+
+  /**
+   * CHANGE-042: 動態計算所有 fields 的平均信心度
+   */
+  private calculateDynamicFieldsConfidence(
+    fields: Record<string, FieldValue>
+  ): number {
+    const allValues = Object.values(fields);
+    const validFields = allValues.filter(
+      (f) => f && f.value !== null && f.value !== '' && f.confidence > 0
+    );
+
+    if (validFields.length === 0) {
+      const filledCount = allValues.filter(
+        (f) => f && f.value !== null && f.value !== ''
+      ).length;
+      return filledCount > 0 ? 60 + (filledCount / Math.max(allValues.length, 1)) * 30 : 0;
     }
 
     return Math.round(
@@ -867,11 +1084,20 @@ Respond in valid JSON format matching the provided schema.`;
   }
 
   /**
-   * 計算整體信心度（從標準欄位的信心度平均值）
-   * @description 當 GPT 沒有返回 overallConfidence 時，從提取的欄位計算
+   * CHANGE-042: 計算整體信心度（支援動態 fields 或 standardFields）
+   * @description 優先使用 fields Record 動態計算；fallback 到 standardFields
    */
-  private calculateOverallConfidence(standardFields: StandardFieldsV3): number {
-    const fields = [
+  private calculateOverallConfidence(
+    standardFields: StandardFieldsV3,
+    dynamicFields?: Record<string, FieldValue>
+  ): number {
+    // 優先使用動態 fields
+    if (dynamicFields && Object.keys(dynamicFields).length > 0) {
+      return this.calculateDynamicFieldsConfidence(dynamicFields);
+    }
+
+    // Fallback: 從 standardFields 計算
+    const fieldList = [
       standardFields.invoiceNumber,
       standardFields.invoiceDate,
       standardFields.vendorName,
@@ -879,18 +1105,15 @@ Respond in valid JSON format matching the provided schema.`;
       standardFields.currency,
     ];
 
-    // 過濾有效欄位（有值且有信心度）
-    const validFields = fields.filter(
+    const validFields = fieldList.filter(
       (f) => f && f.value !== null && f.value !== '' && f.confidence > 0
     );
 
     if (validFields.length === 0) {
-      // 如果沒有有效欄位，基於欄位是否有值給一個基本信心度
-      const filledCount = fields.filter((f) => f && f.value !== null && f.value !== '').length;
-      return filledCount > 0 ? 60 + (filledCount / fields.length) * 30 : 0;
+      const filledCount = fieldList.filter((f) => f && f.value !== null && f.value !== '').length;
+      return filledCount > 0 ? 60 + (filledCount / fieldList.length) * 30 : 0;
     }
 
-    // 計算平均信心度
     const avgConfidence =
       validFields.reduce((sum, f) => sum + f.confidence, 0) / validFields.length;
 
@@ -955,54 +1178,4 @@ Respond in valid JSON format.`;
     return 'Extract all invoice data from this image.';
   }
 
-  /**
-   * 預設標準欄位定義
-   */
-  private getDefaultStandardFieldDefinitions(): FieldDefinition[] {
-    return [
-      {
-        key: 'invoiceNumber',
-        displayName: 'Invoice Number',
-        type: 'string',
-        required: true,
-      },
-      {
-        key: 'invoiceDate',
-        displayName: 'Invoice Date',
-        type: 'date',
-        required: true,
-      },
-      { key: 'dueDate', displayName: 'Due Date', type: 'date', required: false },
-      {
-        key: 'vendorName',
-        displayName: 'Vendor Name',
-        type: 'string',
-        required: true,
-      },
-      {
-        key: 'customerName',
-        displayName: 'Customer Name',
-        type: 'string',
-        required: false,
-      },
-      {
-        key: 'totalAmount',
-        displayName: 'Total Amount',
-        type: 'currency',
-        required: true,
-      },
-      {
-        key: 'subtotal',
-        displayName: 'Subtotal',
-        type: 'currency',
-        required: false,
-      },
-      {
-        key: 'currency',
-        displayName: 'Currency',
-        type: 'string',
-        required: true,
-      },
-    ];
-  }
 }

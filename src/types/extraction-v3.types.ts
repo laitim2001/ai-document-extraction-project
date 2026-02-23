@@ -118,6 +118,80 @@ export interface FieldDefinition {
 }
 
 // ============================================================================
+// CHANGE-042: Field Definition Entry (DB JSON Structure)
+// ============================================================================
+
+/**
+ * 欄位定義條目（存儲在 FieldDefinitionSet.fields JSON 中）
+ * @description 定義 AI 應該提取的欄位規範，支援動態欄位集
+ * @since CHANGE-042
+ */
+export interface FieldDefinitionEntry {
+  /** 欄位鍵名（snake_case，如 "sea_freight"） */
+  key: string;
+  /** 顯示標籤（如 "Sea Freight"） */
+  label: string;
+  /** 欄位分類（如 "basic", "charges", "shipping"） */
+  category: string;
+  /** 資料類型 */
+  dataType: 'string' | 'number' | 'date' | 'currency';
+  /** 是否必填 */
+  required: boolean;
+  /** 欄位描述 */
+  description?: string;
+  /** 額外別名（補充 invoice-fields.ts 中的 aliases） */
+  aliases?: string[];
+  /** 提取提示（給 AI 的指引） */
+  extractionHints?: string;
+}
+
+// ============================================================================
+// CHANGE-042: Extracted Fields V4 (Dynamic Field Structure)
+// ============================================================================
+
+/**
+ * V4 動態欄位提取結果
+ * @description 完全動態的欄位結構，取代固定的 StandardFieldsV3
+ * @since CHANGE-042
+ */
+export interface ExtractedFieldsV4 {
+  /** 所有欄位統一為 key-value 結構 */
+  fields: Record<string, FieldValue>;
+  /** lineItems 保留原始結構 */
+  lineItems: LineItemV3[];
+  /** extraCharges 保留原始結構 */
+  extraCharges?: ExtraChargeV3[];
+  /** 後設數據 */
+  meta: {
+    /** 使用的 FieldDefinitionSet ID */
+    fieldDefinitionSetId?: string;
+    /** 提取版本 */
+    extractionVersion: string;
+    /** 整體信心度 (0-100) */
+    overallConfidence: number;
+    /** 提取的欄位總數 */
+    fieldCount: number;
+    /** 值為 null 的欄位數 */
+    nullCount: number;
+  };
+}
+
+/**
+ * FieldDefinitionEntry 轉換為 FieldDefinition 的工具函數
+ * @description 將 DB 中存儲的 FieldDefinitionEntry 轉換為 Prompt 組裝使用的 FieldDefinition
+ * @since CHANGE-042
+ */
+export function toFieldDefinition(entry: FieldDefinitionEntry): FieldDefinition {
+  return {
+    key: entry.key,
+    displayName: entry.label,
+    type: entry.dataType,
+    required: entry.required,
+    extractionHints: entry.extractionHints ? [entry.extractionHints] : undefined,
+  };
+}
+
+// ============================================================================
 // Unified Extraction Result Types
 // ============================================================================
 
@@ -1122,16 +1196,20 @@ export interface Stage3ExtractionResult {
   durationMs: number;
 
   // ===== 提取結果 =====
-  /** 標準欄位（8 個核心欄位） */
+  /** 標準欄位（8 個核心欄位，向下兼容） */
   standardFields: StandardFieldsV3;
   /** 自定義欄位（公司/格式特定） */
   customFields?: Record<string, FieldValue>;
+  /** CHANGE-042: 動態欄位提取結果（所有欄位統一為 key-value Record） */
+  fields?: Record<string, FieldValue>;
   /** 行項目（含術語預分類） */
   lineItems: LineItemV3[];
   /** 額外費用（含術語預分類） */
   extraCharges?: ExtraChargeV3[];
   /** GPT 自評信心度 (0-100) */
   overallConfidence: number;
+  /** CHANGE-042: 使用的 FieldDefinitionSet ID */
+  fieldDefinitionSetId?: string;
 
   // ===== 配置來源追蹤 =====
   /** 使用的配置詳情 */

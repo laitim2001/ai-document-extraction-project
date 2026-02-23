@@ -499,6 +499,7 @@ model Company {
   testTasks                 RuleTestTask[]           @relation("CompanyTestTasks")
   templateFieldMappings     TemplateFieldMapping[]
   pipelineConfigs           PipelineConfig[]           // CHANGE-032: Pipeline 配置關聯
+  fieldDefinitionSets       FieldDefinitionSet[]       // CHANGE-042: 欄位定義集關聯
 
   @@index([type])
   @@index([status])
@@ -2890,6 +2891,7 @@ model DocumentFormat {
   files                 HistoricalFile[]
   promptConfigs         PromptConfig[]
   templateFieldMappings TemplateFieldMapping[]
+  fieldDefinitionSets   FieldDefinitionSet[]       // CHANGE-042: 欄位定義集關聯
 
   @@unique([companyId, documentType, documentSubtype])
   @@index([companyId])
@@ -4209,6 +4211,47 @@ model ExchangeRate {
   @@index([isActive])
   @@index([source])
   @@map("exchange_rates")
+}
+
+// ============================================================================
+// CHANGE-042: Field Definition Set（欄位定義集）
+// ============================================================================
+
+enum FieldDefinitionScope {
+  GLOBAL
+  COMPANY
+  FORMAT
+}
+
+/// 欄位定義集
+/// 定義 AI 應從文件中提取哪些欄位（三層 scope: GLOBAL → COMPANY → FORMAT）
+/// @since CHANGE-042
+model FieldDefinitionSet {
+  id               String                @id @default(uuid())
+  scope            FieldDefinitionScope  @default(GLOBAL)
+  companyId        String?               @map("company_id")
+  documentFormatId String?               @map("document_format_id")
+  name             String                @db.VarChar(200)
+  description      String?
+  isActive         Boolean               @default(true) @map("is_active")
+  version          Int                   @default(1)
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+  createdBy        String?               @map("created_by")
+
+  // 欄位定義存為 JSON（FieldDefinitionEntry[]）
+  fields           Json
+
+  // Relations
+  company          Company?              @relation(fields: [companyId], references: [id])
+  documentFormat   DocumentFormat?       @relation(fields: [documentFormatId], references: [id])
+
+  @@unique([scope, companyId, documentFormatId])
+  @@index([companyId])
+  @@index([documentFormatId])
+  @@index([scope])
+  @@index([isActive])
+  @@map("field_definition_sets")
 }
 
 // ============================================================================

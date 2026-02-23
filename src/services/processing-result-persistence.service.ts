@@ -471,17 +471,21 @@ export async function persistV3_1ProcessingResult(
     (stage2Result?.durationMs ?? 0) +
     (stage3Result?.durationMs ?? 0);
 
-  // 從 Stage 3 提取欄位信息
+  // CHANGE-042: 優先使用動態 fields（所有欄位），fallback 到 standardFields
+  const dynamicFields = stage3Result?.fields;
   const standardFields = stage3Result?.standardFields ?? {};
+  const fieldMappingsData = dynamicFields && Object.keys(dynamicFields).length > 0
+    ? dynamicFields
+    : standardFields;
   const lineItems = stage3Result?.lineItems ?? [];
   const extraCharges = stage3Result?.extraCharges ?? [];
 
-  // 計算欄位統計
-  const standardFieldKeys = Object.keys(standardFields);
-  const totalFields = standardFieldKeys.length + lineItems.length + extraCharges.length;
-  const mappedFields = standardFieldKeys.filter(
+  // 計算欄位統計（基於實際存入的 fieldMappings）
+  const fieldKeys = Object.keys(fieldMappingsData);
+  const totalFields = fieldKeys.length + lineItems.length + extraCharges.length;
+  const mappedFields = fieldKeys.filter(
     (key) => {
-      const field = (standardFields as Record<string, { value?: string | number | null }>)[key];
+      const field = (fieldMappingsData as Record<string, { value?: string | number | null }>)[key];
       return field?.value !== null && field?.value !== undefined && field?.value !== '';
     }
   ).length;
@@ -524,7 +528,7 @@ export async function persistV3_1ProcessingResult(
       create: {
         documentId,
         companyId: stage1Result?.companyId ?? null,
-        fieldMappings: standardFields as unknown as Prisma.InputJsonValue,
+        fieldMappings: fieldMappingsData as unknown as Prisma.InputJsonValue,
         totalFields,
         mappedFields,
         unmappedFields: totalFields - mappedFields,
@@ -574,7 +578,7 @@ export async function persistV3_1ProcessingResult(
       },
       update: {
         companyId: stage1Result?.companyId ?? null,
-        fieldMappings: standardFields as unknown as Prisma.InputJsonValue,
+        fieldMappings: fieldMappingsData as unknown as Prisma.InputJsonValue,
         totalFields,
         mappedFields,
         unmappedFields: totalFields - mappedFields,
