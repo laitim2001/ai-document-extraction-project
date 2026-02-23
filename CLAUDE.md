@@ -318,6 +318,81 @@ npm run test                  # 測試
 
 ---
 
+## 🤖 開發編排協議 — 並行 Agent 自動化（🟡 重要）
+
+> **核心原則**: 當任務可拆分為多個獨立子任務時，AI 助手應**主動**使用並行 Agent 編排來最大化開發效率。不需要用戶明確指示。
+
+### 自動觸發條件
+
+| 條件 | 說明 | 範例 |
+|------|------|------|
+| **多 CHANGE/FIX 同時開發** | 2+ 個獨立的 CHANGE 或 FIX | Sprint 含 CHANGE-043 + CHANGE-044 |
+| **大型功能實作** | 單一功能可拆分為 ≥3 個獨立模組 | API + Service + Component + i18n |
+| **多文件修改** | 涉及 >5 個文件且各自獨立 | 批量重構、模式統一 |
+| **用戶明確要求** | 用戶提及「並行」「同時」「一起做」 | — |
+
+### 標準執行流程
+
+```
+Step 1: 探索與規劃（主 Session）
+  ├─ 讀取規劃文件（tech-spec、CHANGE doc、相關代碼）
+  ├─ 識別可並行的獨立子任務
+  ├─ 確認各子任務之間無文件衝突
+  └─ 使用 TaskCreate 建立任務清單
+
+Step 2: 並行派發（使用 Task tool）
+  ├─ 為每個獨立子任務啟動 Agent（run_in_background: true）
+  ├─ 每個 Agent 的 prompt 必須包含：
+  │   ✅ 明確的實作範圍和預期產出
+  │   ✅ 相關文件路徑
+  │   ✅ 必須遵守的代碼規範引用
+  │   ✅ 不可修改的文件（避免衝突）
+  └─ 輸出啟動狀態表
+
+Step 3: 監控與彙總（主 Session）
+  ├─ 追蹤每個 Agent 的完成狀態
+  ├─ Agent 完成後 TaskUpdate 更新狀態
+  ├─ 如有 Agent 失敗，分析原因並決定重試或手動修復
+  └─ 所有 Agent 完成後輸出最終狀態表
+
+Step 4: 統一驗證（主 Session）
+  ├─ npm run type-check（TypeScript 類型檢查）
+  ├─ npm run lint（ESLint）
+  ├─ npm run i18n:check（i18n 同步，如涉及 UI 文字）
+  └─ 確認模組間整合正確性
+
+Step 5: 統一 Commit（僅在用戶要求時）
+```
+
+### Agent 選擇指南
+
+| 任務類型 | subagent_type | 用途 |
+|----------|---------------|------|
+| 功能實作（API + Service + Component） | `code-implementer` | 寫代碼，遵循規範 |
+| 代碼品質檢查 | `code-quality-checker` | 檢查 9 條規則合規性 |
+| i18n 翻譯同步 | `i18n-guardian` | 驗證 en/zh-TW/zh-CN 同步 |
+| 架構設計驗證 | `architecture-reviewer` | 驗證設計決策 |
+| 代碼探索與研究 | `Explore` | 快速搜尋代碼結構 |
+
+### 進度追蹤格式
+
+```markdown
+| Agent | 任務 | 狀態 | 備註 |
+|-------|------|------|------|
+| task-1 | CHANGE-XXX: 描述 | ✅ 完成 / 🔄 進行中 / ❌ 失敗 | 修改 N 文件 |
+| task-2 | CHANGE-YYY: 描述 | 🔄 進行中 | — |
+```
+
+### 限制與安全規則
+
+- **禁止並行修改同一文件**: 如多個 Agent 需修改同一文件，必須序列化處理
+- **i18n 統一處理**: 翻譯文件（`messages/`）的修改應在所有功能 Agent 完成後統一處理
+- **Agent 內禁止 Commit**: 所有 git 操作由主 Session 統一執行
+- **有依賴的任務不可並行**: 使用 TaskUpdate 的 `addBlockedBy` 管理依賴順序
+- **衝突時使用 worktree**: 若無法避免文件衝突，使用 `isolation: "worktree"` 給 Agent 獨立副本
+
+---
+
 ## 🌐 i18n 同步規則（🔴 必須遵守）
 
 > **常見問題**：開發者在 TypeScript 中新增常量但忘記更新 i18n 翻譯，導致 `IntlError: MISSING_MESSAGE` 錯誤。
@@ -407,6 +482,7 @@ templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
 | 測試規範 | `.claude/rules/testing.md` |
 | i18n 完整規範 | `.claude/rules/i18n.md` |
 | 技術障礙處理流程 | `.claude/rules/technical-obstacles.md` |
+| 並行 Agent 編排協議 | `CLAUDE.md` §開發編排協議 |
 | PRD | `docs/01-planning/prd/prd.md` |
 | 系統架構設計 | `docs/02-architecture/` |
 | Tech Specs | `docs/03-stories/tech-specs/` |
@@ -416,7 +492,7 @@ templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
 
 ## 版本資訊
 
-- **CLAUDE.md 版本**: 3.0.0
-- **最後更新**: 2026-02-09
-- **變更記錄**: CHANGE-033 Token 優化重構（v2.6.0 → v3.0.0）
+- **CLAUDE.md 版本**: 3.1.0
+- **最後更新**: 2026-02-23
+- **變更記錄**: 新增開發編排協議（並行 Agent 自動化）（v3.0.0 → v3.1.0）
 - **完整版本歷史**: `claudedocs/reference/project-progress.md`
