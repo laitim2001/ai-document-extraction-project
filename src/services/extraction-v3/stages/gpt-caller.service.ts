@@ -7,7 +7,7 @@
  *
  * @module src/services/extraction-v3/stages/gpt-caller.service
  * @since CHANGE-024 - Three-Stage Extraction Architecture
- * @lastModified 2026-02-01
+ * @lastModified 2026-02-23
  *
  * @features
  *   - 模型選擇：GPT-5-nano vs GPT-5.2
@@ -146,8 +146,8 @@ interface GptApiResponse {
 // Constants
 // ============================================================================
 
-/** API 版本 */
-const API_VERSION = '2024-06-01';
+/** API 版本 — CHANGE-042 Phase 2: 更新以支援 json_schema structured output */
+const API_VERSION = '2024-12-01-preview';
 
 /** 預設配置 */
 const DEFAULT_CONFIG: Required<GptCallerConfig> = {
@@ -247,6 +247,7 @@ export class GptCallerService {
       );
 
       // 調用 GPT API（帶重試）
+      // CHANGE-042 Phase 2: 傳遞 jsonSchema 以啟用 structured output
       let lastError: Error | null = null;
       for (let attempt = 0; attempt <= this.config.retryCount; attempt++) {
         try {
@@ -254,7 +255,8 @@ export class GptCallerService {
             deploymentName,
             messages,
             modelConfig.maxTokens,
-            modelConfig.temperature
+            modelConfig.temperature,
+            input.jsonSchema
           );
 
           return {
@@ -346,12 +348,14 @@ export class GptCallerService {
 
   /**
    * 調用 GPT API
+   * @param jsonSchema CHANGE-042 Phase 2: 可選 JSON Schema，啟用 structured output
    */
   private async callGptApi(
     deploymentName: string,
     messages: GptMessage[],
     maxTokens: number,
-    temperature: number | undefined
+    temperature: number | undefined,
+    jsonSchema?: Record<string, unknown>
   ): Promise<GptApiResponse> {
     const url = `${this.config.endpoint}/openai/deployments/${deploymentName}/chat/completions?api-version=${API_VERSION}`;
 
@@ -359,11 +363,23 @@ export class GptCallerService {
     const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
 
     try {
+      // CHANGE-042 Phase 2: 根據是否提供 jsonSchema 選擇 response_format
+      const responseFormat = jsonSchema
+        ? {
+            type: 'json_schema' as const,
+            json_schema: {
+              name: 'extraction_result',
+              schema: jsonSchema,
+              strict: false, // 使用非嚴格模式，容許 GPT 回傳額外欄位
+            },
+          }
+        : { type: 'json_object' as const };
+
       // 構建請求體（GPT-5-nano 不支援自定義 temperature）
       const requestBody: Record<string, unknown> = {
         messages,
         max_completion_tokens: maxTokens,
-        response_format: { type: 'json_object' },
+        response_format: responseFormat,
       };
 
       // 只有支援 temperature 的模型才傳遞該參數
@@ -383,6 +399,15 @@ export class GptCallerService {
 
       if (!response.ok) {
         const errorText = await response.text();
+
+        // CHANGE-042 Phase 2: 如果 json_schema 不被支援，回退到 json_object 重試
+        if (jsonSchema && response.status === 400 && errorText.includes('json_schema')) {
+          console.warn(
+            '[GptCaller] json_schema response_format not supported, falling back to json_object'
+          );
+          return this.callGptApi(deploymentName, messages, maxTokens, temperature);
+        }
+
         throw new Error(`GPT API 錯誤: ${response.status} - ${errorText}`);
       }
 
@@ -424,13 +449,15 @@ export class GptCallerService {
 
   /**
    * 快速調用 GPT-5.2（Stage 3 使用）
+   * @param jsonSchema CHANGE-042 Phase 2: 可選 JSON Schema，啟用 structured output
    */
   static async callFull(
     systemPrompt: string,
     userPrompt: string,
     imageBase64Array: string[],
     imageDetailMode: ImageDetailMode = 'auto',
-    config?: GptCallerConfig
+    config?: GptCallerConfig,
+    jsonSchema?: Record<string, unknown>
   ): Promise<GptCallResult> {
     const service = new GptCallerService(config);
     return service.call({
@@ -439,6 +466,7 @@ export class GptCallerService {
       userPrompt,
       imageBase64Array,
       imageDetailMode,
+      jsonSchema,
     });
   }
 

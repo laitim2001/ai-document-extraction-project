@@ -13,7 +13,7 @@
  *
  * @module src/services/extraction-v3/stages/stage-3-extraction.service
  * @since CHANGE-024 - Three-Stage Extraction Architecture
- * @lastModified 2026-02-03
+ * @lastModified 2026-02-23
  *
  * @features
  *   - 分層 PromptConfig 載入：FORMAT > COMPANY > GLOBAL
@@ -270,11 +270,8 @@ export class Stage3ExtractionService {
       ? await this.loadTier2Mappings(companyId)
       : {};
 
-    // 4. 生成 JSON Schema
-    const outputSchema = this.generateOutputSchema(
-      standardFields,
-      customFields
-    );
+    // 4. CHANGE-042 Phase 2: 動態生成 JSON Schema（基於 fieldDefinitions）
+    const outputSchema = this.generateOutputSchema(fieldDefSet.fields);
 
     return {
       promptConfigScope: promptConfig.scope,
@@ -544,38 +541,97 @@ export class Stage3ExtractionService {
 
 
   /**
-   * 生成輸出 JSON Schema
+   * CHANGE-042 Phase 2: 動態生成輸出 JSON Schema
+   * @description 根據 FieldDefinitionEntry[] 動態生成 JSON Schema，
+   *   用於 GPT response_format structured output
    */
   private generateOutputSchema(
-    standardFields: FieldDefinition[],
-    customFields: FieldDefinition[]
+    fieldDefinitions: FieldDefinitionEntry[]
   ): Record<string, unknown> {
-    // TODO: Phase 2 - 實現完整的 JSON Schema 生成
+    const fieldProperties: Record<string, unknown> = {};
+
+    for (const def of fieldDefinitions) {
+      fieldProperties[def.key] = {
+        type: 'object',
+        properties: {
+          value: {
+            type: this.mapDataTypeToJsonType(def.dataType),
+            description: def.description || def.label,
+          },
+          confidence: {
+            type: 'number',
+            minimum: 0,
+            maximum: 100,
+            description: `Extraction confidence for ${def.label}`,
+          },
+        },
+        required: ['value', 'confidence'],
+      };
+    }
+
     return {
       type: 'object',
       properties: {
-        standardFields: {
+        fields: {
           type: 'object',
-          description: 'Standard invoice fields',
-        },
-        customFields: {
-          type: 'object',
-          description: 'Custom fields specific to this format',
+          properties: fieldProperties,
+          description: 'All extracted fields as key-value pairs with confidence scores',
         },
         lineItems: {
           type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              description: { type: 'string' },
+              category: { type: 'string' },
+              quantity: { type: 'number' },
+              unitPrice: { type: 'number' },
+              amount: { type: 'number' },
+              confidence: { type: 'number', minimum: 0, maximum: 100 },
+            },
+            required: ['description', 'amount'],
+          },
           description: 'Line items with term classification',
         },
         extraCharges: {
           type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              description: { type: 'string' },
+              category: { type: 'string' },
+              amount: { type: 'number' },
+              currency: { type: 'string' },
+              confidence: { type: 'number', minimum: 0, maximum: 100 },
+            },
+            required: ['description', 'amount'],
+          },
           description: 'Extra charges with term classification',
         },
         overallConfidence: {
           type: 'number',
+          minimum: 0,
+          maximum: 100,
           description: 'Overall extraction confidence (0-100)',
         },
       },
+      required: ['fields', 'lineItems', 'overallConfidence'],
     };
+  }
+
+  /**
+   * CHANGE-042 Phase 2: 資料類型映射為 JSON Schema 類型
+   */
+  private mapDataTypeToJsonType(dataType: string): string | string[] {
+    switch (dataType) {
+      case 'number':
+      case 'currency':
+        return ['number', 'null'];
+      case 'date':
+      case 'string':
+      default:
+        return ['string', 'null'];
+    }
   }
 
   /**
@@ -717,11 +773,12 @@ Respond in valid JSON format matching the provided schema.`;
   /**
    * 調用 GPT-5.2
    * @description 使用 GptCallerService 調用 GPT-5.2 進行欄位提取
+   * CHANGE-042 Phase 2: 傳遞 outputSchema 給 GptCallerService 以啟用 structured output
    */
   private async callGpt52(
     prompt: { system: string; user: string },
     images: string[],
-    _outputSchema: Record<string, unknown>,
+    outputSchema: Record<string, unknown>,
     imageDetailMode: 'auto' | 'low' | 'high'
   ): Promise<{
     response: string;
@@ -732,7 +789,9 @@ Respond in valid JSON format matching the provided schema.`;
       prompt.system,
       prompt.user,
       images,
-      imageDetailMode as ImageDetailMode
+      imageDetailMode as ImageDetailMode,
+      undefined, // config
+      outputSchema // CHANGE-042 Phase 2: JSON Schema for structured output
     );
 
     if (!result.success) {

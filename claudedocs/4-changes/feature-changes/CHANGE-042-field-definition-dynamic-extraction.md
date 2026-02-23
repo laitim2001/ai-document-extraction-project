@@ -1,7 +1,7 @@
 # CHANGE-042: 三步閉環架構 — 欄位定義動態化 + Stage 3 提取管線改造
 
 > **日期**: 2026-02-23
-> **狀態**: 🚧 待實施
+> **狀態**: 🚧 Phase 1+2 已完成
 > **優先級**: Critical
 > **類型**: Architecture / Pipeline Enhancement
 > **影響範圍**: Stage 3 提取管線、類型系統、持久化、DB Schema
@@ -335,11 +335,11 @@ Step 6: 驗證
   ├── 手動在 DB 建立 FieldDefinitionSet 測試
   └── 確認 fieldMappings 存入完整欄位
 
-Phase 2 (精度強化) — 後續可選
+Phase 2 (精度強化) — ✅ 已完成
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Step 7: generateOutputSchema() 動態 JSON Schema
-Step 8: GptCallerService response_format 支援
+Step 7: ✅ generateOutputSchema() 動態 JSON Schema（基於 FieldDefinitionEntry[] 動態生成）
+Step 8: ✅ GptCallerService response_format 支援（json_schema + json_object 自動回退）
 ```
 
 ---
@@ -397,6 +397,9 @@ Step 8: GptCallerService response_format 支援
 - [ ] 無 FieldDefinitionSet 時 fallback 正常
 - [ ] TypeScript 編譯通過
 - [ ] 現有功能不受影響（向下兼容）
+- [ ] `generateOutputSchema()` 動態生成 JSON Schema（Phase 2）
+- [ ] `GptCallerService` 支援 `json_schema` response_format（Phase 2）
+- [ ] `json_schema` 不被支援時自動回退到 `json_object`（Phase 2）
 
 ---
 
@@ -414,4 +417,4 @@ Step 8: GptCallerService response_format 支援
 ---
 
 *文件建立日期: 2026-02-23*
-*最後更新: 2026-02-23*
+*最後更新: 2026-02-23 (Phase 2 完成)*
