@@ -1,7 +1,7 @@
 # CHANGE-042: 三步閉環架構 — 欄位定義動態化 + Stage 3 提取管線改造
 
 > **日期**: 2026-02-23
-> **狀態**: 🚧 Phase 1+2 已完成
+> **狀態**: ✅ Phase 1+2+3 全部完成
 > **優先級**: Critical
 > **類型**: Architecture / Pipeline Enhancement
 > **影響範圍**: Stage 3 提取管線、類型系統、持久化、DB Schema
@@ -255,15 +255,80 @@ private generateOutputSchema(fieldDefinitions: FieldDefinitionEntry[]): Record<s
 
 ---
 
-### Phase 3: 管理介面（後續實施）
+### Phase 3: 管理介面 — ✅ 已完成
 
-> Phase 3 不在本次 CHANGE 範圍內，記錄為後續工作。
+#### 3.1 Prisma Schema 擴展
 
-| 功能 | 說明 |
+新增 `FieldExtractionFeedback` model，追蹤提取結果 vs 定義欄位的差異。
+
+#### 3.2 Zod 驗證 Schema
+
+**新建** `src/lib/validations/field-definition-set.schema.ts`
+- `fieldDefinitionEntrySchema`、`createFieldDefinitionSetSchema`、`updateFieldDefinitionSetSchema`、`getFieldDefinitionSetsQuerySchema`
+
+#### 3.3 Service Layer (10 functions)
+
+**新建** `src/services/field-definition-set.service.ts`
+- CRUD: `getFieldDefinitionSets`, `getFieldDefinitionSetById`, `createFieldDefinitionSet`, `updateFieldDefinitionSet`, `deleteFieldDefinitionSet`, `toggleFieldDefinitionSet`
+- 欄位操作: `getFieldsForSet`, `getResolvedFields`, `getFieldCoverage`, `getCandidateFields`
+
+#### 3.4 API Routes (9 endpoints, 7 files)
+
+| 路由 | 方法 | 用途 |
+|------|------|------|
+| `/api/v1/field-definition-sets` | GET, POST | 列表 + 新建 |
+| `.../[id]` | GET, PATCH, DELETE | 詳情 + 更新 + 刪除 |
+| `.../[id]/toggle` | POST | 切換啟用狀態 |
+| `.../[id]/fields` | GET | 僅回傳 fields（SourceFieldCombobox 用） |
+| `.../[id]/coverage` | GET | 回饋覆蓋率數據 |
+| `.../resolve` | GET | 依 companyId+formatId 解析合併欄位 |
+| `.../candidates` | GET | 回傳 invoice-fields.ts 候選清單 |
+
+#### 3.5 i18n (3 語言 + 註冊)
+
+- `messages/{en,zh-TW,zh-CN}/fieldDefinitionSet.json`
+- `src/i18n/request.ts` — namespace `'fieldDefinitionSet'` 已註冊
+
+#### 3.6 React Query Hooks (10 hooks)
+
+**新建** `src/hooks/use-field-definition-sets.ts`
+- Query: `useFieldDefinitionSets`, `useFieldDefinitionSet`, `useFieldDefinitionSetFields`, `useFieldCandidates`, `useFieldCoverage`, `useResolvedFields`
+- Mutation: `useCreateFieldDefinitionSet`, `useUpdateFieldDefinitionSet`, `useDeleteFieldDefinitionSet`, `useToggleFieldDefinitionSet`
+
+#### 3.7 Components (8 files)
+
+**新建** `src/components/features/field-definition-set/`
+- `ScopeBadge.tsx` — GLOBAL=藍/COMPANY=綠/FORMAT=紫
+- `FieldDefinitionSetFilters.tsx` — Scope、Company、Format、Status、Search 篩選
+- `FieldDefinitionSetList.tsx` — 表格列表
+- `FieldEntryEditor.tsx` — 單欄位編輯器
+- `FieldCandidatePicker.tsx` — 按 8 類別分組的候選欄位選擇器
+- `FieldDefinitionSetForm.tsx` — 整合表單（React Hook Form + FieldCandidatePicker）
+- `FieldCoverageSummary.tsx` — 回饋面板
+- `index.ts` — Barrel exports
+
+#### 3.8 Admin Pages (3 頁)
+
+| 頁面 | 路徑 |
 |------|------|
-| 欄位定義管理頁面 | `/field-definitions` — CRUD 管理介面，基於 invoice-fields.ts 候選清單 |
-| Source Field 整合 | `SourceFieldCombobox` 從 FieldDefinitionSet 讀取候選 |
-| 回饋機制 | 匹配報告 → 通知 → 建議調整欄位定義 |
+| 列表頁 | `src/app/[locale]/(dashboard)/admin/field-definition-sets/page.tsx` |
+| 新增頁 | `.../field-definition-sets/new/page.tsx` |
+| 編輯頁 | `.../field-definition-sets/[id]/page.tsx`（含 FieldCoverageSummary） |
+
+#### 3.9 Sidebar Navigation
+
+- `Sidebar.tsx` — 加入 `fieldDefinitions` 導航項
+- `messages/*/navigation.json` — 3 語言翻譯
+
+#### 3.10 SourceFieldCombobox Integration
+
+- `SourceFieldCombobox.tsx` — 新增 `fieldDefinitionSetId` + `resolveByContext` props
+- `source-field.service.ts` — `SourceFieldOption.source` 加入 `'definition'`
+
+#### 3.11 Feedback Recording
+
+- `stage-3-extraction.service.ts` — fire-and-forget `recordExtractionFeedback()`
+- `stage-orchestrator.service.ts` — 傳遞 `documentId` 給 Stage 3
 
 ---
 
@@ -295,6 +360,50 @@ private generateOutputSchema(fieldDefinitions: FieldDefinitionEntry[]): Record<s
 |------|----------|------|
 | `src/services/extraction-v3/stages/stage-3-extraction.service.ts` | `generateOutputSchema()` 從 stub 改為動態生成 | Service |
 | `src/services/extraction-v3/stages/gpt-caller.service.ts` | API 請求加入 `response_format` | Service |
+
+### Phase 3 (管理介面) — 新建 24 個 + 修改 8 個
+
+**新建檔案 (24 個)**:
+
+| 檔案 | 類型 |
+|------|------|
+| `src/lib/validations/field-definition-set.schema.ts` | Zod Schema |
+| `src/services/field-definition-set.service.ts` | Service |
+| `src/app/api/v1/field-definition-sets/route.ts` | API |
+| `src/app/api/v1/field-definition-sets/[id]/route.ts` | API |
+| `src/app/api/v1/field-definition-sets/[id]/toggle/route.ts` | API |
+| `src/app/api/v1/field-definition-sets/[id]/fields/route.ts` | API |
+| `src/app/api/v1/field-definition-sets/[id]/coverage/route.ts` | API |
+| `src/app/api/v1/field-definition-sets/resolve/route.ts` | API |
+| `src/app/api/v1/field-definition-sets/candidates/route.ts` | API |
+| `src/hooks/use-field-definition-sets.ts` | Hook |
+| `messages/en/fieldDefinitionSet.json` | i18n |
+| `messages/zh-TW/fieldDefinitionSet.json` | i18n |
+| `messages/zh-CN/fieldDefinitionSet.json` | i18n |
+| `src/components/features/field-definition-set/ScopeBadge.tsx` | Component |
+| `src/components/features/field-definition-set/FieldDefinitionSetFilters.tsx` | Component |
+| `src/components/features/field-definition-set/FieldDefinitionSetList.tsx` | Component |
+| `src/components/features/field-definition-set/FieldEntryEditor.tsx` | Component |
+| `src/components/features/field-definition-set/FieldCandidatePicker.tsx` | Component |
+| `src/components/features/field-definition-set/FieldDefinitionSetForm.tsx` | Component |
+| `src/components/features/field-definition-set/FieldCoverageSummary.tsx` | Component |
+| `src/components/features/field-definition-set/index.ts` | Barrel |
+| `src/app/[locale]/(dashboard)/admin/field-definition-sets/page.tsx` | Page |
+| `src/app/[locale]/(dashboard)/admin/field-definition-sets/new/page.tsx` | Page |
+| `src/app/[locale]/(dashboard)/admin/field-definition-sets/[id]/page.tsx` | Page |
+
+**修改檔案 (8 個)**:
+
+| 檔案 | 修改內容 | 類型 |
+|------|----------|------|
+| `prisma/schema.prisma` | 新增 `FieldExtractionFeedback` model + relations | DB |
+| `src/i18n/request.ts` | 註冊 `fieldDefinitionSet` namespace | Config |
+| `src/components/layout/Sidebar.tsx` | 新增 fieldDefinitions 導航項 | Layout |
+| `messages/{en,zh-TW,zh-CN}/navigation.json` | 新增 `sidebar.fieldDefinitions` 翻譯 | i18n |
+| `src/components/features/formats/SourceFieldCombobox.tsx` | 新增 `fieldDefinitionSetId` + `resolveByContext` props | Component |
+| `src/services/mapping/source-field.service.ts` | 新增 `'definition'` source + converter | Service |
+| `src/services/extraction-v3/stages/stage-3-extraction.service.ts` | 新增 `recordExtractionFeedback()` | Service |
+| `src/services/extraction-v3/stages/stage-orchestrator.service.ts` | 傳遞 `documentId` 給 Stage 3 | Service |
 
 ---
 
@@ -340,6 +449,21 @@ Phase 2 (精度強化) — ✅ 已完成
 
 Step 7: ✅ generateOutputSchema() 動態 JSON Schema（基於 FieldDefinitionEntry[] 動態生成）
 Step 8: ✅ GptCallerService response_format 支援（json_schema + json_object 自動回退）
+
+Phase 3 (管理介面) — ✅ 已完成
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 9:  ✅ Prisma Schema — FieldExtractionFeedback model + relations
+Step 10: ✅ Zod Schema — field-definition-set.schema.ts
+Step 11: ✅ Service Layer — 10 functions (CRUD + fields + coverage + candidates)
+Step 12: ✅ API Routes — 9 endpoints (7 route files)
+Step 13: ✅ i18n — 3 語言 JSON + namespace 註冊
+Step 14: ✅ React Query Hooks — 6 query + 4 mutation
+Step 15: ✅ Components — 8 files (7 .tsx + index.ts)
+Step 16: ✅ Admin Pages — 3 頁 (list + new + [id])
+Step 17: ✅ Sidebar Navigation — 導航項 + 3 語言翻譯
+Step 18: ✅ SourceFieldCombobox Integration — props + source type
+Step 19: ✅ Feedback Recording — fire-and-forget recordExtractionFeedback()
 ```
 
 ---
@@ -400,6 +524,12 @@ Step 8: ✅ GptCallerService response_format 支援（json_schema + json_object 
 - [ ] `generateOutputSchema()` 動態生成 JSON Schema（Phase 2）
 - [ ] `GptCallerService` 支援 `json_schema` response_format（Phase 2）
 - [ ] `json_schema` 不被支援時自動回退到 `json_object`（Phase 2）
+- [ ] 瀏覽器訪問 `/admin/field-definition-sets` 列表頁正常載入（Phase 3）
+- [ ] 建立 GLOBAL scope FieldDefinitionSet — CRUD 全流程（Phase 3）
+- [ ] FieldCandidatePicker — 候選欄位選擇、自定義欄位（Phase 3）
+- [ ] SourceFieldCombobox — 傳入 fieldDefinitionSetId 載入欄位（Phase 3）
+- [ ] Stage 3 提取後 — FieldExtractionFeedback 記錄產生（Phase 3）
+- [ ] 編輯頁 FieldCoverageSummary — 顯示覆蓋率和建議（Phase 3）
 
 ---
 
@@ -413,8 +543,9 @@ Step 8: ✅ GptCallerService response_format 支援（json_schema + json_object 
 | Stage 3 服務 | `src/services/extraction-v3/stages/stage-3-extraction.service.ts` |
 | 持久化服務 | `src/services/processing-result-persistence.service.ts` |
 | 變數替換器 | `src/services/extraction-v3/utils/variable-replacer.ts` |
+| Phase 3 計劃 | `.claude/plans/sharded-percolating-meteor.md` |
 
 ---
 
 *文件建立日期: 2026-02-23*
-*最後更新: 2026-02-23 (Phase 2 完成)*
+*最後更新: 2026-02-24 (Phase 3 完成 — 管理介面 + SourceFieldCombobox 整合 + 回饋記錄)*
