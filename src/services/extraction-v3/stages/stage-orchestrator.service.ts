@@ -258,6 +258,8 @@ export class StageOrchestratorService {
           options: {
             imageDetailMode: options.imageDetailMode,
           },
+          // CHANGE-042 Phase 3: pass documentId for feedback recording
+          documentId: input.input.fileId,
         });
 
         stepResults.push({

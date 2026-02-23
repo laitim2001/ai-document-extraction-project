@@ -49,10 +49,15 @@ import {
   searchFields,
   isValidFieldName,
   createCustomFieldOption,
+  fieldDefinitionEntryToSourceFieldOption,
   CATEGORY_LABELS,
   type SourceFieldOption,
   type GroupedSourceFields,
 } from '@/services/mapping/source-field.service';
+import {
+  useFieldDefinitionSetFields,
+  useResolvedFields,
+} from '@/hooks/use-field-definition-sets';
 
 // ============================================================================
 // Types
@@ -77,6 +82,10 @@ interface SourceFieldComboboxProps {
   disabled?: boolean;
   /** 自訂樣式 */
   className?: string;
+  /** FieldDefinitionSet ID（優先從此載入欄位） @since CHANGE-042 */
+  fieldDefinitionSetId?: string;
+  /** 依 context 解析欄位（fallback to resolve API） @since CHANGE-042 */
+  resolveByContext?: { companyId?: string; formatId?: string };
 }
 
 // ============================================================================
@@ -99,6 +108,8 @@ export function SourceFieldCombobox({
   placeholder,
   disabled = false,
   className,
+  fieldDefinitionSetId,
+  resolveByContext,
 }: SourceFieldComboboxProps) {
   const t = useTranslations('formats.sourceFieldCombobox');
   const effectivePlaceholder = placeholder ?? t('placeholder');
@@ -109,17 +120,42 @@ export function SourceFieldCombobox({
   const [dynamicFields, setDynamicFields] = React.useState<SourceFieldOption[]>([]);
   const [isLoadingDynamic, setIsLoadingDynamic] = React.useState(false);
 
+  // --- FieldDefinitionSet integration (CHANGE-042) ---
+  const { data: definitionFields } = useFieldDefinitionSetFields(fieldDefinitionSetId);
+  const { data: resolvedData } = useResolvedFields(
+    resolveByContext?.companyId,
+    resolveByContext?.formatId
+  );
+
+  // Convert definition fields to SourceFieldOption[]
+  const definitionFieldOptions = React.useMemo<SourceFieldOption[]>(() => {
+    // Priority: explicit set > resolved context
+    const entries = definitionFields ?? resolvedData?.fields;
+    if (!entries || entries.length === 0) return [];
+    return entries.map(fieldDefinitionEntryToSourceFieldOption);
+  }, [definitionFields, resolvedData]);
+
   // --- Computed Values ---
   const selectedValues = React.useMemo(
     () => (Array.isArray(value) ? value : value ? [value] : []),
     [value]
   );
 
-  // 獲取分組的來源欄位
-  const groupedFields = React.useMemo<GroupedSourceFields>(
-    () => getGroupedSourceFields(extractedData),
-    [extractedData]
-  );
+  // 獲取分組的來源欄位（若有 definition fields 則優先使用）
+  const groupedFields = React.useMemo<GroupedSourceFields>(() => {
+    if (definitionFieldOptions.length > 0) {
+      // Use definition fields as primary source
+      const grouped: GroupedSourceFields = {};
+      for (const field of definitionFieldOptions) {
+        if (!grouped[field.category]) {
+          grouped[field.category] = [];
+        }
+        grouped[field.category].push(field);
+      }
+      return grouped;
+    }
+    return getGroupedSourceFields(extractedData);
+  }, [definitionFieldOptions, extractedData]);
 
   // 將分組欄位轉為平面列表
   const allFields = React.useMemo<SourceFieldOption[]>(() => {

@@ -363,6 +363,7 @@ model Document {
   sharePointFetchLogs SharePointFetchLog[]
   suggestionSamples   SuggestionSample[]
   traceabilityReports TraceabilityReport[]
+  fieldExtractionFeedback FieldExtractionFeedback[]
 
   @@index([status])
   @@index([uploadedBy])
@@ -4245,6 +4246,7 @@ model FieldDefinitionSet {
   // Relations
   company          Company?              @relation(fields: [companyId], references: [id])
   documentFormat   DocumentFormat?       @relation(fields: [documentFormatId], references: [id])
+  feedbacks        FieldExtractionFeedback[]
 
   @@unique([scope, companyId, documentFormatId])
   @@index([companyId])
@@ -4252,6 +4254,37 @@ model FieldDefinitionSet {
   @@index([scope])
   @@index([isActive])
   @@map("field_definition_sets")
+}
+
+/// 欄位提取回饋
+/// 追蹤 AI 提取結果與定義欄位之間的差異，用於覆蓋率分析
+/// @since CHANGE-042 Phase 3
+model FieldExtractionFeedback {
+  id                    String              @id @default(uuid())
+  fieldDefinitionSetId  String              @map("field_definition_set_id")
+  documentId            String              @map("document_id")
+
+  definedFields         Json                @map("defined_fields")
+  foundFields           Json                @map("found_fields")
+  missingFields         Json                @map("missing_fields")
+  unexpectedFields      Json                @map("unexpected_fields")
+
+  definedCount          Int                 @map("defined_count")
+  foundCount            Int                 @map("found_count")
+  missingCount          Int                 @map("missing_count")
+  unexpectedCount       Int                 @map("unexpected_count")
+  coverageRate          Float               @map("coverage_rate")
+
+  createdAt             DateTime            @default(now()) @map("created_at")
+
+  // Relations
+  fieldDefinitionSet    FieldDefinitionSet  @relation(fields: [fieldDefinitionSetId], references: [id], onDelete: Cascade)
+  document              Document            @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([fieldDefinitionSetId])
+  @@index([documentId])
+  @@index([createdAt])
+  @@map("field_extraction_feedbacks")
 }
 
 // ============================================================================

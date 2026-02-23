@@ -62,6 +62,7 @@ const namespaces = [
   'exchangeRate',
   'region',
   'pipelineConfig',
+  'fieldDefinitionSet',
 ] as const
 
 export type Namespace = (typeof namespaces)[number]

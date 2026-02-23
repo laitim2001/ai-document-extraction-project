@@ -44,7 +44,7 @@ export interface SourceFieldOption {
   /** 分類 */
   category: string;
   /** 來源類型 */
-  source: 'standard' | 'extracted' | 'custom';
+  source: 'standard' | 'extracted' | 'custom' | 'definition';
   /** 資料類型（標準欄位有） */
   dataType?: string;
   /** 是否必填（標準欄位有） */
@@ -310,5 +310,26 @@ export function getFieldStatistics(): {
     total: standardFields.length,
     byCategory,
     required,
+  };
+}
+
+/**
+ * 將 FieldDefinitionEntry 轉換為 SourceFieldOption
+ * @description 用於 SourceFieldCombobox 整合 FieldDefinitionSet 欄位
+ * @param entry FieldDefinitionEntry
+ * @returns SourceFieldOption
+ * @since CHANGE-042 Phase 3
+ */
+export function fieldDefinitionEntryToSourceFieldOption(
+  entry: { key: string; label: string; category: string; dataType?: string; required?: boolean; aliases?: string[] }
+): SourceFieldOption {
+  return {
+    name: entry.key,
+    label: entry.label,
+    category: entry.category,
+    source: 'definition',
+    dataType: entry.dataType,
+    isRequired: entry.required,
+    aliases: entry.aliases,
   };
 }

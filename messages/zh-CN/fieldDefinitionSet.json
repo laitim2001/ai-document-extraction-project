@@ -1,0 +1,147 @@
+{
+  "title": "字段定义集",
+  "description": "管理 AI 文档提取的字段定义",
+  "list": {
+    "name": "名称",
+    "scope": "范围",
+    "company": "公司",
+    "format": "文档格式",
+    "fieldsCount": "字段数",
+    "version": "版本",
+    "status": "状态",
+    "actions": "操作",
+    "empty": "暂无字段定义集",
+    "createdAt": "创建时间"
+  },
+  "filters": {
+    "scope": "范围",
+    "company": "公司",
+    "format": "文档格式",
+    "status": "状态",
+    "all": "全部",
+    "active": "启用",
+    "inactive": "停用",
+    "clear": "清除",
+    "searchPlaceholder": "搜索字段定义..."
+  },
+  "scopeBadge": {
+    "GLOBAL": "全局",
+    "COMPANY": "公司",
+    "FORMAT": "格式"
+  },
+  "actions": {
+    "add": "新增字段定义集",
+    "edit": "编辑",
+    "delete": "删除",
+    "toggle": "切换状态",
+    "duplicate": "复制",
+    "viewCoverage": "查看覆盖率"
+  },
+  "messages": {
+    "created": "字段定义集创建成功",
+    "updated": "字段定义集更新成功",
+    "deleted": "字段定义集删除成功",
+    "toggled": "状态切换成功",
+    "confirmDelete": "确定要删除此字段定义集吗？此操作无法撤消。",
+    "deleteFailed": "删除字段定义集失败",
+    "toggleFailed": "切换状态失败",
+    "duplicateScope": "相同范围的字段定义集已存在"
+  },
+  "form": {
+    "title": {
+      "create": "创建字段定义集",
+      "edit": "编辑字段定义集"
+    },
+    "name": "名称",
+    "namePlaceholder": "输入描述性名称",
+    "scope": "范围",
+    "scopeDescription": "决定此字段集适用于哪些文档",
+    "company": "公司",
+    "companyPlaceholder": "选择公司",
+    "format": "文档格式",
+    "formatPlaceholder": "选择文档格式",
+    "description": "说明",
+    "descriptionPlaceholder": "描述此字段定义集的用途",
+    "isActive": "启用",
+    "fields": "字段定义",
+    "fieldsDescription": "选择并配置 AI 应从文档中提取的字段",
+    "submit": "保存",
+    "cancel": "取消",
+    "fieldPicker": {
+      "title": "选择字段",
+      "search": "搜索字段...",
+      "selectAll": "全选",
+      "deselectAll": "取消全选",
+      "selected": "已选择 {count} 个字段",
+      "addCustom": "新增自定义字段",
+      "customFieldKey": "字段 Key（snake_case）",
+      "customFieldLabel": "显示标签",
+      "customFieldCategory": "分类",
+      "customFieldDataType": "数据类型",
+      "customFieldAdd": "新增",
+      "noResults": "找不到符合条件的字段"
+    },
+    "fieldEntry": {
+      "key": "Key",
+      "label": "标签",
+      "category": "分类",
+      "dataType": "数据类型",
+      "required": "必填",
+      "aliases": "别名",
+      "aliasesPlaceholder": "输入别名，以逗号分隔",
+      "extractionHints": "提取提示",
+      "extractionHintsPlaceholder": "给 AI 的字段提取指引",
+      "remove": "移除",
+      "expand": "编辑详情",
+      "collapse": "收起"
+    }
+  },
+  "coverage": {
+    "title": "字段覆盖率分析",
+    "description": "根据提取反馈数据进行分析",
+    "noData": "暂无提取反馈数据",
+    "overallRate": "整体覆盖率",
+    "totalExtractions": "提取总次数",
+    "healthy": "健康字段",
+    "healthyDescription": "在提取中稳定找到的字段",
+    "missing": "缺失字段",
+    "missingDescription": "已定义但在提取中未找到的字段",
+    "unexpected": "意外字段",
+    "unexpectedDescription": "在提取中发现但未在定义中的字段",
+    "suggestion": {
+      "addField": "建议新增此经常被发现的字段",
+      "removeField": "此字段很少被找到 — 建议移除或标记为非必填",
+      "makeOptional": "此字段覆盖率偏低 — 建议改为非必填"
+    }
+  },
+  "validation": {
+    "nameRequired": "名称为必填",
+    "scopeRequired": "范围为必填",
+    "companyRequired": "此范围需要指定公司",
+    "formatRequired": "FORMAT 范围需要指定文档格式",
+    "fieldsRequired": "至少需要定义一个字段",
+    "fieldKeyDuplicate": "字段 key 重复：{key}",
+    "fieldKeyFormat": "字段 key 必须为 snake_case 格式"
+  },
+  "pagination": {
+    "showing": "显示 {from} - {to}，共 {total} 项",
+    "previous": "上一页",
+    "next": "下一页"
+  },
+  "dataType": {
+    "string": "文本",
+    "number": "数字",
+    "date": "日期",
+    "currency": "货币"
+  },
+  "category": {
+    "basic": "基本信息",
+    "shipper": "托运人",
+    "consignee": "收货人",
+    "shipping": "运输信息",
+    "package": "包装信息",
+    "charges": "费用明细",
+    "reference": "参考编号",
+    "payment": "付款信息"
+  }
+}

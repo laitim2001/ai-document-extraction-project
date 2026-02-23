@@ -1,0 +1,147 @@
+{
+  "title": "欄位定義集",
+  "description": "管理 AI 文件提取的欄位定義",
+  "list": {
+    "name": "名稱",
+    "scope": "範圍",
+    "company": "公司",
+    "format": "文件格式",
+    "fieldsCount": "欄位數",
+    "version": "版本",
+    "status": "狀態",
+    "actions": "操作",
+    "empty": "尚無欄位定義集",
+    "createdAt": "建立時間"
+  },
+  "filters": {
+    "scope": "範圍",
+    "company": "公司",
+    "format": "文件格式",
+    "status": "狀態",
+    "all": "全部",
+    "active": "啟用",
+    "inactive": "停用",
+    "clear": "清除",
+    "searchPlaceholder": "搜尋欄位定義..."
+  },
+  "scopeBadge": {
+    "GLOBAL": "全域",
+    "COMPANY": "公司",
+    "FORMAT": "格式"
+  },
+  "actions": {
+    "add": "新增欄位定義集",
+    "edit": "編輯",
+    "delete": "刪除",
+    "toggle": "切換狀態",
+    "duplicate": "複製",
+    "viewCoverage": "檢視覆蓋率"
+  },
+  "messages": {
+    "created": "欄位定義集建立成功",
+    "updated": "欄位定義集更新成功",
+    "deleted": "欄位定義集刪除成功",
+    "toggled": "狀態切換成功",
+    "confirmDelete": "確定要刪除此欄位定義集嗎？此操作無法復原。",
+    "deleteFailed": "刪除欄位定義集失敗",
+    "toggleFailed": "切換狀態失敗",
+    "duplicateScope": "相同範圍的欄位定義集已存在"
+  },
+  "form": {
+    "title": {
+      "create": "建立欄位定義集",
+      "edit": "編輯欄位定義集"
+    },
+    "name": "名稱",
+    "namePlaceholder": "輸入描述性名稱",
+    "scope": "範圍",
+    "scopeDescription": "決定此欄位集適用於哪些文件",
+    "company": "公司",
+    "companyPlaceholder": "選擇公司",
+    "format": "文件格式",
+    "formatPlaceholder": "選擇文件格式",
+    "description": "說明",
+    "descriptionPlaceholder": "描述此欄位定義集的用途",
+    "isActive": "啟用",
+    "fields": "欄位定義",
+    "fieldsDescription": "選擇並配置 AI 應從文件中提取的欄位",
+    "submit": "儲存",
+    "cancel": "取消",
+    "fieldPicker": {
+      "title": "選擇欄位",
+      "search": "搜尋欄位...",
+      "selectAll": "全選",
+      "deselectAll": "取消全選",
+      "selected": "已選擇 {count} 個欄位",
+      "addCustom": "新增自訂欄位",
+      "customFieldKey": "欄位 Key（snake_case）",
+      "customFieldLabel": "顯示標籤",
+      "customFieldCategory": "分類",
+      "customFieldDataType": "資料類型",
+      "customFieldAdd": "新增",
+      "noResults": "找不到符合條件的欄位"
+    },
+    "fieldEntry": {
+      "key": "Key",
+      "label": "標籤",
+      "category": "分類",
+      "dataType": "資料類型",
+      "required": "必填",
+      "aliases": "別名",
+      "aliasesPlaceholder": "輸入別名，以逗號分隔",
+      "extractionHints": "提取提示",
+      "extractionHintsPlaceholder": "給 AI 的欄位提取指引",
+      "remove": "移除",
+      "expand": "編輯詳情",
+      "collapse": "收合"
+    }
+  },
+  "coverage": {
+    "title": "欄位覆蓋率分析",
+    "description": "根據提取回饋數據進行分析",
+    "noData": "尚無提取回饋數據",
+    "overallRate": "整體覆蓋率",
+    "totalExtractions": "提取總次數",
+    "healthy": "健康欄位",
+    "healthyDescription": "在提取中穩定找到的欄位",
+    "missing": "缺失欄位",
+    "missingDescription": "定義但在提取中未找到的欄位",
+    "unexpected": "意外欄位",
+    "unexpectedDescription": "在提取中發現但未在定義中的欄位",
+    "suggestion": {
+      "addField": "建議新增此經常被發現的欄位",
+      "removeField": "此欄位很少被找到 — 建議移除或標記為非必填",
+      "makeOptional": "此欄位覆蓋率偏低 — 建議改為非必填"
+    }
+  },
+  "validation": {
+    "nameRequired": "名稱為必填",
+    "scopeRequired": "範圍為必填",
+    "companyRequired": "此範圍需要指定公司",
+    "formatRequired": "FORMAT 範圍需要指定文件格式",
+    "fieldsRequired": "至少需要定義一個欄位",
+    "fieldKeyDuplicate": "欄位 key 重複：{key}",
+    "fieldKeyFormat": "欄位 key 必須為 snake_case 格式"
+  },
+  "pagination": {
+    "showing": "顯示 {from} - {to}，共 {total} 項",
+    "previous": "上一頁",
+    "next": "下一頁"
+  },
+  "dataType": {
+    "string": "文字",
+    "number": "數字",
+    "date": "日期",
+    "currency": "貨幣"
+  },
+  "category": {
+    "basic": "基本資訊",
+    "shipper": "託運人",
+    "consignee": "收貨人",
+    "shipping": "運輸資訊",
+    "package": "包裝資訊",
+    "charges": "費用明細",
+    "reference": "參考編號",
+    "payment": "付款資訊"
+  }
+}

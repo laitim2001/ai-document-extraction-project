@@ -87,6 +87,10 @@ export interface Stage3Input {
   // CHANGE-026: PromptConfig 變數替換參數
   /** 檔案名稱（用於變數替換） */
   fileName?: string;
+
+  // CHANGE-042 Phase 3: Feedback recording
+  /** 文件 ID（用於記錄 FieldExtractionFeedback） */
+  documentId?: string;
 }
 
 /**
@@ -199,6 +203,18 @@ export class Stage3ExtractionService {
       const overallConfidence = parsed.overallConfidence > 0
         ? parsed.overallConfidence
         : this.calculateOverallConfidence(parsed.standardFields, parsed.fields);
+
+      // CHANGE-042 Phase 3: Fire-and-forget feedback recording
+      if (config.fieldDefinitionSetId && input.documentId) {
+        this.recordExtractionFeedback(
+          config.fieldDefinitionSetId,
+          input.documentId,
+          config.fieldDefinitions,
+          parsed.fields
+        ).catch(() => {
+          // Silently ignore feedback recording errors — must not block pipeline
+        });
+      }
 
       return {
         stageName: 'STAGE_3_FIELD_EXTRACTION',
@@ -1235,6 +1251,59 @@ Respond in valid JSON format.`;
    */
   private getDefaultUserPrompt(): string {
     return 'Extract all invoice data from this image.';
+  }
+
+  // ============================================================================
+  // CHANGE-042 Phase 3: Feedback Recording
+  // ============================================================================
+
+  /**
+   * CHANGE-042 Phase 3: 記錄提取回饋（fire-and-forget）
+   * @description
+   *   比對 fieldDefinitions（定義欄位）vs 提取結果，計算覆蓋率並寫入 DB。
+   *   此方法不應阻塞主管線，呼叫端應以 `.catch()` 靜默忽略錯誤。
+   */
+  private async recordExtractionFeedback(
+    fieldDefinitionSetId: string,
+    documentId: string,
+    fieldDefinitions: FieldDefinitionEntry[],
+    extractedFields?: Record<string, FieldValue>
+  ): Promise<void> {
+    const definedKeys = fieldDefinitions.map((f) => f.key);
+    const extractedKeys = extractedFields
+      ? Object.keys(extractedFields).filter((k) => {
+          const val = extractedFields[k];
+          return val && val.value !== null && val.value !== '';
+        })
+      : [];
+
+    const definedSet = new Set(definedKeys);
+    const extractedSet = new Set(extractedKeys);
+
+    const foundFields = definedKeys.filter((k) => extractedSet.has(k));
+    const missingFields = definedKeys.filter((k) => !extractedSet.has(k));
+    const unexpectedFields = extractedKeys.filter((k) => !definedSet.has(k));
+
+    const coverageRate =
+      definedKeys.length > 0
+        ? Math.round((foundFields.length / definedKeys.length) * 10000) / 10000
+        : 0;
+
+    await this.prisma.fieldExtractionFeedback.create({
+      data: {
+        fieldDefinitionSetId,
+        documentId,
+        definedFields: definedKeys,
+        foundFields,
+        missingFields,
+        unexpectedFields,
+        definedCount: definedKeys.length,
+        foundCount: foundFields.length,
+        missingCount: missingFields.length,
+        unexpectedCount: unexpectedFields.length,
+        coverageRate,
+      },
+    });
   }
 
 }

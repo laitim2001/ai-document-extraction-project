@@ -123,6 +123,7 @@ const navigation: NavSection[] = [
   {
     titleKey: 'sections.extraction',
     items: [
+      { nameKey: 'sidebar.fieldDefinitions', href: '/admin/field-definition-sets', icon: Layers },
       { nameKey: 'sidebar.fieldMapping', href: '/admin/field-mapping-configs', icon: ArrowRightLeft },
       { nameKey: 'sidebar.promptConfig', href: '/admin/prompt-configs', icon: MessageSquareCode },
       { nameKey: 'sidebar.termAnalysis', href: '/admin/term-analysis', icon: Tags },
