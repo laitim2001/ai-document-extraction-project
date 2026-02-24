@@ -10,7 +10,7 @@
  *
  * @module src/services/unified-processor
  * @since Epic 15 - Story 15.1 (處理流程重構 - 統一入口)
- * @lastModified 2026-01-30
+ * @lastModified 2026-02-24
  *
  * @features
  *   - 統一處理入口
@@ -43,7 +43,9 @@ import {
   ProcessingStep,
   StepPriority,
   UnifiedRoutingDecision,
+  MappedFieldValue,
 } from '@/types/unified-processor';
+import type { TransformType } from '@/types/field-mapping';
 import {
   DEFAULT_PROCESSOR_FLAGS,
   getStepConfig,
@@ -412,7 +414,13 @@ export class UnifiedDocumentProcessorService {
         error: sr.error,
       })),
       extractedData,
-      companyId: result.resolvedCompanyId,
+      // FIX-044: 將 V3.1 standardFields 轉為 V2 MappedFieldValue[] 填入 mappedFields
+      mappedFields: this.convertStandardFieldsToMappedFields(
+        { ...result.standardFields },
+        result.customFields ? { ...result.customFields } : undefined
+      ),
+      // FIX: V3.1 可能未設定 resolvedCompanyId，fallback 到 issuerIdentification.companyId
+      companyId: result.resolvedCompanyId || result.issuerIdentification?.companyId,
       companyName: result.issuerIdentification.companyName,
       isNewCompany: result.jitCreated?.company ?? false,
       documentFormatId: result.resolvedFormatId,
@@ -463,13 +471,65 @@ export class UnifiedDocumentProcessorService {
         confidence: result.formatIdentification.confidence,
         isNewFormat: result.formatIdentification.isNewFormat,
       } : undefined,
+      // FIX-044: 保留完整 Stage 3 數據（原本只存摘要，導致事後無法回填）
       stage3Result: v3Result.result ? {
         success: true,
         fieldCount: Object.keys(result.standardFields || {}).length,
         lineItemCount: result.lineItems?.length || 0,
         overallConfidence: result.overallConfidence,
+        standardFields: { ...result.standardFields },
+        customFields: result.customFields ? { ...result.customFields } : undefined,
+        lineItems: result.lineItems ? [...result.lineItems] : undefined,
       } : undefined,
     };
+  }
+
+  /**
+   * 將 V3.1 standardFields + customFields 轉為 V2 MappedFieldValue[] 格式
+   * @private
+   * @since FIX-044
+   * @description
+   *   V3.1 的 Stage 3 輸出 StandardFieldsV3（Record<key, FieldValue>）格式，
+   *   但下游持久化（persistProcessingResult）需要 MappedFieldValue[] 來填入
+   *   ExtractionResult.fieldMappings。此方法負責橋接兩種格式。
+   */
+  private convertStandardFieldsToMappedFields(
+    standardFields: Record<string, { value: string | number | null; confidence: number; source?: string }>,
+    customFields?: Record<string, { value: string | number | null; confidence: number }> | undefined
+  ): MappedFieldValue[] {
+    const mappedFields: MappedFieldValue[] = [];
+
+    // 轉換 standardFields
+    for (const [key, fieldValue] of Object.entries(standardFields)) {
+      if (fieldValue && typeof fieldValue === 'object' && 'value' in fieldValue) {
+        mappedFields.push({
+          targetField: key,
+          value: fieldValue.value,
+          sourceFields: [key],
+          originalValues: [fieldValue.value],
+          transformType: 'DIRECT' as TransformType,
+          success: fieldValue.value !== null && fieldValue.value !== undefined,
+        });
+      }
+    }
+
+    // 轉換 customFields（如有）
+    if (customFields) {
+      for (const [key, fieldValue] of Object.entries(customFields)) {
+        if (fieldValue && typeof fieldValue === 'object' && 'value' in fieldValue) {
+          mappedFields.push({
+            targetField: key,
+            value: fieldValue.value,
+            sourceFields: [key],
+            originalValues: [fieldValue.value],
+            transformType: 'DIRECT' as TransformType,
+            success: fieldValue.value !== null && fieldValue.value !== undefined,
+          });
+        }
+      }
+    }
+
+    return mappedFields;
   }
 
   /**

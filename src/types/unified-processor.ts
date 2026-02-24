@@ -556,6 +556,12 @@ export interface UnifiedProcessingResult {
     fieldCount: number;
     lineItemCount: number;
     overallConfidence: number;
+    /** FIX-044: 保留完整 standardFields 數據 */
+    standardFields?: Record<string, unknown>;
+    /** FIX-044: 保留完整 customFields 數據 */
+    customFields?: Record<string, unknown>;
+    /** FIX-044: 保留完整 lineItems 數據 */
+    lineItems?: unknown[];
   };
 
   // ========== CHANGE-025: 智能路由標記 ==========

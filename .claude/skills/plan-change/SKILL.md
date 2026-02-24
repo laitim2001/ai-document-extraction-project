@@ -14,11 +14,15 @@ trigger: /plan-change
 
 ```
 1. Glob: claudedocs/4-changes/feature-changes/CHANGE-*.md
+   → 🔴 必須使用 CHANGE-*.md（不可加數字前綴如 CHANGE-03*），確保搜到所有編號
    → 找到最新編號，自動遞增
 2. Read: 最近 1 個 CHANGE 文件作為格式參考
 ```
 
-告知用戶下一個可用編號（例：CHANGE-031）。
+> **⚠️ 防錯規則**: 禁止使用帶數字前綴的 Glob 模式（如 `CHANGE-03*`、`CHANGE-04*`），
+> 這會漏掉其他編號段的文件，導致編號重複。必須始終使用 `CHANGE-*.md` 搜尋全部文件。
+
+告知用戶下一個可用編號。
 
 ### Step 2: 收集變更資訊
 
