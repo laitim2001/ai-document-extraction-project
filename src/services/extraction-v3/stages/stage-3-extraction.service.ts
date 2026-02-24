@@ -836,6 +836,8 @@ Respond in valid JSON format matching the provided schema.`;
    * FIX-043: 構建 FieldDefinitionSet 欄位定義注入段落
    * @description 當 PromptConfig 的自定義 systemPrompt 未包含欄位變數時，
    *              自動追加此段落以確保 FieldDefinitionSet 欄位被使用於提取。
+   *              同時注入明確的 JSON 輸出格式指示，確保 GPT 輸出結構與
+   *              ExtractionResult.fieldMappings 的儲存格式一致。
    */
   private buildFieldDefinitionsSection(
     fieldDefinitions: FieldDefinitionEntry[]
@@ -844,6 +846,8 @@ Respond in valid JSON format matching the provided schema.`;
 
     const requiredFields = fieldDefinitions.filter((f) => f.required);
     const optionalFields = fieldDefinitions.filter((f) => !f.required);
+
+    const fieldKeys = fieldDefinitions.map((f) => f.key);
 
     const lines: string[] = [
       '\n--- Field Extraction Requirements ---',
@@ -881,6 +885,64 @@ Respond in valid JSON format matching the provided schema.`;
         );
       }
     }
+
+    // 注入明確的 JSON 輸出格式指示，與 ExtractionResult 儲存結構對齊
+    lines.push('\n--- Required Output Format ---');
+    lines.push(
+      'You MUST respond with a JSON object in the following structure:'
+    );
+    lines.push('{');
+    lines.push('  "fields": {');
+    lines.push(
+      `    // Use EXACTLY these keys: ${fieldKeys.slice(0, 5).join(', ')}${fieldKeys.length > 5 ? ', ...' : ''}`
+    );
+    lines.push('    "<field_key>": {');
+    lines.push(
+      '      "value": "<extracted_value or null if not found>",  // string, number, or null'
+    );
+    lines.push(
+      '      "confidence": <0-100>  // 0 if not found, higher means more certain'
+    );
+    lines.push('    }');
+    lines.push('  },');
+    lines.push('  "lineItems": [');
+    lines.push('    {');
+    lines.push(
+      '      "description": "<item description>",  // required'
+    );
+    lines.push(
+      '      "category": "<charge category>",      // e.g. Shipping, Handling'
+    );
+    lines.push('      "quantity": <number>,');
+    lines.push('      "unitPrice": <number>,');
+    lines.push(
+      '      "amount": <number>,                   // required'
+    );
+    lines.push('      "confidence": <0-100>');
+    lines.push('    }');
+    lines.push('  ],');
+    lines.push('  "extraCharges": [');
+    lines.push('    {');
+    lines.push('      "description": "<charge description>",');
+    lines.push('      "category": "<charge category>",');
+    lines.push('      "amount": <number>,');
+    lines.push('      "currency": "<currency code>",');
+    lines.push('      "confidence": <0-100>');
+    lines.push('    }');
+    lines.push('  ],');
+    lines.push('  "overallConfidence": <0-100>');
+    lines.push('}');
+    lines.push('');
+    lines.push('IMPORTANT:');
+    lines.push(
+      '- The "fields" object MUST contain ALL field keys listed above, even if the value is null.'
+    );
+    lines.push(
+      '- Do NOT add fields that are not in the list above.'
+    );
+    lines.push(
+      '- Each field value MUST be an object with "value" and "confidence" properties.'
+    );
 
     return lines.join('\n');
   }
