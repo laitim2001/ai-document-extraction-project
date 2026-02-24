@@ -52,6 +52,10 @@ import {
   useUpdateFieldDefinitionSet,
   type FieldDefinitionSetDetail,
 } from '@/hooks/use-field-definition-sets';
+import {
+  useCompaniesForPromptConfig,
+  useDocumentFormatsForPromptConfig,
+} from '@/hooks/use-prompt-configs';
 import { useToast } from '@/hooks/use-toast';
 import { FieldCandidatePicker } from './FieldCandidatePicker';
 import type { FieldDefinitionEntry } from '@/types/extraction-v3.types';
@@ -151,6 +155,13 @@ export function FieldDefinitionSetForm({
   });
 
   const watchScope = form.watch('scope');
+  const watchCompanyId = form.watch('companyId');
+
+  // --- Company & Format options ---
+  const { data: companies = [] } = useCompaniesForPromptConfig();
+  const { data: documentFormats = [] } = useDocumentFormatsForPromptConfig(
+    watchCompanyId ?? undefined
+  );
 
   // --- Submit ---
   const onSubmit = async (values: FormValues) => {
@@ -286,16 +297,28 @@ export function FieldDefinitionSetForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t('form.company')}</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder={t('form.companyPlaceholder')}
-                    value={field.value ?? ''}
-                    onChange={(e) =>
-                      field.onChange(e.target.value || null)
-                    }
-                    disabled={isEditing}
-                  />
-                </FormControl>
+                <Select
+                  onValueChange={(v) => {
+                    field.onChange(v);
+                    // Clear format when company changes
+                    form.setValue('documentFormatId', null);
+                  }}
+                  value={field.value ?? ''}
+                  disabled={isEditing}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('form.companyPlaceholder')} />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -310,16 +333,24 @@ export function FieldDefinitionSetForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t('form.format')}</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder={t('form.formatPlaceholder')}
-                    value={field.value ?? ''}
-                    onChange={(e) =>
-                      field.onChange(e.target.value || null)
-                    }
-                    disabled={isEditing}
-                  />
-                </FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value ?? ''}
+                  disabled={isEditing || !watchCompanyId}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('form.formatPlaceholder')} />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {documentFormats.map((fmt) => (
+                      <SelectItem key={fmt.id} value={fmt.id}>
+                        {fmt.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
