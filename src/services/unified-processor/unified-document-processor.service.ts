@@ -414,8 +414,10 @@ export class UnifiedDocumentProcessorService {
         error: sr.error,
       })),
       extractedData,
-      // FIX-044: 將 V3.1 standardFields 轉為 V2 MappedFieldValue[] 填入 mappedFields
+      // FIX-044: 將 V3.1 欄位轉為 V2 MappedFieldValue[] 填入 mappedFields
+      // FIX-045: 優先使用 fields（保留 FieldDefinitionSet 原始 key），fallback 到 standardFields（camelCase）
       mappedFields: this.convertStandardFieldsToMappedFields(
+        result.fields ?? null,
         { ...result.standardFields },
         result.customFields ? { ...result.customFields } : undefined
       ),
@@ -479,28 +481,31 @@ export class UnifiedDocumentProcessorService {
         overallConfidence: result.overallConfidence,
         standardFields: { ...result.standardFields },
         customFields: result.customFields ? { ...result.customFields } : undefined,
+        fields: result.fields ? { ...result.fields } : undefined, // FIX-045: 保留原始 key
         lineItems: result.lineItems ? [...result.lineItems] : undefined,
       } : undefined,
     };
   }
 
   /**
-   * 將 V3.1 standardFields + customFields 轉為 V2 MappedFieldValue[] 格式
+   * 將 V3.1 欄位轉為 V2 MappedFieldValue[] 格式
    * @private
-   * @since FIX-044
+   * @since FIX-044 (initial), FIX-045 (fields priority)
    * @description
-   *   V3.1 的 Stage 3 輸出 StandardFieldsV3（Record<key, FieldValue>）格式，
-   *   但下游持久化（persistProcessingResult）需要 MappedFieldValue[] 來填入
-   *   ExtractionResult.fieldMappings。此方法負責橋接兩種格式。
+   *   優先使用 Stage 3 的 fields Record（保留 FieldDefinitionSet 原始 key），
+   *   如果不存在（無 FieldDefinition 配置時），fallback 到 standardFields（camelCase）。
    */
   private convertStandardFieldsToMappedFields(
+    fields: Record<string, { value: string | number | null; confidence: number }> | null,
     standardFields: Record<string, { value: string | number | null; confidence: number; source?: string }>,
     customFields?: Record<string, { value: string | number | null; confidence: number }> | undefined
   ): MappedFieldValue[] {
     const mappedFields: MappedFieldValue[] = [];
 
-    // 轉換 standardFields
-    for (const [key, fieldValue] of Object.entries(standardFields)) {
+    // FIX-045: 優先使用 fields（原始 FieldDefinitionSet key）
+    const primarySource = fields ?? standardFields;
+
+    for (const [key, fieldValue] of Object.entries(primarySource)) {
       if (fieldValue && typeof fieldValue === 'object' && 'value' in fieldValue) {
         mappedFields.push({
           targetField: key,
@@ -513,8 +518,9 @@ export class UnifiedDocumentProcessorService {
       }
     }
 
-    // 轉換 customFields（如有）
-    if (customFields) {
+    // 如果使用了 fields，則 customFields 已包含在內（Stage 3 的 fields 包含所有欄位）
+    // 僅在 fallback 到 standardFields 時才需要額外處理 customFields
+    if (!fields && customFields) {
       for (const [key, fieldValue] of Object.entries(customFields)) {
         if (fieldValue && typeof fieldValue === 'object' && 'value' in fieldValue) {
           mappedFields.push({

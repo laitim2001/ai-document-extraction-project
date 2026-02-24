@@ -630,9 +630,14 @@ export class ExtractionV3Service {
         result: threeStageResult.stage3 ? {
           standardFields: threeStageResult.stage3.standardFields,
           customFields: threeStageResult.stage3.customFields,
+          fields: threeStageResult.stage3.fields, // FIX-045: 傳遞原始 FieldDefinitionSet key
           lineItems: threeStageResult.stage3.lineItems,
           extraCharges: threeStageResult.stage3.extraCharges,
           overallConfidence: threeStageResult.stage3.overallConfidence,
+          // FIX: V3.1 需要設定 resolvedCompanyId/resolvedFormatId
+          // 統一處理器的 convertV3Result 依賴這兩個欄位寫入 Document.companyId
+          resolvedCompanyId: threeStageResult.stage1?.companyId || '',
+          resolvedFormatId: threeStageResult.stage2?.formatId,
           // 從 Stage 1/2 獲取公司和格式信息
           issuerIdentification: {
             companyId: threeStageResult.stage1?.companyId,

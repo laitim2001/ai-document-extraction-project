@@ -560,6 +560,8 @@ export interface UnifiedProcessingResult {
     standardFields?: Record<string, unknown>;
     /** FIX-044: 保留完整 customFields 數據 */
     customFields?: Record<string, unknown>;
+    /** FIX-045: 保留原始 FieldDefinitionSet key */
+    fields?: Record<string, unknown>;
     /** FIX-044: 保留完整 lineItems 數據 */
     lineItems?: unknown[];
   };

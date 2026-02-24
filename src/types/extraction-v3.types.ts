@@ -329,6 +329,8 @@ export interface UnifiedExtractionResult {
   standardFields: StandardFieldsV3;
   /** 自定義欄位（公司/格式特定） */
   customFields?: Record<string, FieldValue>;
+  /** FIX-045: Stage 3 原始欄位 Record（保留 FieldDefinitionSet key） */
+  fields?: Record<string, FieldValue>;
   /** 行項目（含術語預分類） */
   lineItems: LineItemV3[];
   /** 額外費用（含術語預分類） */
