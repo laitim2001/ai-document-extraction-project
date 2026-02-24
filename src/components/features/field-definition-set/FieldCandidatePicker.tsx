@@ -263,8 +263,9 @@ export function FieldCandidatePicker({
             return (
               <div key={group.category}>
                 {/* Category header */}
-                <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 sticky top-0">
+                <div className="flex items-center gap-2 px-3 py-2 bg-muted sticky top-0 z-10">
                   <Button
+                    type="button"
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6"
@@ -277,9 +278,7 @@ export function FieldCandidatePicker({
                     )}
                   </Button>
                   <Checkbox
-                    checked={allSelected}
-                    // @ts-expect-error - indeterminate is valid HTML attribute
-                    indeterminate={someSelected}
+                    checked={someSelected ? 'indeterminate' : allSelected}
                     onCheckedChange={() => handleToggleCategory(group)}
                   />
                   <span className="text-sm font-medium">
@@ -350,6 +349,7 @@ export function FieldCandidatePicker({
       {/* Add custom field */}
       {!showCustomForm ? (
         <Button
+          type="button"
           variant="outline"
           size="sm"
           onClick={() => setShowCustomForm(true)}
@@ -427,6 +427,7 @@ export function FieldCandidatePicker({
           </div>
           <div className="flex gap-2">
             <Button
+              type="button"
               size="sm"
               onClick={handleAddCustom}
               disabled={!customKey || !customLabel || selectedKeys.has(customKey)}
@@ -434,6 +435,7 @@ export function FieldCandidatePicker({
               {t('form.fieldPicker.customFieldAdd')}
             </Button>
             <Button
+              type="button"
               variant="ghost"
               size="sm"
               onClick={() => setShowCustomForm(false)}

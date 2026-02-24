@@ -62,6 +62,7 @@ export function FieldEntryEditor({
       {/* Header row */}
       <div className="flex items-center gap-2">
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           className="h-6 w-6 shrink-0"
@@ -98,6 +99,7 @@ export function FieldEntryEditor({
             onCheckedChange={(checked) => handleChange({ required: checked })}
           />
           <Button
+            type="button"
             variant="ghost"
             size="icon"
             className="h-7 w-7 text-destructive"
