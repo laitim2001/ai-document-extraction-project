@@ -193,11 +193,18 @@ export function FieldDefinitionSetForm({
         router.push('/admin/field-definition-sets');
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      const isDuplicate =
+        message.includes('already exists') || message.includes('DUPLICATE');
+
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description:
-          error instanceof Error ? error.message : 'Something went wrong',
+        title: isDuplicate
+          ? t('messages.duplicateScope')
+          : t('messages.saveFailed'),
+        description: isDuplicate
+          ? t('messages.duplicateScopeHint')
+          : message || undefined,
       });
     }
   };

@@ -45,7 +45,9 @@
     "confirmDelete": "确定要删除此字段定义集吗？此操作无法撤消。",
     "deleteFailed": "删除字段定义集失败",
     "toggleFailed": "切换状态失败",
-    "duplicateScope": "相同范围的字段定义集已存在"
+    "saveFailed": "保存字段定义集失败",
+    "duplicateScope": "此范围已存在字段定义集",
+    "duplicateScopeHint": "每个范围（全局 / 公司 / 格式）只能有一个定义集。请编辑现有的定义集，或选择不同的范围。"
   },
   "form": {
     "title": {

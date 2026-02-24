@@ -45,7 +45,9 @@
     "confirmDelete": "Are you sure you want to delete this field definition set? This action cannot be undone.",
     "deleteFailed": "Failed to delete field definition set",
     "toggleFailed": "Failed to toggle status",
-    "duplicateScope": "A field definition set with the same scope already exists"
+    "saveFailed": "Failed to save field definition set",
+    "duplicateScope": "A field definition set already exists for this scope",
+    "duplicateScopeHint": "Each scope (Global / Company / Format) can only have one active definition set. Please edit the existing one or choose a different scope."
   },
   "form": {
     "title": {
