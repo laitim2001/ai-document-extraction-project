@@ -32,6 +32,7 @@ import { QueryProvider } from '@/providers/QueryProvider'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { ThemeProvider } from '@/providers/ThemeProvider'
 import { Toaster } from '@/components/ui/toaster'
+import { Toaster as SonnerToaster } from 'sonner'
 import '../globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -98,6 +99,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
               <QueryProvider>
                 {children}
                 <Toaster />
+                <SonnerToaster richColors position="top-right" />
               </QueryProvider>
             </AuthProvider>
           </ThemeProvider>
