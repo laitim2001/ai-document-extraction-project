@@ -95,6 +95,8 @@ export interface BatchMatchResult {
   errorCount: number;
   /** 匹配結果列表 */
   results: MatchResult[];
+  /** 錯誤詳情列表 */
+  errors?: string[];
 }
 
 /**
@@ -507,6 +509,7 @@ export class AutoTemplateMatchingService {
       : undefined;
 
     const results: MatchResult[] = [];
+    const errors: string[] = [];
     let successCount = 0;
     let errorCount = 0;
 
@@ -536,9 +539,11 @@ export class AutoTemplateMatchingService {
             templateMatchedAt: new Date(),
           },
         });
-      } catch {
-        // 單批失敗，記錄錯誤但繼續處理
+      } catch (error) {
+        // 單批失敗，記錄錯誤訊息但繼續處理
         errorCount += batch.length;
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        errors.push(`Batch ${Math.floor(i / batchSize) + 1}: ${message}`);
       }
 
       // 進度回調
@@ -561,6 +566,7 @@ export class AutoTemplateMatchingService {
       successCount,
       errorCount,
       results,
+      ...(errors.length > 0 && { errors }),
     };
   }
 

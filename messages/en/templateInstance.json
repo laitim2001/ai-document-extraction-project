@@ -174,7 +174,9 @@
     "exportSuccess": "Export completed successfully",
     "exportError": "Failed to export data",
     "addFileSuccess": "{count} files matched successfully",
-    "addFileError": "Failed to add files"
+    "addFileError": "Failed to add files",
+    "addFilePartial": "{success} files matched, {error} failed",
+    "addFileAllFailed": "All {count} files failed to match"
   },
   "addFileDialog": {
     "title": "Add File",

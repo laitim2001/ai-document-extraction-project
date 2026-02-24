@@ -143,17 +143,38 @@ export function AddFileDialog({
       }
 
       const result = await response.json();
-      toast.success(
-        t('toast.addFileSuccess', {
-          count: result.data?.successCount ?? selectedIds.size,
-        })
-      );
+      const data = result.data;
+      const successN = data?.successCount ?? 0;
+      const errorN = data?.errorCount ?? 0;
+
+      if (errorN > 0 && successN === 0) {
+        // All failed
+        const errorDetail = data?.errors?.join('; ') || '';
+        toast.error(t('toast.addFileError'), {
+          description: errorDetail || t('toast.addFileAllFailed', { count: errorN }),
+        });
+      } else if (errorN > 0 && successN > 0) {
+        // Partial success
+        toast.warning(
+          t('toast.addFilePartial', { success: successN, error: errorN }),
+          {
+            description: data?.errors?.join('; ') || undefined,
+          }
+        );
+      } else {
+        // All succeeded
+        toast.success(
+          t('toast.addFileSuccess', { count: successN || selectedIds.size })
+        );
+      }
 
       // Invalidate both instance detail and rows queries
       await queryClient.invalidateQueries({
         queryKey: ['template-instances', 'detail', instanceId],
       });
-      onSuccess?.();
+      if (successN > 0) {
+        onSuccess?.();
+      }
       handleClose();
     } catch (error) {
       toast.error(t('toast.addFileError'), {

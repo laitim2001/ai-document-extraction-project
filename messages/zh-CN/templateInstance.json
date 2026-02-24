@@ -174,7 +174,9 @@
     "exportSuccess": "导出成功",
     "exportError": "导出失败",
     "addFileSuccess": "成功匹配 {count} 个文件",
-    "addFileError": "添加文件失败"
+    "addFileError": "添加文件失败",
+    "addFilePartial": "成功匹配 {success} 个文件，{error} 个失败",
+    "addFileAllFailed": "全部 {count} 个文件匹配失败"
   },
   "addFileDialog": {
     "title": "添加文件",
