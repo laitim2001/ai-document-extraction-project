@@ -13,7 +13,7 @@
  *
  * @module src/services/extraction-v3/stages/stage-3-extraction.service
  * @since CHANGE-024 - Three-Stage Extraction Architecture
- * @lastModified 2026-02-23
+ * @lastModified 2026-02-24
  *
  * @features
  *   - 分層 PromptConfig 載入：FORMAT > COMPANY > GLOBAL
@@ -64,6 +64,7 @@ import {
 import {
   replaceVariables,
   buildStage3VariableContext,
+  extractVariableNames,
   type VariableContext,
 } from '../utils/variable-replacer';
 
@@ -322,6 +323,9 @@ export class Stage3ExtractionService {
     userPromptTemplate: string;
     imageDetailMode?: 'auto' | 'low' | 'high';
   }> {
+    // FIX-043: 加入 promptType 過濾，避免載入 TERM_CLASSIFICATION 等非提取類型的 PromptConfig
+    const extractionPromptTypes = ['STAGE_3_FIELD_EXTRACTION', 'FIELD_EXTRACTION'] as const;
+
     // 1. 嘗試 FORMAT 級配置
     if (formatId && companyId) {
       const formatConfig = await this.prisma.promptConfig.findFirst({
@@ -330,6 +334,7 @@ export class Stage3ExtractionService {
           documentFormatId: formatId,
           companyId,
           isActive: true,
+          promptType: { in: [...extractionPromptTypes] },
         },
       });
       if (formatConfig) {
@@ -350,6 +355,7 @@ export class Stage3ExtractionService {
           scope: 'COMPANY',
           companyId,
           isActive: true,
+          promptType: { in: [...extractionPromptTypes] },
         },
       });
       if (companyConfig) {
@@ -368,6 +374,7 @@ export class Stage3ExtractionService {
       where: {
         scope: 'GLOBAL',
         isActive: true,
+        promptType: { in: [...extractionPromptTypes] },
       },
     });
 
@@ -697,6 +704,9 @@ export class Stage3ExtractionService {
       config.customFields
     );
 
+    // FIX-043: 保存原始 systemPrompt（變數替換前），用於判斷是否需注入 FieldDefinitionSet
+    const rawSystemPrompt = config.systemPrompt || '';
+
     let systemPrompt =
       config.systemPrompt ||
       `You are an expert invoice data extraction specialist.
@@ -719,6 +729,26 @@ Respond in valid JSON format matching the provided schema.`;
       console.log(
         `[Stage3] Applied variable replacement for PromptConfig (scope: ${config.promptConfigScope})`
       );
+    }
+
+    // FIX-043: 自動注入 FieldDefinitionSet 欄位定義
+    // 當 PromptConfig 提供自定義 systemPrompt 且未包含欄位變數時，
+    // 自動追加 FieldDefinitionSet 的欄位定義段落
+    if (
+      rawSystemPrompt &&
+      config.fieldDefinitions &&
+      config.fieldDefinitions.length > 0 &&
+      this.shouldInjectFieldDefinitions(rawSystemPrompt)
+    ) {
+      const fieldDefsSection = this.buildFieldDefinitionsSection(
+        config.fieldDefinitions
+      );
+      if (fieldDefsSection) {
+        systemPrompt = systemPrompt + '\n' + fieldDefsSection;
+        console.log(
+          `[Stage3] Injected ${config.fieldDefinitions.length} field definitions from FieldDefinitionSet`
+        );
+      }
     }
 
     return {
@@ -784,6 +814,75 @@ Respond in valid JSON format matching the provided schema.`;
         : '';
 
     return `Standard Fields:\n${standardSection}${customSection ? `\n\nCustom Fields:\n${customSection}` : ''}`;
+  }
+
+  /**
+   * FIX-043: 判斷是否需要自動注入 FieldDefinitionSet 欄位定義
+   * @description 檢查原始 systemPrompt 是否已包含欄位相關變數（如 ${standardFields}、${fieldSchema}）。
+   *              如已包含，說明用戶在 PromptConfig 模板中主動嵌入了欄位，無需重複注入。
+   */
+  private shouldInjectFieldDefinitions(rawSystemPrompt: string): boolean {
+    const fieldRelatedVars = [
+      'standardFields',
+      'customFields',
+      'fieldSchema',
+      'fieldsSection',
+    ];
+    const existingVars = extractVariableNames(rawSystemPrompt);
+    return !fieldRelatedVars.some((v) => existingVars.includes(v));
+  }
+
+  /**
+   * FIX-043: 構建 FieldDefinitionSet 欄位定義注入段落
+   * @description 當 PromptConfig 的自定義 systemPrompt 未包含欄位變數時，
+   *              自動追加此段落以確保 FieldDefinitionSet 欄位被使用於提取。
+   */
+  private buildFieldDefinitionsSection(
+    fieldDefinitions: FieldDefinitionEntry[]
+  ): string {
+    if (!fieldDefinitions || fieldDefinitions.length === 0) return '';
+
+    const requiredFields = fieldDefinitions.filter((f) => f.required);
+    const optionalFields = fieldDefinitions.filter((f) => !f.required);
+
+    const lines: string[] = [
+      '\n--- Field Extraction Requirements ---',
+      `Total fields to extract: ${fieldDefinitions.length}`,
+    ];
+
+    if (requiredFields.length > 0) {
+      lines.push('\nRequired Fields (MUST extract):');
+      for (const f of requiredFields) {
+        const hints = f.extractionHints
+          ? ` (Hints: ${f.extractionHints})`
+          : '';
+        const aliases =
+          f.aliases && f.aliases.length > 0
+            ? ` [Also known as: ${f.aliases.join(', ')}]`
+            : '';
+        lines.push(
+          `  - ${f.label} (${f.key}, type: ${f.dataType})${aliases}${hints}`
+        );
+      }
+    }
+
+    if (optionalFields.length > 0) {
+      lines.push('\nOptional Fields (extract if available):');
+      for (const f of optionalFields) {
+        const hints = f.extractionHints
+          ? ` (Hints: ${f.extractionHints})`
+          : '';
+        const aliases =
+          f.aliases && f.aliases.length > 0
+            ? ` [Also known as: ${f.aliases.join(', ')}]`
+            : '';
+        lines.push(
+          `  - ${f.label} (${f.key}, type: ${f.dataType})${aliases}${hints}`
+        );
+      }
+    }
+
+    return lines.join('\n');
   }
 
   /**
