@@ -86,7 +86,8 @@
       "reference": "Reference Numbers",
       "payment": "Payment Info",
       "extracted": "Extracted Fields",
-      "custom": "Custom Fields"
+      "custom": "Custom Fields",
+      "lineItem": "Line Item Charges (li_*)"
     }
   },
   "detail": {

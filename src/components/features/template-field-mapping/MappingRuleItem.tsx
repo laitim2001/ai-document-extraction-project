@@ -177,6 +177,7 @@ export function MappingRuleItem({
               usedFields={filteredUsedSourceFields}
               disabled={disabled}
               className="w-full"
+              showLineItemFields
             />
           ) : (
             <div className="text-sm truncate">

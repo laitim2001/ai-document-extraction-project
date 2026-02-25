@@ -223,7 +223,7 @@ export function SourceFieldSelector({
 
 /**
  * @component SourceFieldDisplay
- * @description 顯示已選擇的源欄位（唯讀）
+ * @description 顯示已選擇的源欄位（唯讀），支援 li_* pseudo-fields
  */
 export function SourceFieldDisplay({ value }: { value: string }) {
   const field = React.useMemo(
@@ -231,14 +231,21 @@ export function SourceFieldDisplay({ value }: { value: string }) {
     [value]
   );
 
-  if (!field) {
-    return <span className="text-muted-foreground">{value}</span>;
-  }
+  // CHANGE-043: Format li_* pseudo-field names for display
+  const displayLabel = React.useMemo(() => {
+    if (field) return field.description || field.name;
+    if (value.startsWith('li_') && (value.endsWith('_total') || value.endsWith('_count'))) {
+      const suffix = value.endsWith('_total') ? 'Total' : 'Count';
+      const classifiedAs = value.replace(/^li_/, '').replace(/_(total|count)$/, '');
+      return `${classifiedAs.replace(/_/g, ' ')} (${suffix})`;
+    }
+    return value;
+  }, [field, value]);
 
   return (
     <div className="flex flex-col">
-      <span className="font-medium">{field.description || field.name}</span>
-      <span className="text-xs text-muted-foreground">{field.name}</span>
+      <span className="font-medium">{displayLabel}</span>
+      <span className="text-xs text-muted-foreground">{value}</span>
     </div>
   );
 }

@@ -46,6 +46,7 @@ import { Badge } from '@/components/ui/badge';
 // 直接從 source-field.service 導入，避免觸發服務器端代碼的 barrel import
 import {
   getGroupedSourceFields,
+  getLineItemFieldOptions,
   searchFields,
   isValidFieldName,
   createCustomFieldOption,
@@ -86,6 +87,8 @@ interface SourceFieldComboboxProps {
   fieldDefinitionSetId?: string;
   /** 依 context 解析欄位（fallback to resolve API） @since CHANGE-042 */
   resolveByContext?: { companyId?: string; formatId?: string };
+  /** 是否顯示 Line Item pseudo-fields（li_*） @since CHANGE-043 Step 9a */
+  showLineItemFields?: boolean;
 }
 
 // ============================================================================
@@ -110,6 +113,7 @@ export function SourceFieldCombobox({
   className,
   fieldDefinitionSetId,
   resolveByContext,
+  showLineItemFields = false,
 }: SourceFieldComboboxProps) {
   const t = useTranslations('formats.sourceFieldCombobox');
   const effectivePlaceholder = placeholder ?? t('placeholder');
@@ -141,21 +145,35 @@ export function SourceFieldCombobox({
     [value]
   );
 
+  // CHANGE-043 Step 9a: Line Item pseudo-fields
+  const lineItemOptions = React.useMemo<SourceFieldOption[]>(
+    () => (showLineItemFields ? getLineItemFieldOptions() : []),
+    [showLineItemFields]
+  );
+
   // 獲取分組的來源欄位（若有 definition fields 則優先使用）
   const groupedFields = React.useMemo<GroupedSourceFields>(() => {
+    let grouped: GroupedSourceFields;
     if (definitionFieldOptions.length > 0) {
       // Use definition fields as primary source
-      const grouped: GroupedSourceFields = {};
+      grouped = {};
       for (const field of definitionFieldOptions) {
         if (!grouped[field.category]) {
           grouped[field.category] = [];
         }
         grouped[field.category].push(field);
       }
-      return grouped;
+    } else {
+      grouped = getGroupedSourceFields(extractedData);
     }
-    return getGroupedSourceFields(extractedData);
-  }, [definitionFieldOptions, extractedData]);
+
+    // CHANGE-043: Append line item fields if enabled
+    if (lineItemOptions.length > 0) {
+      grouped['lineItem'] = lineItemOptions;
+    }
+
+    return grouped;
+  }, [definitionFieldOptions, extractedData, lineItemOptions]);
 
   // 將分組欄位轉為平面列表
   const allFields = React.useMemo<SourceFieldOption[]>(() => {

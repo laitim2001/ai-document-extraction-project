@@ -82,7 +82,7 @@ export interface ExtractedFieldInfo {
  * 分類顯示名稱（中文）
  * @description 用於 UI 顯示的分類標籤
  */
-export const CATEGORY_LABELS: Record<FieldCategory | 'extracted' | 'custom', string> = {
+export const CATEGORY_LABELS: Record<FieldCategory | 'extracted' | 'custom' | 'lineItem', string> = {
   basic: '基本資訊',
   shipper: '發貨人資訊',
   consignee: '收貨人資訊',
@@ -93,6 +93,7 @@ export const CATEGORY_LABELS: Record<FieldCategory | 'extracted' | 'custom', str
   payment: '付款資訊',
   extracted: '提取欄位',
   custom: '自訂欄位',
+  lineItem: '行項目費用',
 };
 
 /**
@@ -108,9 +109,59 @@ export const CATEGORY_ORDER: string[] = [
   'charges',
   'reference',
   'payment',
+  'lineItem',
   'extracted',
   'custom',
 ];
+
+/**
+ * Line Item pseudo-field 常見費用分類建議
+ * @description
+ *   CHANGE-043 Phase 1 將 lineItems 按 classifiedAs 展平為 li_* pseudo-fields。
+ *   此列表提供常見費用分類供 SourceFieldCombobox 顯示，使用者可在搜尋框輸入其他分類。
+ *   每個分類產生 _total（金額合計）和 _count（筆數）兩個欄位。
+ * @since CHANGE-043 Step 9a
+ */
+export const LINE_ITEM_SUGGESTIONS: Array<{ classifiedAs: string; label: string }> = [
+  { classifiedAs: 'OCEAN_FREIGHT', label: 'Ocean Freight' },
+  { classifiedAs: 'THC', label: 'THC (Terminal Handling)' },
+  { classifiedAs: 'HANDLING_FEE', label: 'Handling Fee' },
+  { classifiedAs: 'DOC_FEE', label: 'Documentation Fee' },
+  { classifiedAs: 'CUSTOMS_CLEARANCE', label: 'Customs Clearance' },
+  { classifiedAs: 'INSURANCE', label: 'Insurance' },
+  { classifiedAs: 'BAF', label: 'BAF (Bunker Adjustment)' },
+  { classifiedAs: 'CAF', label: 'CAF (Currency Adjustment)' },
+  { classifiedAs: 'TRUCKING', label: 'Trucking / Drayage' },
+  { classifiedAs: 'WAREHOUSE', label: 'Warehouse / Storage' },
+  { classifiedAs: 'SEAL_FEE', label: 'Seal Fee' },
+  { classifiedAs: 'ISPS', label: 'ISPS (Security)' },
+];
+
+/**
+ * 將 LINE_ITEM_SUGGESTIONS 轉為 SourceFieldOption[]
+ * @description 每個分類產生 _total 和 _count 兩個選項
+ * @since CHANGE-043 Step 9a
+ */
+export function getLineItemFieldOptions(): SourceFieldOption[] {
+  const options: SourceFieldOption[] = [];
+  for (const { classifiedAs, label } of LINE_ITEM_SUGGESTIONS) {
+    options.push({
+      name: `li_${classifiedAs}_total`,
+      label: `${label} (Total)`,
+      category: 'lineItem',
+      source: 'standard' as const,
+      dataType: 'number',
+    });
+    options.push({
+      name: `li_${classifiedAs}_count`,
+      label: `${label} (Count)`,
+      category: 'lineItem',
+      source: 'standard' as const,
+      dataType: 'number',
+    });
+  }
+  return options;
+}
 
 // ============================================================================
 // Functions

@@ -86,7 +86,8 @@
       "reference": "参考编号",
       "payment": "付款信息",
       "extracted": "提取字段",
-      "custom": "自定义字段"
+      "custom": "自定义字段",
+      "lineItem": "行项目费用 (li_*)"
     }
   },
   "detail": {
