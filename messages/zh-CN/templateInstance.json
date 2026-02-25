@@ -185,7 +185,8 @@
     "noDocuments": "找不到文件",
     "selected": "已选择 {count} 个文件",
     "addButton": "添加 {count} 个文件",
-    "adding": "添加中..."
+    "adding": "添加中...",
+    "sortInfo": "按创建时间排序（最新优先）"
   },
   "match": {
     "title": "匹配到模板",

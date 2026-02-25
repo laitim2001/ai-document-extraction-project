@@ -185,7 +185,8 @@
     "noDocuments": "No documents found",
     "selected": "{count} files selected",
     "addButton": "Add {count} Files",
-    "adding": "Adding..."
+    "adding": "Adding...",
+    "sortInfo": "Sorted by most recently created"
   },
   "match": {
     "title": "Match to Template",

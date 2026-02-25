@@ -12,9 +12,9 @@
  */
 
 import * as React from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
-import { FileText, Loader2, Search, Check } from 'lucide-react';
+import { FileText, Loader2, Search, Check, Clock } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -30,6 +30,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { formatShortDate } from '@/lib/i18n-date';
+import type { Locale } from '@/i18n/config';
 
 // ============================================================================
 // Types
@@ -41,6 +43,7 @@ interface DocumentItem {
   status: string;
   cityCode?: string | null;
   createdAt: string;
+  updatedAt?: string;
 }
 
 interface AddFileDialogProps {
@@ -69,6 +72,7 @@ export function AddFileDialog({
 }: AddFileDialogProps) {
   const t = useTranslations('templateInstance');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const queryClient = useQueryClient();
 
   // --- State ---
@@ -194,7 +198,7 @@ export function AddFileDialog({
   // --- Render ---
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[560px]">
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -216,12 +220,18 @@ export function AddFileDialog({
           />
         </div>
 
+        {/* Sort info */}
+        <p className="text-xs text-muted-foreground flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          {t('addFileDialog.sortInfo')}
+        </p>
+
         {/* Document List */}
-        <ScrollArea className="h-[300px] rounded-md border">
+        <ScrollArea className="h-[400px] rounded-md border">
           {isLoading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
+                <Skeleton key={i} className="h-14 w-full" />
               ))}
             </div>
           ) : documents.length === 0 ? (
@@ -241,12 +251,14 @@ export function AddFileDialog({
                     onCheckedChange={() => handleToggle(doc.id)}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{doc.fileName}</p>
-                    {doc.cityCode && (
-                      <p className="truncate text-xs text-muted-foreground">
-                        {doc.cityCode}
-                      </p>
-                    )}
+                    <p className="text-sm font-medium break-all">{doc.fileName}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                      {doc.cityCode && <span>{doc.cityCode}</span>}
+                      {doc.cityCode && doc.createdAt && <span>·</span>}
+                      {doc.createdAt && (
+                        <span>{formatShortDate(new Date(doc.createdAt), locale as Locale)}</span>
+                      )}
+                    </div>
                   </div>
                   <Badge variant="secondary" className="shrink-0 text-xs">
                     {doc.status}

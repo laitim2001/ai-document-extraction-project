@@ -270,7 +270,7 @@ export function InstanceRowsTable({
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -286,8 +286,8 @@ export function InstanceRowsTable({
               <TableHead className="w-[60px]">{t('rows.columns.index')}</TableHead>
               <TableHead className="w-[120px]">{t('rows.columns.rowKey')}</TableHead>
               {/* Dynamic columns from template fields */}
-              {sortedFields.slice(0, 5).map((field) => (
-                <TableHead key={field.name} className="min-w-[100px]">
+              {sortedFields.map((field) => (
+                <TableHead key={field.name} className="min-w-[120px] whitespace-nowrap">
                   {getFieldLabel(field)}
                 </TableHead>
               ))}
@@ -326,7 +326,7 @@ export function InstanceRowsTable({
                     {/* Row Key */}
                     <TableCell className="font-medium">{row.rowKey}</TableCell>
                     {/* Dynamic field values */}
-                    {sortedFields.slice(0, 5).map((field) => {
+                    {sortedFields.map((field) => {
                       const value = row.fieldValues[field.name];
                       const fieldError = errors[field.name];
 

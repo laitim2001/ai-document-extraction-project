@@ -283,6 +283,7 @@ export function ExportDialog({
               fields={templateFields}
               selectedFields={options.selectedFields}
               onChange={handleFieldsChange}
+              maxHeight={300}
             />
           </div>
 

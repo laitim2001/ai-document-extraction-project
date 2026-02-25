@@ -209,7 +209,7 @@ export function DataTemplateFieldEditor({
         <div className="space-y-3">
           {fields.map((field, index) => (
             <FieldRow
-              key={`${field.name}-${index}`}
+              key={index}
               field={field}
               index={index}
               total={fields.length}
