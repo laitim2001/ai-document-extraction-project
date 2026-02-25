@@ -36,6 +36,8 @@ interface MappingRuleEditorProps {
   templateFields: TemplateField[];
   /** 文件格式 ID（用於載入動態提取欄位，僅 FORMAT scope 時傳入） */
   formatId?: string;
+  /** FieldDefinitionSet 解析上下文（用於載入自訂欄位定義） @since CHANGE-045 */
+  resolveByContext?: { companyId?: string; formatId?: string };
   disabled?: boolean;
   error?: string;
   className?: string;
@@ -54,6 +56,7 @@ export function MappingRuleEditor({
   onChange,
   templateFields,
   formatId,
+  resolveByContext,
   disabled = false,
   error,
   className,
@@ -191,6 +194,7 @@ export function MappingRuleEditor({
               usedSourceFields={usedSourceFields}
               usedTargetFields={usedTargetFields}
               formatId={formatId}
+              resolveByContext={resolveByContext}
               isExpanded={expandedIndex === index}
               onExpandToggle={() => handleExpandToggle(index)}
               disabled={disabled}

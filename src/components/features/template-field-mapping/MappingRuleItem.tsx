@@ -50,6 +50,8 @@ interface MappingRuleItemProps {
   usedTargetFields: string[];
   /** 文件格式 ID（用於載入動態提取欄位） */
   formatId?: string;
+  /** FieldDefinitionSet 解析上下文（用於載入自訂欄位定義） @since CHANGE-045 */
+  resolveByContext?: { companyId?: string; formatId?: string };
   isExpanded?: boolean;
   onExpandToggle?: () => void;
   disabled?: boolean;
@@ -74,6 +76,7 @@ export function MappingRuleItem({
   usedSourceFields,
   usedTargetFields,
   formatId,
+  resolveByContext,
   isExpanded = false,
   onExpandToggle,
   disabled = false,
@@ -81,6 +84,11 @@ export function MappingRuleItem({
   className,
 }: MappingRuleItemProps) {
   const t = useTranslations('templateFieldMapping');
+
+  // Use ref to track latest rule to avoid stale closure when
+  // TransformConfigEditor calls onTransformTypeChange + onTransformParamsChange sequentially
+  const ruleRef = React.useRef(rule);
+  ruleRef.current = rule;
 
   // Get transform type label
   const transformTypeLabel = React.useMemo(() => {
@@ -92,9 +100,9 @@ export function MappingRuleItem({
   const handleSourceFieldChange = React.useCallback(
     (value: string | string[]) => {
       const sourceField = Array.isArray(value) ? value[0] || '' : value;
-      onChange({ ...rule, sourceField });
+      onChange({ ...ruleRef.current, sourceField });
     },
-    [rule, onChange]
+    [onChange]
   );
 
   const handleTargetFieldChange = React.useCallback(
@@ -102,40 +110,44 @@ export function MappingRuleItem({
       // Auto-set isRequired based on template field
       const templateField = templateFields.find((f) => f.name === targetField);
       onChange({
-        ...rule,
+        ...ruleRef.current,
         targetField,
-        isRequired: templateField?.isRequired ?? rule.isRequired ?? false,
+        isRequired: templateField?.isRequired ?? ruleRef.current.isRequired ?? false,
       });
     },
-    [rule, onChange, templateFields]
+    [onChange, templateFields]
   );
 
   const handleTransformTypeChange = React.useCallback(
     (transformType: FieldTransformType) => {
-      onChange({ ...rule, transformType });
+      const updated = { ...ruleRef.current, transformType };
+      ruleRef.current = updated;
+      onChange(updated);
     },
-    [rule, onChange]
+    [onChange]
   );
 
   const handleTransformParamsChange = React.useCallback(
     (transformParams: TransformParams) => {
-      onChange({ ...rule, transformParams });
+      const updated = { ...ruleRef.current, transformParams };
+      ruleRef.current = updated;
+      onChange(updated);
     },
-    [rule, onChange]
+    [onChange]
   );
 
   const handleIsRequiredChange = React.useCallback(
     (isRequired: boolean) => {
-      onChange({ ...rule, isRequired });
+      onChange({ ...ruleRef.current, isRequired });
     },
-    [rule, onChange]
+    [onChange]
   );
 
   const handleDescriptionChange = React.useCallback(
     (description: string) => {
-      onChange({ ...rule, description });
+      onChange({ ...ruleRef.current, description });
     },
-    [rule, onChange]
+    [onChange]
   );
 
   // Filter used fields (exclude current rule)
@@ -174,6 +186,7 @@ export function MappingRuleItem({
               value={rule.sourceField || ''}
               onChange={handleSourceFieldChange}
               formatId={formatId}
+              resolveByContext={resolveByContext}
               usedFields={filteredUsedSourceFields}
               disabled={disabled}
               className="w-full"

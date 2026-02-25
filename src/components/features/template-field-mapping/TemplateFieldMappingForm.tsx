@@ -242,6 +242,16 @@ function TemplateFieldMappingFormInner({
   // Only pass formatId when scope is FORMAT
   const effectiveFormatId = scope === 'FORMAT' ? watchedFormatId : undefined;
 
+  // CHANGE-045: Build resolveByContext for FieldDefinitionSet lookup
+  const watchedCompanyId = form.watch('companyId');
+  const resolveByContext = React.useMemo(() => {
+    const ctx: { companyId?: string; formatId?: string } = {};
+    if (scope === 'COMPANY' && watchedCompanyId) ctx.companyId = watchedCompanyId;
+    if (scope === 'FORMAT' && watchedFormatId) ctx.formatId = watchedFormatId;
+    // Only return context if at least one value is set
+    return ctx.companyId || ctx.formatId ? ctx : undefined;
+  }, [scope, watchedCompanyId, watchedFormatId]);
+
   // Get template fields for selected template
   const templateFields = React.useMemo(() => {
     const template = dataTemplates.find((t) => t.id === selectedTemplateId);
@@ -545,6 +555,7 @@ function TemplateFieldMappingFormInner({
                 onChange={setMappingRules}
                 templateFields={templateFields}
                 formatId={effectiveFormatId}
+                resolveByContext={resolveByContext}
                 disabled={isSubmitting}
               />
             )}
