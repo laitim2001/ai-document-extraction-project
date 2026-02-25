@@ -20,6 +20,8 @@
  */
 
 import type { Transform, TransformContext, TransformParams, AggregateTransformParams } from './types';
+// CHANGE-046: 使用共用正規化函數（取代 ad-hoc 私有方法）
+import { normalizeClassifiedAs } from '@/services/extraction-v3/utils/classify-normalizer';
 
 // ============================================================================
 // Types
@@ -167,39 +169,36 @@ export class AggregateTransform implements Transform {
   }
 
   /**
-   * 正規化 classifiedAs 值以進行容錯比較
-   * 將底線/連字號替換為空格，並轉為小寫
-   */
-  private normalizeClassifiedAs(value: string): string {
-    return value.replace(/[_-]/g, ' ').toLowerCase();
-  }
-
-  /**
    * 過濾項目
    *
    * @description
-   *   classifiedAs 比較採用容錯匹配：忽略大小寫、底線/連字號/空格差異。
-   *   GPT 提取的 category 可能使用底線（如 Terminal_Handling_Charge），
-   *   而用戶配置的 filter 可能使用空格（如 Terminal Handling Charge），
-   *   需要正規化後比較以避免無謂的匹配失敗。
+   *   classifiedAs 比較使用共用 normalizeClassifiedAs() 進行容錯匹配。
+   *   新提取的文件 classifiedAs 已在 convertRawLineItems() 入口處正規化為 Title Case，
+   *   但舊文件 DB 中可能仍有底線格式（如 Terminal_Handling_Charge），
+   *   因此保留正規化比較以確保向後兼容。
+   *
+   *   TODO: 當所有舊文件重新提取後，可移除正規化比較，改為純 === 匹配。
+   *
+   * @since CHANGE-043
+   * @lastModified CHANGE-046 — 改用共用 normalizeClassifiedAs()
    */
   private filterItems(
     items: AggregateItem[],
     filter: AggregateTransformParams['filter']
   ): AggregateItem[] {
     return items.filter((item) => {
-      // classifiedAs 容錯匹配（忽略大小寫和底線/空格差異）
+      // classifiedAs 容錯匹配（正規化為 Title Case 後比較）
       if (filter.classifiedAs) {
         if (!item.classifiedAs) return false;
-        if (this.normalizeClassifiedAs(item.classifiedAs) !== this.normalizeClassifiedAs(filter.classifiedAs)) return false;
+        if (normalizeClassifiedAs(item.classifiedAs) !== normalizeClassifiedAs(filter.classifiedAs)) return false;
       }
 
       // classifiedAsIn 列表容錯匹配
       if (filter.classifiedAsIn && filter.classifiedAsIn.length > 0) {
         if (!item.classifiedAs) return false;
-        const normalizedItem = this.normalizeClassifiedAs(item.classifiedAs);
+        const normalizedItem = normalizeClassifiedAs(item.classifiedAs);
         const matched = filter.classifiedAsIn.some(
-          (v) => this.normalizeClassifiedAs(v) === normalizedItem
+          (v) => normalizeClassifiedAs(v) === normalizedItem
         );
         if (!matched) return false;
       }

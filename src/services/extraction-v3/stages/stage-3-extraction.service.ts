@@ -67,6 +67,8 @@ import {
   extractVariableNames,
   type VariableContext,
 } from '../utils/variable-replacer';
+// CHANGE-046: classifiedAs 正規化
+import { normalizeClassifiedAs } from '../utils/classify-normalizer';
 
 // ============================================================================
 // Types
@@ -897,7 +899,7 @@ Respond in valid JSON format matching the provided schema.`;
       '      "description": "<item description>",  // required'
     );
     lines.push(
-      '      "category": "<charge category>",      // e.g. Shipping, Handling'
+      '      "category": "<charge category>",      // MUST use Title Case with spaces, e.g. "Terminal Handling Charge", "Freight Charges"'
     );
     lines.push('      "quantity": <number>,');
     lines.push('      "unitPrice": <number>,');
@@ -1213,7 +1215,9 @@ Respond in valid JSON format matching the provided schema.`;
       const rawItem = item as Record<string, unknown>;
       return {
         description: (rawItem.description as string) || '',
-        classifiedAs: rawItem.category as string | undefined,
+        classifiedAs: rawItem.category
+          ? normalizeClassifiedAs(rawItem.category as string)
+          : undefined,
         quantity: rawItem.quantity as number | undefined,
         unitPrice: (rawItem.unit_price ?? rawItem.unitPrice) as number | undefined,
         amount: (rawItem.amount as number) || 0,

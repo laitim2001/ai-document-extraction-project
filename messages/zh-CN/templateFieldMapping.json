@@ -231,7 +231,10 @@
     "fieldUnitPrice": "单价",
     "defaultValue": "默认值",
     "defaultValuePlaceholder": "例如：0",
-    "defaultValueHelp": "无匹配项目时返回的值"
+    "defaultValueHelp": "无匹配项目时返回的值",
+    "loadingClassifiedAs": "正在加载分类值...",
+    "noClassifiedAsValues": "此公司暂无分类值",
+    "addCustomValue": "添加：{value}"
   },
   "test": {
     "title": "测试映射",

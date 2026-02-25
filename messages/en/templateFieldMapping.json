@@ -231,7 +231,10 @@
     "fieldUnitPrice": "Unit Price",
     "defaultValue": "Default Value",
     "defaultValuePlaceholder": "e.g., 0",
-    "defaultValueHelp": "Value returned when no matching items found"
+    "defaultValueHelp": "Value returned when no matching items found",
+    "loadingClassifiedAs": "Loading classified values...",
+    "noClassifiedAsValues": "No classified values found for this company",
+    "addCustomValue": "Add: {value}"
   },
   "test": {
     "title": "Test Mapping",

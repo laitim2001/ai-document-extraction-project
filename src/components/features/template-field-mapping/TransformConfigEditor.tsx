@@ -28,6 +28,7 @@ import {
 
 import { FormulaEditor } from './FormulaEditor';
 import { LookupTableEditor } from './LookupTableEditor';
+import { ClassifiedAsCombobox } from './ClassifiedAsCombobox';
 import type {
   FieldTransformType,
   TransformParams,
@@ -50,6 +51,8 @@ interface TransformConfigEditorProps {
   onTransformTypeChange: (type: FieldTransformType) => void;
   onTransformParamsChange: (params: TransformParams) => void;
   availableFields?: string[];
+  /** 公司 ID（傳遞給 AGGREGATE 的 ClassifiedAsCombobox） @since CHANGE-046 */
+  companyId?: string;
   disabled?: boolean;
   errors?: Record<string, string>;
   className?: string;
@@ -206,10 +209,13 @@ function AggregateConfigEditor({
   params,
   onChange,
   disabled,
+  companyId,
 }: {
   params: AggregateTransformParams | null;
   onChange: (params: AggregateTransformParams) => void;
   disabled?: boolean;
+  /** 公司 ID（用於 ClassifiedAsCombobox 載入選項） @since CHANGE-046 */
+  companyId?: string;
 }) {
   const t = useTranslations('templateFieldMapping');
 
@@ -259,10 +265,10 @@ function AggregateConfigEditor({
       {/* Filter: classifiedAs */}
       <div className="space-y-2">
         <Label className="text-sm font-medium">{t('aggregate.filterClassifiedAs')}</Label>
-        <Input
+        <ClassifiedAsCombobox
           value={params?.filter?.classifiedAs || ''}
-          onChange={(e) => handleFilterChange('classifiedAs', e.target.value || undefined)}
-          placeholder={t('aggregate.filterClassifiedAsPlaceholder')}
+          onChange={(v) => handleFilterChange('classifiedAs', v || undefined)}
+          companyId={companyId}
           disabled={disabled}
         />
         <p className="text-xs text-muted-foreground">{t('aggregate.filterClassifiedAsHelp')}</p>
@@ -358,6 +364,7 @@ export function TransformConfigEditor({
   onTransformTypeChange,
   onTransformParamsChange,
   availableFields,
+  companyId,
   disabled = false,
   errors,
   className,
@@ -478,6 +485,7 @@ export function TransformConfigEditor({
             params={transformParams as AggregateTransformParams}
             onChange={onTransformParamsChange}
             disabled={disabled}
+            companyId={companyId}
           />
         );
 

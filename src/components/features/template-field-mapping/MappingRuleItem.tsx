@@ -273,6 +273,7 @@ export function MappingRuleItem({
             transformParams={rule.transformParams ?? null}
             onTransformTypeChange={handleTransformTypeChange}
             onTransformParamsChange={handleTransformParamsChange}
+            companyId={resolveByContext?.companyId}
             disabled={disabled}
             errors={errors}
           />
