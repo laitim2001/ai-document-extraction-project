@@ -6,7 +6,7 @@
  *
  * @module src/services/template-matching-engine
  * @since Epic 19 - Story 19.3
- * @lastModified 2026-01-22
+ * @lastModified 2026-02-25
  *
  * @features
  *   - 映射規則解析（FORMAT > COMPANY > GLOBAL 優先級）
@@ -593,6 +593,7 @@ export class TemplateMatchingEngineService {
         extractionResult: {
           select: {
             fieldMappings: true,
+            stage3Result: true,
           },
         },
       },
@@ -610,15 +611,18 @@ export class TemplateMatchingEngineService {
       );
     }
 
-    // 轉換為所需格式
+    // 轉換為所需格式（含 lineItem 展平）
     return documents.map((doc) => ({
       id: doc.id,
-      mappedFields: this.extractMappedFields(doc.extractionResult?.fieldMappings),
+      mappedFields: this.extractMappedFields(
+        doc.extractionResult?.fieldMappings,
+        doc.extractionResult?.stage3Result
+      ),
     }));
   }
 
   /**
-   * 從 fieldMappings JSON 提取欄位值
+   * 從 fieldMappings JSON 提取欄位值，並展平 lineItems 為 li_* pseudo-fields
    *
    * @description
    *   ExtractionResult.fieldMappings 結構為:
@@ -630,10 +634,17 @@ export class TemplateMatchingEngineService {
    *       ...
    *     }
    *   }
-   *   我們需要提取 value 來進行轉換
+   *   我們需要提取 value 來進行轉換。
+   *
+   *   若 stage3Result 包含 lineItems/extraCharges，按 classifiedAs 聚合展平為：
+   *   - li_{CLASSIFIED_AS}_total: 金額合計
+   *   - li_{CLASSIFIED_AS}_count: 筆數
+   *
+   * @since CHANGE-043 Phase 1
    */
   private extractMappedFields(
-    fieldMappings: unknown
+    fieldMappings: unknown,
+    stage3Result?: unknown
   ): Record<string, unknown> {
     if (!fieldMappings || typeof fieldMappings !== 'object') {
       return {};
@@ -646,6 +657,40 @@ export class TemplateMatchingEngineService {
       if (fieldData && typeof fieldData === 'object') {
         // 優先使用 value，否則使用 rawValue
         result[key] = fieldData.value ?? fieldData.rawValue ?? null;
+      }
+    }
+
+    // CHANGE-043: 展平 lineItems + extraCharges 為 li_* pseudo-fields
+    if (stage3Result && typeof stage3Result === 'object') {
+      const s3 = stage3Result as {
+        lineItems?: Array<{ classifiedAs?: string; amount?: number }>;
+        extraCharges?: Array<{ classifiedAs?: string; amount?: number }>;
+      };
+
+      // 合併 lineItems 和 extraCharges（對用戶而言都是費用項）
+      const allItems = [
+        ...(s3.lineItems || []),
+        ...(s3.extraCharges || []),
+      ];
+
+      if (allItems.length > 0) {
+        // 按 classifiedAs 分組聚合
+        const aggregated = new Map<string, { total: number; count: number }>();
+
+        for (const item of allItems) {
+          const key = item.classifiedAs || 'UNCLASSIFIED';
+          const existing = aggregated.get(key) || { total: 0, count: 0 };
+          aggregated.set(key, {
+            total: existing.total + (item.amount || 0),
+            count: existing.count + 1,
+          });
+        }
+
+        // 展平為 li_* pseudo-fields
+        for (const [classifiedAs, agg] of aggregated) {
+          result[`li_${classifiedAs}_total`] = agg.total;
+          result[`li_${classifiedAs}_count`] = agg.count;
+        }
       }
     }
 
