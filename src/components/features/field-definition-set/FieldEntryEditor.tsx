@@ -26,7 +26,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import type { FieldDefinitionEntry } from '@/types/extraction-v3.types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { FieldDefinitionEntry, FieldDefinitionFieldType } from '@/types/extraction-v3.types';
 
 // ============================================================
 // Types
@@ -87,6 +94,11 @@ export function FieldEntryEditor({
             <Badge variant="outline" className="text-xs">
               {t(`category.${entry.category}` as Parameters<typeof t>[0])}
             </Badge>
+            {entry.fieldType === 'lineItem' && (
+              <Badge variant="default" className="text-xs">
+                {t('form.fieldEntry.fieldTypeLineItem')}
+              </Badge>
+            )}
           </div>
         </div>
 
@@ -123,6 +135,31 @@ export function FieldEntryEditor({
               onChange={(e) => handleChange({ label: e.target.value })}
               className="h-8 text-sm"
             />
+          </div>
+
+          {/* Field Type (CHANGE-045) */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium">
+              {t('form.fieldEntry.fieldType')}
+            </label>
+            <Select
+              value={entry.fieldType ?? 'standard'}
+              onValueChange={(v) =>
+                handleChange({ fieldType: v as FieldDefinitionFieldType })
+              }
+            >
+              <SelectTrigger className="h-8 text-sm w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="standard">
+                  {t('form.fieldEntry.fieldTypeStandard')}
+                </SelectItem>
+                <SelectItem value="lineItem">
+                  {t('form.fieldEntry.fieldTypeLineItem')}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Aliases */}

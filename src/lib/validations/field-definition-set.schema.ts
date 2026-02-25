@@ -71,6 +71,12 @@ const fieldDefinitionScopeSchema = z.enum(['GLOBAL', 'COMPANY', 'FORMAT']);
 const fieldDataTypeSchema = z.enum(['string', 'number', 'date', 'currency']);
 
 /**
+ * 欄位類型 Schema（standard | lineItem）
+ * @since CHANGE-045
+ */
+const fieldTypeSchema = z.enum(['standard', 'lineItem']);
+
+/**
  * 單個欄位定義條目 Schema
  *
  * @description 對應 FieldDefinitionEntry 介面
@@ -90,6 +96,7 @@ export const fieldDefinitionEntrySchema = z.object({
   description: z.string().max(DESCRIPTION_MAX_LENGTH).optional(),
   aliases: z.array(z.string()).max(MAX_ALIASES_COUNT).optional(),
   extractionHints: z.string().max(DESCRIPTION_MAX_LENGTH).optional(),
+  fieldType: fieldTypeSchema.optional(),
 });
 
 // ============================================================================

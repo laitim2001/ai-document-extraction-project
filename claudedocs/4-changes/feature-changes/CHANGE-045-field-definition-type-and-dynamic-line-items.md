@@ -1,7 +1,7 @@
 # CHANGE-045: FieldDefinitionSet 欄位類型區分與 Line Item 動態生成
 
 > **日期**: 2026-02-25
-> **狀態**: ⏳ 待實作
+> **狀態**: ✅ 已完成
 > **優先級**: High
 > **類型**: Feature
 > **影響範圍**: FieldDefinitionSet 模型/UI、Stage 3 提取服務、SourceFieldCombobox、Template Field Mapping、i18n

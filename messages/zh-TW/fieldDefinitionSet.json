@@ -93,6 +93,9 @@
       "aliasesPlaceholder": "輸入別名，以逗號分隔",
       "extractionHints": "提取提示",
       "extractionHintsPlaceholder": "給 AI 的欄位提取指引",
+      "fieldType": "欄位類型",
+      "fieldTypeStandard": "標準欄位",
+      "fieldTypeLineItem": "行項目費用",
       "remove": "移除",
       "expand": "編輯詳情",
       "collapse": "收合"

@@ -209,9 +209,8 @@
   },
   "aggregate": {
     "source": "Data Source",
-    "sourceAll": "All (Line Items + Extra Charges)",
+    "sourceAll": "All (Line Items)",
     "sourceLineItems": "Line Items Only",
-    "sourceExtraCharges": "Extra Charges Only",
     "filterClassifiedAs": "Classified As (Exact Match)",
     "filterClassifiedAsPlaceholder": "e.g., THC",
     "filterClassifiedAsHelp": "Match items where classifiedAs equals this value exactly",

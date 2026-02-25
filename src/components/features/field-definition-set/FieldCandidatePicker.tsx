@@ -44,7 +44,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFieldCandidates } from '@/hooks/use-field-definition-sets';
 import { FieldEntryEditor } from './FieldEntryEditor';
-import type { FieldDefinitionEntry } from '@/types/extraction-v3.types';
+import type { FieldDefinitionEntry, FieldDefinitionFieldType } from '@/types/extraction-v3.types';
 
 // ============================================================
 // Types
@@ -98,6 +98,8 @@ export function FieldCandidatePicker({
   const [customCategory, setCustomCategory] = React.useState('basic');
   const [customDataType, setCustomDataType] =
     React.useState<FieldDefinitionEntry['dataType']>('string');
+  const [customFieldType, setCustomFieldType] =
+    React.useState<FieldDefinitionFieldType>('standard');
 
   // Build selected keys set for quick lookup
   const selectedKeys = React.useMemo(
@@ -202,6 +204,7 @@ export function FieldCandidatePicker({
       dataType: customDataType,
       required: false,
       aliases: [],
+      fieldType: customFieldType,
     };
     onChange([...selectedFields, entry]);
     setCustomKey('');
@@ -212,6 +215,7 @@ export function FieldCandidatePicker({
     customLabel,
     customCategory,
     customDataType,
+    customFieldType,
     selectedFields,
     onChange,
   ]);
@@ -421,6 +425,29 @@ export function FieldCandidatePicker({
                       {t(`dataType.${dt}` as Parameters<typeof t>[0])}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium">
+                {t('form.fieldEntry.fieldType')}
+              </label>
+              <Select
+                value={customFieldType}
+                onValueChange={(v) =>
+                  setCustomFieldType(v as FieldDefinitionFieldType)
+                }
+              >
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="standard">
+                    {t('form.fieldEntry.fieldTypeStandard')}
+                  </SelectItem>
+                  <SelectItem value="lineItem">
+                    {t('form.fieldEntry.fieldTypeLineItem')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>

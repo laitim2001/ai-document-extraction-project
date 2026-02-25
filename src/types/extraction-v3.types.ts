@@ -122,6 +122,12 @@ export interface FieldDefinition {
 // ============================================================================
 
 /**
+ * 欄位類型：標準欄位 vs Line Item 費用欄位
+ * @since CHANGE-045
+ */
+export type FieldDefinitionFieldType = 'standard' | 'lineItem';
+
+/**
  * 欄位定義條目（存儲在 FieldDefinitionSet.fields JSON 中）
  * @description 定義 AI 應該提取的欄位規範，支援動態欄位集
  * @since CHANGE-042
@@ -143,6 +149,8 @@ export interface FieldDefinitionEntry {
   aliases?: string[];
   /** 提取提示（給 AI 的指引） */
   extractionHints?: string;
+  /** 欄位類型：standard（預設）或 lineItem（Line Item 費用欄位） @since CHANGE-045 */
+  fieldType?: FieldDefinitionFieldType;
 }
 
 // ============================================================================
@@ -278,6 +286,9 @@ export interface LineItemV3 {
  * 額外費用項目
  * @description 含術語預分類的額外費用
  * @since CHANGE-021
+ * @deprecated CHANGE-045: extraCharges removed from Stage 3 output.
+ *   Data is now fully covered by lineItems and fields.
+ *   Kept for backward compatibility with existing data.
  */
 export interface ExtraChargeV3 {
   /** 描述 */

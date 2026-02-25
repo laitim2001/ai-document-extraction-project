@@ -93,6 +93,9 @@
       "aliasesPlaceholder": "输入别名，以逗号分隔",
       "extractionHints": "提取提示",
       "extractionHintsPlaceholder": "给 AI 的字段提取指引",
+      "fieldType": "字段类型",
+      "fieldTypeStandard": "标准字段",
+      "fieldTypeLineItem": "行项目费用",
       "remove": "移除",
       "expand": "编辑详情",
       "collapse": "收起"

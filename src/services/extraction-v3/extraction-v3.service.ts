@@ -632,7 +632,7 @@ export class ExtractionV3Service {
           customFields: threeStageResult.stage3.customFields,
           fields: threeStageResult.stage3.fields, // FIX-045: 傳遞原始 FieldDefinitionSet key
           lineItems: threeStageResult.stage3.lineItems,
-          extraCharges: threeStageResult.stage3.extraCharges,
+          // CHANGE-045: extraCharges removed from Stage 3 output
           overallConfidence: threeStageResult.stage3.overallConfidence,
           // FIX: V3.1 需要設定 resolvedCompanyId/resolvedFormatId
           // 統一處理器的 convertV3Result 依賴這兩個欄位寫入 Document.companyId

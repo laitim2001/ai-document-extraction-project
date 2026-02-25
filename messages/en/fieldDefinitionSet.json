@@ -93,6 +93,9 @@
       "aliasesPlaceholder": "Enter aliases separated by comma",
       "extractionHints": "Extraction Hints",
       "extractionHintsPlaceholder": "Instructions for AI on how to find this field",
+      "fieldType": "Field Type",
+      "fieldTypeStandard": "Standard",
+      "fieldTypeLineItem": "Line Item",
       "remove": "Remove",
       "expand": "Edit Details",
       "collapse": "Collapse"

@@ -112,8 +112,9 @@ export class AggregateTransform implements Transform {
 
     const aggParams = params as AggregateTransformParams;
 
+    // CHANGE-045: extraCharges removed; 'all' now means lineItems only (kept for backward compat)
     if (!['lineItems', 'extraCharges', 'all'].includes(aggParams.source)) {
-      return { isValid: false, error: 'source 必須為 lineItems、extraCharges 或 all' };
+      return { isValid: false, error: 'source 必須為 lineItems 或 all' };
     }
 
     if (!aggParams.filter || typeof aggParams.filter !== 'object') {
@@ -155,12 +156,11 @@ export class AggregateTransform implements Transform {
       case 'lineItems':
         return (context.lineItems || []) as AggregateItem[];
       case 'extraCharges':
-        return (context.extraCharges || []) as AggregateItem[];
+        // CHANGE-045: extraCharges removed from Stage 3; return empty for backward compat
+        return [];
       case 'all':
-        return [
-          ...((context.lineItems || []) as AggregateItem[]),
-          ...((context.extraCharges || []) as AggregateItem[]),
-        ];
+        // CHANGE-045: 'all' now returns lineItems only
+        return (context.lineItems || []) as AggregateItem[];
       default:
         return [];
     }

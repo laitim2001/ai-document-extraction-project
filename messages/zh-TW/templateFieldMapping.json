@@ -209,9 +209,8 @@
   },
   "aggregate": {
     "source": "數據來源",
-    "sourceAll": "全部（行項目 + 額外費用）",
+    "sourceAll": "全部（行項目）",
     "sourceLineItems": "僅行項目",
-    "sourceExtraCharges": "僅額外費用",
     "filterClassifiedAs": "費用分類（精確匹配）",
     "filterClassifiedAsPlaceholder": "例如：THC",
     "filterClassifiedAsHelp": "精確匹配 classifiedAs 等於此值的項目",

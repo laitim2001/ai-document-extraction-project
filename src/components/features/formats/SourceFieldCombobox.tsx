@@ -51,6 +51,7 @@ import {
   isValidFieldName,
   createCustomFieldOption,
   fieldDefinitionEntryToSourceFieldOption,
+  hasLineItemDefinitions,
   CATEGORY_LABELS,
   type SourceFieldOption,
   type GroupedSourceFields,
@@ -145,10 +146,20 @@ export function SourceFieldCombobox({
     [value]
   );
 
-  // CHANGE-043 Step 9a: Line Item pseudo-fields
+  // CHANGE-045: Check if FieldDefinitionSet has lineItem fields
+  const definitionHasLineItems = React.useMemo(() => {
+    const entries = definitionFields ?? resolvedData?.fields;
+    if (!entries || entries.length === 0) return false;
+    return hasLineItemDefinitions(entries);
+  }, [definitionFields, resolvedData]);
+
+  // CHANGE-043/045: Line Item pseudo-fields
+  // When FieldDefinitionSet has lineItem fields, those are already in definitionFieldOptions
+  // with category='lineItem', so we skip hardcoded li_* suggestions.
+  // Only fall back to hardcoded li_* when no lineItem definitions exist.
   const lineItemOptions = React.useMemo<SourceFieldOption[]>(
-    () => (showLineItemFields ? getLineItemFieldOptions() : []),
-    [showLineItemFields]
+    () => (showLineItemFields && !definitionHasLineItems ? getLineItemFieldOptions() : []),
+    [showLineItemFields, definitionHasLineItems]
   );
 
   // 獲取分組的來源欄位（若有 definition fields 則優先使用）
@@ -156,6 +167,7 @@ export function SourceFieldCombobox({
     let grouped: GroupedSourceFields;
     if (definitionFieldOptions.length > 0) {
       // Use definition fields as primary source
+      // lineItem fields are already categorized as 'lineItem' by fieldDefinitionEntryToSourceFieldOption
       grouped = {};
       for (const field of definitionFieldOptions) {
         if (!grouped[field.category]) {
@@ -167,7 +179,7 @@ export function SourceFieldCombobox({
       grouped = getGroupedSourceFields(extractedData);
     }
 
-    // CHANGE-043: Append line item fields if enabled
+    // CHANGE-043: Append hardcoded line item fields only if no definition lineItems
     if (lineItemOptions.length > 0) {
       grouped['lineItem'] = lineItemOptions;
     }

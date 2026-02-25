@@ -372,15 +372,40 @@ export function getFieldStatistics(): {
  * @since CHANGE-042 Phase 3
  */
 export function fieldDefinitionEntryToSourceFieldOption(
-  entry: { key: string; label: string; category: string; dataType?: string; required?: boolean; aliases?: string[] }
+  entry: { key: string; label: string; category: string; dataType?: string; required?: boolean; aliases?: string[]; fieldType?: string }
 ): SourceFieldOption {
   return {
     name: entry.key,
     label: entry.label,
-    category: entry.category,
+    category: entry.fieldType === 'lineItem' ? 'lineItem' : entry.category,
     source: 'definition',
     dataType: entry.dataType,
     isRequired: entry.required,
     aliases: entry.aliases,
   };
+}
+
+/**
+ * 從 FieldDefinitionEntry[] 中篩選 lineItem 類型的欄位
+ * @description 用於 SourceFieldCombobox 判斷是否需要隱藏硬編碼 li_*
+ * @param entries FieldDefinitionEntry[]
+ * @returns lineItem 類型的欄位列表
+ * @since CHANGE-045
+ */
+export function getLineItemFieldsFromDefinitions(
+  entries: Array<{ key: string; label: string; category: string; dataType?: string; required?: boolean; aliases?: string[]; fieldType?: string }>
+): SourceFieldOption[] {
+  return entries
+    .filter((e) => e.fieldType === 'lineItem')
+    .map(fieldDefinitionEntryToSourceFieldOption);
+}
+
+/**
+ * 檢查 FieldDefinitionEntry[] 中是否有 lineItem 類型的欄位
+ * @since CHANGE-045
+ */
+export function hasLineItemDefinitions(
+  entries: Array<{ fieldType?: string }>
+): boolean {
+  return entries.some((e) => e.fieldType === 'lineItem');
 }

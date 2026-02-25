@@ -252,7 +252,6 @@ function AggregateConfigEditor({
           <SelectContent>
             <SelectItem value="all">{t('aggregate.sourceAll')}</SelectItem>
             <SelectItem value="lineItems">{t('aggregate.sourceLineItems')}</SelectItem>
-            <SelectItem value="extraCharges">{t('aggregate.sourceExtraCharges')}</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -5,7 +5,7 @@
  *   - 輸入：文件圖片 + Stage 1&2 結果 + 完整配置
  *   - 配置組裝：PromptConfig + FieldMappingConfig + MappingRule
  *   - 模型：GPT-5.2（高精度、複雜任務）
- *   - 輸出：standardFields, lineItems, extraCharges, customFields
+ *   - 輸出：standardFields, lineItems, customFields (CHANGE-045: extraCharges removed)
  *
  *   CHANGE-026：整合 PromptConfig 可配置化
  *   - 支援變數替換（${universalMappings}, ${companyMappings} 等）
@@ -616,21 +616,7 @@ export class Stage3ExtractionService {
           },
           description: 'Line items with term classification',
         },
-        extraCharges: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              description: { type: 'string' },
-              category: { type: 'string' },
-              amount: { type: 'number' },
-              currency: { type: 'string' },
-              confidence: { type: 'number', minimum: 0, maximum: 100 },
-            },
-            required: ['description', 'amount'],
-          },
-          description: 'Extra charges with term classification',
-        },
+        // CHANGE-045: extraCharges removed — data already covered by lineItems and fields
         overallConfidence: {
           type: 'number',
           minimum: 0,
@@ -918,15 +904,6 @@ Respond in valid JSON format matching the provided schema.`;
     lines.push(
       '      "amount": <number>,                   // required'
     );
-    lines.push('      "confidence": <0-100>');
-    lines.push('    }');
-    lines.push('  ],');
-    lines.push('  "extraCharges": [');
-    lines.push('    {');
-    lines.push('      "description": "<charge description>",');
-    lines.push('      "category": "<charge category>",');
-    lines.push('      "amount": <number>,');
-    lines.push('      "currency": "<currency code>",');
     lines.push('      "confidence": <0-100>');
     lines.push('    }');
     lines.push('  ],');

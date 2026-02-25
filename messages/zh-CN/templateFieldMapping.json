@@ -209,9 +209,8 @@
   },
   "aggregate": {
     "source": "数据来源",
-    "sourceAll": "全部（行项目 + 额外费用）",
+    "sourceAll": "全部（行项目）",
     "sourceLineItems": "仅行项目",
-    "sourceExtraCharges": "仅额外费用",
     "filterClassifiedAs": "费用分类（精确匹配）",
     "filterClassifiedAsPlaceholder": "例如：THC",
     "filterClassifiedAsHelp": "精确匹配 classifiedAs 等于此值的项目",
