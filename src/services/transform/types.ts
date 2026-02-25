@@ -24,6 +24,7 @@ import type {
   ConcatTransformParams,
   SplitTransformParams,
   CustomTransformParams,
+  AggregateTransformParams,
   TransformParams,
 } from '@/types/template-field-mapping';
 
@@ -38,6 +39,7 @@ export type {
   ConcatTransformParams,
   SplitTransformParams,
   CustomTransformParams,
+  AggregateTransformParams,
   TransformParams,
 };
 
@@ -63,6 +65,16 @@ export interface TransformContext {
    * 目標欄位名稱
    */
   targetField: string;
+  /**
+   * 原始 lineItems 數據（AGGREGATE 轉換使用）
+   * @since CHANGE-043 Phase 2
+   */
+  lineItems?: Array<{ description: string; classifiedAs?: string; amount: number; quantity?: number; unitPrice?: number }>;
+  /**
+   * 原始 extraCharges 數據（AGGREGATE 轉換使用）
+   * @since CHANGE-043 Phase 2
+   */
+  extraCharges?: Array<{ description: string; classifiedAs?: string; amount: number }>;
 }
 
 /**

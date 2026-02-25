@@ -32,7 +32,7 @@ export type TemplateFieldMappingScope = 'GLOBAL' | 'COMPANY' | 'FORMAT';
  * 轉換類型
  * 定義標準欄位到模版欄位的轉換方式
  */
-export type FieldTransformType = 'DIRECT' | 'FORMULA' | 'LOOKUP' | 'CONCAT' | 'SPLIT' | 'CUSTOM';
+export type FieldTransformType = 'DIRECT' | 'FORMULA' | 'LOOKUP' | 'CONCAT' | 'SPLIT' | 'CUSTOM' | 'AGGREGATE';
 
 // ============================================================================
 // Transform Parameters Types
@@ -114,6 +114,31 @@ export interface CustomTransformParams {
 }
 
 /**
+ * AGGREGATE 轉換參數
+ * 從 lineItems/extraCharges 過濾 + 聚合
+ * @since CHANGE-043 Phase 2
+ */
+export interface AggregateTransformParams {
+  /** 數據源 */
+  source: 'lineItems' | 'extraCharges' | 'all';
+  /** 過濾條件 */
+  filter: {
+    /** 精確匹配 classifiedAs */
+    classifiedAs?: string;
+    /** 匹配 classifiedAs 列表中的任一項 */
+    classifiedAsIn?: string[];
+    /** 描述模式匹配（正則） */
+    descriptionPattern?: string;
+  };
+  /** 聚合函數 */
+  aggregation: 'SUM' | 'AVG' | 'COUNT' | 'FIRST' | 'LAST' | 'MAX' | 'MIN';
+  /** 聚合欄位 */
+  field: 'amount' | 'quantity' | 'unitPrice';
+  /** 無匹配時的預設值 */
+  defaultValue?: number | null;
+}
+
+/**
  * 轉換參數（聯合類型）
  */
 export type TransformParams =
@@ -122,6 +147,7 @@ export type TransformParams =
   | ConcatTransformParams
   | SplitTransformParams
   | CustomTransformParams
+  | AggregateTransformParams
   | null;
 
 // ============================================================================
@@ -359,6 +385,7 @@ export const TRANSFORM_TYPE_LABELS: Record<FieldTransformType, string> = {
   CONCAT: '字串合併',
   SPLIT: '字串分割',
   CUSTOM: '自定義',
+  AGGREGATE: '行項目聚合',
 };
 
 /**
@@ -380,4 +407,5 @@ export const TRANSFORM_TYPE_OPTIONS = [
   { value: 'CONCAT' as const, label: '字串合併', description: '合併多個欄位' },
   { value: 'SPLIT' as const, label: '字串分割', description: '分割欄位取部分值' },
   { value: 'CUSTOM' as const, label: '自定義', description: 'JavaScript 表達式' },
+  { value: 'AGGREGATE' as const, label: '行項目聚合', description: '從 lineItems 過濾並聚合費用' },
 ];

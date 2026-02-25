@@ -158,7 +158,8 @@
     "lookup": "Lookup Table",
     "concat": "Concatenate",
     "split": "Split",
-    "custom": "Custom"
+    "custom": "Custom",
+    "aggregate": "Aggregate"
   },
   "direct": {
     "description": "Maps the source value directly to the target field without transformation."
@@ -205,6 +206,33 @@
     "expression": "JavaScript Expression",
     "expressionPlaceholder": "value.toUpperCase()",
     "expressionHelp": "Available variables: value (current value), row (entire row data)"
+  },
+  "aggregate": {
+    "source": "Data Source",
+    "sourceAll": "All (Line Items + Extra Charges)",
+    "sourceLineItems": "Line Items Only",
+    "sourceExtraCharges": "Extra Charges Only",
+    "filterClassifiedAs": "Classified As (Exact Match)",
+    "filterClassifiedAsPlaceholder": "e.g., THC",
+    "filterClassifiedAsHelp": "Match items where classifiedAs equals this value exactly",
+    "filterClassifiedAsIn": "Classified As (Multiple)",
+    "filterClassifiedAsInPlaceholder": "e.g., THC, DOC_FEE, HANDLING_FEE",
+    "filterClassifiedAsInHelp": "Comma-separated list of classifiedAs values to match",
+    "aggregation": "Aggregation Function",
+    "aggSum": "SUM (Total)",
+    "aggAvg": "AVG (Average)",
+    "aggCount": "COUNT (Number of Items)",
+    "aggMax": "MAX (Maximum)",
+    "aggMin": "MIN (Minimum)",
+    "aggFirst": "FIRST (First Value)",
+    "aggLast": "LAST (Last Value)",
+    "field": "Aggregate Field",
+    "fieldAmount": "Amount",
+    "fieldQuantity": "Quantity",
+    "fieldUnitPrice": "Unit Price",
+    "defaultValue": "Default Value",
+    "defaultValuePlaceholder": "e.g., 0",
+    "defaultValueHelp": "Value returned when no matching items found"
   },
   "test": {
     "title": "Test Mapping",

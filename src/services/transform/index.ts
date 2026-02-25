@@ -37,6 +37,7 @@ export type {
   ConcatTransformParams,
   SplitTransformParams,
   CustomTransformParams,
+  AggregateTransformParams,
 } from './types';
 
 // ============================================================================
@@ -54,3 +55,4 @@ export { FormulaTransform, formulaTransform } from './formula.transform';
 export { LookupTransform, lookupTransform } from './lookup.transform';
 export { ConcatTransform, concatTransform } from './concat.transform';
 export { SplitTransform, splitTransform } from './split.transform';
+export { AggregateTransform, aggregateTransform } from './aggregate.transform';

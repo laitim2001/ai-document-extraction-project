@@ -36,6 +36,7 @@ import type {
   ConcatTransformParams,
   SplitTransformParams,
   CustomTransformParams,
+  AggregateTransformParams,
 } from '@/types/template-field-mapping';
 import { TRANSFORM_TYPE_OPTIONS } from '@/types/template-field-mapping';
 
@@ -197,6 +198,153 @@ function CustomConfigEditor({
   );
 }
 
+/**
+ * AGGREGATE 轉換配置
+ * @since CHANGE-043 Phase 2
+ */
+function AggregateConfigEditor({
+  params,
+  onChange,
+  disabled,
+}: {
+  params: AggregateTransformParams | null;
+  onChange: (params: AggregateTransformParams) => void;
+  disabled?: boolean;
+}) {
+  const t = useTranslations('templateFieldMapping');
+
+  const handleChange = (field: string, value: unknown) => {
+    const current: AggregateTransformParams = params || {
+      source: 'all',
+      filter: {},
+      aggregation: 'SUM',
+      field: 'amount',
+    };
+    onChange({ ...current, [field]: value });
+  };
+
+  const handleFilterChange = (filterField: string, value: unknown) => {
+    const current: AggregateTransformParams = params || {
+      source: 'all',
+      filter: {},
+      aggregation: 'SUM',
+      field: 'amount',
+    };
+    onChange({
+      ...current,
+      filter: { ...current.filter, [filterField]: value },
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Source */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">{t('aggregate.source')}</Label>
+        <Select
+          value={params?.source || 'all'}
+          onValueChange={(v) => handleChange('source', v)}
+          disabled={disabled}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t('aggregate.sourceAll')}</SelectItem>
+            <SelectItem value="lineItems">{t('aggregate.sourceLineItems')}</SelectItem>
+            <SelectItem value="extraCharges">{t('aggregate.sourceExtraCharges')}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Filter: classifiedAs */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">{t('aggregate.filterClassifiedAs')}</Label>
+        <Input
+          value={params?.filter?.classifiedAs || ''}
+          onChange={(e) => handleFilterChange('classifiedAs', e.target.value || undefined)}
+          placeholder={t('aggregate.filterClassifiedAsPlaceholder')}
+          disabled={disabled}
+        />
+        <p className="text-xs text-muted-foreground">{t('aggregate.filterClassifiedAsHelp')}</p>
+      </div>
+
+      {/* Filter: classifiedAsIn */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">{t('aggregate.filterClassifiedAsIn')}</Label>
+        <Input
+          value={params?.filter?.classifiedAsIn?.join(', ') || ''}
+          onChange={(e) => {
+            const values = e.target.value.split(',').map((s) => s.trim()).filter(Boolean);
+            handleFilterChange('classifiedAsIn', values.length > 0 ? values : undefined);
+          }}
+          placeholder={t('aggregate.filterClassifiedAsInPlaceholder')}
+          disabled={disabled}
+        />
+        <p className="text-xs text-muted-foreground">{t('aggregate.filterClassifiedAsInHelp')}</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {/* Aggregation */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{t('aggregate.aggregation')}</Label>
+          <Select
+            value={params?.aggregation || 'SUM'}
+            onValueChange={(v) => handleChange('aggregation', v)}
+            disabled={disabled}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="SUM">{t('aggregate.aggSum')}</SelectItem>
+              <SelectItem value="AVG">{t('aggregate.aggAvg')}</SelectItem>
+              <SelectItem value="COUNT">{t('aggregate.aggCount')}</SelectItem>
+              <SelectItem value="MAX">{t('aggregate.aggMax')}</SelectItem>
+              <SelectItem value="MIN">{t('aggregate.aggMin')}</SelectItem>
+              <SelectItem value="FIRST">{t('aggregate.aggFirst')}</SelectItem>
+              <SelectItem value="LAST">{t('aggregate.aggLast')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Field */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{t('aggregate.field')}</Label>
+          <Select
+            value={params?.field || 'amount'}
+            onValueChange={(v) => handleChange('field', v)}
+            disabled={disabled}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="amount">{t('aggregate.fieldAmount')}</SelectItem>
+              <SelectItem value="quantity">{t('aggregate.fieldQuantity')}</SelectItem>
+              <SelectItem value="unitPrice">{t('aggregate.fieldUnitPrice')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Default Value */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">{t('aggregate.defaultValue')}</Label>
+        <Input
+          type="number"
+          value={params?.defaultValue ?? ''}
+          onChange={(e) => handleChange('defaultValue', e.target.value ? Number(e.target.value) : null)}
+          placeholder={t('aggregate.defaultValuePlaceholder')}
+          disabled={disabled}
+          className="max-w-[200px]"
+        />
+        <p className="text-xs text-muted-foreground">{t('aggregate.defaultValueHelp')}</p>
+      </div>
+    </div>
+  );
+}
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -241,6 +389,14 @@ export function TransformConfigEditor({
           break;
         case 'CUSTOM':
           onTransformParamsChange({ expression: '' });
+          break;
+        case 'AGGREGATE':
+          onTransformParamsChange({
+            source: 'all',
+            filter: {},
+            aggregation: 'SUM',
+            field: 'amount',
+          });
           break;
       }
     },
@@ -312,6 +468,15 @@ export function TransformConfigEditor({
         return (
           <CustomConfigEditor
             params={transformParams as CustomTransformParams}
+            onChange={onTransformParamsChange}
+            disabled={disabled}
+          />
+        );
+
+      case 'AGGREGATE':
+        return (
+          <AggregateConfigEditor
+            params={transformParams as AggregateTransformParams}
             onChange={onTransformParamsChange}
             disabled={disabled}
           />

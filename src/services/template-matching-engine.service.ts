@@ -360,7 +360,7 @@ export class TemplateMatchingEngineService {
    *   單行失敗不影響其他行
    */
   private async processBatch(
-    documents: Array<{ id: string; mappedFields: unknown }>,
+    documents: Array<{ id: string; mappedFields: unknown; stage3Result?: unknown }>,
     instance: { id: string; dataTemplateId: string },
     templateFields: DataTemplateField[],
     mappingConfig: ResolvedMappingConfig,
@@ -378,10 +378,11 @@ export class TemplateMatchingEngineService {
           // 提取 rowKey
           const rowKey = this.extractRowKey(mappedFields, rowKeyField);
 
-          // 轉換欄位
+          // 轉換欄位（含 AGGREGATE 所需的 lineItems context）
           const transformedFields = await this.transformFields(
             mappedFields,
-            mappingConfig.mappings
+            mappingConfig.mappings,
+            doc.stage3Result
           );
 
           // 驗證
@@ -435,9 +436,16 @@ export class TemplateMatchingEngineService {
    */
   private async transformFields(
     sourceFields: Record<string, unknown>,
-    mappings: TemplateFieldMappingRule[]
+    mappings: TemplateFieldMappingRule[],
+    stage3Result?: unknown
   ): Promise<Record<string, unknown>> {
     const result: Record<string, unknown> = {};
+
+    // CHANGE-043 Phase 2: 從 stage3Result 提取 lineItems/extraCharges 供 AGGREGATE 使用
+    const s3 = (stage3Result && typeof stage3Result === 'object') ? stage3Result as {
+      lineItems?: Array<{ description: string; classifiedAs?: string; amount: number; quantity?: number; unitPrice?: number }>;
+      extraCharges?: Array<{ description: string; classifiedAs?: string; amount: number }>;
+    } : undefined;
 
     // 按 order 排序
     const sortedMappings = [...mappings].sort((a, b) => a.order - b.order);
@@ -454,6 +462,8 @@ export class TemplateMatchingEngineService {
             row: sourceFields,
             sourceField: mapping.sourceField,
             targetField: mapping.targetField,
+            lineItems: s3?.lineItems,
+            extraCharges: s3?.extraCharges,
           }
         );
 
@@ -585,7 +595,7 @@ export class TemplateMatchingEngineService {
    */
   private async loadDocuments(
     documentIds: string[]
-  ): Promise<Array<{ id: string; mappedFields: Record<string, unknown> }>> {
+  ): Promise<Array<{ id: string; mappedFields: Record<string, unknown>; stage3Result?: unknown }>> {
     const documents = await prisma.document.findMany({
       where: { id: { in: documentIds } },
       select: {
@@ -611,13 +621,14 @@ export class TemplateMatchingEngineService {
       );
     }
 
-    // 轉換為所需格式（含 lineItem 展平）
+    // 轉換為所需格式（含 lineItem 展平 + 保留 stage3Result 供 AGGREGATE 使用）
     return documents.map((doc) => ({
       id: doc.id,
       mappedFields: this.extractMappedFields(
         doc.extractionResult?.fieldMappings,
         doc.extractionResult?.stage3Result
       ),
+      stage3Result: doc.extractionResult?.stage3Result ?? undefined,
     }));
   }
 

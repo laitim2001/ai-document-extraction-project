@@ -81,6 +81,25 @@ export const customTransformParamsSchema = z.object({
 });
 
 /**
+ * AGGREGATE 轉換參數驗證
+ * @since CHANGE-043 Phase 2
+ */
+export const aggregateTransformParamsSchema = z.object({
+  source: z.enum(['lineItems', 'extraCharges', 'all']),
+  filter: z.object({
+    classifiedAs: z.string().min(1).optional(),
+    classifiedAsIn: z.array(z.string().min(1)).optional(),
+    descriptionPattern: z.string().max(200).optional(),
+  }).refine(
+    (f) => f.classifiedAs || (f.classifiedAsIn && f.classifiedAsIn.length > 0) || f.descriptionPattern,
+    { message: '至少需要一個過濾條件' }
+  ),
+  aggregation: z.enum(['SUM', 'AVG', 'COUNT', 'FIRST', 'LAST', 'MAX', 'MIN']),
+  field: z.enum(['amount', 'quantity', 'unitPrice']),
+  defaultValue: z.number().nullable().optional(),
+});
+
+/**
  * 轉換參數聯合 Schema
  */
 export const transformParamsSchema = z.union([
@@ -89,6 +108,7 @@ export const transformParamsSchema = z.union([
   concatTransformParamsSchema,
   splitTransformParamsSchema,
   customTransformParamsSchema,
+  aggregateTransformParamsSchema,
   z.null(),
 ]);
 
@@ -106,6 +126,7 @@ export const fieldTransformTypeSchema = z.enum([
   'CONCAT',
   'SPLIT',
   'CUSTOM',
+  'AGGREGATE',
 ]);
 
 /**
@@ -173,6 +194,17 @@ export const templateFieldMappingRuleInputSchema = z.object({
         data.transformParams &&
         typeof data.transformParams === 'object' &&
         'expression' in data.transformParams
+      );
+    }
+    // AGGREGATE 類型必須有 source、filter、aggregation、field 參數
+    if (data.transformType === 'AGGREGATE') {
+      return (
+        data.transformParams &&
+        typeof data.transformParams === 'object' &&
+        'source' in data.transformParams &&
+        'filter' in data.transformParams &&
+        'aggregation' in data.transformParams &&
+        'field' in data.transformParams
       );
     }
     // DIRECT 類型不需要參數

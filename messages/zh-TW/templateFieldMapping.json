@@ -158,7 +158,8 @@
     "lookup": "查表映射",
     "concat": "字串合併",
     "split": "字串分割",
-    "custom": "自定義"
+    "custom": "自定義",
+    "aggregate": "行項目聚合"
   },
   "direct": {
     "description": "將來源值直接映射到目標欄位，不做任何轉換。"
@@ -205,6 +206,33 @@
     "expression": "JavaScript 表達式",
     "expressionPlaceholder": "value.toUpperCase()",
     "expressionHelp": "可用變數：value（當前值）、row（整行數據）"
+  },
+  "aggregate": {
+    "source": "數據來源",
+    "sourceAll": "全部（行項目 + 額外費用）",
+    "sourceLineItems": "僅行項目",
+    "sourceExtraCharges": "僅額外費用",
+    "filterClassifiedAs": "費用分類（精確匹配）",
+    "filterClassifiedAsPlaceholder": "例如：THC",
+    "filterClassifiedAsHelp": "精確匹配 classifiedAs 等於此值的項目",
+    "filterClassifiedAsIn": "費用分類（多值匹配）",
+    "filterClassifiedAsInPlaceholder": "例如：THC, DOC_FEE, HANDLING_FEE",
+    "filterClassifiedAsInHelp": "以逗號分隔的 classifiedAs 值列表",
+    "aggregation": "聚合函數",
+    "aggSum": "SUM（合計）",
+    "aggAvg": "AVG（平均）",
+    "aggCount": "COUNT（筆數）",
+    "aggMax": "MAX（最大值）",
+    "aggMin": "MIN（最小值）",
+    "aggFirst": "FIRST（第一筆）",
+    "aggLast": "LAST（最後一筆）",
+    "field": "聚合欄位",
+    "fieldAmount": "金額",
+    "fieldQuantity": "數量",
+    "fieldUnitPrice": "單價",
+    "defaultValue": "預設值",
+    "defaultValuePlaceholder": "例如：0",
+    "defaultValueHelp": "無匹配項目時返回的值"
   },
   "test": {
     "title": "測試映射",

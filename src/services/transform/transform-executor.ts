@@ -38,6 +38,7 @@ import { FormulaTransform } from './formula.transform';
 import { LookupTransform } from './lookup.transform';
 import { ConcatTransform } from './concat.transform';
 import { SplitTransform } from './split.transform';
+import { AggregateTransform } from './aggregate.transform';
 
 // ============================================================================
 // TransformExecutor Class
@@ -88,6 +89,7 @@ export class TransformExecutor {
     this.transforms.set('LOOKUP', new LookupTransform());
     this.transforms.set('CONCAT', new ConcatTransform());
     this.transforms.set('SPLIT', new SplitTransform());
+    this.transforms.set('AGGREGATE', new AggregateTransform());
     // CUSTOM 轉換器因安全考量暫不啟用
   }
 
