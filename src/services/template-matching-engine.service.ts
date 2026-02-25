@@ -6,7 +6,7 @@
  *
  * @module src/services/template-matching-engine
  * @since Epic 19 - Story 19.3
- * @lastModified 2026-02-25
+ * @lastModified 2026-02-25 (CHANGE-047: inject _ref_* synthetic fields from referenceNumberMatch)
  *
  * @features
  *   - 映射規則解析（FORMAT > COMPANY > GLOBAL 優先級）
@@ -604,6 +604,7 @@ export class TemplateMatchingEngineService {
           select: {
             fieldMappings: true,
             stage3Result: true,
+            referenceNumberMatch: true, // CHANGE-047: 載入 Pipeline 匹配的 Reference Number
           },
         },
       },
@@ -622,14 +623,21 @@ export class TemplateMatchingEngineService {
     }
 
     // 轉換為所需格式（含 lineItem 展平 + 保留 stage3Result 供 AGGREGATE 使用）
-    return documents.map((doc) => ({
-      id: doc.id,
-      mappedFields: this.extractMappedFields(
+    return documents.map((doc) => {
+      const mappedFields = this.extractMappedFields(
         doc.extractionResult?.fieldMappings,
         doc.extractionResult?.stage3Result
-      ),
-      stage3Result: doc.extractionResult?.stage3Result ?? undefined,
-    }));
+      );
+
+      // CHANGE-047: 注入 Pipeline 匹配的 Reference Number 為合成來源欄位
+      this.injectRefNumberFields(mappedFields, doc.extractionResult?.referenceNumberMatch);
+
+      return {
+        id: doc.id,
+        mappedFields,
+        stage3Result: doc.extractionResult?.stage3Result ?? undefined,
+      };
+    });
   }
 
   /**
@@ -706,6 +714,51 @@ export class TemplateMatchingEngineService {
     }
 
     return result;
+  }
+
+  /**
+   * 注入 Pipeline 匹配的 Reference Number 為合成來源欄位
+   *
+   * @description
+   *   從 ExtractionResult.referenceNumberMatch 中提取匹配結果，
+   *   注入到 mappedFields 中作為合成來源欄位（以 _ref_ 前綴區分）。
+   *   用戶可透過 DIRECT 映射規則將其映射到 DataTemplate 的目標欄位。
+   *
+   *   注入欄位：
+   *   - `_ref_number`: 主要匹配的 referenceNumber（第一筆最高信心度）
+   *   - `_ref_type`: 主要匹配的類型（如 SHIPMENT、HAWB）
+   *   - `_ref_{TYPE}`: 按類型分別注入（如 _ref_SHIPMENT、_ref_HAWB）
+   *
+   * @since CHANGE-047
+   */
+  private injectRefNumberFields(
+    mappedFields: Record<string, unknown>,
+    referenceNumberMatch: unknown
+  ): void {
+    if (!referenceNumberMatch || typeof referenceNumberMatch !== 'object') {
+      return;
+    }
+
+    const refMatch = referenceNumberMatch as {
+      matches?: Array<{
+        referenceNumber: string;
+        type: string;
+        confidence: number;
+      }>;
+    };
+
+    if (!refMatch.matches || refMatch.matches.length === 0) {
+      return;
+    }
+
+    // 主要匹配（第一筆最高信心度）
+    mappedFields['_ref_number'] = refMatch.matches[0].referenceNumber;
+    mappedFields['_ref_type'] = refMatch.matches[0].type;
+
+    // 按類型注入（如 _ref_SHIPMENT、_ref_HAWB）
+    for (const match of refMatch.matches) {
+      mappedFields[`_ref_${match.type}`] = match.referenceNumber;
+    }
   }
 
   /**

@@ -87,7 +87,8 @@
       "payment": "付款資訊",
       "extracted": "提取欄位",
       "custom": "自訂欄位",
-      "lineItem": "行項目費用 (li_*)"
+      "lineItem": "行項目費用 (li_*)",
+      "syntheticRef": "Pipeline 參考編號 (_ref_*)"
     }
   },
   "detail": {

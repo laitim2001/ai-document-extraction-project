@@ -87,7 +87,8 @@
       "payment": "Payment Info",
       "extracted": "Extracted Fields",
       "custom": "Custom Fields",
-      "lineItem": "Line Item Charges (li_*)"
+      "lineItem": "Line Item Charges (li_*)",
+      "syntheticRef": "Pipeline Ref Number (_ref_*)"
     }
   },
   "detail": {
