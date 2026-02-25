@@ -312,7 +312,7 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
               extractionPattern: {},
               priority: 1,
               confidence: selectedRule.confidence,
-              forwarderId,
+              companyId: forwarderId,
             }}
             onSuccess={handleEditSuccess}
           />
