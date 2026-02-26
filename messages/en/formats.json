@@ -29,6 +29,8 @@
     "LAND_TRANSPORT": "Land Transport",
     "CUSTOMS_CLEARANCE": "Customs Clearance",
     "WAREHOUSING": "Warehousing",
+    "IMPORT": "Import",
+    "EXPORT": "Export",
     "GENERAL": "General"
   },
   "card": {
@@ -183,20 +185,82 @@
         "saveErrorRetry": "Please try again later"
       }
     },
+    "files": {
+      "title": "Associated Files",
+      "titleWithCount": "Associated Files ({count})",
+      "loadError": "Load Failed",
+      "loadErrorDescription": "Unable to load file list",
+      "retry": "Retry",
+      "emptyTitle": "No Associated Files",
+      "emptyDescription": "Files matching this format will be automatically associated here after upload.",
+      "table": {
+        "fileName": "File Name",
+        "status": "Status",
+        "confidence": "Identification Confidence",
+        "uploadedAt": "Upload Time"
+      },
+      "status": {
+        "UPLOADED": "Uploaded",
+        "PROCESSING": "Processing",
+        "COMPLETED": "Completed",
+        "APPROVED": "Approved",
+        "FAILED": "Failed",
+        "REJECTED": "Rejected",
+        "PENDING": "Pending"
+      },
+      "pagination": {
+        "info": "Page {page} / {totalPages}, {total} files total",
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
     "configs": {
       "loadError": "Failed to load configurations",
       "loadErrorDescription": "Unable to retrieve configuration information, please try again later.",
       "retry": "Retry",
       "noData": "Unable to retrieve configuration data",
+      "inheritance": {
+        "title": "Configuration Priority",
+        "description": "System uses a three-tier configuration inheritance structure with priority from high to low:",
+        "fallback": "If no format-specific configuration is set, the system will automatically use company or global configuration.",
+        "promptLabel": "Prompt Configuration:",
+        "mappingLabel": "Mapping Configuration:",
+        "levels": {
+          "FORMAT": "Format-Specific",
+          "COMPANY": "Company Level",
+          "GLOBAL": "Global",
+          "NONE": "Default"
+        }
+      },
       "prompt": {
         "title": "Prompt Configuration",
-        "description": "Define the prompts used for AI extraction and classification. Format-specific configurations take priority over company and global configurations."
+        "description": "Define the prompts used for AI extraction and classification. Format-specific configurations take priority over company and global configurations.",
+        "empty": {
+          "description": "No format-specific Prompt configuration yet",
+          "usingLevel": "Currently using {level} level configuration",
+          "usingDefault": "Currently using system default configuration"
+        },
+        "typeLabel": "Type: ",
+        "updatedLabel": "Updated: ",
+        "createButton": "Create Prompt Configuration",
+        "editButton": "Edit",
+        "createNewButton": "Create new Prompt Configuration"
       },
       "mapping": {
         "title": "Field Mapping Configuration",
-        "description": "Define field transformation rules to map extracted fields to standard format."
+        "description": "Define field transformation rules to map extracted fields to standard format.",
+        "empty": {
+          "description": "No format-specific field mapping configuration yet",
+          "usingLevel": "Currently using {level} level configuration",
+          "usingDefault": "Currently using system default configuration"
+        },
+        "rulesLabel": "Rules: ",
+        "updatedLabel": "Updated: ",
+        "createButton": "Create Mapping Configuration",
+        "editButton": "Edit",
+        "createNewButton": "Create new Mapping Configuration"
       },
-      "inheritance": {
+      "inheritance_legacy": {
         "title": "Configuration Inheritance",
         "description": "Configurations follow a hierarchical structure: Format > Company > Global. Higher priority levels override lower ones.",
         "effectiveLevel": "Effective Level",

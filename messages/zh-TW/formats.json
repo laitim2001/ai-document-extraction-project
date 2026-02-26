@@ -29,6 +29,8 @@
     "LAND_TRANSPORT": "陸運",
     "CUSTOMS_CLEARANCE": "報關",
     "WAREHOUSING": "倉儲",
+    "IMPORT": "進口",
+    "EXPORT": "出口",
     "GENERAL": "一般"
   },
   "card": {
@@ -183,20 +185,82 @@
         "saveErrorRetry": "請稍後再試"
       }
     },
+    "files": {
+      "title": "關聯文件",
+      "titleWithCount": "關聯文件 ({count})",
+      "loadError": "載入失敗",
+      "loadErrorDescription": "無法載入文件列表",
+      "retry": "重試",
+      "emptyTitle": "尚無關聯文件",
+      "emptyDescription": "上傳文件後，符合此格式的文件會自動關聯到這裡。",
+      "table": {
+        "fileName": "文件名稱",
+        "status": "狀態",
+        "confidence": "識別信心度",
+        "uploadedAt": "上傳時間"
+      },
+      "status": {
+        "UPLOADED": "已上傳",
+        "PROCESSING": "處理中",
+        "COMPLETED": "已完成",
+        "APPROVED": "已批准",
+        "FAILED": "失敗",
+        "REJECTED": "已拒絕",
+        "PENDING": "待處理"
+      },
+      "pagination": {
+        "info": "第 {page} / {totalPages} 頁，共 {total} 個文件",
+        "previous": "上一頁",
+        "next": "下一頁"
+      }
+    },
     "configs": {
       "loadError": "載入配置失敗",
       "loadErrorDescription": "無法獲取配置資訊，請稍後再試。",
       "retry": "重試",
       "noData": "無法獲取配置資料",
+      "inheritance": {
+        "title": "配置優先級說明",
+        "description": "系統採用三層配置繼承機制，優先級由高到低：",
+        "fallback": "如未配置格式專屬配置，系統會自動使用公司級或全域配置。",
+        "promptLabel": "Prompt 配置：",
+        "mappingLabel": "映射配置：",
+        "levels": {
+          "FORMAT": "格式專屬",
+          "COMPANY": "公司級",
+          "GLOBAL": "全域",
+          "NONE": "預設"
+        }
+      },
       "prompt": {
         "title": "Prompt 配置",
-        "description": "定義 AI 提取和分類時使用的提示詞，格式專屬配置優先於公司和全域配置"
+        "description": "定義 AI 提取和分類時使用的提示詞，格式專屬配置優先於公司和全域配置",
+        "empty": {
+          "description": "尚未配置格式專屬的 Prompt",
+          "usingLevel": "目前使用{level}級別配置",
+          "usingDefault": "目前使用系統預設配置"
+        },
+        "typeLabel": "類型：",
+        "updatedLabel": "更新：",
+        "createButton": "創建 Prompt 配置",
+        "editButton": "編輯",
+        "createNewButton": "創建新的 Prompt 配置"
       },
       "mapping": {
         "title": "欄位映射配置",
-        "description": "定義欄位轉換規則，將提取的欄位映射到標準格式"
+        "description": "定義欄位轉換規則，將提取的欄位映射到標準格式",
+        "empty": {
+          "description": "尚未配置格式專屬的欄位映射",
+          "usingLevel": "目前使用{level}級別配置",
+          "usingDefault": "目前使用系統預設配置"
+        },
+        "rulesLabel": "規則：",
+        "updatedLabel": "更新：",
+        "createButton": "創建映射配置",
+        "editButton": "編輯",
+        "createNewButton": "創建新的映射配置"
       },
-      "inheritance": {
+      "inheritance_legacy": {
         "title": "配置繼承",
         "description": "配置遵循階層結構：格式 > 公司 > 全域。較高優先級會覆蓋較低優先級。",
         "effectiveLevel": "生效層級",
