@@ -118,7 +118,11 @@ export class FieldMappingEngine implements IFieldMappingEngine {
 
   /**
    * 驗證規則是否可套用
-   * @description 檢查規則所需的來源欄位是否都存在
+   * @description
+   *   根據轉換類型檢查來源欄位是否存在：
+   *   - CONCAT: 需要所有 sourceFields 都存在（用於連接多個欄位）
+   *   - DIRECT / SPLIT / LOOKUP / CUSTOM: sourceFields 為別名列表，
+   *     只要任一存在即可套用
    *
    * @param rule 映射規則
    * @param sourceValueMap 來源欄位值映射
@@ -128,8 +132,12 @@ export class FieldMappingEngine implements IFieldMappingEngine {
     rule: EffectiveRule,
     sourceValueMap: Record<string, string | number | null>
   ): boolean {
-    // 檢查所有來源欄位是否都存在
-    return rule.sourceFields.every((field) => field in sourceValueMap);
+    if (rule.transformType === 'CONCAT') {
+      // CONCAT 需要所有來源欄位都存在（用於拼接）
+      return rule.sourceFields.every((field) => field in sourceValueMap);
+    }
+    // 其他轉換類型：sourceFields 為別名，任一匹配即可
+    return rule.sourceFields.some((field) => field in sourceValueMap);
   }
 
   // ==========================================================================
@@ -179,10 +187,15 @@ export class FieldMappingEngine implements IFieldMappingEngine {
       return null;
     }
 
-    // 收集原始值
+    // 收集原始值（傳給 TransformExecutor 用所有 sourceFields 含 null）
     const originalValues = rule.sourceFields.map(
       (field) => sourceValueMap[field] ?? null
     );
+
+    // 記錄實際匹配到的 sourceFields（用於輸出元數據）
+    const matchedSourceFields = rule.transformType === 'CONCAT'
+      ? rule.sourceFields
+      : rule.sourceFields.filter((field) => field in sourceValueMap);
 
     try {
       // 執行轉換
@@ -203,8 +216,8 @@ export class FieldMappingEngine implements IFieldMappingEngine {
       return {
         targetField: rule.targetField,
         value: transformedValue,
-        sourceFields: rule.sourceFields,
-        originalValues,
+        sourceFields: matchedSourceFields,
+        originalValues: matchedSourceFields.map((f) => sourceValueMap[f] ?? null),
         transformType: rule.transformType,
         success: true,
         ruleId: rule.id,
@@ -219,8 +232,8 @@ export class FieldMappingEngine implements IFieldMappingEngine {
       return {
         targetField: rule.targetField,
         value: null,
-        sourceFields: rule.sourceFields,
-        originalValues,
+        sourceFields: matchedSourceFields,
+        originalValues: matchedSourceFields.map((f) => sourceValueMap[f] ?? null),
         transformType: rule.transformType,
         success: false,
         error: error instanceof Error ? error.message : '轉換失敗',

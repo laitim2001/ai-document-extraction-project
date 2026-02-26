@@ -1,11 +1,12 @@
 /**
- * @fileoverview 數據模版表單組件
+ * @fileoverview 數據模版表單組件（國際化版本）
  * @description
  *   提供數據模版的創建和編輯功能
+ *   - i18n 國際化支援 (Epic 17)
  *
  * @module src/components/features/data-template/DataTemplateForm
  * @since Epic 16 - Story 16.7
- * @lastModified 2026-01-13
+ * @lastModified 2026-01-20
  *
  * @features
  *   - 創建/編輯模式
@@ -19,6 +20,7 @@
 import * as React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { Loader2, Save, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,8 +39,7 @@ import {
   createDataTemplateSchema,
   updateDataTemplateSchema,
 } from '@/validations/data-template';
-import type { DataTemplate, DataTemplateField } from '@/types/data-template';
-import { SCOPE_OPTIONS } from '@/types/data-template';
+import type { DataTemplate, DataTemplateField, DataTemplateScope } from '@/types/data-template';
 
 // ============================================================================
 // Types
@@ -83,8 +84,15 @@ export function DataTemplateForm({
   onCancel,
   companies = [],
 }: DataTemplateFormProps) {
+  const t = useTranslations('dataTemplates');
+
+  // --- Scope Options (i18n) ---
+  const scopeOptions: Array<{ value: DataTemplateScope; label: string }> = [
+    { value: 'GLOBAL', label: t('scopes.GLOBAL') },
+    { value: 'COMPANY', label: t('scopes.COMPANY') },
+  ];
+
   // --- Form Setup ---
-  // 使用類型斷言來處理不同模式下的 schema 差異
   const schema = isEditMode ? updateDataTemplateSchema : createDataTemplateSchema;
 
   const {
@@ -103,7 +111,7 @@ export function DataTemplateForm({
       scope: initialData?.scope ?? 'GLOBAL',
       companyId: initialData?.companyId ?? undefined,
       fields: initialData?.fields ?? [
-        { name: 'field_1', label: '欄位 1', dataType: 'string', isRequired: false, order: 1 },
+        { name: 'field_1', label: t('fieldEditor.defaultFieldLabel', { number: 1 }), dataType: 'string', isRequired: false, order: 1 },
       ],
     },
   });
@@ -126,16 +134,16 @@ export function DataTemplateForm({
       {/* 基本資訊 */}
       <Card>
         <CardHeader>
-          <CardTitle>基本資訊</CardTitle>
+          <CardTitle>{t('form.basicInfo')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* 模版名稱 */}
           <div className="space-y-2">
-            <Label htmlFor="name">模版名稱 *</Label>
+            <Label htmlFor="name">{t('form.templateNameRequired')}</Label>
             <Input
               id="name"
               {...register('name')}
-              placeholder="例：ERP 標準匯入格式"
+              placeholder={t('form.templateNamePlaceholder')}
               disabled={readOnly}
               className={readOnly ? 'bg-muted' : ''}
             />
@@ -146,11 +154,11 @@ export function DataTemplateForm({
 
           {/* 模版說明 */}
           <div className="space-y-2">
-            <Label htmlFor="description">說明</Label>
+            <Label htmlFor="description">{t('form.description')}</Label>
             <Textarea
               id="description"
               {...register('description')}
-              placeholder="描述此模版的用途..."
+              placeholder={t('form.descriptionPlaceholder')}
               rows={3}
               disabled={readOnly}
               className={readOnly ? 'bg-muted' : ''}
@@ -166,7 +174,7 @@ export function DataTemplateForm({
           <div className="grid gap-4 sm:grid-cols-2">
             {/* 配置範圍 */}
             <div className="space-y-2">
-              <Label>配置範圍 *</Label>
+              <Label>{t('form.scopeRequired')}</Label>
               <Controller
                 name="scope"
                 control={control}
@@ -182,7 +190,7 @@ export function DataTemplateForm({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {SCOPE_OPTIONS.map((option) => (
+                      {scopeOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
                         </SelectItem>
@@ -199,7 +207,7 @@ export function DataTemplateForm({
             {/* 公司選擇（COMPANY 範圍時） */}
             {scope === 'COMPANY' && (
               <div className="space-y-2">
-                <Label>所屬公司 *</Label>
+                <Label>{t('form.companyRequired')}</Label>
                 <Controller
                   name="companyId"
                   control={control}
@@ -212,7 +220,7 @@ export function DataTemplateForm({
                       <SelectTrigger
                         className={(readOnly || isEditMode) ? 'bg-muted' : ''}
                       >
-                        <SelectValue placeholder="選擇公司" />
+                        <SelectValue placeholder={t('form.companyPlaceholder')} />
                       </SelectTrigger>
                       <SelectContent>
                         {companies.map((company) => (
@@ -238,7 +246,7 @@ export function DataTemplateForm({
       {/* 欄位定義 */}
       <Card>
         <CardHeader>
-          <CardTitle>欄位定義</CardTitle>
+          <CardTitle>{t('form.fieldDefinitions')}</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTemplateFieldEditor
@@ -261,19 +269,19 @@ export function DataTemplateForm({
           onClick={onCancel}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          返回
+          {t('form.back')}
         </Button>
         {!readOnly && (
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                儲存中...
+                {t('form.saving')}
               </>
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                {isEditMode ? '更新模版' : '創建模版'}
+                {isEditMode ? t('form.updateTemplate') : t('form.createTemplate')}
               </>
             )}
           </Button>

@@ -8,7 +8,7 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.6
- * @lastModified 2026-01-13
+ * @lastModified 2026-02-12
  *
  * @features
  *   - 分組顯示欄位（基本資訊、運輸資訊、費用明細等）
@@ -24,6 +24,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Check, ChevronsUpDown, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -45,13 +46,21 @@ import { Badge } from '@/components/ui/badge';
 // 直接從 source-field.service 導入，避免觸發服務器端代碼的 barrel import
 import {
   getGroupedSourceFields,
+  getLineItemFieldOptions,
+  getReferenceNumberFieldOptions,
   searchFields,
   isValidFieldName,
   createCustomFieldOption,
+  fieldDefinitionEntryToSourceFieldOption,
+  hasLineItemDefinitions,
   CATEGORY_LABELS,
   type SourceFieldOption,
   type GroupedSourceFields,
 } from '@/services/mapping/source-field.service';
+import {
+  useFieldDefinitionSetFields,
+  useResolvedFields,
+} from '@/hooks/use-field-definition-sets';
 
 // ============================================================================
 // Types
@@ -68,12 +77,22 @@ interface SourceFieldComboboxProps {
   formatId?: string;
   /** GPT 提取數據（可選，用於動態欄位） */
   extractedData?: Record<string, unknown>;
+  /** 已使用的欄位名稱列表（用於標記已被其他規則使用的欄位） */
+  usedFields?: string[];
   /** 佔位文字 */
   placeholder?: string;
   /** 是否禁用 */
   disabled?: boolean;
   /** 自訂樣式 */
   className?: string;
+  /** FieldDefinitionSet ID（優先從此載入欄位） @since CHANGE-042 */
+  fieldDefinitionSetId?: string;
+  /** 依 context 解析欄位（fallback to resolve API） @since CHANGE-042 */
+  resolveByContext?: { companyId?: string; formatId?: string };
+  /** 是否顯示 Line Item pseudo-fields（li_*） @since CHANGE-043 Step 9a */
+  showLineItemFields?: boolean;
+  /** 是否顯示 Pipeline Reference Number 合成欄位（_ref_*） @since CHANGE-047 */
+  showReferenceNumberFields?: boolean;
 }
 
 // ============================================================================
@@ -92,15 +111,38 @@ export function SourceFieldCombobox({
   multiple = false,
   formatId,
   extractedData,
-  placeholder = '選擇來源欄位...',
+  usedFields = [],
+  placeholder,
   disabled = false,
   className,
+  fieldDefinitionSetId,
+  resolveByContext,
+  showLineItemFields = false,
+  showReferenceNumberFields = false,
 }: SourceFieldComboboxProps) {
+  const t = useTranslations('formats.sourceFieldCombobox');
+  const effectivePlaceholder = placeholder ?? t('placeholder');
+
   // --- State ---
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [dynamicFields, setDynamicFields] = React.useState<SourceFieldOption[]>([]);
   const [isLoadingDynamic, setIsLoadingDynamic] = React.useState(false);
+
+  // --- FieldDefinitionSet integration (CHANGE-042) ---
+  const { data: definitionFields } = useFieldDefinitionSetFields(fieldDefinitionSetId);
+  const { data: resolvedData } = useResolvedFields(
+    resolveByContext?.companyId,
+    resolveByContext?.formatId
+  );
+
+  // Convert definition fields to SourceFieldOption[]
+  const definitionFieldOptions = React.useMemo<SourceFieldOption[]>(() => {
+    // Priority: explicit set > resolved context
+    const entries = definitionFields ?? resolvedData?.fields;
+    if (!entries || entries.length === 0) return [];
+    return entries.map(fieldDefinitionEntryToSourceFieldOption);
+  }, [definitionFields, resolvedData]);
 
   // --- Computed Values ---
   const selectedValues = React.useMemo(
@@ -108,11 +150,57 @@ export function SourceFieldCombobox({
     [value]
   );
 
-  // 獲取分組的來源欄位
-  const groupedFields = React.useMemo<GroupedSourceFields>(
-    () => getGroupedSourceFields(extractedData),
-    [extractedData]
+  // CHANGE-045: Check if FieldDefinitionSet has lineItem fields
+  const definitionHasLineItems = React.useMemo(() => {
+    const entries = definitionFields ?? resolvedData?.fields;
+    if (!entries || entries.length === 0) return false;
+    return hasLineItemDefinitions(entries);
+  }, [definitionFields, resolvedData]);
+
+  // CHANGE-043/045: Line Item pseudo-fields
+  // When FieldDefinitionSet has lineItem fields, those are already in definitionFieldOptions
+  // with category='lineItem', so we skip hardcoded li_* suggestions.
+  // Only fall back to hardcoded li_* when no lineItem definitions exist.
+  const lineItemOptions = React.useMemo<SourceFieldOption[]>(
+    () => (showLineItemFields && !definitionHasLineItems ? getLineItemFieldOptions() : []),
+    [showLineItemFields, definitionHasLineItems]
   );
+
+  // CHANGE-047: Reference Number synthetic fields
+  const refNumberOptions = React.useMemo<SourceFieldOption[]>(
+    () => (showReferenceNumberFields ? getReferenceNumberFieldOptions() : []),
+    [showReferenceNumberFields]
+  );
+
+  // 獲取分組的來源欄位（若有 definition fields 則優先使用）
+  const groupedFields = React.useMemo<GroupedSourceFields>(() => {
+    let grouped: GroupedSourceFields;
+    if (definitionFieldOptions.length > 0) {
+      // Use definition fields as primary source
+      // lineItem fields are already categorized as 'lineItem' by fieldDefinitionEntryToSourceFieldOption
+      grouped = {};
+      for (const field of definitionFieldOptions) {
+        if (!grouped[field.category]) {
+          grouped[field.category] = [];
+        }
+        grouped[field.category].push(field);
+      }
+    } else {
+      grouped = getGroupedSourceFields(extractedData);
+    }
+
+    // CHANGE-047: Append reference number synthetic fields
+    if (refNumberOptions.length > 0) {
+      grouped['syntheticRef'] = refNumberOptions;
+    }
+
+    // CHANGE-043: Append hardcoded line item fields only if no definition lineItems
+    if (lineItemOptions.length > 0) {
+      grouped['lineItem'] = lineItemOptions;
+    }
+
+    return grouped;
+  }, [definitionFieldOptions, extractedData, refNumberOptions, lineItemOptions]);
 
   // 將分組欄位轉為平面列表
   const allFields = React.useMemo<SourceFieldOption[]>(() => {
@@ -228,7 +316,7 @@ export function SourceFieldCombobox({
           disabled={disabled}
         >
           {selectedValues.length === 0 ? (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="text-muted-foreground">{effectivePlaceholder}</span>
           ) : multiple ? (
             <span className="flex flex-wrap gap-1">
               {selectedValues.length <= 2 ? (
@@ -239,7 +327,7 @@ export function SourceFieldCombobox({
                 ))
               ) : (
                 <Badge variant="secondary" className="text-xs">
-                  {selectedValues.length} 個欄位
+                  {t('fieldsCount', { count: selectedValues.length })}
                 </Badge>
               )}
             </span>
@@ -252,18 +340,18 @@ export function SourceFieldCombobox({
       <PopoverContent className="w-[400px] p-0" align="start">
         <Command shouldFilter={false}>
           <CommandInput
-            placeholder="搜尋欄位..."
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onValueChange={setSearchQuery}
           />
           <CommandList>
             {isLoadingDynamic && (
               <div className="px-4 py-2 text-sm text-muted-foreground">
-                載入動態欄位中...
+                {t('loadingDynamic')}
               </div>
             )}
             {filteredFields.length === 0 && !canAddCustomField && (
-              <CommandEmpty>找不到匹配的欄位</CommandEmpty>
+              <CommandEmpty>{t('noResults')}</CommandEmpty>
             )}
             {/* 分組顯示欄位 */}
             {Object.keys(filteredGroupedFields).map((category, index) => (
@@ -271,30 +359,41 @@ export function SourceFieldCombobox({
                 {index > 0 && <CommandSeparator />}
                 <CommandGroup
                   heading={
-                    CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] ||
-                    category
+                    t.has(`categoryLabels.${category}`)
+                      ? t(`categoryLabels.${category}` as 'categoryLabels.basic')
+                      : CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] || category
                   }
                 >
-                  {filteredGroupedFields[category].map((field) => (
-                    <CommandItem
-                      key={field.name}
-                      value={field.name}
-                      onSelect={() => handleSelect(field.name)}
-                    >
-                      <Check
-                        className={cn(
-                          'mr-2 h-4 w-4',
-                          selectedValues.includes(field.name)
-                            ? 'opacity-100'
-                            : 'opacity-0'
+                  {filteredGroupedFields[category].map((field) => {
+                    const isUsed = usedFields.includes(field.name) && !selectedValues.includes(field.name);
+                    return (
+                      <CommandItem
+                        key={field.name}
+                        value={field.name}
+                        onSelect={() => !isUsed && handleSelect(field.name)}
+                        className={cn(isUsed && 'opacity-50')}
+                        disabled={isUsed}
+                      >
+                        <Check
+                          className={cn(
+                            'mr-2 h-4 w-4',
+                            selectedValues.includes(field.name)
+                              ? 'opacity-100'
+                              : 'opacity-0'
+                          )}
+                        />
+                        <span className="flex-1">{field.label}</span>
+                        {isUsed && (
+                          <Badge variant="secondary" className="mr-2 text-[10px]">
+                            {t('usedBadge')}
+                          </Badge>
                         )}
-                      />
-                      <span className="flex-1">{field.label}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {field.name}
-                      </span>
-                    </CommandItem>
-                  ))}
+                        <span className="text-xs text-muted-foreground">
+                          {field.name}
+                        </span>
+                      </CommandItem>
+                    );
+                  })}
                 </CommandGroup>
               </React.Fragment>
             ))}
@@ -302,11 +401,11 @@ export function SourceFieldCombobox({
             {canAddCustomField && (
               <>
                 <CommandSeparator />
-                <CommandGroup heading="自訂欄位">
+                <CommandGroup heading={t('customFields')}>
                   <CommandItem onSelect={handleAddCustomField}>
                     <Plus className="mr-2 h-4 w-4" />
                     <span>
-                      新增自訂欄位: <strong>{searchQuery}</strong>
+                      {t('addCustomField')} <strong>{searchQuery}</strong>
                     </span>
                   </CommandItem>
                 </CommandGroup>

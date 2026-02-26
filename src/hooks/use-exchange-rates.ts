@@ -1,0 +1,728 @@
+'use client'
+
+/**
+ * @fileoverview Exchange Rate 查詢與操作 Hooks
+ * @description
+ *   提供客戶端 Exchange Rate CRUD 操作功能。
+ *   使用 React Query 進行資料緩存和狀態管理。
+ *
+ *   主要功能：
+ *   - useExchangeRates: 列表查詢（支援分頁、篩選、排序）
+ *   - useExchangeRate: 單一記錄查詢（含反向匯率資訊）
+ *   - useCreateExchangeRate: 建立新記錄（含可選反向匯率）
+ *   - useUpdateExchangeRate: 更新記錄（部分更新）
+ *   - useDeleteExchangeRate: 刪除記錄（含反向記錄級聯刪除）
+ *   - useToggleExchangeRate: 切換啟用/停用狀態
+ *   - useConvertCurrency: 貨幣轉換計算（含 Fallback 邏輯）
+ *   - useBatchRates: 批次匯率查詢
+ *   - useImportExchangeRates: 批次導入匯率（Story 21.8）
+ *   - useExportExchangeRates: 導出匯率為 JSON（Story 21.8）
+ *
+ * @module src/hooks/use-exchange-rates
+ * @since Epic 21 - Story 21.3
+ * @lastModified 2026-02-06
+ *
+ * @dependencies
+ *   - @tanstack/react-query - 資料查詢和緩存
+ *
+ * @related
+ *   - src/lib/validations/exchange-rate.schema.ts - 驗證 Schema
+ *   - src/app/api/v1/exchange-rates/ - API 端點
+ *   - src/services/exchange-rate.service.ts - 服務層
+ */
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+
+// ============================================================
+// 類型定義
+// ============================================================
+
+/**
+ * Exchange Rate 列表項目
+ */
+export interface ExchangeRateItem {
+  id: string
+  fromCurrency: string
+  toCurrency: string
+  rate: number
+  effectiveYear: number
+  effectiveFrom: string | null
+  effectiveTo: string | null
+  isActive: boolean
+  source: string
+  inverseOfId: string | null
+  description: string | null
+  createdById: string | null
+  hasInverse: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+/**
+ * Exchange Rate 詳情（含反向匯率資訊）
+ */
+export interface ExchangeRateDetail extends ExchangeRateItem {
+  inverseRate?: {
+    id: string
+    rate: number
+  }
+}
+
+/**
+ * 分頁資訊
+ */
+interface PaginationInfo {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+/**
+ * Exchange Rate 列表 API 響應
+ */
+interface ExchangeRateListResponse {
+  success: boolean
+  data?: ExchangeRateItem[]
+  meta?: {
+    pagination: PaginationInfo
+  }
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * Exchange Rate 單一 API 響應
+ */
+interface ExchangeRateResponse {
+  success: boolean
+  data?: ExchangeRateDetail
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * 操作 API 響應
+ */
+interface OperationResponse {
+  success: boolean
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * 貨幣轉換輸入
+ */
+export interface ConvertCurrencyInput {
+  fromCurrency: string
+  toCurrency: string
+  amount: number
+  year?: number
+}
+
+/**
+ * 貨幣轉換結果
+ */
+export interface ConvertCurrencyResult {
+  fromCurrency: string
+  toCurrency: string
+  amount: number
+  convertedAmount: number
+  rate: number
+  path: string
+  rateId?: string
+  rateIds?: string[]
+  effectiveYear: number
+}
+
+/**
+ * 貨幣轉換 API 響應
+ */
+interface ConvertResponse {
+  success: boolean
+  data?: ConvertCurrencyResult
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * 批次匯率查詢輸入
+ */
+export interface BatchRatesInput {
+  pairs: Array<{ fromCurrency: string; toCurrency: string }>
+  year?: number
+}
+
+/**
+ * 批次匯率查詢結果項目
+ */
+export interface BatchRateResultItem {
+  fromCurrency: string
+  toCurrency: string
+  rate: number
+  path: string
+  found: boolean
+  rateId?: string
+}
+
+/**
+ * 批次匯率查詢 API 響應
+ */
+interface BatchRatesResponse {
+  success: boolean
+  data?: {
+    rates: BatchRateResultItem[]
+    effectiveYear: number
+  }
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * Exchange Rate 查詢參數
+ */
+export interface ExchangeRateQueryParams {
+  page?: number
+  limit?: number
+  year?: number
+  fromCurrency?: string
+  toCurrency?: string
+  isActive?: boolean
+  source?: 'MANUAL' | 'IMPORTED' | 'AUTO_INVERSE'
+  sortBy?: 'fromCurrency' | 'toCurrency' | 'rate' | 'effectiveYear' | 'createdAt'
+  sortOrder?: 'asc' | 'desc'
+}
+
+/**
+ * 建立 Exchange Rate 輸入
+ */
+export interface CreateExchangeRateInput {
+  fromCurrency: string
+  toCurrency: string
+  rate: number | string
+  effectiveYear: number
+  effectiveFrom?: string
+  effectiveTo?: string
+  description?: string
+  createInverse?: boolean
+}
+
+/**
+ * 更新 Exchange Rate 輸入
+ */
+export interface UpdateExchangeRateInput {
+  rate?: number | string
+  effectiveFrom?: string | null
+  effectiveTo?: string | null
+  description?: string | null
+  isActive?: boolean
+}
+
+// ============================================================
+// Constants
+// ============================================================
+
+/** Query Key 前綴 */
+const QUERY_KEY = 'exchange-rates'
+
+// ============================================================
+// API 函數
+// ============================================================
+
+/**
+ * 從 API 獲取 Exchange Rate 列表
+ */
+async function fetchExchangeRates(
+  params: ExchangeRateQueryParams
+): Promise<{ items: ExchangeRateItem[]; pagination: PaginationInfo }> {
+  const url = new URL('/api/v1/exchange-rates', window.location.origin)
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      url.searchParams.set(key, String(value))
+    }
+  })
+
+  const response = await fetch(url.toString())
+  const json: ExchangeRateListResponse = await response.json()
+
+  if (!response.ok || !json.success) {
+    throw new Error(json.detail || 'Failed to fetch exchange rates')
+  }
+
+  return {
+    items: json.data ?? [],
+    pagination: json.meta?.pagination ?? {
+      page: 1,
+      limit: 20,
+      total: 0,
+      totalPages: 0,
+    },
+  }
+}
+
+/**
+ * 從 API 獲取單一 Exchange Rate
+ */
+async function fetchExchangeRate(id: string): Promise<ExchangeRateDetail> {
+  const response = await fetch(`/api/v1/exchange-rates/${id}`)
+  const json: ExchangeRateResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to fetch exchange rate')
+  }
+
+  return json.data
+}
+
+/**
+ * 建立新 Exchange Rate
+ */
+async function createExchangeRateApi(
+  input: CreateExchangeRateInput
+): Promise<ExchangeRateDetail> {
+  const response = await fetch('/api/v1/exchange-rates', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const json: ExchangeRateResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to create exchange rate')
+  }
+
+  return json.data
+}
+
+/**
+ * 更新 Exchange Rate
+ */
+async function updateExchangeRateApi(
+  id: string,
+  input: UpdateExchangeRateInput
+): Promise<ExchangeRateDetail> {
+  const response = await fetch(`/api/v1/exchange-rates/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const json: ExchangeRateResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to update exchange rate')
+  }
+
+  return json.data
+}
+
+/**
+ * 刪除 Exchange Rate（含反向記錄級聯刪除）
+ */
+async function deleteExchangeRateApi(id: string): Promise<void> {
+  const response = await fetch(`/api/v1/exchange-rates/${id}`, {
+    method: 'DELETE',
+  })
+
+  if (!response.ok) {
+    const json: OperationResponse = await response.json()
+    throw new Error(json.detail || 'Failed to delete exchange rate')
+  }
+}
+
+/**
+ * 切換 Exchange Rate 啟用狀態
+ */
+async function toggleExchangeRateApi(id: string): Promise<ExchangeRateDetail> {
+  const response = await fetch(`/api/v1/exchange-rates/${id}/toggle`, {
+    method: 'POST',
+  })
+
+  const json: ExchangeRateResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to toggle exchange rate')
+  }
+
+  return json.data
+}
+
+/**
+ * 貨幣轉換 API 呼叫
+ */
+async function convertCurrencyApi(
+  input: ConvertCurrencyInput
+): Promise<ConvertCurrencyResult> {
+  const response = await fetch('/api/v1/exchange-rates/convert', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const json: ConvertResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to convert currency')
+  }
+
+  return json.data
+}
+
+/**
+ * 批次匯率查詢 API 呼叫
+ */
+async function batchRatesApi(
+  input: BatchRatesInput
+): Promise<{ rates: BatchRateResultItem[]; effectiveYear: number }> {
+  const response = await fetch('/api/v1/exchange-rates/batch', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const json: BatchRatesResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to fetch batch rates')
+  }
+
+  return json.data
+}
+
+// ============================================================
+// Hooks
+// ============================================================
+
+/**
+ * Exchange Rate 列表查詢 Hook
+ *
+ * @param params - 查詢參數（分頁、篩選、排序）
+ * @returns React Query 查詢結果
+ *
+ * @example
+ *   const { data, isLoading } = useExchangeRates({ year: 2026 })
+ *   const items = data?.items ?? []
+ *   const pagination = data?.pagination
+ */
+export function useExchangeRates(params: ExchangeRateQueryParams = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, params],
+    queryFn: () => fetchExchangeRates(params),
+    staleTime: 5 * 60 * 1000, // 5 分鐘
+    gcTime: 30 * 60 * 1000, // 30 分鐘
+  })
+}
+
+/**
+ * 單一 Exchange Rate 查詢 Hook
+ *
+ * @param id - Exchange Rate ID
+ * @returns React Query 查詢結果
+ *
+ * @example
+ *   const { data: item, isLoading } = useExchangeRate('xxx-id')
+ */
+export function useExchangeRate(id: string) {
+  return useQuery({
+    queryKey: [QUERY_KEY, id],
+    queryFn: () => fetchExchangeRate(id),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  })
+}
+
+/**
+ * 建立 Exchange Rate Mutation Hook
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: create, isPending } = useCreateExchangeRate()
+ *   create({ fromCurrency: 'HKD', toCurrency: 'USD', rate: 0.128, effectiveYear: 2026 })
+ */
+export function useCreateExchangeRate() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: createExchangeRateApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+    },
+  })
+}
+
+/**
+ * 更新 Exchange Rate Mutation Hook
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: update, isPending } = useUpdateExchangeRate()
+ *   update({ id: 'xxx', input: { rate: 0.129 } })
+ */
+export function useUpdateExchangeRate() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateExchangeRateInput }) =>
+      updateExchangeRateApi(id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+    },
+  })
+}
+
+/**
+ * 刪除 Exchange Rate Mutation Hook
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: remove, isPending } = useDeleteExchangeRate()
+ *   remove('xxx-id')
+ */
+export function useDeleteExchangeRate() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: deleteExchangeRateApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+    },
+  })
+}
+
+/**
+ * 切換 Exchange Rate 啟用狀態 Mutation Hook
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: toggle, isPending } = useToggleExchangeRate()
+ *   toggle('xxx-id')
+ */
+export function useToggleExchangeRate() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: toggleExchangeRateApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+    },
+  })
+}
+
+/**
+ * 貨幣轉換 Mutation Hook
+ *
+ * @description
+ *   提供貨幣轉換功能，支援三層 Fallback 邏輯：
+ *   1. 直接匹配：fromCurrency → toCurrency
+ *   2. 反向計算：toCurrency → fromCurrency (1/rate)
+ *   3. 交叉匯率：fromCurrency → USD → toCurrency
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: convert, isPending, data } = useConvertCurrency()
+ *   convert({ fromCurrency: 'HKD', toCurrency: 'USD', amount: 1000 })
+ */
+export function useConvertCurrency() {
+  return useMutation({
+    mutationFn: convertCurrencyApi,
+  })
+}
+
+/**
+ * 批次匯率查詢 Mutation Hook
+ *
+ * @description
+ *   一次查詢多個貨幣對的匯率。
+ *   每個貨幣對獨立處理，失敗的返回 found=false。
+ *   最多支援 50 組貨幣對。
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: fetchBatch, isPending, data } = useBatchRates()
+ *   fetchBatch({
+ *     pairs: [
+ *       { fromCurrency: 'HKD', toCurrency: 'USD' },
+ *       { fromCurrency: 'USD', toCurrency: 'EUR' },
+ *     ],
+ *     year: 2026,
+ *   })
+ */
+export function useBatchRates() {
+  return useMutation({
+    mutationFn: batchRatesApi,
+  })
+}
+
+// ============================================================
+// Import/Export Hooks
+// ============================================================
+
+/**
+ * 導入匯率輸入
+ */
+export interface ImportExchangeRatesInput {
+  items: Array<{
+    fromCurrency: string
+    toCurrency: string
+    rate: number
+    effectiveYear: number
+    effectiveFrom?: string
+    effectiveTo?: string
+    description?: string
+  }>
+  options: {
+    overwriteExisting: boolean
+    skipInvalid: boolean
+  }
+}
+
+/**
+ * 導入匯率結果
+ */
+export interface ImportExchangeRatesResult {
+  imported: number
+  updated: number
+  skipped: number
+  errors: Array<{ index: number; error: string }>
+}
+
+/**
+ * 導入匯率 API 響應
+ */
+interface ImportResponse {
+  success: boolean
+  data?: ImportExchangeRatesResult
+  type?: string
+  title?: string
+  status?: number
+  detail?: string
+}
+
+/**
+ * 導入匯率 API 呼叫
+ */
+async function importExchangeRatesApi(
+  input: ImportExchangeRatesInput
+): Promise<ImportExchangeRatesResult> {
+  const response = await fetch('/api/v1/exchange-rates/import', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const json: ImportResponse = await response.json()
+
+  if (!response.ok || !json.success || !json.data) {
+    throw new Error(json.detail || 'Failed to import exchange rates')
+  }
+
+  return json.data
+}
+
+/**
+ * 導入匯率 Mutation Hook
+ *
+ * @description
+ *   批次導入匯率記錄。
+ *   支援覆蓋現有記錄和跳過無效記錄選項。
+ *   導入成功後自動刷新列表。
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: importRates, isPending } = useImportExchangeRates()
+ *   importRates({
+ *     items: [{ fromCurrency: 'HKD', toCurrency: 'USD', rate: 0.128, effectiveYear: 2026 }],
+ *     options: { overwriteExisting: false, skipInvalid: true },
+ *   })
+ */
+export function useImportExchangeRates() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: importExchangeRatesApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+    },
+  })
+}
+
+/**
+ * 導出匯率參數
+ */
+export interface ExportExchangeRatesParams {
+  year?: number
+  isActive?: boolean
+  fromCurrency?: string
+  toCurrency?: string
+}
+
+/**
+ * 導出匯率 API 呼叫
+ */
+async function exportExchangeRatesApi(
+  params: ExportExchangeRatesParams = {}
+): Promise<Blob> {
+  const url = new URL('/api/v1/exchange-rates/export', window.location.origin)
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      url.searchParams.set(key, String(value))
+    }
+  })
+
+  const response = await fetch(url.toString())
+
+  if (!response.ok) {
+    const json = await response.json().catch(() => ({}))
+    throw new Error(json.detail || 'Failed to export exchange rates')
+  }
+
+  return response.blob()
+}
+
+/**
+ * 導出匯率 Mutation Hook
+ *
+ * @description
+ *   導出匯率記錄為 JSON 檔案。
+ *   支援按年份、狀態、貨幣篩選。
+ *
+ * @returns React Query mutation 結果
+ *
+ * @example
+ *   const { mutate: exportRates, isPending } = useExportExchangeRates()
+ *   exportRates({ year: 2026 }, {
+ *     onSuccess: (blob) => {
+ *       const url = URL.createObjectURL(blob)
+ *       const a = document.createElement('a')
+ *       a.href = url
+ *       a.download = 'exchange-rates-2026.json'
+ *       a.click()
+ *     },
+ *   })
+ */
+export function useExportExchangeRates() {
+  return useMutation({
+    mutationFn: exportExchangeRatesApi,
+  })
+}

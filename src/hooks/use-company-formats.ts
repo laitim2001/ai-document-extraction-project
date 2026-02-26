@@ -6,7 +6,7 @@
  *
  * @module src/hooks/use-company-formats
  * @since Epic 16 - Story 16.1
- * @lastModified 2026-01-14
+ * @lastModified 2026-02-26
  *
  * @dependencies
  *   - @tanstack/react-query - 數據獲取和緩存
@@ -277,7 +277,7 @@ async function createFormat(
  * ```
  */
 /**
- * 文件類型標籤
+ * 文件類型標籤（用於 toast 顯示，非 i18n 場景的 fallback）
  */
 const DOCUMENT_TYPE_LABELS: Record<string, string> = {
   INVOICE: '發票',
@@ -291,7 +291,7 @@ const DOCUMENT_TYPE_LABELS: Record<string, string> = {
 };
 
 /**
- * 文件子類型標籤
+ * 文件子類型標籤（用於 toast 顯示，非 i18n 場景的 fallback）
  */
 const DOCUMENT_SUBTYPE_LABELS: Record<string, string> = {
   OCEAN_FREIGHT: '海運',
@@ -299,6 +299,8 @@ const DOCUMENT_SUBTYPE_LABELS: Record<string, string> = {
   LAND_TRANSPORT: '陸運',
   CUSTOMS_CLEARANCE: '報關',
   WAREHOUSING: '倉儲',
+  IMPORT: '進口',
+  EXPORT: '出口',
   GENERAL: '一般',
 };
 
@@ -335,6 +337,64 @@ export function useCreateFormat(companyId: string) {
       toast({
         variant: 'destructive',
         title: '建立失敗',
+        description: error.message,
+      });
+    },
+  });
+}
+
+// ============================================================================
+// 刪除格式 Hook
+// ============================================================================
+
+/**
+ * 刪除格式 API
+ */
+async function deleteFormat(formatId: string): Promise<void> {
+  const response = await fetch(`/api/v1/formats/${formatId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error?.detail || '刪除格式失敗');
+  }
+}
+
+/**
+ * 刪除格式的 Hook
+ *
+ * @description
+ *   使用 React Query Mutation 刪除文件格式。
+ *   成功後自動刷新格式列表。
+ *
+ * @param companyId - 公司 ID
+ * @returns Mutation 狀態和方法
+ *
+ * @example
+ * ```tsx
+ * const { mutate: deleteFormat, isPending } = useDeleteFormat('company-123');
+ * deleteFormat('format-456');
+ * ```
+ */
+export function useDeleteFormat(companyId: string) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: (formatId: string) => deleteFormat(formatId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['formats', 'company', companyId] });
+
+      toast({
+        title: '格式已刪除',
+        description: '格式及其專屬配置已成功刪除',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: 'destructive',
+        title: '刪除失敗',
         description: error.message,
       });
     },

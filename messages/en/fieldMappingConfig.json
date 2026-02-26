@@ -1,0 +1,105 @@
+{
+  "page": {
+    "title": "Field Mapping Configuration",
+    "description": "Manage three-tier field mapping rules (Global / Company / Format)",
+    "newTitle": "New Field Mapping Configuration",
+    "newDescription": "Create a new three-tier field mapping rule configuration",
+    "editTitle": "Edit Field Mapping Configuration",
+    "backToList": "Back to list",
+    "refresh": "Refresh",
+    "newConfig": "New Configuration"
+  },
+  "filters": {
+    "title": "Filters",
+    "scope": {
+      "label": "Scope",
+      "all": "All scopes",
+      "global": "Global",
+      "company": "Company",
+      "format": "Format"
+    },
+    "company": {
+      "label": "Company",
+      "all": "All companies",
+      "placeholder": "Select company"
+    },
+    "format": {
+      "label": "Format",
+      "all": "All formats",
+      "placeholder": "Select format"
+    },
+    "status": {
+      "label": "Status",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "search": {
+      "placeholder": "Search configuration names..."
+    },
+    "clear": "Clear filters"
+  },
+  "table": {
+    "headers": {
+      "name": "Name",
+      "scope": "Scope",
+      "company": "Company",
+      "format": "Format",
+      "rulesCount": "Rules",
+      "status": "Status",
+      "updatedAt": "Updated",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No configurations found",
+      "description": "Please adjust your filters or add a new configuration"
+    },
+    "summary": "{count, plural, =0 {No configurations} =1 {# configuration} other {# configurations}}"
+  },
+  "scope": {
+    "global": "Global",
+    "company": "Company",
+    "format": "Format"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "dialog": {
+    "delete": {
+      "title": "Confirm Delete Configuration",
+      "description": "Are you sure you want to delete the configuration \"{name}\"? This action cannot be undone, and all rules in this configuration will also be deleted.",
+      "cancel": "Cancel",
+      "confirm": "Confirm Delete",
+      "deleting": "Deleting..."
+    }
+  },
+  "toast": {
+    "deleteSuccess": {
+      "title": "Delete Successful",
+      "description": "Configuration \"{name}\" has been deleted"
+    },
+    "deleteError": {
+      "title": "Delete Failed"
+    },
+    "saveSuccess": {
+      "title": "Save Successful",
+      "description": "Configuration \"{name}\" has been updated"
+    },
+    "createSuccess": {
+      "title": "Create Successful",
+      "description": "Configuration \"{name}\" has been created"
+    },
+    "saveError": {
+      "title": "Save Failed"
+    },
+    "createError": {
+      "title": "Create Failed"
+    }
+  },
+  "error": {
+    "loadFailed": "Error loading configuration data:",
+    "configNotFound": "Failed to load configuration, the configuration may not exist",
+    "unknown": "Unknown error"
+  }
+}

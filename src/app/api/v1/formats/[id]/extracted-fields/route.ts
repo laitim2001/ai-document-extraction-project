@@ -9,7 +9,7 @@
  *
  * @module src/app/api/v1/formats/[id]/extracted-fields
  * @since Epic 16 - Story 16.6
- * @lastModified 2026-01-13
+ * @lastModified 2026-02-12
  *
  * @features
  *   - 動態欄位發現：從已處理文件中提取欄位名稱
@@ -84,15 +84,17 @@ export async function GET(
       );
     }
 
-    // 查詢該格式最近 20 個已處理文件的提取結果（從 HistoricalFile）
-    const files = await prisma.historicalFile.findMany({
+    // 查詢該公司最近 20 個已完成提取的文件結果（FIX-039: 改用 ExtractionResult）
+    const results = await prisma.extractionResult.findMany({
       where: {
-        documentFormatId: id,
+        document: {
+          companyId: format.companyId,
+        },
         status: 'COMPLETED',
-        extractionResult: { not: { equals: undefined } },
       },
       select: {
-        extractionResult: true,
+        fieldMappings: true,
+        stage1Result: true,
       },
       orderBy: { updatedAt: 'desc' },
       take: 20,
@@ -101,41 +103,19 @@ export async function GET(
     // 合併所有欄位名稱
     const fieldMap = new Map<string, ExtractedFieldInfo>();
 
-    for (const file of files) {
-      const data = file.extractionResult as Record<string, unknown> | null;
-      if (!data) continue;
+    for (const result of results) {
+      // 1. 從 stage1Result 提取原始 GPT 欄位（invoiceData / gptExtraction）
+      const stage1Data = result.stage1Result as Record<string, unknown> | null;
+      if (stage1Data) {
+        const fieldsToProcess = extractFieldsFromData(stage1Data);
+        accumulateFields(fieldMap, fieldsToProcess);
+      }
 
-      // 處理 extractionResult 的各種結構
-      const fieldsToProcess = extractFieldsFromData(data);
-
-      for (const [key, value] of Object.entries(fieldsToProcess)) {
-        // 跳過系統欄位
-        if (key.startsWith('_') || key === 'confidence') {
-          continue;
-        }
-
-        if (!fieldMap.has(key)) {
-          fieldMap.set(key, {
-            name: key,
-            occurrences: 0,
-            sampleValues: [],
-          });
-        }
-
-        const info = fieldMap.get(key)!;
-        info.occurrences++;
-
-        // 收集樣本值（最多 3 個）
-        if (
-          info.sampleValues.length < 3 &&
-          value !== null &&
-          value !== undefined
-        ) {
-          const sampleValue = formatSampleValue(value);
-          if (sampleValue !== null && !info.sampleValues.includes(sampleValue)) {
-            info.sampleValues.push(sampleValue);
-          }
-        }
+      // 2. 從 fieldMappings 提取已映射的目標欄位名稱和值
+      const mappings = result.fieldMappings as Record<string, unknown> | null;
+      if (mappings && typeof mappings === 'object') {
+        const mappedFields = extractFieldsFromMappings(mappings);
+        accumulateFields(fieldMap, mappedFields);
       }
     }
 
@@ -150,7 +130,7 @@ export async function GET(
         formatId: format.id,
         formatName: format.name,
         fields,
-        totalDocuments: files.length,
+        totalDocuments: results.length,
       },
     });
   } catch (error) {
@@ -175,8 +155,71 @@ export async function GET(
 // ============================================================================
 
 /**
+ * 將欄位累加到 fieldMap 中
+ * @description 統一處理欄位累加邏輯（出現次數 + 樣本值收集）
+ */
+function accumulateFields(
+  fieldMap: Map<string, ExtractedFieldInfo>,
+  fieldsToProcess: Record<string, unknown>,
+): void {
+  for (const [key, value] of Object.entries(fieldsToProcess)) {
+    // 跳過系統欄位
+    if (key.startsWith('_') || key === 'confidence') {
+      continue;
+    }
+
+    if (!fieldMap.has(key)) {
+      fieldMap.set(key, {
+        name: key,
+        occurrences: 0,
+        sampleValues: [],
+      });
+    }
+
+    const info = fieldMap.get(key)!;
+    info.occurrences++;
+
+    // 收集樣本值（最多 3 個）
+    if (
+      info.sampleValues.length < 3 &&
+      value !== null &&
+      value !== undefined
+    ) {
+      const sampleValue = formatSampleValue(value);
+      if (sampleValue !== null && !info.sampleValues.includes(sampleValue)) {
+        info.sampleValues.push(sampleValue);
+      }
+    }
+  }
+}
+
+/**
+ * 從 fieldMappings JSON 提取欄位名稱和值
+ * @description fieldMappings 結構: { [targetField]: { value, rawValue, confidence, ... } }
+ */
+function extractFieldsFromMappings(
+  mappings: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+
+  for (const [key, entry] of Object.entries(mappings)) {
+    if (key.startsWith('_')) continue;
+
+    // 從 mapping entry 中提取 value 或 rawValue
+    if (typeof entry === 'object' && entry !== null) {
+      const mappingEntry = entry as Record<string, unknown>;
+      result[key] = mappingEntry.value ?? mappingEntry.rawValue ?? null;
+    } else {
+      result[key] = entry;
+    }
+  }
+
+  return result;
+}
+
+/**
  * 從提取數據中提取欄位
- * @description 處理 extractionResult 的各種結構（invoiceData、gptExtraction 等）
+ * @description 處理 stage1Result 的各種結構（invoiceData、gptExtraction 等）
  */
 function extractFieldsFromData(data: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {};

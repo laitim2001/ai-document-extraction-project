@@ -24,6 +24,7 @@
 
 import * as React from 'react'
 import { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { Loader2, AlertTriangle, CheckCircle2, Power, PowerOff } from 'lucide-react'
 import {
@@ -41,7 +42,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { FORWARDER_ACTION_DIALOGS, type ForwarderStatus } from '@/types/forwarder'
+import type { ForwarderStatus } from '@/types/forwarder'
 
 // ============================================================
 // Types
@@ -97,6 +98,7 @@ function DeactivateDialog({
   activeRulesCount,
   onSuccess,
 }: DeactivateDialogProps) {
+  const t = useTranslations('companies')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reason, setReason] = useState('')
@@ -121,13 +123,13 @@ function DeactivateDialog({
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error?.detail || '停用失敗')
+        throw new Error(result.error?.detail || t('deactivateDialog.error'))
       }
 
       onOpenChange(false)
       onSuccess?.()
     } catch (err) {
-      setError(err instanceof Error ? err.message : '停用失敗，請稍後重試')
+      setError(err instanceof Error ? err.message : t('deactivateDialog.errorRetry'))
     } finally {
       setIsSubmitting(false)
     }
@@ -145,22 +147,20 @@ function DeactivateDialog({
     }
   }
 
-  const config = FORWARDER_ACTION_DIALOGS.deactivate
-
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
-            {config.title}
+            {t('deactivateDialog.title')}
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-4">
               <p>
-                確定要停用 <strong>{forwarderName}</strong> 嗎？
+                {t('deactivateDialog.confirmQuestion', { name: forwarderName })}
               </p>
-              <p className="text-sm text-muted-foreground">{config.description}</p>
+              <p className="text-sm text-muted-foreground">{t('deactivateDialog.description')}</p>
 
               {/* 錯誤提示 */}
               {error && (
@@ -184,10 +184,10 @@ function DeactivateDialog({
                         htmlFor="deactivate-rules"
                         className="text-sm font-medium leading-none cursor-pointer"
                       >
-                        同時停用相關規則
+                        {t('deactivateDialog.deactivateRulesLabel')}
                       </Label>
                       <p className="text-xs text-muted-foreground">
-                        將 {activeRulesCount} 個活躍規則標記為已停用
+                        {t('deactivateDialog.deactivateRulesDescription', { count: activeRulesCount })}
                       </p>
                     </div>
                   </div>
@@ -197,11 +197,11 @@ function DeactivateDialog({
               {/* 停用原因 */}
               <div className="space-y-2">
                 <Label htmlFor="reason" className="text-sm font-medium">
-                  停用原因（選填）
+                  {t('deactivateDialog.reasonLabel')}
                 </Label>
                 <Textarea
                   id="reason"
-                  placeholder="請輸入停用原因..."
+                  placeholder={t('deactivateDialog.reasonPlaceholder')}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   disabled={isSubmitting}
@@ -212,7 +212,7 @@ function DeactivateDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isSubmitting}>取消</AlertDialogCancel>
+          <AlertDialogCancel disabled={isSubmitting}>{t('actions.cancel')}</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault()
@@ -222,7 +222,7 @@ function DeactivateDialog({
             className="bg-amber-600 hover:bg-amber-700"
           >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {config.confirmText}
+            {t('deactivateDialog.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -241,6 +241,7 @@ function ActivateDialog({
   deprecatedRulesCount,
   onSuccess,
 }: ActivateDialogProps) {
+  const t = useTranslations('companies')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reactivateRules, setReactivateRules] = useState(false)
@@ -263,13 +264,13 @@ function ActivateDialog({
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error?.detail || '啟用失敗')
+        throw new Error(result.error?.detail || t('activateDialog.error'))
       }
 
       onOpenChange(false)
       onSuccess?.()
     } catch (err) {
-      setError(err instanceof Error ? err.message : '啟用失敗，請稍後重試')
+      setError(err instanceof Error ? err.message : t('activateDialog.errorRetry'))
     } finally {
       setIsSubmitting(false)
     }
@@ -286,22 +287,20 @@ function ActivateDialog({
     }
   }
 
-  const config = FORWARDER_ACTION_DIALOGS.activate
-
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-green-500" />
-            {config.title}
+            {t('activateDialog.title')}
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-4">
               <p>
-                確定要啟用 <strong>{forwarderName}</strong> 嗎？
+                {t('activateDialog.confirmQuestion', { name: forwarderName })}
               </p>
-              <p className="text-sm text-muted-foreground">{config.description}</p>
+              <p className="text-sm text-muted-foreground">{t('activateDialog.description')}</p>
 
               {/* 錯誤提示 */}
               {error && (
@@ -325,10 +324,10 @@ function ActivateDialog({
                         htmlFor="reactivate-rules"
                         className="text-sm font-medium leading-none cursor-pointer"
                       >
-                        同時恢復相關規則
+                        {t('activateDialog.reactivateRulesLabel')}
                       </Label>
                       <p className="text-xs text-muted-foreground">
-                        將 {deprecatedRulesCount} 個已停用規則恢復為活躍
+                        {t('activateDialog.reactivateRulesDescription', { count: deprecatedRulesCount })}
                       </p>
                     </div>
                   </div>
@@ -338,7 +337,7 @@ function ActivateDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isSubmitting}>取消</AlertDialogCancel>
+          <AlertDialogCancel disabled={isSubmitting}>{t('actions.cancel')}</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault()
@@ -348,7 +347,7 @@ function ActivateDialog({
             className="bg-green-600 hover:bg-green-700"
           >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {config.confirmText}
+            {t('activateDialog.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -375,6 +374,7 @@ export function ForwarderActions({
   onStatusChange,
   trigger,
 }: ForwarderActionsProps) {
+  const t = useTranslations('companies')
   const router = useRouter()
   const [showDeactivate, setShowDeactivate] = useState(false)
   const [showActivate, setShowActivate] = useState(false)
@@ -434,7 +434,7 @@ export function ForwarderActions({
           className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
         >
           <PowerOff className="mr-2 h-4 w-4" />
-          停用
+          {t('actions.deactivate')}
         </Button>
       )}
 
@@ -446,7 +446,7 @@ export function ForwarderActions({
           className="text-green-600 hover:text-green-700 hover:bg-green-50"
         >
           <Power className="mr-2 h-4 w-4" />
-          啟用
+          {t('actions.activate')}
         </Button>
       )}
 

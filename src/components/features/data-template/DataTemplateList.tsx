@@ -1,16 +1,18 @@
 /**
- * @fileoverview 數據模版列表組件
+ * @fileoverview 數據模版列表組件（國際化版本）
  * @description
  *   顯示數據模版的網格列表，支援載入狀態和空狀態
+ *   - i18n 國際化支援 (Epic 17)
  *
  * @module src/components/features/data-template/DataTemplateList
  * @since Epic 16 - Story 16.7
- * @lastModified 2026-01-13
+ * @lastModified 2026-01-20
  */
 
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { FileCode } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DataTemplateCard } from './DataTemplateCard';
@@ -44,6 +46,8 @@ export function DataTemplateList({
   onEdit,
   onDelete,
 }: DataTemplateListProps) {
+  const t = useTranslations('dataTemplates');
+
   // --- Loading State ---
   if (isLoading) {
     return (
@@ -60,9 +64,9 @@ export function DataTemplateList({
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <FileCode className="h-12 w-12 text-destructive mb-4" />
-        <h3 className="text-lg font-medium text-destructive">載入失敗</h3>
+        <h3 className="text-lg font-medium text-destructive">{t('list.loadFailed')}</h3>
         <p className="text-sm text-muted-foreground mt-1">
-          {error.message || '無法載入模版列表'}
+          {error.message || t('list.loadFailedDesc')}
         </p>
       </div>
     );
@@ -73,9 +77,9 @@ export function DataTemplateList({
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <FileCode className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium">尚無數據模版</h3>
+        <h3 className="text-lg font-medium">{t('list.empty')}</h3>
         <p className="text-sm text-muted-foreground mt-1">
-          點擊「新增模版」按鈕建立第一個數據模版
+          {t('list.emptyDesc')}
         </p>
       </div>
     );

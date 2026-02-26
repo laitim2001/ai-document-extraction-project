@@ -21,6 +21,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { createDocumentFormatSchema } from '@/validations/document-format';
 import { createDocumentFormatManually } from '@/services/document-format.service';
@@ -38,6 +39,8 @@ const querySchema = z.object({
   documentSubtype: z.string().optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
+  sortBy: z.enum(['name', 'fileCount', 'createdAt', 'updatedAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
 });
 
 // ============================================================================
@@ -71,6 +74,27 @@ export async function GET(request: NextRequest) {
     if (query.documentType) where.documentType = query.documentType;
     if (query.documentSubtype) where.documentSubtype = query.documentSubtype;
 
+    // 構建排序條件 - 使用明確的 switch 避免 Prisma 動態 key 問題
+    let orderBy: Prisma.DocumentFormatOrderByWithRelationInput;
+    const sortOrder = query.sortOrder || 'asc';
+
+    switch (query.sortBy) {
+      case 'name':
+        orderBy = { name: sortOrder };
+        break;
+      case 'fileCount':
+        orderBy = { fileCount: sortOrder };
+        break;
+      case 'createdAt':
+        orderBy = { createdAt: sortOrder };
+        break;
+      case 'updatedAt':
+        orderBy = { updatedAt: sortOrder };
+        break;
+      default:
+        orderBy = { fileCount: 'desc' }; // 默認按文件數量降序
+    }
+
     const [formats, total] = await Promise.all([
       prisma.documentFormat.findMany({
         where,
@@ -79,7 +103,7 @@ export async function GET(request: NextRequest) {
             select: { id: true, name: true },
           },
         },
-        orderBy: { fileCount: 'desc' },
+        orderBy,
         skip: (query.page - 1) * query.limit,
         take: query.limit,
       }),

@@ -1,0 +1,268 @@
+{
+  "page": {
+    "title": "Documents",
+    "description": "Manage and track uploaded document processing status"
+  },
+  "stats": {
+    "total": "Total",
+    "processing": "Processing",
+    "completed": "Completed",
+    "failed": "Failed"
+  },
+  "filters": {
+    "searchPlaceholder": "Search by filename...",
+    "allStatus": "All Status",
+    "status": {
+      "uploading": "Uploading",
+      "uploaded": "Uploaded",
+      "ocrProcessing": "OCR Processing",
+      "ocrCompleted": "OCR Completed",
+      "ocrFailed": "OCR Failed",
+      "mappingProcessing": "Mapping",
+      "mappingCompleted": "Mapping Completed",
+      "pendingReview": "Pending Review",
+      "inReview": "In Review",
+      "completed": "Completed",
+      "failed": "Failed",
+      "refMatchFailed": "Ref Match Failed"
+    }
+  },
+  "table": {
+    "columns": {
+      "filename": "Filename",
+      "fileName": "File Name",
+      "status": "Status",
+      "uploadedAt": "Uploaded At",
+      "uploadTime": "Upload Time",
+      "processingPath": "Processing Path",
+      "confidence": "Confidence",
+      "company": "Company",
+      "actions": "Actions",
+      "select": "Select"
+    },
+    "empty": "No documents found",
+    "noDocuments": "No documents found",
+    "emptyDescription": "Upload a new document to get started",
+    "loading": "Loading...",
+    "processingError": "An error occurred during processing",
+    "processingFailed": "Processing Failed"
+  },
+  "processingPath": {
+    "autoApprove": "Auto Approve",
+    "quickReview": "Quick Review",
+    "fullReview": "Full Review",
+    "manualRequired": "Manual Required"
+  },
+  "status": {
+    "UPLOADING": "Uploading",
+    "UPLOADED": "Uploaded",
+    "OCR_PROCESSING": "OCR Processing",
+    "OCR_COMPLETED": "OCR Completed",
+    "OCR_FAILED": "OCR Failed",
+    "MAPPING_PROCESSING": "Mapping",
+    "MAPPING_COMPLETED": "Mapping Completed",
+    "PENDING_REVIEW": "Pending Review",
+    "IN_REVIEW": "In Review",
+    "COMPLETED": "Completed",
+    "FAILED": "Failed",
+    "REF_MATCH_FAILED": "Ref Match Failed"
+  },
+  "upload": {
+    "title": "Upload Documents",
+    "description": "Upload documents for AI processing and data extraction. Supports PDF, JPG, PNG formats.",
+    "selectCity": "Select City",
+    "selectCityPlaceholder": "Please select a city",
+    "selectCityHint": "Please select a city before uploading files.",
+    "selectCityRequired": "Please select a city before uploading files",
+    "dragDrop": "Drag and drop files here, or click to select",
+    "dropToUpload": "Drop to upload files",
+    "unsupportedFormat": "Unsupported file format",
+    "supportedFormats": "Supports {formats}, max {size} per file",
+    "formatHint": "Supports {formats}, max {size} per file",
+    "maxFiles": "Maximum {count} files",
+    "maxSize": "Maximum file size: {size}MB",
+    "selectedFiles": "{count} files selected",
+    "pendingCount": "({count} pending)",
+    "clearAll": "Clear All",
+    "uploadingProgress": "Uploading... {percent}%",
+    "statusPending": "Pending",
+    "uploading": "Uploading...",
+    "uploadCount": "Upload {count} files",
+    "uploadSuccess": "Upload successful",
+    "successCount": "Successfully uploaded {count} files",
+    "uploadFailed": "Upload failed",
+    "failedCount": "{count} files failed to upload",
+    "noPendingFiles": "No pending files to upload",
+    "loading": "Loading..."
+  },
+  "uploadErrors": {
+    "invalidType": "Unsupported file format, please upload {formats}",
+    "fileTooLarge": "File size exceeds limit ({size})",
+    "tooManyFiles": "Maximum {count} files allowed",
+    "uploadFailed": "File upload failed, please try again",
+    "noFiles": "Please select files to upload",
+    "unauthorized": "Please log in",
+    "forbidden": "You don't have permission to upload documents"
+  },
+  "bulkActions": {
+    "selected": "{count} selected",
+    "matchToTemplate": "Match to Template",
+    "clearSelection": "Clear"
+  },
+  "actions": {
+    "view": "View",
+    "retry": "Retry",
+    "download": "Download",
+    "delete": "Delete"
+  },
+  "retry": {
+    "success": "Processing restarted",
+    "failed": "Retry failed: {message}",
+    "button": "Retry"
+  },
+  "detail": {
+    "title": "Document Details",
+    "backToList": "Back to List",
+    "tabs": {
+      "preview": "Preview",
+      "fields": "Extracted Fields",
+      "processing": "Processing",
+      "audit": "Audit Log",
+      "ai": "AI Details"
+    },
+    "stats": {
+      "status": "Status",
+      "confidence": "Confidence",
+      "uploadInfo": "Upload Info",
+      "source": "Source",
+      "processingTime": "Processing Time"
+    },
+    "timeline": {
+      "title": "Processing Timeline",
+      "totalTime": "Total Time",
+      "step": "Step",
+      "duration": "Duration",
+      "status": "Status",
+      "steps": {
+        "FILE_TYPE_DETECTION": "File Type Detection",
+        "SMART_ROUTING": "Smart Routing",
+        "ISSUER_IDENTIFICATION": "Issuer Identification",
+        "FORMAT_MATCHING": "Format Matching",
+        "CONFIG_FETCHING": "Config Fetching",
+        "AZURE_DI_EXTRACTION": "Azure DI Extraction",
+        "GPT_ENHANCED_EXTRACTION": "GPT Enhanced Extraction",
+        "FIELD_MAPPING": "Field Mapping",
+        "TERM_RECORDING": "Term Recording",
+        "CONFIDENCE_CALCULATION": "Confidence Calculation",
+        "ROUTING_DECISION": "Routing Decision",
+        "FILE_PREPARATION": "File Preparation",
+        "DYNAMIC_PROMPT_ASSEMBLY": "Prompt Assembly",
+        "UNIFIED_GPT_EXTRACTION": "GPT Unified Extraction",
+        "RESULT_VALIDATION": "Result Validation",
+        "STAGE_1_COMPANY_IDENTIFICATION": "Stage 1: Company ID",
+        "STAGE_2_FORMAT_IDENTIFICATION": "Stage 2: Format ID",
+        "STAGE_3_FIELD_EXTRACTION": "Stage 3: Field Extract",
+        "REFERENCE_NUMBER_MATCHING": "Reference Number Matching",
+        "EXCHANGE_RATE_CONVERSION": "Exchange Rate Conversion"
+      },
+      "version": {
+        "v2": "V2 (11 steps)",
+        "v3": "V3 (7 steps)",
+        "v3_1": "V3.1 (7 steps, 3 stages)"
+      }
+    },
+    "audit": {
+      "title": "Audit Log",
+      "entries": "entries",
+      "system": "System"
+    },
+    "actions": {
+      "retry": "Retry",
+      "download": "Download",
+      "delete": "Delete"
+    },
+    "empty": {
+      "noPreview": "Unable to preview this file",
+      "noFields": "No extracted fields available",
+      "noProcessingSteps": "No processing steps recorded",
+      "noAuditLogs": "No audit logs available"
+    },
+    "ai": {
+      "title": "AI Extraction Details",
+      "singleStage": "Single-stage extraction",
+      "prompt": {
+        "title": "GPT Prompt",
+        "description": "Complete prompt sent to GPT",
+        "copy": "Copy Prompt",
+        "copied": "Copied"
+      },
+      "response": {
+        "title": "GPT Response",
+        "description": "Raw JSON response from GPT",
+        "copy": "Copy Response",
+        "copied": "Copied"
+      },
+      "tokens": {
+        "title": "Token Usage",
+        "input": "Input Tokens",
+        "output": "Output Tokens",
+        "total": "Total Tokens",
+        "model": "Model",
+        "imageMode": "Image Mode"
+      },
+      "stages": {
+        "title": "Three-stage extraction",
+        "stageDetails": "Stage Details",
+        "skipped": "This stage was skipped",
+        "stage1": {
+          "title": "Stage 1: Company Identification",
+          "description": "Identify the company that issued this document using GPT-5-nano"
+        },
+        "stage2": {
+          "title": "Stage 2: Format Identification",
+          "description": "Identify the document format based on company configuration"
+        },
+        "stage3": {
+          "title": "Stage 3: Field Extraction",
+          "description": "Extract fields using full configuration and GPT-5.2"
+        }
+      },
+      "empty": {
+        "noData": "No AI extraction details available",
+        "description": "Document has not been processed by AI extraction"
+      }
+    },
+    "smartRouting": {
+      "title": "Configuration Required",
+      "description": {
+        "newCompanyAndFormat": "This document was processed with a new company and new format. Please configure company identification rules and format mapping for better accuracy in future processing.",
+        "newCompanyOnly": "New company \"{companyName}\" detected. Please configure company identification rules (logo patterns, keywords) for better accuracy.",
+        "newFormatOnly": "New document format detected. Please configure format mapping for this company."
+      },
+      "badges": {
+        "newCompany": "New Company",
+        "newFormat": "New Format"
+      },
+      "actions": {
+        "configureCompany": "Configure Company",
+        "configureFormat": "Configure Format",
+        "manageCompanies": "Manage Companies"
+      },
+      "hint": "Configuring identification rules will improve automatic recognition accuracy for future documents.",
+      "unknownCompany": "Unknown Company"
+    },
+    "errors": {
+      "notFound": "Document not found",
+      "noFile": "File not available for download",
+      "downloadFailed": "Failed to download file",
+      "deleteFailed": "Failed to delete document",
+      "traceFailed": "Failed to load processing trace",
+      "auditFailed": "Failed to load audit logs",
+      "refMatchFailed": "No reference number matched in the filename. The file cannot be processed without a valid reference number match."
+    },
+    "deleteConfirmTitle": "Delete Document",
+    "deleteConfirmDescription": "Are you sure you want to delete \"{fileName}\"? This action cannot be undone.",
+    "deleteSuccess": "Document Deleted",
+    "deleteSuccessDescription": "The document has been successfully deleted."
+  }
+}

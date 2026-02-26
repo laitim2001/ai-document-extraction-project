@@ -1,7 +1,8 @@
 # Story 17-4: 日期、數字與貨幣格式化 - Technical Specification
 
-**Version:** 1.0
+**Version:** 1.1
 **Created:** 2026-01-16
+**Updated:** 2026-01-16
 **Status:** Ready for Development
 **Story Key:** 17-4-date-number-currency-formatting
 
@@ -22,6 +23,18 @@
 ## Objective
 
 建立日期、數字和貨幣的國際化格式化工具，確保這些數據以符合用戶地區習慣的格式顯示。整合 date-fns 多語言支援並建立 Intl API 包裝函數，提供統一的格式化接口。
+
+### 覆蓋範圍
+
+| 功能 | 支援內容 | 狀態 |
+|------|---------|------|
+| 日期格式 | short, medium, long, datetime, relative | ✅ 完整 |
+| 數字格式 | 千位分隔、小數、整數、緊湊顯示 | ✅ 完整 |
+| **百分比格式** | 統一百分比顯示（0-100 或 0-1 輸入） | ✅ 完整 |
+| **多幣種支援** | USD, TWD, CNY, HKD, JPY, EUR, GBP | ✅ 完整 |
+| 時區支援 | Asia/Taipei 預設 | ✅ 完整 |
+
+> **Version 1.1 更新**：確認現有設計已完整覆蓋深度分析報告中的所有需求。
 
 ---
 

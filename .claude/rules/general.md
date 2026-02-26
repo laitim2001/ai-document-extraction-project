@@ -10,6 +10,25 @@ paths: "**/*"
 - **Commit Message**: 英文
 - **技術文檔**: 繁體中文為主
 
+## 國際化（i18n）架構
+
+> **核心框架**: next-intl | **支援語言**: en, zh-TW, zh-CN
+
+| 項目 | 說明 |
+|------|------|
+| 路由結構 | `/[locale]/(dashboard)/...` |
+| 翻譯文件 | `messages/{locale}/*.json` |
+| 格式化工具 | `src/lib/i18n-{date,number,currency}.ts` |
+| 配置文件 | `src/i18n/config.ts` |
+
+**重要規則**:
+- ✅ 所有使用者可見文字必須使用翻譯系統
+- ✅ 新增翻譯時必須同步更新所有語言文件
+- ✅ 使用 `@/i18n/routing` 的 Link 和 Router
+- ❌ 不要硬編碼使用者可見文字
+
+> **完整規範**: 請參考 `.claude/rules/i18n.md`
+
 ## 代碼品質要求
 - 所有代碼必須通過 TypeScript 類型檢查
 - 所有代碼必須通過 ESLint 檢查

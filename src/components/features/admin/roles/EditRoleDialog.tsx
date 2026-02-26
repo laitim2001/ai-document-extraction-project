@@ -38,6 +38,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Pencil, Loader2, ShieldAlert } from 'lucide-react'
@@ -117,6 +118,9 @@ export function EditRoleDialog({
   iconTrigger = false,
   className,
 }: EditRoleDialogProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- State ---
   const [open, setOpen] = useState(false)
 
@@ -149,8 +153,8 @@ export function EditRoleDialog({
     if (role.isSystem) {
       toast({
         variant: 'destructive',
-        title: '無法修改',
-        description: '系統角色無法修改',
+        title: t('roles.toast.cannotModify.title'),
+        description: t('roles.toast.cannotModify.description'),
       })
       return
     }
@@ -160,15 +164,15 @@ export function EditRoleDialog({
       {
         onSuccess: () => {
           toast({
-            title: '角色已更新',
-            description: `角色「${data.name || role.name}」已成功更新`,
+            title: t('roles.toast.updated.title'),
+            description: t('roles.toast.updated.description', { name: data.name || role.name }),
           })
           handleOpenChange(false)
         },
         onError: (error) => {
           toast({
             variant: 'destructive',
-            title: '更新失敗',
+            title: t('roles.toast.updateError.title'),
             description: error.message,
           })
         },
@@ -196,24 +200,24 @@ export function EditRoleDialog({
         {iconTrigger ? (
           <Button variant="ghost" size="icon" className={className}>
             <Pencil className="h-4 w-4" />
-            <span className="sr-only">編輯角色</span>
+            <span className="sr-only">{t('roles.actions.edit')}</span>
           </Button>
         ) : (
           <Button variant="outline" size="sm" className={className}>
             <Pencil className="mr-2 h-4 w-4" />
-            編輯
+            {t('roles.actions.edit')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>
-            {role.isSystem ? '檢視角色' : '編輯角色'}
+            {role.isSystem ? t('roles.dialog.viewTitle') : t('roles.dialog.editTitle')}
           </DialogTitle>
           <DialogDescription>
             {role.isSystem
-              ? '系統角色無法修改，僅供檢視。'
-              : '修改角色資訊和權限設定。'}
+              ? t('roles.dialog.viewDescription')
+              : t('roles.dialog.editDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -222,10 +226,10 @@ export function EditRoleDialog({
           <Alert variant="default" className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
             <ShieldAlert className="h-4 w-4 text-amber-600" />
             <AlertTitle className="text-amber-800 dark:text-amber-400">
-              系統角色
+              {t('roles.systemRole.title')}
             </AlertTitle>
             <AlertDescription className="text-amber-700 dark:text-amber-500">
-              此為系統預設角色，無法修改或刪除。如需自訂權限，請建立新的自訂角色。
+              {t('roles.systemRole.description')}
             </AlertDescription>
           </Alert>
         )}
@@ -240,17 +244,17 @@ export function EditRoleDialog({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>角色名稱</FormLabel>
+                      <FormLabel>{t('roles.form.name')}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="例如：發票審核員"
+                          placeholder={t('roles.form.namePlaceholder')}
                           autoComplete="off"
                           disabled={role.isSystem}
                           {...field}
                         />
                       </FormControl>
                       <FormDescription>
-                        角色名稱需唯一，支援中英文
+                        {t('roles.form.nameDescription')}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -263,10 +267,10 @@ export function EditRoleDialog({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>描述（選填）</FormLabel>
+                      <FormLabel>{t('roles.form.descriptionOptional')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="簡要描述此角色的職責..."
+                          placeholder={t('roles.form.descriptionPlaceholder')}
                           className="resize-none"
                           rows={2}
                           disabled={role.isSystem}
@@ -285,11 +289,11 @@ export function EditRoleDialog({
                   name="permissions"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>權限設定</FormLabel>
+                      <FormLabel>{t('roles.form.permissions')}</FormLabel>
                       <FormDescription>
                         {role.isSystem
-                          ? '系統角色的權限配置'
-                          : '選擇此角色可以執行的操作'}
+                          ? t('roles.form.permissionsSystemDescription')
+                          : t('roles.form.permissionsDescription')}
                       </FormDescription>
                       <FormControl>
                         <PermissionSelector
@@ -313,12 +317,12 @@ export function EditRoleDialog({
                 onClick={() => handleOpenChange(false)}
                 disabled={isPending}
               >
-                {role.isSystem ? '關閉' : '取消'}
+                {role.isSystem ? t('roles.dialog.close') : t('roles.dialog.cancel')}
               </Button>
               {!role.isSystem && (
                 <Button type="submit" disabled={isPending}>
                   {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  儲存變更
+                  {t('roles.dialog.save')}
                 </Button>
               )}
             </DialogFooter>

@@ -70,11 +70,8 @@ export class FieldMappingStep extends BaseStepHandler {
     const startTime = Date.now();
 
     try {
-      // 準備輸入數據
-      const rawData = {
-        ...context.extractedData?.invoiceData,
-        ...context.extractedData?.gptExtraction,
-      };
+      // 準備輸入數據 - 合併所有提取來源並展平嵌套 invoiceData
+      const rawData = this.buildRawData(context);
 
       // 執行三層映射
       const mappingResult = await this.applyThreeTierMapping(
@@ -169,6 +166,51 @@ export class FieldMappingStep extends BaseStepHandler {
       unmappedFields,
       stats,
     };
+  }
+
+  /**
+   * 建構原始數據（展平嵌套結構）
+   * @description
+   *   合併 Azure DI 的 invoiceData 和 GPT 提取的數據。
+   *   GPT 提取結果的 invoiceData 是嵌套物件（包含 invoiceNumber, totalAmount 等），
+   *   需要展平到頂層才能被 convertToExtractedFields 正確處理。
+   */
+  private buildRawData(context: UnifiedProcessingContext): Record<string, unknown> {
+    const rawData: Record<string, unknown> = {};
+
+    // 1. Azure DI 的 invoiceData（頂層欄位）
+    if (context.extractedData?.invoiceData) {
+      Object.assign(rawData, context.extractedData.invoiceData);
+    }
+
+    // 2. GPT 提取數據
+    // 注意：gptExtraction 實際存儲的是 Record<string, unknown>（由 Step 7 設定），
+    //       正式類型 GptExtractionResult 未完全反映運行時結構
+    if (context.extractedData?.gptExtraction) {
+      const gptData = context.extractedData.gptExtraction as unknown as Record<string, unknown>;
+
+      // 2a. 展平 GPT 的嵌套 invoiceData 物件
+      const invoiceDataValue = gptData['invoiceData'];
+      if (
+        invoiceDataValue &&
+        typeof invoiceDataValue === 'object' &&
+        !Array.isArray(invoiceDataValue)
+      ) {
+        const invoiceObj = invoiceDataValue as Record<string, unknown>;
+        for (const [key, value] of Object.entries(invoiceObj)) {
+          rawData[key] = value;
+        }
+      }
+
+      // 2b. 加入其他頂層欄位（跳過已展平的 invoiceData）
+      for (const [key, value] of Object.entries(gptData)) {
+        if (key !== 'invoiceData') {
+          rawData[key] = value;
+        }
+      }
+    }
+
+    return rawData;
   }
 
   /**

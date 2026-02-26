@@ -29,6 +29,7 @@
 
 import { useState, useCallback } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useUsers, useUser, type UseUsersParams } from '@/hooks/use-users'
 import { UserSearchBar } from './UserSearchBar'
 import { UserFilters } from './UserFilters'
@@ -64,6 +65,7 @@ export function UserList() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const t = useTranslations('admin.users')
 
   // --- Edit Dialog State (Story 1.5) ---
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -150,9 +152,9 @@ export function UserList() {
     return (
       <Card>
         <CardContent className="py-10 text-center">
-          <p className="text-destructive">載入用戶列表失敗，請重試。</p>
+          <p className="text-destructive">{t('list.loadError')}</p>
           <p className="text-sm text-muted-foreground mt-2">
-            {error instanceof Error ? error.message : '未知錯誤'}
+            {error instanceof Error ? error.message : t('list.unknownError')}
           </p>
         </CardContent>
       </Card>
@@ -199,7 +201,7 @@ export function UserList() {
       {/* 結果摘要 */}
       {data?.meta && (
         <p className="text-center text-sm text-muted-foreground">
-          顯示 {data.data?.length || 0} 筆，共 {data.meta.total} 筆用戶
+          {t('list.summary', { count: data.data?.length || 0, total: data.meta.total })}
         </p>
       )}
     </div>

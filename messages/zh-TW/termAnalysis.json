@@ -1,0 +1,82 @@
+{
+  "page": {
+    "title": "術語分析",
+    "description": "分析歷史處理結果中的收費術語，並建立映射規則",
+    "refresh": "重新整理"
+  },
+  "stats": {
+    "uniqueTerms": "唯一術語數",
+    "totalOccurrences": "總出現次數",
+    "companiesCount": "涉及公司數",
+    "batchesCount": "涉及批次數"
+  },
+  "actions": {
+    "selectedCount": "已選取 {count} 個術語",
+    "aiClassifying": "AI 分類中...",
+    "aiClassify": "AI 分類 ({count})",
+    "batchCreateRules": "批量建立規則"
+  },
+  "errors": {
+    "loadFailed": "載入術語資料時發生錯誤：",
+    "unknownError": "未知錯誤"
+  },
+  "aiInfo": {
+    "description": "AI 分類使用 GPT-5.2 模型分析術語，並根據物流行業標準費用類別提供建議。分類信心度 ≥90% 為高信心（自動通過），70-89% 為中信心（快速審核），<70% 為低信心（完整審核）。"
+  },
+  "table": {
+    "headers": {
+      "term": "術語",
+      "frequency": "出現次數",
+      "companies": "公司",
+      "suggestedCategory": "建議分類",
+      "confidence": "信心度",
+      "actions": "操作"
+    },
+    "empty": "找不到術語。請嘗試調整篩選條件或處理更多歷史數據。",
+    "selectAll": "全選",
+    "selectTerm": "選擇 {term}",
+    "similarTerms": "+{count} 個相似",
+    "companyCount": "{count} 個公司",
+    "moreCompanies": "+{count} 個更多...",
+    "createRule": "建立規則",
+    "confidence": {
+      "high": "高信心度 - 自動批准",
+      "medium": "中信心度 - 快速審核",
+      "low": "低信心度 - 完整審核"
+    },
+    "categories": {
+      "OCEAN_FREIGHT": "海運費",
+      "AIR_FREIGHT": "空運費",
+      "HANDLING_FEE": "處理費",
+      "CUSTOMS_CLEARANCE": "報關費",
+      "DOCUMENTATION_FEE": "文件費",
+      "TERMINAL_HANDLING": "碼頭處理費",
+      "INLAND_TRANSPORT": "內陸運輸",
+      "INSURANCE": "保險",
+      "STORAGE": "倉儲",
+      "FUEL_SURCHARGE": "燃油附加費",
+      "SECURITY_FEE": "安全費",
+      "OTHER": "其他"
+    }
+  },
+  "filters": {
+    "title": "篩選條件",
+    "clear": "清除",
+    "batch": {
+      "label": "批次",
+      "all": "所有批次"
+    },
+    "company": {
+      "label": "公司",
+      "all": "所有公司"
+    },
+    "minFrequency": {
+      "label": "最低出現次數",
+      "placeholder": "1"
+    },
+    "limit": {
+      "label": "結果限制",
+      "default": "500（預設）"
+    }
+  }
+}

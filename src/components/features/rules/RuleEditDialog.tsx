@@ -11,7 +11,8 @@
  *
  * @module src/components/features/rules/RuleEditDialog
  * @since Epic 5 - Story 5.3 (編輯 Forwarder 映射規則)
- * @lastModified 2025-12-19
+ * @lastModified 2026-02-22
+ * @fix FIX-042 - forwarderId→companyId
  *
  * @dependencies
  *   - @/components/ui/dialog - shadcn Dialog 組件
@@ -19,6 +20,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -46,7 +48,7 @@ interface RuleData {
   priority: number
   confidence: number
   description?: string
-  forwarderId: string
+  companyId: string | null
 }
 
 interface RuleEditDialogProps {
@@ -91,13 +93,14 @@ export function RuleEditDialog({
   rule,
   onSuccess,
 }: RuleEditDialogProps) {
+  const t = useTranslations('rules')
   const { toast } = useToast()
 
   // --- Handlers ---
   const handleSuccess = () => {
     toast({
-      title: '變更已提交',
-      description: '規則變更請求已提交審核，待審核者批准後生效。',
+      title: t('ruleEdit.toast.submitted'),
+      description: t('ruleEdit.toast.submittedDesc'),
     })
     onOpenChange(false)
     onSuccess?.()
@@ -114,9 +117,9 @@ export function RuleEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>編輯規則：{rule.fieldLabel}</DialogTitle>
+          <DialogTitle>{t('ruleEdit.dialog.title', { fieldLabel: rule.fieldLabel })}</DialogTitle>
           <DialogDescription>
-            修改規則配置後提交審核，變更將在審核通過後生效
+            {t('ruleEdit.dialog.description')}
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">

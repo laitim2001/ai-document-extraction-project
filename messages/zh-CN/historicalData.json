@@ -1,0 +1,398 @@
+{
+  "page": {
+    "title": "历史数据管理",
+    "description": "上传和处理历史发票文件",
+    "loading": "加载中...",
+    "tabs": {
+      "files": "文件列表",
+      "upload": "上传文件"
+    },
+    "toast": {
+      "batchCreated": "批次创建成功",
+      "batchCreatedDesc": "批次「{name}」已创建",
+      "createFailed": "创建失败",
+      "createFailedDesc": "无法创建批次",
+      "batchDeleted": "批次已删除",
+      "deleteFailed": "删除失败",
+      "deleteFailedDesc": "无法删除批次",
+      "fileDeleted": "文件已删除",
+      "fileDeleteFailed": "删除失败",
+      "fileDeleteFailedDesc": "无法删除文件",
+      "typeUpdated": "类型已更新",
+      "typeUpdateFailed": "更新失败",
+      "typeUpdateFailedDesc": "无法更新文件类型",
+      "uploadComplete": "上传完成",
+      "uploadCompleteDesc": "成功 {successful} 个，失败 {failed} 个",
+      "batchNotFound": "批次不存在",
+      "batchNotFoundDesc": "无法找到该批次",
+      "fetchDetailFailed": "获取详情失败",
+      "fetchDetailFailedDesc": "无法获取批次详情",
+      "processingStarted": "处理已启动",
+      "processingStartedDesc": "批次处理已开始，请等待处理完成",
+      "startProcessingFailed": "启动处理失败",
+      "startProcessingFailedDesc": "无法启动批次处理"
+    }
+  },
+  "fileDetail": {
+    "loading": "加载文件详情中...",
+    "loadFailed": "加载失败",
+    "loadFailedDesc": "无法加载文件详情",
+    "backToList": "返回列表",
+    "notFound": "找不到文件",
+    "notFoundDesc": "文件 ID: {id} 不存在或已被删除",
+    "batch": "批次",
+    "status": {
+      "pending": "待处理",
+      "processing": "处理中",
+      "completed": "已完成",
+      "failed": "失败",
+      "skipped": "已跳过"
+    },
+    "tabs": {
+      "extraction": "提取结果",
+      "issuer": "发行者识别",
+      "lineitems": "Line Items",
+      "raw": "原始 JSON"
+    },
+    "fileInfo": {
+      "title": "文件信息",
+      "fileType": "文件类型",
+      "fileSize": "文件大小",
+      "processingMethod": "处理方法",
+      "processingCost": "处理成本",
+      "originalName": "原始名称",
+      "mimeType": "MIME Type"
+    },
+    "timeline": {
+      "title": "处理时间轴",
+      "totalDuration": "总耗时: {duration}",
+      "created": "创建",
+      "typeDetection": "类型检测",
+      "processing": "处理中",
+      "completed": "完成",
+      "failed": "失败",
+      "waiting": "等待中"
+    },
+    "extraction": {
+      "title": "提取结果",
+      "noResults": "无提取结果",
+      "invoiceInfo": "Invoice 信息",
+      "invoiceNumber": "Invoice 编号",
+      "invoiceDate": "Invoice 日期",
+      "dueDate": "到期日",
+      "amountInfo": "金额信息",
+      "subtotal": "小计",
+      "taxAmount": "税额",
+      "totalAmount": "总金额",
+      "parties": "交易对象",
+      "vendor": "供应商",
+      "customer": "客户",
+      "vendorAddress": "供应商地址",
+      "customerAddress": "客户地址"
+    },
+    "issuer": {
+      "title": "发行者识别",
+      "noInfo": "无发行者识别信息",
+      "method": {
+        "notIdentified": "未识别",
+        "header": "Header 识别",
+        "logo": "Logo 识别",
+        "manual": "手动设定"
+      },
+      "matchedCompany": "匹配公司",
+      "notMatched": "未匹配",
+      "documentFormat": "文件格式",
+      "notClassified": "未分类",
+      "code": "代码",
+      "formatConfidence": "格式置信度: {value}"
+    },
+    "lineItems": {
+      "title": "Line Items",
+      "noData": "无 Line Items 数据",
+      "itemCount": "{count} 项",
+      "columns": {
+        "description": "描述",
+        "quantity": "数量",
+        "unitPrice": "单价",
+        "amount": "金额",
+        "unit": "单位",
+        "total": "总计",
+        "productCode": "产品代码",
+        "taxRate": "税率"
+      }
+    }
+  },
+  "batchList": {
+    "status": {
+      "pending": "待处理",
+      "processing": "处理中",
+      "paused": "已暂停",
+      "aggregating": "聚合中",
+      "aggregated": "聚合完成",
+      "completed": "已完成",
+      "failed": "失败",
+      "cancelled": "已取消"
+    },
+    "empty": {
+      "title": "暂无批次",
+      "description": "创建新批次以开始上传文件"
+    },
+    "progress": {
+      "label": "处理进度"
+    },
+    "stats": {
+      "totalFiles": "总文件数",
+      "processed": "已处理",
+      "failed": "失败",
+      "createdAt": "创建时间"
+    },
+    "creator": "创建者：{name}",
+    "actions": {
+      "startProcessing": "开始处理"
+    },
+    "deleteDialog": {
+      "title": "确认删除批次",
+      "description": "确定要删除这个批次吗？批次内的所有文件也会被删除。此操作无法撤销。",
+      "cancel": "取消",
+      "confirm": "删除"
+    }
+  },
+  "fileList": {
+    "fileType": {
+      "nativePdf": "原生 PDF",
+      "scannedPdf": "扫描 PDF",
+      "image": "图片",
+      "unknown": "未知"
+    },
+    "status": {
+      "pending": "待处理",
+      "detecting": "检测中",
+      "detected": "已检测",
+      "processing": "处理中",
+      "completed": "已完成",
+      "failed": "失败"
+    },
+    "filter": {
+      "fileType": "文件类型",
+      "allTypes": "全部类型",
+      "status": "状态",
+      "allStatus": "全部状态"
+    },
+    "bulk": {
+      "selected": "已选择 {count} 个文件",
+      "changeType": "修改类型",
+      "deleteSelected": "删除选中"
+    },
+    "table": {
+      "fileName": "文件名称",
+      "type": "类型",
+      "size": "大小",
+      "status": "状态",
+      "detectedAt": "检测时间",
+      "actions": "操作",
+      "selectType": "选择类型",
+      "selectAll": "全选",
+      "selectFile": "选择 {name}"
+    },
+    "empty": "没有符合条件的文件",
+    "stats": {
+      "total": "共 {count} 个文件",
+      "filtered": "（显示 {count} 个）",
+      "completed": "已完成",
+      "pending": "待处理",
+      "failed": "失败"
+    },
+    "actions": {
+      "viewDetails": "查看详情",
+      "retryDetection": "重试检测",
+      "deleteFile": "删除文件"
+    },
+    "deleteDialog": {
+      "title": "确认删除",
+      "description": "确定要删除这个文件吗？此操作无法撤销。",
+      "cancel": "取消",
+      "confirm": "删除"
+    }
+  },
+  "fileUploader": {
+    "dropzone": {
+      "active": "释放以上传文件",
+      "default": "拖放文件到此处，或点击选择",
+      "formats": "支持 PDF、JPG、PNG、TIFF 格式，每个文件最大 {maxSize}MB，最多 {maxFiles} 个文件"
+    },
+    "stats": {
+      "selected": "已选择 {count} 个文件",
+      "success": "成功 {count}",
+      "failed": "失败 {count}",
+      "pending": "待上传 {count}"
+    },
+    "actions": {
+      "upload": "上传 {count} 个文件",
+      "clearAll": "清除全部"
+    },
+    "progress": {
+      "uploading": "上传中...",
+      "percent": "{percent}%"
+    },
+    "fileType": {
+      "nativePdf": "原生 PDF",
+      "scannedPdf": "扫描 PDF",
+      "image": "图片"
+    },
+    "errors": {
+      "uploadFailed": "上传失败",
+      "networkError": "网络错误"
+    },
+    "confidence": "置信度：{value}%"
+  },
+  "processingDialog": {
+    "loading": {
+      "title": "处理确认",
+      "description": "正在计算处理成本..."
+    },
+    "empty": {
+      "title": "无文件处理",
+      "description": "没有符合条件的文件需要处理",
+      "hint": "请确保已上传文件并完成元数据检测。"
+    },
+    "confirm": {
+      "title": "确认开始处理",
+      "description": "以下文件即将开始 AI 处理，请确认成本估算",
+      "descriptionWithBatch": "批次「{name}」即将开始 AI 处理"
+    },
+    "methods": {
+      "azureDI": {
+        "title": "Azure Document Intelligence",
+        "description": "原生 PDF 文字提取（成本较低）"
+      },
+      "gptVision": {
+        "title": "GPT-5.2 Vision",
+        "description": "扫描 PDF 和图片 OCR（精确度更高）"
+      }
+    },
+    "card": {
+      "fileCount": "{count} 个文件",
+      "estimatedPages": "预估页数",
+      "pageCount": "{count} 页",
+      "costPerPage": "每页成本",
+      "estimatedCost": "预估成本"
+    },
+    "summary": {
+      "totalCost": "总预估成本",
+      "filesAndPages": "{files} 个文件 / {pages} 页"
+    },
+    "notes": {
+      "costDisclaimer": "实际成本可能因文件页数而有所不同。处理过程中请勿关闭页面。"
+    },
+    "actions": {
+      "close": "关闭",
+      "cancel": "取消",
+      "startProcessing": "开始处理 ({count} 个文件)",
+      "processing": "处理中..."
+    }
+  },
+  "createBatchDialog": {
+    "trigger": "创建批次",
+    "title": "创建新批次",
+    "description": "创建一个新的批次以上传历史数据文件",
+    "form": {
+      "name": {
+        "label": "批次名称",
+        "placeholder": "例如：2024-Q1 历史发票",
+        "description": "为批次取一个容易识别的名称"
+      },
+      "description": {
+        "label": "描述（选填）",
+        "placeholder": "批次说明..."
+      }
+    },
+    "validation": {
+      "nameRequired": "请输入批次名称",
+      "nameMaxLength": "批次名称不能超过 100 个字符",
+      "descriptionMaxLength": "描述不能超过 500 个字符"
+    },
+    "sections": {
+      "expand": "展开",
+      "collapse": "收起"
+    },
+    "companyIdentification": {
+      "title": "公司识别设定",
+      "enable": {
+        "label": "启用公司识别",
+        "description": "自动从文件中识别并匹配公司资料"
+      },
+      "fuzzyThreshold": {
+        "label": "模糊匹配阈值",
+        "description": "匹配相似度达此阈值才视为同一公司（建议 85-95%）"
+      },
+      "autoMerge": {
+        "label": "自动合并相似公司",
+        "description": "自动将相似的公司名称合并为同一公司"
+      }
+    },
+    "termAggregation": {
+      "title": "术语聚合设定",
+      "enable": {
+        "label": "启用术语聚合",
+        "description": "批量处理完成后自动聚合术语统计"
+      },
+      "similarityThreshold": {
+        "label": "术语相似度阈值",
+        "description": "相似度达此阈值的术语会被视为相同术语（建议 80-90%）"
+      },
+      "autoClassify": {
+        "label": "自动分类术语",
+        "description": "使用 AI 自动将术语分类到费用类别"
+      }
+    },
+    "issuerIdentification": {
+      "title": "发行者识别设定",
+      "enable": {
+        "label": "启用发行者识别",
+        "description": "从文件 Logo/Header/Letterhead 识别发行公司"
+      },
+      "confidenceThreshold": {
+        "label": "识别置信度阈值",
+        "description": "置信度达此阈值才接受识别结果（建议 60-80%）"
+      },
+      "fuzzyThreshold": {
+        "label": "公司匹配阈值",
+        "description": "匹配相似度达此阈值才视为同一发行公司（建议 85-95%）"
+      },
+      "autoCreate": {
+        "label": "自动创建发行公司",
+        "description": "未匹配到现有公司时自动创建新公司"
+      }
+    },
+    "actions": {
+      "cancel": "取消",
+      "create": "创建",
+      "creating": "创建中..."
+    }
+  },
+  "export": {
+    "button": {
+      "label": "导出术语",
+      "exporting": "导出中...",
+      "tooltip": "导出层级式术语报告（Excel）"
+    },
+    "status": {
+      "pending": "批次尚未开始处理",
+      "processing": "批次正在处理中",
+      "paused": "批次已暂停",
+      "aggregating": "批次正在聚合术语中",
+      "aggregated": "批次已完成聚合",
+      "completed": "批次已完成",
+      "failed": "批次处理失败",
+      "cancelled": "批次已取消",
+      "cannotExport": "，无法导出术语报告"
+    },
+    "toast": {
+      "success": "导出成功",
+      "successDesc": "已下载「{fileName}」",
+      "failed": "导出失败",
+      "failedDesc": "无法导出术语报告",
+      "authExpired": "认证已过期，请重新登录后再试"
+    }
+  }
+}

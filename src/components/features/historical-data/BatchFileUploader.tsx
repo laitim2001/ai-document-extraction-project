@@ -11,13 +11,14 @@
  *
  * @module src/components/features/historical-data/BatchFileUploader
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-23
+ * @lastModified 2026-01-20
  */
 
 import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, FileText, X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -66,10 +67,10 @@ const ACCEPTED_TYPES = {
   'image/tiff': ['.tiff', '.tif'],
 }
 
-const FILE_TYPE_LABELS: Record<string, string> = {
-  NATIVE_PDF: '原生 PDF',
-  SCANNED_PDF: '掃描 PDF',
-  IMAGE: '圖片',
+const FILE_TYPE_KEYS: Record<string, string> = {
+  NATIVE_PDF: 'nativePdf',
+  SCANNED_PDF: 'scannedPdf',
+  IMAGE: 'image',
 }
 
 // ============================================================
@@ -89,6 +90,7 @@ export function BatchFileUploader({
   disabled = false,
   className,
 }: BatchFileUploaderProps) {
+  const t = useTranslations('historicalData.fileUploader')
   const [files, setFiles] = useState<UploadFile[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -197,7 +199,7 @@ export function BatchFileUploader({
           setFiles((prev) =>
             prev.map((f) =>
               batch.some((b) => b.id === f.id)
-                ? { ...f, status: 'error' as const, progress: 100, error: result.detail || '上傳失敗' }
+                ? { ...f, status: 'error' as const, progress: 100, error: result.detail || t('errors.uploadFailed') }
                 : f
             )
           )
@@ -208,7 +210,7 @@ export function BatchFileUploader({
         setFiles((prev) =>
           prev.map((f) =>
             batch.some((b) => b.id === f.id)
-              ? { ...f, status: 'error' as const, progress: 100, error: '網絡錯誤' }
+              ? { ...f, status: 'error' as const, progress: 100, error: t('errors.networkError') }
               : f
           )
         )
@@ -256,10 +258,10 @@ export function BatchFileUploader({
         <input {...getInputProps()} />
         <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
         <p className="text-lg font-medium">
-          {isDragActive ? '放開以上傳文件' : '拖放文件到此處，或點擊選擇'}
+          {isDragActive ? t('dropzone.active') : t('dropzone.default')}
         </p>
         <p className="text-sm text-muted-foreground mt-2">
-          支援 PDF、JPG、PNG、TIFF 格式，每個文件最大 50MB，最多 {MAX_FILES} 個文件
+          {t('dropzone.formats', { maxSize: 50, maxFiles: MAX_FILES })}
         </p>
       </div>
 
@@ -270,29 +272,29 @@ export function BatchFileUploader({
             {/* 統計和操作 */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">已選擇 {files.length} 個文件</span>
+                <span className="text-sm font-medium">{t('stats.selected', { count: files.length })}</span>
                 {successCount > 0 && (
                   <Badge variant="default" className="bg-green-500">
-                    成功 {successCount}
+                    {t('stats.success', { count: successCount })}
                   </Badge>
                 )}
                 {errorCount > 0 && (
-                  <Badge variant="destructive">失敗 {errorCount}</Badge>
+                  <Badge variant="destructive">{t('stats.failed', { count: errorCount })}</Badge>
                 )}
                 {pendingCount > 0 && (
-                  <Badge variant="secondary">待上傳 {pendingCount}</Badge>
+                  <Badge variant="secondary">{t('stats.pending', { count: pendingCount })}</Badge>
                 )}
               </div>
               <div className="flex items-center gap-2">
                 {!isUploading && pendingCount > 0 && (
                   <Button onClick={uploadFiles} size="sm">
                     <Upload className="h-4 w-4 mr-2" />
-                    上傳 {pendingCount} 個文件
+                    {t('actions.upload', { count: pendingCount })}
                   </Button>
                 )}
                 {!isUploading && (
                   <Button variant="outline" size="sm" onClick={clearAllFiles}>
-                    清除全部
+                    {t('actions.clearAll')}
                   </Button>
                 )}
               </div>
@@ -302,8 +304,8 @@ export function BatchFileUploader({
             {isUploading && (
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">上傳中...</span>
-                  <span className="text-sm text-muted-foreground">{uploadProgress}%</span>
+                  <span className="text-sm font-medium">{t('progress.uploading')}</span>
+                  <span className="text-sm text-muted-foreground">{t('progress.percent', { percent: uploadProgress })}</span>
                 </div>
                 <Progress value={uploadProgress} />
               </div>
@@ -338,11 +340,13 @@ export function BatchFileUploader({
                         <span>{(file.file.size / 1024 / 1024).toFixed(2)} MB</span>
                         {file.result?.detectedType && (
                           <Badge variant="outline" className="text-xs">
-                            {FILE_TYPE_LABELS[file.result.detectedType] || file.result.detectedType}
+                            {FILE_TYPE_KEYS[file.result.detectedType]
+                              ? t(`fileType.${FILE_TYPE_KEYS[file.result.detectedType]}`)
+                              : file.result.detectedType}
                           </Badge>
                         )}
                         {file.result?.confidence && (
-                          <span>信心度: {file.result.confidence}%</span>
+                          <span>{t('confidence', { value: file.result.confidence })}</span>
                         )}
                         {file.error && (
                           <span className="text-destructive">{file.error}</span>

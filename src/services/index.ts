@@ -389,6 +389,22 @@ export * from './hybrid-prompt-provider.service'
 // Epic 15: Unified Processing Pipeline (Story 15.1 - Processing Flow Refactoring)
 export * from './unified-processor'
 
+// Epic 16: Format Management (Story 16.7 - Data Template)
+export * from './data-template.service'
+
+// Epic 19: Template Matching & Export (Story 19.1 - Template Field Mapping)
+export * from './template-field-mapping.service'
+
+// Epic 19: Template Matching & Export (Story 19.2 - Template Instance)
+export * from './template-instance.service'
+
+// Epic 19: Template Matching & Export (Story 19.3 - Template Matching Engine)
+export * from './template-matching-engine.service'
+export * from './transform'
+
+// Epic 19: Template Matching & Export (Story 19.7 - Auto Template Matching)
+export * from './auto-template-matching.service'
+
 // TODO: Epic 8 實現後取消註釋
 // export { analyticsService } from './analytics';
 // export { AnalyticsService } from './analytics/analytics-service';

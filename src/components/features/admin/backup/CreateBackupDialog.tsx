@@ -14,6 +14,7 @@
  */
 
 import { useCallback, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Loader2, Database, File, Settings, HardDrive } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -45,49 +46,30 @@ interface CreateBackupDialogProps {
 // Constants
 // ============================================================
 
+const BACKUP_SOURCE_KEYS = {
+  DATABASE: 'database',
+  FILES: 'files',
+  CONFIG: 'config',
+  FULL_SYSTEM: 'fullSystem',
+} as const
+
+const BACKUP_TYPE_KEYS = {
+  FULL: 'full',
+  INCREMENTAL: 'incremental',
+  DIFFERENTIAL: 'differential',
+} as const
+
 const BACKUP_SOURCES = [
-  {
-    value: 'DATABASE' as BackupSource,
-    label: '資料庫',
-    description: '備份所有資料庫表格和資料',
-    icon: Database,
-  },
-  {
-    value: 'FILES' as BackupSource,
-    label: '檔案',
-    description: '備份上傳的文件和附件',
-    icon: File,
-  },
-  {
-    value: 'CONFIG' as BackupSource,
-    label: '系統設定',
-    description: '備份系統配置和設定檔',
-    icon: Settings,
-  },
-  {
-    value: 'FULL_SYSTEM' as BackupSource,
-    label: '完整系統',
-    description: '備份資料庫、檔案和設定',
-    icon: HardDrive,
-  },
+  { value: 'DATABASE' as BackupSource, icon: Database },
+  { value: 'FILES' as BackupSource, icon: File },
+  { value: 'CONFIG' as BackupSource, icon: Settings },
+  { value: 'FULL_SYSTEM' as BackupSource, icon: HardDrive },
 ]
 
 const BACKUP_TYPES = [
-  {
-    value: 'FULL' as BackupType,
-    label: '完整備份',
-    description: '備份所有資料（推薦首次備份）',
-  },
-  {
-    value: 'INCREMENTAL' as BackupType,
-    label: '增量備份',
-    description: '只備份自上次備份後變更的資料',
-  },
-  {
-    value: 'DIFFERENTIAL' as BackupType,
-    label: '差異備份',
-    description: '備份自上次完整備份後變更的資料',
-  },
+  { value: 'FULL' as BackupType },
+  { value: 'INCREMENTAL' as BackupType },
+  { value: 'DIFFERENTIAL' as BackupType },
 ]
 
 // ============================================================
@@ -98,6 +80,9 @@ const BACKUP_TYPES = [
  * 建立備份對話框
  */
 export function CreateBackupDialog({ open, onOpenChange }: CreateBackupDialogProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- State ---
   const [name, setName] = useState('')
   const [source, setSource] = useState<BackupSource>('DATABASE')
@@ -110,7 +95,7 @@ export function CreateBackupDialog({ open, onOpenChange }: CreateBackupDialogPro
   // --- Handlers ---
   const handleSubmit = useCallback(async () => {
     if (!name.trim()) {
-      toast.error('請輸入備份名稱')
+      toast.error(t('backup.create.nameRequired'))
       return
     }
 
@@ -121,7 +106,7 @@ export function CreateBackupDialog({ open, onOpenChange }: CreateBackupDialogPro
         type,
         description: description.trim() || undefined,
       })
-      toast.success('備份已開始執行')
+      toast.success(t('backup.create.toast.started'))
       onOpenChange(false)
       // Reset form
       setName('')
@@ -129,9 +114,9 @@ export function CreateBackupDialog({ open, onOpenChange }: CreateBackupDialogPro
       setType('FULL')
       setDescription('')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : '建立備份失敗')
+      toast.error(err instanceof Error ? err.message : t('backup.create.toast.error'))
     }
-  }, [name, source, type, description, createMutation, onOpenChange])
+  }, [name, source, type, description, createMutation, onOpenChange, t])
 
   const handleClose = useCallback(() => {
     if (!createMutation.isPending) {
@@ -143,26 +128,26 @@ export function CreateBackupDialog({ open, onOpenChange }: CreateBackupDialogPro
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>建立手動備份</DialogTitle>
-          <DialogDescription>選擇備份來源和類型，立即執行備份操作</DialogDescription>
+          <DialogTitle>{t('backup.create.title')}</DialogTitle>
+          <DialogDescription>{t('backup.create.description')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {/* 備份名稱 */}
           <div className="space-y-2">
-            <Label htmlFor="name">備份名稱 *</Label>
+            <Label htmlFor="name">{t('backup.create.name')} *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="輸入備份名稱..."
+              placeholder={t('backup.create.namePlaceholder')}
               maxLength={100}
             />
           </div>
 
           {/* 備份來源 */}
           <div className="space-y-3">
-            <Label className="text-base">備份來源</Label>
+            <Label className="text-base">{t('backup.create.source')}</Label>
             <RadioGroup
               value={source}
               onValueChange={(v) => setSource(v as BackupSource)}
@@ -170,6 +155,7 @@ export function CreateBackupDialog({ open, onOpenChange }: CreateBackupDialogPro
             >
               {BACKUP_SOURCES.map((item) => {
                 const Icon = item.icon
+                const sourceKey = BACKUP_SOURCE_KEYS[item.value]
                 return (
                   <Label
                     key={item.value}
@@ -186,9 +172,9 @@ export function CreateBackupDialog({ open, onOpenChange }: CreateBackupDialogPro
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <Icon className="h-4 w-4" />
-                        <span className="font-medium">{item.label}</span>
+                        <span className="font-medium">{t(`backup.create.sources.${sourceKey}.label`)}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                      <p className="text-xs text-muted-foreground">{t(`backup.create.sources.${sourceKey}.description`)}</p>
                     </div>
                   </Label>
                 )
@@ -198,42 +184,45 @@ export function CreateBackupDialog({ open, onOpenChange }: CreateBackupDialogPro
 
           {/* 備份類型 */}
           <div className="space-y-3">
-            <Label className="text-base">備份類型</Label>
+            <Label className="text-base">{t('backup.create.type')}</Label>
             <RadioGroup
               value={type}
               onValueChange={(v) => setType(v as BackupType)}
               className="space-y-2"
             >
-              {BACKUP_TYPES.map((item) => (
-                <Label
-                  key={item.value}
-                  htmlFor={`type-${item.value}`}
-                  className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors hover:bg-muted/50 ${
-                    type === item.value ? 'border-primary bg-primary/5' : ''
-                  }`}
-                >
-                  <RadioGroupItem
-                    id={`type-${item.value}`}
-                    value={item.value}
-                    className="mt-0.5"
-                  />
-                  <div className="space-y-0.5">
-                    <span className="font-medium">{item.label}</span>
-                    <p className="text-xs text-muted-foreground">{item.description}</p>
-                  </div>
-                </Label>
-              ))}
+              {BACKUP_TYPES.map((item) => {
+                const typeKey = BACKUP_TYPE_KEYS[item.value]
+                return (
+                  <Label
+                    key={item.value}
+                    htmlFor={`type-${item.value}`}
+                    className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors hover:bg-muted/50 ${
+                      type === item.value ? 'border-primary bg-primary/5' : ''
+                    }`}
+                  >
+                    <RadioGroupItem
+                      id={`type-${item.value}`}
+                      value={item.value}
+                      className="mt-0.5"
+                    />
+                    <div className="space-y-0.5">
+                      <span className="font-medium">{t(`backup.create.types.${typeKey}.label`)}</span>
+                      <p className="text-xs text-muted-foreground">{t(`backup.create.types.${typeKey}.description`)}</p>
+                    </div>
+                  </Label>
+                )
+              })}
             </RadioGroup>
           </div>
 
           {/* 備份描述 */}
           <div className="space-y-2">
-            <Label htmlFor="description">備份描述（選填）</Label>
+            <Label htmlFor="description">{t('backup.create.descriptionLabel')}</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="輸入備份描述..."
+              placeholder={t('backup.create.descriptionPlaceholder')}
               rows={2}
             />
           </div>
@@ -241,16 +230,16 @@ export function CreateBackupDialog({ open, onOpenChange }: CreateBackupDialogPro
 
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={createMutation.isPending}>
-            取消
+            {t('backup.create.cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={createMutation.isPending}>
             {createMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                建立中...
+                {t('backup.create.submitting')}
               </>
             ) : (
-              '開始備份'
+              t('backup.create.submit')
             )}
           </Button>
         </DialogFooter>

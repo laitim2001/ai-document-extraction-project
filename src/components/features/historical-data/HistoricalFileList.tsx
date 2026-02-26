@@ -16,6 +16,7 @@
 
 import * as React from 'react'
 import { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   FileText,
   FileImage,
@@ -115,19 +116,19 @@ interface HistoricalFileListProps {
 // Constants
 // ============================================================
 
-const FILE_TYPE_CONFIG: Record<DetectedFileType, { label: string; icon: React.ElementType; color: string }> = {
-  NATIVE_PDF: { label: '原生 PDF', icon: FileText, color: 'text-blue-500' },
-  SCANNED_PDF: { label: '掃描 PDF', icon: FileImage, color: 'text-orange-500' },
-  IMAGE: { label: '圖片', icon: FileImage, color: 'text-green-500' },
+const FILE_TYPE_CONFIG: Record<DetectedFileType, { labelKey: string; icon: React.ElementType; color: string }> = {
+  NATIVE_PDF: { labelKey: 'nativePdf', icon: FileText, color: 'text-blue-500' },
+  SCANNED_PDF: { labelKey: 'scannedPdf', icon: FileImage, color: 'text-orange-500' },
+  IMAGE: { labelKey: 'image', icon: FileImage, color: 'text-green-500' },
 }
 
-const STATUS_CONFIG: Record<HistoricalFileStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  PENDING: { label: '待處理', variant: 'secondary' },
-  DETECTING: { label: '檢測中', variant: 'outline' },
-  DETECTED: { label: '已檢測', variant: 'default' },
-  PROCESSING: { label: '處理中', variant: 'outline' },
-  COMPLETED: { label: '已完成', variant: 'default' },
-  FAILED: { label: '失敗', variant: 'destructive' },
+const STATUS_CONFIG: Record<HistoricalFileStatus, { labelKey: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  PENDING: { labelKey: 'pending', variant: 'secondary' },
+  DETECTING: { labelKey: 'detecting', variant: 'outline' },
+  DETECTED: { labelKey: 'detected', variant: 'default' },
+  PROCESSING: { labelKey: 'processing', variant: 'outline' },
+  COMPLETED: { labelKey: 'completed', variant: 'default' },
+  FAILED: { labelKey: 'failed', variant: 'destructive' },
 }
 
 // ============================================================
@@ -173,6 +174,7 @@ export function HistoricalFileList({
   onRefresh,
   className,
 }: HistoricalFileListProps) {
+  const t = useTranslations('historicalData')
   const router = useRouter()
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [filterType, setFilterType] = useState<DetectedFileType | 'ALL'>('ALL')
@@ -316,13 +318,13 @@ export function HistoricalFileList({
             onValueChange={(value) => setFilterType(value as DetectedFileType | 'ALL')}
           >
             <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="文件類型" />
+              <SelectValue placeholder={t('fileList.filter.fileType')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">全部類型</SelectItem>
-              <SelectItem value="NATIVE_PDF">原生 PDF</SelectItem>
-              <SelectItem value="SCANNED_PDF">掃描 PDF</SelectItem>
-              <SelectItem value="IMAGE">圖片</SelectItem>
+              <SelectItem value="ALL">{t('fileList.filter.allTypes')}</SelectItem>
+              <SelectItem value="NATIVE_PDF">{t('fileList.fileType.nativePdf')}</SelectItem>
+              <SelectItem value="SCANNED_PDF">{t('fileList.fileType.scannedPdf')}</SelectItem>
+              <SelectItem value="IMAGE">{t('fileList.fileType.image')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -331,16 +333,16 @@ export function HistoricalFileList({
             onValueChange={(value) => setFilterStatus(value as HistoricalFileStatus | 'ALL')}
           >
             <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="狀態" />
+              <SelectValue placeholder={t('fileList.filter.status')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">全部狀態</SelectItem>
-              <SelectItem value="PENDING">待處理</SelectItem>
-              <SelectItem value="DETECTING">檢測中</SelectItem>
-              <SelectItem value="DETECTED">已檢測</SelectItem>
-              <SelectItem value="PROCESSING">處理中</SelectItem>
-              <SelectItem value="COMPLETED">已完成</SelectItem>
-              <SelectItem value="FAILED">失敗</SelectItem>
+              <SelectItem value="ALL">{t('fileList.filter.allStatus')}</SelectItem>
+              <SelectItem value="PENDING">{t('fileList.status.pending')}</SelectItem>
+              <SelectItem value="DETECTING">{t('fileList.status.detecting')}</SelectItem>
+              <SelectItem value="DETECTED">{t('fileList.status.detected')}</SelectItem>
+              <SelectItem value="PROCESSING">{t('fileList.status.processing')}</SelectItem>
+              <SelectItem value="COMPLETED">{t('fileList.status.completed')}</SelectItem>
+              <SelectItem value="FAILED">{t('fileList.status.failed')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -354,25 +356,25 @@ export function HistoricalFileList({
         {/* 批量操作 */}
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">已選擇 {selectedIds.size} 個文件</span>
+            <span className="text-sm text-muted-foreground">{t('fileList.bulk.selected', { count: selectedIds.size })}</span>
 
             {onBulkUpdateType && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" disabled={isOperating}>
-                    修改類型
+                    {t('fileList.bulk.changeType')}
                     <ChevronDown className="ml-1 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem onClick={() => handleBulkTypeChange('NATIVE_PDF')}>
-                    原生 PDF
+                    {t('fileList.fileType.nativePdf')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleBulkTypeChange('SCANNED_PDF')}>
-                    掃描 PDF
+                    {t('fileList.fileType.scannedPdf')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleBulkTypeChange('IMAGE')}>
-                    圖片
+                    {t('fileList.fileType.image')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -386,7 +388,7 @@ export function HistoricalFileList({
                 disabled={isOperating}
               >
                 <Trash2 className="h-4 w-4 mr-1" />
-                刪除選中
+                {t('fileList.bulk.deleteSelected')}
               </Button>
             )}
           </div>
@@ -402,16 +404,16 @@ export function HistoricalFileList({
                 <Checkbox
                   checked={allSelected}
                   onCheckedChange={handleSelectAll}
-                  aria-label="全選"
+                  aria-label={t('fileList.table.selectAll')}
                   {...(someSelected ? { 'data-state': 'indeterminate' } : {})}
                 />
               </TableHead>
-              <TableHead>文件名稱</TableHead>
-              <TableHead className="w-[120px]">類型</TableHead>
-              <TableHead className="w-[100px]">大小</TableHead>
-              <TableHead className="w-[100px]">狀態</TableHead>
-              <TableHead className="w-[160px]">檢測時間</TableHead>
-              <TableHead className="w-[100px]">操作</TableHead>
+              <TableHead>{t('fileList.table.fileName')}</TableHead>
+              <TableHead className="w-[120px]">{t('fileList.table.type')}</TableHead>
+              <TableHead className="w-[100px]">{t('fileList.table.size')}</TableHead>
+              <TableHead className="w-[100px]">{t('fileList.table.status')}</TableHead>
+              <TableHead className="w-[160px]">{t('fileList.table.detectedAt')}</TableHead>
+              <TableHead className="w-[100px]">{t('fileList.table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -424,7 +426,7 @@ export function HistoricalFileList({
             ) : filteredFiles.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                  沒有符合條件的文件
+                  {t('fileList.empty')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -439,7 +441,7 @@ export function HistoricalFileList({
                       <Checkbox
                         checked={selectedIds.has(file.id)}
                         onCheckedChange={(checked) => handleSelectFile(file.id, !!checked)}
-                        aria-label={`選擇 ${file.originalName}`}
+                        aria-label={t('fileList.table.selectFile', { name: file.originalName })}
                       />
                     </TableCell>
                     <TableCell>
@@ -467,21 +469,21 @@ export function HistoricalFileList({
                           disabled={isOperating}
                         >
                           <SelectTrigger className="w-[110px] h-8">
-                            <SelectValue placeholder="選擇類型" />
+                            <SelectValue placeholder={t('fileList.table.selectType')} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="NATIVE_PDF">原生 PDF</SelectItem>
-                            <SelectItem value="SCANNED_PDF">掃描 PDF</SelectItem>
-                            <SelectItem value="IMAGE">圖片</SelectItem>
+                            <SelectItem value="NATIVE_PDF">{t('fileList.fileType.nativePdf')}</SelectItem>
+                            <SelectItem value="SCANNED_PDF">{t('fileList.fileType.scannedPdf')}</SelectItem>
+                            <SelectItem value="IMAGE">{t('fileList.fileType.image')}</SelectItem>
                           </SelectContent>
                         </Select>
                       ) : (
-                        <span className={typeConfig?.color}>{typeConfig?.label || '未知'}</span>
+                        <span className={typeConfig?.color}>{typeConfig ? t(`fileList.fileType.${typeConfig.labelKey}`) : t('fileList.fileType.unknown')}</span>
                       )}
                     </TableCell>
                     <TableCell>{formatFileSize(file.fileSize)}</TableCell>
                     <TableCell>
-                      <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
+                      <Badge variant={statusConfig.variant}>{t(`fileList.status.${statusConfig.labelKey}`)}</Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDate(file.detectedAt)}
@@ -495,7 +497,7 @@ export function HistoricalFileList({
                             size="icon"
                             className="h-8 w-8"
                             onClick={() => router.push(`/admin/historical-data/files/${file.id}`)}
-                            title="查看詳情"
+                            title={t('fileList.actions.viewDetails')}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -507,7 +509,7 @@ export function HistoricalFileList({
                             className="h-8 w-8"
                             onClick={() => handleRetry(file.id)}
                             disabled={isOperating}
-                            title="重試檢測"
+                            title={t('fileList.actions.retryDetection')}
                           >
                             <RefreshCw className="h-4 w-4" />
                           </Button>
@@ -519,7 +521,7 @@ export function HistoricalFileList({
                             className="h-8 w-8 text-destructive hover:text-destructive"
                             onClick={() => handleDeleteClick(file.id)}
                             disabled={isOperating || file.status === 'PROCESSING'}
-                            title="刪除文件"
+                            title={t('fileList.actions.deleteFile')}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -537,21 +539,21 @@ export function HistoricalFileList({
       {/* 統計資訊 */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
-          共 {files.length} 個文件
-          {filteredFiles.length !== files.length && `（顯示 ${filteredFiles.length} 個）`}
+          {t('fileList.stats.total', { count: files.length })}
+          {filteredFiles.length !== files.length && t('fileList.stats.filtered', { count: filteredFiles.length })}
         </span>
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">
             <CheckCircle2 className="h-4 w-4 text-green-500" />
-            {files.filter((f) => f.status === 'COMPLETED').length} 已完成
+            {files.filter((f) => f.status === 'COMPLETED').length} {t('fileList.stats.completed')}
           </span>
           <span className="flex items-center gap-1">
             <Clock className="h-4 w-4 text-yellow-500" />
-            {files.filter((f) => ['PENDING', 'DETECTING', 'DETECTED'].includes(f.status)).length} 待處理
+            {files.filter((f) => ['PENDING', 'DETECTING', 'DETECTED'].includes(f.status)).length} {t('fileList.stats.pending')}
           </span>
           <span className="flex items-center gap-1">
             <AlertCircle className="h-4 w-4 text-destructive" />
-            {files.filter((f) => f.status === 'FAILED').length} 失敗
+            {files.filter((f) => f.status === 'FAILED').length} {t('fileList.stats.failed')}
           </span>
         </div>
       </div>
@@ -560,20 +562,20 @@ export function HistoricalFileList({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除</AlertDialogTitle>
+            <AlertDialogTitle>{t('fileList.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要刪除這個文件嗎？此操作無法撤銷。
+              {t('fileList.deleteDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isOperating}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={isOperating}>{t('fileList.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={isOperating}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isOperating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              刪除
+              {t('fileList.deleteDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

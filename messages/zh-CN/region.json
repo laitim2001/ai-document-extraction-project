@@ -1,0 +1,71 @@
+{
+  "title": "地区管理",
+  "description": "管理参考号码的地区分类",
+  "select": {
+    "placeholder": "选择地区",
+    "loading": "加载中...",
+    "empty": "没有可用的地区",
+    "searchPlaceholder": "搜索地区..."
+  },
+  "form": {
+    "code": "代码",
+    "codePlaceholder": "输入地区代码（如 APAC）",
+    "codeHint": "仅限大写英文、数字和下划线",
+    "name": "名称",
+    "namePlaceholder": "输入地区名称",
+    "description": "说明",
+    "descriptionPlaceholder": "输入地区说明（选填）",
+    "sortOrder": "排序",
+    "sortOrderPlaceholder": "输入排序顺序",
+    "isActive": "启用",
+    "isDefault": "系统默认"
+  },
+  "table": {
+    "code": "代码",
+    "name": "名称",
+    "description": "说明",
+    "sortOrder": "排序",
+    "status": "状态",
+    "actions": "操作"
+  },
+  "status": {
+    "active": "启用",
+    "inactive": "停用"
+  },
+  "actions": {
+    "add": "添加地区",
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "cancel": "取消"
+  },
+  "dialogs": {
+    "create": {
+      "title": "添加地区",
+      "description": "创建新的参考号码地区分类"
+    },
+    "edit": {
+      "title": "编辑地区",
+      "description": "更新地区信息"
+    },
+    "delete": {
+      "title": "删除地区",
+      "description": "确定要删除此地区吗？此操作无法撤销。",
+      "confirm": "删除"
+    }
+  },
+  "messages": {
+    "created": "地区创建成功",
+    "updated": "地区更新成功",
+    "deleted": "地区删除成功",
+    "cannotDeleteDefault": "无法删除系统默认地区",
+    "cannotDeleteWithReferences": "此地区有关联的参考号码，无法删除",
+    "codeExists": "此代码的地区已存在"
+  },
+  "errors": {
+    "loadFailed": "加载地区失败",
+    "createFailed": "创建地区失败",
+    "updateFailed": "更新地区失败",
+    "deleteFailed": "删除地区失败"
+  }
+}

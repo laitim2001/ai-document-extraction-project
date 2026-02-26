@@ -5,22 +5,24 @@
  * @description
  *   Story 4-2: 建議新映射規則
  *   完整的規則建議創建表單，包含：
- *   - Forwarder 選擇（包含通用規則選項）
+ *   - Company 選擇（包含通用規則選項）
  *   - 欄位名稱選擇/輸入
- *   - 提取類型選擇
+ *   - 提取類型選擇（含可用性標記）
  *   - Pattern 編輯器
  *   - 規則測試面板
  *   - 表單驗證與提交
+ *   - 完整 i18n 支援（next-intl）
  *
  * @module src/components/features/rules/NewRuleForm
  * @since Epic 4 - Story 4.2 (建議新映射規則)
- * @lastModified 2025-12-18
+ * @lastModified 2026-02-22
  *
  * @dependencies
  *   - react-hook-form - 表單狀態管理
  *   - @hookform/resolvers/zod - Zod 驗證
  *   - @/hooks/useCreateRule - 創建規則 Hook
- *   - @/hooks/useForwarderList - Forwarder 列表 Hook
+ *   - @/hooks/useCompanyList - Company 列表 Hook
+ *   - next-intl - 國際化
  */
 
 import * as React from 'react'
@@ -28,6 +30,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslations } from 'next-intl'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -58,9 +61,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'
+import { Link } from '@/i18n/routing'
 
 import { useCreateRule } from '@/hooks/useCreateRule'
-import { useForwarderList } from '@/hooks/useForwarderList'
+import { useCompanyList } from '@/hooks/useCompanyList'
 import { RuleTestPanel } from './RuleTestPanel'
 import { Loader2, Save, Send, AlertCircle, Info } from 'lucide-react'
 
@@ -69,52 +73,45 @@ import { Loader2, Save, Send, AlertCircle, Info } from 'lucide-react'
 // ============================================================
 
 /**
- * 提取類型選項
+ * 提取類型選項（含可用性標記）
  */
 const EXTRACTION_TYPES = [
-  {
-    value: 'REGEX',
-    label: '正則表達式',
-    description: '使用正則表達式匹配並提取文字',
-  },
-  {
-    value: 'KEYWORD',
-    label: '關鍵字',
-    description: '根據關鍵字位置提取相鄰文字',
-  },
-  {
-    value: 'POSITION',
-    label: '座標位置',
-    description: '根據 PDF 座標提取特定區域（需 OCR 支援）',
-  },
-  {
-    value: 'AI_PROMPT',
-    label: 'AI 提示詞',
-    description: '使用 AI 理解並提取內容（需 AI 服務）',
-  },
-  {
-    value: 'TEMPLATE',
-    label: '模板匹配',
-    description: '使用預定義模板匹配並提取（需模板系統）',
-  },
+  { value: 'REGEX', available: true },
+  { value: 'KEYWORD', available: true },
+  { value: 'POSITION', available: false },
+  { value: 'AI_PROMPT', available: false },
+  { value: 'TEMPLATE', available: false, hasAlternative: true },
 ] as const
 
 /**
- * 表單驗證 Schema
+ * 提取類型值到 i18n key 的映射
  */
-const formSchema = z.object({
-  forwarderId: z.string().min(1, '請選擇 Forwarder 或通用規則'),
-  fieldName: z.string().min(1, '請輸入欄位名稱'),
-  extractionType: z.enum(['REGEX', 'KEYWORD', 'POSITION', 'AI_PROMPT', 'TEMPLATE'], {
-    message: '請選擇提取類型',
-  }),
-  pattern: z.string().min(1, '請輸入提取模式'),
-  priority: z.number().min(0).max(100).optional(),
-  confidence: z.number().min(0).max(1).optional(),
-  description: z.string().optional(),
-})
+const EXTRACTION_TYPE_KEYS: Record<string, string> = {
+  REGEX: 'regex',
+  KEYWORD: 'keyword',
+  POSITION: 'position',
+  AI_PROMPT: 'aiPrompt',
+  TEMPLATE: 'template',
+}
 
-type FormValues = z.infer<typeof formSchema>
+/**
+ * 表單驗證 Schema（接受 i18n 翻譯函數）
+ */
+function createFormSchema(t: ReturnType<typeof useTranslations>) {
+  return z.object({
+    companyId: z.string().min(1, t('newRule.validation.companyRequired')),
+    fieldName: z.string().min(1, t('newRule.validation.fieldNameRequired')),
+    extractionType: z.enum(['REGEX', 'KEYWORD', 'POSITION', 'AI_PROMPT', 'TEMPLATE'], {
+      message: t('newRule.validation.extractionTypeRequired'),
+    }),
+    pattern: z.string().min(1, t('newRule.validation.patternRequired')),
+    priority: z.number().min(0).max(100).optional(),
+    confidence: z.number().min(0).max(1).optional(),
+    description: z.string().optional(),
+  })
+}
+
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>
 
 /**
  * 常用欄位名稱建議
@@ -145,18 +142,20 @@ const COMMON_FIELD_NAMES = [
  * 新規則建議表單
  *
  * @description
- *   提供完整的規則創建界面，使用 React Hook Form 管理表單狀態
+ *   提供完整的規則創建界面，使用 React Hook Form 管理表單狀態，
+ *   所有使用者可見文字透過 next-intl 國際化。
  */
 export function NewRuleForm() {
   const router = useRouter()
   const { toast } = useToast()
+  const t = useTranslations('rules')
 
   // --- Hooks ---
-  const { data: forwarders, isLoading: forwardersLoading } = useForwarderList()
+  const { data: companies, isLoading: companiesLoading } = useCompanyList()
   const { mutate: createRule, isPending } = useCreateRule({
     onSuccess: (data) => {
       toast({
-        title: '成功',
+        title: t('newRule.toast.success'),
         description: data.message,
       })
       router.push('/rules')
@@ -164,17 +163,19 @@ export function NewRuleForm() {
     onError: (error) => {
       toast({
         variant: 'destructive',
-        title: '錯誤',
+        title: t('newRule.toast.error'),
         description: error.message,
       })
     },
   })
 
   // --- Form ---
+  const formSchema = React.useMemo(() => createFormSchema(t), [t])
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      forwarderId: '',
+      companyId: '',
       fieldName: '',
       extractionType: 'REGEX',
       pattern: '',
@@ -190,7 +191,7 @@ export function NewRuleForm() {
   // --- Handlers ---
   const handleSubmit = (values: FormValues, saveAsDraft: boolean = false) => {
     createRule({
-      companyId: values.forwarderId === 'universal' ? '' : values.forwarderId,
+      companyId: values.companyId === 'universal' ? '' : values.companyId,
       fieldName: values.fieldName,
       extractionType: values.extractionType,
       pattern: values.pattern,
@@ -207,13 +208,13 @@ export function NewRuleForm() {
 
   const onSaveDraft = () => {
     const values = form.getValues()
-    if (values.forwarderId && values.fieldName && values.pattern) {
+    if (values.companyId && values.fieldName && values.pattern) {
       handleSubmit(values, true)
     } else {
       toast({
         variant: 'destructive',
-        title: '無法存為草稿',
-        description: '請至少填寫 Forwarder、欄位名稱和提取模式',
+        title: t('newRule.toast.draftError'),
+        description: t('newRule.toast.draftMinFields'),
       })
     }
   }
@@ -225,45 +226,47 @@ export function NewRuleForm() {
         {/* 基本設定區 */}
         <Card>
           <CardHeader>
-            <CardTitle>基本設定</CardTitle>
+            <CardTitle>{t('newRule.basicSettings.title')}</CardTitle>
             <CardDescription>
-              選擇此規則適用的 Forwarder 和目標欄位
+              {t('newRule.basicSettings.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Forwarder 選擇 */}
+            {/* Company 選擇 */}
             <FormField
               control={form.control}
-              name="forwarderId"
+              name="companyId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Forwarder</FormLabel>
+                  <FormLabel>{t('newRule.company.label')}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    disabled={forwardersLoading}
+                    disabled={companiesLoading}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="選擇 Forwarder..." />
+                        <SelectValue placeholder={t('newRule.company.placeholder')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="universal">
-                        <span className="font-medium">🌐 通用規則</span>
+                        <span className="font-medium">
+                          {'🌐 '}{t('newRule.company.universalRule')}
+                        </span>
                         <span className="text-muted-foreground ml-2">
-                          (適用所有 Forwarder)
+                          {t('newRule.company.universalRuleAppliesAll')}
                         </span>
                       </SelectItem>
-                      {forwarders?.map((fw) => (
-                        <SelectItem key={fw.id} value={fw.id}>
-                          {fw.name} ({fw.code})
+                      {companies?.map((company) => (
+                        <SelectItem key={company.id} value={company.id}>
+                          {company.displayName} ({company.code})
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    選擇「通用規則」將適用於所有 Forwarder
+                    {t('newRule.company.universalRuleDescription')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -276,11 +279,11 @@ export function NewRuleForm() {
               name="fieldName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>欄位名稱</FormLabel>
+                  <FormLabel>{t('newRule.fieldName.label')}</FormLabel>
                   <FormControl>
                     <div className="space-y-2">
                       <Input
-                        placeholder="例如: invoice_number"
+                        placeholder={t('newRule.fieldName.placeholder')}
                         {...field}
                       />
                       <div className="flex flex-wrap gap-1">
@@ -300,7 +303,7 @@ export function NewRuleForm() {
                     </div>
                   </FormControl>
                   <FormDescription>
-                    輸入欄位名稱或點擊建議
+                    {t('newRule.fieldName.description')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -313,10 +316,10 @@ export function NewRuleForm() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>描述（選填）</FormLabel>
+                  <FormLabel>{t('newRule.description.label')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="說明此規則的用途或特殊情況..."
+                      placeholder={t('newRule.description.placeholder')}
                       className="resize-none"
                       rows={2}
                       {...field}
@@ -332,9 +335,9 @@ export function NewRuleForm() {
         {/* 提取模式區 */}
         <Card>
           <CardHeader>
-            <CardTitle>提取模式</CardTitle>
+            <CardTitle>{t('newRule.extractionMode.title')}</CardTitle>
             <CardDescription>
-              配置如何從文件中提取目標欄位的值
+              {t('newRule.extractionMode.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -344,7 +347,7 @@ export function NewRuleForm() {
               name="extractionType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>提取類型</FormLabel>
+                  <FormLabel>{t('newRule.extractionMode.typeLabel')}</FormLabel>
                   <Tabs
                     value={field.value}
                     onValueChange={field.onChange}
@@ -353,7 +356,7 @@ export function NewRuleForm() {
                     <TabsList className="grid w-full grid-cols-5">
                       {EXTRACTION_TYPES.map((type) => (
                         <TabsTrigger key={type.value} value={type.value}>
-                          {type.label}
+                          {t(`newRule.extractionTypes.${EXTRACTION_TYPE_KEYS[type.value]}.label`)}
                         </TabsTrigger>
                       ))}
                     </TabsList>
@@ -367,7 +370,7 @@ export function NewRuleForm() {
                         <Alert>
                           <Info className="h-4 w-4" />
                           <AlertDescription>
-                            {type.description}
+                            {t(`newRule.extractionTypes.${EXTRACTION_TYPE_KEYS[type.value]}.description`)}
                           </AlertDescription>
                         </Alert>
                       </TabsContent>
@@ -384,12 +387,12 @@ export function NewRuleForm() {
               name="pattern"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>提取模式配置</FormLabel>
+                  <FormLabel>{t('newRule.extractionMode.patternLabel')}</FormLabel>
                   <FormControl>
                     {selectedExtractionType === 'REGEX' ? (
                       <div className="space-y-2">
                         <Input
-                          placeholder="輸入正則表達式，例如: ^Invoice No[.:]?\s*(\S+)"
+                          placeholder={t('newRule.regex.placeholder')}
                           className="font-mono"
                           {...field}
                         />
@@ -406,7 +409,7 @@ export function NewRuleForm() {
                               )
                             }
                           >
-                            發票號碼
+                            {t('newRule.regex.presetInvoiceNumber')}
                           </Button>
                           <Button
                             type="button"
@@ -420,7 +423,7 @@ export function NewRuleForm() {
                               )
                             }
                           >
-                            日期格式
+                            {t('newRule.regex.presetDateFormat')}
                           </Button>
                           <Button
                             type="button"
@@ -434,44 +437,47 @@ export function NewRuleForm() {
                               )
                             }
                           >
-                            金額格式
+                            {t('newRule.regex.presetAmountFormat')}
                           </Button>
                         </div>
                       </div>
                     ) : selectedExtractionType === 'KEYWORD' ? (
                       <div className="space-y-2">
                         <Textarea
-                          placeholder={`輸入 JSON 格式：
-{
-  "keywords": ["Invoice No", "Invoice Number"],
-  "position": "after",
-  "maxDistance": 100
-}`}
+                          placeholder={t('newRule.keyword.placeholder')}
                           className="font-mono min-h-[120px]"
                           {...field}
                         />
                       </div>
                     ) : selectedExtractionType === 'POSITION' ? (
-                      <Alert variant="destructive">
+                      <Alert variant="default">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
-                          座標位置提取需要 OCR 處理過的文件座標資訊，
-                          建議先使用測試面板獲取座標。
+                          {t('newRule.extractionTypes.position.notAvailable')}
                         </AlertDescription>
                       </Alert>
                     ) : selectedExtractionType === 'AI_PROMPT' ? (
-                      <Textarea
-                        placeholder="輸入 AI 提示詞，例如：請從發票中提取發票號碼"
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    ) : (
-                      <Alert variant="destructive">
+                      <Alert variant="default">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
-                          模板匹配需要先建立模板，此功能尚未開放。
+                          {t('newRule.extractionTypes.aiPrompt.notAvailable')}
                         </AlertDescription>
                       </Alert>
+                    ) : (
+                      <div className="space-y-3">
+                        <Alert variant="default">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>
+                            {t('newRule.extractionTypes.template.notAvailable')}
+                          </AlertDescription>
+                        </Alert>
+                        <Link
+                          href="/admin/test/template-matching"
+                          className="inline-flex items-center text-sm text-primary underline-offset-4 hover:underline"
+                        >
+                          {t('newRule.extractionTypes.template.linkText')}
+                        </Link>
+                      </div>
                     )}
                   </FormControl>
                   <FormMessage />
@@ -486,7 +492,7 @@ export function NewRuleForm() {
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>優先級 (0-100)</FormLabel>
+                    <FormLabel>{t('newRule.priority.label')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -499,7 +505,7 @@ export function NewRuleForm() {
                       />
                     </FormControl>
                     <FormDescription>
-                      數字越大優先級越高
+                      {t('newRule.priority.description')}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -511,7 +517,7 @@ export function NewRuleForm() {
                 name="confidence"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>預設信心度 (0-1)</FormLabel>
+                    <FormLabel>{t('newRule.confidence.label')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -525,7 +531,7 @@ export function NewRuleForm() {
                       />
                     </FormControl>
                     <FormDescription>
-                      建議 0.7-0.9 之間
+                      {t('newRule.confidence.description')}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -538,9 +544,9 @@ export function NewRuleForm() {
         {/* 測試面板 */}
         <Card>
           <CardHeader>
-            <CardTitle>測試規則</CardTitle>
+            <CardTitle>{t('testPanel.title')}</CardTitle>
             <CardDescription>
-              在提交前測試提取效果，確保規則正確運作
+              {t('testPanel.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -564,7 +570,7 @@ export function NewRuleForm() {
             ) : (
               <Save className="h-4 w-4 mr-2" />
             )}
-            存為草稿
+            {t('newRule.buttons.saveDraft')}
           </Button>
           <Button type="submit" disabled={isPending}>
             {isPending ? (
@@ -572,7 +578,7 @@ export function NewRuleForm() {
             ) : (
               <Send className="h-4 w-4 mr-2" />
             )}
-            提交審核
+            {t('newRule.buttons.submitReview')}
           </Button>
         </div>
       </form>

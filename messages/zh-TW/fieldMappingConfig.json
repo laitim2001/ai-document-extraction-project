@@ -1,0 +1,105 @@
+{
+  "page": {
+    "title": "欄位映射配置管理",
+    "description": "管理三層級欄位映射規則配置（通用 / 公司 / 格式）",
+    "newTitle": "新增欄位映射配置",
+    "newDescription": "建立新的三層級欄位映射規則配置",
+    "editTitle": "編輯欄位映射配置",
+    "backToList": "返回列表",
+    "refresh": "重新整理",
+    "newConfig": "新增配置"
+  },
+  "filters": {
+    "title": "篩選條件",
+    "scope": {
+      "label": "範圍",
+      "all": "全部範圍",
+      "global": "通用",
+      "company": "公司",
+      "format": "格式"
+    },
+    "company": {
+      "label": "公司",
+      "all": "全部公司",
+      "placeholder": "選擇公司"
+    },
+    "format": {
+      "label": "格式",
+      "all": "全部格式",
+      "placeholder": "選擇格式"
+    },
+    "status": {
+      "label": "狀態",
+      "all": "全部",
+      "active": "啟用",
+      "inactive": "停用"
+    },
+    "search": {
+      "placeholder": "搜尋配置名稱..."
+    },
+    "clear": "清除篩選"
+  },
+  "table": {
+    "headers": {
+      "name": "名稱",
+      "scope": "範圍",
+      "company": "公司",
+      "format": "格式",
+      "rulesCount": "規則數",
+      "status": "狀態",
+      "updatedAt": "更新時間",
+      "actions": "操作"
+    },
+    "empty": {
+      "title": "沒有找到配置",
+      "description": "請調整篩選條件或新增配置"
+    },
+    "summary": "共 {count} 個配置"
+  },
+  "scope": {
+    "global": "通用",
+    "company": "公司",
+    "format": "格式"
+  },
+  "status": {
+    "active": "啟用",
+    "inactive": "停用"
+  },
+  "dialog": {
+    "delete": {
+      "title": "確認刪除配置",
+      "description": "確定要刪除配置「{name}」嗎？此操作無法復原，配置中的所有規則也將被刪除。",
+      "cancel": "取消",
+      "confirm": "確認刪除",
+      "deleting": "刪除中..."
+    }
+  },
+  "toast": {
+    "deleteSuccess": {
+      "title": "刪除成功",
+      "description": "已刪除配置「{name}」"
+    },
+    "deleteError": {
+      "title": "刪除失敗"
+    },
+    "saveSuccess": {
+      "title": "儲存成功",
+      "description": "已更新配置「{name}」"
+    },
+    "createSuccess": {
+      "title": "建立成功",
+      "description": "已建立配置「{name}」"
+    },
+    "saveError": {
+      "title": "儲存失敗"
+    },
+    "createError": {
+      "title": "建立失敗"
+    }
+  },
+  "error": {
+    "loadFailed": "載入配置資料時發生錯誤：",
+    "configNotFound": "載入配置失敗，配置可能不存在",
+    "unknown": "未知錯誤"
+  }
+}

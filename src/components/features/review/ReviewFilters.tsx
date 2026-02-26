@@ -1,17 +1,19 @@
 /**
- * @fileoverview 審核隊列篩選組件
+ * @fileoverview 審核隊列篩選組件（國際化版本）
  * @description
  *   提供審核列表的篩選功能：
  *   - Forwarder 下拉選單
  *   - 處理路徑下拉選單
  *   - 信心度範圍（雙滑桿 Slider）
  *   - 清除篩選按鈕
+ *   - 完整國際化支援
  *
  * @module src/components/features/review/ReviewFilters
  * @since Epic 3 - Story 3.1
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/select - shadcn Select 組件
  *   - @/components/ui/slider - shadcn Slider 組件
  *   - @/components/ui/button - shadcn Button 組件
@@ -21,6 +23,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import type { ReviewQueueFilters as Filters } from '@/types/review'
 import { ProcessingPath } from '@prisma/client'
 import {
@@ -104,6 +107,7 @@ function useForwarders() {
  * ```
  */
 export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) {
+  const t = useTranslations('review')
   const { forwarders, isLoading: forwardersLoading } = useForwarders()
 
   // 計算當前信心度範圍值
@@ -173,7 +177,7 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
       {/* Forwarder 篩選 */}
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground whitespace-nowrap">
-          Forwarder:
+          {t('filters.company')}
         </span>
         <Select
           value={filters.companyId || 'all'}
@@ -181,10 +185,10 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
           disabled={forwardersLoading}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="全部" />
+            <SelectValue placeholder={t('filters.allCompanies')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部</SelectItem>
+            <SelectItem value="all">{t('filters.allCompanies')}</SelectItem>
             {forwarders.map((f) => (
               <SelectItem key={f.id} value={f.id}>
                 {f.name}
@@ -197,19 +201,19 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
       {/* 處理路徑篩選 */}
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground whitespace-nowrap">
-          處理路徑:
+          {t('filters.processingPath')}
         </span>
         <Select
           value={filters.processingPath || 'all'}
           onValueChange={handleProcessingPathChange}
         >
           <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="全部" />
+            <SelectValue placeholder={t('filters.allPaths')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部</SelectItem>
-            <SelectItem value={ProcessingPath.QUICK_REVIEW}>快速審核</SelectItem>
-            <SelectItem value={ProcessingPath.FULL_REVIEW}>完整審核</SelectItem>
+            <SelectItem value="all">{t('filters.allPaths')}</SelectItem>
+            <SelectItem value={ProcessingPath.QUICK_REVIEW}>{t('processingPath.quickReview')}</SelectItem>
+            <SelectItem value={ProcessingPath.FULL_REVIEW}>{t('processingPath.fullReview')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -217,7 +221,7 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
       {/* 信心度範圍篩選 - 雙滑桿 Slider */}
       <div className="flex items-center gap-3">
         <span className="text-sm text-muted-foreground whitespace-nowrap">
-          信心度:
+          {t('filters.confidenceRange')}
         </span>
         <div className="flex items-center gap-3 min-w-[200px]">
           <span className="text-sm font-medium w-8 text-right">
@@ -257,7 +261,7 @@ export function ReviewFilters({ filters, onFiltersChange }: ReviewFiltersProps) 
       {hasFilters && (
         <Button variant="ghost" size="sm" onClick={clearFilters}>
           <X className="h-4 w-4 mr-1" />
-          清除篩選
+          {t('filters.clearFilters')}
         </Button>
       )}
     </div>

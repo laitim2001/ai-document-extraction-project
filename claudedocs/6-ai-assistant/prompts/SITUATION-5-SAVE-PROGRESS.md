@@ -426,6 +426,7 @@ git push origin main
 - [情況2: 開發前準備](./SITUATION-2-FEATURE-DEV-PREP.md)
 - [情況3: 舊功能進階/修正](./SITUATION-3-FEATURE-ENHANCEMENT.md)
 - [情況4: 新功能開發](./SITUATION-4-NEW-FEATURE-DEV.md)
+- [情況6: 服務啟動](./SITUATION-6-SERVICE-STARTUP.md)
 
 ### 開發規範
 - [CLAUDE.md](../../../CLAUDE.md) - 開發規範
@@ -435,5 +436,5 @@ git push origin main
 ---
 
 **維護者**: AI 助手 + 開發團隊
-**最後更新**: 2025-12-26
-**版本**: 1.1
+**最後更新**: 2026-02-06
+**版本**: 1.3

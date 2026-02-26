@@ -99,6 +99,8 @@ const DOCUMENT_SUBTYPE_LABELS: Record<DocumentSubtype, string> = {
   LAND_TRANSPORT: 'Land Transport',
   CUSTOMS_CLEARANCE: 'Customs Clearance',
   WAREHOUSING: 'Warehousing',
+  IMPORT: 'Import',
+  EXPORT: 'Export',
   GENERAL: 'General',
 };
 

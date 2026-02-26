@@ -12,13 +12,14 @@
  *
  * @module src/components/features/mapping-config/RuleEditor
  * @since Epic 13 - Story 13.3
- * @lastModified 2026-01-02
+ * @lastModified 2026-01-19
  *
  * @features
  *   - 新增/編輯模式
  *   - 完整表單驗證
  *   - 動態轉換參數
  *   - 即時預覽
+ *   - 國際化支援
  *
  * @dependencies
  *   - @/components/ui/* - UI 組件
@@ -29,6 +30,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Save, X, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -124,44 +126,17 @@ interface ValidationErrors {
 // ============================================================
 
 /**
- * 轉換類型選項
+ * 轉換類型選項（翻譯 key 和是否支援多來源）
  */
 const TRANSFORM_TYPE_OPTIONS: Array<{
   value: TransformType;
-  label: string;
-  description: string;
   allowMultiSource: boolean;
 }> = [
-  {
-    value: 'DIRECT',
-    label: '直接映射',
-    description: '直接將來源值對應到目標欄位',
-    allowMultiSource: false,
-  },
-  {
-    value: 'CONCAT',
-    label: '串接',
-    description: '將多個來源欄位串接為一個值',
-    allowMultiSource: true,
-  },
-  {
-    value: 'SPLIT',
-    label: '分割',
-    description: '將來源值按分隔符拆分',
-    allowMultiSource: false,
-  },
-  {
-    value: 'LOOKUP',
-    label: '查找',
-    description: '透過查找表轉換值',
-    allowMultiSource: false,
-  },
-  {
-    value: 'CUSTOM',
-    label: '自訂公式',
-    description: '使用自訂 JavaScript 表達式',
-    allowMultiSource: true,
-  },
+  { value: 'DIRECT', allowMultiSource: false },
+  { value: 'CONCAT', allowMultiSource: true },
+  { value: 'SPLIT', allowMultiSource: false },
+  { value: 'LOOKUP', allowMultiSource: false },
+  { value: 'CUSTOM', allowMultiSource: true },
 ];
 
 /**
@@ -180,35 +155,38 @@ const INITIAL_FORM_STATE: FormState = {
 // ============================================================
 
 /**
- * 驗證表單
+ * 驗證表單（國際化版本）
  */
 function validateForm(
   state: FormState,
-  transformTypeConfig: (typeof TRANSFORM_TYPE_OPTIONS)[number]
+  transformTypeConfig: (typeof TRANSFORM_TYPE_OPTIONS)[number],
+  t: ReturnType<typeof useTranslations<'documentPreview'>>
 ): ValidationErrors {
   const errors: ValidationErrors = {};
 
   // 驗證來源欄位
   if (state.sourceFields.length === 0) {
-    errors.sourceFields = '請選擇至少一個來源欄位';
+    errors.sourceFields = t('ruleEditor.validation.sourceFieldsRequired');
   } else if (!transformTypeConfig.allowMultiSource && state.sourceFields.length > 1) {
-    errors.sourceFields = `${transformTypeConfig.label} 僅支援單一來源欄位`;
+    errors.sourceFields = t('ruleEditor.validation.sourceFieldsSingleOnly', {
+      type: t(`ruleEditor.transformTypes.${state.transformType}.label`),
+    });
   }
 
   // 驗證目標欄位
   if (!state.targetField) {
-    errors.targetField = '請選擇目標欄位';
+    errors.targetField = t('ruleEditor.validation.targetFieldRequired');
   }
 
   // 驗證轉換參數
   if (state.transformType === 'SPLIT' && !state.transformParams.delimiter) {
-    errors.transformParams = '分割模式需要指定分隔符';
+    errors.transformParams = t('ruleEditor.validation.delimiterRequired');
   }
   if (state.transformType === 'LOOKUP' && !state.transformParams.lookupTableId) {
-    errors.transformParams = '查找模式需要選擇查找表';
+    errors.transformParams = t('ruleEditor.validation.lookupTableRequired');
   }
   if (state.transformType === 'CUSTOM' && !state.transformParams.customFormula?.trim()) {
-    errors.transformParams = '自訂模式需要輸入公式';
+    errors.transformParams = t('ruleEditor.validation.formulaRequired');
   }
 
   return errors;
@@ -248,6 +226,9 @@ export function RuleEditor({
   onCancel,
   isSaving = false,
 }: RuleEditorProps) {
+  // --- i18n ---
+  const t = useTranslations('documentPreview');
+
   // --- State ---
   const [formState, setFormState] = React.useState<FormState>(INITIAL_FORM_STATE);
   const [errors, setErrors] = React.useState<ValidationErrors>({});
@@ -285,10 +266,10 @@ export function RuleEditor({
   // --- Validate on change ---
   React.useEffect(() => {
     if (touched.size > 0) {
-      const newErrors = validateForm(formState, transformTypeConfig);
+      const newErrors = validateForm(formState, transformTypeConfig, t);
       setErrors(newErrors);
     }
-  }, [formState, transformTypeConfig, touched]);
+  }, [formState, transformTypeConfig, touched, t]);
 
   // --- Handlers ---
   const handleSourceFieldsChange = React.useCallback((fields: string[]) => {
@@ -327,7 +308,7 @@ export function RuleEditor({
     setTouched(new Set(['sourceFields', 'targetField', 'transformParams']));
 
     // 驗證
-    const validationErrors = validateForm(formState, transformTypeConfig);
+    const validationErrors = validateForm(formState, transformTypeConfig, t);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -355,10 +336,10 @@ export function RuleEditor({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? '新增映射規則' : '編輯映射規則'}
+            {mode === 'create' ? t('ruleEditor.title.create') : t('ruleEditor.title.edit')}
           </DialogTitle>
           <DialogDescription>
-            設定來源欄位到目標欄位的映射關係和轉換邏輯。
+            {t('ruleEditor.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -367,7 +348,7 @@ export function RuleEditor({
           {hasErrors && touched.size > 0 && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>驗證錯誤</AlertTitle>
+              <AlertTitle>{t('ruleEditor.validation.title')}</AlertTitle>
               <AlertDescription>
                 <ul className="list-disc list-inside text-sm">
                   {errors.sourceFields && <li>{errors.sourceFields}</li>}
@@ -381,11 +362,11 @@ export function RuleEditor({
           {/* 來源欄位 */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">
-              來源欄位
-              <span className="text-destructive">*</span>
+              {t('ruleEditor.sourceFields.label')}
+              <span className="text-destructive">{t('ruleEditor.sourceFields.required')}</span>
               {transformTypeConfig.allowMultiSource && (
                 <span className="ml-2 text-xs text-muted-foreground">
-                  （可選擇多個）
+                  {t('ruleEditor.sourceFields.multipleHint')}
                 </span>
               )}
             </Label>
@@ -404,8 +385,8 @@ export function RuleEditor({
           {/* 目標欄位 */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">
-              目標欄位
-              <span className="text-destructive">*</span>
+              {t('ruleEditor.targetField.label')}
+              <span className="text-destructive">{t('ruleEditor.targetField.required')}</span>
             </Label>
             <TargetFieldSelector
               availableFields={targetFields}
@@ -422,22 +403,22 @@ export function RuleEditor({
 
           {/* 轉換類型 */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">轉換類型</Label>
+            <Label className="text-sm font-medium">{t('ruleEditor.transformType.label')}</Label>
             <Select
               value={formState.transformType}
               onValueChange={(value) => handleTransformTypeChange(value as TransformType)}
               disabled={isSaving}
             >
               <SelectTrigger>
-                <SelectValue placeholder="選擇轉換類型" />
+                <SelectValue placeholder={t('ruleEditor.transformType.placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 {TRANSFORM_TYPE_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     <div className="flex flex-col">
-                      <span>{opt.label}</span>
+                      <span>{t(`ruleEditor.transformTypes.${opt.value}.label`)}</span>
                       <span className="text-xs text-muted-foreground">
-                        {opt.description}
+                        {t(`ruleEditor.transformTypes.${opt.value}.description`)}
                       </span>
                     </div>
                   </SelectItem>
@@ -461,11 +442,11 @@ export function RuleEditor({
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
             <X className="mr-2 h-4 w-4" />
-            取消
+            {t('ruleEditor.actions.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>
             <Save className="mr-2 h-4 w-4" />
-            {isSaving ? '儲存中...' : '儲存'}
+            {isSaving ? t('ruleEditor.actions.saving') : t('ruleEditor.actions.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

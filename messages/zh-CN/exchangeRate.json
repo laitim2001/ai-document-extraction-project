@@ -1,0 +1,125 @@
+{
+  "title": "汇率管理",
+  "description": "管理货币汇率记录",
+  "list": {
+    "fromCurrency": "来源货币",
+    "toCurrency": "目标货币",
+    "rate": "汇率",
+    "effectiveYear": "年份",
+    "source": "来源",
+    "status": "状态",
+    "actions": "操作",
+    "empty": "暂无汇率记录",
+    "hasInverse": "有反向"
+  },
+  "filters": {
+    "year": "年份",
+    "fromCurrency": "来源货币",
+    "toCurrency": "目标货币",
+    "status": "状态",
+    "source": "来源",
+    "all": "全部",
+    "active": "启用",
+    "inactive": "停用",
+    "clear": "清除",
+    "searchPlaceholder": "搜索货币..."
+  },
+  "source": {
+    "MANUAL": "手动输入",
+    "IMPORTED": "批量导入",
+    "AUTO_INVERSE": "自动反向"
+  },
+  "actions": {
+    "add": "新增汇率",
+    "edit": "编辑",
+    "delete": "删除",
+    "toggle": "切换状态",
+    "export": "导出",
+    "import": "导入",
+    "refresh": "刷新"
+  },
+  "messages": {
+    "created": "汇率创建成功",
+    "updated": "汇率更新成功",
+    "deleted": "汇率删除成功",
+    "toggled": "状态切换成功",
+    "confirmDelete": "确定要删除此汇率记录吗？",
+    "deleteFailed": "删除汇率失败",
+    "toggleFailed": "切换状态失败"
+  },
+  "pagination": {
+    "showing": "显示 {from} - {to}，共 {total} 条",
+    "previous": "上一页",
+    "next": "下一页"
+  },
+  "summary": {
+    "total": "共 {count} 条汇率记录"
+  },
+  "currencySelect": {
+    "search": "搜索货币...",
+    "empty": "未找到货币。"
+  },
+  "form": {
+    "title": {
+      "create": "新增汇率",
+      "edit": "编辑汇率"
+    },
+    "fromCurrency": "来源货币",
+    "toCurrency": "目标货币",
+    "rate": "汇率",
+    "effectiveYear": "生效年份",
+    "effectiveFrom": "生效日期（选填）",
+    "effectiveTo": "结束日期（选填）",
+    "description": "说明（选填）",
+    "createInverse": "同时创建反向汇率",
+    "inversePreview": "反向汇率预览",
+    "submit": "保存",
+    "cancel": "取消",
+    "rateDescription": "1 {from} = {rate} {to}"
+  },
+  "validation": {
+    "sameCurrency": "来源和目标货币不能相同",
+    "invalidRate": "请输入有效的汇率",
+    "requiredCurrency": "请选择货币",
+    "requiredRate": "汇率为必填",
+    "requiredYear": "生效年份为必填",
+    "ratePositive": "汇率必须为正数"
+  },
+  "calculator": {
+    "title": "汇率计算器",
+    "amount": "金额",
+    "calculate": "计算",
+    "result": "结果",
+    "rate": "汇率",
+    "path": "转换路径",
+    "noRate": "未找到汇率记录",
+    "swap": "交换货币"
+  },
+  "import": {
+    "title": "导入汇率",
+    "uploadFile": "上传 JSON 文件",
+    "pasteJson": "或粘贴 JSON",
+    "preview": "预览",
+    "previewCount": "共 {count} 条记录待导入",
+    "options": "导入选项",
+    "overwriteExisting": "覆盖现有记录",
+    "skipInvalid": "跳过无效记录",
+    "submit": "开始导入",
+    "result": {
+      "title": "导入结果",
+      "imported": "新增",
+      "updated": "更新",
+      "skipped": "跳过",
+      "errors": "错误"
+    },
+    "parseError": "JSON 格式无效",
+    "done": "完成"
+  },
+  "export": {
+    "title": "导出汇率",
+    "downloading": "正在下载...",
+    "filename": "汇率记录-{year}.json",
+    "success": "导出完成",
+    "failed": "导出失败"
+  }
+}

@@ -1,0 +1,398 @@
+{
+  "page": {
+    "title": "歷史數據管理",
+    "description": "上傳和處理歷史發票文件",
+    "loading": "載入中...",
+    "tabs": {
+      "files": "文件列表",
+      "upload": "上傳文件"
+    },
+    "toast": {
+      "batchCreated": "批次建立成功",
+      "batchCreatedDesc": "批次「{name}」已建立",
+      "createFailed": "建立失敗",
+      "createFailedDesc": "無法建立批次",
+      "batchDeleted": "批次已刪除",
+      "deleteFailed": "刪除失敗",
+      "deleteFailedDesc": "無法刪除批次",
+      "fileDeleted": "文件已刪除",
+      "fileDeleteFailed": "刪除失敗",
+      "fileDeleteFailedDesc": "無法刪除文件",
+      "typeUpdated": "類型已更新",
+      "typeUpdateFailed": "更新失敗",
+      "typeUpdateFailedDesc": "無法更新文件類型",
+      "uploadComplete": "上傳完成",
+      "uploadCompleteDesc": "成功 {successful} 個，失敗 {failed} 個",
+      "batchNotFound": "批次不存在",
+      "batchNotFoundDesc": "無法找到該批次",
+      "fetchDetailFailed": "獲取詳情失敗",
+      "fetchDetailFailedDesc": "無法獲取批次詳情",
+      "processingStarted": "處理已啟動",
+      "processingStartedDesc": "批次處理已開始，請等待處理完成",
+      "startProcessingFailed": "啟動處理失敗",
+      "startProcessingFailedDesc": "無法啟動批次處理"
+    }
+  },
+  "fileDetail": {
+    "loading": "載入文件詳情中...",
+    "loadFailed": "載入失敗",
+    "loadFailedDesc": "無法載入文件詳情",
+    "backToList": "返回列表",
+    "notFound": "找不到文件",
+    "notFoundDesc": "文件 ID: {id} 不存在或已被刪除",
+    "batch": "批次",
+    "status": {
+      "pending": "待處理",
+      "processing": "處理中",
+      "completed": "已完成",
+      "failed": "失敗",
+      "skipped": "已跳過"
+    },
+    "tabs": {
+      "extraction": "提取結果",
+      "issuer": "發行者識別",
+      "lineitems": "Line Items",
+      "raw": "原始 JSON"
+    },
+    "fileInfo": {
+      "title": "文件資訊",
+      "fileType": "文件類型",
+      "fileSize": "文件大小",
+      "processingMethod": "處理方法",
+      "processingCost": "處理成本",
+      "originalName": "原始名稱",
+      "mimeType": "MIME Type"
+    },
+    "timeline": {
+      "title": "處理時間軸",
+      "totalDuration": "總耗時: {duration}",
+      "created": "建立",
+      "typeDetection": "類型偵測",
+      "processing": "處理中",
+      "completed": "完成",
+      "failed": "失敗",
+      "waiting": "等待中"
+    },
+    "extraction": {
+      "title": "提取結果",
+      "noResults": "無提取結果",
+      "invoiceInfo": "Invoice 資訊",
+      "invoiceNumber": "Invoice 編號",
+      "invoiceDate": "Invoice 日期",
+      "dueDate": "到期日",
+      "amountInfo": "金額資訊",
+      "subtotal": "小計",
+      "taxAmount": "稅額",
+      "totalAmount": "總金額",
+      "parties": "交易對象",
+      "vendor": "供應商",
+      "customer": "客戶",
+      "vendorAddress": "供應商地址",
+      "customerAddress": "客戶地址"
+    },
+    "issuer": {
+      "title": "發行者識別",
+      "noInfo": "無發行者識別資訊",
+      "method": {
+        "notIdentified": "未識別",
+        "header": "Header 識別",
+        "logo": "Logo 識別",
+        "manual": "手動設定"
+      },
+      "matchedCompany": "匹配公司",
+      "notMatched": "未匹配",
+      "documentFormat": "文件格式",
+      "notClassified": "未分類",
+      "code": "代碼",
+      "formatConfidence": "格式信心度: {value}"
+    },
+    "lineItems": {
+      "title": "Line Items",
+      "noData": "無 Line Items 資料",
+      "itemCount": "{count} 項",
+      "columns": {
+        "description": "描述",
+        "quantity": "數量",
+        "unitPrice": "單價",
+        "amount": "金額",
+        "unit": "單位",
+        "total": "總計",
+        "productCode": "產品代碼",
+        "taxRate": "稅率"
+      }
+    }
+  },
+  "batchList": {
+    "status": {
+      "pending": "待處理",
+      "processing": "處理中",
+      "paused": "已暫停",
+      "aggregating": "聚合中",
+      "aggregated": "聚合完成",
+      "completed": "已完成",
+      "failed": "失敗",
+      "cancelled": "已取消"
+    },
+    "empty": {
+      "title": "尚無批次",
+      "description": "建立新批次以開始上傳文件"
+    },
+    "progress": {
+      "label": "處理進度"
+    },
+    "stats": {
+      "totalFiles": "總文件數",
+      "processed": "已處理",
+      "failed": "失敗",
+      "createdAt": "建立時間"
+    },
+    "creator": "建立者：{name}",
+    "actions": {
+      "startProcessing": "開始處理"
+    },
+    "deleteDialog": {
+      "title": "確認刪除批次",
+      "description": "確定要刪除這個批次嗎？批次內的所有文件也會被刪除。此操作無法撤銷。",
+      "cancel": "取消",
+      "confirm": "刪除"
+    }
+  },
+  "fileList": {
+    "fileType": {
+      "nativePdf": "原生 PDF",
+      "scannedPdf": "掃描 PDF",
+      "image": "圖片",
+      "unknown": "未知"
+    },
+    "status": {
+      "pending": "待處理",
+      "detecting": "檢測中",
+      "detected": "已檢測",
+      "processing": "處理中",
+      "completed": "已完成",
+      "failed": "失敗"
+    },
+    "filter": {
+      "fileType": "文件類型",
+      "allTypes": "全部類型",
+      "status": "狀態",
+      "allStatus": "全部狀態"
+    },
+    "bulk": {
+      "selected": "已選擇 {count} 個文件",
+      "changeType": "修改類型",
+      "deleteSelected": "刪除選中"
+    },
+    "table": {
+      "fileName": "文件名稱",
+      "type": "類型",
+      "size": "大小",
+      "status": "狀態",
+      "detectedAt": "檢測時間",
+      "actions": "操作",
+      "selectType": "選擇類型",
+      "selectAll": "全選",
+      "selectFile": "選擇 {name}"
+    },
+    "empty": "沒有符合條件的文件",
+    "stats": {
+      "total": "共 {count} 個文件",
+      "filtered": "（顯示 {count} 個）",
+      "completed": "已完成",
+      "pending": "待處理",
+      "failed": "失敗"
+    },
+    "actions": {
+      "viewDetails": "查看詳情",
+      "retryDetection": "重試檢測",
+      "deleteFile": "刪除文件"
+    },
+    "deleteDialog": {
+      "title": "確認刪除",
+      "description": "確定要刪除這個文件嗎？此操作無法撤銷。",
+      "cancel": "取消",
+      "confirm": "刪除"
+    }
+  },
+  "fileUploader": {
+    "dropzone": {
+      "active": "放開以上傳文件",
+      "default": "拖放文件到此處，或點擊選擇",
+      "formats": "支援 PDF、JPG、PNG、TIFF 格式，每個文件最大 {maxSize}MB，最多 {maxFiles} 個文件"
+    },
+    "stats": {
+      "selected": "已選擇 {count} 個文件",
+      "success": "成功 {count}",
+      "failed": "失敗 {count}",
+      "pending": "待上傳 {count}"
+    },
+    "actions": {
+      "upload": "上傳 {count} 個文件",
+      "clearAll": "清除全部"
+    },
+    "progress": {
+      "uploading": "上傳中...",
+      "percent": "{percent}%"
+    },
+    "fileType": {
+      "nativePdf": "原生 PDF",
+      "scannedPdf": "掃描 PDF",
+      "image": "圖片"
+    },
+    "errors": {
+      "uploadFailed": "上傳失敗",
+      "networkError": "網絡錯誤"
+    },
+    "confidence": "信心度：{value}%"
+  },
+  "processingDialog": {
+    "loading": {
+      "title": "處理確認",
+      "description": "正在計算處理成本..."
+    },
+    "empty": {
+      "title": "無文件處理",
+      "description": "沒有符合條件的文件需要處理",
+      "hint": "請確保已上傳文件並完成元數據檢測。"
+    },
+    "confirm": {
+      "title": "確認開始處理",
+      "description": "以下文件即將開始 AI 處理，請確認成本估算",
+      "descriptionWithBatch": "批次「{name}」即將開始 AI 處理"
+    },
+    "methods": {
+      "azureDI": {
+        "title": "Azure Document Intelligence",
+        "description": "原生 PDF 文字提取（成本較低）"
+      },
+      "gptVision": {
+        "title": "GPT-5.2 Vision",
+        "description": "掃描 PDF 和圖片 OCR（精確度更高）"
+      }
+    },
+    "card": {
+      "fileCount": "{count} 個文件",
+      "estimatedPages": "預估頁數",
+      "pageCount": "{count} 頁",
+      "costPerPage": "每頁成本",
+      "estimatedCost": "預估成本"
+    },
+    "summary": {
+      "totalCost": "總預估成本",
+      "filesAndPages": "{files} 個文件 / {pages} 頁"
+    },
+    "notes": {
+      "costDisclaimer": "實際成本可能因文件頁數而有所不同。處理過程中請勿關閉頁面。"
+    },
+    "actions": {
+      "close": "關閉",
+      "cancel": "取消",
+      "startProcessing": "開始處理 ({count} 個文件)",
+      "processing": "處理中..."
+    }
+  },
+  "createBatchDialog": {
+    "trigger": "建立批次",
+    "title": "建立新批次",
+    "description": "建立一個新的批次以上傳歷史數據文件",
+    "form": {
+      "name": {
+        "label": "批次名稱",
+        "placeholder": "例如：2024-Q1 歷史發票",
+        "description": "為批次取一個容易識別的名稱"
+      },
+      "description": {
+        "label": "描述（選填）",
+        "placeholder": "批次說明..."
+      }
+    },
+    "validation": {
+      "nameRequired": "請輸入批次名稱",
+      "nameMaxLength": "批次名稱不能超過 100 個字元",
+      "descriptionMaxLength": "描述不能超過 500 個字元"
+    },
+    "sections": {
+      "expand": "展開",
+      "collapse": "收起"
+    },
+    "companyIdentification": {
+      "title": "公司識別設定",
+      "enable": {
+        "label": "啟用公司識別",
+        "description": "自動從文件中識別並匹配公司資料"
+      },
+      "fuzzyThreshold": {
+        "label": "模糊匹配閾值",
+        "description": "匹配相似度達此閾值才視為同一公司（建議 85-95%）"
+      },
+      "autoMerge": {
+        "label": "自動合併相似公司",
+        "description": "自動將相似的公司名稱合併為同一公司"
+      }
+    },
+    "termAggregation": {
+      "title": "術語聚合設定",
+      "enable": {
+        "label": "啟用術語聚合",
+        "description": "批量處理完成後自動聚合術語統計"
+      },
+      "similarityThreshold": {
+        "label": "術語相似度閾值",
+        "description": "相似度達此閾值的術語會被視為相同術語（建議 80-90%）"
+      },
+      "autoClassify": {
+        "label": "自動分類術語",
+        "description": "使用 AI 自動將術語分類到費用類別"
+      }
+    },
+    "issuerIdentification": {
+      "title": "發行者識別設定",
+      "enable": {
+        "label": "啟用發行者識別",
+        "description": "從文件 Logo/Header/Letterhead 識別發行公司"
+      },
+      "confidenceThreshold": {
+        "label": "識別信心度閾值",
+        "description": "信心度達此閾值才接受識別結果（建議 60-80%）"
+      },
+      "fuzzyThreshold": {
+        "label": "公司匹配閾值",
+        "description": "匹配相似度達此閾值才視為同一發行公司（建議 85-95%）"
+      },
+      "autoCreate": {
+        "label": "自動建立發行公司",
+        "description": "未匹配到現有公司時自動建立新公司"
+      }
+    },
+    "actions": {
+      "cancel": "取消",
+      "create": "建立",
+      "creating": "建立中..."
+    }
+  },
+  "export": {
+    "button": {
+      "label": "匯出術語",
+      "exporting": "匯出中...",
+      "tooltip": "匯出階層式術語報告（Excel）"
+    },
+    "status": {
+      "pending": "批次尚未開始處理",
+      "processing": "批次正在處理中",
+      "paused": "批次已暫停",
+      "aggregating": "批次正在聚合術語中",
+      "aggregated": "批次已完成聚合",
+      "completed": "批次已完成",
+      "failed": "批次處理失敗",
+      "cancelled": "批次已取消",
+      "cannotExport": "，無法匯出術語報告"
+    },
+    "toast": {
+      "success": "匯出成功",
+      "successDesc": "已下載「{fileName}」",
+      "failed": "匯出失敗",
+      "failedDesc": "無法匯出術語報告",
+      "authExpired": "認證已過期，請重新登入後再試"
+    }
+  }
+}

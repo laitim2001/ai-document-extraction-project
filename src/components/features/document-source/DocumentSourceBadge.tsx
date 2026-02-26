@@ -10,11 +10,12 @@
  * @module src/components/features/document-source/DocumentSourceBadge
  * @author Development Team
  * @since Epic 9 - Story 9.5 (自動獲取來源追蹤)
- * @lastModified 2025-12-20
+ * @lastModified 2026-01-28
  */
 
 'use client'
 
+import { useLocale } from 'next-intl'
 import { DocumentSourceType } from '@prisma/client'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -63,14 +64,19 @@ export function DocumentSourceBadge({
   size = 'md',
   showLabel = true,
 }: DocumentSourceBadgeProps) {
+  const locale = useLocale()
+  const isZh = locale === 'zh-TW' || locale === 'zh-CN'
+
   const config = SOURCE_TYPE_CONFIG[sourceType as DocumentSourceType] || {
     label: '未知',
+    labelEn: 'Unknown',
     icon: 'HelpCircle',
     color: 'text-gray-400',
     bgColor: 'bg-gray-100',
     borderColor: 'border-gray-300',
   }
 
+  const displayLabel = isZh ? config.label : config.labelEn
   const Icon = ICON_MAP[config.icon as keyof typeof ICON_MAP] || HelpCircle
 
   const sizeClasses = {
@@ -95,7 +101,7 @@ export function DocumentSourceBadge({
       `}
     >
       <Icon className={`${iconSizes[size]} ${config.color}`} />
-      {showLabel && <span>{config.label}</span>}
+      {showLabel && <span>{displayLabel}</span>}
     </Badge>
   )
 

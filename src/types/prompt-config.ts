@@ -6,7 +6,7 @@
  *
  * @module src/types/prompt-config
  * @since Epic 14 - Story 14.1
- * @lastModified 2026-01-02
+ * @lastModified 2026-02-03
  *
  * @features
  *   - Prisma enum 重新導出
@@ -37,8 +37,16 @@ export {
 
 /**
  * Prompt 類型選項（含 UI 顯示標籤）
+ *
+ * @description
+ *   包含兩類 Prompt 類型：
+ *   1. 通用類型（ISSUER_IDENTIFICATION, TERM_CLASSIFICATION, FIELD_EXTRACTION, VALIDATION）
+ *   2. V3.1 三階段類型（STAGE_1_*, STAGE_2_*, STAGE_3_*）- CHANGE-026
  */
 export const PROMPT_TYPES = {
+  // ─────────────────────────────────────────────────────────────────────────
+  // 通用 Prompt 類型
+  // ─────────────────────────────────────────────────────────────────────────
   ISSUER_IDENTIFICATION: {
     value: 'ISSUER_IDENTIFICATION',
     label: '發行方識別',
@@ -58,6 +66,25 @@ export const PROMPT_TYPES = {
     value: 'VALIDATION',
     label: '驗證',
     description: '用於驗證提取結果的準確性',
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // CHANGE-026: V3.1 三階段 Prompt 類型
+  // ─────────────────────────────────────────────────────────────────────────
+  STAGE_1_COMPANY_IDENTIFICATION: {
+    value: 'STAGE_1_COMPANY_IDENTIFICATION',
+    label: 'Stage 1 - 公司識別',
+    description: 'V3.1 三階段架構：識別文件發行公司（GPT-5-nano）',
+  },
+  STAGE_2_FORMAT_IDENTIFICATION: {
+    value: 'STAGE_2_FORMAT_IDENTIFICATION',
+    label: 'Stage 2 - 格式識別',
+    description: 'V3.1 三階段架構：識別文件格式/模板（GPT-5-nano）',
+  },
+  STAGE_3_FIELD_EXTRACTION: {
+    value: 'STAGE_3_FIELD_EXTRACTION',
+    label: 'Stage 3 - 欄位提取',
+    description: 'V3.1 三階段架構：提取發票欄位數據（GPT-5.2）',
   },
 } as const;
 

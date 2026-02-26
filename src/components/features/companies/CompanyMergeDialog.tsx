@@ -1,20 +1,23 @@
 'use client'
 
 /**
- * @fileoverview 公司合併對話框組件
+ * @fileoverview 公司合併對話框組件（國際化版本）
  * @description
  *   提供公司合併功能的對話框介面。
+ *   - 完整國際化支援
  *
  * @module src/components/features/companies/CompanyMergeDialog
  * @since Epic 0 - Story 0.3
- * @lastModified 2025-12-23
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 主/副公司選擇
  *   - 合併預覽
  *   - 確認執行
+ *   - 完整國際化支援
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/dialog - 對話框組件
  *   - @/hooks/use-pending-companies - 合併 API
  *
@@ -23,6 +26,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -71,6 +75,7 @@ export function CompanyMergeDialog({
   companies,
   onSuccess,
 }: CompanyMergeDialogProps) {
+  const t = useTranslations('companies')
   const [primaryId, setPrimaryId] = React.useState<string>('')
   const mergeMutation = useMergeCompanies()
 
@@ -90,7 +95,7 @@ export function CompanyMergeDialog({
   // 處理合併
   const handleMerge = async () => {
     if (!primaryId || secondaryCompanies.length === 0) {
-      toast.error('請選擇要合併的公司')
+      toast.error(t('merge.selectError'))
       return
     }
 
@@ -99,12 +104,12 @@ export function CompanyMergeDialog({
         primaryId,
         secondaryIds: secondaryCompanies.map((c) => c.id),
       })
-      toast.success(`成功合併 ${secondaryCompanies.length} 個公司`)
+      toast.success(t('merge.success', { count: secondaryCompanies.length }))
       onOpenChange(false)
       onSuccess?.()
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : '合併公司失敗'
+        error instanceof Error ? error.message : t('merge.error')
       )
     }
   }
@@ -114,14 +119,14 @@ export function CompanyMergeDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>合併公司</DialogTitle>
+            <DialogTitle>{t('merge.title')}</DialogTitle>
             <DialogDescription>
-              需要選擇至少 2 個公司才能進行合併
+              {t('merge.needTwoCompanies')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              關閉
+              {t('merge.close')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -135,17 +140,17 @@ export function CompanyMergeDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <GitMerge className="h-5 w-5" />
-            合併公司
+            {t('merge.title')}
           </DialogTitle>
           <DialogDescription>
-            選擇要保留的主公司，其他公司將被合併到主公司中
+            {t('merge.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           {/* 主公司選擇 */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">選擇主公司（保留）</Label>
+            <Label className="text-sm font-medium">{t('merge.selectPrimary')}</Label>
             <RadioGroup value={primaryId} onValueChange={setPrimaryId}>
               {companies.map((company) => (
                 <div
@@ -159,7 +164,7 @@ export function CompanyMergeDialog({
                   >
                     <div className="font-medium">{company.name}</div>
                     <div className="text-xs text-muted-foreground">
-                      出現 {company.documentCount} 次
+                      {t('merge.documentCount', { count: company.documentCount })}
                     </div>
                   </Label>
                 </div>
@@ -173,14 +178,14 @@ export function CompanyMergeDialog({
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 <div className="space-y-1">
-                  <p>合併後，以下公司將被標記為已合併：</p>
+                  <p>{t('merge.previewTitle')}</p>
                   <ul className="list-inside list-disc text-sm">
                     {secondaryCompanies.map((company) => (
                       <li key={company.id}>{company.name}</li>
                     ))}
                   </ul>
                   <p className="text-xs mt-2">
-                    這些公司的名稱將成為主公司的名稱變體，用於未來的自動匹配。
+                    {t('merge.previewDescription')}
                   </p>
                 </div>
               </AlertDescription>
@@ -194,7 +199,7 @@ export function CompanyMergeDialog({
             onClick={() => onOpenChange(false)}
             disabled={mergeMutation.isPending}
           >
-            取消
+            {t('actions.cancel')}
           </Button>
           <Button
             onClick={handleMerge}
@@ -207,12 +212,12 @@ export function CompanyMergeDialog({
             {mergeMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                合併中...
+                {t('merge.merging')}
               </>
             ) : (
               <>
                 <GitMerge className="mr-2 h-4 w-4" />
-                確認合併
+                {t('merge.confirmMerge')}
               </>
             )}
           </Button>

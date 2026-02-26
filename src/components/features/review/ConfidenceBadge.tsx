@@ -1,5 +1,5 @@
 /**
- * @fileoverview 信心度 Badge 組件
+ * @fileoverview 信心度 Badge 組件（國際化版本）
  * @description
  *   顯示信心度分數的 Badge 組件，支援三重編碼：
  *   - 顏色：綠（高）/ 黃（中）/ 紅（低）
@@ -11,12 +11,14 @@
  *   - 低信心度時顯示脈動動畫
  *   - 支援多種尺寸和變體
  *   - WCAG 2.1 AA 無障礙合規
+ *   - 完整國際化支援
  *
  * @module src/components/features/review/ConfidenceBadge
  * @since Epic 3 - Story 3.1
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/badge - shadcn Badge 組件
  *   - @/lib/confidence - 信心度閾值和工具函數
  *   - ./ConfidenceIndicator - 形狀指示器組件
@@ -24,6 +26,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { getConfidenceLevel, CONFIDENCE_THRESHOLDS } from '@/lib/confidence'
 import { ConfidenceIndicator } from './ConfidenceIndicator'
@@ -84,6 +87,13 @@ const COLOR_CLASSES = {
  * <ConfidenceBadge score={92} showLabel variant="pill" />
  * ```
  */
+// 信心度級別翻譯 key 映射
+const CONFIDENCE_I18N_KEYS: Record<string, string> = {
+  high: 'high',
+  medium: 'medium',
+  low: 'low',
+}
+
 export function ConfidenceBadge({
   score,
   showIcon = true,
@@ -92,8 +102,8 @@ export function ConfidenceBadge({
   variant = 'badge',
   className,
 }: ConfidenceBadgeProps) {
+  const t = useTranslations('review')
   const level = getConfidenceLevel(score)
-  const config = CONFIDENCE_THRESHOLDS[level]
   const colorClass = COLOR_CLASSES[level]
 
   // Inline 變體 - 無背景的行內顯示
@@ -132,7 +142,7 @@ export function ConfidenceBadge({
       {showIcon && (
         <ConfidenceIndicator level={level} size={size} className="mr-1" />
       )}
-      {showLabel ? config.labelZh : `${score}%`}
+      {showLabel ? t(`confidence.${CONFIDENCE_I18N_KEYS[level]}`) : `${score}%`}
     </Badge>
   )
 }

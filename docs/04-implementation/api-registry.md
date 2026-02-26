@@ -168,6 +168,123 @@
 | `/api/learning/generate-suggestions` | POST | 生成規則建議 | 內部 | - | 4-4 |
 | `/api/learning/impact-analysis` | POST | 分析規則影響 | 是 | ADMIN | 4-5 |
 
+### 模版欄位映射 (Epic 19)
+
+> 路徑前綴: `/api/v1/template-field-mappings`
+>
+> 三層優先級映射系統：FORMAT > COMPANY > GLOBAL
+
+| 端點 | 方法 | 描述 | 認證 | 權限 | Story |
+|------|------|------|------|------|-------|
+| `/api/v1/template-field-mappings` | GET | 列出映射配置（支援篩選、分頁） | 是 | ADMIN | 19-1 |
+| `/api/v1/template-field-mappings` | POST | 創建映射配置 | 是 | ADMIN | 19-1 |
+| `/api/v1/template-field-mappings/[id]` | GET | 取得配置詳情 | 是 | ADMIN | 19-1 |
+| `/api/v1/template-field-mappings/[id]` | PATCH | 更新配置（部分更新） | 是 | ADMIN | 19-1 |
+| `/api/v1/template-field-mappings/[id]` | DELETE | 刪除配置（軟刪除） | 是 | ADMIN | 19-1 |
+| `/api/v1/template-field-mappings/resolve` | POST | 解析三層優先級配置 | 是 | USER+ | 19-1 |
+
+**篩選參數 (GET /api/v1/template-field-mappings)**:
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `dataTemplateId` | string | 按數據模版篩選 |
+| `scope` | string | 按範圍篩選（GLOBAL/COMPANY/FORMAT） |
+| `companyId` | string | 按公司篩選 |
+| `documentFormatId` | string | 按文件格式篩選 |
+| `isActive` | boolean | 按啟用狀態篩選 |
+| `search` | string | 搜尋名稱/說明 |
+| `page` | number | 頁碼（預設: 1） |
+| `limit` | number | 每頁數量（預設: 20，最大: 100） |
+
+**解析請求 (POST /api/v1/template-field-mappings/resolve)**:
+```json
+{
+  "dataTemplateId": "cuid...",
+  "companyId": "uuid...",       // 可選
+  "documentFormatId": "cuid..." // 可選
+}
+```
+
+**解析回應**:
+```json
+{
+  "success": true,
+  "data": {
+    "dataTemplateId": "cuid...",
+    "resolvedFrom": [
+      { "id": "...", "scope": "FORMAT", "name": "格式專屬配置" },
+      { "id": "...", "scope": "GLOBAL", "name": "全域配置" }
+    ],
+    "mappings": [
+      {
+        "id": "rule_123",
+        "sourceField": "sea_freight",
+        "targetField": "shipping_cost",
+        "transformType": "DIRECT",
+        "isRequired": true,
+        "order": 0
+      }
+    ]
+  }
+}
+```
+
+### 模版實例 (Story 19.2)
+
+> 路徑前綴: `/api/v1/template-instances`
+>
+> 存儲填充後的模版數據實例
+
+| 端點 | 方法 | 描述 | 認證 | 權限 | Story |
+|------|------|------|------|------|-------|
+| `/api/v1/template-instances` | GET | 列出實例（支援篩選、分頁） | 是 | USER+ | 19-2 |
+| `/api/v1/template-instances` | POST | 創建新實例 | 是 | USER+ | 19-2 |
+| `/api/v1/template-instances/[id]` | GET | 取得實例詳情 | 是 | USER+ | 19-2 |
+| `/api/v1/template-instances/[id]` | PATCH | 更新實例（部分更新） | 是 | USER+ | 19-2 |
+| `/api/v1/template-instances/[id]` | DELETE | 刪除實例（只允許 DRAFT 狀態） | 是 | USER+ | 19-2 |
+| `/api/v1/template-instances/[id]/rows` | GET | 分頁取得行數據 | 是 | USER+ | 19-2 |
+| `/api/v1/template-instances/[id]/rows` | POST | 添加新行 | 是 | USER+ | 19-2 |
+| `/api/v1/template-instances/[id]/rows/[rowId]` | PATCH | 更新行數據 | 是 | USER+ | 19-2 |
+| `/api/v1/template-instances/[id]/rows/[rowId]` | DELETE | 刪除行 | 是 | USER+ | 19-2 |
+
+**實例狀態流程**:
+```
+DRAFT → PROCESSING → COMPLETED → EXPORTED
+                  ↘ ERROR (可重試回 PROCESSING)
+```
+
+**篩選參數 (GET /api/v1/template-instances)**:
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `dataTemplateId` | string | 按數據模版篩選 |
+| `status` | string | 按狀態篩選（DRAFT/PROCESSING/COMPLETED/EXPORTED/ERROR） |
+| `search` | string | 搜尋名稱/說明 |
+| `dateFrom` | string | 開始日期 (ISO 8601) |
+| `dateTo` | string | 結束日期 (ISO 8601) |
+| `page` | number | 頁碼（預設: 1） |
+| `limit` | number | 每頁數量（預設: 20，最大: 100） |
+
+**創建實例請求**:
+```json
+{
+  "dataTemplateId": "cuid...",
+  "name": "2026年1月海運費用",
+  "description": "可選描述"
+}
+```
+
+**添加行請求**:
+```json
+{
+  "rowKey": "S001",
+  "sourceDocumentIds": ["doc_123", "doc_456"],
+  "fieldValues": {
+    "shipment_no": "S001",
+    "shipping_cost": 500,
+    "port_fees": 100
+  }
+}
+```
+
 ---
 
 ## Forwarder 管理 API

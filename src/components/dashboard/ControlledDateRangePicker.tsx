@@ -22,6 +22,7 @@
 import * as React from 'react';
 import { CalendarIcon } from 'lucide-react';
 import { type DateRange as DayPickerDateRange } from 'react-day-picker';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -47,7 +48,6 @@ import {
   type PresetRange,
   type DateRange,
   MAX_RANGE_DAYS,
-  PRESET_LABELS,
   QUICK_SELECT_PRESETS,
 } from '@/types/date-range';
 
@@ -89,6 +89,7 @@ export function ControlledDateRangePicker({
   disabled = false,
   compact = false,
 }: ControlledDateRangePickerProps) {
+  const t = useTranslations('dashboard');
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -130,7 +131,7 @@ export function ControlledDateRangePicker({
       // 驗證日期範圍
       const validation = validateDateRange(range.from, range.to);
       if (!validation.isValid) {
-        setError(validation.error || '日期範圍無效');
+        setError(validation.error || t('dateRange.invalidRange'));
         return;
       }
 
@@ -143,10 +144,10 @@ export function ControlledDateRangePicker({
   // 顯示文字
   const displayText = React.useMemo(() => {
     if (preset !== 'custom') {
-      return PRESET_LABELS[preset];
+      return t(`presets.${preset}`);
     }
     return formatDateRangeDisplay(dateRange);
-  }, [dateRange, preset]);
+  }, [dateRange, preset, t]);
 
   // 計算天數
   const rangeDays = getRangeDays(dateRange.startDate, dateRange.endDate);
@@ -162,11 +163,11 @@ export function ControlledDateRangePicker({
     return [
       ...QUICK_SELECT_PRESETS.map((p) => ({
         value: p,
-        label: PRESET_LABELS[p],
+        label: t(`presets.${p}`),
       })),
-      { value: 'custom', label: '自訂範圍' },
+      { value: 'custom', label: t('presets.customRange') },
     ];
-  }, []);
+  }, [t]);
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
@@ -177,7 +178,7 @@ export function ControlledDateRangePicker({
         disabled={disabled}
       >
         <SelectTrigger className={cn(compact ? 'w-[130px]' : 'w-[160px]')}>
-          <SelectValue placeholder="選擇時間範圍" />
+          <SelectValue placeholder={t('dateRange.selectRange')} />
         </SelectTrigger>
         <SelectContent>
           {presetOptions.map((option) => (
@@ -205,7 +206,7 @@ export function ControlledDateRangePicker({
             <span className="truncate">{displayText}</span>
             {preset === 'custom' && (
               <span className="ml-auto text-xs text-muted-foreground">
-                {rangeDays}天
+                {rangeDays} {t('dateRange.days')}
               </span>
             )}
           </Button>
@@ -213,9 +214,9 @@ export function ControlledDateRangePicker({
         <PopoverContent className="w-auto p-0" align="start">
           <div className="p-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">選擇日期範圍</span>
+              <span className="text-sm font-medium">{t('dateRange.selectRange')}</span>
               <span className="text-xs text-muted-foreground">
-                最多 {MAX_RANGE_DAYS} 天
+                {t('dateRange.maxDays', { max: MAX_RANGE_DAYS })}
               </span>
             </div>
             {error && (

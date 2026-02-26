@@ -1,0 +1,270 @@
+{
+  "pageTitle": "Template Instances",
+  "pageDescription": "View and manage filled template data instances",
+  "list": {
+    "emptyTitle": "No Instances Yet",
+    "emptyDescription": "Create your first template instance to start managing data",
+    "errorTitle": "Failed to Load Instances",
+    "errorDescription": "Unable to retrieve instance list. Please try again.",
+    "noResultsTitle": "No Matching Results",
+    "noResultsDescription": "No instances match the current filter criteria",
+    "clearFilters": "Clear Filters",
+    "retry": "Retry",
+    "totalInstances": "{count, plural, =0 {No instances} =1 {1 instance} other {{count} instances}}"
+  },
+  "filters": {
+    "allStatuses": "All Statuses",
+    "allTemplates": "All Templates",
+    "status": "Status",
+    "template": "Template",
+    "dateRange": "Date Range",
+    "search": "Search instances...",
+    "searchPlaceholder": "Search by name or description..."
+  },
+  "status": {
+    "DRAFT": "Draft",
+    "PROCESSING": "Processing",
+    "COMPLETED": "Completed",
+    "AUTO_COMPLETED": "Auto-completed",
+    "ERROR": "Has Errors",
+    "EXPORTED": "Exported",
+    "draftWithErrors": "Draft - has validation errors, manual review required"
+  },
+  "rowStatus": {
+    "PENDING": "Pending",
+    "VALID": "Valid",
+    "INVALID": "Invalid",
+    "SKIPPED": "Skipped"
+  },
+  "card": {
+    "rows": "{count} rows",
+    "validRows": "{count} valid",
+    "errorRows": "{count} errors",
+    "updatedAt": "Updated {date}",
+    "exportedAt": "Exported {date}",
+    "viewDetails": "View Details",
+    "export": "Export"
+  },
+  "createDialog": {
+    "title": "Create New Instance",
+    "description": "Create a new template instance to store data",
+    "triggerButton": "New Instance",
+    "templateLabel": "Data Template",
+    "templatePlaceholder": "Select a template...",
+    "templateDescription": "Select the template that defines the data structure",
+    "nameLabel": "Instance Name",
+    "namePlaceholder": "e.g., January 2026 Freight Costs",
+    "nameDescription": "Give your instance a descriptive name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Optional description...",
+    "submitButton": "Create Instance",
+    "creating": "Creating..."
+  },
+  "detail": {
+    "backToList": "Back to List",
+    "instanceName": "Instance: {name}",
+    "templateName": "Template: {name}",
+    "stats": {
+      "totalRows": "Total Rows",
+      "validRows": "Valid Rows",
+      "errorRows": "Error Rows",
+      "status": "Status"
+    },
+    "actions": {
+      "addFile": "Add File",
+      "export": "Export",
+      "exportExcel": "Export as Excel",
+      "exportCsv": "Export as CSV",
+      "exportJson": "Export as JSON",
+      "settings": "Settings",
+      "completeManually": "Complete Manually"
+    }
+  },
+  "rows": {
+    "title": "Data Rows",
+    "filters": {
+      "allStatuses": "All Statuses",
+      "onlyErrors": "Only Errors",
+      "searchPlaceholder": "Search by row key..."
+    },
+    "columns": {
+      "index": "#",
+      "rowKey": "Row Key",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No Data Rows",
+      "description": "This instance doesn't have any data rows yet"
+    },
+    "noResults": {
+      "title": "No Matching Rows",
+      "description": "No rows match the current filter criteria"
+    },
+    "showing": "Showing {start} - {end} of {total} rows"
+  },
+  "rowActions": {
+    "view": "View Details",
+    "edit": "Edit Row",
+    "delete": "Delete Row",
+    "revalidate": "Revalidate"
+  },
+  "editDialog": {
+    "title": "Edit Row",
+    "description": "Modify field values and revalidate",
+    "rowKeyLabel": "Row Key",
+    "fieldsSection": "Field Values",
+    "validationErrors": "Validation Errors",
+    "noErrors": "All fields passed validation",
+    "saveAndValidate": "Save & Validate",
+    "saving": "Saving..."
+  },
+  "rowDetail": {
+    "title": "Row Details",
+    "rowKey": "Row Key",
+    "rowIndex": "Row Index",
+    "status": "Status",
+    "sourceDocuments": "Source Documents",
+    "noSourceDocuments": "No source documents linked",
+    "viewDocument": "View Document",
+    "fieldValues": "Field Values",
+    "validationErrors": "Validation Errors",
+    "noErrors": "No validation errors",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At"
+  },
+  "bulkActions": {
+    "title": "Bulk Actions",
+    "selected": "{count} selected",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "delete": "Delete Selected",
+    "revalidate": "Revalidate Selected",
+    "confirmDelete": "Delete {count} rows?",
+    "deleteWarning": "This action cannot be undone. The selected rows will be permanently deleted.",
+    "deleting": "Deleting...",
+    "revalidating": "Revalidating..."
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidType": "Invalid data type",
+    "minLength": "Must be at least {min} characters",
+    "maxLength": "Cannot exceed {max} characters",
+    "min": "Must be at least {min}",
+    "max": "Cannot exceed {max}",
+    "pattern": "Invalid format",
+    "allowedValues": "Must be one of: {values}"
+  },
+  "toast": {
+    "createSuccess": "Instance created successfully",
+    "createError": "Failed to create instance",
+    "updateSuccess": "Instance updated successfully",
+    "updateError": "Failed to update instance",
+    "deleteSuccess": "Instance deleted successfully",
+    "deleteError": "Failed to delete instance",
+    "rowUpdateSuccess": "Row updated successfully",
+    "rowUpdateError": "Failed to update row",
+    "rowDeleteSuccess": "Row deleted successfully",
+    "rowDeleteError": "Failed to delete row",
+    "bulkDeleteSuccess": "{count} rows deleted successfully",
+    "bulkDeleteError": "Failed to delete rows",
+    "revalidateSuccess": "Revalidation completed",
+    "revalidateResult": "{valid} valid, {invalid} invalid",
+    "revalidateError": "Revalidation failed",
+    "exportSuccess": "Export completed successfully",
+    "exportError": "Failed to export data",
+    "addFileSuccess": "{count} files matched successfully",
+    "addFileError": "Failed to add files",
+    "addFilePartial": "{success} files matched, {error} failed",
+    "addFileAllFailed": "All {count} files failed to match"
+  },
+  "addFileDialog": {
+    "title": "Add File",
+    "description": "Select completed documents to match to this instance",
+    "searchPlaceholder": "Search by file name...",
+    "noDocuments": "No documents found",
+    "selected": "{count} files selected",
+    "addButton": "Add {count} Files",
+    "adding": "Adding...",
+    "sortInfo": "Sorted by most recently created"
+  },
+  "match": {
+    "title": "Match to Template",
+    "description": "Match selected documents to a template instance",
+    "selectTemplate": "Select Template",
+    "selectInstance": "Select Instance",
+    "createNewInstance": "Create New Instance",
+    "selectedDocuments": "{count} documents selected",
+    "matchButton": "Match Documents",
+    "matching": "Matching...",
+    "autoMatchEnabled": "Auto-match enabled",
+    "autoMatchDisabled": "Auto-match disabled",
+    "matchSource": {
+      "FORMAT": "Format default",
+      "COMPANY": "Company default",
+      "GLOBAL": "Global default"
+    },
+    "status": {
+      "matched": "Matched",
+      "unmatched": "Unmatched",
+      "pending": "Pending Review"
+    }
+  },
+  "bulkMatch": {
+    "title": "Bulk Match Documents",
+    "description": "Match multiple documents to the same template instance",
+    "maxDocuments": "Maximum {max} documents per batch",
+    "progress": "Processing {current} of {total}...",
+    "results": {
+      "title": "Match Results",
+      "success": "{count} documents matched successfully",
+      "errors": "{count} documents failed"
+    }
+  },
+  "unmatch": {
+    "title": "Remove Match",
+    "description": "Remove document from template instance",
+    "warning": "This will remove the document from the template instance. The data in the instance will not be deleted.",
+    "confirmButton": "Remove Match",
+    "removing": "Removing..."
+  },
+  "defaultTemplate": {
+    "title": "Default Template",
+    "description": "Set default template for auto-matching",
+    "selectPlaceholder": "Select default template...",
+    "none": "No default template",
+    "saveButton": "Save",
+    "saving": "Saving..."
+  },
+  "export": {
+    "title": "Export Data",
+    "description": "Export data from instance: {name}",
+    "exportButton": "Export",
+    "exporting": "Exporting...",
+    "format": {
+      "label": "Export Format",
+      "excel": "Excel (.xlsx)",
+      "csv": "CSV (.csv)"
+    },
+    "rowFilter": {
+      "label": "Row Filter",
+      "all": "All rows ({count})",
+      "valid": "Valid rows only ({count})",
+      "invalid": "Invalid rows only ({count})"
+    },
+    "fields": {
+      "label": "Fields to Export",
+      "selected": "{selected} of {total} fields selected",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "reset": "Reset",
+      "noFieldsWarning": "Please select at least one field to export"
+    },
+    "advanced": {
+      "label": "Advanced Options",
+      "dateFormat": "Date Format",
+      "useThousandSeparator": "Use thousand separator for numbers",
+      "includeValidationErrors": "Include validation errors column"
+    }
+  }
+}

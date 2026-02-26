@@ -1,0 +1,152 @@
+{
+  "title": "Field Definition Sets",
+  "description": "Manage field definitions for AI document extraction",
+  "list": {
+    "name": "Name",
+    "scope": "Scope",
+    "company": "Company",
+    "format": "Document Format",
+    "fieldsCount": "Fields",
+    "version": "Version",
+    "status": "Status",
+    "actions": "Actions",
+    "empty": "No field definition sets found",
+    "createdAt": "Created"
+  },
+  "filters": {
+    "scope": "Scope",
+    "company": "Company",
+    "format": "Document Format",
+    "status": "Status",
+    "all": "All",
+    "active": "Active",
+    "inactive": "Inactive",
+    "clear": "Clear",
+    "searchPlaceholder": "Search field definitions..."
+  },
+  "scopeBadge": {
+    "GLOBAL": "Global",
+    "COMPANY": "Company",
+    "FORMAT": "Format"
+  },
+  "actions": {
+    "add": "Add Field Definition Set",
+    "edit": "Edit",
+    "delete": "Delete",
+    "toggle": "Toggle Status",
+    "duplicate": "Duplicate",
+    "viewCoverage": "View Coverage"
+  },
+  "messages": {
+    "created": "Field definition set created successfully",
+    "updated": "Field definition set updated successfully",
+    "deleted": "Field definition set deleted successfully",
+    "toggled": "Status toggled successfully",
+    "confirmDelete": "Are you sure you want to delete this field definition set? This action cannot be undone.",
+    "deleteFailed": "Failed to delete field definition set",
+    "toggleFailed": "Failed to toggle status",
+    "saveFailed": "Failed to save field definition set",
+    "duplicateScope": "A field definition set already exists for this scope",
+    "duplicateScopeHint": "Each scope (Global / Company / Format) can only have one active definition set. Please edit the existing one or choose a different scope."
+  },
+  "form": {
+    "title": {
+      "create": "Create Field Definition Set",
+      "edit": "Edit Field Definition Set"
+    },
+    "name": "Name",
+    "namePlaceholder": "Enter a descriptive name",
+    "scope": "Scope",
+    "scopeDescription": "Determines which documents this field set applies to",
+    "company": "Company",
+    "companyPlaceholder": "Select a company",
+    "format": "Document Format",
+    "formatPlaceholder": "Select a document format",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the purpose of this field definition set",
+    "isActive": "Active",
+    "fields": "Field Definitions",
+    "fieldsDescription": "Select and configure the fields that AI should extract from documents",
+    "submit": "Save",
+    "cancel": "Cancel",
+    "fieldPicker": {
+      "title": "Select Fields",
+      "search": "Search fields...",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "selected": "{count} fields selected",
+      "addCustom": "Add Custom Field",
+      "customFieldKey": "Field Key (snake_case)",
+      "customFieldLabel": "Display Label",
+      "customFieldCategory": "Category",
+      "customFieldDataType": "Data Type",
+      "customFieldAdd": "Add",
+      "noResults": "No fields match your search"
+    },
+    "fieldEntry": {
+      "key": "Key",
+      "label": "Label",
+      "category": "Category",
+      "dataType": "Data Type",
+      "required": "Required",
+      "aliases": "Aliases",
+      "aliasesPlaceholder": "Enter aliases separated by comma",
+      "extractionHints": "Extraction Hints",
+      "extractionHintsPlaceholder": "Instructions for AI on how to find this field",
+      "fieldType": "Field Type",
+      "fieldTypeStandard": "Standard",
+      "fieldTypeLineItem": "Line Item",
+      "remove": "Remove",
+      "expand": "Edit Details",
+      "collapse": "Collapse"
+    }
+  },
+  "coverage": {
+    "title": "Field Coverage Analysis",
+    "description": "Analysis based on extraction feedback data",
+    "noData": "No extraction feedback data yet",
+    "overallRate": "Overall Coverage Rate",
+    "totalExtractions": "Total Extractions",
+    "healthy": "Healthy Fields",
+    "healthyDescription": "Fields consistently found in extractions",
+    "missing": "Missing Fields",
+    "missingDescription": "Defined fields not found during extraction",
+    "unexpected": "Unexpected Fields",
+    "unexpectedDescription": "Fields found that are not in the definition",
+    "suggestion": {
+      "addField": "Consider adding this frequently found field",
+      "removeField": "This field is rarely found — consider removing or marking optional",
+      "makeOptional": "This field has low coverage — consider making it optional"
+    }
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "scopeRequired": "Scope is required",
+    "companyRequired": "Company is required for this scope",
+    "formatRequired": "Document format is required for FORMAT scope",
+    "fieldsRequired": "At least one field is required",
+    "fieldKeyDuplicate": "Duplicate field key: {key}",
+    "fieldKeyFormat": "Field key must be snake_case format"
+  },
+  "pagination": {
+    "showing": "Showing {from} - {to} of {total}",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "dataType": {
+    "string": "Text",
+    "number": "Number",
+    "date": "Date",
+    "currency": "Currency"
+  },
+  "category": {
+    "basic": "Basic Info",
+    "shipper": "Shipper",
+    "consignee": "Consignee",
+    "shipping": "Shipping",
+    "package": "Package",
+    "charges": "Charges",
+    "reference": "Reference",
+    "payment": "Payment"
+  }
+}

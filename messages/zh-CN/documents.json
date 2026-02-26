@@ -1,0 +1,268 @@
+{
+  "page": {
+    "title": "文件列表",
+    "description": "管理和追踪上传的文件处理状态"
+  },
+  "stats": {
+    "total": "总计",
+    "processing": "处理中",
+    "completed": "已完成",
+    "failed": "失败"
+  },
+  "filters": {
+    "searchPlaceholder": "搜索文件名称...",
+    "allStatus": "所有状态",
+    "status": {
+      "uploading": "上传中",
+      "uploaded": "已上传",
+      "ocrProcessing": "OCR 处理中",
+      "ocrCompleted": "OCR 完成",
+      "ocrFailed": "OCR 失败",
+      "mappingProcessing": "映射中",
+      "mappingCompleted": "映射完成",
+      "pendingReview": "待审核",
+      "inReview": "审核中",
+      "completed": "已完成",
+      "failed": "处理失败",
+      "refMatchFailed": "参考编号匹配失败"
+    }
+  },
+  "table": {
+    "columns": {
+      "filename": "文件名称",
+      "fileName": "文件名称",
+      "status": "状态",
+      "uploadedAt": "上传时间",
+      "uploadTime": "上传时间",
+      "processingPath": "处理路径",
+      "confidence": "置信度",
+      "company": "公司",
+      "actions": "操作",
+      "select": "选择"
+    },
+    "empty": "没有找到文件",
+    "noDocuments": "没有找到文件",
+    "emptyDescription": "上传新文件开始处理",
+    "loading": "加载中...",
+    "processingError": "处理过程中发生错误",
+    "processingFailed": "处理失败"
+  },
+  "processingPath": {
+    "autoApprove": "自动通过",
+    "quickReview": "快速审核",
+    "fullReview": "完整审核",
+    "manualRequired": "需人工处理"
+  },
+  "status": {
+    "UPLOADING": "上传中",
+    "UPLOADED": "已上传",
+    "OCR_PROCESSING": "OCR 处理中",
+    "OCR_COMPLETED": "OCR 完成",
+    "OCR_FAILED": "OCR 失败",
+    "MAPPING_PROCESSING": "映射中",
+    "MAPPING_COMPLETED": "映射完成",
+    "PENDING_REVIEW": "待审核",
+    "IN_REVIEW": "审核中",
+    "COMPLETED": "已完成",
+    "FAILED": "处理失败",
+    "REF_MATCH_FAILED": "参考编号匹配失败"
+  },
+  "upload": {
+    "title": "上传文件",
+    "description": "上传文件以进行 AI 处理和数据提取。支持 PDF、JPG、PNG 格式。",
+    "selectCity": "选择城市",
+    "selectCityPlaceholder": "请选择城市",
+    "selectCityHint": "请先选择城市，才能上传文件。",
+    "selectCityRequired": "请先选择城市，才能上传文件",
+    "dragDrop": "拖放文件到此处，或点击选择",
+    "dropToUpload": "放开以上传文件",
+    "unsupportedFormat": "不支持的文件格式",
+    "supportedFormats": "支持 {formats}，单个文件最大 {size}",
+    "formatHint": "支持 {formats}，单个文件最大 {size}",
+    "maxFiles": "最多 {count} 个文件",
+    "maxSize": "最大文件大小：{size}MB",
+    "selectedFiles": "已选择 {count} 个文件",
+    "pendingCount": "({count} 个待上传)",
+    "clearAll": "清除全部",
+    "uploadingProgress": "上传中... {percent}%",
+    "statusPending": "待上传",
+    "uploading": "上传中...",
+    "uploadCount": "上传 {count} 个文件",
+    "uploadSuccess": "上传成功",
+    "successCount": "成功上传 {count} 个文件",
+    "uploadFailed": "上传失败",
+    "failedCount": "{count} 个文件上传失败",
+    "noPendingFiles": "没有待上传的文件",
+    "loading": "加载中..."
+  },
+  "uploadErrors": {
+    "invalidType": "不支持的文件格式，请上传 {formats}",
+    "fileTooLarge": "文件大小超过限制 ({size})",
+    "tooManyFiles": "最多允许 {count} 个文件",
+    "uploadFailed": "文件上传失败，请重试",
+    "noFiles": "请选择要上传的文件",
+    "unauthorized": "请先登录",
+    "forbidden": "您没有权限上传文件"
+  },
+  "bulkActions": {
+    "selected": "已选择 {count} 个",
+    "matchToTemplate": "匹配到模板",
+    "clearSelection": "清除"
+  },
+  "actions": {
+    "view": "查看",
+    "retry": "重试",
+    "download": "下载",
+    "delete": "删除"
+  },
+  "retry": {
+    "success": "处理重新开始",
+    "failed": "重试失败：{message}",
+    "button": "重试"
+  },
+  "detail": {
+    "title": "文件详情",
+    "backToList": "返回列表",
+    "tabs": {
+      "preview": "文件预览",
+      "fields": "提取字段",
+      "processing": "处理详情",
+      "audit": "审计日志",
+      "ai": "AI 详情"
+    },
+    "stats": {
+      "status": "处理状态",
+      "confidence": "置信度",
+      "uploadInfo": "上传信息",
+      "source": "来源",
+      "processingTime": "处理耗时"
+    },
+    "timeline": {
+      "title": "处理时间轴",
+      "totalTime": "总耗时",
+      "step": "步骤",
+      "duration": "耗时",
+      "status": "状态",
+      "steps": {
+        "FILE_TYPE_DETECTION": "文件类型检测",
+        "SMART_ROUTING": "智能路由",
+        "ISSUER_IDENTIFICATION": "发行方识别",
+        "FORMAT_MATCHING": "格式匹配",
+        "CONFIG_FETCHING": "配置获取",
+        "AZURE_DI_EXTRACTION": "Azure DI 提取",
+        "GPT_ENHANCED_EXTRACTION": "GPT 增强提取",
+        "FIELD_MAPPING": "字段映射",
+        "TERM_RECORDING": "术语记录",
+        "CONFIDENCE_CALCULATION": "置信度计算",
+        "ROUTING_DECISION": "路由决策",
+        "FILE_PREPARATION": "文件准备",
+        "DYNAMIC_PROMPT_ASSEMBLY": "Prompt 组装",
+        "UNIFIED_GPT_EXTRACTION": "GPT 统一提取",
+        "RESULT_VALIDATION": "结果验证",
+        "STAGE_1_COMPANY_IDENTIFICATION": "阶段 1：公司识别",
+        "STAGE_2_FORMAT_IDENTIFICATION": "阶段 2：格式识别",
+        "STAGE_3_FIELD_EXTRACTION": "阶段 3：字段提取",
+        "REFERENCE_NUMBER_MATCHING": "参考编号匹配",
+        "EXCHANGE_RATE_CONVERSION": "汇率转换"
+      },
+      "version": {
+        "v2": "V2（11 步骤）",
+        "v3": "V3（7 步骤）",
+        "v3_1": "V3.1（7 步骤，3 阶段）"
+      }
+    },
+    "audit": {
+      "title": "审计日志",
+      "entries": "条记录",
+      "system": "系统"
+    },
+    "actions": {
+      "retry": "重试",
+      "download": "下载",
+      "delete": "删除"
+    },
+    "empty": {
+      "noPreview": "无法预览此文件",
+      "noFields": "暂无提取字段",
+      "noProcessingSteps": "暂无处理步骤记录",
+      "noAuditLogs": "暂无审计日志"
+    },
+    "ai": {
+      "title": "AI 提取详情",
+      "singleStage": "单阶段提取",
+      "prompt": {
+        "title": "GPT Prompt",
+        "description": "发送给 GPT 的完整提示词",
+        "copy": "复制 Prompt",
+        "copied": "已复制"
+      },
+      "response": {
+        "title": "GPT 响应",
+        "description": "GPT 返回的原始 JSON",
+        "copy": "复制响应",
+        "copied": "已复制"
+      },
+      "tokens": {
+        "title": "Token 使用",
+        "input": "输入 Token",
+        "output": "输出 Token",
+        "total": "总计 Token",
+        "model": "模型",
+        "imageMode": "图片模式"
+      },
+      "stages": {
+        "title": "三阶段提取",
+        "stageDetails": "阶段详情",
+        "skipped": "此阶段已跳过",
+        "stage1": {
+          "title": "阶段 1：公司识别",
+          "description": "使用 GPT-5-nano 识别文件的发行公司"
+        },
+        "stage2": {
+          "title": "阶段 2：格式识别",
+          "description": "根据公司配置识别文件格式"
+        },
+        "stage3": {
+          "title": "阶段 3：字段提取",
+          "description": "使用完整配置和 GPT-5.2 提取字段"
+        }
+      },
+      "empty": {
+        "noData": "暂无 AI 提取详情",
+        "description": "文件尚未完成 AI 提取处理"
+      }
+    },
+    "smartRouting": {
+      "title": "需要配置",
+      "description": {
+        "newCompanyAndFormat": "此文件以新公司和新格式处理。请配置公司识别规则和格式映射，以提高未来处理的准确性。",
+        "newCompanyOnly": "检测到新公司「{companyName}」。请配置公司识别规则（Logo 特征、关键字）以提高准确性。",
+        "newFormatOnly": "检测到新的文件格式。请为此公司配置格式映射。"
+      },
+      "badges": {
+        "newCompany": "新公司",
+        "newFormat": "新格式"
+      },
+      "actions": {
+        "configureCompany": "配置公司",
+        "configureFormat": "配置格式",
+        "manageCompanies": "管理公司"
+      },
+      "hint": "配置识别规则将提高未来文件的自动识别准确性。",
+      "unknownCompany": "未知公司"
+    },
+    "errors": {
+      "notFound": "找不到文件",
+      "noFile": "文件无法下载",
+      "downloadFailed": "文件下载失败",
+      "deleteFailed": "文件删除失败",
+      "traceFailed": "处理追踪加载失败",
+      "auditFailed": "审计日志加载失败",
+      "refMatchFailed": "在文件名称中未匹配到参考编号，文件无法在没有有效参考编号的情况下处理。"
+    },
+    "deleteConfirmTitle": "删除文件",
+    "deleteConfirmDescription": "确定要删除「{fileName}」吗？此操作无法撤销。",
+    "deleteSuccess": "文件已删除",
+    "deleteSuccessDescription": "文件已成功删除。"
+  }
+}

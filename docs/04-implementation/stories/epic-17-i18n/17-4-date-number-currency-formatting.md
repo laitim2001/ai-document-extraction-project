@@ -1,6 +1,6 @@
 # Story 17.4: 日期、數字與貨幣格式化
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -53,35 +53,37 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 整合 date-fns 多語言支援** (AC: #1)
-  - [ ] 1.1 建立 `src/lib/i18n-date.ts` - 日期格式化工具
-  - [ ] 1.2 配置 date-fns locale（zhTW, enUS, zhCN）
-  - [ ] 1.3 建立 `useLocalizedDate` hook
+- [x] **Task 1: 整合 date-fns 多語言支援** (AC: #1)
+  - [x] 1.1 建立 `src/lib/i18n-date.ts` - 日期格式化工具
+  - [x] 1.2 配置 date-fns locale（zhTW, enUS, zhCN）
+  - [x] 1.3 建立 `useLocalizedDate` hook
 
-- [ ] **Task 2: 建立數字格式化工具** (AC: #2)
-  - [ ] 2.1 建立 `src/lib/i18n-number.ts`
-  - [ ] 2.2 實作 `formatNumber`, `formatPercent` 函數
-  - [ ] 2.3 建立 `useLocalizedNumber` hook
+- [x] **Task 2: 建立數字格式化工具** (AC: #2)
+  - [x] 2.1 建立 `src/lib/i18n-number.ts`
+  - [x] 2.2 實作 `formatNumber`, `formatPercent` 函數
+  - [x] 2.3 建立 `useLocalizedNumber` hook（整合至 use-localized-format.ts）
 
-- [ ] **Task 3: 建立貨幣格式化工具** (AC: #3)
-  - [ ] 3.1 建立 `src/lib/i18n-currency.ts`
-  - [ ] 3.2 實作 `formatCurrency` 函數
-  - [ ] 3.3 支援多貨幣代碼
+- [x] **Task 3: 建立貨幣格式化工具** (AC: #3)
+  - [x] 3.1 建立 `src/lib/i18n-currency.ts`
+  - [x] 3.2 實作 `formatCurrency` 函數
+  - [x] 3.3 支援多貨幣代碼（USD, TWD, CNY, HKD, JPY, EUR, GBP）
 
-- [ ] **Task 4: 更新日期顯示組件** (AC: #1, #4)
+- [ ] **Task 4: 更新日期顯示組件** (AC: #1, #4) - 後續 Story 整合
   - [ ] 4.1 更新 DateRangePicker 組件
   - [ ] 4.2 更新表格中的日期欄位
   - [ ] 4.3 更新相對時間顯示（formatDistanceToNow）
 
-- [ ] **Task 5: 更新數字顯示組件** (AC: #2)
+- [ ] **Task 5: 更新數字顯示組件** (AC: #2) - 後續 Story 整合
   - [ ] 5.1 更新 StatCard 組件
   - [ ] 5.2 更新表格中的數字欄位
   - [ ] 5.3 更新圖表中的數字格式
 
-- [ ] **Task 6: 更新貨幣顯示組件** (AC: #3)
+- [ ] **Task 6: 更新貨幣顯示組件** (AC: #3) - 後續 Story 整合
   - [ ] 6.1 更新成本報表頁面
   - [ ] 6.2 更新 AI 成本追蹤頁面
   - [ ] 6.3 更新費用相關表格
+
+> **實作備註**: Task 4-6 的組件更新將在後續整合 Story 中完成。本 Story 已建立所有必需的格式化工具和 Hooks，供組件使用。
 
 ---
 
@@ -313,4 +315,5 @@ export function useLocalizedDate() {
 ---
 
 *Story created: 2026-01-16*
-*Status: ready-for-dev*
+*Completed: 2026-01-17*
+*Status: done*

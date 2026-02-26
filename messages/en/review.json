@@ -1,0 +1,108 @@
+{
+  "page": {
+    "title": "Pending Review",
+    "description": "Review and correct AI extraction results",
+    "reviewDetails": "Review Details",
+    "documentNotFound": "Document Not Found",
+    "documentNotFoundDesc": "The specified document does not exist or has been deleted.",
+    "backToList": "Back to Review List",
+    "review": "Review: {fileName}"
+  },
+  "filters": {
+    "company": "Company/Forwarder",
+    "processingPath": "Processing Path:",
+    "confidenceRange": "Confidence:",
+    "clearFilters": "Clear Filters",
+    "allCompanies": "All Companies",
+    "allPaths": "All",
+    "all": "All"
+  },
+  "confidence": {
+    "low": "Low Confidence",
+    "medium": "Medium Confidence",
+    "high": "High Confidence",
+    "range": "{min}% - {max}%"
+  },
+  "actions": {
+    "approve": "Approve",
+    "reject": "Reject",
+    "correct": "Correct & Approve",
+    "viewDetails": "View Details",
+    "escalate": "Escalate"
+  },
+  "detail": {
+    "extractedFields": "Extracted Fields",
+    "originalDocument": "Original Document",
+    "correctionHistory": "Correction History",
+    "noCorrections": "No corrections yet",
+    "loadFailed": "Loading Failed",
+    "loadFailedDesc": "Unable to load review data. Please try again later.",
+    "reload": "Reload"
+  },
+  "dialog": {
+    "approveTitle": "Confirm Approval",
+    "approveMessage": "Are you sure you want to approve this extraction result?",
+    "rejectTitle": "Rejection Reason",
+    "rejectPlaceholder": "Please enter rejection reason...",
+    "escalateTitle": "Escalate for Review",
+    "escalateMessage": "Please explain why this needs supervisor review",
+    "unsavedChanges": "Unsaved Changes",
+    "unsavedChangesDesc": "You have unsaved changes. Leaving this page will lose these changes. Are you sure you want to leave?",
+    "continueEditing": "Continue Editing",
+    "discardChanges": "Discard Changes"
+  },
+  "empty": {
+    "title": "No documents pending review",
+    "description": "All documents have been processed"
+  },
+  "processingPath": {
+    "autoApprove": "Auto Approve",
+    "quickReview": "Quick Review",
+    "fullReview": "Full Review",
+    "manualRequired": "Manual Required"
+  },
+  "queue": {
+    "loadFailed": "Loading Failed",
+    "loadFailedDesc": "Unable to load review queue. Please try again.",
+    "retry": "Retry",
+    "totalPending": "{count} items pending review",
+    "refresh": "Refresh",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "table": {
+    "fileName": "File Name",
+    "uploadTime": "Upload Time",
+    "confidence": "Confidence",
+    "processingPath": "Processing Path",
+    "unidentified": "Unidentified"
+  },
+  "approval": {
+    "quickReviewMode": "Quick Review Mode",
+    "fullReviewMode": "Full Review Mode",
+    "review": "Review",
+    "confirmTitle": "Confirm Review Result",
+    "confirmDesc": "You are about to confirm the {mode} result for this document.",
+    "fieldsConfirmed": "{count} fields will be marked as confirmed.",
+    "afterConfirm": "After confirmation, document status will be updated to \"Approved\" and audit log will be recorded.",
+    "reviewNotes": "Review Notes (Optional)",
+    "notesPlaceholder": "Enter any notes to record...",
+    "cancel": "Cancel",
+    "confirming": "Confirming...",
+    "confirm": "Confirm"
+  },
+  "toast": {
+    "reviewConfirmed": "Review Confirmed",
+    "documentApproved": "Document marked as approved",
+    "confirmFailed": "Review Confirmation Failed",
+    "caseEscalated": "Case Escalated",
+    "escalationNotified": "Super User notified to handle this case",
+    "escalationFailed": "Escalation Failed",
+    "noChanges": "No changes to save",
+    "saveFailed": "Failed to save corrections",
+    "correctionsSaved": "Corrections Saved",
+    "correctionsSavedDesc": "Saved corrections for {count} fields",
+    "saveFailedRetry": "Save Failed",
+    "tryAgainLater": "Please try again later"
+  }
+}

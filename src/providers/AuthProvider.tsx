@@ -45,7 +45,20 @@ interface AuthProviderProps {
  * @description
  *   包裝 next-auth 的 SessionProvider，讓所有子組件可以使用 useSession hook。
  *   此組件必須放在客戶端組件中，並包裹在應用程式的根層級。
+ *
+ *   配置說明：
+ *   - refetchOnWindowFocus: 當窗口獲得焦點時重新獲取 session，確保登錄後立即更新
+ *   - refetchWhenOffline: 離線時不刷新，避免不必要的錯誤
  */
 export function AuthProvider({ children }: AuthProviderProps) {
-  return <SessionProvider>{children}</SessionProvider>
+  return (
+    <SessionProvider
+      // 當窗口獲得焦點時重新獲取 session
+      refetchOnWindowFocus={true}
+      // 離線時不刷新
+      refetchWhenOffline={false}
+    >
+      {children}
+    </SessionProvider>
+  )
 }

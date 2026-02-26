@@ -219,7 +219,7 @@ development_status:
   # ============================================================
   # Epic 13: 文件預覽與欄位映射
   # ============================================================
-  epic-13: done  # All 7 stories completed (2026-01-07)
+  epic-13: done  # All 8 stories completed (2026-01-18)
   13-1-document-preview-field-highlight: done  # Completed 2026-01-02: PDFViewer (react-pdf), FieldHighlightOverlay (bounding box → screen coordinate), PDFControls (zoom/navigation), DynamicPDFViewer (SSR-safe), PDFLoadingSkeleton, PDFErrorDisplay, usePdfPreload hook, coordinate-transform utilities
   13-2-extracted-fields-panel: done  # Completed 2026-01-02: ExtractedFieldsPanel (field list with filtering/sorting/grouping), FieldCard (confidence color coding, inline editing, source labels), FieldFilters (search/confidence/source/sort controls), extracted-field.ts types (ExtractedField, FieldSource, ConfidenceLevel, FieldCategory, FieldFilterState)
   13-3-field-mapping-config-ui: done  # Completed 2026-01-03: MappingConfigPanel (主面板), ConfigSelector (GLOBAL/COMPANY/FORMAT 3層), SortableRuleItem (@dnd-kit draggable), MappingRuleList (drag-drop sorting), SourceFieldSelector (多選), TargetFieldSelector (單選), TransformConfigPanel (5種轉換), RuleEditor (編輯對話框), MappingPreview (即時預覽), index.ts exports
@@ -227,6 +227,7 @@ development_status:
   13-5-dynamic-field-mapping-integration: done  # Completed 2026-01-02: DynamicMappingService (主服務入口，整合所有映射組件), ConfigResolver (3-layer priority: FORMAT>COMPANY>GLOBAL), TransformExecutor (Strategy Pattern, 5 transform types), FieldMappingEngine (規則套用引擎), MappingCache (TTL快取, LRU eviction), MappingPipelineStep (管線步驟整合), field-mapping.ts types
   13-6-document-preview-integration-page: done  # Completed 2026-01-03: 整合測試頁面 - 整合 PDFViewer, ExtractedFieldsPanel, MappingConfigPanel 到單一 admin 頁面 (/admin/document-preview-test)，Zustand 狀態管理 (document-preview-test-store.ts)，TestFileUploader/TestToolbar 組件，ResizablePanelGroup 三欄佈局，13 story points
   13-7-field-mapping-admin-page: done  # Completed 2026-01-07: Field Mapping 後台管理頁面 - use-field-mapping-configs.ts (React Query Hooks: 10 hooks + transformToVisualConfig helper), 列表頁 (page.tsx: 表格+篩選+刪除確認), 新增頁 (new/page.tsx: MappingConfigPanel+標準欄位定義), 編輯頁 ([id]/page.tsx: 載入配置+規則同步邏輯), 13 story points
+  13-8-invoice-detail-page: done  # Completed 2026-01-18: InvoiceDetailHeader/Stats/Tabs/ProcessingTimeline/InvoiceAuditLog 組件, useInvoiceDetail hook (React Query + 3秒輪詢), DynamicPDFViewer/ExtractedFieldsPanel 整合, i18n 翻譯 (en/zh-TW/zh-CN invoices.detail namespace)
   epic-13-retrospective: optional
 
   # ============================================================
@@ -267,10 +268,60 @@ development_status:
   # ============================================================
   # Epic 17: 國際化 (i18n)
   # ============================================================
-  epic-17: backlog  # 5 stories planned - i18n internationalization using next-intl
-  17-1-i18n-infrastructure-setup: drafted  # Tech spec completed: next-intl installation, i18n config, routing restructure (/[locale]/...), middleware setup, zh-TW/en/zh-CN support
-  17-2-core-ui-text-internationalization: drafted  # Tech spec completed: ~400 P0 translation keys extraction, messages JSON structure, navigation/invoices/review/common namespaces
-  17-3-validation-error-internationalization: drafted  # Tech spec completed: Zod 4.x locales integration, API error messages i18n, RFC 7807 error format, useLocalizedZod hook
-  17-4-date-number-currency-formatting: drafted  # Tech spec completed: date-fns + Intl API, multi-currency support, formatLocalizedDate/Number/Currency utilities
-  17-5-language-preference-settings: drafted  # Tech spec completed: LocaleSwitcher component, User.preferredLocale DB field, localStorage fallback, hreflang meta tags
+  epic-17: done  # All 5 stories completed 2026-01-17 - i18n internationalization using next-intl
+  17-1-i18n-infrastructure-setup: done  # Completed 2026-01-17: next-intl 4.x, i18n config (config.ts/request.ts/routing.ts), routing restructure ([locale]/...), middleware integration (i18n + NextAuth), en/zh-TW/zh-CN locales, messages JSON (common namespace), [locale]/layout.tsx (NextIntlClientProvider), root redirect page
+  17-2-core-ui-text-internationalization: done  # Completed 2026-01-17: 10 translation namespaces (common/invoices/review/navigation/dialogs/admin/auth/companies/rules/reports), i18n/request.ts multi-namespace loading, invoices/page.tsx + review/page.tsx + Sidebar.tsx refactored with useTranslations
+  17-3-validation-error-internationalization: done  # Completed 2026-01-17: validation.json/errors.json (zh-TW/en/zh-CN), i18n-zod.ts (Zod 4.x locales integration), i18n-api-error.ts (RFC 7807 + Accept-Language), use-localized-zod.ts hook, use-localized-toast.ts hook, COMMON_FIELD_LABELS mapping
+  17-4-date-number-currency-formatting: done  # Completed 2026-01-17: i18n-date.ts (date-fns locales integration, DATE_FORMATS), i18n-number.ts (formatNumber/formatPercent/formatCompact/formatInteger/formatDecimal), i18n-currency.ts (7 currencies, CURRENCY_SYMBOLS/NAMES), use-localized-date.ts hook, use-localized-format.ts hook (unified API)
+  17-5-language-preference-settings: done  # Completed 2026-01-17: LocaleSwitcher component (TopBar integration), use-locale-preference.ts hook (LocalStorage + DB sync), User.preferredLocale Prisma field, PATCH /api/v1/users/me/locale API, next-auth session/jwt preferredLocale extension, hreflang meta tags in layout.tsx
   epic-17-retrospective: optional
+
+  # ============================================================
+  # Epic 18: 本地帳號認證系統
+  # ============================================================
+  epic-18: done  # All 4 stories completed 2026-01-19 - Local account authentication system
+  18-1-user-registration: done  # Completed 2026-01-19: RegisterForm (RHF+Zod), password.ts (bcryptjs salt=12), token.ts (crypto.randomBytes), email.ts (Nodemailer + verification template), POST /api/auth/register, User model extensions (emailVerificationToken/Expires, passwordResetToken/Expires), auth.json i18n (en/zh-TW/zh-CN)
+  18-2-local-account-login: done  # Completed 2026-01-19: LoginForm (RHF+Zod), auth.config.ts Credentials Provider (dynamic import, bcrypt verify), auth.ts JWT/signIn callbacks (provider detection, DB user load), login/page.tsx dual UI (Azure AD + local), auth.json i18n updates, error handling (AccountSuspended/Disabled/EmailNotVerified/CredentialsSignin)
+  18-3-password-reset: done  # Completed 2026-01-19: forgot-password/reset-password/verify-reset-token APIs, sendPasswordChangedEmail (email.ts), forgot-password/reset-password pages (RHF+Zod, token verification, password strength indicator), auth.json i18n (forgotPassword/resetPassword namespaces)
+  18-4-email-verification: done  # Completed 2026-01-19: GET /api/auth/verify-email (token validation, redirect), POST /api/auth/resend-verification (rate limit 5/hr), verify-email/page.tsx (status display, resend form), email.ts (API-based verify URL with locale), LoginForm (verified success, resend link), auth.json i18n (verifyEmail namespace en/zh-TW/zh-CN)
+  epic-18-retrospective: optional
+
+  # ============================================================
+  # Epic 19: 數據模版匹配與輸出
+  # ============================================================
+  epic-19: done  # All 8 stories completed 2026-01-23 - Template Matching & Export
+  19-1-template-field-mapping-model: done  # Completed 2026-01-22: TemplateFieldMapping model (GLOBAL/COMPANY/FORMAT scope), TemplateFieldMappingRule (DIRECT/FORMULA/LOOKUP/CONCAT/SPLIT/CUSTOM transforms), template-field-mapping.service.ts (CRUD + resolveMapping with 3-tier priority), template-field-mapping.ts types, Zod validation, CRUD APIs
+  19-2-template-instance-model: done  # Completed 2026-01-22: TemplateInstance model (DRAFT/PROCESSING/COMPLETED/EXPORTED/ERROR status), TemplateInstanceRow model (rowKey + sourceDocumentIds merge), template-instance.service.ts (instance+row CRUD, validation, statistics), template-instance.ts types, Zod validation, instance/row CRUD APIs
+  19-3-template-matching-engine: done  # Completed 2026-01-22: TemplateMatchingEngineService (matchDocuments/previewMatch/validateMapping), Transform module (DIRECT/FORMULA/LOOKUP/CONCAT/SPLIT transforms, TransformExecutor factory), template-matching-engine.ts types, Zod validation, execute/preview/validate APIs
+  19-4-template-field-mapping-ui: done  # Completed 2026-01-22: TemplateFieldMappingList (列表頁), TemplateFieldMappingForm (創建/編輯表單), MappingRuleEditor (規則編輯器), SourceFieldSelector/TargetFieldSelector (欄位選擇器), FormulaEditor (公式編輯器+安全解析器), LookupTableEditor (查表編輯器), MappingTestPanel (測試預覽), TransformConfigEditor (轉換配置), standard-fields.ts (50+標準欄位), use-template-field-mappings.ts hooks, templateFieldMapping.json i18n (en/zh-TW/zh-CN)
+  19-5-template-instance-ui: done  # Completed 2026-01-22: TemplateInstanceList (列表頁), TemplateInstanceCard (卡片), TemplateInstanceFilters (篩選器), CreateInstanceDialog (創建對話框), TemplateInstanceDetail (詳情頁), InstanceStatsOverview (統計), InstanceRowsTable (數據行表格), RowEditDialog (編輯對話框), RowDetailDrawer (詳情抽屜), BulkActionsMenu (批量操作), use-template-instances.ts hooks, templateInstance.json i18n (en/zh-TW/zh-CN)
+  19-6-template-export: done  # Completed 2026-01-23: TemplateExportService (Excel/CSV export, exceljs), exportToExcel/exportToCsv (row filter, field selection, format options), GET /api/v1/template-instances/[id]/export API (xlsx/csv/rowFilter/fields params), ExportDialog (format/row/field selection), ExportFieldSelector (draggable field selection), templateInstance.json i18n export section (en/zh-TW/zh-CN)
+  19-7-batch-auto-matching: done  # Completed 2026-01-23: AutoTemplateMatchingService (resolveDefaultTemplate 3-tier priority, autoMatch, batchMatch, unmatch), Document/Company/DocumentFormat.defaultTemplateId relations, POST /api/v1/documents/match (batch), POST /api/v1/documents/[id]/match (single), POST /api/v1/documents/[id]/unmatch, MatchToTemplateDialog, BulkMatchDialog, DefaultTemplateSelector, MatchStatusBadge components, templateInstance.json i18n match/unmatch sections (en/zh-TW/zh-CN)
+  19-8-integration-testing: done  # Completed 2026-01-23: 6-step TestWizard (TestDataSelector, TemplateSelector, MappingPreview, MatchExecutor, ResultViewer, ExportTester), mock data generation (3 documents with error case), TestReportGenerator (Markdown format, copy/download), templateMatchingTest.json i18n (en/zh-TW/zh-CN)
+  epic-19-retrospective: optional
+
+  # ============================================================
+  # Epic 20: Reference Number Master Setup
+  # ============================================================
+  epic-20: done  # Reference Number 主檔管理
+  20-1-database-model-infrastructure: done  # Completed 2026-02-04: Region model extensions (description, isDefault, sortOrder), ReferenceNumberType/ReferenceNumberStatus enums, ReferenceNumber model (code, number, type, status, year, regionId, validFrom/Until, matchCount), region.ts/reference-number.ts types, GLOBAL region seed, unique constraint (number+type+year+regionId)
+  20-2-crud-api-endpoints: done  # Completed 2026-02-05: Region CRUD APIs (/api/v1/regions GET/POST, /api/v1/regions/[id] GET/PATCH/DELETE), region.service.ts, region.schema.ts Zod validation, use-regions.ts hook, RegionSelect component, region.json i18n (en/zh-TW/zh-CN)
+  20-3-reference-number-crud-api: done  # Completed 2026-02-05: Reference Number CRUD APIs (/api/v1/reference-numbers GET/POST, /api/v1/reference-numbers/[id] GET/PATCH/DELETE), reference-number.service.ts, reference-number.schema.ts Zod validation, use-reference-numbers.ts hooks (list/detail/create/update/delete), auto-generated code (REF-{YEAR}-{REGION}-{RANDOM}), soft-delete, unique constraint validation
+  20-4-import-export-validate-api: done  # Completed 2026-02-05: Import API (POST /import, regionCode mapping, overwriteExisting/skipInvalid options, batch up to 1000), Export API (GET /export, year/regionId/type/status/isActive filters, JSON with code+regionCode), Validate API (POST /validate, case-insensitive match, auto matchCount increment, batch up to 100), importReferenceNumbersSchema/exportReferenceNumbersQuerySchema/validateReferenceNumbersSchema Zod, useImport/useExport/useValidateReferenceNumbers hooks
+  20-5-management-page-list-filter: done  # Completed 2026-02-05: /admin/reference-numbers page, ReferenceNumberList (Table+sort+pagination+actions), ReferenceNumberFilters (search+year+RegionSelect+type+status), ReferenceNumberDeleteDialog (AlertDialog+soft-delete), ReferenceNumberTypeBadge/StatusBadge, URL params sync (useSearchParams), referenceNumber.json i18n (en/zh-TW/zh-CN), navigation sidebar entry
+  20-6-management-page-form-import: done  # Completed 2026-02-05: ReferenceNumberForm (RHF+Zod, Popover+Calendar date picker, RegionSelect, edit readonly fields), new/page.tsx (create with useCreateReferenceNumber), [id]/page.tsx (edit with useUpdateReferenceNumber, loading/notFound states), ReferenceNumberImportDialog (JSON upload, overwriteExisting/skipInvalid, result stats/error details), ReferenceNumberExportButton (filtered export, date-named JSON download), list page import/export integration, referenceNumber.json i18n expansion (form/new/edit/import/export/messages/notFound)
+  epic-20-retrospective: optional
+
+  # ============================================================
+  # Epic 21: Exchange Rate Management (匯率管理)
+  # ============================================================
+  epic-21: done  # Exchange Rate Management - All 8 stories completed 2026-02-06
+  21-1-database-model-migration: done  # Completed 2026-02-05: ExchangeRateSource enum (MANUAL/IMPORTED/AUTO_INVERSE), ExchangeRate model (Decimal(18,8), self-relation inverseOf/inverseRates, @@unique fromCurrency+toCurrency+effectiveYear), indexes, TypeScript types (exchange-rate.ts), ISO 4217 COMMON_CURRENCIES constant
+  21-2-core-service-layer: done  # Completed 2026-02-05: Zod schemas (create/update/query/convert/batchGetRates), exchange-rate.service.ts (CRUD with inverse, convert with Fallback direct→inverse→cross(USD), batchGetRates, toggle, deleteWithInverse)
+  21-3-crud-api-endpoints: done  # Completed 2026-02-05: API routes (GET/POST /exchange-rates, GET/PATCH/DELETE /exchange-rates/[id], POST /exchange-rates/[id]/toggle), React Query hooks (useExchangeRates, useExchangeRate, useCreateExchangeRate, useUpdateExchangeRate, useDeleteExchangeRate, useToggleExchangeRate), RFC 7807 error handling, Zod validation
+  21-4-convert-calculation-api: done  # Completed 2026-02-05: POST /exchange-rates/convert (Fallback: direct→inverse→cross via USD, Decimal precision, year default), POST /exchange-rates/batch (parallel query, max 50 pairs, found/not_found), useConvertCurrency and useBatchRates React Query hooks
+  21-5-import-export-api: done  # Completed 2026-02-06: GET /export (year/isActive filters, exportVersion/exportedAt), POST /import (overwriteExisting/skipInvalid/createInverse options, max 500 items, error reporting), importExchangeRatesSchema/exportExchangeRatesQuerySchema Zod
+  21-6-management-page-list-filter: done  # Completed 2026-02-06: /admin/exchange-rates page, ExchangeRateList (Table+sort+pagination+toggle/delete actions), ExchangeRateFilters (year+fromCurrency+toCurrency+status+source), CurrencySelect (Command+Popover combobox with search), exchangeRate.json i18n (en/zh-TW/zh-CN), useExchangeRates/useDeleteExchangeRate/useToggleExchangeRate hooks integration
+  21-7-management-page-form: done  # Completed 2026-02-06: /admin/exchange-rates/new (create page), /admin/exchange-rates/[id] (edit page), ExchangeRateForm (RHF+Zod, CurrencySelect integration, inverse rate preview, 8-decimal precision), exchangeRate.json i18n form/validation sections (en/zh-TW/zh-CN), FormSkeleton loading state
+  21-8-management-page-calculator-import: done  # Completed 2026-02-06: ExchangeRateCalculator (CurrencySelect+amount input+swap+Convert API integration+result display with rate/path), ExchangeRateImportDialog (JSON file upload+paste+preview table+options+import result stats+error details), useImportExchangeRates/useExportExchangeRates hooks, exchangeRate.json i18n calculator/import/export sections (en/zh-TW/zh-CN)
+  epic-21-retrospective: optional

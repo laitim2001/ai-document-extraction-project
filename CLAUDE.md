@@ -1,6 +1,22 @@
 # AI Document Extraction Project - Claude Code 開發指引
 
 > 本文件為 Claude Code AI 助手的開發指引，自動作為 system prompt 載入。
+> 詳細規範已拆分至 `.claude/rules/` 和 `claudedocs/reference/`，本文件保留核心摘要與引用路徑。
+
+---
+
+## 🗣️ 語言設定（🔴 必須遵守）
+
+> **核心規則**: AI 助手在所有對話中**必須全程使用繁體中文**回應用戶。這是最高優先級的溝通規則，無論任何情境、任何技術討論，都不可使用英文或其他語言回覆用戶。技術術語和代碼標識符保留原文即可。
+
+| 場景 | 語言 | 強制等級 |
+|------|------|----------|
+| **用戶對話與回應** | 繁體中文 | 🔴 必須（無例外） |
+| **問題解釋與建議** | 繁體中文 | 🔴 必須（無例外） |
+| **代碼註釋** | 中文或英文 | 🟡 依上下文選擇 |
+| **Commit Message** | 英文 | 🟡 遵循 Conventional Commits |
+| **技術文檔** | 繁體中文為主 | 🟡 claudedocs/ 和 docs/ |
+| **代碼中的 UI 字串** | 使用 i18n key | 🔴 禁止硬編碼 |
 
 ---
 
@@ -30,7 +46,7 @@
 │ • 維護成本：中（每個 Forwarder 只需記錄差異）                    │
 ├─────────────────────────────────────────────────────────────────┤
 │ TIER 3: LLM Classification（AI 智能分類）                        │
-│ • 當以上都無法匹配時，使用 GPT-4o 智能分類                       │
+│ • 當以上都無法匹配時，使用 GPT-5.2 智能分類                      │
 │ • 可處理從未見過的新術語                                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -39,9 +55,11 @@
 
 | 信心度範圍 | 處理方式     | 說明                          |
 | ---------- | ------------ | ----------------------------- |
-| ≥ 90%      | AUTO_APPROVE | 自動通過，無需人工介入        |
-| 70-89%     | QUICK_REVIEW | 快速人工確認（一鍵確認/修正） |
-| < 70%      | FULL_REVIEW  | 完整人工審核（詳細檢查）      |
+| ≥ 95%      | AUTO_APPROVE | 自動通過，無需人工介入        |
+| 80-94%     | QUICK_REVIEW | 快速人工確認（一鍵確認/修正） |
+| < 80%      | FULL_REVIEW  | 完整人工審核（詳細檢查）      |
+
+> **V3.1 智能降級**: 新公司 → 強制 FULL_REVIEW；新格式 → 強制 QUICK_REVIEW；DEFAULT 配置來源 → 降一級路由。
 
 ---
 
@@ -49,112 +67,80 @@
 
 ### 核心框架
 
-- **前端**: Next.js 15 (App Router) + TypeScript
-- **樣式**: Tailwind CSS + shadcn/ui
-- **資料庫**: PostgreSQL + Prisma ORM
-- **狀態管理**: Zustand (UI) + React Query (Server State)
-- **表單**: React Hook Form + Zod 驗證
+- **前端**: Next.js 15.0.0 (App Router) + TypeScript 5.0 + React 18.3
+- **樣式**: Tailwind CSS 3.4 + shadcn/ui (Radix UI 20+ primitives)
+- **資料庫**: PostgreSQL 15 + Prisma ORM 7.2 (117 models)
+- **狀態管理**: Zustand 5.x (UI) + React Query 5.x (Server State)
+- **表單**: React Hook Form 7.x + Zod 4.x 驗證
+- **國際化**: next-intl 4.7 (支援 en, zh-TW, zh-CN，30 個命名空間)
+- **快取**: @upstash/redis
+- **拖放**: @dnd-kit (sortable UI)
 
 ### 外部服務
 
 - **OCR**: Azure Document Intelligence
-- **AI**: Azure OpenAI GPT-5.2
-- **認證**: Azure AD (Entra ID) SSO
+- **AI**: Azure OpenAI GPT-5.2 + OpenAI SDK
+- **認證**: Azure AD (Entra ID) SSO + 本地帳號認證
 - **工作流**: n8n
 - **文件來源**: SharePoint / Outlook / Azure Blob Storage
+- **Office 365**: Microsoft Graph Client
+
+### 文件處理
+
+- **PDF**: pdfjs-dist, pdf-parse, pdf-to-img, react-pdf, pdfkit
+- **Excel**: ExcelJS (匯出功能)
+- **Email**: Nodemailer (通知系統)
 
 ### 開發工具
 
-- **容器化**: Docker Compose (PostgreSQL + pgAdmin)
+- **容器化**: Docker Compose (PostgreSQL + pgAdmin + Azurite + Python OCR/Mapping)
 - **代碼品質**: ESLint + Prettier
+- **E2E 測試**: Playwright 1.57
 - **套件管理**: npm
+
+### 代碼規模概覽
+
+| 指標 | 數量 | 說明 |
+|------|------|------|
+| React 組件 | 165+ | `src/components/` 下所有 `.tsx` |
+| 業務服務 | 124+ | `src/services/` 下所有 `.ts` |
+| API 路由文件 | 175+ | 每個 route.ts 處理多個 HTTP 方法，約 300+ 端點 |
+| 自定義 Hooks | 89 | `src/hooks/` |
+| Prisma Models | 117 | 資料庫模型定義 |
+| i18n 命名空間 | 30/語言 | 3 種語言各 30 個 JSON 文件 |
 
 ---
 
-## 目錄結構
+## 目錄結構（精簡版）
 
 ```
 ai-document-extraction-project/
-│
-├── .claude/                    # 🤖 Claude Code 配置
-│   ├── rules/                  # 開發規範（8 個規則文件）
-│   │   ├── general.md          # 通用開發規範
-│   │   ├── typescript.md       # TypeScript 規範
-│   │   ├── services.md         # 服務層規範
-│   │   ├── api-design.md       # API 設計規範
-│   │   ├── components.md       # 組件開發規範
-│   │   ├── database.md         # 資料庫規範
-│   │   ├── testing.md          # 測試規範
-│   │   └── technical-obstacles.md  # 技術障礙處理
-│   └── settings.local.json     # 本地設定
-│
-├── claudedocs/                 # 📚 AI 助手文檔目錄（見下方詳細說明）
-│   ├── 1-planning/             # 規劃文檔（Epic 架構設計）
-│   ├── 2-sprints/              # Sprint 文檔
-│   ├── 3-progress/             # 進度追蹤（日報/週報）
-│   ├── 4-changes/              # 變更記錄（Bug/Feature）
-│   ├── 5-status/               # 狀態報告
-│   ├── 6-ai-assistant/         # AI 助手相關（情境提示詞）
-│   ├── 7-archive/              # 歸檔文檔
-│   └── CLAUDE.md               # 目錄索引
-│
-├── docs/                       # 📖 項目正式文檔
-│   ├── 00-discovery/           # 產品探索階段
-│   ├── 01-planning/            # 規劃階段 (PRD, UX)
-│   ├── 02-architecture/        # 架構設計
-│   ├── 03-stories/             # 用戶故事
-│   └── 04-implementation/      # 實施文檔
-│
-├── python-services/            # 🐍 Python 後端服務
-│   └── (OCR/AI 處理服務)       # Azure DI + GPT Vision
-│
-├── openapi/                    # 📄 OpenAPI 規格
-│   └── (API 規格文檔)          # Swagger/OpenAPI specs
-│
-├── prisma/                     # 🗄️ Prisma Schema 和遷移
-├── public/                     # 靜態資源
-├── scripts/                    # 工具腳本
-│
-├── src/                        # 💻 Next.js 源代碼
-│   ├── app/                    # App Router 頁面
-│   │   ├── (auth)/             # 認證相關頁面
-│   │   ├── (dashboard)/        # 儀表板頁面
-│   │   └── api/                # API 路由（256+ 端點）
-│   ├── components/             # React 組件（242+ 組件）
-│   │   ├── ui/                 # shadcn/ui 基礎組件
-│   │   ├── features/           # 功能組件
-│   │   └── layouts/            # 佈局組件
-│   ├── contexts/               # React Context 提供者
-│   ├── events/                 # 事件處理系統
-│   ├── hooks/                  # 自定義 Hooks
-│   ├── jobs/                   # 背景任務和排程
-│   ├── lib/                    # 工具庫
-│   ├── middlewares/            # 中間件
-│   ├── providers/              # 應用程式提供者
-│   ├── services/               # 業務邏輯服務層（91+ 服務）
-│   ├── stores/                 # Zustand 狀態管理
-│   ├── types/                  # TypeScript 類型定義
-│   └── validations/            # Zod 驗證 Schema
-│
-├── tests/                      # 🧪 測試文件
-│   ├── unit/                   # 單元測試
-│   ├── integration/            # 整合測試
-│   └── e2e/                    # 端到端測試
-│
-├── .github/                    # GitHub Actions CI/CD
-├── .bmad/                      # BMAD 工作流配置
-└── .vscode/                    # VS Code 設定
+├── .claude/              # Claude Code 配置（rules/ 9 規則 + agents/ 8 個 + skills/ 4 個）
+├── claudedocs/           # AI 助手文檔（planning/sprints/progress/changes/status/reference）
+├── docs/                 # 項目正式文檔（discovery/planning/architecture/stories/implementation）
+├── messages/             # i18n 翻譯文件（en/ zh-TW/ zh-CN/，各 30 個命名空間）
+├── prisma/               # Prisma Schema（117 models）和遷移
+├── python-services/      # Python 後端（extraction/ + mapping/）
+├── src/
+│   ├── app/[locale]/     # App Router（(auth)/ + (dashboard)/ 25+ admin 頁面）
+│   ├── app/api/          # API 路由（175 files, ~300 端點）
+│   ├── components/       # React 組件（ui/ + features/ + layout/，165+）
+│   ├── hooks/            # 自定義 Hooks（89 個）
+│   ├── i18n/             # i18n 配置（config.ts + routing.ts + request.ts）
+│   ├── lib/              # 工具庫（含 validations/ Zod Schema）
+│   ├── services/         # 業務邏輯服務層（124+，含 extraction-v3/ 三階段管線）
+│   ├── stores/           # Zustand 狀態管理
+│   └── types/            # TypeScript 類型定義
+└── tests/                # 測試（unit/ + integration/ + e2e/）
 ```
+
+> 📋 完整目錄結構（含 API 路由、Agents/Skills/Rules 詳表）：`claudedocs/reference/directory-structure.md`
 
 ---
 
-## 📚 ClaudeDocs - AI 助手文檔目錄
+## ClaudeDocs - AI 助手文檔目錄
 
 > **完整索引**: `claudedocs/CLAUDE.md`
-
-### 目錄用途
-
-`claudedocs/` 是 AI 助手（Claude）與開發團隊協作產出的項目文檔中心，用於：
 
 | 用途            | 目錄              | 說明                     |
 | --------------- | ----------------- | ------------------------ |
@@ -165,10 +151,9 @@ ai-document-extraction-project/
 | **狀態報告**    | `5-status/`       | 測試報告、系統狀態       |
 | **AI 協作**     | `6-ai-assistant/` | 情境提示詞、工作流程指南 |
 | **歸檔**        | `7-archive/`      | 舊版文檔、範本           |
+| **參考資料**    | `reference/`      | 目錄結構、進度表、檢查清單 |
 
 ### AI 助手情境提示詞 (SITUATION)
-
-開發過程中，AI 助手應根據不同情境使用對應的提示詞：
 
 | 情境            | 文件                     | 使用時機             |
 | --------------- | ------------------------ | -------------------- |
@@ -177,67 +162,18 @@ ai-document-extraction-project/
 | **SITUATION-3** | `FEATURE-ENHANCEMENT.md` | 功能增強、代碼優化   |
 | **SITUATION-4** | `NEW-FEATURE-DEV.md`     | 新功能實作執行       |
 | **SITUATION-5** | `SAVE-PROGRESS.md`       | 保存進度、會話結束   |
+| **SITUATION-6** | `SERVICE-STARTUP.md`     | 服務啟動、環境重啟   |
+| **SITUATION-7** | `SEED-DATA-MAINTENANCE.md` | Seed 數據維護、部署 |
 
 **路徑**: `claudedocs/6-ai-assistant/prompts/SITUATION-*.md`
 
-### 文檔命名約定
-
-```
-claudedocs/
-├── 1-planning/epics/epic-{N}/     # Epic 規劃 (N: 0-15)
-├── 4-changes/bug-fixes/FIX-{NNN}-*.md       # Bug 修復
-├── 4-changes/feature-changes/CHANGE-{NNN}-*.md  # 功能變更
-├── 3-progress/daily/{YYYY}-{MM}/{YYYY}-{MM}-{DD}.md  # 日報
-└── 3-progress/weekly/{YYYY}-W{WW}.md        # 週報
-```
-
-### 狀態標記
-
-| 標記 | 含義          |
-| ---- | ------------- |
-| ✅   | 已完成        |
-| 🚧   | 進行中        |
-| ⏸️   | 暫停/待開發   |
-| ❌   | 已取消        |
-| ⚠️   | 有風險/需注意 |
-
 ---
 
-## 代碼規範
+## 代碼規範（摘要）
 
-### 文件頭部註釋標準（必須遵守）
+### 文件頭部註釋（必須遵守）
 
-所有業務邏輯文件必須包含標準 JSDoc 頭部註釋：
-
-```typescript
-/**
- * @fileoverview [文件的主要目的和功能概述]
- * @description
- *   [更詳細的描述，包含：]
- *   - 主要功能說明
- *   - 設計決策說明
- *   - 重要注意事項
- *
- * @module [模組路徑，如 src/services/mapping]
- * @author [作者或團隊名稱]
- * @since [Epic X - Story X.X (功能名稱)]
- * @lastModified [最後修改日期 YYYY-MM-DD]
- *
- * @features
- *   - [功能點 1]
- *   - [功能點 2]
- *
- * @dependencies
- *   - [依賴 1] - [用途說明]
- *   - [依賴 2] - [用途說明]
- *
- * @related
- *   - [相關文件路徑 1] - [關係說明]
- *   - [相關文件路徑 2] - [關係說明]
- */
-```
-
-### 適用範圍
+所有業務邏輯文件必須包含標準 JSDoc 頭部註釋（含 `@fileoverview`、`@module`、`@since`、`@lastModified`）。
 
 | 文件類型                    | 是否需要完整頭部 | 說明           |
 | --------------------------- | ---------------- | -------------- |
@@ -248,23 +184,6 @@ claudedocs/
 | Feature Components          | ✅ 必須          | 功能性組件     |
 | UI Components (`ui/`)       | ❌ 不需要        | shadcn/ui 組件 |
 | Type Definitions            | ⚠️ 簡化版        | 類型文件       |
-
-### 函數/方法註釋標準
-
-````typescript
-/**
- * [函數功能簡述]
- *
- * @description [詳細描述，包含業務邏輯說明]
- * @param {Type} paramName - [參數說明]
- * @returns {ReturnType} [返回值說明]
- * @throws {ErrorType} [可能拋出的錯誤]
- * @example
- * ```typescript
- * const result = functionName(param);
- * ```
- */
-````
 
 ### 命名規範
 
@@ -277,194 +196,51 @@ claudedocs/
 | 類型/介面 | PascalCase       | `DocumentMetadata`         |
 | Enum 值   | UPPER_SNAKE_CASE | `Status.PENDING_REVIEW`    |
 
-### TypeScript 規範
-
-```typescript
-// ✅ 優先使用 interface 定義物件類型
-interface DocumentMetadata {
-  id: string;
-  fileName: string;
-  forwarderId: string;
-}
-
-// ✅ 使用 type 定義聯合類型
-type ConfidenceLevel = 'high' | 'medium' | 'low';
-
-// ✅ 使用 Zod 進行運行時驗證
-const DocumentSchema = z.object({
-  id: z.string().cuid(),
-  fileName: z.string().min(1),
-  forwarderId: z.string().cuid(),
-});
-
-// ❌ 避免使用 any
-function process(data: any) { ... }  // 不好
-
-// ✅ 使用具體類型或 unknown
-function process(data: DocumentMetadata) { ... }  // 好
-```
+> 📋 JSDoc 完整模板與代碼範例：`.claude/rules/general.md`
+> 📋 TypeScript 完整規範（類型定義、嚴格模式）：`.claude/rules/typescript.md`
 
 ---
 
-## API 設計規範
+## API 設計規範（摘要）
 
-### 路由結構
+- **成功響應**: `{ success: true, data: T, meta?: { pagination? } }`
+- **錯誤響應**: RFC 7807 格式 `{ type, title, status, detail, instance, errors? }`
+- **路由總量**: 175 route files，約 300+ 端點
 
-```
-src/app/api/
-├── v1/
-│   ├── documents/
-│   │   ├── route.ts              # GET (list), POST (create)
-│   │   ├── [id]/
-│   │   │   ├── route.ts          # GET, PATCH, DELETE
-│   │   │   └── review/
-│   │   │       └── route.ts      # POST (submit review)
-│   ├── forwarders/
-│   │   └── route.ts
-│   └── mappings/
-│       └── route.ts
-```
-
-### 響應格式
-
-**成功響應：**
-
-```typescript
-{
-  success: true,
-  data: T,
-  meta?: {
-    pagination?: { page, limit, total, totalPages }
-  }
-}
-```
-
-**錯誤響應 (RFC 7807)：**
-
-```typescript
-{
-  type: "https://api.example.com/errors/validation",
-  title: "Validation Error",
-  status: 400,
-  detail: "One or more fields failed validation",
-  instance: "/api/v1/documents/123",
-  errors?: {
-    field: ["error message"]
-  }
-}
-```
+> 📋 完整 API 設計規範與代碼範例：`.claude/rules/api-design.md`
+> 📋 API 路由完整目錄結構：`claudedocs/reference/directory-structure.md`
 
 ---
 
-## 資料庫規範
+## 資料庫規範（摘要）
 
-### Prisma Schema 命名
+- **ID 策略**: 新建模型一律使用 `@default(uuid())`。舊模型部分仍使用 `cuid()`，正在逐步遷移中
+- **遷移命名**: `YYYYMMDDHHMMSS_描述`（如 `npx prisma migrate dev --name add_confidence_score`）
+- **Schema 命名**: 模型 PascalCase 單數、欄位 camelCase、表名 snake_case 複數
 
-```prisma
-// 模型名稱: PascalCase 單數
-model Document {
-  // 欄位名稱: camelCase
-  id            String   @id @default(cuid())
-  fileName      String   @map("file_name")
-  createdAt     DateTime @default(now()) @map("created_at")
-
-  // 關聯欄位
-  forwarderId   String   @map("forwarder_id")
-  forwarder     Forwarder @relation(fields: [forwarderId], references: [id])
-
-  // 表名: snake_case 複數
-  @@map("documents")
-}
-```
-
-### 遷移命名
-
-```bash
-# 格式: YYYYMMDDHHMMSS_描述
-npx prisma migrate dev --name add_confidence_score_to_mappings
-```
+> 📋 完整資料庫規範與 Schema 範例：`.claude/rules/database.md`
 
 ---
 
-## 組件開發規範
+## 組件與狀態管理（摘要）
 
-### 組件結構
+- **UI 狀態**: Zustand（`src/stores/`）— 側邊欄、對話框等 UI 交互狀態
+- **伺服器狀態**: React Query（`src/hooks/`）— API 數據獲取、快取、同步
+- **組件結構**: `'use client'` → imports → interface → component function → return JSX
 
-```typescript
-'use client';  // 如果需要客戶端互動
-
-import * as React from 'react';
-// 1. React/Next.js imports
-// 2. 第三方庫
-// 3. 本地組件
-// 4. Hooks
-// 5. Utils
-// 6. Types
-
-interface ComponentProps {
-  // Props 定義
-}
-
-/**
- * @component ComponentName
- * @description 組件功能描述
- */
-export function ComponentName({ prop1, prop2 }: ComponentProps) {
-  // 1. Hooks
-  // 2. State
-  // 3. Effects
-  // 4. Handlers
-  // 5. Render
-
-  return (
-    // JSX
-  );
-}
-```
-
-### 狀態管理模式
-
-```typescript
-// UI 狀態 - Zustand
-// src/stores/ui-store.ts
-export const useUIStore = create<UIState>((set) => ({
-  sidebarOpen: true,
-  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-}))
-
-// 伺服器狀態 - React Query
-// src/hooks/use-documents.ts
-export function useDocuments(filters: DocumentFilters) {
-  return useQuery({
-    queryKey: ['documents', filters],
-    queryFn: () => documentApi.list(filters),
-  })
-}
-```
+> 📋 完整組件開發規範與代碼範例：`.claude/rules/components.md`
 
 ---
 
-## 測試規範
+## 測試規範（摘要）
 
-### 測試文件命名
+| 類型 | 覆蓋率目標 | 範圍 |
+|------|-----------|------|
+| 單元測試 | ≥ 80% | 核心業務邏輯 |
+| 整合測試 | ≥ 70% | API 端點 |
+| E2E 測試 | 關鍵流程 | 文件上傳、審核流程 |
 
-```
-tests/
-├── unit/
-│   └── services/
-│       └── mapping-service.test.ts
-├── integration/
-│   └── api/
-│       └── documents.test.ts
-└── e2e/
-    └── document-workflow.spec.ts
-```
-
-### 測試覆蓋率目標
-
-- **單元測試**: 核心業務邏輯 80%+
-- **整合測試**: API 端點 70%+
-- **E2E 測試**: 關鍵用戶流程
+> 📋 完整測試規範與目錄結構：`.claude/rules/testing.md`
 
 ---
 
@@ -473,100 +249,47 @@ tests/
 ### 分支命名
 
 ```
-main                    # 生產分支
-develop                 # 開發分支
-feature/epic-X-story-Y  # 功能分支
-fix/issue-description   # 修復分支
-hotfix/critical-issue   # 緊急修復
+main                                  # 生產分支
+feature/change-NNN-description        # 功能變更分支（當前主要使用）
+fix/issue-description                 # 修復分支
+hotfix/critical-issue                 # 緊急修復
 ```
+
+> 項目已從 `feature/epic-X-story-Y` 演進到 `feature/change-NNN` 模式。
 
 ### Commit Message 格式
 
 ```
 <type>(<scope>): <subject>
-
-[optional body]
-
-[optional footer]
 ```
 
-**類型：**
-
-- `feat`: 新功能
-- `fix`: Bug 修復
-- `docs`: 文檔更新
-- `style`: 代碼格式
-- `refactor`: 重構
-- `test`: 測試相關
-- `chore`: 構建/工具
-
-**範例：**
-
-```
-feat(document): add confidence score calculation
-
-- Implement three-tier mapping logic
-- Add confidence threshold constants
-- Create unit tests for edge cases
-
-Relates to: Epic-3, Story-3.2
-```
+**類型**: `feat` | `fix` | `docs` | `style` | `refactor` | `test` | `chore`
 
 ---
 
 ## 開發工作流
 
-### 本地開發啟動
+### 快速啟動
 
 ```bash
-# 1. 啟動資料庫
-docker-compose up -d
-
-# 2. 安裝依賴
-npm install
-
-# 3. 生成 Prisma Client
-npx prisma generate
-
-# 4. 執行資料庫遷移
-npx prisma migrate dev
-
-# 5. 檢查端口佔用（Windows）
-netstat -ano | findstr :3000 | findstr LISTENING
-
-# 6. 啟動開發伺服器
-npm run dev
-# 如果 port 3000 被佔用，使用備用端口:
-npm run dev -- -p 3200
+docker-compose up -d          # 1. 啟動 Docker 服務（PostgreSQL + Azurite）
+npm install                   # 2. 安裝依賴
+npx prisma generate           # 3. 生成 Prisma Client
+npx prisma migrate dev        # 4. 執行遷移
+npm run dev                   # 5. 啟動開發伺服器（預設 port 3000）
+npm run dev -- -p 3200        # 5b. 備用端口（推薦：3200/3300/3500）
 ```
-
-### 端口佔用處理
-
-| 問題 | 解決方案 |
-|------|----------|
-| `EADDRINUSE` 錯誤 | 使用備用端口: `npm run dev -- -p 3200` |
-| 查找佔用進程 | `netstat -ano \| findstr :3000` |
-| 終止進程 | `taskkill /F /PID <PID>` |
-
-**推薦備用端口**: 3200, 3300, 3500
-
-> 📋 詳細排解指南請參考: `.claude/CLAUDE.md`
 
 ### 代碼提交前檢查
 
 ```bash
-# 類型檢查
-npm run type-check
-
-# Lint 檢查
-npm run lint
-
-# 格式化
-npm run format
-
-# 測試
-npm run test
+npm run type-check            # TypeScript 類型檢查
+npm run lint                  # ESLint 檢查
+npm run format                # Prettier 格式化
+npm run test                  # 測試
 ```
+
+> 📋 詳細服務啟動流程與問題排解：`.claude/CLAUDE.md`
 
 ---
 
@@ -593,15 +316,123 @@ npm run test
 - ❌ 不要硬編碼敏感資訊
 - ❌ 不要在客戶端組件中直接訪問資料庫
 - ❌ 不要忽略 TypeScript 錯誤
-- ❌ **不要擅自偏離設計規格**（見下方技術障礙處理規範）
+- ❌ **不要擅自偏離設計規格**（見技術障礙處理規範）
 
 ---
 
-## 🚨 技術障礙處理規範（必須遵守）
+## 🤖 開發編排協議 — 並行 Agent 自動化（🟡 重要）
+
+> **核心原則**: 當任務可拆分為多個獨立子任務時，AI 助手應**主動**使用並行 Agent 編排來最大化開發效率。不需要用戶明確指示。
+
+### 自動觸發條件
+
+| 條件 | 說明 | 範例 |
+|------|------|------|
+| **多 CHANGE/FIX 同時開發** | 2+ 個獨立的 CHANGE 或 FIX | Sprint 含 CHANGE-043 + CHANGE-044 |
+| **大型功能實作** | 單一功能可拆分為 ≥3 個獨立模組 | API + Service + Component + i18n |
+| **多文件修改** | 涉及 >5 個文件且各自獨立 | 批量重構、模式統一 |
+| **用戶明確要求** | 用戶提及「並行」「同時」「一起做」 | — |
+
+### 標準執行流程
+
+```
+Step 1: 探索與規劃（主 Session）
+  ├─ 讀取規劃文件（tech-spec、CHANGE doc、相關代碼）
+  ├─ 識別可並行的獨立子任務
+  ├─ 確認各子任務之間無文件衝突
+  └─ 使用 TaskCreate 建立任務清單
+
+Step 2: 並行派發（使用 Task tool）
+  ├─ 為每個獨立子任務啟動 Agent（run_in_background: true）
+  ├─ 每個 Agent 的 prompt 必須包含：
+  │   ✅ 明確的實作範圍和預期產出
+  │   ✅ 相關文件路徑
+  │   ✅ 必須遵守的代碼規範引用
+  │   ✅ 不可修改的文件（避免衝突）
+  └─ 輸出啟動狀態表
+
+Step 3: 監控與彙總（主 Session）
+  ├─ 追蹤每個 Agent 的完成狀態
+  ├─ Agent 完成後 TaskUpdate 更新狀態
+  ├─ 如有 Agent 失敗，分析原因並決定重試或手動修復
+  └─ 所有 Agent 完成後輸出最終狀態表
+
+Step 4: 統一驗證（主 Session）
+  ├─ npm run type-check（TypeScript 類型檢查）
+  ├─ npm run lint（ESLint）
+  ├─ npm run i18n:check（i18n 同步，如涉及 UI 文字）
+  └─ 確認模組間整合正確性
+
+Step 5: 統一 Commit（僅在用戶要求時）
+```
+
+### Agent 選擇指南
+
+| 任務類型 | subagent_type | 用途 |
+|----------|---------------|------|
+| 功能實作（API + Service + Component） | `code-implementer` | 寫代碼，遵循規範 |
+| 代碼品質檢查 | `code-quality-checker` | 檢查 9 條規則合規性 |
+| i18n 翻譯同步 | `i18n-guardian` | 驗證 en/zh-TW/zh-CN 同步 |
+| 架構設計驗證 | `architecture-reviewer` | 驗證設計決策 |
+| 代碼探索與研究 | `Explore` | 快速搜尋代碼結構 |
+
+### 進度追蹤格式
+
+```markdown
+| Agent | 任務 | 狀態 | 備註 |
+|-------|------|------|------|
+| task-1 | CHANGE-XXX: 描述 | ✅ 完成 / 🔄 進行中 / ❌ 失敗 | 修改 N 文件 |
+| task-2 | CHANGE-YYY: 描述 | 🔄 進行中 | — |
+```
+
+### 限制與安全規則
+
+- **禁止並行修改同一文件**: 如多個 Agent 需修改同一文件，必須序列化處理
+- **i18n 統一處理**: 翻譯文件（`messages/`）的修改應在所有功能 Agent 完成後統一處理
+- **Agent 內禁止 Commit**: 所有 git 操作由主 Session 統一執行
+- **有依賴的任務不可並行**: 使用 TaskUpdate 的 `addBlockedBy` 管理依賴順序
+- **衝突時使用 worktree**: 若無法避免文件衝突，使用 `isolation: "worktree"` 給 Agent 獨立副本
+
+---
+
+## 🌐 i18n 同步規則（🔴 必須遵守）
+
+> **常見問題**：開發者在 TypeScript 中新增常量但忘記更新 i18n 翻譯，導致 `IntlError: MISSING_MESSAGE` 錯誤。
+
+### i18n 命名空間完整列表（30 個/語言）
+
+```
+common, navigation, dialogs, auth, validation, errors, dashboard, global,
+escalation, review, documents, rules, companies, reports, admin, confidence,
+historicalData, termAnalysis, documentPreview, fieldMappingConfig,
+promptConfig, dataTemplates, formats, templateFieldMapping, templateInstance,
+templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
+```
+
+> **重要**: 新增命名空間時，除了建立 3 個語言的 JSON 文件外，還必須在 `src/i18n/request.ts` 的 `namespaces` 陣列中加入新命名空間名稱。
+
+### 核心同步規則
+
+**當修改以下文件時，必須同步檢查 i18n：**
+- `src/types/*.ts` 中含有 `label`、`description` 的 `export const` 常量
+- `src/constants/*.ts` 中的任何常量
+- 任何會在 UI 顯示的 enum/object
+
+**新增功能模組時，必須同時：**
+1. 建立 `messages/en/<namespace>.json`
+2. 建立 `messages/zh-TW/<namespace>.json`
+3. 建立 `messages/zh-CN/<namespace>.json`
+4. 在 `src/i18n/request.ts` 的 `namespaces` 陣列中加入新命名空間
+
+**開發完成前必須執行：** `npm run i18n:check`
+
+> 📋 完整 i18n 規範、常量映射表與檢查清單：`.claude/rules/i18n.md`
+
+---
+
+## 🚨 技術障礙處理（🔴 必須遵守）
 
 > **核心原則**: 遇到技術障礙時，**絕不擅自改變設計決策**。任何偏離原設計的方案必須獲得用戶確認。
-
-### 禁止行為
 
 | 禁止            | 說明                            |
 | --------------- | ------------------------------- |
@@ -609,194 +440,61 @@ npm run test
 | ❌ 簡化功能     | 遇到困難不能減少功能            |
 | ❌ 隱藏問題     | 不能不告知用戶就使用 workaround |
 
-### 正確處理流程
-
-```
-遇到技術障礙
-    ↓
-1. 深入調查根本原因（嘗試至少 3 種方法）
-    ↓
-2. 如果無法解決 → 必須詢問用戶
-   - 說明問題是什麼
-   - 說明已嘗試的方案
-   - 提供替代方案選項（含影響分析）
-    ↓
-3. 如果用戶接受替代方案
-   - 記錄為技術債務
-   - 在 Implementation Notes 詳細說明
-```
-
-### 詢問模板
-
-```markdown
-## ⚠️ 技術障礙報告
-
-### 問題：[問題描述]
-
-### 已嘗試：
-
-1. [方案 1] → [失敗原因]
-2. [方案 2] → [失敗原因]
-
-### 替代方案：
-
-| 選項 | 方案       | 影響         |
-| ---- | ---------- | ------------ |
-| A    | 繼續調查   | 需要更多時間 |
-| B    | [替代方案] | [影響說明]   |
-
-請問您希望如何處理？
-```
-
-> 📋 完整規範請參考: `.claude/rules/technical-obstacles.md`
+> 📋 完整處理流程、詢問模板與技術債務記錄格式：`.claude/rules/technical-obstacles.md`
 
 ---
 
-## 🔄 開發後文檔更新檢查（必須執行）
+## 開發後文檔更新檢查
 
-> **重要**: 每次完成開發任務後，AI 助手必須執行以下檢查流程，確保項目文檔保持最新狀態。
+每次完成開發任務後，依序檢查：
+1. 是否涉及技術棧/架構變更？ → 更新 CLAUDE.md
+2. 是否新增/修改模組的公開 API？ → 更新對應 index.ts
+3. 是否發現新的開發規範/踩坑經驗？ → 更新 `.claude/rules/*.md`
+4. 是否完成 Epic/Story？ → 更新進度追蹤
 
-### 文檔更新決策流程
-
-```
-開發任務完成後，依序檢查：
-
-1. 是否涉及技術棧/架構變更？
-   └─ 是 → 更新 CLAUDE.md（技術棧、目錄結構等章節）
-
-2. 是否新增/修改模組的公開 API？
-   └─ 是 → 更新對應模組的 index.ts（導出、文檔註釋）
-
-3. 是否發現新的開發規範/最佳實踐/踩坑經驗？
-   └─ 是 → 更新對應的 .claude/rules/*.md
-
-4. 是否完成 Epic/Story？
-   └─ 是 → 更新 CLAUDE.md 項目進度追蹤表
-```
-
-### 各文檔更新時機
-
-| 文檔類型                | 更新觸發條件                              | 更新頻率 |
-| ----------------------- | ----------------------------------------- | -------- |
-| **CLAUDE.md**           | 技術棧變更、架構調整、目錄重組、Epic 完成 | 低       |
-| **index.ts**            | 新增服務、導出變更、常數調整              | 中       |
-| **.claude/rules/\*.md** | 新開發模式、踩坑經驗、團隊約定變更        | 中低     |
-
-### 開發完成檢查清單
-
-完成每個 Story 或重要功能後，AI 助手應自動執行以下檢查：
-
-```markdown
-## 📋 開發完成檢查
-
-### 代碼品質
-
-- [ ] 通過 TypeScript 類型檢查 (`npm run type-check`)
-- [ ] 通過 ESLint 檢查 (`npm run lint`)
-- [ ] 新增代碼包含標準 JSDoc 註釋
-
-### 文檔同步
-
-- [ ] 如涉及新模組 → 已更新/建立 index.ts
-- [ ] 如涉及架構變更 → 已更新 CLAUDE.md
-- [ ] 如發現新規範/踩坑 → 已更新 .claude/rules/
-- [ ] 如完成 Story → 已更新項目進度
-
-### 測試驗證
-
-- [ ] 相關測試通過
-- [ ] 新功能已有對應測試（如適用）
-```
-
-### 自動提醒規則
-
-AI 助手在以下情況應**主動提醒**用戶考慮更新文檔：
-
-1. **建立新的 service 文件** → 提醒更新 `src/services/index.ts`
-2. **新增外部依賴** → 提醒檢查是否需更新 CLAUDE.md 技術棧
-3. **修改 Prisma Schema** → 提醒檢查 `.claude/rules/database.md`
-4. **建立新的 API 端點** → 提醒檢查 API 路由結構文檔
-5. **遇到並解決複雜問題** → 提醒記錄到 `.claude/rules/` 作為經驗
-
-### 範例：開發完成後的文檔更新
-
-```bash
-# 情境：完成 Story 3.2 - 新增映射服務
-
-## 需要更新的文檔：
-
-1. src/services/index.ts
-   - 新增 export * from './mapping-service'
-   - 更新 @features 列表
-
-2. CLAUDE.md
-   - 更新項目進度：Epic 3 狀態改為 🟡 進行中
-
-3. .claude/rules/services.md（如發現新模式）
-   - 記錄映射服務的設計模式
-   - 記錄三層映射的實現要點
-```
+> 📋 完整檢查清單、自動提醒規則與更新範例：`claudedocs/reference/dev-checklists.md`
 
 ---
 
 ## 項目進度追蹤
 
-> **進度來源**: `docs/04-implementation/sprint-status.yaml` - 項目進度的唯一真實來源
+全部 **22 個 Epic**（157+ Stories）已完成。項目已進入 **Phase 2 功能變更模式**，累計 33 CHANGE + 35 FIX。
 
-### Epic 結構（16 個 Epic，104 個 Stories）
-
-| Epic | 名稱                        | Stories | 狀態      | 完成日期   |
-| ---- | --------------------------- | ------- | --------- | ---------- |
-| 0    | 歷史數據初始化（前置 Epic） | 7       | ✅ 已完成 | 2025-12-26 |
-| 1    | 用戶認證與存取控制          | 9       | ✅ 已完成 | 2025-12-18 |
-| 2    | 手動發票上傳與 AI 處理      | 7       | ✅ 已完成 | 2025-12-18 |
-| 3    | 發票審核與修正工作流        | 8       | ✅ 已完成 | 2025-12-19 |
-| 4    | 映射規則管理與自動學習      | 8       | ✅ 已完成 | 2025-12-19 |
-| 5    | Forwarder 配置管理          | 5       | ✅ 已完成 | 2025-12-19 |
-| 6    | 多城市數據隔離              | 5       | ✅ 已完成 | 2025-12-19 |
-| 7    | 報表儀表板與成本追蹤        | 10      | ✅ 已完成 | 2025-12-20 |
-| 8    | 審計追溯與合規              | 6       | ✅ 已完成 | 2025-12-20 |
-| 9    | 自動化文件獲取              | 5       | ✅ 已完成 | 2025-12-20 |
-| 10   | n8n 工作流整合              | 7       | ✅ 已完成 | 2025-12-21 |
-| 11   | 對外 API 服務               | 6       | ✅ 已完成 | 2025-12-21 |
-| 12   | 系統管理與監控              | 7       | ✅ 已完成 | 2025-12-21 |
-| 13   | 文件預覽與欄位映射          | 6       | ✅ 已完成 | 2026-01-03 |
-| 14   | Prompt 配置與動態生成       | 4       | ✅ 已完成 | 2026-01-03 |
-| 15   | 統一 3 層機制到日常處理流程 | 5       | ✅ 已完成 | 2026-01-03 |
-
-### 重要重構記錄
-
-| 重構         | 說明                         | 狀態      | 完成 Story |
-| ------------ | ---------------------------- | --------- | ---------- |
-| REFACTOR-001 | Forwarder → Company 模型重構 | ✅ 已完成 | Story 0-3  |
+> **進度唯一真實來源**: `docs/04-implementation/sprint-status.yaml`
+> 📋 完整 Epic 進度表與變更記錄：`claudedocs/reference/project-progress.md`
 
 ---
 
-## 語言設定
+## 按需查閱文檔索引
 
-- **用戶溝通語言**: 繁體中文
-- **代碼註釋**: 中文或英文（依據上下文）
-- **Commit Message**: 英文
-- **文檔**: 繁體中文為主
+| 需要了解 | 查閱路徑 |
+|----------|----------|
+| 完整目錄結構與 API 路由 | `claudedocs/reference/directory-structure.md` |
+| 開發後檢查清單與提醒規則 | `claudedocs/reference/dev-checklists.md` |
+| 項目進度表與版本記錄 | `claudedocs/reference/project-progress.md` |
+| ClaudeDocs 完整索引 | `claudedocs/CLAUDE.md` |
+| 服務啟動與問題排解 | `.claude/CLAUDE.md` |
+| Sprint 狀態（唯一真實來源） | `docs/04-implementation/sprint-status.yaml` |
+| JSDoc 模板與代碼範例 | `.claude/rules/general.md` |
+| TypeScript 完整規範 | `.claude/rules/typescript.md` |
+| 服務層規範 | `.claude/rules/services.md` |
+| API 設計規範 | `.claude/rules/api-design.md` |
+| 組件開發規範 | `.claude/rules/components.md` |
+| 資料庫規範 | `.claude/rules/database.md` |
+| 測試規範 | `.claude/rules/testing.md` |
+| i18n 完整規範 | `.claude/rules/i18n.md` |
+| 技術障礙處理流程 | `.claude/rules/technical-obstacles.md` |
+| 並行 Agent 編排協議 | `CLAUDE.md` §開發編排協議 |
+| PRD | `docs/01-planning/prd/prd.md` |
+| 系統架構設計 | `docs/02-architecture/` |
+| Tech Specs | `docs/03-stories/tech-specs/` |
+| 實施上下文 | `docs/04-implementation/implementation-context.md` |
 
 ---
 
 ## 版本資訊
 
-- **CLAUDE.md 版本**: 2.2.0
-- **建立日期**: 2025-12-17
-- **最後更新**: 2026-01-03
-- **維護者**: Development Team
-
-### 更新記錄
-
-| 版本  | 日期       | 變更內容                                                                         |
-| ----- | ---------- | -------------------------------------------------------------------------------- |
-| 2.2.0 | 2026-01-03 | Epic 13-15 全部完成、Story 13-6 整合測試頁面實作完成                             |
-| 2.1.0 | 2026-01-02 | 新增 Epic 13-15 規劃文檔、更新 Epic 總數至 16 個、Story 總數至 104 個            |
-| 2.0.0 | 2025-12-26 | 重大更新：全部 13 個 Epic 已完成、新增 Epic 0、更新目錄結構、Story 數量更正為 90 |
-| 1.4.0 | 2025-12-18 | Story 2-2 完成：OCR 提取服務（Python FastAPI + Next.js API）                     |
-| 1.3.0 | 2025-12-18 | Story 2-1 完成，Epic 2 開始進行                                                  |
-| 1.2.0 | 2025-12-18 | Epic 1 完成，更新項目進度和 Epic 名稱（中文化）                                  |
-| 1.1.0 | 2025-12-18 | 新增「開發後文檔更新檢查」章節                                                   |
-| 1.0.0 | 2025-12-17 | 初始版本                                                                         |
+- **CLAUDE.md 版本**: 3.1.0
+- **最後更新**: 2026-02-23
+- **變更記錄**: 新增開發編排協議（並行 Agent 自動化）（v3.0.0 → v3.1.0）
+- **完整版本歷史**: `claudedocs/reference/project-progress.md`

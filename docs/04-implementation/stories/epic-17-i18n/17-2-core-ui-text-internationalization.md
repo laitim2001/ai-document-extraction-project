@@ -231,7 +231,7 @@ export default function InvoicesPage() {
 | Story ID | 17.2 |
 | Story Key | 17-2-core-ui-text-internationalization |
 | Epic | Epic 17: i18n 國際化 |
-| Estimated Effort | Large (12-16h) |
+| Estimated Effort | X-Large (20-28h) |
 | Dependencies | Story 17.1 |
 | Blocking | Story 17.5 |
 

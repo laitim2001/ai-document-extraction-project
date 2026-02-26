@@ -1,7 +1,8 @@
 # Story 17-3: 驗證訊息與錯誤處理國際化 - Technical Specification
 
-**Version:** 1.0
+**Version:** 1.1
 **Created:** 2026-01-16
+**Updated:** 2026-01-16
 **Status:** Ready for Development
 **Story Key:** 17-3-validation-error-internationalization
 
@@ -13,7 +14,7 @@
 |-------|-------|
 | Story ID | 17.3 |
 | Epic | Epic 17: i18n 國際化 |
-| Estimated Effort | Medium (6-10h) |
+| Estimated Effort | Large (10-14h) |
 | Dependencies | Story 17.1 |
 | Blocking | 無 |
 
@@ -21,7 +22,17 @@
 
 ## Objective
 
-將 Zod 驗證訊息和 API 錯誤響應國際化，確保用戶在操作失敗時能以其偏好語言理解錯誤原因。包括建立標準化的驗證訊息模板、整合 Zod 4.x 內建 locales、以及更新 API 錯誤響應格式。
+將 Zod 驗證訊息和 API 錯誤響應國際化，確保用戶在操作失敗時能以其偏好語言理解錯誤原因。預計處理約 **200-250 個翻譯字串**：
+
+| 類別 | 預估字串數 | 說明 |
+|------|-----------|------|
+| 通用驗證訊息 | 25-30 | required, minLength, email 等 |
+| API 標準錯誤 | 16-20 | 401, 403, 404, 500 等 |
+| **業務級錯誤** | 30-40 | OCR、映射、處理相關錯誤 (NEW) |
+| 網路/認證錯誤 | 10-15 | 連線、token、session 錯誤 |
+| Toast 通知 | 15-20 | 成功、失敗、警告訊息 |
+
+> **Version 1.1 更新**：根據深度覆蓋分析，新增 9 個業務級錯誤類型和 5 個額外 Zod 驗證訊息。
 
 ---
 
@@ -33,6 +44,8 @@
 | AC2 | API 錯誤響應國際化 | 建立 createLocalizedError 函數、解析 Accept-Language |
 | AC3 | Toast 通知國際化 | 建立 useLocalizedToast hook、更新現有調用 |
 | AC4 | 驗證訊息標準化 | 建立 validation.json 翻譯檔案、定義標準 key |
+| **AC5** | **業務錯誤國際化** | 新增 9 個業務級錯誤類型翻譯 (NEW) |
+| **AC6** | **擴展驗證訊息** | 新增日期、CUID、整數驗證訊息 (NEW) |
 
 ---
 
@@ -69,6 +82,8 @@ Create `messages/zh-TW/validation.json`:
   "dateInvalid": "請輸入有效的日期",
   "dateMin": "日期不能早於 {min}",
   "dateMax": "日期不能晚於 {max}",
+  "integer": "{field}必須為整數",
+  "cuid": "請輸入有效的 CUID",
   "fileTooLarge": "檔案大小不能超過 {max}MB",
   "fileTypeNotAllowed": "不支援的檔案類型",
   "custom": {
@@ -109,6 +124,8 @@ Create `messages/en/validation.json`:
   "dateInvalid": "Please enter a valid date",
   "dateMin": "Date cannot be before {min}",
   "dateMax": "Date cannot be after {max}",
+  "integer": "{field} must be an integer",
+  "cuid": "Please enter a valid CUID",
   "fileTooLarge": "File size cannot exceed {max}MB",
   "fileTypeNotAllowed": "File type not supported",
   "custom": {
@@ -171,6 +188,44 @@ Create `messages/zh-TW/errors.json`:
     "sessionExpired": "您的登入已過期，請重新登入",
     "invalidToken": "無效的認證令牌",
     "accountDisabled": "您的帳戶已被停用"
+  },
+  "business": {
+    "variableResolution": {
+      "title": "變數解析失敗",
+      "detail": "無法解析 Prompt 模板中的變數：{variable}"
+    },
+    "identificationFailed": {
+      "title": "文件識別失敗",
+      "detail": "無法識別文件類型或公司，請確認文件格式正確"
+    },
+    "extractionFailed": {
+      "title": "資料提取失敗",
+      "detail": "OCR 提取過程發生錯誤：{reason}"
+    },
+    "mappingNotFound": {
+      "title": "映射規則不存在",
+      "detail": "找不到適用的映射規則：{field}"
+    },
+    "configurationError": {
+      "title": "配置錯誤",
+      "detail": "系統配置不完整或無效：{config}"
+    },
+    "processingTimeout": {
+      "title": "處理逾時",
+      "detail": "文件處理超過時限（{timeout}秒），請稍後重試"
+    },
+    "duplicateEntry": {
+      "title": "重複記錄",
+      "detail": "已存在相同的{entity}記錄"
+    },
+    "dependencyError": {
+      "title": "依賴關係錯誤",
+      "detail": "無法刪除，尚有{count}個相關記錄依賴此項目"
+    },
+    "dataIntegrity": {
+      "title": "資料完整性錯誤",
+      "detail": "資料驗證失敗：{reason}"
+    }
   }
 }
 ```
@@ -222,6 +277,44 @@ Create `messages/en/errors.json`:
     "sessionExpired": "Your session has expired. Please sign in again",
     "invalidToken": "Invalid authentication token",
     "accountDisabled": "Your account has been disabled"
+  },
+  "business": {
+    "variableResolution": {
+      "title": "Variable Resolution Failed",
+      "detail": "Unable to resolve variable in Prompt template: {variable}"
+    },
+    "identificationFailed": {
+      "title": "Document Identification Failed",
+      "detail": "Unable to identify document type or company. Please verify the document format"
+    },
+    "extractionFailed": {
+      "title": "Data Extraction Failed",
+      "detail": "OCR extraction process encountered an error: {reason}"
+    },
+    "mappingNotFound": {
+      "title": "Mapping Rule Not Found",
+      "detail": "No applicable mapping rule found for: {field}"
+    },
+    "configurationError": {
+      "title": "Configuration Error",
+      "detail": "System configuration is incomplete or invalid: {config}"
+    },
+    "processingTimeout": {
+      "title": "Processing Timeout",
+      "detail": "Document processing exceeded time limit ({timeout}s). Please try again later"
+    },
+    "duplicateEntry": {
+      "title": "Duplicate Entry",
+      "detail": "A {entity} with the same data already exists"
+    },
+    "dependencyError": {
+      "title": "Dependency Error",
+      "detail": "Cannot delete. {count} related records depend on this item"
+    },
+    "dataIntegrity": {
+      "title": "Data Integrity Error",
+      "detail": "Data validation failed: {reason}"
+    }
   }
 }
 ```
@@ -801,6 +894,17 @@ export function useLocalizedToast() {
 | 401 錯誤（en） | Accept-Language: en | title: 「Unauthorized」 | [ ] |
 | 驗證錯誤 | 提交無效資料 | 返回國際化欄位錯誤 | [ ] |
 | 404 錯誤 | 訪問不存在資源 | 返回國際化錯誤訊息 | [ ] |
+
+### Business Error Verification (NEW)
+
+| Test Case | Steps | Expected Result | Status |
+|-----------|-------|-----------------|--------|
+| OCR 提取失敗（zh-TW） | 上傳無法識別的文件 | 「資料提取失敗」 | [ ] |
+| OCR 提取失敗（en） | 上傳無法識別的文件 | 「Data Extraction Failed」 | [ ] |
+| 映射規則不存在 | 遇到未知費用類型 | 顯示對應語言的錯誤 | [ ] |
+| 處理逾時 | 處理大型文件超時 | 顯示對應語言的逾時訊息 | [ ] |
+| 重複記錄 | 建立重複的公司代碼 | 顯示對應語言的重複訊息 | [ ] |
+| 依賴關係錯誤 | 刪除有依賴的記錄 | 顯示對應語言的依賴錯誤 | [ ] |
 
 ### Toast Verification
 

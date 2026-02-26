@@ -157,7 +157,7 @@ export const DEFAULT_FACTORS: ConfidenceFactors = {
 // ============================================================
 
 /**
- * 因素標籤（用於 UI 顯示）
+ * 因素標籤（用於 UI 顯示）- V2 版本（4 因素）
  */
 export const FACTOR_LABELS: Record<keyof ConfidenceFactors, { en: string; zh: string }> = {
   ocrConfidence: { en: 'OCR Clarity', zh: 'OCR 清晰度' },
@@ -165,6 +165,151 @@ export const FACTOR_LABELS: Record<keyof ConfidenceFactors, { en: string; zh: st
   formatValidation: { en: 'Format Validation', zh: '格式驗證' },
   historicalAccuracy: { en: 'Historical Accuracy', zh: '歷史準確率' },
 } as const
+
+// ============================================================
+// V3 Factor Configuration (5 Dimensions)
+// CHANGE-022: V3 架構 UI 更新
+// ============================================================
+
+/**
+ * V3 信心度維度類型
+ * @since CHANGE-022
+ */
+export type ConfidenceDimensionV3Key =
+  | 'EXTRACTION'
+  | 'ISSUER_IDENTIFICATION'
+  | 'FORMAT_MATCHING'
+  | 'FIELD_COMPLETENESS'
+  | 'HISTORICAL_ACCURACY'
+
+/**
+ * V3 維度標籤（用於 UI 顯示）- 5 維度版本
+ * @since CHANGE-022
+ */
+export const FACTOR_LABELS_V3: Record<ConfidenceDimensionV3Key, { en: string; zh: string; 'zh-CN': string }> = {
+  EXTRACTION: {
+    en: 'GPT Extraction',
+    zh: 'GPT 提取品質',
+    'zh-CN': 'GPT 提取品质',
+  },
+  ISSUER_IDENTIFICATION: {
+    en: 'Issuer Identification',
+    zh: '發行方識別',
+    'zh-CN': '发行方识别',
+  },
+  FORMAT_MATCHING: {
+    en: 'Format Matching',
+    zh: '格式匹配',
+    'zh-CN': '格式匹配',
+  },
+  FIELD_COMPLETENESS: {
+    en: 'Field Completeness',
+    zh: '欄位完整性',
+    'zh-CN': '字段完整性',
+  },
+  HISTORICAL_ACCURACY: {
+    en: 'Historical Accuracy',
+    zh: '歷史準確率',
+    'zh-CN': '历史准确率',
+  },
+} as const
+
+/**
+ * V3 維度權重配置
+ * @description 5 維度權重，總和為 1.0
+ * @since CHANGE-022
+ */
+export const FACTOR_WEIGHTS_V3: Record<ConfidenceDimensionV3Key, number> = {
+  EXTRACTION: 0.30,           // 30%
+  ISSUER_IDENTIFICATION: 0.20, // 20%
+  FORMAT_MATCHING: 0.15,       // 15%
+  FIELD_COMPLETENESS: 0.20,    // 20%
+  HISTORICAL_ACCURACY: 0.15,   // 15%
+} as const
+
+/**
+ * V3 維度順序（用於 UI 顯示）
+ * @since CHANGE-022
+ */
+export const DIMENSION_ORDER_V3: ConfidenceDimensionV3Key[] = [
+  'EXTRACTION',
+  'ISSUER_IDENTIFICATION',
+  'FORMAT_MATCHING',
+  'FIELD_COMPLETENESS',
+  'HISTORICAL_ACCURACY',
+]
+
+// ============================================================
+// Version Detection (V2 vs V3)
+// ============================================================
+
+/**
+ * 信心度維度介面（用於版本檢測）
+ */
+interface ConfidenceDimensionInfo {
+  name: string
+  [key: string]: unknown
+}
+
+/**
+ * 根據維度數據判斷信心度版本
+ * @param dimensions - 維度陣列
+ * @returns 'v2' | 'v3'
+ * @since CHANGE-022
+ */
+export function detectConfidenceVersion(dimensions: ConfidenceDimensionInfo[]): 'v2' | 'v3' {
+  // V3 只有 5 個維度
+  if (dimensions.length === 5) return 'v3'
+
+  // V2 有 7 個維度
+  if (dimensions.length === 7) return 'v2'
+
+  // 檢查 V2 特有維度
+  const hasV2Dimensions = dimensions.some((d) =>
+    d.name === 'CONFIG_MATCH' || d.name === 'TERM_MATCHING'
+  )
+
+  return hasV2Dimensions ? 'v2' : 'v3'
+}
+
+/**
+ * 處理步驟介面（用於版本檢測）
+ */
+interface ProcessingStepInfo {
+  step: string
+  [key: string]: unknown
+}
+
+/**
+ * 根據處理步驟判斷處理版本
+ * @param steps - 步驟陣列
+ * @returns 'v2' | 'v3'
+ * @since CHANGE-022
+ */
+export function detectProcessingVersion(steps: ProcessingStepInfo[]): 'v2' | 'v3' {
+  const stepNames = steps.map((s) => s.step)
+
+  // V3 特有步驟
+  if (
+    stepNames.includes('UNIFIED_GPT_EXTRACTION') ||
+    stepNames.includes('DYNAMIC_PROMPT_ASSEMBLY') ||
+    stepNames.includes('FILE_PREPARATION') ||
+    stepNames.includes('RESULT_VALIDATION')
+  ) {
+    return 'v3'
+  }
+
+  // V2 特有步驟
+  if (
+    stepNames.includes('AZURE_DI_EXTRACTION') ||
+    stepNames.includes('GPT_ENHANCED_EXTRACTION') ||
+    stepNames.includes('FIELD_MAPPING')
+  ) {
+    return 'v2'
+  }
+
+  return 'v2' // 預設
+}
 
 // ============================================================
 // Helper Functions

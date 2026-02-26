@@ -8,7 +8,7 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.4
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-31
  *
  * @features
  *   - Prompt 配置區塊（LinkedPromptConfig）
@@ -18,6 +18,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -82,22 +83,24 @@ function ConfigPanelSkeleton() {
 function ConfigPanelError({
   error,
   onRetry,
+  t,
 }: {
   error: Error;
   onRetry: () => void;
+  t: ReturnType<typeof useTranslations<'formats.detail.configs'>>;
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="rounded-full bg-destructive/10 p-3 mb-4">
         <AlertCircle className="h-6 w-6 text-destructive" />
       </div>
-      <h3 className="text-sm font-medium mb-1">載入配置失敗</h3>
+      <h3 className="text-sm font-medium mb-1">{t('loadError')}</h3>
       <p className="text-xs text-muted-foreground mb-4 max-w-sm">
-        {error.message || '無法獲取配置資訊，請稍後再試。'}
+        {error.message || t('loadErrorDescription')}
       </p>
       <Button variant="outline" size="sm" onClick={onRetry}>
         <RefreshCw className="mr-2 h-4 w-4" />
-        重試
+        {t('retry')}
       </Button>
     </div>
   );
@@ -117,6 +120,8 @@ function ConfigPanelError({
  *   3. 映射配置區塊 - 顯示/創建/編輯欄位映射配置
  */
 export function FormatConfigPanel({ formatId, companyId }: FormatConfigPanelProps) {
+  const t = useTranslations('formats.detail.configs');
+
   // --- Query ---
 
   const {
@@ -150,6 +155,7 @@ export function FormatConfigPanel({ formatId, companyId }: FormatConfigPanelProp
       <ConfigPanelError
         error={error instanceof Error ? error : new Error('Unknown error')}
         onRetry={() => refetch()}
+        t={t}
       />
     );
   }
@@ -159,8 +165,9 @@ export function FormatConfigPanel({ formatId, companyId }: FormatConfigPanelProp
   if (!data?.success || !data.data) {
     return (
       <ConfigPanelError
-        error={new Error('無法獲取配置資料')}
+        error={new Error(t('noData'))}
         onRetry={() => refetch()}
+        t={t}
       />
     );
   }
@@ -177,9 +184,9 @@ export function FormatConfigPanel({ formatId, companyId }: FormatConfigPanelProp
       {/* Prompt 配置 */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Prompt 配置</CardTitle>
+          <CardTitle className="text-base">{t('prompt.title')}</CardTitle>
           <CardDescription>
-            定義 AI 提取和分類時使用的提示詞，格式專屬配置優先於公司和全域配置
+            {t('prompt.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -195,9 +202,9 @@ export function FormatConfigPanel({ formatId, companyId }: FormatConfigPanelProp
       {/* 映射配置 */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">欄位映射配置</CardTitle>
+          <CardTitle className="text-base">{t('mapping.title')}</CardTitle>
           <CardDescription>
-            定義欄位轉換規則，將提取的欄位映射到標準格式
+            {t('mapping.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -1,17 +1,19 @@
 'use client'
 
 /**
- * @fileoverview Forwarder 資料表格組件
+ * @fileoverview Forwarder 資料表格組件（國際化版本）
  * @description
  *   顯示 Forwarder 列表的資料表格。
  *   支援排序、分頁、空狀態顯示。
+ *   - 完整國際化支援
  *
  * @module src/components/features/forwarders/ForwarderTable
  * @author Development Team
  * @since Epic 5 - Story 5.1 (Forwarder Profile List)
- * @lastModified 2025-12-19
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - date-fns - 日期格式化
  *   - @/components/ui - shadcn/ui 組件
  *
@@ -21,8 +23,9 @@
  */
 
 import * as React from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { formatDistanceToNow, format } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
+import { zhTW, enUS } from 'date-fns/locale'
 import { ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontal } from 'lucide-react'
 import {
   Table,
@@ -127,13 +130,16 @@ function SortableHeader({
 /**
  * 狀態徽章
  */
-function StatusBadge({ isActive }: { isActive: boolean }) {
+function StatusBadge({ isActive, t }: { isActive: boolean; t: (key: string) => string }) {
   const status = getForwarderDisplayStatus(isActive)
-  const config = LEGACY_FORWARDER_STATUS_CONFIG[status]
+  const statusI18nKey = isActive ? 'active' : 'inactive'
 
   return (
-    <Badge variant={config.variant} className={config.className}>
-      {config.label}
+    <Badge
+      variant={LEGACY_FORWARDER_STATUS_CONFIG[status].variant}
+      className={LEGACY_FORWARDER_STATUS_CONFIG[status].className}
+    >
+      {t(`status.${statusI18nKey}`)}
     </Badge>
   )
 }
@@ -174,10 +180,14 @@ export function ForwarderTable({
   onEdit,
   showActions = true,
 }: ForwarderTableProps) {
+  const t = useTranslations('companies')
+  const locale = useLocale()
+  const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
+
   if (forwarders.length === 0) {
     return (
       <div className="rounded-md border p-8 text-center text-muted-foreground">
-        找不到符合條件的 Forwarder
+        {t('table.empty')}
       </div>
     )
   }
@@ -191,7 +201,7 @@ export function ForwarderTable({
               <TableHead className="w-[200px]">
                 <SortableHeader
                   field="name"
-                  label="名稱"
+                  label={t('table.columns.name')}
                   currentSortBy={sortBy}
                   currentSortOrder={sortOrder}
                   onSort={onSort}
@@ -200,17 +210,17 @@ export function ForwarderTable({
               <TableHead className="w-[120px]">
                 <SortableHeader
                   field="code"
-                  label="代碼"
+                  label={t('table.columns.code')}
                   currentSortBy={sortBy}
                   currentSortOrder={sortOrder}
                   onSort={onSort}
                 />
               </TableHead>
-              <TableHead className="w-[100px] text-center">狀態</TableHead>
+              <TableHead className="w-[100px] text-center">{t('table.columns.status')}</TableHead>
               <TableHead className="w-[100px] text-center">
                 <SortableHeader
                   field="ruleCount"
-                  label="規則數"
+                  label={t('table.columns.ruleCount')}
                   currentSortBy={sortBy}
                   currentSortOrder={sortOrder}
                   onSort={onSort}
@@ -220,7 +230,7 @@ export function ForwarderTable({
               <TableHead className="w-[100px] text-center">
                 <SortableHeader
                   field="priority"
-                  label="優先級"
+                  label={t('table.columns.priority')}
                   currentSortBy={sortBy}
                   currentSortOrder={sortOrder}
                   onSort={onSort}
@@ -230,13 +240,13 @@ export function ForwarderTable({
               <TableHead className="w-[180px]">
                 <SortableHeader
                   field="updatedAt"
-                  label="最後更新"
+                  label={t('table.columns.updatedAt')}
                   currentSortBy={sortBy}
                   currentSortOrder={sortOrder}
                   onSort={onSort}
                 />
               </TableHead>
-              {showActions && <TableHead className="w-[80px] text-center">操作</TableHead>}
+              {showActions && <TableHead className="w-[80px] text-center">{t('table.columns.actions')}</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -261,7 +271,7 @@ export function ForwarderTable({
 
                 {/* 狀態 */}
                 <TableCell className="text-center">
-                  <StatusBadge isActive={forwarder.isActive} />
+                  <StatusBadge isActive={forwarder.isActive} t={t} />
                 </TableCell>
 
                 {/* 規則數量 */}
@@ -277,7 +287,7 @@ export function ForwarderTable({
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{forwarder.ruleCount} 個映射規則</p>
+                      <p>{t('table.rulesCount', { count: forwarder.ruleCount })}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
@@ -296,12 +306,12 @@ export function ForwarderTable({
                       <span className="cursor-help text-muted-foreground">
                         {formatDistanceToNow(new Date(forwarder.updatedAt), {
                           addSuffix: true,
-                          locale: zhTW,
+                          locale: dateLocale,
                         })}
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{format(new Date(forwarder.updatedAt), 'yyyy-MM-dd HH:mm:ss', { locale: zhTW })}</p>
+                      <p>{format(new Date(forwarder.updatedAt), 'yyyy-MM-dd HH:mm:ss', { locale: dateLocale })}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
@@ -318,10 +328,10 @@ export function ForwarderTable({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => onView?.(forwarder.id)}>
-                          檢視詳情
+                          {t('table.viewDetails')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onEdit?.(forwarder.id)}>
-                          編輯
+                          {t('table.edit')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

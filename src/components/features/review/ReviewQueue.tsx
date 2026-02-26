@@ -1,5 +1,5 @@
 /**
- * @fileoverview 審核隊列主組件
+ * @fileoverview 審核隊列主組件（國際化版本）
  * @description
  *   審核隊列的主要容器組件，包含：
  *   - 數據獲取（使用 useReviewQueue Hook）
@@ -7,12 +7,14 @@
  *   - 錯誤狀態處理
  *   - 空狀態處理
  *   - 分頁控制
+ *   - 完整國際化支援
  *
  * @module src/components/features/review/ReviewQueue
  * @since Epic 3 - Story 3.1
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/hooks/useReviewQueue - 數據獲取 Hook
  *   - @/components/ui - shadcn UI 組件
  *   - @/types/review - 類型定義
@@ -20,6 +22,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useReviewQueue, usePrefetchNextPage } from '@/hooks/useReviewQueue'
 import { ReviewQueueTable } from './ReviewQueueTable'
 import { ReviewQueueSkeleton } from './ReviewQueueSkeleton'
@@ -67,6 +70,7 @@ export function ReviewQueue({
   onPageChange,
   onSelectItem,
 }: ReviewQueueProps) {
+  const t = useTranslations('review')
   const { data, isLoading, error, refetch, isFetching } = useReviewQueue({
     ...filters,
     page,
@@ -86,12 +90,12 @@ export function ReviewQueue({
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>載入失敗</AlertTitle>
+        <AlertTitle>{t('queue.loadFailed')}</AlertTitle>
         <AlertDescription className="flex items-center justify-between">
-          <span>無法載入待審核列表，請重試。</span>
+          <span>{t('queue.loadFailedDesc')}</span>
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             <RefreshCw className="h-4 w-4 mr-2" />
-            重試
+            {t('queue.retry')}
           </Button>
         </AlertDescription>
       </Alert>
@@ -102,8 +106,8 @@ export function ReviewQueue({
   if (!data?.data.length) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <p className="text-lg">沒有待審核的發票</p>
-        <p className="text-sm mt-2">所有發票都已處理完成</p>
+        <p className="text-lg">{t('empty.title')}</p>
+        <p className="text-sm mt-2">{t('empty.description')}</p>
       </div>
     )
   }
@@ -114,7 +118,7 @@ export function ReviewQueue({
       {/* 頂部資訊列 */}
       <div className="flex justify-between items-center">
         <p className="text-sm text-muted-foreground">
-          共 {data.meta.total} 筆待審核
+          {t('queue.totalPending', { count: data.meta.total })}
         </p>
         <Button
           variant="ghost"
@@ -125,7 +129,7 @@ export function ReviewQueue({
           <RefreshCw
             className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`}
           />
-          刷新
+          {t('queue.refresh')}
         </Button>
       </div>
 
@@ -141,7 +145,7 @@ export function ReviewQueue({
             disabled={page === 1}
             onClick={() => onPageChange(page - 1)}
           >
-            上一頁
+            {t('queue.previous')}
           </Button>
           <span className="flex items-center px-4 text-sm">
             {page} / {data.meta.totalPages}
@@ -152,7 +156,7 @@ export function ReviewQueue({
             disabled={page === data.meta.totalPages}
             onClick={() => onPageChange(page + 1)}
           >
-            下一頁
+            {t('queue.next')}
           </Button>
         </div>
       )}

@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "全局管理仪表板",
+    "description": "跨区域、跨城市的全系统绩效监控"
+  },
+  "filters": {
+    "last7Days": "最近 7 天",
+    "last30Days": "最近 30 天",
+    "last90Days": "最近 90 天",
+    "pastYear": "过去一年"
+  },
+  "tabs": {
+    "regionalPerformance": "区域绩效",
+    "cityRankings": "城市排行"
+  },
+  "stats": {
+    "totalVolume": "总处理量",
+    "totalVolumeDesc": "期间内处理的文件总数",
+    "completed": "已完成",
+    "completedDesc": "成功处理的文件数",
+    "successRate": "成功率",
+    "successRateDesc": "处理完成比例",
+    "avgConfidence": "平均信心度",
+    "avgConfidenceDesc": "AI 分类信心度",
+    "activeCities": "活跃城市",
+    "activeCitiesDesc": "启用中的城市数",
+    "activeUsers": "活跃用户",
+    "activeUsersDesc": "期间内登录的用户",
+    "loadError": "加载统计数据时发生错误"
+  },
+  "region": {
+    "title": "区域绩效",
+    "days7": "7 天",
+    "days30": "30 天",
+    "days90": "90 天",
+    "volume": "处理量",
+    "activeCities": "个活跃城市",
+    "successRate": "成功率",
+    "confidence": "信心度",
+    "noData": "目前没有区域数据",
+    "noCityData": "此区域没有城市数据",
+    "city": "城市",
+    "correctionRate": "修正率"
+  },
+  "rankings": {
+    "title": "城市排行榜",
+    "sortBy": {
+      "volume": "处理量",
+      "successRate": "成功率",
+      "efficiency": "效率"
+    },
+    "noData": "目前没有排名数据",
+    "rank": "排名",
+    "city": "城市",
+    "region": "区域",
+    "change": "变化"
+  },
+  "trend": {
+    "title": "趋势分析",
+    "metrics": {
+      "all": "全部指标",
+      "volume": "处理量",
+      "successRate": "成功率",
+      "confidence": "信心度"
+    },
+    "noData": "目前没有趋势数据"
+  }
+}

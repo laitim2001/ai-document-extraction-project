@@ -32,11 +32,6 @@ interface RouteParams {
   id: string;
 }
 
-/**
- * 允許存取追溯鏈的角色
- */
-const ALLOWED_ROLES = ['AUDITOR', 'GLOBAL_ADMIN', 'CITY_MANAGER'];
-
 // ============================================================
 // GET Handler
 // ============================================================
@@ -54,6 +49,9 @@ const ALLOWED_ROLES = ['AUDITOR', 'GLOBAL_ADMIN', 'CITY_MANAGER'];
  *   - 核准記錄
  *   - 變更歷史
  *
+ *   任何已認證用戶均可訪問，因為此端點也被文件詳情頁
+ *   的 ProcessingTimeline 組件使用（Epic 13）。
+ *
  * @param request - Next.js 請求對象
  * @param context - 路由參數
  * @returns 完整追溯鏈
@@ -68,20 +66,6 @@ async function handleGet(
     return NextResponse.json(
       { success: false, error: 'Unauthorized' },
       { status: 401 }
-    );
-  }
-
-  // 驗證角色權限
-  const userRoles = (session.user as { roles?: Array<{ name: string }> }).roles;
-  const hasAccess = userRoles?.some((r) => ALLOWED_ROLES.includes(r.name));
-
-  if (!hasAccess) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Access denied. Required roles: AUDITOR, GLOBAL_ADMIN, or CITY_MANAGER',
-      },
-      { status: 403 }
     );
   }
 

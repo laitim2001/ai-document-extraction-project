@@ -31,6 +31,7 @@
  */
 
 import { useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { Globe, MapPin, Lock, Building2, Loader2 } from 'lucide-react'
 
 import { useAuth } from '@/hooks/use-auth'
@@ -150,6 +151,9 @@ export function PermissionScopeIndicator({
   className,
   hideWhenNoPermission = false,
 }: PermissionScopeIndicatorProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- Hooks ---
   const { user, hasPermission, isLoading: isAuthLoading } = useAuth()
   const { data: cities, isLoading: isCitiesLoading } = useCities()
@@ -181,13 +185,13 @@ export function PermissionScopeIndicator({
   const displayText = useMemo(() => {
     switch (scope) {
       case 'global':
-        return '所有城市'
+        return t('permissionScope.global')
       case 'city':
-        return cityName || '指定城市'
+        return cityName || t('permissionScope.city')
       case 'none':
-        return '無管理權限'
+        return t('permissionScope.none')
     }
-  }, [scope, cityName])
+  }, [scope, cityName, t])
 
   const isLoading = isAuthLoading || (scope === 'city' && isCitiesLoading)
   const Icon = getScopeIcon(scope)
@@ -197,7 +201,7 @@ export function PermissionScopeIndicator({
     return (
       <span className={cn('inline-flex items-center gap-1 text-sm text-muted-foreground', className)}>
         <Loader2 className="h-4 w-4 animate-spin" />
-        <span>載入中...</span>
+        <span>{t('permissionScope.loading')}</span>
       </span>
     )
   }
@@ -230,7 +234,7 @@ export function PermissionScopeIndicator({
         )}
       >
         {showIcon && <Icon className="h-4 w-4" />}
-        <span>管理範圍：</span>
+        <span>{t('permissionScope.label')}</span>
         <span className="font-medium text-foreground">{displayText}</span>
       </span>
     )
@@ -249,7 +253,7 @@ export function PermissionScopeIndicator({
           <Icon className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <div className="text-xs text-muted-foreground">管理範圍</div>
+          <div className="text-xs text-muted-foreground">{t('permissionScope.title')}</div>
           <div className="font-medium">{displayText}</div>
         </div>
       </div>
@@ -297,6 +301,7 @@ export function CityManagerScopeNotice({
 }: {
   className?: string
 }) {
+  const t = useTranslations('admin')
   const { hasPermission } = useAuth()
 
   // 只對 City Manager 顯示
@@ -316,8 +321,8 @@ export function CityManagerScopeNotice({
     >
       <Building2 className="mt-0.5 h-4 w-4 shrink-0" />
       <div>
-        <span className="font-medium">城市管理員模式：</span>
-        您只能查看和管理所屬城市的用戶。如需存取其他城市的資料，請聯繫系統管理員。
+        <span className="font-medium">{t('permissionScope.cityManager.mode')}</span>
+        {t('permissionScope.cityManager.description')}
       </div>
     </div>
   )

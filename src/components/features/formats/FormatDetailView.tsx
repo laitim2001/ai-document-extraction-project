@@ -17,7 +17,8 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,10 +31,7 @@ import { FormatFilesTable } from './FormatFilesTable';
 import { FormatForm } from './FormatForm';
 import { IdentificationRulesEditor } from './IdentificationRulesEditor';
 import { FormatConfigPanel } from './FormatConfigPanel';
-import {
-  DOCUMENT_TYPE_LABELS_ZH,
-  DOCUMENT_SUBTYPE_LABELS_ZH,
-} from '@/types/document-format';
+import type { DocumentType, DocumentSubtype } from '@/types/document-format';
 
 // ============================================================================
 // Types
@@ -84,22 +82,24 @@ function FormatDetailSkeleton() {
 function FormatDetailError({
   error,
   onRetry,
+  t,
 }: {
   error: Error;
   onRetry: () => void;
+  t: ReturnType<typeof useTranslations<'formats'>>;
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="rounded-full bg-destructive/10 p-4 mb-4">
         <AlertCircle className="h-8 w-8 text-destructive" />
       </div>
-      <h2 className="text-lg font-semibold mb-2">無法載入格式資料</h2>
+      <h2 className="text-lg font-semibold mb-2">{t('detail.loadError')}</h2>
       <p className="text-sm text-muted-foreground mb-4 max-w-md">
-        {error.message || '載入格式詳情時發生錯誤，請稍後再試。'}
+        {error.message || t('detail.loadErrorDescription')}
       </p>
       <Button variant="outline" onClick={onRetry}>
         <RefreshCw className="mr-2 h-4 w-4" />
-        重試
+        {t('detail.retry')}
       </Button>
     </div>
   );
@@ -108,19 +108,25 @@ function FormatDetailError({
 /**
  * 404 顯示
  */
-function FormatNotFound({ onBack }: { onBack: () => void }) {
+function FormatNotFound({
+  onBack,
+  t,
+}: {
+  onBack: () => void;
+  t: ReturnType<typeof useTranslations<'formats'>>;
+}) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="rounded-full bg-muted p-4 mb-4">
         <FileText className="h-8 w-8 text-muted-foreground" />
       </div>
-      <h2 className="text-lg font-semibold mb-2">找不到格式</h2>
+      <h2 className="text-lg font-semibold mb-2">{t('detail.notFound')}</h2>
       <p className="text-sm text-muted-foreground mb-4">
-        該格式可能已被刪除或您沒有權限存取。
+        {t('detail.notFoundDescription')}
       </p>
       <Button variant="outline" onClick={onBack}>
         <ArrowLeft className="mr-2 h-4 w-4" />
-        返回
+        {t('detail.back')}
       </Button>
     </div>
   );
@@ -143,9 +149,32 @@ function FormatNotFound({ onBack }: { onBack: () => void }) {
  */
 export function FormatDetailView({ companyId, formatId }: FormatDetailViewProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const t = useTranslations('formats');
   const [isEditing, setIsEditing] = React.useState(false);
 
   const { format, isLoading, error, refetch } = useFormatDetail(formatId);
+
+  // 獲取翻譯後的類型標籤
+  const getTypeLabel = React.useCallback(
+    (type: DocumentType) => t(`documentTypes.${type}`),
+    [t]
+  );
+
+  const getSubtypeLabel = React.useCallback(
+    (subtype: DocumentSubtype) => t(`documentSubtypes.${subtype}`),
+    [t]
+  );
+
+  // 處理 URL 中的 edit 參數
+  React.useEffect(() => {
+    if (searchParams.get('edit') === 'true' && format && !isEditing) {
+      setIsEditing(true);
+      // 清除 URL 中的 edit 參數
+      const newUrl = `/companies/${companyId}/formats/${formatId}`;
+      router.replace(newUrl, { scroll: false });
+    }
+  }, [searchParams, format, isEditing, companyId, formatId, router]);
 
   // --- Handlers ---
   const handleBack = React.useCallback(() => {
@@ -164,20 +193,18 @@ export function FormatDetailView({ companyId, formatId }: FormatDetailViewProps)
 
   // --- 錯誤 ---
   if (error) {
-    return <FormatDetailError error={error} onRetry={refetch} />;
+    return <FormatDetailError error={error} onRetry={refetch} t={t} />;
   }
 
   // --- 找不到 ---
   if (!format) {
-    return <FormatNotFound onBack={handleBack} />;
+    return <FormatNotFound onBack={handleBack} t={t} />;
   }
 
   // --- 計算顯示值 ---
-  const displayName =
-    format.name ||
-    `${DOCUMENT_SUBTYPE_LABELS_ZH[format.documentSubtype]} ${DOCUMENT_TYPE_LABELS_ZH[format.documentType]}`;
-  const typeLabel = DOCUMENT_TYPE_LABELS_ZH[format.documentType];
-  const subtypeLabel = DOCUMENT_SUBTYPE_LABELS_ZH[format.documentSubtype];
+  const typeLabel = getTypeLabel(format.documentType);
+  const subtypeLabel = getSubtypeLabel(format.documentSubtype);
+  const displayName = format.name || `${subtypeLabel} ${typeLabel}`;
 
   return (
     <div className="space-y-6">
@@ -209,11 +236,11 @@ export function FormatDetailView({ companyId, formatId }: FormatDetailViewProps)
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            重新整理
+            {t('detail.refresh')}
           </Button>
           <Button size="sm" onClick={() => setIsEditing(true)}>
             <Edit className="mr-2 h-4 w-4" />
-            編輯
+            {t('detail.edit')}
           </Button>
         </div>
       </div>
@@ -221,9 +248,9 @@ export function FormatDetailView({ companyId, formatId }: FormatDetailViewProps)
       {/* Tabs */}
       <Tabs defaultValue="basic" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="basic">基本資訊</TabsTrigger>
+          <TabsTrigger value="basic">{t('detail.tabs.basic')}</TabsTrigger>
           <TabsTrigger value="terms">
-            常見術語
+            {t('detail.tabs.terms')}
             {format.commonTerms.length > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {format.commonTerms.length}
@@ -231,18 +258,18 @@ export function FormatDetailView({ companyId, formatId }: FormatDetailViewProps)
             )}
           </TabsTrigger>
           <TabsTrigger value="files">
-            文件列表
+            {t('detail.tabs.files')}
             <Badge variant="secondary" className="ml-2">
               {format.fileCount}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="rules">
             <ScanSearch className="h-4 w-4 mr-1" />
-            識別規則
+            {t('detail.tabs.rules')}
           </TabsTrigger>
           <TabsTrigger value="configs">
             <Settings2 className="h-4 w-4 mr-1" />
-            專屬配置
+            {t('detail.tabs.configs')}
           </TabsTrigger>
         </TabsList>
 

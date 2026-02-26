@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-02-01T09:39:31.036Z",
+  "fileName": "CEVA_CEX250440_52240.pdf",
+  "results": [
+    {
+      "testCase": "V3.1 Three-Stage 100%",
+      "success": false,
+      "extractionVersion": "v3",
+      "duration": 19900,
+      "error": "Stage 1 failed: GPT API 錯誤: 400 - {\"error\":{\"message\":\"Unsupported value: 'temperature' does not support 0.1 with this model. Only the default (1) value is supported.\",\"type\":\"invalid_request_error\",\"param\":\"temperature\",\"code\":\"unsupported_value\"}}"
+    },
+    {
+      "testCase": "V3.1 Fallback Test",
+      "success": false,
+      "extractionVersion": "v3",
+      "duration": 12387,
+      "error": "Stage 1 failed: GPT API 錯誤: 400 - {\"error\":{\"message\":\"Unsupported value: 'temperature' does not support 0.1 with this model. Only the default (1) value is supported.\",\"type\":\"invalid_request_error\",\"param\":\"temperature\",\"code\":\"unsupported_value\"}}"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 0,
+    "failed": 2,
+    "passRate": "0.0%"
+  }
+}

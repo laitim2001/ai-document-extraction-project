@@ -1,0 +1,82 @@
+{
+  "page": {
+    "title": "术语分析",
+    "description": "分析历史处理结果中的收费术语，并创建映射规则",
+    "refresh": "刷新"
+  },
+  "stats": {
+    "uniqueTerms": "唯一术语数",
+    "totalOccurrences": "总出现次数",
+    "companiesCount": "涉及公司数",
+    "batchesCount": "涉及批次数"
+  },
+  "actions": {
+    "selectedCount": "已选取 {count} 个术语",
+    "aiClassifying": "AI 分类中...",
+    "aiClassify": "AI 分类 ({count})",
+    "batchCreateRules": "批量创建规则"
+  },
+  "errors": {
+    "loadFailed": "加载术语数据时发生错误：",
+    "unknownError": "未知错误"
+  },
+  "aiInfo": {
+    "description": "AI 分类使用 GPT-5.2 模型分析术语，并根据物流行业标准费用类别提供建议。分类信心度 ≥90% 为高信心（自动通过），70-89% 为中信心（快速审核），<70% 为低信心（完整审核）。"
+  },
+  "table": {
+    "headers": {
+      "term": "术语",
+      "frequency": "出现次数",
+      "companies": "公司",
+      "suggestedCategory": "建议分类",
+      "confidence": "信心度",
+      "actions": "操作"
+    },
+    "empty": "找不到术语。请尝试调整筛选条件或处理更多历史数据。",
+    "selectAll": "全选",
+    "selectTerm": "选择 {term}",
+    "similarTerms": "+{count} 个相似",
+    "companyCount": "{count} 个公司",
+    "moreCompanies": "+{count} 个更多...",
+    "createRule": "创建规则",
+    "confidence": {
+      "high": "高信心度 - 自动批准",
+      "medium": "中信心度 - 快速审核",
+      "low": "低信心度 - 完整审核"
+    },
+    "categories": {
+      "OCEAN_FREIGHT": "海运费",
+      "AIR_FREIGHT": "空运费",
+      "HANDLING_FEE": "处理费",
+      "CUSTOMS_CLEARANCE": "报关费",
+      "DOCUMENTATION_FEE": "文件费",
+      "TERMINAL_HANDLING": "码头处理费",
+      "INLAND_TRANSPORT": "内陆运输",
+      "INSURANCE": "保险",
+      "STORAGE": "仓储",
+      "FUEL_SURCHARGE": "燃油附加费",
+      "SECURITY_FEE": "安全费",
+      "OTHER": "其他"
+    }
+  },
+  "filters": {
+    "title": "筛选条件",
+    "clear": "清除",
+    "batch": {
+      "label": "批次",
+      "all": "所有批次"
+    },
+    "company": {
+      "label": "公司",
+      "all": "所有公司"
+    },
+    "minFrequency": {
+      "label": "最低出现次数",
+      "placeholder": "1"
+    },
+    "limit": {
+      "label": "结果限制",
+      "default": "500（默认）"
+    }
+  }
+}

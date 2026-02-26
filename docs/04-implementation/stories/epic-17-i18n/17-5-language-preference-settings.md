@@ -1,6 +1,6 @@
 # Story 17.5: 語言偏好設置與切換 UI
 
-**Status:** ready-for-dev
+**Status:** done
 
 ---
 
@@ -55,35 +55,35 @@
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: 建立語言切換組件** (AC: #1)
-  - [ ] 1.1 建立 `LocaleSwitcher.tsx` 組件
-  - [ ] 1.2 使用 Dropdown 或 Select 顯示語言選項
-  - [ ] 1.3 顯示國旗或語言名稱
-  - [ ] 1.4 整合到 Header 組件
+- [x] **Task 1: 建立語言切換組件** (AC: #1)
+  - [x] 1.1 建立 `LocaleSwitcher.tsx` 組件
+  - [x] 1.2 使用 Dropdown 或 Select 顯示語言選項
+  - [x] 1.3 顯示國旗或語言名稱
+  - [x] 1.4 整合到 Header 組件
 
-- [ ] **Task 2: 實作 LocalStorage 持久化** (AC: #2)
-  - [ ] 2.1 建立 `useLocalePreference` hook
-  - [ ] 2.2 語言切換時寫入 LocalStorage
-  - [ ] 2.3 初始載入時讀取 LocalStorage
+- [x] **Task 2: 實作 LocalStorage 持久化** (AC: #2)
+  - [x] 2.1 建立 `useLocalePreference` hook
+  - [x] 2.2 語言切換時寫入 LocalStorage
+  - [x] 2.3 初始載入時讀取 LocalStorage
 
-- [ ] **Task 3: 實作資料庫持久化** (AC: #3)
-  - [ ] 3.1 擴展 User model 添加 `preferredLocale` 欄位
-  - [ ] 3.2 建立 `PATCH /api/v1/users/me/locale` API
-  - [ ] 3.3 登入時從資料庫載入語言偏好
-  - [ ] 3.4 語言切換時更新資料庫
+- [x] **Task 3: 實作資料庫持久化** (AC: #3)
+  - [x] 3.1 擴展 User model 添加 `preferredLocale` 欄位
+  - [x] 3.2 建立 `PATCH /api/v1/users/me/locale` API
+  - [x] 3.3 登入時從資料庫載入語言偏好
+  - [x] 3.4 語言切換時更新資料庫
 
-- [ ] **Task 4: 語言偏好優先級邏輯** (AC: #2, #3)
-  - [ ] 4.1 實作優先級判斷邏輯
-  - [ ] 4.2 整合到 Middleware
+- [x] **Task 4: 語言偏好優先級邏輯** (AC: #2, #3)
+  - [x] 4.1 實作優先級判斷邏輯
+  - [x] 4.2 整合到 Middleware
 
-- [ ] **Task 5: SEO 最佳化** (AC: #5)
-  - [ ] 5.1 更新 `RootLayout` 設置動態 `lang` 屬性
-  - [ ] 5.2 添加 `hreflang` 標籤
-  - [ ] 5.3 更新 Metadata 生成邏輯
+- [x] **Task 5: SEO 最佳化** (AC: #5)
+  - [x] 5.1 更新 `RootLayout` 設置動態 `lang` 屬性
+  - [x] 5.2 添加 `hreflang` 標籤
+  - [x] 5.3 更新 Metadata 生成邏輯
 
-- [ ] **Task 6: 用戶設定頁面整合（若適用）** (AC: #4)
-  - [ ] 6.1 在設定頁面添加語言選項
-  - [ ] 6.2 與 LocaleSwitcher 共用邏輯
+- [x] **Task 6: 用戶設定頁面整合（若適用）** (AC: #4)
+  - [x] 6.1 在設定頁面添加語言選項（整合至 TopBar）
+  - [x] 6.2 與 LocaleSwitcher 共用邏輯
 
 ---
 
@@ -367,4 +367,5 @@ npx prisma migrate dev --name add_user_preferred_locale
 ---
 
 *Story created: 2026-01-16*
-*Status: ready-for-dev*
+*Status: done*
+*Completed: 2026-01-17*

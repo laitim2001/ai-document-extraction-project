@@ -32,6 +32,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Select,
@@ -78,6 +79,7 @@ interface GlobalTrendProps {
  * @description 顯示全局處理趨勢的折線圖組件
  */
 export function GlobalTrend({ initialPeriod = '30d' }: GlobalTrendProps) {
+  const t = useTranslations('global')
   const [period, setPeriod] = useState<'7d' | '30d' | '90d'>(initialPeriod)
   const [activeMetric, setActiveMetric] = useState<
     'all' | 'documents' | 'successRate' | 'confidence'
@@ -98,12 +100,12 @@ export function GlobalTrend({ initialPeriod = '30d' }: GlobalTrendProps) {
 
   const dailyTrend: DailyTrendItem[] = data?.data?.dailyTrend || []
 
-  // 格式化圖表數據
+  // 圖表數據使用 key 而非翻譯後的文字（供圖表內部使用）
   const chartData = dailyTrend.map((item) => ({
     date: formatDate(item.date),
-    處理量: item.documents,
-    成功率: Math.round(item.successRate * 100),
-    信心度: Math.round(item.confidence * 100),
+    volume: item.documents,
+    successRate: Math.round(item.successRate * 100),
+    confidence: Math.round(item.confidence * 100),
   }))
 
   return (
@@ -112,7 +114,7 @@ export function GlobalTrend({ initialPeriod = '30d' }: GlobalTrendProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-blue-500" />
-            趨勢分析
+            {t('trend.title')}
           </CardTitle>
           <div className="flex items-center gap-4">
             <Select
@@ -127,10 +129,10 @@ export function GlobalTrend({ initialPeriod = '30d' }: GlobalTrendProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部指標</SelectItem>
-                <SelectItem value="documents">處理量</SelectItem>
-                <SelectItem value="successRate">成功率</SelectItem>
-                <SelectItem value="confidence">信心度</SelectItem>
+                <SelectItem value="all">{t('trend.metrics.all')}</SelectItem>
+                <SelectItem value="documents">{t('trend.metrics.volume')}</SelectItem>
+                <SelectItem value="successRate">{t('trend.metrics.successRate')}</SelectItem>
+                <SelectItem value="confidence">{t('trend.metrics.confidence')}</SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -141,9 +143,9 @@ export function GlobalTrend({ initialPeriod = '30d' }: GlobalTrendProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="7d">7 天</SelectItem>
-                <SelectItem value="30d">30 天</SelectItem>
-                <SelectItem value="90d">90 天</SelectItem>
+                <SelectItem value="7d">{t('region.days7')}</SelectItem>
+                <SelectItem value="30d">{t('region.days30')}</SelectItem>
+                <SelectItem value="90d">{t('region.days90')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -152,7 +154,7 @@ export function GlobalTrend({ initialPeriod = '30d' }: GlobalTrendProps) {
       <CardContent>
         {chartData.length === 0 ? (
           <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-            目前沒有趨勢數據
+            {t('trend.noData')}
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
@@ -190,7 +192,8 @@ export function GlobalTrend({ initialPeriod = '30d' }: GlobalTrendProps) {
                 <Line
                   yAxisId="left"
                   type="monotone"
-                  dataKey="處理量"
+                  dataKey="volume"
+                  name={t('trend.metrics.volume')}
                   stroke="#8884d8"
                   strokeWidth={2}
                   dot={{ r: 3 }}
@@ -202,7 +205,8 @@ export function GlobalTrend({ initialPeriod = '30d' }: GlobalTrendProps) {
                 <Line
                   yAxisId="right"
                   type="monotone"
-                  dataKey="成功率"
+                  dataKey="successRate"
+                  name={t('trend.metrics.successRate')}
                   stroke="#82ca9d"
                   strokeWidth={2}
                   dot={{ r: 3 }}
@@ -214,7 +218,8 @@ export function GlobalTrend({ initialPeriod = '30d' }: GlobalTrendProps) {
                 <Line
                   yAxisId="right"
                   type="monotone"
-                  dataKey="信心度"
+                  dataKey="confidence"
+                  name={t('trend.metrics.confidence')}
                   stroke="#ffc658"
                   strokeWidth={2}
                   dot={{ r: 3 }}

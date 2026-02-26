@@ -1,0 +1,289 @@
+{
+  "filters": {
+    "allTypes": "All Types",
+    "allSubtypes": "All Subtypes",
+    "documentType": "Document Type",
+    "subtype": "Subtype",
+    "sortBy": "Sort By",
+    "clearFilters": "Clear Filters",
+    "sortOrderAsc": "Switch to ascending",
+    "sortOrderDesc": "Switch to descending"
+  },
+  "sort": {
+    "fileCount": "File Count",
+    "updatedAt": "Updated At"
+  },
+  "documentTypes": {
+    "INVOICE": "Invoice",
+    "DEBIT_NOTE": "Debit Note",
+    "CREDIT_NOTE": "Credit Note",
+    "STATEMENT": "Statement",
+    "QUOTATION": "Quotation",
+    "BILL_OF_LADING": "Bill of Lading",
+    "CUSTOMS_DECLARATION": "Customs Declaration",
+    "OTHER": "Other"
+  },
+  "documentSubtypes": {
+    "OCEAN_FREIGHT": "Ocean Freight",
+    "AIR_FREIGHT": "Air Freight",
+    "LAND_TRANSPORT": "Land Transport",
+    "CUSTOMS_CLEARANCE": "Customs Clearance",
+    "WAREHOUSING": "Warehousing",
+    "IMPORT": "Import",
+    "EXPORT": "Export",
+    "GENERAL": "General"
+  },
+  "card": {
+    "files": "{count} file(s)",
+    "terms": "{count} term(s)",
+    "prompt": "Prompt:",
+    "mapping": "Mapping:",
+    "openMenu": "Open menu"
+  },
+  "deleteDialog": {
+    "description": "Are you sure you want to delete the format \"{name}\"? This will remove all format-specific configurations (Prompt, field mapping, etc.). Associated files will not be deleted but will lose their format association. This action cannot be undone.",
+    "deleting": "Deleting..."
+  },
+  "list": {
+    "totalFormats": "{count} format(s)",
+    "createFormat": "Create Format",
+    "emptyTitle": "No formats identified",
+    "emptyDescription": "Formats will be automatically identified after uploading files, or you can create a format manually.",
+    "errorTitle": "Load failed",
+    "errorDescription": "Unable to load format list, please try again later.",
+    "retry": "Retry",
+    "noResultsTitle": "No matching formats",
+    "noResultsDescription": "Adjust filters to see more formats.",
+    "clearFilters": "Clear Filters"
+  },
+  "createDialog": {
+    "triggerButton": "Create Format",
+    "title": "Create Document Format",
+    "description": "Create a new document format for this company to manage processing configurations for specific document types.",
+    "documentTypeLabel": "Document Type *",
+    "documentTypePlaceholder": "Select document type",
+    "documentSubtypeLabel": "Document Subtype *",
+    "documentSubtypePlaceholder": "Select document subtype",
+    "nameLabel": "Format Name (Optional)",
+    "namePlaceholder": "Leave empty to auto-generate",
+    "nameDescription": "Auto-generated format: \"Company Name - Subtype Type\"",
+    "advancedOptions": "Advanced Options",
+    "fieldMappingLabel": "Create Field Mapping Config",
+    "fieldMappingDescription": "Automatically create a format-specific field mapping configuration",
+    "promptConfigLabel": "Create Prompt Config",
+    "promptConfigDescription": "Automatically create a format-specific AI prompt configuration",
+    "submitButton": "Create Format"
+  },
+  "sourceFieldCombobox": {
+    "placeholder": "Select source field...",
+    "searchPlaceholder": "Search fields...",
+    "loadingDynamic": "Loading dynamic fields...",
+    "noResults": "No matching fields found",
+    "customFields": "Custom Fields",
+    "addCustomField": "Add custom field:",
+    "fieldsCount": "{count} field(s)",
+    "usedBadge": "Used",
+    "categoryLabels": {
+      "basic": "Basic Info",
+      "shipper": "Shipper Info",
+      "consignee": "Consignee Info",
+      "shipping": "Shipping Info",
+      "charges": "Charges",
+      "reference": "Reference Numbers",
+      "payment": "Payment Info",
+      "extracted": "Extracted Fields",
+      "custom": "Custom Fields",
+      "lineItem": "Line Item Charges (li_*)",
+      "syntheticRef": "Pipeline Ref Number (_ref_*)"
+    }
+  },
+  "detail": {
+    "loadError": "Unable to load format data",
+    "loadErrorDescription": "An error occurred while loading format details. Please try again later.",
+    "retry": "Retry",
+    "notFound": "Format not found",
+    "notFoundDescription": "This format may have been deleted or you don't have permission to access it.",
+    "back": "Back",
+    "refresh": "Refresh",
+    "edit": "Edit",
+    "tabs": {
+      "basic": "Basic Info",
+      "terms": "Common Terms",
+      "files": "File List",
+      "rules": "Identification Rules",
+      "configs": "Dedicated Configs"
+    },
+    "basicInfo": {
+      "formatInfo": "Format Info",
+      "formatName": "Format Name",
+      "documentType": "Document Type",
+      "documentSubtype": "Document Subtype",
+      "fileCount": "File Count",
+      "termCount": "Term Count",
+      "fileUnit": "{count} file(s)",
+      "termUnit": "{count} term(s)",
+      "features": "Format Features",
+      "hasLineItems": "Has Line Items",
+      "hasHeaderLogo": "Has Company Logo",
+      "currency": "Currency",
+      "language": "Language",
+      "layoutPattern": "Layout Pattern",
+      "company": "Company",
+      "companyName": "Company Name",
+      "companyCode": "Company Code",
+      "time": "Time Info",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "typicalFields": "Typical Fields",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "terms": {
+      "title": "Common Terms",
+      "emptyTitle": "No common terms yet",
+      "emptyDescription": "After processing more files, the system will automatically identify and record common terms.",
+      "searchPlaceholder": "Search terms...",
+      "showing": "Showing {start} - {end} of {total} terms",
+      "page": "Page {page} / {total}",
+      "previous": "Previous",
+      "next": "Next",
+      "noResults": "No terms matching \"{query}\"",
+      "clearSearch": "Clear search"
+    },
+    "rules": {
+      "logoPatterns": {
+        "title": "Logo Patterns",
+        "description": "Define the position and features of logos in the document for format identification",
+        "descriptionPlaceholder": "Logo description (e.g., DHL yellow logo)",
+        "addButton": "Add Logo Pattern",
+        "removeTitle": "Remove",
+        "maxReached": "Maximum number reached (10)",
+        "positions": {
+          "top-left": "Top Left",
+          "top-right": "Top Right",
+          "top-center": "Top Center",
+          "bottom-left": "Bottom Left",
+          "bottom-right": "Bottom Right",
+          "center": "Center"
+        }
+      },
+      "keywords": {
+        "title": "Keywords",
+        "description": "When the document contains these keywords, it is more likely to be identified as this format",
+        "placeholder": "Type a keyword and press Enter (e.g., Ocean Freight, B/L No)"
+      },
+      "layoutHints": {
+        "title": "Layout Features",
+        "description": "Describe the layout features of this format for AI identification reference",
+        "placeholder": "Describe the layout features, e.g., Table-style document with company logo on the left, document number in the upper right, and detail table below...",
+        "maxLength": "Maximum 1000 characters"
+      },
+      "priority": {
+        "title": "Identification Priority",
+        "description": "When multiple formats match, formats with higher priority will be selected first",
+        "label": "Priority: {value}",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "lowValue": "Low (0)",
+        "mediumValue": "Medium (50)",
+        "highValue": "High (100)"
+      },
+      "actions": {
+        "reset": "Reset",
+        "save": "Save Rules",
+        "saving": "Saving..."
+      },
+      "toast": {
+        "saveSuccess": "Saved successfully",
+        "saveSuccessDescription": "Identification rules have been updated",
+        "saveError": "Save failed",
+        "saveErrorRetry": "Please try again later"
+      }
+    },
+    "files": {
+      "title": "Associated Files",
+      "titleWithCount": "Associated Files ({count})",
+      "loadError": "Load Failed",
+      "loadErrorDescription": "Unable to load file list",
+      "retry": "Retry",
+      "emptyTitle": "No Associated Files",
+      "emptyDescription": "Files matching this format will be automatically associated here after upload.",
+      "table": {
+        "fileName": "File Name",
+        "status": "Status",
+        "confidence": "Identification Confidence",
+        "uploadedAt": "Upload Time"
+      },
+      "status": {
+        "UPLOADED": "Uploaded",
+        "PROCESSING": "Processing",
+        "COMPLETED": "Completed",
+        "APPROVED": "Approved",
+        "FAILED": "Failed",
+        "REJECTED": "Rejected",
+        "PENDING": "Pending"
+      },
+      "pagination": {
+        "info": "Page {page} / {totalPages}, {total} files total",
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    "configs": {
+      "loadError": "Failed to load configurations",
+      "loadErrorDescription": "Unable to retrieve configuration information, please try again later.",
+      "retry": "Retry",
+      "noData": "Unable to retrieve configuration data",
+      "inheritance": {
+        "title": "Configuration Priority",
+        "description": "System uses a three-tier configuration inheritance structure with priority from high to low:",
+        "fallback": "If no format-specific configuration is set, the system will automatically use company or global configuration.",
+        "promptLabel": "Prompt Configuration:",
+        "mappingLabel": "Mapping Configuration:",
+        "levels": {
+          "FORMAT": "Format-Specific",
+          "COMPANY": "Company Level",
+          "GLOBAL": "Global",
+          "NONE": "Default"
+        }
+      },
+      "prompt": {
+        "title": "Prompt Configuration",
+        "description": "Define the prompts used for AI extraction and classification. Format-specific configurations take priority over company and global configurations.",
+        "empty": {
+          "description": "No format-specific Prompt configuration yet",
+          "usingLevel": "Currently using {level} level configuration",
+          "usingDefault": "Currently using system default configuration"
+        },
+        "typeLabel": "Type: ",
+        "updatedLabel": "Updated: ",
+        "createButton": "Create Prompt Configuration",
+        "editButton": "Edit",
+        "createNewButton": "Create new Prompt Configuration"
+      },
+      "mapping": {
+        "title": "Field Mapping Configuration",
+        "description": "Define field transformation rules to map extracted fields to standard format.",
+        "empty": {
+          "description": "No format-specific field mapping configuration yet",
+          "usingLevel": "Currently using {level} level configuration",
+          "usingDefault": "Currently using system default configuration"
+        },
+        "rulesLabel": "Rules: ",
+        "updatedLabel": "Updated: ",
+        "createButton": "Create Mapping Configuration",
+        "editButton": "Edit",
+        "createNewButton": "Create new Mapping Configuration"
+      },
+      "inheritance_legacy": {
+        "title": "Configuration Inheritance",
+        "description": "Configurations follow a hierarchical structure: Format > Company > Global. Higher priority levels override lower ones.",
+        "effectiveLevel": "Effective Level",
+        "formatLevel": "Format Level",
+        "companyLevel": "Company Level",
+        "globalLevel": "Global Level"
+      }
+    }
+  }
+}

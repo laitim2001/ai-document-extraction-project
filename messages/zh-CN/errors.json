@@ -1,0 +1,84 @@
+{
+  "api": {
+    "unauthorized": {
+      "title": "未授权",
+      "detail": "您需要登录才能执行此操作"
+    },
+    "forbidden": {
+      "title": "访问被拒",
+      "detail": "您没有权限执行此操作"
+    },
+    "notFound": {
+      "title": "找不到资源",
+      "detail": "请求的资源不存在或已被删除"
+    },
+    "validation": {
+      "title": "验证错误",
+      "detail": "请检查输入的数据是否正确"
+    },
+    "conflict": {
+      "title": "资源冲突",
+      "detail": "操作与现有资源发生冲突"
+    },
+    "rateLimit": {
+      "title": "请求过于频繁",
+      "detail": "请稍后再试"
+    },
+    "internal": {
+      "title": "服务器错误",
+      "detail": "服务器发生内部错误，请稍后再试"
+    },
+    "serviceUnavailable": {
+      "title": "服务暂时不可用",
+      "detail": "系统正在维护中，请稍后再试"
+    }
+  },
+  "network": {
+    "connectionFailed": "无法连接服务器，请检查网络连接",
+    "timeout": "请求超时，请重试",
+    "offline": "您目前处于离线状态"
+  },
+  "auth": {
+    "sessionExpired": "您的登录已过期，请重新登录",
+    "invalidToken": "无效的认证令牌",
+    "accountDisabled": "您的账户已被停用"
+  },
+  "business": {
+    "variableResolution": {
+      "title": "变量解析失败",
+      "detail": "无法解析 Prompt 模板中的变量：{variable}"
+    },
+    "identificationFailed": {
+      "title": "文件识别失败",
+      "detail": "无法识别文件类型或公司，请确认文件格式正确"
+    },
+    "extractionFailed": {
+      "title": "数据提取失败",
+      "detail": "OCR 提取过程发生错误：{reason}"
+    },
+    "mappingNotFound": {
+      "title": "映射规则不存在",
+      "detail": "找不到适用的映射规则：{field}"
+    },
+    "configurationError": {
+      "title": "配置错误",
+      "detail": "系统配置不完整或无效：{config}"
+    },
+    "processingTimeout": {
+      "title": "处理超时",
+      "detail": "文件处理超过时限（{timeout}秒），请稍后重试"
+    },
+    "duplicateEntry": {
+      "title": "重复记录",
+      "detail": "已存在相同的{entity}记录"
+    },
+    "dependencyError": {
+      "title": "依赖关系错误",
+      "detail": "无法删除，尚有{count}个相关记录依赖此项目"
+    },
+    "dataIntegrity": {
+      "title": "数据完整性错误",
+      "detail": "数据验证失败：{reason}"
+    }
+  }
+}

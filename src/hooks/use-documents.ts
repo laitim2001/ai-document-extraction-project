@@ -25,7 +25,7 @@
  *
  * @related
  *   - src/app/api/documents/route.ts - Documents API
- *   - src/app/(dashboard)/invoices/page.tsx - 發票列表頁面
+ *   - src/app/[locale]/(dashboard)/documents/page.tsx - 文件列表頁面
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'

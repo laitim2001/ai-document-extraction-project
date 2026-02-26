@@ -1,12 +1,13 @@
 /**
- * @fileoverview Prompt 配置篩選器組件
+ * @fileoverview Prompt 配置篩選器組件 (i18n version)
  * @description
  *   提供 Prompt 配置列表的篩選功能。
  *   支援按類型、範圍、公司、狀態和搜尋文字篩選。
+ *   Full i18n support
  *
  * @module src/components/features/prompt-config/PromptConfigFilters
  * @since Epic 14 - Story 14.2
- * @lastModified 2026-01-02
+ * @lastModified 2026-01-17
  *
  * @features
  *   - Prompt 類型篩選
@@ -23,6 +24,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,6 +58,8 @@ export function PromptConfigFilters({
   filters,
   onFiltersChange,
 }: PromptConfigFiltersProps) {
+  const t = useTranslations('promptConfig');
+
   // 計算啟用的篩選數量
   const activeFilterCount = React.useMemo(() => {
     let count = 0;
@@ -90,7 +94,7 @@ export function PromptConfigFilters({
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="搜尋配置名稱..."
+            placeholder={t('filters.search.placeholder')}
             value={filters.search ?? ''}
             onChange={(e) => updateFilter('search', e.target.value || undefined)}
             className="pl-9"
@@ -105,13 +109,13 @@ export function PromptConfigFilters({
           }
         >
           <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="全部類型" />
+            <SelectValue placeholder={t('filters.promptType.all')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部類型</SelectItem>
+            <SelectItem value="all">{t('filters.promptType.all')}</SelectItem>
             {Object.values(PROMPT_TYPES).map((type) => (
               <SelectItem key={type.value} value={type.value}>
-                {type.label}
+                {t(`types.${type.value}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -125,13 +129,13 @@ export function PromptConfigFilters({
           }
         >
           <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="全部範圍" />
+            <SelectValue placeholder={t('filters.scope.all')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部範圍</SelectItem>
+            <SelectItem value="all">{t('filters.scope.all')}</SelectItem>
             {Object.values(PROMPT_SCOPES).map((scope) => (
               <SelectItem key={scope.value} value={scope.value}>
-                {scope.label}
+                {t(`scopes.${scope.value}.label`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -148,12 +152,12 @@ export function PromptConfigFilters({
           }
         >
           <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="全部狀態" />
+            <SelectValue placeholder={t('filters.status.all')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部狀態</SelectItem>
-            <SelectItem value="true">啟用中</SelectItem>
-            <SelectItem value="false">已停用</SelectItem>
+            <SelectItem value="all">{t('filters.status.all')}</SelectItem>
+            <SelectItem value="true">{t('filters.status.active')}</SelectItem>
+            <SelectItem value="false">{t('filters.status.inactive')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -166,7 +170,7 @@ export function PromptConfigFilters({
             className="text-muted-foreground"
           >
             <X className="h-4 w-4 mr-1" />
-            清除篩選
+            {t('filters.clear')}
           </Button>
         )}
       </div>
@@ -175,32 +179,32 @@ export function PromptConfigFilters({
       {activeFilterCount > 0 && (
         <div className="flex items-center gap-2 flex-wrap">
           <Filter className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">篩選條件：</span>
+          <span className="text-sm text-muted-foreground">{t('filters.label')}</span>
 
           {filters.promptType && (
             <FilterBadge
-              label={PROMPT_TYPES[filters.promptType as keyof typeof PROMPT_TYPES]?.label ?? filters.promptType}
+              label={t(`types.${filters.promptType}`)}
               onRemove={() => updateFilter('promptType', undefined)}
             />
           )}
 
           {filters.scope && (
             <FilterBadge
-              label={PROMPT_SCOPES[filters.scope as keyof typeof PROMPT_SCOPES]?.label ?? filters.scope}
+              label={t(`scopes.${filters.scope}.label`)}
               onRemove={() => updateFilter('scope', undefined)}
             />
           )}
 
           {filters.isActive !== undefined && (
             <FilterBadge
-              label={filters.isActive ? '啟用中' : '已停用'}
+              label={filters.isActive ? t('filters.status.active') : t('filters.status.inactive')}
               onRemove={() => updateFilter('isActive', undefined)}
             />
           )}
 
           {filters.search && (
             <FilterBadge
-              label={`搜尋: "${filters.search}"`}
+              label={`${t('filters.search.placeholder').replace('...', '')}: "${filters.search}"`}
               onRemove={() => updateFilter('search', undefined)}
             />
           )}

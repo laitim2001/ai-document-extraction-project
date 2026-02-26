@@ -1,0 +1,84 @@
+{
+  "api": {
+    "unauthorized": {
+      "title": "Unauthorized",
+      "detail": "You need to sign in to perform this action"
+    },
+    "forbidden": {
+      "title": "Access Denied",
+      "detail": "You do not have permission to perform this action"
+    },
+    "notFound": {
+      "title": "Not Found",
+      "detail": "The requested resource was not found"
+    },
+    "validation": {
+      "title": "Validation Error",
+      "detail": "Please check your input data"
+    },
+    "conflict": {
+      "title": "Resource Conflict",
+      "detail": "The operation conflicts with existing resources"
+    },
+    "rateLimit": {
+      "title": "Too Many Requests",
+      "detail": "Please try again later"
+    },
+    "internal": {
+      "title": "Server Error",
+      "detail": "An internal server error occurred. Please try again later"
+    },
+    "serviceUnavailable": {
+      "title": "Service Unavailable",
+      "detail": "The system is under maintenance. Please try again later"
+    }
+  },
+  "network": {
+    "connectionFailed": "Unable to connect to server. Please check your network",
+    "timeout": "Request timed out. Please try again",
+    "offline": "You are currently offline"
+  },
+  "auth": {
+    "sessionExpired": "Your session has expired. Please sign in again",
+    "invalidToken": "Invalid authentication token",
+    "accountDisabled": "Your account has been disabled"
+  },
+  "business": {
+    "variableResolution": {
+      "title": "Variable Resolution Failed",
+      "detail": "Unable to resolve variable in Prompt template: {variable}"
+    },
+    "identificationFailed": {
+      "title": "Document Identification Failed",
+      "detail": "Unable to identify document type or company. Please verify the document format"
+    },
+    "extractionFailed": {
+      "title": "Data Extraction Failed",
+      "detail": "OCR extraction process encountered an error: {reason}"
+    },
+    "mappingNotFound": {
+      "title": "Mapping Rule Not Found",
+      "detail": "No applicable mapping rule found for: {field}"
+    },
+    "configurationError": {
+      "title": "Configuration Error",
+      "detail": "System configuration is incomplete or invalid: {config}"
+    },
+    "processingTimeout": {
+      "title": "Processing Timeout",
+      "detail": "Document processing exceeded time limit ({timeout}s). Please try again later"
+    },
+    "duplicateEntry": {
+      "title": "Duplicate Entry",
+      "detail": "A {entity} with the same data already exists"
+    },
+    "dependencyError": {
+      "title": "Dependency Error",
+      "detail": "Cannot delete. {count} related records depend on this item"
+    },
+    "dataIntegrity": {
+      "title": "Data Integrity Error",
+      "detail": "Data validation failed: {reason}"
+    }
+  }
+}

@@ -1,0 +1,4429 @@
+{
+  "exportedAt": "2026-02-05T02:20:39.347Z",
+  "data": {
+    "regions": [
+      {
+        "id": "70e56275-95a1-405e-a9ea-ff54dd24692c",
+        "code": "AMER",
+        "name": "Americas",
+        "parentId": null,
+        "timezone": "America/New_York",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "7e8d8edf-e526-4996-8b1d-9fd8bd3bb373",
+        "code": "APAC",
+        "name": "Asia Pacific",
+        "parentId": null,
+        "timezone": "Asia/Hong_Kong",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "7dcf9680-aeda-4c7e-87a7-86a38b035d9d",
+        "code": "EMEA",
+        "name": "Europe, Middle East & Africa",
+        "parentId": null,
+        "timezone": "Europe/London",
+        "status": "ACTIVE"
+      }
+    ],
+    "cities": [
+      {
+        "id": "f91ef8e3-02af-40fb-9e9e-911f32f25a2d",
+        "code": "FRA",
+        "name": "Frankfurt",
+        "regionId": "7dcf9680-aeda-4c7e-87a7-86a38b035d9d",
+        "timezone": "Europe/Berlin",
+        "currency": "EUR",
+        "locale": "de-DE",
+        "status": "ACTIVE",
+        "config": null
+      },
+      {
+        "id": "5266678a-1e16-4085-b467-2c89c256298e",
+        "code": "HKG",
+        "name": "Hong Kong",
+        "regionId": "7e8d8edf-e526-4996-8b1d-9fd8bd3bb373",
+        "timezone": "Asia/Hong_Kong",
+        "currency": "HKD",
+        "locale": "zh-HK",
+        "status": "ACTIVE",
+        "config": null
+      },
+      {
+        "id": "e4330ed8-56d0-4687-adcd-a655b9fb1484",
+        "code": "LAX",
+        "name": "Los Angeles",
+        "regionId": "70e56275-95a1-405e-a9ea-ff54dd24692c",
+        "timezone": "America/Los_Angeles",
+        "currency": "USD",
+        "locale": "en-US",
+        "status": "ACTIVE",
+        "config": null
+      },
+      {
+        "id": "0da3d918-1385-4e2d-ad01-01a3a2c001a9",
+        "code": "LON",
+        "name": "London",
+        "regionId": "7dcf9680-aeda-4c7e-87a7-86a38b035d9d",
+        "timezone": "Europe/London",
+        "currency": "GBP",
+        "locale": "en-GB",
+        "status": "ACTIVE",
+        "config": null
+      },
+      {
+        "id": "8c15ad82-ac04-4f34-9ef7-38a8c35ce4bf",
+        "code": "NYC",
+        "name": "New York",
+        "regionId": "70e56275-95a1-405e-a9ea-ff54dd24692c",
+        "timezone": "America/New_York",
+        "currency": "USD",
+        "locale": "en-US",
+        "status": "ACTIVE",
+        "config": null
+      },
+      {
+        "id": "a81f049e-5f4a-4fb3-b8e0-4d99e267d5cf",
+        "code": "SGP",
+        "name": "Singapore",
+        "regionId": "7e8d8edf-e526-4996-8b1d-9fd8bd3bb373",
+        "timezone": "Asia/Singapore",
+        "currency": "SGD",
+        "locale": "en-SG",
+        "status": "ACTIVE",
+        "config": null
+      },
+      {
+        "id": "8c51277c-5533-4a19-b94f-8213aecbadeb",
+        "code": "SHA",
+        "name": "Shanghai",
+        "regionId": "7e8d8edf-e526-4996-8b1d-9fd8bd3bb373",
+        "timezone": "Asia/Shanghai",
+        "currency": "CNY",
+        "locale": "zh-CN",
+        "status": "ACTIVE",
+        "config": null
+      },
+      {
+        "id": "144626a3-0b33-4e14-aea5-747c2a949dd3",
+        "code": "SYD",
+        "name": "Sydney",
+        "regionId": "7e8d8edf-e526-4996-8b1d-9fd8bd3bb373",
+        "timezone": "Australia/Sydney",
+        "currency": "AUD",
+        "locale": "en-AU",
+        "status": "ACTIVE",
+        "config": null
+      },
+      {
+        "id": "0ee2729b-46b1-47c9-9444-dea92b201cf1",
+        "code": "TPE",
+        "name": "Taipei",
+        "regionId": "7e8d8edf-e526-4996-8b1d-9fd8bd3bb373",
+        "timezone": "Asia/Taipei",
+        "currency": "TWD",
+        "locale": "zh-TW",
+        "status": "ACTIVE",
+        "config": null
+      },
+      {
+        "id": "f1e6f201-a665-48d3-a260-2ec77344478c",
+        "code": "TYO",
+        "name": "Tokyo",
+        "regionId": "7e8d8edf-e526-4996-8b1d-9fd8bd3bb373",
+        "timezone": "Asia/Tokyo",
+        "currency": "JPY",
+        "locale": "ja-JP",
+        "status": "ACTIVE",
+        "config": null
+      }
+    ],
+    "roles": [
+      {
+        "id": "cmkdo22xg0005hoxgq91jyxus",
+        "name": "Auditor",
+        "description": "審計員 - 只讀報表和審計日誌存取",
+        "permissions": [
+          "report:view",
+          "report:export",
+          "audit:view",
+          "audit:export"
+        ],
+        "isSystem": true
+      },
+      {
+        "id": "cmkdo22v10003hoxgto7w8g8e",
+        "name": "City Manager",
+        "description": "城市經理 - 管理本城市用戶和數據",
+        "permissions": [
+          "invoice:view",
+          "invoice:create",
+          "invoice:review",
+          "invoice:approve",
+          "report:view",
+          "report:export",
+          "user:view",
+          "user:manage:city",
+          "forwarder:view"
+        ],
+        "isSystem": true
+      },
+      {
+        "id": "cmkdo22t40002hoxgly9pscr7",
+        "name": "Data Processor",
+        "description": "數據處理員 - 基礎發票處理和審核權限",
+        "permissions": [
+          "invoice:view",
+          "invoice:create",
+          "invoice:review"
+        ],
+        "isSystem": true
+      },
+      {
+        "id": "cmkdo22we0004hoxg6pp06kyo",
+        "name": "Regional Manager",
+        "description": "區域經理 - 管理多城市用戶和數據",
+        "permissions": [
+          "invoice:view",
+          "invoice:create",
+          "invoice:review",
+          "invoice:approve",
+          "report:view",
+          "report:export",
+          "user:view",
+          "user:manage:region",
+          "forwarder:view"
+        ],
+        "isSystem": true
+      },
+      {
+        "id": "cmkdo22qs0001hoxgye1pgbq6",
+        "name": "Super User",
+        "description": "超級用戶 - 可管理規則和 Forwarder 配置",
+        "permissions": [
+          "invoice:view",
+          "invoice:create",
+          "invoice:review",
+          "invoice:approve",
+          "report:view",
+          "report:export",
+          "rule:view",
+          "rule:manage",
+          "rule:approve",
+          "forwarder:view",
+          "forwarder:manage"
+        ],
+        "isSystem": true
+      },
+      {
+        "id": "cmkdo22ov0000hoxg92we2lp4",
+        "name": "System Admin",
+        "description": "系統管理員 - 擁有所有系統權限",
+        "permissions": [
+          "invoice:view",
+          "invoice:create",
+          "invoice:review",
+          "invoice:approve",
+          "report:view",
+          "report:export",
+          "rule:view",
+          "rule:manage",
+          "rule:approve",
+          "forwarder:view",
+          "forwarder:manage",
+          "user:view",
+          "user:manage",
+          "user:manage:city",
+          "user:manage:region",
+          "system:config",
+          "system:monitor",
+          "audit:view",
+          "audit:export",
+          "admin:view",
+          "admin:manage"
+        ],
+        "isSystem": true
+      }
+    ],
+    "companies": [
+      {
+        "id": "fd7ba2df-caea-4d49-9b6c-a5a587e36bbd",
+        "name": "CMA CGM",
+        "code": "CMACGM",
+        "displayName": "CMA CGM Group",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"CMA CGM\",\"CMA CGM Group\",\"APL\",\"ANL\",\"CNC\"],\"keywords\":[\"cma cgm tracking\",\"container shipment\",\"ocean freight\",\"vessel booking\"],\"formats\":[\"CMAU\\\\d{7}\",\"APLU\\\\d{7}\",\"ANLU\\\\d{7}\"],\"logoText\":[\"cma cgm\",\"apl\"]}"
+        ],
+        "priority": 88,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "28076de0-839c-421f-849a-12903ef87e0d",
+        "name": "COSCO",
+        "code": "COSCO",
+        "displayName": "COSCO Shipping",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"COSCO\",\"COSCO Shipping\",\"COSCO Container Lines\",\"OOCL\"],\"keywords\":[\"cosco tracking\",\"container shipment\",\"ocean carrier\",\"shipping booking\"],\"formats\":[\"COSU\\\\d{7}\",\"CBHU\\\\d{7}\",\"OOLU\\\\d{7}\"],\"logoText\":[\"cosco\",\"cosco shipping\",\"oocl\"]}"
+        ],
+        "priority": 85,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "6fe52e5f-56b3-41db-a0ce-7bf263df581c",
+        "name": "DHL Express",
+        "code": "DHL",
+        "displayName": "DHL Express",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"DHL\",\"DHL Express\",\"DHL Global\",\"DHL International\",\"DHL Supply Chain\",\"DHL Freight\",\"DHL eCommerce\",\"Deutsche Post DHL\"],\"keywords\":[\"waybill\",\"awb number\",\"dhl tracking\",\"express worldwide\",\"global forwarding\",\"shipment tracking\",\"delivery notice\"],\"formats\":[\"\\\\d{10}\",\"[A-Z]{3}\\\\d{7}\"],\"logoText\":[\"dhl\",\"simply delivered\",\"express\",\"excellence. simply delivered.\"]}"
+        ],
+        "priority": 100,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "7631ca3d-3d40-4da8-a628-725784b9473c",
+        "name": "Evergreen",
+        "code": "EVRG",
+        "displayName": "Evergreen Marine",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"Evergreen\",\"Evergreen Marine\",\"Evergreen Line\",\"EVA Airways Cargo\"],\"keywords\":[\"evergreen tracking\",\"container booking\",\"ocean freight\",\"shipping schedule\"],\"formats\":[\"EGHU\\\\d{7}\",\"EISU\\\\d{7}\",\"EMCU\\\\d{7}\"],\"logoText\":[\"evergreen\",\"evergreen marine\"]}"
+        ],
+        "priority": 85,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "c067cf42-6a48-411c-87bd-b7d5adcc165f",
+        "name": "FedEx",
+        "code": "FDX",
+        "displayName": "FedEx",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"FedEx\",\"Federal Express\",\"FedEx Express\",\"FedEx Ground\",\"FedEx Freight\",\"FedEx International\",\"FedEx Trade Networks\",\"FedEx Logistics\"],\"keywords\":[\"fedex tracking\",\"door tag\",\"express saver\",\"international priority\",\"ground shipping\",\"freight services\",\"ship manager\"],\"formats\":[\"\\\\d{12}\",\"\\\\d{15}\",\"\\\\d{20,22}\"],\"logoText\":[\"fedex\",\"federal express\",\"the world on time\"]}"
+        ],
+        "priority": 100,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "f1a9d684-0cd1-43e5-80a5-07ec876fcaf5",
+        "name": "Hapag-Lloyd",
+        "code": "HLAG",
+        "displayName": "Hapag-Lloyd",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"Hapag-Lloyd\",\"Hapag Lloyd\",\"HAPAG\"],\"keywords\":[\"hapag lloyd tracking\",\"container booking\",\"ocean transport\",\"shipping line\"],\"formats\":[\"HLCU\\\\d{7}\",\"HLXU\\\\d{7}\"],\"logoText\":[\"hapag-lloyd\",\"quality pays\"]}"
+        ],
+        "priority": 88,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "c5cfc72b-66d0-471c-a935-fb949238aea4",
+        "name": "Kerry Logistics",
+        "code": "KERRY",
+        "displayName": "Kerry Logistics",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"Kerry Logistics\",\"Kerry TJ Logistics\",\"Kerry Express\",\"Kerry EAS\",\"嘉里物流\",\"嘉里大榮\"],\"keywords\":[\"kerry tracking\",\"logistics services\",\"freight forwarding\",\"物流追蹤\"],\"formats\":[\"KL\\\\d{10}\",\"\\\\d{10}\"],\"logoText\":[\"kerry\",\"kerry logistics\",\"嘉里\"]}"
+        ],
+        "priority": 78,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "d92f221c-0bc3-4649-946b-224788878b4f",
+        "name": "Maersk",
+        "code": "MAERSK",
+        "displayName": "Maersk Line",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"Maersk\",\"Maersk Line\",\"A.P. Moller-Maersk\",\"Maersk Container Industry\",\"Maersk Logistics\",\"Sealand\",\"Safmarine\"],\"keywords\":[\"bill of lading\",\"container number\",\"booking number\",\"vessel name\",\"port of loading\",\"port of discharge\",\"ocean freight\"],\"formats\":[\"MSKU\\\\d{7}\",\"MRKU\\\\d{7}\",\"SEAL\\\\d{7}\",\"SFAU\\\\d{7}\"],\"logoText\":[\"maersk\",\"constant care\"]}"
+        ],
+        "priority": 90,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "1d374626-e02f-49c6-8579-82a137e320a4",
+        "name": "MSC",
+        "code": "MSC",
+        "displayName": "Mediterranean Shipping Company",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"MSC\",\"Mediterranean Shipping Company\",\"MSC Mediterranean\",\"MSC Cargo\"],\"keywords\":[\"msc tracking\",\"bill of lading\",\"container tracking\",\"ocean shipment\",\"vessel schedule\"],\"formats\":[\"MSCU\\\\d{7}\",\"MEDU\\\\d{7}\"],\"logoText\":[\"msc\",\"mediterranean shipping\"]}"
+        ],
+        "priority": 90,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "37eed928-b742-4e2c-a7ee-f23c697b0ffa",
+        "name": "ONE",
+        "code": "ONE",
+        "displayName": "Ocean Network Express",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"ONE\",\"Ocean Network Express\",\"ONE Line\"],\"keywords\":[\"one tracking\",\"container booking\",\"ocean network\",\"vessel schedule\"],\"formats\":[\"ONEY\\\\d{7}\",\"ONEU\\\\d{7}\"],\"logoText\":[\"one\",\"ocean network express\",\"as one we can\"]}"
+        ],
+        "priority": 85,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "d42dac6d-357d-4afc-b88e-c9bda409a896",
+        "name": "SF Express",
+        "code": "SF",
+        "displayName": "SF Express (順豐)",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"SF Express\",\"S.F. Express\",\"順豐\",\"順豐速運\",\"SF International\"],\"keywords\":[\"sf tracking\",\"順豐單號\",\"express delivery\",\"快遞單\",\"waybill number\"],\"formats\":[\"SF\\\\d{12}\",\"\\\\d{12}\"],\"logoText\":[\"sf express\",\"順豐\",\"sf\"]}"
+        ],
+        "priority": 80,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "84da3a68-0fc2-409a-9a87-b084feedb189",
+        "name": "TNT Express",
+        "code": "TNT",
+        "displayName": "TNT Express",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"TNT\",\"TNT Express\",\"TNT International\",\"TNT FedEx\"],\"keywords\":[\"tnt tracking\",\"consignment note\",\"express delivery\",\"international express\"],\"formats\":[\"[A-Z]{2}\\\\d{9}[A-Z]{2}\",\"\\\\d{9}\"],\"logoText\":[\"tnt\",\"tnt express\",\"sure we can\"]}"
+        ],
+        "priority": 95,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "9a6e3492-dcac-42c6-a8e4-11ff36ee0115",
+        "name": "Unknown",
+        "code": "UNKNOWN",
+        "displayName": "Unknown Forwarder",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[],\"keywords\":[],\"formats\":[],\"logoText\":[]}"
+        ],
+        "priority": 0,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "dbf9c133-eb90-4394-b6ee-b2f99a60b65d",
+        "name": "UPS",
+        "code": "UPS",
+        "displayName": "UPS (United Parcel Service)",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"UPS\",\"United Parcel Service\",\"UPS Express\",\"UPS Ground\",\"UPS Freight\",\"UPS Supply Chain\",\"UPS International\"],\"keywords\":[\"ups tracking\",\"worldship\",\"ground shipping\",\"express critical\",\"freight shipping\",\"ups my choice\",\"package tracking\"],\"formats\":[\"1Z[A-Z0-9]{16}\",\"\\\\d{9}\",\"\\\\d{18}\"],\"logoText\":[\"ups\",\"united parcel service\",\"what can brown do for you\"]}"
+        ],
+        "priority": 100,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "6c60a9d9-1bcd-4ff0-8531-a26ef1bf7bf4",
+        "name": "Yang Ming",
+        "code": "YML",
+        "displayName": "Yang Ming Marine",
+        "type": "FORWARDER",
+        "status": "ACTIVE",
+        "source": "MANUAL",
+        "nameVariants": null,
+        "identificationPatterns": [
+          "{\"names\":[\"Yang Ming\",\"Yang Ming Marine\",\"Yang Ming Line\",\"YM Line\"],\"keywords\":[\"yang ming tracking\",\"container shipment\",\"ocean freight\",\"booking reference\"],\"formats\":[\"YMLU\\\\d{7}\",\"YMMU\\\\d{7}\"],\"logoText\":[\"yang ming\",\"ym line\"]}"
+        ],
+        "priority": 83,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "cef2e4b9-1cdf-409d-bf5e-8b9569333753",
+        "name": "KINGS AIR LOGISTICS COMPANY LIMITED",
+        "code": null,
+        "displayName": "KINGS AIR LOGISTICS COMPANY LIMITED",
+        "type": "UNKNOWN",
+        "status": "ACTIVE",
+        "source": "AUTO_CREATED",
+        "nameVariants": [],
+        "identificationPatterns": [],
+        "priority": 0,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "04dc2162-793b-4666-a66b-fc54fbfc81e1",
+        "name": "LAM GLOBAL HONG KONG LIMITED",
+        "code": null,
+        "displayName": "LAM GLOBAL HONG KONG LIMITED",
+        "type": "UNKNOWN",
+        "status": "ACTIVE",
+        "source": "AUTO_CREATED",
+        "nameVariants": [],
+        "identificationPatterns": [],
+        "priority": 0,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "139d7911-6a2b-4c96-9fef-e6106d5eb79a",
+        "name": "KWE Kintetsu World Express (HK) Limited",
+        "code": null,
+        "displayName": "KWE Kintetsu World Express (HK) Limited",
+        "type": "UNKNOWN",
+        "status": "ACTIVE",
+        "source": "AUTO_CREATED",
+        "nameVariants": [],
+        "identificationPatterns": [],
+        "priority": 0,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "a4532ad5-247c-4369-a99c-a1ea9a8571db",
+        "name": "CEVA Logistics",
+        "code": null,
+        "displayName": "CEVA Logistics",
+        "type": "UNKNOWN",
+        "status": "ACTIVE",
+        "source": "AUTO_CREATED",
+        "nameVariants": [],
+        "identificationPatterns": [],
+        "priority": 0,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "7cbc97dc-5a8f-40b6-afe2-84dbaad8861d",
+        "name": "Toll Global Forwarding (Hong Kong) Ltd",
+        "code": null,
+        "displayName": "Toll Global Forwarding (Hong Kong) Ltd",
+        "type": "UNKNOWN",
+        "status": "ACTIVE",
+        "source": "AUTO_CREATED",
+        "nameVariants": [],
+        "identificationPatterns": [],
+        "priority": 0,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "026bccc6-f004-42e8-8813-14800ad9df5c",
+        "name": "Nippon Express (H.K.) Co., Ltd.",
+        "code": null,
+        "displayName": "Nippon Express (H.K.) Co., Ltd.",
+        "type": "UNKNOWN",
+        "status": "ACTIVE",
+        "source": "AUTO_CREATED",
+        "nameVariants": [],
+        "identificationPatterns": [],
+        "priority": 0,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "e9ab2381-0a21-44fd-8c3e-8725892e792c",
+        "name": "Toll Global Forwarding (Thailand) Limited",
+        "code": null,
+        "displayName": "Toll Global Forwarding (Thailand) Limited",
+        "type": "UNKNOWN",
+        "status": "ACTIVE",
+        "source": "AUTO_CREATED",
+        "nameVariants": [],
+        "identificationPatterns": [],
+        "priority": 0,
+        "defaultConfidence": 0.8,
+        "description": null
+      },
+      {
+        "id": "9ee14a5e-4467-4432-b49a-0d6fbb13a78e",
+        "name": "Nippon Express Logistics (Thailand) Co., Ltd.",
+        "code": null,
+        "displayName": "Nippon Express Logistics (Thailand) Co., Ltd.",
+        "type": "UNKNOWN",
+        "status": "ACTIVE",
+        "source": "AUTO_CREATED",
+        "nameVariants": [],
+        "identificationPatterns": [],
+        "priority": 0,
+        "defaultConfidence": 0.8,
+        "description": null
+      }
+    ],
+    "documentFormats": [
+      {
+        "id": "cmkm1cujf0011rgxgkdditdj3",
+        "companyId": "01065f64-b57a-4c1d-a726-6a93596feb46",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm14nci000irgxg8vvr4zhm",
+        "companyId": "01e54dec-9aef-4563-96b1-117503b9725e",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 4
+      },
+      {
+        "id": "cml7tkzhk000pzcxgpg44sefm",
+        "companyId": "026bccc6-f004-42e8-8813-14800ad9df5c",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Nippon Express Sales Invoice (Hong Kong) template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company logo and name at top-left: Nippon Express (H.K.) Co., Ltd.",
+            "Header title 'SALES INVOICE' visible within the top section",
+            "Header contains address/contact blocks with fields like TO, ATTN, TEL, DEPT, REF NO",
+            "Itemized table area with columns such as DESCRIPTION and AMOUNT",
+            "Currency shown as HKD with amounts in decimal format",
+            "Bottom section includes total amount and a remittance/payments note",
+            "Overall layout is grid-based with boxed sections typical of corporate invoices",
+            "English language text with multiple labeled fields and reference numbers"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company logo and name at top-left: Nippon Express (H.K.) Co., Ltd.",
+            "Header title 'SALES INVOICE' visible within the top section",
+            "Header contains address/contact blocks with fields like TO, ATTN, TEL, DEPT, REF NO",
+            "Itemized table area with columns such as DESCRIPTION and AMOUNT",
+            "Currency shown as HKD with amounts in decimal format",
+            "Bottom section includes total amount and a remittance/payments note",
+            "Overall layout is grid-based with boxed sections typical of corporate invoices",
+            "English language text with multiple labeled fields and reference numbers"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cml7pmtfv000dzcxgieerb3xo",
+        "companyId": "04dc2162-793b-4666-a66b-fc54fbfc81e1",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "LAM Global Ocean Freight Invoice Template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company heading: LAM GLOBAL HONG KONG LIMITED with a blue logo",
+            "Invoice header shows Page, Invoice No, Date, Due Date, and terms with an ORIGINAL stamp",
+            "Vessel/Voyage/ETA fields and port details (Loading Port, Discharge Port)",
+            "Remark section present",
+            "Charge Description table listing multiple line items (e.g., CARGO FREIGHT, TERMINAL HANDLING FEE, etc.)",
+            "Amounts denominated in USD, with a final total in USD",
+            "Bank transfer details and Authorized Signature area"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company heading: LAM GLOBAL HONG KONG LIMITED with a blue logo",
+            "Invoice header shows Page, Invoice No, Date, Due Date, and terms with an ORIGINAL stamp",
+            "Vessel/Voyage/ETA fields and port details (Loading Port, Discharge Port)",
+            "Remark section present",
+            "Charge Description table listing multiple line items (e.g., CARGO FREIGHT, TERMINAL HANDLING FEE, etc.)",
+            "Amounts denominated in USD, with a final total in USD",
+            "Bank transfer details and Authorized Signature area"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm19qsw000orgxgaxxfctaz",
+        "companyId": "04deb071-71bb-4173-9b06-69d1d3ccb817",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "HANDLING ORIGIN",
+          "AWB FEE",
+          "X-RAY CHARGE"
+        ],
+        "fileCount": 2
+      },
+      {
+        "id": "cml7pmux5000hzcxgzi822wfc",
+        "companyId": "0798f0df-4362-4ebb-a23f-01099dc729e2",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Custom logistics/freight forwarder invoice template (Hong Kong-style) ",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company header with 'DONGMAN LOGISTICS LTD' and address information",
+            "Prominent 'INVOICE' title",
+            "BILL TO / SHIP TO style fields and multiple shipment details",
+            "Charges listed per service type (airline, handling, charging, etc.)",
+            "Amounts denominated in HKD (Hong Kong dollars)",
+            "Reference to 'KAPPA STANDARD TRADING CONDITIONS, LATEST EDITION' at the bottom",
+            "Total amount line and final settlement area",
+            "Authorized signature stamp area",
+            "Flight/route, weight, and other freight specifics typical of a freight forwarder invoice",
+            "Overall format appears to be a custom/internal template rather than a widely-known standard format"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company header with 'DONGMAN LOGISTICS LTD' and address information",
+            "Prominent 'INVOICE' title",
+            "BILL TO / SHIP TO style fields and multiple shipment details",
+            "Charges listed per service type (airline, handling, charging, etc.)",
+            "Amounts denominated in HKD (Hong Kong dollars)",
+            "Reference to 'KAPPA STANDARD TRADING CONDITIONS, LATEST EDITION' at the bottom",
+            "Total amount line and final settlement area",
+            "Authorized signature stamp area",
+            "Flight/route, weight, and other freight specifics typical of a freight forwarder invoice",
+            "Overall format appears to be a custom/internal template rather than a widely-known standard format"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm1109x0004rgxgcpqbj1h1",
+        "companyId": "0798f0df-4362-4ebb-a23f-01099dc729e2",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm0a4yy000ahgxg6la5vn0o",
+        "companyId": "08035286-22d2-47ec-b985-c449e4c4906b",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cml7pmpby0003zcxg1cl9sl7c",
+        "companyId": "13619ef2-0dfb-4226-94a9-9ea285049b0b",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Custom corporate invoice template (BSI Logistics Limited, Hong Kong)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company letterhead with 'BSI LOGISTICS LIMITED' and Hong Kong address",
+            "Bold, centered 'INVOICE' heading",
+            "Top-right area containing fields like INVOICE NO, DATE, PAGE",
+            "Billing to/Attention sections and contact details",
+            "Table of line items with various charges (e.g., HANDLING CHARGE, FREIGHT CHARGE)",
+            "Amounts listed in HKD with comma thousand separators",
+            "Subtotal, total, and possibly debit/credit indicators",
+            "Second page repeats header information and includes dates like PRINT DATE",
+            "Bank details and payment instructions included on the document",
+            "Overall appearance resembles a bespoke logistics company invoice rather than a standard software template"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company letterhead with 'BSI LOGISTICS LIMITED' and Hong Kong address",
+            "Bold, centered 'INVOICE' heading",
+            "Top-right area containing fields like INVOICE NO, DATE, PAGE",
+            "Billing to/Attention sections and contact details",
+            "Table of line items with various charges (e.g., HANDLING CHARGE, FREIGHT CHARGE)",
+            "Amounts listed in HKD with comma thousand separators",
+            "Subtotal, total, and possibly debit/credit indicators",
+            "Second page repeats header information and includes dates like PRINT DATE",
+            "Bank details and payment instructions included on the document",
+            "Overall appearance resembles a bespoke logistics company invoice rather than a standard software template"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkf296990002msxgcen7drzd",
+        "companyId": "13619ef2-0dfb-4226-94a9-9ea285049b0b",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cml7sqlyj000lzcxgmuyte3uc",
+        "companyId": "139d7911-6a2b-4c96-9fef-e6106d5eb79a",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Multimodal Transport Bill of Lading (KWE) / Logistics Invoice Bundle",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "KWE (Kintetsu World Express) letterhead on the pages",
+            "Document contains both an INVOICE page and a Multimodal Transport Bill of Lading page",
+            "Official stamps such as ORIGINAL, non-copy/non-negotiable markings",
+            "Fields for Shipper, Consignee, Notify Party, Vessel/Voyage, Port of Loading, Port of Discharge",
+            "Itemized description of goods with weight/quantity and monetary amounts",
+            "Totals section with charges (e.g., freight, taxes) in HKD",
+            "Bilingual elements (English and Chinese text block/labels)",
+            "AP Logistics and KWE branding across multiple pages",
+            "Multiple pages with sections that resemble a B/L and an accompanying invoice"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "KWE (Kintetsu World Express) letterhead on the pages",
+            "Document contains both an INVOICE page and a Multimodal Transport Bill of Lading page",
+            "Official stamps such as ORIGINAL, non-copy/non-negotiable markings",
+            "Fields for Shipper, Consignee, Notify Party, Vessel/Voyage, Port of Loading, Port of Discharge",
+            "Itemized description of goods with weight/quantity and monetary amounts",
+            "Totals section with charges (e.g., freight, taxes) in HKD",
+            "Bilingual elements (English and Chinese text block/labels)",
+            "AP Logistics and KWE branding across multiple pages",
+            "Multiple pages with sections that resemble a B/L and an accompanying invoice"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cml7pmrfq0006zcxgp4p8vjgc",
+        "companyId": "167b4e61-bb7b-4066-b82e-f55ed236dd03",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "JAS Cargo Receipt (Freight Forwarding)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Prominent JAS logo/logo block at the top",
+            "Heading reads 'CARGO RECEIPT'",
+            "Contains shipment details (shipper, consignee, shipment number, date) common to freight documents",
+            "QR code printed on the top-right corner",
+            "Includes official stamps/seals (blue/purple) on the page",
+            "Appears to be a logistics/cargo receipt rather than a traditional sales invoice",
+            "Multiple overlapping documents on a single scanned page"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Prominent JAS logo/logo block at the top",
+            "Heading reads 'CARGO RECEIPT'",
+            "Contains shipment details (shipper, consignee, shipment number, date) common to freight documents",
+            "QR code printed on the top-right corner",
+            "Includes official stamps/seals (blue/purple) on the page",
+            "Appears to be a logistics/cargo receipt rather than a traditional sales invoice",
+            "Multiple overlapping documents on a single scanned page"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm1208g0007rgxgnxsw7ugq",
+        "companyId": "167b4e61-bb7b-4066-b82e-f55ed236dd03",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm1g5kq0018rgxg0f3hwhzk",
+        "companyId": "1cb35e45-d0b6-4b8c-b5d3-69ee9084de75",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cml7pmrng0007zcxg8ijs6td0",
+        "companyId": "21bcc130-7f07-4a12-bd50-5a65e5515f27",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Freight Forwarder Invoice Template (Charles Kendall Freight)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Corporate invoice on Charles Kendall Freight letterhead with logo and contact details",
+            "Top right shows page information (Page 1 of 1) and an INVOICE heading",
+            "Invoice number present (e.g., S...100009515) and related identifiers",
+            "Shipper/Consignee information sections and origin/destination fields",
+            "Itemized goods/charges grid including description, origin handling, and various charge codes",
+            "Line items include charges such as documentation, handling, origin, etc., with monetary amounts",
+            "Subtotal, taxes/fees, total amount, and balance due displayed in currency (HKD)",
+            "Bank/payment details or terms section often included (typical of freight invoices)",
+            "Currency indicated as HKD and references to Hong Kong-based addresses",
+            "Layout comprises boxed sections and tabular data with multiple rows for charges"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Corporate invoice on Charles Kendall Freight letterhead with logo and contact details",
+            "Top right shows page information (Page 1 of 1) and an INVOICE heading",
+            "Invoice number present (e.g., S...100009515) and related identifiers",
+            "Shipper/Consignee information sections and origin/destination fields",
+            "Itemized goods/charges grid including description, origin handling, and various charge codes",
+            "Line items include charges such as documentation, handling, origin, etc., with monetary amounts",
+            "Subtotal, taxes/fees, total amount, and balance due displayed in currency (HKD)",
+            "Bank/payment details or terms section often included (typical of freight invoices)",
+            "Currency indicated as HKD and references to Hong Kong-based addresses",
+            "Layout comprises boxed sections and tabular data with multiple rows for charges"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm092kn0006hgxg0pnrrtyq",
+        "companyId": "21bcc130-7f07-4a12-bd50-5a65e5515f27",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "DOCUMENTATION / HANDLING FEE - ORIGIN",
+          "TERMINAL HANDLING CHARGES - ORIGIN",
+          "AIRWAY BILL FEE",
+          "CFS RECEIVING FEE",
+          "GATE CHARGE",
+          "SCREENING",
+          "SECURE HANDLING",
+          "FREIGHT CHARGES USD 300.00 7.843523",
+          "HANDLING & PROCESSING AT DESTINATION"
+        ],
+        "fileCount": 9
+      },
+      {
+        "id": "cmkm1dknx0013rgxgnyxa3b19",
+        "companyId": "2899da3b-3a23-42d3-990b-d8b3058c6ff7",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cml7pmoju0002zcxg8ymu039a",
+        "companyId": "2ee39dc7-2980-4f64-a2fe-3b040be0ab5f",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Logistics/Freight Debit Note Template (CARGO LINK LOGISTICS HK)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            " Company header with 'CARGO LINK LOGISTICS HK COMPANY LIMITED' and Hong Kong address",
+            " Bold title 'DEBIT NOTE' near the top",
+            " Page/document metadata (Page(s), Date, Job/Reference numbers)",
+            " Freight/logistics data block (Flight No., Departure, Destination, MBL/HAWB numbers)",
+            " Itemized charge table including CHARGING CHARGES, FREIGHT CHARGES, INSURANCE, etc.",
+            " Amounts shown in HKD with a line for total and a section converting total to words",
+            " Signature/authorized sign-off area at bottom (Authorized Signature)"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            " Company header with 'CARGO LINK LOGISTICS HK COMPANY LIMITED' and Hong Kong address",
+            " Bold title 'DEBIT NOTE' near the top",
+            " Page/document metadata (Page(s), Date, Job/Reference numbers)",
+            " Freight/logistics data block (Flight No., Departure, Destination, MBL/HAWB numbers)",
+            " Itemized charge table including CHARGING CHARGES, FREIGHT CHARGES, INSURANCE, etc.",
+            " Amounts shown in HKD with a line for total and a section converting total to words",
+            " Signature/authorized sign-off area at bottom (Authorized Signature)"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm06nso0000hgxgzlb10qp8",
+        "companyId": "2ee39dc7-2980-4f64-a2fe-3b040be0ab5f",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 6
+      },
+      {
+        "id": "cmkm26ppj001crgxgm5j6xoku",
+        "companyId": "30c918cc-4ef6-4c26-8910-7dc15973b0f4",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cmkm29ptj001drgxgfygcms7u",
+        "companyId": "34dff723-5003-4f53-876c-a56175c5d55c",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cml7pms5j000azcxgkeizms49",
+        "companyId": "37264060-01ab-44bc-a017-8de041f16678",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Custom Logistics Invoice Template (Company-specific)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company header with 'LINKSWORK LOGISTICS LTD.' and address",
+            "Invoice title and 'INVOICE NO' with 'ISSUE DATE' field",
+            "Addresses block for shipper/consignee on the left",
+            "Line-item table with columns such as DESCRIPTION, QTY, UNIT PRICE, AMOUNT",
+            "Totals section showing amounts in a currency (HKD) and grand total",
+            "Bank/payment details at bottom: ACCOUNT NAME, BANK, ACCOUNT NO, SWIFT CODE",
+            "Footer includes contact information and page indicator (Page: 1/1)",
+            "Language: English; currency: HKD",
+            "Appears to be a corporate, non-standard, company-specific invoice template used by a Hong Kong logistics firm"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company header with 'LINKSWORK LOGISTICS LTD.' and address",
+            "Invoice title and 'INVOICE NO' with 'ISSUE DATE' field",
+            "Addresses block for shipper/consignee on the left",
+            "Line-item table with columns such as DESCRIPTION, QTY, UNIT PRICE, AMOUNT",
+            "Totals section showing amounts in a currency (HKD) and grand total",
+            "Bank/payment details at bottom: ACCOUNT NAME, BANK, ACCOUNT NO, SWIFT CODE",
+            "Footer includes contact information and page indicator (Page: 1/1)",
+            "Language: English; currency: HKD",
+            "Appears to be a corporate, non-standard, company-specific invoice template used by a Hong Kong logistics firm"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm13o0q000drgxg6hkp2uqx",
+        "companyId": "37264060-01ab-44bc-a017-8de041f16678",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm19vgi000rrgxgybtxszag",
+        "companyId": "3beaab31-e105-409d-9f90-6a65ed8d721e",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 3
+      },
+      {
+        "id": "cml7pmocy0001zcxgxbu1t262",
+        "companyId": "3c212c31-efc1-48eb-a876-d6c5296f3d7d",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "CEVA Logistics Hong Kong Invoice Template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Corporate header with CEVA Logistics branding and Hong Kong office address",
+            "Invoice header section showing 'INVOICE' and 'Page 1 of 1'",
+            "Shipper and Consignee blocks with addresses",
+            "Shipment details and goods description sections",
+            "Itemized charge table (weights, volumes, charges, etc.)",
+            "Subtotal, taxes/fees and total amount due (HKD currency shown)",
+            "Payment information and bank/payment details section",
+            "Structured tabular layout with boxed fields and multiple small sections",
+            "Freight/invoice specific fields typical of logistics/freight invoices"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Corporate header with CEVA Logistics branding and Hong Kong office address",
+            "Invoice header section showing 'INVOICE' and 'Page 1 of 1'",
+            "Shipper and Consignee blocks with addresses",
+            "Shipment details and goods description sections",
+            "Itemized charge table (weights, volumes, charges, etc.)",
+            "Subtotal, taxes/fees and total amount due (HKD currency shown)",
+            "Payment information and bank/payment details section",
+            "Structured tabular layout with boxed fields and multiple small sections",
+            "Freight/invoice specific fields typical of logistics/freight invoices"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm07tw70005hgxghzgtei0r",
+        "companyId": "3c212c31-efc1-48eb-a876-d6c5296f3d7d",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "FREIGHT CHARGES USD 1750.00 7. 846544",
+          "TERMINAL HANDLING CHARGE AT DESTINATION THB 2 953.00 0.228980",
+          "TERMINAL HANDLING CHARGE AT DESTINATION THB 4 521.00 0.228980",
+          "CLEANING AT DESTINATION THB 875.00 0.228980",
+          "CLEANING AT DESTINATION THB 1276.00 0.228980",
+          "DELIVERY ORDER FEE THB 1823.00 0.228980",
+          "HANDLING & PROCESSING AT DESTINATION THB 547.00 0.228980",
+          "FREIGHT CHARGES USD 300.00 7.843523",
+          "HANDLING & PROCESSING AT DESTINATION"
+        ],
+        "fileCount": 3
+      },
+      {
+        "id": "cmkm8iloy0002owxgi0nsod4q",
+        "companyId": "3d5f1f7b-b4c5-4d97-9dc3-b080dd156ba8",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cmkm0vrln0001rgxgeiz4io4t",
+        "companyId": "3ed8ae43-8d71-450e-a3b0-d6fa9651d3b0",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cmkm1awb3000urgxgigoa19xu",
+        "companyId": "3fb13da5-ee50-466a-ad57-ad56ca79aa43",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cmkm1e7s30015rgxgp309x2hj",
+        "companyId": "4277ff46-e725-4a36-8425-803fba9c8952",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "AIRLINE DOC. CHARGES",
+          "HANDLING CHARGES",
+          "AIRPORT BRIDGE TOLL FEE",
+          "X-RAY FEE",
+          "AIRPORT BRIDGE TOLL FEE HKD 50.000/JOB 1.000"
+        ],
+        "fileCount": 4
+      },
+      {
+        "id": "cmkm1c18g0010rgxg8ie2cwc4",
+        "companyId": "42d3ef81-a60b-42d6-a423-ce06f461fa88",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "INTERNATIONAL FREIGHT - 2.6 CUBIC METRES USD 105.00/M3",
+          "CONTAINER FREIGHT STATION CHARGE - ORIGIN",
+          "TOLL AND TUNNEL FEES - ORIGIN",
+          "CUSTOMS EXPORT CLEARANCE FEE",
+          "TERMINAL HANDLING CHARGES - ORIGIN",
+          "DOCUMENTATION FEE - ORIGIN",
+          "DELIVERY ORDER FEE - DESTINATION - BASE RATE USD 50.00",
+          "TERMINAL HANDLING CHARGES - DESTINATION - 2.6 CUBIC METRES USD 20.00/M3",
+          "CONTAINER FREIGHT STATION CHARGE - DESTINATION - 2.6 CUBIC METRES USD 20.00/M3",
+          "HANDLING FEE - DESTINATION - BASE RATE USD 30.00",
+          "STATUS FEE - DESTINATION - 2.6 CUBIC METRES USD 10.00/M3",
+          "FACILITY CHARGE - DESTINATION - 2.6 CUBIC METRES USD 15.00/M3",
+          "PORT CONGESTION CHARGE - DESTINATION - 2.6 CUBIC METRES USD 10.00/M3",
+          "INTERNATIONAL FREIGHT - 4 40HC CONTAINERS USD 300.00/CONTAINER",
+          "TERMINAL HANDLING CHARGES - DESTINATION - 4 40HC CONTAINERS USD 129.99/CONTAINER",
+          "CONTAINER CLEANING - DESTINATION - 4 40HC CONTAINERS USD 9.07/CONTAINER",
+          "BILL OF LADING FEE - ORIGIN - BASE RATE THB 1500.00",
+          "TELEX FEES - ORIGIN - BASE RATE THB 1500.00",
+          "TERMINAL HANDLING CHARGES - ORIGIN - 1 40HC CONTAINERS THB 4300.00/CONTAINER",
+          "CONTAINER SEAL FEE - ORIGIN - 1 40HC CONTAINERS THB 250.00/CONTAINER",
+          "HANDLING FEE - ORIGIN - BASE RATE THB 800.00"
+        ],
+        "fileCount": 11
+      },
+      {
+        "id": "cmkm1ax5s000xrgxgkd1kztip",
+        "companyId": "46003d92-a052-470e-bd04-ca10ffea4d9d",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cml7q21ru000jzcxgiac6ch16",
+        "companyId": "4a2da1d6-9dc2-451d-8f28-ea993d6149a2",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "KWE/Kintetsu World Express Multimodal Transport Invoice (Original Bill of Lading style) template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company brand: KWE Kintetsu World Express (HK) Limited (header shows company and address)",
+            "Invoice header with the word 'INVOICE' and fields such as DOCUMENT NO, DATE, PAGE, and REFERENCE/PO fields",
+            "Shipper/Consignee information blocks and a structured layout with multiple sections",
+            "Itemized charge area including Description and Amount columns, with weights/pieces and origin/destination details",
+            "Blue stamp area containing non-English (likely Chinese) text, a formal stamp area",
+            "Stamps indicating originality and document status (e.g., ORIGINAL, NON-NEGOTIABLE, BL SURRENDERED, E. & O. E.)",
+            "References to transport documents and modes (Multimodal Transport Bill of Lading) and related terms",
+            "Footer branding referencing logistics providers (APL Logistics) and shipping details",
+            "Multiple pages shown: a bill of lading-like document plus corresponding invoice sections"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company brand: KWE Kintetsu World Express (HK) Limited (header shows company and address)",
+            "Invoice header with the word 'INVOICE' and fields such as DOCUMENT NO, DATE, PAGE, and REFERENCE/PO fields",
+            "Shipper/Consignee information blocks and a structured layout with multiple sections",
+            "Itemized charge area including Description and Amount columns, with weights/pieces and origin/destination details",
+            "Blue stamp area containing non-English (likely Chinese) text, a formal stamp area",
+            "Stamps indicating originality and document status (e.g., ORIGINAL, NON-NEGOTIABLE, BL SURRENDERED, E. & O. E.)",
+            "References to transport documents and modes (Multimodal Transport Bill of Lading) and related terms",
+            "Footer branding referencing logistics providers (APL Logistics) and shipping details",
+            "Multiple pages shown: a bill of lading-like document plus corresponding invoice sections"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm12sj4000brgxg9vaei6iq",
+        "companyId": "4a2da1d6-9dc2-451d-8f28-ea993d6149a2",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 4
+      },
+      {
+        "id": "cml7pms4m0009zcxg0p4lws97",
+        "companyId": "4e18b695-fda4-4bdf-832b-addf8b0c1e63",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "General blank commercial/invoice template (minimal header, signature block)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Minimal header area with long horizontal rules",
+            "Blank/electronic-invoice style placeholders (no populated item table visible)",
+            "Bottom-right area contains a stamp and signature block",
+            "Text near signature block reads 'For and on behalf of JHT GLOBAL LOGISTICS LIMITED' and 'Authorized Signature'",
+            "No detailed itemization or address fields clearly visible"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Minimal header area with long horizontal rules",
+            "Blank/electronic-invoice style placeholders (no populated item table visible)",
+            "Bottom-right area contains a stamp and signature block",
+            "Text near signature block reads 'For and on behalf of JHT GLOBAL LOGISTICS LIMITED' and 'Authorized Signature'",
+            "No detailed itemization or address fields clearly visible"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm12quv0009rgxgszxd8s18",
+        "companyId": "4e18b695-fda4-4bdf-832b-addf8b0c1e63",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm1awnz000vrgxgsyybb576",
+        "companyId": "5922a160-e857-486d-b574-a114e5dc5b8d",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cml7pmt32000bzcxgdyewkmt7",
+        "companyId": "5bd28c7a-bbb5-4629-86b7-a8dd6e049fb4",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Freight Forwarder Invoice Template (Bilingual Chinese/English) - NVOCC/Shipping Line style",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Bilingual header with Chinese company name and English company name (CHINA GLOBAL LINES LIMITED)",
+            "Company logo displayed at the top left",
+            "Invoice label centered near the top with standard fields (INVOICE NO, DATE, etc.)",
+            "Shipping/freight-forwarder layout including fields such as HOUSE B/L NO, VOYAGE/VESSEL, VGM/WEIGHT, CARGO INFORMATION",
+            "Detailed cargo information section with description, quantity, weight, and units",
+            "Line-item charges table listing description, unit price, quantity, and amount in currency (likely HKD)",
+            "Bank details section for payment (BANK DETAILS with bank name, account number, etc.)",
+            "Authorizing signature area at the bottom",
+            "Layout resembles traditional manual freight-forwarder invoice forms rather than modern standardized formats (e.g., not a UBL/EDI document)",
+            "Currency appears to be Hong Kong Dollars (HKD) and charges/fees typical of freight invoices"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Bilingual header with Chinese company name and English company name (CHINA GLOBAL LINES LIMITED)",
+            "Company logo displayed at the top left",
+            "Invoice label centered near the top with standard fields (INVOICE NO, DATE, etc.)",
+            "Shipping/freight-forwarder layout including fields such as HOUSE B/L NO, VOYAGE/VESSEL, VGM/WEIGHT, CARGO INFORMATION",
+            "Detailed cargo information section with description, quantity, weight, and units",
+            "Line-item charges table listing description, unit price, quantity, and amount in currency (likely HKD)",
+            "Bank details section for payment (BANK DETAILS with bank name, account number, etc.)",
+            "Authorizing signature area at the bottom",
+            "Layout resembles traditional manual freight-forwarder invoice forms rather than modern standardized formats (e.g., not a UBL/EDI document)",
+            "Currency appears to be Hong Kong Dollars (HKD) and charges/fees typical of freight invoices"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm095ee0009hgxg1luq7rdq",
+        "companyId": "5bd28c7a-bbb5-4629-86b7-a8dd6e049fb4",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 3
+      },
+      {
+        "id": "cmkm1byr5000yrgxgv2lx3mq1",
+        "companyId": "5f1d1a4d-8b6b-4261-9bbf-0b717cf2dc5d",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "CFS",
+          "ORIGIN DOCUMENTATION FEE",
+          "HANDLING",
+          "VGM",
+          "ORIGIN TLX FEE"
+        ],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm1f99s0016rgxgays0frfb",
+        "companyId": "631c7c0d-37da-4755-af55-bcfe31d2a848",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cmkm8jun60003owxg8odkda6y",
+        "companyId": "6b1e3981-c699-463f-be05-c90cce418c6e",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cmkm0u4200000rgxg8ouud569",
+        "companyId": "6fbeafef-c30f-4754-b9f0-cd248f1a019d",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 12
+      },
+      {
+        "id": "cmkdp1dfn0000msxgjs6wop2o",
+        "companyId": "6fe52e5f-56b3-41db-a0ce-7bf263df581c",
+        "documentType": "INVOICE",
+        "documentSubtype": "OCEAN_FREIGHT",
+        "name": "DHL Express - Ocean FreightInvoice",
+        "features": {},
+        "identificationRules": {
+          "keywords": [],
+          "priority": 50,
+          "layoutHints": "",
+          "logoPatterns": []
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm095190007hgxg36ghan2b",
+        "companyId": "6fe52e5f-56b3-41db-a0ce-7bf263df581c",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "EXPRESS WORLDWIDE NONDOC",
+          "EXPRESS 1200 DOC",
+          "FUEL SURCHARGE",
+          "PREMIUM 1200",
+          "EXPRESS 1200 NONDOC"
+        ],
+        "fileCount": 41
+      },
+      {
+        "id": "cmkm8ikve0000owxg0f8nigf1",
+        "companyId": "7380ca29-9023-42a4-9297-ab9836333a4b",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cmkm14lsk000hrgxgrzek3fhi",
+        "companyId": "75167c85-66f8-4f46-96c8-6ebfcd67f19d",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 28
+      },
+      {
+        "id": "cmkm182az000mrgxgeknuwgfd",
+        "companyId": "7b51dd89-595d-4a8f-bf4e-d34d97c9eed9",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "HANDLING CHARGES",
+          "TERMINAL CHARGE",
+          "AIRLINES DOCUMENT CHARGE",
+          "X-RAY FEE",
+          "AIR FREIGHT",
+          "SECURITY SURCHARGE",
+          "FUEL SURCHARGE TC3",
+          "CARTAGE CHARGE",
+          "B/L FEE",
+          "SEAL CHARGE",
+          "THC"
+        ],
+        "fileCount": 13
+      },
+      {
+        "id": "cml7tkxit000nzcxg51cgmssw",
+        "companyId": "7cbc97dc-5a8f-40b6-afe2-84dbaad8861d",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Toll Global Forwarding Debit Note Template (Hong Kong)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company logo and header: TOLL branding with Toll Global Forwarding (Hong Kong) Ltd information",
+            "Document type: DEBIT NOTE (explicitly labeled)",
+            "Indication of Original document and page information (e.g., Page 1 of 1)",
+            "Billing details include INVOICE DATE, SHIPPER, CONSIGNEE, and CONSIGNEE/CONSIGNEE information",
+            "Shipment/payment details section with items/charges, weights, references (CONSINGEE/CONSIGNOR, ORDER NUMBER, etc.)",
+            "Line-item style table listing charges, weights, quantities, and totals",
+            "Summary totals: SUBTOTAL, TOTAL CHARGES, and AMOUNT DUE / balance due",
+            "Forwarding/courier-specific fields: goods description, references, container/pack details",
+            "Overall layout consistent with freight forwarder billing/debit note formats"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company logo and header: TOLL branding with Toll Global Forwarding (Hong Kong) Ltd information",
+            "Document type: DEBIT NOTE (explicitly labeled)",
+            "Indication of Original document and page information (e.g., Page 1 of 1)",
+            "Billing details include INVOICE DATE, SHIPPER, CONSIGNEE, and CONSIGNEE/CONSIGNEE information",
+            "Shipment/payment details section with items/charges, weights, references (CONSINGEE/CONSIGNOR, ORDER NUMBER, etc.)",
+            "Line-item style table listing charges, weights, quantities, and totals",
+            "Summary totals: SUBTOTAL, TOTAL CHARGES, and AMOUNT DUE / balance due",
+            "Forwarding/courier-specific fields: goods description, references, container/pack details",
+            "Overall layout consistent with freight forwarder billing/debit note formats"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cml7pmujn000gzcxgod1dnrl3",
+        "companyId": "7d93c97f-05c4-4aa1-923b-b88a57c3c565",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "CYTS-SPIRIT Logistics Limited - Custom Freight Forwarder Invoice Template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company header with CYTS-SPIRIT LOGISTICS LIMITED and logo",
+            "Centered 'INVOICE' title",
+            "Multiple address blocks including 'NAME & ADDRESS', loading/discharge ports, vessel/voyage details",
+            "Line-items section with DESCRIPTION, QTY, UNIT PRICE, AMOUNT and currency indicators (HKD/USD)",
+            "Financial/charges grid (e.g., bank charges, telegraphic/telex charges) with amounts",
+            "Bank details section listing multiple banks with SWIFT/BIC and account information",
+            "Footer area with 'FOR ON BEHALF OF' and contact/currency/payment notes",
+            "Page indicator 'Page: 1 / 1' and document format consistent with freight forwarder invoices"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company header with CYTS-SPIRIT LOGISTICS LIMITED and logo",
+            "Centered 'INVOICE' title",
+            "Multiple address blocks including 'NAME & ADDRESS', loading/discharge ports, vessel/voyage details",
+            "Line-items section with DESCRIPTION, QTY, UNIT PRICE, AMOUNT and currency indicators (HKD/USD)",
+            "Financial/charges grid (e.g., bank charges, telegraphic/telex charges) with amounts",
+            "Bank details section listing multiple banks with SWIFT/BIC and account information",
+            "Footer area with 'FOR ON BEHALF OF' and contact/currency/payment notes",
+            "Page indicator 'Page: 1 / 1' and document format consistent with freight forwarder invoices"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm0951o0008hgxgu3tzijeb",
+        "companyId": "7d93c97f-05c4-4aa1-923b-b88a57c3c565",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "DOC",
+          "VGM SURCHARGE",
+          "WBS",
+          "HANDLING CHARGE",
+          "PICK UP CHARGE",
+          "REGISTRATION FEE",
+          "PARKING FEE"
+        ],
+        "fileCount": 6
+      },
+      {
+        "id": "cmkm1g4260017rgxgnzi7aqrj",
+        "companyId": "80cac3e2-ff57-4e8f-a6c1-e7872bdc56e7",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm16hby000jrgxg1m8phxsc",
+        "companyId": "87ace408-3f13-4b18-ad67-e626c2160bf8",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 3
+      },
+      {
+        "id": "cmkm1awvf000wrgxgghfflous",
+        "companyId": "8ce12bc1-e6c1-49e6-a708-87f49717fef2",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cml7pn0lp000izcxgzgo17c32",
+        "companyId": "9a6e3492-dcac-42c6-a8e4-11ff36ee0115",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Cargo-Partner Freight Logistics Invoice Template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Header contains the cargo-partner logo/watermark and company information",
+            "Invoice header shows Invoice No, Service date, Due date, and related dates",
+            "Shipment information block with details like Consignor, Consignee, Origin, Destination, Final destination, Vessel, ETD/ETA",
+            "Charges section listing Service, Comment, Quantity, Unit price, Net amount",
+            "Currency shown (HKD) with subtotal and total amounts",
+            "Payment instructions section with bank details for payment",
+            "Electronic signature area and a note about the signature/date",
+            "Document spans multiple pages (page 1 of 2 shown) with page numbers",
+            "Footer and watermark branding related to cargo-partner"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Header contains the cargo-partner logo/watermark and company information",
+            "Invoice header shows Invoice No, Service date, Due date, and related dates",
+            "Shipment information block with details like Consignor, Consignee, Origin, Destination, Final destination, Vessel, ETD/ETA",
+            "Charges section listing Service, Comment, Quantity, Unit price, Net amount",
+            "Currency shown (HKD) with subtotal and total amounts",
+            "Payment instructions section with bank details for payment",
+            "Electronic signature area and a note about the signature/date",
+            "Document spans multiple pages (page 1 of 2 shown) with page numbers",
+            "Footer and watermark branding related to cargo-partner"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cml7tl12j000szcxg39oz5sy9",
+        "companyId": "9ee14a5e-4467-4432-b49a-0d6fbb13a78e",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Nippon Express Thailand - Invoice (Not Tax Invoice) template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Header shows company name: Nippon Express Logistics (Thailand) Co., Ltd.",
+            "Title: INVOICE (NOT TAX INVOICE)",
+            "Branch field with value (0003)",
+            "Tax ID displayed near top; explicitly states NOT TAX INVOICE",
+            "Sections for Shipper and Consignee/Consignee details",
+            "Line-item table with No., Particulars, WHT/NO, NON-TAXABLE (THB), TAXABLE (THB) columns",
+            "Totals area including VAT, Net Amount, and Payment terms",
+            "Currency appears to be Thai Baht (THB)",
+            "Bilingual elements (English with some Thai context) typical of Thai logistics invoices",
+            "Not a standard official tax invoice; specifically labeled as not tax invoice"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Header shows company name: Nippon Express Logistics (Thailand) Co., Ltd.",
+            "Title: INVOICE (NOT TAX INVOICE)",
+            "Branch field with value (0003)",
+            "Tax ID displayed near top; explicitly states NOT TAX INVOICE",
+            "Sections for Shipper and Consignee/Consignee details",
+            "Line-item table with No., Particulars, WHT/NO, NON-TAXABLE (THB), TAXABLE (THB) columns",
+            "Totals area including VAT, Net Amount, and Payment terms",
+            "Currency appears to be Thai Baht (THB)",
+            "Bilingual elements (English with some Thai context) typical of Thai logistics invoices",
+            "Not a standard official tax invoice; specifically labeled as not tax invoice"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm1786m000lrgxgv57ald1q",
+        "companyId": "9f1ae835-8a7c-401a-aed0-b4b151f2254f",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "B/L FEE",
+          "SEAL CHARGE",
+          "THC"
+        ],
+        "fileCount": 16
+      },
+      {
+        "id": "cml7pmtmi000fzcxgjo4f2af7",
+        "companyId": "9f4f4b96-cbcf-48f0-a6dc-dbf8f554ce7f",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "FPS Freight/Shipping Invoice Template (Famous Pacific Shipping HK)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company header with FPS logo and Famous Pacific Shipping (HK) Limited address in Hong Kong",
+            "Invoice title (INVOICE) with top-right fields: No. (invoice number), Date, Page (e.g., 1 of 1)",
+            "Block of shipping/freight details (consignee/shipper, vessel, voyage or routing information) typically found on freight invoices",
+            "Section labeled 'Particulars' and a corresponding 'Amount' column for line-item charges",
+            "Total amount shown (likely in HKD) with a final 'Total' line",
+            "Bank details section and a closing line for authorization: 'For and on behalf of Famous Pacific Shipping (HK) Ltd' with Authorized Signature",
+            "Footer containing bank accounts and contact/registration information"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company header with FPS logo and Famous Pacific Shipping (HK) Limited address in Hong Kong",
+            "Invoice title (INVOICE) with top-right fields: No. (invoice number), Date, Page (e.g., 1 of 1)",
+            "Block of shipping/freight details (consignee/shipper, vessel, voyage or routing information) typically found on freight invoices",
+            "Section labeled 'Particulars' and a corresponding 'Amount' column for line-item charges",
+            "Total amount shown (likely in HKD) with a final 'Total' line",
+            "Bank details section and a closing line for authorization: 'For and on behalf of Famous Pacific Shipping (HK) Ltd' with Authorized Signature",
+            "Footer containing bank accounts and contact/registration information"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm121vh0008rgxg9vf6605c",
+        "companyId": "9f4f4b96-cbcf-48f0-a6dc-dbf8f554ce7f",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "CFS CHARGES HKD 198.00 / R/T X 5.572",
+          "DOCUMENTATION FEE HKD 620.00 / SET X 1",
+          "HANDLING CHARGE HKD 300.00 / SET X 1",
+          "TELEX RELEASE CHARGE HKD 500.00 / SET X 1",
+          "VGM ADMINISTRATION FEE HKD 118.00 / SET X 1",
+          "GATE CHARGE HKD 450.00 / SET X 1",
+          "PICK-UP HKD 750.00 / SET X 1",
+          "PARKING FEE HKD 80.00 / SET X 1"
+        ],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm13oiu000ergxgybqmxs6w",
+        "companyId": "a07e501e-f109-4c7d-8185-1a659a62d9e2",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 4
+      },
+      {
+        "id": "cml7tl06n000qzcxgpglprxsk",
+        "companyId": "a4532ad5-247c-4369-a99c-a1ea9a8571db",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "CEVA Logistics Hong Kong Invoice Template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Header includes CEVA LOGISTICS HONG KONG OFFICE address and CEVA logo",
+            "Invoice title with number (e.g., INVOICE 253240127902) and page indicator (Page 1 of 1)",
+            "Shipper / Consignee / shipment details sections",
+            "Consolidation number field",
+            "Goods description and shipment line items presented in a tabular/grid layout",
+            "Currency shown as HKD",
+            "Charges, subtotals, taxes and total amount due section",
+            "Bottom area contains payment/bank transfer information",
+            "Layout appears to be a vendor-specific internal invoice format (not a standard public EDI/UBL template)"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Header includes CEVA LOGISTICS HONG KONG OFFICE address and CEVA logo",
+            "Invoice title with number (e.g., INVOICE 253240127902) and page indicator (Page 1 of 1)",
+            "Shipper / Consignee / shipment details sections",
+            "Consolidation number field",
+            "Goods description and shipment line items presented in a tabular/grid layout",
+            "Currency shown as HKD",
+            "Charges, subtotals, taxes and total amount due section",
+            "Bottom area contains payment/bank transfer information",
+            "Layout appears to be a vendor-specific internal invoice format (not a standard public EDI/UBL template)"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm19vgd000qrgxgjtjyul52",
+        "companyId": "aa66c210-b041-40cf-8669-2913c90a058c",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm06nz80001hgxgir7f311k",
+        "companyId": "ad0704ec-3845-448f-ae12-7183fce7f456",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "- BASE RATE HKD 620.00",
+          "- BASE RATE HKD 400.00",
+          "- 1 20DV CONTAINERS HKD 100.00/CONTAINER",
+          "ORIGIN TERMINAL HANDLING CHARGES - 1 20DV CONTAINERS HKD 2200.00/CONTAINER",
+          "- BASE RATE USD 25.00",
+          "ORIGIN SEALING CHARGE - 1 40HC CONTAINERS HKD 100.00/CONTAINER"
+        ],
+        "fileCount": 9
+      },
+      {
+        "id": "cml7pmtgg000ezcxgsq256fg2",
+        "companyId": "bc5505da-63e0-4f0b-8730-4528356b6aaa",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "InterAsia Horizon Invoice Template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company letterhead at the top-left with sender details (Ecu Worldwide (Hong Kong) Limited) and contact info",
+            "Header section contains reference fields: Our Ref, Your Ref, BL, Vessel, Date, Page No",
+            "Recipient/shipper details block and addresses appear in the upper/middle area",
+            "Line-item table with columns: Description, Qty, Code, Price, Curr, Total, Rate, Final Total",
+            "Remarks/Notes or tax/handling charges section preceding the totals",
+            "Footer section includes payment instructions and bank details",
+            "Currency indicated in HKD; amounts displayed in Hong Kong Dollars",
+            "Document appears to be produced by a software label or template named INTERASIA HORIZON (visible on the document)"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company letterhead at the top-left with sender details (Ecu Worldwide (Hong Kong) Limited) and contact info",
+            "Header section contains reference fields: Our Ref, Your Ref, BL, Vessel, Date, Page No",
+            "Recipient/shipper details block and addresses appear in the upper/middle area",
+            "Line-item table with columns: Description, Qty, Code, Price, Curr, Total, Rate, Final Total",
+            "Remarks/Notes or tax/handling charges section preceding the totals",
+            "Footer section includes payment instructions and bank details",
+            "Currency indicated in HKD; amounts displayed in Hong Kong Dollars",
+            "Document appears to be produced by a software label or template named INTERASIA HORIZON (visible on the document)"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm11zw40006rgxg030t8ksk",
+        "companyId": "bc5505da-63e0-4f0b-8730-4528356b6aaa",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm25ur60019rgxgvh018fbz",
+        "companyId": "be5d385d-91a6-4399-a69b-1089a5657c7b",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cmkds2c440001msxgtor3jptl",
+        "companyId": "c5cfc72b-66d0-471c-a935-fb949238aea4",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Kerry Logistics - GeneralInvoice",
+        "features": {},
+        "identificationRules": {
+          "keywords": [],
+          "priority": 50,
+          "layoutHints": "",
+          "logoPatterns": []
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm16m9c000krgxgbesmpwpx",
+        "companyId": "c5e12990-f050-42b3-98d9-23fe3023a595",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cml7pmqqu0004zcxgokjbq1ul",
+        "companyId": "cef2e4b9-1cdf-409d-bf5e-8b9569333753",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Air freight forwarder invoice (Kings Air Logistics) - Air cargo freight invoice template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company header with Kings Air logo and 'KINGS AIR LOGISTICS COMPANY LIMITED'",
+            "Invoice section labeled 'INVOICE' with fields: INVOICE NO, ISSUE DATE, PAGE",
+            "Name & Address block for recipient/consignee",
+            "Flight details section including FLIGHT NO, DEPARTURE AIRPORT, DESTINATION, FLIGHT DATE",
+            "Quantities/weights: PIECES, WEIGHT, etc., and amounts in HKD",
+            "Description table for freight-related charges (description, amount, total)",
+            "Banking/payment information and authorized signature area",
+            "Layout consistent with freight forwarder / air cargo invoice formats (single-page)"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company header with Kings Air logo and 'KINGS AIR LOGISTICS COMPANY LIMITED'",
+            "Invoice section labeled 'INVOICE' with fields: INVOICE NO, ISSUE DATE, PAGE",
+            "Name & Address block for recipient/consignee",
+            "Flight details section including FLIGHT NO, DEPARTURE AIRPORT, DESTINATION, FLIGHT DATE",
+            "Quantities/weights: PIECES, WEIGHT, etc., and amounts in HKD",
+            "Description table for freight-related charges (description, amount, total)",
+            "Banking/payment information and authorized signature area",
+            "Layout consistent with freight forwarder / air cargo invoice formats (single-page)"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm12rwn000argxgpc4pxije",
+        "companyId": "cef2e4b9-1cdf-409d-bf5e-8b9569333753",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 3
+      },
+      {
+        "id": "cmkm19udm000prgxg0oez9foi",
+        "companyId": "cf007180-748e-49e2-9e6d-26bec2fddafd",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cml7pmqv20005zcxgip1qdccy",
+        "companyId": "cf6f2ba2-83ec-44e3-973d-618ff077caa1",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Debit Note (Freight / Logistics) template",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company letterhead with logo",
+            "Title 'Debit Note' near the top",
+            "Logistics details section (P.O.L., Vessel/Voyage, ETD/ETA, Final Destination, Port, Weight, Measurement)",
+            "Itemized charges table with units, rate, amount, and credit/deduction columns",
+            "Subtotal, adjustments, taxes, and grand total in USD",
+            "Bank account / beneficiary details section",
+            "Signature block for authorized representative",
+            "Contains company name in English (likely bilingual/with Chinese elements)"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company letterhead with logo",
+            "Title 'Debit Note' near the top",
+            "Logistics details section (P.O.L., Vessel/Voyage, ETD/ETA, Final Destination, Port, Weight, Measurement)",
+            "Itemized charges table with units, rate, amount, and credit/deduction columns",
+            "Subtotal, adjustments, taxes, and grand total in USD",
+            "Bank account / beneficiary details section",
+            "Signature block for authorized representative",
+            "Contains company name in English (likely bilingual/with Chinese elements)"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm0ya2g0002rgxg3p50uz4k",
+        "companyId": "cf6f2ba2-83ec-44e3-973d-618ff077caa1",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "CLEARANCE FEE",
+          "LSS",
+          "VGM",
+          "CFS",
+          "DOC FEE",
+          "HANDLING FEE2",
+          "TELEX RELEASE FEE",
+          "SURCHARGES"
+        ],
+        "fileCount": 4
+      },
+      {
+        "id": "cml7pmtf2000czcxgny9qcb1p",
+        "companyId": "d0231852-0379-4c95-adaf-a3eb9bb9db32",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "DSV Freight Invoice Template (DSV Air & Sea)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Header contains DSV logo and 'DSV Air & Sea Ltd.' with company contact details",
+            "Prominent document title 'INVOICE' followed by an invoice number (e.g., HK12315534)",
+            "Page numbering shown as 'Page 1 of 2' and 'Page 2 of 2'",
+            "Left section includes shipper/consignee address blocks",
+            "Top-right block with invoice metadata (e.g., INVOICE DATE, CUSTOMER, SHIPMENT/REFERENCE, TERMS)",
+            "Main body contains a line-item billing table with description, quantities, rates and line totals",
+            "Summary section shows Subtotal and Total charges; currency indicated",
+            "Bottom area includes payment details/bank transfer information",
+            "Official stamps/seals and blue-ink styling typical of logistics invoicing",
+            "Document is in English and appears to be a two-page freight forwarder invoice"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Header contains DSV logo and 'DSV Air & Sea Ltd.' with company contact details",
+            "Prominent document title 'INVOICE' followed by an invoice number (e.g., HK12315534)",
+            "Page numbering shown as 'Page 1 of 2' and 'Page 2 of 2'",
+            "Left section includes shipper/consignee address blocks",
+            "Top-right block with invoice metadata (e.g., INVOICE DATE, CUSTOMER, SHIPMENT/REFERENCE, TERMS)",
+            "Main body contains a line-item billing table with description, quantities, rates and line totals",
+            "Summary section shows Subtotal and Total charges; currency indicated",
+            "Bottom area includes payment details/bank transfer information",
+            "Official stamps/seals and blue-ink styling typical of logistics invoicing",
+            "Document is in English and appears to be a two-page freight forwarder invoice"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm10zed0003rgxgub5e8ub9",
+        "companyId": "d0231852-0379-4c95-adaf-a3eb9bb9db32",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 6
+      },
+      {
+        "id": "cmkm1bzc9000zrgxguzz5x4dt",
+        "companyId": "d371d517-44c7-42a7-b827-21a9358b3c98",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "BILL OF LADING FEE - ORIGIN - BASE RATE THB 1500.00",
+          "TELEX FEES - ORIGIN - BASE RATE THB 1500.00",
+          "TERMINAL HANDLING CHARGES - ORIGIN - 1 40HC CONTAINERS THB 4300.00/CONTAINER",
+          "CONTAINER SEAL FEE - ORIGIN - 1 40HC CONTAINERS THB 250.00/CONTAINER",
+          "HANDLING FEE - ORIGIN - BASE RATE THB 800.00",
+          "SEA WAYBILL FEE - BASE RATE HKD 550.00",
+          "VGM FEE - ORIGIN - BASE RATE HKD 150.00",
+          "PORT SERVICE CHARGE - ORIGIN - 3.596 CUBIC METRES NZD 45.00/M3 NZD 161.82 4.590000",
+          "BILL OF LADING FEE - ORIGIN - BASE RATE NZD 40.00 NZD 40.00 4.590000",
+          "CARRIER PORT SECURITY CHARGES - ORIGIN - BASE RATE NZD 20.00 NZD 20.00 4.590000",
+          "COMPLIANCE FEE - ORIGIN - BASE RATE NZD 50.00 NZD 50.00 4.590000",
+          "EXPORT DOCUMENTATION FEE - BASE RATE NZD 65.00 NZD 65.00 4.590000",
+          "CUSTOMS EXPORT CLEARANCE FEE - BASE RATE NZD 60.00 NZD 60.00 4.590000",
+          "EXPORT TRANSACTION FEE - BASE RATE NZD 18.50 - BASE RATE NZD 18.50 NZD 18.50 4.590000",
+          "CARTAGE - 3.596 CUBIC METRES NZD 27.50/M3 NZD 98.89 4.590000",
+          "TRANSPOR FUEL SURCHARGE - 21.50 OF NZD 98.89 CTGO NZD 21.26 4.590000",
+          "VGM FEE - ORIGIN - BASE RATE NZD 25.00 NZD 25.00 4.590000",
+          "INTERNATIONAL FREIGHT - 3.596 CUBIC METRES USD 116.00/M3 USD 417.14 7.800000",
+          "CONTAINER FREIGHT STATION CHARGE - DESTINATION - 3.596 CUBIC METRES HKD 210.00/M3",
+          "HANDLING FEE - DESTINATION - BASE RATE HKD 370.00",
+          "DOCUMENTATION FEE - DESTINATION - BASE RATE HKD 620.00",
+          "DELIVERY CARTAGE - DESTINATION - BASE RATE HKD 700.00",
+          "GATE CHARGES - DESTINATION - BASE RATE HKD 890.00",
+          "TOLL AND TUNNEL FEES - DESTINATION - BASE RATE HKD 72.00",
+          "INTERNATIONAL FREIGHT - 4 40HC CONTAINERS USD 300.00/CONTAINER",
+          "DELIVERY ORDER FEE - DESTINATION - BASE RATE USD 45.34",
+          "TERMINAL HANDLING CHARGES - DESTINATION - 4 40HC CONTAINERS USD 129.99/CONTAINER",
+          "CONTAINER CLEANING - DESTINATION - 4 40HC CONTAINERS USD 9.07/CONTAINER"
+        ],
+        "fileCount": 23
+      },
+      {
+        "id": "cmkm13pto000frgxgczo0dlw5",
+        "companyId": "d5745470-b33c-46ab-89b3-7e0b90a522e3",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm1avet000trgxgomstuw7f",
+        "companyId": "d93355fc-b56e-4ff8-840a-9c265c607c1c",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm25woo001argxgjokezowq",
+        "companyId": "da16a5d9-abd3-4296-bac6-67803158f78a",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cmkm1dl8m0014rgxgv3b9xig4",
+        "companyId": "dbf9c133-eb90-4394-b6ee-b2f99a60b65d",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 3
+      },
+      {
+        "id": "cmkm26mzl001brgxgiwgx13c2",
+        "companyId": "df8d59c2-5dd6-45a7-b72e-3666698772ed",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cml7pms0w0008zcxgiwcb9935",
+        "companyId": "e6f08540-22fa-4c18-8b03-a8a4b8e51aaf",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Logistics forwarder invoice template (custom Hong Kong freight document)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Company header shows LOGISTICS CONTENT LIMITED with full address block (Hong Kong area style)",
+            "Invoice title appears near the top center, with an 'ORIGINAL' stamp or label on the right side",
+            "Top-right meta block includes Page, Invoice No, Date, Due Date, and Destination/Terms",
+            "Vessel / Voyage, Loading Port, Discharge Port, Document Description, and related freight details are present",
+            "Line-item charge table with Charge Description and Amount, followed by a total in HKD",
+            "Currency indicated as HKD (Hong Kong Dollars)",
+            "Bottom area includes Prepared By / Say Yes to 'For On Behalf Of LOGISTICS CONTENT LIMITED' and Authorized Signature",
+            "Layout is a single-page, freight-forwarding style invoice with logistics-specific fields (vessel, ports, etc.) rather than a generic product invoice",
+            "Uses a simple, grid-like table format with minimal formatting and plain typography"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Company header shows LOGISTICS CONTENT LIMITED with full address block (Hong Kong area style)",
+            "Invoice title appears near the top center, with an 'ORIGINAL' stamp or label on the right side",
+            "Top-right meta block includes Page, Invoice No, Date, Due Date, and Destination/Terms",
+            "Vessel / Voyage, Loading Port, Discharge Port, Document Description, and related freight details are present",
+            "Line-item charge table with Charge Description and Amount, followed by a total in HKD",
+            "Currency indicated as HKD (Hong Kong Dollars)",
+            "Bottom area includes Prepared By / Say Yes to 'For On Behalf Of LOGISTICS CONTENT LIMITED' and Authorized Signature",
+            "Layout is a single-page, freight-forwarding style invoice with logistics-specific fields (vessel, ports, etc.) rather than a generic product invoice",
+            "Uses a simple, grid-like table format with minimal formatting and plain typography"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm13na3000crgxggyboei8x",
+        "companyId": "e6f08540-22fa-4c18-8b03-a8a4b8e51aaf",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm18sjk000nrgxgiyn5k5vk",
+        "companyId": "e8022323-a7ad-4bdf-b1cf-e8fc62837f52",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      },
+      {
+        "id": "cml7tkzf9000ozcxgdkmzsocm",
+        "companyId": "e9ab2381-0a21-44fd-8c3e-8725892e792c",
+        "documentType": "INVOICE",
+        "documentSubtype": "GENERAL",
+        "name": "Toll Global Forwarding Thailand Tax Invoice Template (Two-Page)",
+        "features": {
+          "typicalFields": [],
+          "formatCharacteristics": [
+            "Header shows Toll logo and 'Toll Global Forwarding (Thailand) Limited' with contact details",
+            "Document type labeled 'TAX INVOICE' and an invoice number starting with TLTH (e.g., TLTH0050523)",
+            "Page indicator 'Page 2 of 2' in the header",
+            "Shipment details section including shipper, consignee, origin/destination, and related references",
+            "Two-column, border-based table layout with multiple line items and charges",
+            "Amounts expressed in USD; VAT information presented in USD",
+            "Charges section includes weights/volumes, container-related charges, and billing details",
+            "SubTotal, VAT, and Total amounts are displayed; payment/bank details present",
+            "Footer area includes continuation note (e.g., 'Continued Over...')"
+          ]
+        },
+        "identificationRules": {
+          "keywords": [
+            "Header shows Toll logo and 'Toll Global Forwarding (Thailand) Limited' with contact details",
+            "Document type labeled 'TAX INVOICE' and an invoice number starting with TLTH (e.g., TLTH0050523)",
+            "Page indicator 'Page 2 of 2' in the header",
+            "Shipment details section including shipper, consignee, origin/destination, and related references",
+            "Two-column, border-based table layout with multiple line items and charges",
+            "Amounts expressed in USD; VAT information presented in USD",
+            "Charges section includes weights/volumes, container-related charges, and billing details",
+            "SubTotal, VAT, and Total amounts are displayed; payment/bank details present",
+            "Footer area includes continuation note (e.g., 'Continued Over...')"
+          ]
+        },
+        "commonTerms": [],
+        "fileCount": 0
+      },
+      {
+        "id": "cmkm8ikwc0001owxg0k48eyc0",
+        "companyId": "f1385930-c1ef-40b8-8325-298f18207770",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT"
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 1
+      },
+      {
+        "id": "cmkm14il4000grgxgwmzoeybm",
+        "companyId": "f8815cb0-03b1-4b55-9a37-09b155567edb",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [
+          "CDF",
+          "VGM",
+          "THC",
+          "SEAL FEE",
+          "HANDLING CHARGE",
+          "DOC"
+        ],
+        "fileCount": 2
+      },
+      {
+        "id": "cmkm19vih000srgxgv1ls4tsr",
+        "companyId": "feb763ad-11fc-4af4-9605-03b6efe482d6",
+        "documentType": "OTHER",
+        "documentSubtype": "GENERAL",
+        "name": "General Other",
+        "features": {
+          "hasLineItems": false,
+          "hasHeaderLogo": false,
+          "layoutPattern": "PORTRAIT",
+          "typicalFields": []
+        },
+        "identificationRules": null,
+        "commonTerms": [],
+        "fileCount": 2
+      }
+    ],
+    "mappingRules": [
+      {
+        "id": "c3e3841f-fef1-4b13-bc4c-e49ee3405d3d",
+        "forwarderId": null,
+        "companyId": "6fe52e5f-56b3-41db-a0ce-7bf263df581c",
+        "fieldName": "invoice_number",
+        "fieldLabel": "Invoice Number",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "Invoice\\s*(?:No|Number)?[.:]?\\s*([A-Z]{2}\\d{9,12})",
+          "confidenceBoost": 10
+        },
+        "priority": 100,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "basic",
+        "description": "DHL Invoice 格式",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "688af770-51d6-4f3c-b661-b41e639f15c1",
+        "forwarderId": null,
+        "companyId": "6fe52e5f-56b3-41db-a0ce-7bf263df581c",
+        "fieldName": "service_type",
+        "fieldLabel": "Service Type",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "(EXPRESS WORLDWIDE|EXPRESS 9:00|EXPRESS 10:30|EXPRESS 12:00|ECONOMY SELECT)",
+          "confidenceBoost": 10
+        },
+        "priority": 100,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "basic",
+        "description": "DHL 服務類型",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "5fa99d83-d77b-43c0-89c6-9812f33c465a",
+        "forwarderId": null,
+        "companyId": "6fe52e5f-56b3-41db-a0ce-7bf263df581c",
+        "fieldName": "tracking_number",
+        "fieldLabel": "Tracking Number",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "(?:AWB|Waybill|Tracking)\\s*(?:No|Number)?[.:]?\\s*(\\d{10,11})",
+          "confidenceBoost": 10
+        },
+        "priority": 100,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "DHL AWB 格式: 10-11 位數字",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "29405420-d104-442f-aaa0-0f9ec34c91bb",
+        "forwarderId": null,
+        "companyId": "c067cf42-6a48-411c-87bd-b7d5adcc165f",
+        "fieldName": "service_type",
+        "fieldLabel": "Service Type",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "(INTERNATIONAL PRIORITY|INTERNATIONAL ECONOMY|GROUND|EXPRESS SAVER|FIRST OVERNIGHT)",
+          "confidenceBoost": 10
+        },
+        "priority": 100,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "basic",
+        "description": "FedEx 服務類型",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "69c9f6a8-722a-4542-8a8f-19dac8897cb8",
+        "forwarderId": null,
+        "companyId": "c067cf42-6a48-411c-87bd-b7d5adcc165f",
+        "fieldName": "tracking_number",
+        "fieldLabel": "Tracking Number",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "(?:Tracking|Track)\\s*(?:No|Number)?[.:]?\\s*(\\d{12,22})",
+          "confidenceBoost": 10
+        },
+        "priority": 100,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "FedEx Tracking 格式: 12-22 位數字",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "ea0160e7-ad24-4640-b975-98edc3988403",
+        "forwarderId": null,
+        "companyId": "d92f221c-0bc3-4649-946b-224788878b4f",
+        "fieldName": "container_number",
+        "fieldLabel": "Container Number",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "(M[A-Z]{3}U\\d{7})",
+          "confidenceBoost": 10
+        },
+        "priority": 100,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "Maersk Container 格式: MSKU/MRKU",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "f777e952-dca6-47cd-82e8-e9b46fc18f5a",
+        "forwarderId": null,
+        "companyId": "d92f221c-0bc3-4649-946b-224788878b4f",
+        "fieldName": "tracking_number",
+        "fieldLabel": "Bill of Lading Number",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "(?:B/L|BOL|Bill of Lading)\\s*(?:No|Number)?[.:]?\\s*([A-Z]{4}\\d{10,14})",
+          "confidenceBoost": 10
+        },
+        "priority": 100,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "Maersk B/L 格式",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "05a9aaba-1118-4572-a1d1-62a0af2183a4",
+        "forwarderId": null,
+        "companyId": "d92f221c-0bc3-4649-946b-224788878b4f",
+        "fieldName": "vessel_name",
+        "fieldLabel": "Vessel Name",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Vessel",
+            "Ship Name",
+            "M/V",
+            "MV"
+          ],
+          "confidenceBoost": 5
+        },
+        "priority": 100,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "Maersk 船名",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "52c2c500-c4cd-431f-a9e4-58f832529af8",
+        "forwarderId": null,
+        "companyId": "dbf9c133-eb90-4394-b6ee-b2f99a60b65d",
+        "fieldName": "service_type",
+        "fieldLabel": "Service Type",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "(WORLDWIDE EXPRESS|WORLDWIDE EXPEDITED|WORLDWIDE SAVER|GROUND|NEXT DAY AIR)",
+          "confidenceBoost": 10
+        },
+        "priority": 100,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "basic",
+        "description": "UPS 服務類型",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "8b76cf79-ce46-4422-a896-be20b1c9a4d6",
+        "forwarderId": null,
+        "companyId": "dbf9c133-eb90-4394-b6ee-b2f99a60b65d",
+        "fieldName": "tracking_number",
+        "fieldLabel": "Tracking Number",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "(?:Tracking|1Z)\\s*([1Z][A-Z0-9]{17,18})",
+          "confidenceBoost": 10
+        },
+        "priority": 100,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "UPS Tracking 格式: 1Z 開頭",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "a0f6b611-33db-4e74-ad5f-b74edd5db141",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "chargeable_weight",
+        "fieldLabel": "Chargeable Weight",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Chargeable Weight",
+            "Billable Weight",
+            "Charged Weight"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "package",
+        "description": "計費重量",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "7130c8b7-9139-4237-b281-616c3596165e",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "consignee_country",
+        "fieldLabel": "Consignee Country",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Destination Country",
+            "Ship To Country",
+            "Consignee Country"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "consignee",
+        "description": "收貨人國家",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "3c9db69a-0786-4349-951b-5df653b52356",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "consignee_name",
+        "fieldLabel": "Consignee Name",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Consignee",
+            "Receiver",
+            "To",
+            "Destination",
+            "Ship To"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "consignee",
+        "description": "收貨人名稱",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "6af23f54-aac6-42ed-8c23-5613a25bc53e",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "currency",
+        "fieldLabel": "Currency",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "\\b(USD|EUR|GBP|JPY|CNY|HKD|TWD|SGD|AUD)\\b",
+          "confidenceBoost": 5
+        },
+        "priority": 100,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": "^[A-Z]{3}$",
+        "defaultValue": null,
+        "category": "basic",
+        "description": "幣別",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "b6fa1794-12ca-4728-86fc-d37ea4ae828d",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "delivery_date",
+        "fieldLabel": "Delivery Date",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Delivery Date",
+            "POD Date",
+            "Arrival Date",
+            "Delivered"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "交付日期",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "37e9a181-8bb1-4b5b-b999-89d7da195afb",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "destination_code",
+        "fieldLabel": "Destination Code",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Destination",
+            "To",
+            "Arrival"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 80,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "目的地代碼",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "bc519c28-c224-4dd6-acd1-47d1ac417152",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "due_date",
+        "fieldLabel": "Due Date",
+        "extractionPattern": {
+          "method": "azure_field",
+          "azureFieldName": "DueDate",
+          "confidenceBoost": 5
+        },
+        "priority": 100,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "defaultValue": null,
+        "category": "basic",
+        "description": "付款到期日",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "a4c2a8b5-bcfa-486b-b200-65da63de4c69",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "freight_charge",
+        "fieldLabel": "Freight Charge",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Freight",
+            "Shipping Cost",
+            "Carriage",
+            "Transportation"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "charges",
+        "description": "運費",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "a4174601-29ed-4527-be55-e61587dab822",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "fuel_surcharge",
+        "fieldLabel": "Fuel Surcharge",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Fuel Surcharge",
+            "Fuel",
+            "FSC",
+            "Fuel Charge"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "charges",
+        "description": "燃油附加費",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "81d6301a-0ce6-423d-b080-a2d2e87bf936",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "gross_weight",
+        "fieldLabel": "Gross Weight",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Gross Weight",
+            "Actual Weight",
+            "Weight",
+            "Total Weight"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "package",
+        "description": "毛重",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "0ab03776-39f6-4b11-9932-20dce1e1a2ca",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "invoice_date",
+        "fieldLabel": "Invoice Date",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Invoice Date",
+            "Inv Date",
+            "Date",
+            "Bill Date"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 80,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "defaultValue": null,
+        "category": "basic",
+        "description": "發票日期 - 關鍵字備用",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "335ff63c-cdda-4e86-ac30-facdd8d4f81e",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "invoice_number",
+        "fieldLabel": "Invoice Number",
+        "extractionPattern": {
+          "method": "regex",
+          "pattern": "(?:Invoice|Inv|Bill)\\s*(?:No|Number|#)?[.:]?\\s*([A-Z0-9-]{5,30})",
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "basic",
+        "description": "發票編號 - 正則表達式備用",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "019ad790-2721-4316-8291-26dd3526b95d",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "origin_code",
+        "fieldLabel": "Origin Code",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Origin",
+            "From",
+            "Departure"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 80,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "起運地代碼",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "500bc2ec-89f6-4f19-973b-130cd3a63a48",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "payment_terms",
+        "fieldLabel": "Payment Terms",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Payment Terms",
+            "Terms",
+            "Payment Method"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 80,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "payment",
+        "description": "付款條件",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "c7635db1-bbc8-492e-b0cd-b7984fe402a3",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "po_number",
+        "fieldLabel": "Purchase Order Number",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "PO",
+            "Purchase Order",
+            "P.O.",
+            "PO Number",
+            "PO#"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "reference",
+        "description": "採購單號 - 關鍵字備用",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "09dad270-5ca6-47fc-bac8-97c9fb5e4eaf",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "ship_date",
+        "fieldLabel": "Ship Date",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Ship Date",
+            "Shipment Date",
+            "Pickup Date",
+            "Dispatch Date"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "發貨日期",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "3e749f68-4719-4d81-a1e1-eb21510b6b1e",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "shipper_country",
+        "fieldLabel": "Shipper Country",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Origin Country",
+            "Ship From Country",
+            "Shipper Country"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipper",
+        "description": "發貨人國家",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "536d6e3e-3650-471d-b1cf-aa7dfd802d09",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "shipper_name",
+        "fieldLabel": "Shipper Name",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Shipper",
+            "Sender",
+            "From",
+            "Origin",
+            "Ship From"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipper",
+        "description": "發貨人名稱",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "f379b1be-2122-4b89-98d8-8844d14837b3",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "total_amount",
+        "fieldLabel": "Total Amount",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Total",
+            "Grand Total",
+            "Amount Due",
+            "Invoice Total",
+            "Total Amount"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "charges",
+        "description": "總金額 - 關鍵字備用",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "767ea022-2637-48d4-ab24-c997414183d9",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "total_pieces",
+        "fieldLabel": "Total Pieces",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Pieces",
+            "Pcs",
+            "Qty",
+            "Quantity",
+            "No. of Pieces"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": false,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "package",
+        "description": "總件數",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      },
+      {
+        "id": "39224602-1c7d-45e2-ad72-e702556cc7b6",
+        "forwarderId": null,
+        "companyId": null,
+        "fieldName": "tracking_number",
+        "fieldLabel": "Tracking Number",
+        "extractionPattern": {
+          "method": "keyword",
+          "keywords": [
+            "Tracking",
+            "AWB",
+            "Airway Bill",
+            "Waybill",
+            "Pro Number",
+            "Tracking No"
+          ],
+          "confidenceBoost": 0
+        },
+        "priority": 90,
+        "isRequired": true,
+        "isActive": true,
+        "validationPattern": null,
+        "defaultValue": null,
+        "category": "shipping",
+        "description": "追蹤號碼",
+        "status": "ACTIVE",
+        "version": 1,
+        "confidence": 0.8
+      }
+    ],
+    "dataTemplates": [
+      {
+        "id": "erp-standard-import",
+        "name": "ERP 標準匯入格式",
+        "description": "適用於大多數 ERP 系統的標準發票匯入格式",
+        "scope": "GLOBAL",
+        "companyId": null,
+        "fields": [
+          {
+            "name": "invoice_number",
+            "label": "發票號碼",
+            "order": 1,
+            "dataType": "string",
+            "isRequired": true
+          },
+          {
+            "name": "invoice_date",
+            "label": "發票日期",
+            "order": 2,
+            "dataType": "date",
+            "isRequired": true
+          },
+          {
+            "name": "vendor_code",
+            "label": "供應商代碼",
+            "order": 3,
+            "dataType": "string",
+            "isRequired": true
+          },
+          {
+            "name": "vendor_name",
+            "label": "供應商名稱",
+            "order": 4,
+            "dataType": "string",
+            "isRequired": false
+          },
+          {
+            "name": "currency",
+            "label": "幣別",
+            "order": 5,
+            "dataType": "string",
+            "isRequired": true
+          },
+          {
+            "name": "subtotal",
+            "label": "小計",
+            "order": 6,
+            "dataType": "currency",
+            "isRequired": false
+          },
+          {
+            "name": "tax_amount",
+            "label": "稅額",
+            "order": 7,
+            "dataType": "currency",
+            "isRequired": false
+          },
+          {
+            "name": "total_amount",
+            "label": "總金額",
+            "order": 8,
+            "dataType": "currency",
+            "isRequired": true
+          },
+          {
+            "name": "due_date",
+            "label": "付款到期日",
+            "order": 9,
+            "dataType": "date",
+            "isRequired": false
+          },
+          {
+            "name": "po_number",
+            "label": "採購單號",
+            "order": 10,
+            "dataType": "string",
+            "isRequired": false
+          },
+          {
+            "name": "tracking_number",
+            "label": "追蹤號碼",
+            "order": 11,
+            "dataType": "string",
+            "isRequired": false
+          },
+          {
+            "name": "description",
+            "label": "說明",
+            "order": 12,
+            "dataType": "string",
+            "isRequired": false
+          }
+        ],
+        "isActive": true,
+        "isSystem": true
+      },
+      {
+        "id": "logistics-tracking-format",
+        "name": "物流追蹤格式",
+        "description": "專為物流發票設計的追蹤格式",
+        "scope": "GLOBAL",
+        "companyId": null,
+        "fields": [
+          {
+            "name": "tracking_number",
+            "label": "追蹤號碼",
+            "order": 1,
+            "dataType": "string",
+            "isRequired": true
+          },
+          {
+            "name": "invoice_number",
+            "label": "發票號碼",
+            "order": 2,
+            "dataType": "string",
+            "isRequired": true
+          },
+          {
+            "name": "ship_date",
+            "label": "發貨日期",
+            "order": 3,
+            "dataType": "date",
+            "isRequired": false
+          },
+          {
+            "name": "delivery_date",
+            "label": "交付日期",
+            "order": 4,
+            "dataType": "date",
+            "isRequired": false
+          },
+          {
+            "name": "origin",
+            "label": "起運地",
+            "order": 5,
+            "dataType": "string",
+            "isRequired": false
+          },
+          {
+            "name": "destination",
+            "label": "目的地",
+            "order": 6,
+            "dataType": "string",
+            "isRequired": false
+          },
+          {
+            "name": "carrier",
+            "label": "承運商",
+            "order": 7,
+            "dataType": "string",
+            "isRequired": true
+          },
+          {
+            "name": "service_type",
+            "label": "服務類型",
+            "order": 8,
+            "dataType": "string",
+            "isRequired": false
+          },
+          {
+            "name": "weight",
+            "label": "重量",
+            "order": 9,
+            "dataType": "number",
+            "isRequired": false
+          },
+          {
+            "name": "freight_charge",
+            "label": "運費",
+            "order": 10,
+            "dataType": "currency",
+            "isRequired": true
+          },
+          {
+            "name": "total_amount",
+            "label": "總金額",
+            "order": 11,
+            "dataType": "currency",
+            "isRequired": true
+          }
+        ],
+        "isActive": true,
+        "isSystem": true
+      },
+      {
+        "id": "expense-report-format",
+        "name": "費用報表格式",
+        "description": "用於管理報表匯出的精簡格式",
+        "scope": "GLOBAL",
+        "companyId": null,
+        "fields": [
+          {
+            "name": "invoice_number",
+            "label": "發票號碼",
+            "order": 1,
+            "dataType": "string",
+            "isRequired": true
+          },
+          {
+            "name": "invoice_date",
+            "label": "發票日期",
+            "order": 2,
+            "dataType": "date",
+            "isRequired": true
+          },
+          {
+            "name": "vendor_name",
+            "label": "供應商",
+            "order": 3,
+            "dataType": "string",
+            "isRequired": true
+          },
+          {
+            "name": "category",
+            "label": "費用類別",
+            "order": 4,
+            "dataType": "string",
+            "isRequired": false
+          },
+          {
+            "name": "currency",
+            "label": "幣別",
+            "order": 5,
+            "dataType": "string",
+            "isRequired": true
+          },
+          {
+            "name": "amount",
+            "label": "金額",
+            "order": 6,
+            "dataType": "currency",
+            "isRequired": true
+          },
+          {
+            "name": "department",
+            "label": "部門",
+            "order": 7,
+            "dataType": "string",
+            "isRequired": false
+          },
+          {
+            "name": "cost_center",
+            "label": "成本中心",
+            "order": 8,
+            "dataType": "string",
+            "isRequired": false
+          }
+        ],
+        "isActive": true,
+        "isSystem": true
+      }
+    ],
+    "systemConfigs": [
+      {
+        "id": "cmkdo25490008hoxgyzys6yui",
+        "key": "processing.confidence_threshold",
+        "value": "0.8",
+        "description": "AI 提取結果需要人工審核的信心度閾值。低於此值的結果將標記為需要審核。",
+        "category": "PROCESSING",
+        "valueType": "NUMBER",
+        "effectType": "IMMEDIATE",
+        "name": "信心度閾值",
+        "defaultValue": "0.8",
+        "impactNote": "降低此值會增加需要人工審核的發票數量，提高準確性但降低處理效率。",
+        "validation": {
+          "max": 1,
+          "min": 0,
+          "required": true
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 1,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25510009hoxg6fqk1mpw",
+        "key": "processing.auto_approve_threshold",
+        "value": "0.95",
+        "description": "高於此信心度的發票將自動通過審核，無需人工介入。",
+        "category": "PROCESSING",
+        "valueType": "NUMBER",
+        "effectType": "IMMEDIATE",
+        "name": "自動通過閾值",
+        "defaultValue": "0.95",
+        "impactNote": "提高此值會減少自動通過的發票數量，增加人工審核工作量。",
+        "validation": {
+          "max": 1,
+          "min": 0,
+          "required": true
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 2,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo255a000ahoxg6gfu22k4",
+        "key": "processing.max_file_size_mb",
+        "value": "50",
+        "description": "允許上傳的最大檔案大小限制。",
+        "category": "PROCESSING",
+        "valueType": "NUMBER",
+        "effectType": "IMMEDIATE",
+        "name": "最大檔案大小 (MB)",
+        "defaultValue": "50",
+        "impactNote": null,
+        "validation": {
+          "max": 500,
+          "min": 1,
+          "required": true
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 3,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo255q000bhoxghh59i71o",
+        "key": "processing.batch_size",
+        "value": "10",
+        "description": "每批次處理的檔案數量上限。",
+        "category": "PROCESSING",
+        "valueType": "NUMBER",
+        "effectType": "IMMEDIATE",
+        "name": "批次處理大小",
+        "defaultValue": "10",
+        "impactNote": null,
+        "validation": {
+          "max": 100,
+          "min": 1,
+          "required": true
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 4,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo256o000choxgse1u7cya",
+        "key": "processing.max_concurrent_jobs",
+        "value": "5",
+        "description": "系統同時處理的最大任務數量。",
+        "category": "PROCESSING",
+        "valueType": "NUMBER",
+        "effectType": "IMMEDIATE",
+        "name": "最大並行任務數",
+        "defaultValue": "5",
+        "impactNote": "增加此值會提高處理速度但可能增加系統負載。",
+        "validation": {
+          "max": 20,
+          "min": 1,
+          "required": true
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 5,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25k4000shoxgje8dlt1x",
+        "key": "notification.email.enabled",
+        "value": "false",
+        "description": "是否啟用 Email 通知功能。",
+        "category": "NOTIFICATION",
+        "valueType": "BOOLEAN",
+        "effectType": "IMMEDIATE",
+        "name": "啟用 Email 通知",
+        "defaultValue": "false",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 1,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25kj000thoxgkg0gyruc",
+        "key": "notification.email.smtp_host",
+        "value": "",
+        "description": "郵件伺服器主機地址。",
+        "category": "NOTIFICATION",
+        "valueType": "STRING",
+        "effectType": "IMMEDIATE",
+        "name": "SMTP 主機",
+        "defaultValue": "",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 2,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25ky000uhoxgjrhou32s",
+        "key": "notification.email.smtp_port",
+        "value": "587",
+        "description": "郵件伺服器連接埠。",
+        "category": "NOTIFICATION",
+        "valueType": "NUMBER",
+        "effectType": "IMMEDIATE",
+        "name": "SMTP 連接埠",
+        "defaultValue": "587",
+        "impactNote": null,
+        "validation": {
+          "max": 65535,
+          "min": 1
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 3,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25lq000vhoxghf8hpucm",
+        "key": "notification.email.smtp_user",
+        "value": "",
+        "description": "SMTP 認證的使用者名稱。",
+        "category": "NOTIFICATION",
+        "valueType": "STRING",
+        "effectType": "IMMEDIATE",
+        "name": "SMTP 使用者名稱",
+        "defaultValue": "",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 4,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25md000whoxgd9u1wgke",
+        "key": "notification.email.smtp_password",
+        "value": "",
+        "description": "SMTP 認證的密碼。",
+        "category": "NOTIFICATION",
+        "valueType": "SECRET",
+        "effectType": "IMMEDIATE",
+        "name": "SMTP 密碼",
+        "defaultValue": "",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": true,
+        "isReadOnly": false,
+        "sortOrder": 5,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25o8000xhoxgpj6i9p9k",
+        "key": "notification.email.from_address",
+        "value": "noreply@example.com",
+        "description": "系統發送通知郵件時使用的寄件者地址。",
+        "category": "NOTIFICATION",
+        "valueType": "STRING",
+        "effectType": "IMMEDIATE",
+        "name": "寄件者地址",
+        "defaultValue": "noreply@example.com",
+        "impactNote": null,
+        "validation": {
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 6,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25ov000yhoxgrnt59fn0",
+        "key": "notification.teams.enabled",
+        "value": "false",
+        "description": "是否啟用 Microsoft Teams 通知功能。",
+        "category": "NOTIFICATION",
+        "valueType": "BOOLEAN",
+        "effectType": "IMMEDIATE",
+        "name": "啟用 Teams 通知",
+        "defaultValue": "false",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 7,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25qn000zhoxg204g7jcc",
+        "key": "notification.teams.webhook_url",
+        "value": "",
+        "description": "Microsoft Teams 的 Incoming Webhook URL。",
+        "category": "NOTIFICATION",
+        "valueType": "SECRET",
+        "effectType": "IMMEDIATE",
+        "name": "Teams Webhook URL",
+        "defaultValue": "",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": true,
+        "isReadOnly": false,
+        "sortOrder": 8,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25dc000khoxg3kullxjv",
+        "key": "security.session_timeout_minutes",
+        "value": "60",
+        "description": "用戶閒置多久後自動登出。",
+        "category": "SECURITY",
+        "valueType": "NUMBER",
+        "effectType": "RESTART_REQUIRED",
+        "name": "Session 超時時間 (分鐘)",
+        "defaultValue": "60",
+        "impactNote": "變更此設定需要重啟服務才能生效。",
+        "validation": {
+          "max": 480,
+          "min": 5,
+          "required": true
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 1,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25e1000lhoxgaev08y35",
+        "key": "security.password_min_length",
+        "value": "8",
+        "description": "用戶密碼的最小長度要求。",
+        "category": "SECURITY",
+        "valueType": "NUMBER",
+        "effectType": "IMMEDIATE",
+        "name": "密碼最小長度",
+        "defaultValue": "8",
+        "impactNote": null,
+        "validation": {
+          "max": 32,
+          "min": 6,
+          "required": true
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 2,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25ei000mhoxgei1h3pp7",
+        "key": "security.password_require_uppercase",
+        "value": "true",
+        "description": "是否要求密碼包含至少一個大寫字母。",
+        "category": "SECURITY",
+        "valueType": "BOOLEAN",
+        "effectType": "IMMEDIATE",
+        "name": "密碼需要大寫字母",
+        "defaultValue": "true",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 3,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25fa000nhoxg2aqvt81m",
+        "key": "security.password_require_number",
+        "value": "true",
+        "description": "是否要求密碼包含至少一個數字。",
+        "category": "SECURITY",
+        "valueType": "BOOLEAN",
+        "effectType": "IMMEDIATE",
+        "name": "密碼需要數字",
+        "defaultValue": "true",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 4,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25fw000ohoxgs0otcmev",
+        "key": "security.password_require_special",
+        "value": "false",
+        "description": "是否要求密碼包含至少一個特殊字元。",
+        "category": "SECURITY",
+        "valueType": "BOOLEAN",
+        "effectType": "IMMEDIATE",
+        "name": "密碼需要特殊字元",
+        "defaultValue": "false",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 5,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25gj000phoxg8t3erd0s",
+        "key": "security.max_login_attempts",
+        "value": "5",
+        "description": "帳戶鎖定前允許的登入失敗次數。",
+        "category": "SECURITY",
+        "valueType": "NUMBER",
+        "effectType": "IMMEDIATE",
+        "name": "最大登入嘗試次數",
+        "defaultValue": "5",
+        "impactNote": null,
+        "validation": {
+          "max": 10,
+          "min": 3,
+          "required": true
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 6,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25hv000qhoxgm13blsg5",
+        "key": "security.lockout_duration_minutes",
+        "value": "15",
+        "description": "帳戶被鎖定後需要等待的時間。",
+        "category": "SECURITY",
+        "valueType": "NUMBER",
+        "effectType": "IMMEDIATE",
+        "name": "帳戶鎖定時間 (分鐘)",
+        "defaultValue": "15",
+        "impactNote": null,
+        "validation": {
+          "max": 60,
+          "min": 1,
+          "required": true
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 7,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25is000rhoxgdg9bdc0n",
+        "key": "security.jwt_secret",
+        "value": "",
+        "description": "用於簽署 JWT 令牌的密鑰。",
+        "category": "SECURITY",
+        "valueType": "SECRET",
+        "effectType": "RESTART_REQUIRED",
+        "name": "JWT 密鑰",
+        "defaultValue": "",
+        "impactNote": "變更此設定將使所有現有的 JWT 令牌失效。",
+        "validation": null,
+        "isEncrypted": true,
+        "isReadOnly": false,
+        "sortOrder": 8,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo2579000dhoxgv2zph3qp",
+        "key": "integration.ai.provider",
+        "value": "azure-openai",
+        "description": "使用的 AI 服務提供者。",
+        "category": "INTEGRATION",
+        "valueType": "ENUM",
+        "effectType": "IMMEDIATE",
+        "name": "AI 服務提供者",
+        "defaultValue": "azure-openai",
+        "impactNote": null,
+        "validation": {
+          "options": [
+            "azure-openai",
+            "openai",
+            "anthropic",
+            "custom"
+          ]
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 1,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo257u000ehoxg9qz5kyqr",
+        "key": "integration.ai.api_key",
+        "value": "",
+        "description": "AI 服務的 API 金鑰。",
+        "category": "INTEGRATION",
+        "valueType": "SECRET",
+        "effectType": "IMMEDIATE",
+        "name": "AI API 金鑰",
+        "defaultValue": "",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": true,
+        "isReadOnly": false,
+        "sortOrder": 2,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo258y000fhoxg9a2103i2",
+        "key": "integration.ai.endpoint",
+        "value": "",
+        "description": "AI 服務的 API 端點 URL（Azure OpenAI 需要）。",
+        "category": "INTEGRATION",
+        "valueType": "STRING",
+        "effectType": "IMMEDIATE",
+        "name": "AI 服務端點",
+        "defaultValue": "",
+        "impactNote": null,
+        "validation": {
+          "pattern": "^https?://"
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 3,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25a1000ghoxgxk8a9efp",
+        "key": "integration.ai.model",
+        "value": "gpt-4-vision-preview",
+        "description": "使用的 AI 模型名稱或部署名稱。",
+        "category": "INTEGRATION",
+        "valueType": "STRING",
+        "effectType": "IMMEDIATE",
+        "name": "AI 模型名稱",
+        "defaultValue": "gpt-4-vision-preview",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 4,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25az000hhoxgo2pi45l5",
+        "key": "integration.n8n.base_url",
+        "value": "http://localhost:5678",
+        "description": "n8n 服務的基礎 URL。",
+        "category": "INTEGRATION",
+        "valueType": "STRING",
+        "effectType": "IMMEDIATE",
+        "name": "n8n 基礎 URL",
+        "defaultValue": "http://localhost:5678",
+        "impactNote": null,
+        "validation": {
+          "pattern": "^https?://"
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 5,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25by000ihoxgrdqzrr1e",
+        "key": "integration.n8n.api_key",
+        "value": "",
+        "description": "n8n 服務的 API 金鑰。",
+        "category": "INTEGRATION",
+        "valueType": "SECRET",
+        "effectType": "IMMEDIATE",
+        "name": "n8n API 金鑰",
+        "defaultValue": "",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": true,
+        "isReadOnly": false,
+        "sortOrder": 6,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25cg000jhoxghzfij5cx",
+        "key": "integration.storage.provider",
+        "value": "azure-blob",
+        "description": "檔案儲存服務提供者。",
+        "category": "INTEGRATION",
+        "valueType": "ENUM",
+        "effectType": "RESTART_REQUIRED",
+        "name": "儲存服務提供者",
+        "defaultValue": "azure-blob",
+        "impactNote": "變更儲存提供者需要重新啟動服務並遷移現有檔案。",
+        "validation": {
+          "options": [
+            "local",
+            "azure-blob",
+            "s3",
+            "gcs"
+          ]
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 7,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25sc0010hoxgjlv71ly8",
+        "key": "system.log_level",
+        "value": "info",
+        "description": "系統日誌的記錄級別。",
+        "category": "SYSTEM",
+        "valueType": "ENUM",
+        "effectType": "IMMEDIATE",
+        "name": "日誌級別",
+        "defaultValue": "info",
+        "impactNote": null,
+        "validation": {
+          "options": [
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ]
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 1,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25tf0011hoxgdvhsk9gw",
+        "key": "system.log_retention_days",
+        "value": "30",
+        "description": "系統日誌保留的天數。",
+        "category": "SYSTEM",
+        "valueType": "NUMBER",
+        "effectType": "IMMEDIATE",
+        "name": "日誌保留天數",
+        "defaultValue": "30",
+        "impactNote": null,
+        "validation": {
+          "max": 365,
+          "min": 7,
+          "required": true
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 2,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25ub0012hoxg3m4r8zre",
+        "key": "system.maintenance_mode",
+        "value": "false",
+        "description": "啟用維護模式後，只有管理員可以存取系統。",
+        "category": "SYSTEM",
+        "valueType": "BOOLEAN",
+        "effectType": "IMMEDIATE",
+        "name": "維護模式",
+        "defaultValue": "false",
+        "impactNote": "啟用此設定將阻止一般用戶存取系統。",
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 3,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25v40013hoxga34tcngm",
+        "key": "system.timezone",
+        "value": "Asia/Taipei",
+        "description": "系統使用的時區設定。",
+        "category": "SYSTEM",
+        "valueType": "STRING",
+        "effectType": "IMMEDIATE",
+        "name": "系統時區",
+        "defaultValue": "Asia/Taipei",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 4,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25vn0014hoxgjatc099r",
+        "key": "system.locale",
+        "value": "zh-TW",
+        "description": "系統預設的語言設定。",
+        "category": "SYSTEM",
+        "valueType": "ENUM",
+        "effectType": "IMMEDIATE",
+        "name": "系統語言",
+        "defaultValue": "zh-TW",
+        "impactNote": null,
+        "validation": {
+          "options": [
+            "zh-TW",
+            "zh-CN",
+            "en-US",
+            "ja-JP"
+          ]
+        },
+        "isEncrypted": false,
+        "isReadOnly": false,
+        "sortOrder": 5,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      },
+      {
+        "id": "cmkdo25xe0015hoxgjqkmpked",
+        "key": "system.version",
+        "value": "1.0.0",
+        "description": "目前系統版本號。",
+        "category": "SYSTEM",
+        "valueType": "STRING",
+        "effectType": "IMMEDIATE",
+        "name": "系統版本",
+        "defaultValue": "1.0.0",
+        "impactNote": null,
+        "validation": null,
+        "isEncrypted": false,
+        "isReadOnly": true,
+        "sortOrder": 6,
+        "scope": "GLOBAL",
+        "cityCode": null,
+        "isActive": true
+      }
+    ],
+    "promptConfigs": [
+      {
+        "id": "cmkmdqvfp0000y0xghi15kicz",
+        "promptType": "TERM_CLASSIFICATION",
+        "scope": "GLOBAL",
+        "name": "DHL prompt config",
+        "description": "DHL prompt config",
+        "companyId": null,
+        "documentFormatId": null,
+        "systemPrompt": "## DHL/Logistics Invoice Extraction – Prompt Config\n\n**System**\nYou are a document data-extraction engine. Extract structured data from logistics invoices. Output ONLY valid JSON that matches the provided schema. If a field is not present, use null. Do not guess.\n\n**User**\nExtract all available fields from this invoice image and return JSON in this schema:\n\n```json\n{\n  \"document_type\": \"invoice\",\n  \"invoice_number\": null,\n  \"invoice_date\": null,\n  \"due_date\": null,\n  \"currency\": null,\n  \"total_amount\": null,\n  \"subtotal_amount\": null,\n  \"balance_due\": null,\n\n  \"vendor\": {\n    \"name\": null,\n    \"address\": null,\n    \"phone\": null\n  },\n  \"bill_to\": {\n    \"name\": null,\n    \"address\": null\n  },\n  \"shipper\": { \"name\": null },\n  \"consignee\": { \"name\": null },\n\n  \"shipment\": {\n    \"shipment_id\": null,\n    \"customer_id\": null,\n    \"registration_no\": null,\n    \"consol_number\": null,\n    \"origin\": null,\n    \"destination\": null,\n    \"etd\": null,\n    \"eta\": null,\n    \"vessel_voyage\": null,\n    \"ocean_bill_of_lading\": null,\n    \"house_bill_of_lading\": null,\n    \"goods_description\": null,\n    \"weight_kg\": null,\n    \"volume_cbm\": null,\n    \"chargeable_cbm\": null,\n    \"packages\": null,\n    \"containers\": []\n  },\n\n  \"charges\": [\n    { \"description\": null, \"amount\": null, \"currency\": null }\n  ],\n\n  \"payment\": {\n    \"method\": null,\n    \"bank_name\": null,\n    \"bank_code\": null,\n    \"swift\": null,\n    \"account_no\": null,\n    \"pay_ref\": null,\n    \"remit_to_address\": null\n  },\n\n  \"notes\": null\n}\n```\n\nRules:\n- Parse dates as `YYYY-MM-DD` when possible.\n- Parse numbers as decimals (no commas).\n- Put container numbers into `shipment.containers` as strings.\n- If multiple totals appear, prefer “TOTAL” / “TOTAL DUE”.\n- Do not include any extra keys.\n```",
+        "userPromptTemplate": "test",
+        "mergeStrategy": "OVERRIDE",
+        "variables": [],
+        "isActive": true,
+        "version": 2
+      },
+      {
+        "id": "cml7m1fqh0000zcxgcyjoiou1",
+        "promptType": "STAGE_1_COMPANY_IDENTIFICATION",
+        "scope": "GLOBAL",
+        "name": "Test Stage 1 Config",
+        "description": null,
+        "companyId": null,
+        "documentFormatId": null,
+        "systemPrompt": "You are an invoice issuer identification specialist.\nYour task is to identify the company that issued this invoice.\n\nKnown companies:\n${knownCompanies}\n\nCurrent date: ${currentDate}\nFile name: ${fileName}\n\nIdentification methods (in priority order):\n1. LOGO - Company logo on the document\n2. HEADER - Company name in header/letterhead\n3. ADDRESS - Company address information\n4. TAX_ID - Tax identification number\n\nResponse format (JSON):\n{\n  \"companyName\": \"string - identified company name\",\n  \"identificationMethod\": \"LOGO\" | \"HEADER\" | \"ADDRESS\" | \"TAX_ID\",\n  \"confidence\": number (0-100),\n  \"matchedKnownCompany\": \"string | null - if matched to known company\"\n}",
+        "userPromptTemplate": "Identify the issuing company from this invoice image.",
+        "mergeStrategy": "OVERRIDE",
+        "variables": [],
+        "isActive": true,
+        "version": 1
+      },
+      {
+        "id": "cml7qxj1k000kzcxghg58tn5p",
+        "promptType": "STAGE_3_FIELD_EXTRACTION",
+        "scope": "COMPANY",
+        "name": "Kintetsu Stage 3 Field Extraction Test",
+        "description": null,
+        "companyId": "4a2da1d6-9dc2-451d-8f28-ea993d6149a2",
+        "documentFormatId": null,
+        "systemPrompt": "You are an expert invoice data extraction specialist.\nExtract all requested fields accurately from the provided invoice image.\nbut please be careful that the data under [DESCRIPTION AND REMARKS] also need to fully capture.\nand from the top left corner, there will be a export type data on there, need to careful to capture, because it is place over the others text on the document.\n\nCompany: ${companyName}\nDocument Format: ${documentFormatName}\n\nStandard Fields to Extract:\n${standardFields}\n\nCustom Fields:\n${customFields}\n\nTerm Classification Rules:\nUniversal Mappings (Tier 1):\n${universalMappings}\n\nCompany-Specific Mappings (Tier 2 - override Tier 1):\n${companyMappings}\n\nOutput Schema:\n${fieldSchema}\n\nRespond in valid JSON format matching the provided schema.",
+        "userPromptTemplate": "Please extract all invoice fields from the document.",
+        "mergeStrategy": "OVERRIDE",
+        "variables": [],
+        "isActive": true,
+        "version": 2
+      }
+    ]
+  }
+}

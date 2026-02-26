@@ -39,6 +39,8 @@ export type DocumentSubtype =
   | 'LAND_TRANSPORT'       // 陸運
   | 'CUSTOMS_CLEARANCE'    // 報關
   | 'WAREHOUSING'          // 倉儲
+  | 'IMPORT'               // 進口
+  | 'EXPORT'               // 出口
   | 'GENERAL';             // 一般/混合
 
 // ============================================================================
@@ -82,6 +84,8 @@ export const DOCUMENT_SUBTYPE_LABELS: Record<DocumentSubtype, string> = {
   LAND_TRANSPORT: 'Land Transport',
   CUSTOMS_CLEARANCE: 'Customs Clearance',
   WAREHOUSING: 'Warehousing',
+  IMPORT: 'Import',
+  EXPORT: 'Export',
   GENERAL: 'General',
 };
 
@@ -94,6 +98,8 @@ export const DOCUMENT_SUBTYPE_LABELS_ZH: Record<DocumentSubtype, string> = {
   LAND_TRANSPORT: '陸運',
   CUSTOMS_CLEARANCE: '報關',
   WAREHOUSING: '倉儲',
+  IMPORT: '進口',
+  EXPORT: '出口',
   GENERAL: '一般',
 };
 
@@ -120,6 +126,8 @@ export const ALL_DOCUMENT_SUBTYPES: DocumentSubtype[] = [
   'LAND_TRANSPORT',
   'CUSTOMS_CLEARANCE',
   'WAREHOUSING',
+  'IMPORT',
+  'EXPORT',
   'GENERAL',
 ];
 

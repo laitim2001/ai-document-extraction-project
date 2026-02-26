@@ -11,6 +11,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertRuleManagement } from './AlertRuleManagement';
@@ -85,15 +86,16 @@ function StatisticsSkeleton() {
  * @description 警報管理儀表板主組件
  */
 export function AlertDashboard() {
+  const t = useTranslations('admin');
   const { data: stats, isLoading: statsLoading } = useAlertStatistics();
 
   return (
     <div className="space-y-6">
       {/* 頁面標題 */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">警報設定</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t('alerts.title')}</h1>
         <p className="text-muted-foreground">
-          設定系統警報規則並管理警報通知
+          {t('alerts.description')}
         </p>
       </div>
 
@@ -103,30 +105,30 @@ export function AlertDashboard() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title="觸發中警報"
+            title={t('alerts.stats.firing')}
             value={stats?.data.alerts.firingAlerts || 0}
-            description="需要立即處理"
+            description={t('alerts.stats.firingDescription')}
             icon={<AlertTriangle className="h-4 w-4" />}
             variant={stats?.data.alerts.firingAlerts && stats.data.alerts.firingAlerts > 0 ? 'danger' : 'default'}
           />
           <StatCard
-            title="已確認警報"
+            title={t('alerts.stats.acknowledged')}
             value={stats?.data.alerts.acknowledgedAlerts || 0}
-            description="正在處理中"
+            description={t('alerts.stats.acknowledgedDescription')}
             icon={<Clock className="h-4 w-4" />}
             variant={stats?.data.alerts.acknowledgedAlerts && stats.data.alerts.acknowledgedAlerts > 0 ? 'warning' : 'default'}
           />
           <StatCard
-            title="已解決警報"
+            title={t('alerts.stats.resolved')}
             value={stats?.data.alerts.resolvedAlerts || 0}
-            description="過去 24 小時"
+            description={t('alerts.stats.resolvedDescription')}
             icon={<CheckCircle className="h-4 w-4" />}
             variant="success"
           />
           <StatCard
-            title="活躍規則"
+            title={t('alerts.stats.activeRules')}
             value={Object.values(stats?.data.rules.bySeverity || {}).reduce((a, b) => a + b, 0)}
-            description="正在監控中"
+            description={t('alerts.stats.activeRulesDescription')}
             icon={<Bell className="h-4 w-4" />}
           />
         </div>
@@ -135,16 +137,16 @@ export function AlertDashboard() {
       {/* 分頁內容 */}
       <Tabs defaultValue="rules" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="rules">規則管理</TabsTrigger>
-          <TabsTrigger value="history">警報歷史</TabsTrigger>
+          <TabsTrigger value="rules">{t('alerts.tabs.rules')}</TabsTrigger>
+          <TabsTrigger value="history">{t('alerts.tabs.history')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="rules">
           <Card>
             <CardHeader>
-              <CardTitle>警報規則</CardTitle>
+              <CardTitle>{t('alerts.rulesCard.title')}</CardTitle>
               <CardDescription>
-                設定監控指標和觸發條件，系統將自動發送通知
+                {t('alerts.rulesCard.description')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -156,9 +158,9 @@ export function AlertDashboard() {
         <TabsContent value="history">
           <Card>
             <CardHeader>
-              <CardTitle>警報歷史</CardTitle>
+              <CardTitle>{t('alerts.historyCard.title')}</CardTitle>
               <CardDescription>
-                查看所有警報記錄，進行確認或解決操作
+                {t('alerts.historyCard.description')}
               </CardDescription>
             </CardHeader>
             <CardContent>

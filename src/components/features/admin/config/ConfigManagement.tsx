@@ -31,6 +31,7 @@
  */
 
 import { useState, useCallback, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { RefreshCw, Search, Loader2, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { ConfigCategory } from '@prisma/client'
@@ -84,6 +85,8 @@ type GroupedConfigs = Record<ConfigCategory, ConfigValue[]>
  *   - 編輯、歷史、回滾功能
  */
 export function ConfigManagement() {
+  const t = useTranslations('admin')
+
   // --- State ---
   const [activeCategory, setActiveCategory] = useState<ConfigCategory>('PROCESSING')
   const [searchTerm, setSearchTerm] = useState('')
@@ -162,21 +165,21 @@ export function ConfigManagement() {
         })
 
         if (result.requiresRestart) {
-          toast.warning('配置已更新，需要重啟服務才能生效', {
+          toast.warning(t('configManagement.toast.updatedRequiresRestart'), {
             duration: 5000,
           })
         } else {
-          toast.success('配置已更新')
+          toast.success(t('configManagement.toast.updated'))
         }
 
         setEditingConfig(null)
       } catch (err) {
-        const message = err instanceof Error ? err.message : '更新失敗'
+        const message = err instanceof Error ? err.message : t('configManagement.toast.updateError')
         toast.error(message)
         throw err
       }
     },
-    [updateConfigMutation]
+    [updateConfigMutation, t]
   )
 
   /**
@@ -200,13 +203,13 @@ export function ConfigManagement() {
           key: historyConfigKey,
           historyId,
         })
-        toast.success('配置已回滾')
+        toast.success(t('configManagement.toast.rolledBack'))
       } catch (err) {
-        const message = err instanceof Error ? err.message : '回滾失敗'
+        const message = err instanceof Error ? err.message : t('configManagement.toast.rollbackError')
         toast.error(message)
       }
     },
-    [historyConfigKey, rollbackConfigMutation]
+    [historyConfigKey, rollbackConfigMutation, t]
   )
 
   /**
@@ -217,13 +220,13 @@ export function ConfigManagement() {
 
     try {
       await resetConfigMutation.mutateAsync({ key: confirmResetKey })
-      toast.success('配置已重置為預設值')
+      toast.success(t('configManagement.toast.reset'))
       setConfirmResetKey(null)
     } catch (err) {
-      const message = err instanceof Error ? err.message : '重置失敗'
+      const message = err instanceof Error ? err.message : t('configManagement.toast.resetError')
       toast.error(message)
     }
-  }, [confirmResetKey, resetConfigMutation])
+  }, [confirmResetKey, resetConfigMutation, t])
 
   /**
    * 重新載入快取
@@ -231,12 +234,12 @@ export function ConfigManagement() {
   const handleReloadCache = useCallback(async () => {
     try {
       await reloadConfigsMutation.mutateAsync()
-      toast.success('配置快取已重新載入')
+      toast.success(t('configManagement.toast.reloaded'))
     } catch (err) {
-      const message = err instanceof Error ? err.message : '重新載入失敗'
+      const message = err instanceof Error ? err.message : t('configManagement.toast.reloadError')
       toast.error(message)
     }
-  }, [reloadConfigsMutation])
+  }, [reloadConfigsMutation, t])
 
   /**
    * 計算各類別的配置數量
@@ -265,7 +268,7 @@ export function ConfigManagement() {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-muted-foreground">載入配置中...</span>
+        <span className="ml-2 text-muted-foreground">{t('configManagement.loading')}</span>
       </div>
     )
   }
@@ -276,9 +279,9 @@ export function ConfigManagement() {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          載入配置失敗：{error instanceof Error ? error.message : '未知錯誤'}
+          {t('configManagement.loadError', { error: error instanceof Error ? error.message : t('configManagement.unknownError') })}
           <Button variant="link" className="ml-2 p-0 h-auto" onClick={() => refetch()}>
-            重試
+            {t('configManagement.retry')}
           </Button>
         </AlertDescription>
       </Alert>
@@ -290,8 +293,8 @@ export function ConfigManagement() {
       {/* 頁面標題與操作按鈕 */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold">系統配置管理</h1>
-          <p className="text-muted-foreground mt-1">管理系統運行時配置參數</p>
+          <h1 className="text-2xl font-bold">{t('configManagement.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('configManagement.description')}</p>
         </div>
         <Button
           variant="outline"
@@ -302,7 +305,7 @@ export function ConfigManagement() {
           <RefreshCw
             className={`w-4 h-4 mr-2 ${reloadConfigsMutation.isPending ? 'animate-spin' : ''}`}
           />
-          重新載入快取
+          {t('configManagement.reloadCache')}
         </Button>
       </div>
 
@@ -312,7 +315,7 @@ export function ConfigManagement() {
         <Input
           value={searchTerm}
           onChange={(e) => handleSearchChange(e.target.value)}
-          placeholder="搜尋配置名稱或描述..."
+          placeholder={t('configManagement.searchPlaceholder')}
           className="pl-9"
         />
       </div>
@@ -365,7 +368,7 @@ export function ConfigManagement() {
               <div className="divide-y">
                 {configs[category]?.length === 0 ? (
                   <div className="px-6 py-12 text-center text-muted-foreground">
-                    {debouncedSearch ? '找不到符合條件的配置' : '此類別沒有配置項目'}
+                    {debouncedSearch ? t('configManagement.noMatch') : t('configManagement.empty')}
                   </div>
                 ) : (
                   configs[category]?.map((config) => (
@@ -433,14 +436,14 @@ export function ConfigManagement() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認重置配置</AlertDialogTitle>
+            <AlertDialogTitle>{t('configManagement.resetDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要將此配置重置為預設值嗎？此操作會記錄在變更歷史中。
+              {t('configManagement.resetDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={resetConfigMutation.isPending}>
-              取消
+              {t('configManagement.resetDialog.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmReset}
@@ -449,10 +452,10 @@ export function ConfigManagement() {
               {resetConfigMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  重置中...
+                  {t('configManagement.resetDialog.resetting')}
                 </>
               ) : (
-                '確認重置'
+                t('configManagement.resetDialog.confirm')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

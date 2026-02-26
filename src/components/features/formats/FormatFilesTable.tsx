@@ -8,7 +8,7 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.2
- * @lastModified 2026-01-12
+ * @lastModified 2026-02-26
  */
 
 import * as React from 'react';
@@ -33,6 +33,7 @@ import {
   RefreshCw,
   ExternalLink,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useFormatFiles } from '@/hooks/use-format-files';
 
 // ============================================================================
@@ -84,22 +85,6 @@ function getStatusBadgeVariant(
 }
 
 /**
- * 獲取狀態顯示文字
- */
-function getStatusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    UPLOADED: '已上傳',
-    PROCESSING: '處理中',
-    COMPLETED: '已完成',
-    APPROVED: '已批准',
-    FAILED: '失敗',
-    REJECTED: '已拒絕',
-    PENDING: '待處理',
-  };
-  return labels[status] || status;
-}
-
-/**
  * 格式化信心度
  */
 function formatConfidence(confidence: number | null): string {
@@ -143,6 +128,7 @@ function FilesTableSkeleton() {
  */
 export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFilesTableProps) {
   const router = useRouter();
+  const t = useTranslations('formats');
   const [page, setPage] = React.useState(1);
 
   const { files, isLoading, error, pagination, refetch } = useFormatFiles({
@@ -151,12 +137,26 @@ export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFile
     limit: 10,
   });
 
+  /**
+   * 獲取狀態顯示文字（使用 i18n）
+   */
+  const getStatusLabel = React.useCallback(
+    (status: string): string => {
+      const validStatuses = ['UPLOADED', 'PROCESSING', 'COMPLETED', 'APPROVED', 'FAILED', 'REJECTED', 'PENDING'];
+      if (validStatuses.includes(status)) {
+        return t(`detail.files.status.${status}`);
+      }
+      return status;
+    },
+    [t]
+  );
+
   // --- 載入中 ---
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">關聯文件</CardTitle>
+          <CardTitle className="text-base">{t('detail.files.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <FilesTableSkeleton />
@@ -173,13 +173,13 @@ export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFile
           <div className="rounded-full bg-destructive/10 p-4 mb-4">
             <AlertCircle className="h-8 w-8 text-destructive" />
           </div>
-          <h3 className="text-lg font-medium mb-2">載入失敗</h3>
+          <h3 className="text-lg font-medium mb-2">{t('detail.files.loadError')}</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {error.message || '無法載入文件列表'}
+            {error.message || t('detail.files.loadErrorDescription')}
           </p>
           <Button variant="outline" onClick={() => refetch()}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            重試
+            {t('detail.files.retry')}
           </Button>
         </CardContent>
       </Card>
@@ -194,9 +194,9 @@ export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFile
           <div className="rounded-full bg-muted p-4 mb-4">
             <Files className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-medium mb-2">尚無關聯文件</h3>
+          <h3 className="text-lg font-medium mb-2">{t('detail.files.emptyTitle')}</h3>
           <p className="text-sm text-muted-foreground">
-            上傳文件後，符合此格式的文件會自動關聯到這裡。
+            {t('detail.files.emptyDescription')}
           </p>
         </CardContent>
       </Card>
@@ -212,7 +212,7 @@ export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFile
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-base">
-          關聯文件
+          {t('detail.files.title')}
           <Badge variant="secondary" className="ml-2">
             {pagination.total}
           </Badge>
@@ -222,10 +222,10 @@ export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFile
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>文件名稱</TableHead>
-              <TableHead>狀態</TableHead>
-              <TableHead>識別信心度</TableHead>
-              <TableHead>上傳時間</TableHead>
+              <TableHead>{t('detail.files.table.fileName')}</TableHead>
+              <TableHead>{t('detail.files.table.status')}</TableHead>
+              <TableHead>{t('detail.files.table.confidence')}</TableHead>
+              <TableHead>{t('detail.files.table.uploadedAt')}</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
@@ -258,7 +258,7 @@ export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFile
         {pagination.totalPages > 1 && (
           <div className="flex items-center justify-between mt-4 pt-4 border-t">
             <span className="text-sm text-muted-foreground">
-              第 {page} / {pagination.totalPages} 頁，共 {pagination.total} 個文件
+              {t('detail.files.pagination.info', { page, totalPages: pagination.totalPages, total: pagination.total })}
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -268,7 +268,7 @@ export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFile
                 disabled={page === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
-                上一頁
+                {t('detail.files.pagination.previous')}
               </Button>
               <Button
                 variant="outline"
@@ -276,7 +276,7 @@ export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFile
                 onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
                 disabled={page === pagination.totalPages}
               >
-                下一頁
+                {t('detail.files.pagination.next')}
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

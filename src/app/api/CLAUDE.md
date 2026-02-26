@@ -1,8 +1,8 @@
 # API 目錄 - Next.js API Routes
 
-> **端點數量**: 273+ API 端點
-> **最後更新**: 2026-01-02
-> **版本**: 1.1.0
+> **端點數量**: 318+ API 端點（175+ route files）
+> **最後更新**: 2026-02-09
+> **版本**: 2.0.0
 
 ---
 
@@ -10,7 +10,7 @@
 
 本目錄包含所有 Next.js App Router API 路由，遵循 RESTful 設計原則。API 層負責：
 - **請求驗證**: 使用 Zod schema 驗證所有輸入
-- **認證授權**: 整合 NextAuth.js 與 Azure AD SSO
+- **認證授權**: 整合 NextAuth.js 與 Azure AD SSO + 本地帳號認證
 - **響應格式**: 統一的成功/錯誤響應格式
 - **錯誤處理**: RFC 7807 標準錯誤響應
 
@@ -51,11 +51,17 @@
 | `/audit/reports/[jobId]/download/` | 審計報表下載 |
 | `/audit/reports/[jobId]/verify/` | 審計報表驗證 |
 
-### 4. 認證 API (Auth) - Epic 1
+### 4. 認證 API (Auth) - Epic 1, 18
 
 | 路徑 | 說明 |
 |------|------|
 | `/auth/[...nextauth]/` | NextAuth.js 認證路由（Azure AD SSO）|
+| `/auth/register/` | 本地帳號註冊（Epic 18）|
+| `/auth/forgot-password/` | 忘記密碼（Epic 18）|
+| `/auth/reset-password/` | 重設密碼（Epic 18）|
+| `/auth/verify-reset-token/` | 驗證重設 Token（Epic 18）|
+| `/auth/verify-email/` | 電子郵件驗證（Epic 18）|
+| `/auth/resend-verification/` | 重寄驗證郵件（Epic 18）|
 
 ### 5. 城市 API (Cities) - Epic 6
 
@@ -147,14 +153,9 @@
 | `/extraction/` | 欄位提取服務 |
 | `/extraction/[id]/fields/` | 提取欄位詳情 |
 
-### 16. Forwarder API (Forwarders) - Epic 5
+### 16. Forwarder API (Forwarders) - Epic 5（已棄用）
 
-| 路徑 | 說明 |
-|------|------|
-| `/forwarders/` | Forwarder 列表（向後兼容）|
-| `/forwarders/[id]/` | Forwarder 詳情 |
-
-> **注意**: 因 REFACTOR-001，建議使用 `/companies/` API
+> **已棄用**: 因 REFACTOR-001，此 API 已被 `/companies/` API 取代。
 
 ### 17. 健康檢查 API (Health) - Epic 12
 
@@ -290,6 +291,7 @@
 | `/v1/webhooks/` | Webhook 管理 | Epic 11 |
 | `/v1/field-mapping-configs/` | 欄位映射配置 | Epic 13 |
 | `/v1/prompt-configs/` | Prompt 配置管理 | Epic 14 |
+| `/v1/users/me/locale/` | 用戶語言偏好 | Epic 17 |
 
 ### 33. 欄位映射配置 API (Field Mapping Configs) - Epic 13
 
@@ -376,6 +378,135 @@ GLOBAL → COMPANY → FORMAT（越具體優先級越高）
 #### 變數插值
 
 支援 `{{variableName}}` 語法在 systemPrompt 和 userPromptTemplate 中進行變數插值。
+
+### 35. 資料模板 API (Data Templates) - Epic 19
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/data-templates/` | GET | 模板列表 |
+| `/v1/data-templates/` | POST | 創建模板 |
+| `/v1/data-templates/[id]/` | GET, PATCH, DELETE | 模板 CRUD |
+| `/v1/data-templates/available/` | GET | 可用模板列表 |
+
+### 36. 模板欄位映射 API (Template Field Mappings) - Epic 19
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/template-field-mappings/` | GET, POST | 映射列表與創建 |
+| `/v1/template-field-mappings/[id]/` | GET, PATCH, DELETE | 映射 CRUD |
+| `/v1/template-field-mappings/resolve/` | POST | 解析映射規則 |
+
+### 37. 模板實例 API (Template Instances) - Epic 19
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/template-instances/` | GET, POST | 實例列表與創建 |
+| `/v1/template-instances/[id]/` | GET, PATCH, DELETE | 實例 CRUD |
+| `/v1/template-instances/[id]/export/` | GET | 匯出實例資料 |
+| `/v1/template-instances/[id]/rows/` | GET, POST | 實例行資料管理 |
+| `/v1/template-instances/[id]/rows/[rowId]/` | PATCH, DELETE | 行資料 CRUD |
+
+### 38. 模板匹配 API (Template Matching) - Epic 19
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/template-matching/execute/` | POST | 執行模板匹配 |
+| `/v1/template-matching/preview/` | POST | 預覽匹配結果 |
+| `/v1/template-matching/validate/` | POST | 驗證匹配規則 |
+
+### 39. 參考編號 API (Reference Numbers) - Epic 20
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/reference-numbers/` | GET, POST | 參考編號管理 |
+| `/v1/reference-numbers/[id]/` | GET, PATCH, DELETE | 編號 CRUD |
+| `/v1/reference-numbers/export/` | GET | 匯出編號 |
+| `/v1/reference-numbers/import/` | POST | 批次匯入編號 |
+| `/v1/reference-numbers/validate/` | POST | 驗證編號 |
+
+### 40. 匯率 API (Exchange Rates) - Epic 21
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/exchange-rates/` | GET, POST | 匯率管理 |
+| `/v1/exchange-rates/[id]/` | GET, PATCH, DELETE | 匯率 CRUD |
+| `/v1/exchange-rates/[id]/toggle/` | POST | 啟用/停用匯率 |
+| `/v1/exchange-rates/batch/` | POST | 批次匯率操作 |
+| `/v1/exchange-rates/convert/` | POST | 貨幣轉換 |
+| `/v1/exchange-rates/export/` | GET | 匯出匯率 |
+| `/v1/exchange-rates/import/` | POST | 批次匯入匯率 |
+
+### 41. 區域 API (Regions) - Epic 20
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/regions/` | GET, POST | 區域管理 |
+| `/v1/regions/[id]/` | GET, PATCH, DELETE | 區域 CRUD |
+
+### 42. 管線配置 API (Pipeline Configs) - CHANGE-032
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/pipeline-configs/` | GET, POST | 管線配置管理 |
+| `/v1/pipeline-configs/[id]/` | GET, PATCH, DELETE | 配置 CRUD |
+| `/v1/pipeline-configs/resolve/` | POST | 解析配置（依範圍優先級）|
+
+### 43. V3 提取測試 API (Extraction V3) - Epic 15
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/extraction-v3/test/` | GET, POST | V3 提取管線測試 |
+
+### 44. Prompt 解析 API (Prompts) - Epic 14
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/prompts/resolve/` | POST, GET | Prompt 解析服務 |
+
+### 45. 測試端點 API (Test) - 開發用
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/test/extraction-v2/` | GET, POST | V2 提取測試 |
+| `/test/extraction-compare/` | GET, POST | V2/V3 提取比較 |
+
+### 46. 用戶語言偏好 API (User Locale) - Epic 17
+
+> **Story 17-5**: 語言偏好設定 - 支援 LocalStorage + 資料庫雙重持久化
+
+| 路徑 | 方法 | 說明 |
+|------|------|------|
+| `/v1/users/me/locale/` | PATCH | 更新當前用戶的語言偏好 |
+
+#### 請求格式
+
+```typescript
+// PATCH /api/v1/users/me/locale
+{
+  "locale": "zh-TW"  // 'en' | 'zh-TW' | 'zh-CN'
+}
+```
+
+#### 響應格式
+
+```typescript
+{
+  "success": true,
+  "data": {
+    "preferredLocale": "zh-TW"
+  }
+}
+```
+
+#### 語言偏好優先級
+
+```
+1. URL 路徑中的 locale（/zh-TW/dashboard）
+2. 資料庫偏好（已登入用戶）
+3. LocalStorage 偏好
+4. 瀏覽器 Accept-Language
+5. 預設語言（en）
+```
 
 ---
 
@@ -541,5 +672,5 @@ GET /api/documents?page=1&limit=20&sortBy=createdAt&sortOrder=desc
 ---
 
 **維護者**: Development Team
-**最後更新**: 2026-01-02
-**版本**: 1.1.0
+**最後更新**: 2026-02-09
+**版本**: 2.0.0

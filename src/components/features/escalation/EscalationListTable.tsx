@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * @fileoverview 升級案例列表表格組件
+ * @fileoverview 升級案例列表表格組件（國際化版本）
  * @description
  *   顯示升級案例列表的表格，包含：
  *   - 文件名稱
@@ -11,18 +11,21 @@
  *   - 升級者
  *   - 升級時間
  *   - 操作按鈕
+ *   - 完整國際化支援
  *
  * @module src/components/features/escalation/EscalationListTable
  * @since Epic 3 - Story 3.8 (Super User 處理升級案例)
- * @lastModified 2025-12-22
+ * @lastModified 2026-01-17
  * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/table - shadcn Table 組件
  *   - date-fns - 日期格式化
  *   - @/types/escalation - 類型定義
  */
 
+import { useTranslations, useLocale } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -35,7 +38,7 @@ import { Button } from '@/components/ui/button'
 import { EscalationStatusBadge } from './EscalationStatusBadge'
 import { EscalationReasonBadge } from './EscalationReasonBadge'
 import { formatDistanceToNow } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
+import { zhTW, enUS } from 'date-fns/locale'
 import { Eye } from 'lucide-react'
 import type { EscalationListItem } from '@/types/escalation'
 
@@ -70,10 +73,16 @@ export function EscalationListTable({
   items,
   onSelectItem,
 }: EscalationListTableProps) {
+  const t = useTranslations('escalation')
+  const locale = useLocale()
+
+  // 根據 locale 選擇日期格式化的 locale
+  const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
+
   if (items.length === 0) {
     return (
       <div className="rounded-md border p-8 text-center">
-        <p className="text-muted-foreground">目前沒有升級案例</p>
+        <p className="text-muted-foreground">{t('list.noData')}</p>
       </div>
     )
   }
@@ -83,13 +92,13 @@ export function EscalationListTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[250px]">文件名</TableHead>
+            <TableHead className="w-[250px]">{t('table.fileName')}</TableHead>
             <TableHead>Company</TableHead>
-            <TableHead>升級原因</TableHead>
-            <TableHead>狀態</TableHead>
-            <TableHead>升級者</TableHead>
-            <TableHead>升級時間</TableHead>
-            <TableHead className="text-right">操作</TableHead>
+            <TableHead>{t('table.reason')}</TableHead>
+            <TableHead>{t('table.status')}</TableHead>
+            <TableHead>{t('table.escalatedBy')}</TableHead>
+            <TableHead>{t('table.escalatedAt')}</TableHead>
+            <TableHead className="text-right">{t('table.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -105,7 +114,7 @@ export function EscalationListTable({
               </TableCell>
               <TableCell>
                 {item.document.company?.name || (
-                  <span className="text-muted-foreground">未識別</span>
+                  <span className="text-muted-foreground">{t('table.unidentified')}</span>
                 )}
               </TableCell>
               <TableCell>
@@ -122,7 +131,7 @@ export function EscalationListTable({
               <TableCell className="text-muted-foreground">
                 {formatDistanceToNow(new Date(item.createdAt), {
                   addSuffix: true,
-                  locale: zhTW,
+                  locale: dateLocale,
                 })}
               </TableCell>
               <TableCell className="text-right">
@@ -133,7 +142,7 @@ export function EscalationListTable({
                   className="opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <Eye className="h-4 w-4 mr-1" />
-                  查看
+                  {t('table.view')}
                 </Button>
               </TableCell>
             </TableRow>

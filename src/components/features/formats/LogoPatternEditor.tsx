@@ -8,10 +8,11 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.3
- * @lastModified 2026-01-12
+ * @lastModified 2026-02-26
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -47,6 +48,8 @@ export interface LogoPatternEditorProps {
  *   支援多個 Logo 特徵，每個包含位置和描述。
  */
 export function LogoPatternEditor({ patterns, onChange }: LogoPatternEditorProps) {
+  const t = useTranslations('formats');
+
   // --- Handlers ---
 
   const addPattern = React.useCallback(() => {
@@ -87,7 +90,7 @@ export function LogoPatternEditor({ patterns, onChange }: LogoPatternEditorProps
             <SelectContent>
               {LOGO_POSITION_OPTIONS.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+                  {t(`detail.rules.logoPatterns.positions.${opt.value}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -95,14 +98,14 @@ export function LogoPatternEditor({ patterns, onChange }: LogoPatternEditorProps
           <Input
             value={pattern.description}
             onChange={(e) => updatePattern(index, { description: e.target.value })}
-            placeholder="Logo 描述（例如：DHL 黃色 Logo）"
+            placeholder={t('detail.rules.logoPatterns.descriptionPlaceholder')}
             className="flex-1"
           />
           <Button
             variant="ghost"
             size="icon"
             onClick={() => removePattern(index)}
-            title="刪除"
+            title={t('detail.rules.logoPatterns.removeTitle')}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -111,11 +114,13 @@ export function LogoPatternEditor({ patterns, onChange }: LogoPatternEditorProps
       {patterns.length < 10 && (
         <Button variant="outline" size="sm" onClick={addPattern}>
           <Plus className="h-4 w-4 mr-2" />
-          新增 Logo 特徵
+          {t('detail.rules.logoPatterns.addButton')}
         </Button>
       )}
       {patterns.length >= 10 && (
-        <p className="text-xs text-muted-foreground">已達到最大數量（10 個）</p>
+        <p className="text-xs text-muted-foreground">
+          {t('detail.rules.logoPatterns.maxReached')}
+        </p>
       )}
     </div>
   );

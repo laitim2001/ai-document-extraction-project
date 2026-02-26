@@ -15,6 +15,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Loader2, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -72,13 +73,13 @@ interface FormData {
 // Constants
 // ============================================================
 
-const CRON_PRESETS = [
-  { label: '每小時', value: '0 * * * *' },
-  { label: '每天午夜', value: '0 0 * * *' },
-  { label: '每天凌晨 3 點', value: '0 3 * * *' },
-  { label: '每週日午夜', value: '0 0 * * 0' },
-  { label: '每月 1 日午夜', value: '0 0 1 * *' },
-  { label: '自訂', value: 'custom' },
+const CRON_PRESET_KEYS = [
+  { key: 'hourly', value: '0 * * * *' },
+  { key: 'dailyMidnight', value: '0 0 * * *' },
+  { key: 'daily3am', value: '0 3 * * *' },
+  { key: 'weeklyMidnight', value: '0 0 * * 0' },
+  { key: 'monthlyMidnight', value: '0 0 1 * *' },
+  { key: 'custom', value: 'custom' },
 ]
 
 const DEFAULT_FORM: FormData = {
@@ -101,6 +102,9 @@ const DEFAULT_FORM: FormData = {
  * 備份排程建立/編輯對話框
  */
 export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   const isEditing = !!schedule
 
   // --- State ---
@@ -127,7 +131,7 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
         isEnabled: schedule.isEnabled,
       })
       // Check if cron matches a preset
-      const preset = CRON_PRESETS.find((p) => p.value === schedule.cronExpression)
+      const preset = CRON_PRESET_KEYS.find((p) => p.value === schedule.cronExpression)
       setCronPreset(preset ? preset.value : 'custom')
     } else {
       setForm(DEFAULT_FORM)
@@ -157,26 +161,26 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
     const newErrors: Partial<Record<keyof FormData, string>> = {}
 
     if (!form.name.trim()) {
-      newErrors.name = '請輸入排程名稱'
+      newErrors.name = t('backup.schedule.dialog.form.nameError')
     } else if (form.name.length > 100) {
-      newErrors.name = '名稱不得超過 100 字元'
+      newErrors.name = t('backup.schedule.dialog.form.nameLengthError')
     }
 
     if (!form.cronExpression.trim()) {
-      newErrors.cronExpression = '請輸入 Cron 表達式'
+      newErrors.cronExpression = t('backup.schedule.dialog.form.cronError')
     }
 
     if (form.retentionDays < 1 || form.retentionDays > 365) {
-      newErrors.retentionDays = '保留天數需介於 1-365 天'
+      newErrors.retentionDays = t('backup.schedule.dialog.form.retentionDaysError')
     }
 
     if (form.maxBackups < 1 || form.maxBackups > 100) {
-      newErrors.maxBackups = '最大備份數需介於 1-100'
+      newErrors.maxBackups = t('backup.schedule.dialog.form.maxBackupsError')
     }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }, [form])
+  }, [form, t])
 
   const handleSubmit = useCallback(async () => {
     if (!validate()) return
@@ -197,7 +201,7 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
             isEnabled: form.isEnabled,
           },
         })
-        toast.success('排程已更新')
+        toast.success(t('backup.schedule.dialog.toast.updated'))
       } else {
         await createMutation.mutateAsync({
           name: form.name.trim(),
@@ -210,13 +214,13 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
           maxBackups: form.maxBackups,
           isEnabled: form.isEnabled,
         })
-        toast.success('排程已建立')
+        toast.success(t('backup.schedule.dialog.toast.created'))
       }
       onOpenChange(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : '操作失敗')
+      toast.error(err instanceof Error ? err.message : t('backup.schedule.dialog.toast.error'))
     }
-  }, [form, isEditing, schedule, validate, createMutation, updateMutation, onOpenChange])
+  }, [form, isEditing, schedule, validate, createMutation, updateMutation, onOpenChange, t])
 
   const isPending = createMutation.isPending || updateMutation.isPending
 
@@ -230,9 +234,9 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditing ? '編輯備份排程' : '新增備份排程'}</DialogTitle>
+          <DialogTitle>{isEditing ? t('backup.schedule.dialog.editTitle') : t('backup.schedule.dialog.createTitle')}</DialogTitle>
           <DialogDescription>
-            {isEditing ? '修改備份排程的設定' : '建立自動備份排程'}
+            {isEditing ? t('backup.schedule.dialog.editDescription') : t('backup.schedule.dialog.createDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -240,13 +244,13 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
           {/* 排程名稱 */}
           <div className="space-y-2">
             <Label htmlFor="name">
-              排程名稱 <span className="text-destructive">*</span>
+              {t('backup.schedule.dialog.form.name')} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="name"
               value={form.name}
               onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="例如：每日資料庫備份"
+              placeholder={t('backup.schedule.dialog.form.namePlaceholder')}
               className={errors.name ? 'border-destructive' : ''}
             />
             {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
@@ -254,12 +258,12 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
 
           {/* 描述 */}
           <div className="space-y-2">
-            <Label htmlFor="description">描述（選填）</Label>
+            <Label htmlFor="description">{t('backup.schedule.dialog.form.descriptionOptional')}</Label>
             <Textarea
               id="description"
               value={form.description}
               onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="輸入排程描述..."
+              placeholder={t('backup.schedule.dialog.form.descriptionPlaceholder')}
               rows={2}
             />
           </div>
@@ -267,7 +271,7 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
           {/* 備份來源與類型 */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>備份來源</Label>
+              <Label>{t('backup.schedule.dialog.form.backupSource')}</Label>
               <Select
                 value={form.backupSource}
                 onValueChange={(v) => handleChange('backupSource', v as BackupSource)}
@@ -276,16 +280,16 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="DATABASE">資料庫</SelectItem>
-                  <SelectItem value="FILES">檔案</SelectItem>
-                  <SelectItem value="CONFIG">系統設定</SelectItem>
-                  <SelectItem value="FULL_SYSTEM">完整系統</SelectItem>
+                  <SelectItem value="DATABASE">{t('backup.schedule.dialog.form.sources.database')}</SelectItem>
+                  <SelectItem value="FILES">{t('backup.schedule.dialog.form.sources.files')}</SelectItem>
+                  <SelectItem value="CONFIG">{t('backup.schedule.dialog.form.sources.config')}</SelectItem>
+                  <SelectItem value="FULL_SYSTEM">{t('backup.schedule.dialog.form.sources.fullSystem')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>備份類型</Label>
+              <Label>{t('backup.schedule.dialog.form.backupType')}</Label>
               <Select
                 value={form.backupType}
                 onValueChange={(v) => handleChange('backupType', v as BackupType)}
@@ -294,9 +298,9 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="FULL">完整備份</SelectItem>
-                  <SelectItem value="INCREMENTAL">增量備份</SelectItem>
-                  <SelectItem value="DIFFERENTIAL">差異備份</SelectItem>
+                  <SelectItem value="FULL">{t('backup.schedule.dialog.form.types.full')}</SelectItem>
+                  <SelectItem value="INCREMENTAL">{t('backup.schedule.dialog.form.types.incremental')}</SelectItem>
+                  <SelectItem value="DIFFERENTIAL">{t('backup.schedule.dialog.form.types.differential')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -305,15 +309,15 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
           {/* Cron 表達式 */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Label>執行頻率</Label>
+              <Label>{t('backup.schedule.dialog.form.frequency')}</Label>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
                     <HelpCircle className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
-                    <p>Cron 表達式格式：分 時 日 月 週</p>
-                    <p className="text-xs mt-1">例如：0 3 * * * 表示每天凌晨 3 點</p>
+                    <p>{t('backup.schedule.dialog.form.cronTooltip')}</p>
+                    <p className="text-xs mt-1">{t('backup.schedule.dialog.form.cronExample')}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -323,9 +327,9 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {CRON_PRESETS.map((preset) => (
+                {CRON_PRESET_KEYS.map((preset) => (
                   <SelectItem key={preset.value} value={preset.value}>
-                    {preset.label}
+                    {t(`backup.schedule.dialog.form.cronPresets.${preset.key}`)}
                     {preset.value !== 'custom' && (
                       <span className="ml-2 text-xs text-muted-foreground">
                         ({preset.value})
@@ -353,7 +357,7 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
           {/* 保留策略 */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="retentionDays">保留天數</Label>
+              <Label htmlFor="retentionDays">{t('backup.schedule.dialog.form.retentionDays')}</Label>
               <Input
                 id="retentionDays"
                 type="number"
@@ -369,7 +373,7 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="maxBackups">最大備份數</Label>
+              <Label htmlFor="maxBackups">{t('backup.schedule.dialog.form.maxBackups')}</Label>
               <Input
                 id="maxBackups"
                 type="number"
@@ -388,8 +392,8 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
           {/* 啟用狀態 */}
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
-              <Label>啟用排程</Label>
-              <p className="text-xs text-muted-foreground">啟用後將自動執行備份</p>
+              <Label>{t('backup.schedule.dialog.form.enableSchedule')}</Label>
+              <p className="text-xs text-muted-foreground">{t('backup.schedule.dialog.form.enableDescription')}</p>
             </div>
             <Switch
               checked={form.isEnabled}
@@ -400,18 +404,18 @@ export function ScheduleDialog({ open, onOpenChange, schedule }: ScheduleDialogP
 
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isPending}>
-            取消
+            {t('backup.schedule.dialog.cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={isPending}>
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {isEditing ? '更新中...' : '建立中...'}
+                {isEditing ? t('backup.schedule.dialog.updating') : t('backup.schedule.dialog.creating')}
               </>
             ) : isEditing ? (
-              '更新排程'
+              t('backup.schedule.dialog.editSubmit')
             ) : (
-              '建立排程'
+              t('backup.schedule.dialog.createSubmit')
             )}
           </Button>
         </DialogFooter>

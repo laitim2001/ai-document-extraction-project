@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-02-01T09:54:03.138Z",
+  "fileName": "CEVA_CEX250440_52240.pdf",
+  "results": [
+    {
+      "testCase": "V3.1 Three-Stage 100%",
+      "success": true,
+      "extractionVersion": "v3.1",
+      "duration": 52577,
+      "stage1": {
+        "success": true,
+        "companyName": "CEVA Logistics Hong Kong Office",
+        "confidence": 92,
+        "isNewCompany": false,
+        "duration": 10234
+      },
+      "stage2": {
+        "success": true,
+        "formatName": "Ceva Logistics Hong Kong Invoice Template",
+        "confidence": 82,
+        "isNewFormat": true,
+        "configSource": "COMPANY_SPECIFIC",
+        "duration": 9715
+      },
+      "stage3": {
+        "success": true,
+        "overallConfidence": 0,
+        "fieldCount": 5,
+        "lineItemCount": 0,
+        "duration": 28097
+      },
+      "totalTokenUsage": {
+        "input": 1957,
+        "output": 2727,
+        "total": 4684
+      }
+    },
+    {
+      "testCase": "V3.1 Fallback Test",
+      "success": true,
+      "extractionVersion": "v3.1",
+      "duration": 43261,
+      "stage1": {
+        "success": true,
+        "companyName": "CEVA Logistics Hong Kong Office",
+        "confidence": 92,
+        "isNewCompany": false,
+        "duration": 6797
+      },
+      "stage2": {
+        "success": true,
+        "formatName": "Ceva Logistics Hong Kong Invoice Template",
+        "confidence": 92,
+        "isNewFormat": false,
+        "configSource": "COMPANY_SPECIFIC",
+        "duration": 7794
+      },
+      "stage3": {
+        "success": true,
+        "overallConfidence": 0,
+        "fieldCount": 5,
+        "lineItemCount": 0,
+        "duration": 27643
+      },
+      "totalTokenUsage": {
+        "input": 2031,
+        "output": 2678,
+        "total": 4709
+      }
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "passRate": "100.0%"
+  }
+}

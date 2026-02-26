@@ -34,6 +34,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Loader2 } from 'lucide-react'
@@ -100,6 +101,9 @@ export function AddRoleDialog({
   triggerSize = 'default',
   className,
 }: AddRoleDialogProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- State ---
   const [open, setOpen] = useState(false)
 
@@ -122,8 +126,8 @@ export function AddRoleDialog({
     createRole(data, {
       onSuccess: () => {
         toast({
-          title: '角色已建立',
-          description: `角色「${data.name}」已成功建立`,
+          title: t('roles.toast.created.title'),
+          description: t('roles.toast.created.description', { name: data.name }),
         })
         setOpen(false)
         form.reset()
@@ -131,7 +135,7 @@ export function AddRoleDialog({
       onError: (error) => {
         toast({
           variant: 'destructive',
-          title: '建立失敗',
+          title: t('roles.toast.createError.title'),
           description: error.message,
         })
       },
@@ -152,14 +156,14 @@ export function AddRoleDialog({
       <DialogTrigger asChild>
         <Button variant={triggerVariant} size={triggerSize} className={className}>
           <Plus className="mr-2 h-4 w-4" />
-          新增角色
+          {t('roles.add.trigger')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>新增角色</DialogTitle>
+          <DialogTitle>{t('roles.add.title')}</DialogTitle>
           <DialogDescription>
-            建立自訂角色並設定權限。系統角色無法透過此方式建立。
+            {t('roles.add.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -173,16 +177,16 @@ export function AddRoleDialog({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>角色名稱</FormLabel>
+                      <FormLabel>{t('roles.add.form.name')}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="例如：發票審核員"
+                          placeholder={t('roles.add.form.namePlaceholder')}
                           autoComplete="off"
                           {...field}
                         />
                       </FormControl>
                       <FormDescription>
-                        角色名稱需唯一，支援中英文
+                        {t('roles.add.form.nameDescription')}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -195,10 +199,10 @@ export function AddRoleDialog({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>描述（選填）</FormLabel>
+                      <FormLabel>{t('roles.add.form.descriptionOptional')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="簡要描述此角色的職責..."
+                          placeholder={t('roles.add.form.descriptionPlaceholder')}
                           className="resize-none"
                           rows={2}
                           {...field}
@@ -216,9 +220,9 @@ export function AddRoleDialog({
                   name="permissions"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>權限設定</FormLabel>
+                      <FormLabel>{t('roles.add.form.permissions')}</FormLabel>
                       <FormDescription>
-                        選擇此角色可以執行的操作（至少選擇一個）
+                        {t('roles.add.form.permissionsDescription')}
                       </FormDescription>
                       <FormControl>
                         <PermissionSelector
@@ -241,11 +245,11 @@ export function AddRoleDialog({
                 onClick={() => setOpen(false)}
                 disabled={isPending}
               >
-                取消
+                {t('roles.add.cancel')}
               </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                建立角色
+                {t('roles.add.submit')}
               </Button>
             </DialogFooter>
           </form>

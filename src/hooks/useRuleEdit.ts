@@ -9,15 +9,16 @@
  *
  * @module src/hooks/useRuleEdit
  * @since Epic 5 - Story 5.3 (編輯 Forwarder 映射規則)
- * @lastModified 2025-12-19
+ * @lastModified 2026-02-22
+ * @fix FIX-042 - forwarderId→companyId、API 路徑修正
  *
  * @dependencies
  *   - @tanstack/react-query - React Query
  *   - @/types/change-request - 變更請求類型
  *
  * @related
+ *   - src/app/api/rules/[id]/route.ts - 更新規則 API (PATCH)
  *   - src/app/api/companies/[id]/rules/route.ts - 創建規則 API
- *   - src/app/api/companies/[id]/rules/[ruleId]/route.ts - 更新規則 API
  *   - src/services/rule-change.service.ts - 規則變更服務
  */
 
@@ -46,8 +47,8 @@ interface ApiErrorResponse {
  * 更新規則請求
  */
 export interface UpdateRuleRequest {
-  /** Forwarder ID */
-  forwarderId: string
+  /** 公司 ID（通用規則為 null） */
+  companyId: string | null
   /** 規則 ID */
   ruleId: string
   /** 更新內容 */
@@ -66,8 +67,8 @@ export interface UpdateRuleRequest {
  * 創建規則請求
  */
 export interface CreateRuleRequest {
-  /** Forwarder ID */
-  forwarderId: string
+  /** 公司 ID */
+  companyId: string
   /** 欄位名稱 */
   fieldName: string
   /** 欄位標籤 */
@@ -131,7 +132,7 @@ interface UseRuleEditOptions {
 export const ruleKeys = {
   all: ['rules'] as const,
   lists: () => [...ruleKeys.all, 'list'] as const,
-  list: (forwarderId: string) => [...ruleKeys.lists(), forwarderId] as const,
+  list: (companyId: string | null) => [...ruleKeys.lists(), companyId] as const,
   details: () => [...ruleKeys.all, 'detail'] as const,
   detail: (id: string) => [...ruleKeys.details(), id] as const,
 } as const
@@ -150,10 +151,11 @@ export const ruleKeys = {
 async function updateRule(
   request: UpdateRuleRequest
 ): Promise<ChangeRequestResponse['data']> {
-  const { forwarderId, ruleId, updates, reason } = request
+  const { ruleId, updates, reason } = request
 
-  const response = await fetch(`/api/companies/${forwarderId}/rules/${ruleId}`, {
-    method: 'PUT',
+  // FIX-042 BUG-2: 使用 /api/rules/[id] 端點（無需 companyId 路徑參數）
+  const response = await fetch(`/api/rules/${ruleId}`, {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -191,9 +193,9 @@ async function updateRule(
 async function createRule(
   request: CreateRuleRequest
 ): Promise<ChangeRequestResponse['data']> {
-  const { forwarderId, ...ruleData } = request
+  const { companyId, ...ruleData } = request
 
-  const response = await fetch(`/api/companies/${forwarderId}/rules`, {
+  const response = await fetch(`/api/companies/${companyId}/rules`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -244,7 +246,7 @@ async function createRule(
  *
  *   const handleSubmit = (formData) => {
  *     mutate({
- *       forwarderId: rule.forwarderId,
+ *       companyId: rule.companyId,
  *       ruleId: rule.id,
  *       updates: formData,
  *       reason: '提高提取準確度'
@@ -262,10 +264,14 @@ export function useUpdateRule(options?: UseRuleEditOptions) {
     onSuccess: (data, variables) => {
       // 刷新規則列表和詳情快取
       queryClient.invalidateQueries({
-        queryKey: ruleKeys.list(variables.forwarderId),
+        queryKey: ruleKeys.list(variables.companyId),
       })
       queryClient.invalidateQueries({
         queryKey: ruleKeys.detail(variables.ruleId),
+      })
+      // 同時刷新所有規則列表（因通用規則可能影響多個列表）
+      queryClient.invalidateQueries({
+        queryKey: ruleKeys.lists(),
       })
 
       onSuccess?.(data)
@@ -287,8 +293,8 @@ export function useUpdateRule(options?: UseRuleEditOptions) {
  *
  * @example
  * ```tsx
- * function NewRuleForm({ forwarderId }) {
- *   const { mutate, isPending } = useCreateForwarderRule({
+ * function NewRuleForm({ companyId }) {
+ *   const { mutate, isPending } = useCreateCompanyRule({
  *     onSuccess: (data) => {
  *       toast.success(data.message)
  *     },
@@ -296,7 +302,7 @@ export function useUpdateRule(options?: UseRuleEditOptions) {
  *
  *   const handleSubmit = (formData) => {
  *     mutate({
- *       forwarderId,
+ *       companyId,
  *       ...formData,
  *       reason: '新增欄位提取規則'
  *     })
@@ -304,7 +310,7 @@ export function useUpdateRule(options?: UseRuleEditOptions) {
  * }
  * ```
  */
-export function useCreateForwarderRule(options?: UseRuleEditOptions) {
+export function useCreateCompanyRule(options?: UseRuleEditOptions) {
   const { onSuccess, onError, onSettled } = options ?? {}
   const queryClient = useQueryClient()
 
@@ -313,7 +319,7 @@ export function useCreateForwarderRule(options?: UseRuleEditOptions) {
     onSuccess: (data, variables) => {
       // 刷新規則列表快取
       queryClient.invalidateQueries({
-        queryKey: ruleKeys.list(variables.forwarderId),
+        queryKey: ruleKeys.list(variables.companyId),
       })
 
       onSuccess?.(data)

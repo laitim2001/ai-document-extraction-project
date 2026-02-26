@@ -92,6 +92,51 @@ import { useDocuments } from '@/hooks/use-documents';
 import { useForm } from 'react-hook-form';
 ```
 
+## 國際化（i18n）
+
+### 翻譯使用
+
+```typescript
+'use client';
+
+import { useTranslations, useLocale } from 'next-intl';
+
+export function MyComponent() {
+  const t = useTranslations('namespace');
+  const locale = useLocale();
+
+  return (
+    <div>
+      <h1>{t('title')}</h1>
+      <p>{t('description', { count: 5 })}</p>
+    </div>
+  );
+}
+```
+
+### 路由導航
+
+```typescript
+// ✅ 使用 i18n-aware 路由
+import { Link, useRouter, usePathname } from '@/i18n/routing';
+
+// ❌ 不要直接使用 next/link（會失去 locale 前綴）
+import Link from 'next/link';  // 避免
+```
+
+### 日期/數字格式化
+
+```typescript
+import { formatShortDate, formatRelativeTime } from '@/lib/i18n-date';
+import { formatNumber, formatPercent } from '@/lib/i18n-number';
+
+// 使用當前 locale 進行格式化
+formatShortDate(date, locale);     // 2026/01/18
+formatNumber(1234567, locale);     // 1,234,567
+```
+
+> **完整規範**: 請參考 `.claude/rules/i18n.md`
+
 ## shadcn/ui 組件使用
 
 ```typescript

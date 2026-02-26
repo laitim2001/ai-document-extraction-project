@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -41,6 +42,7 @@ interface UserSearchBarProps {
  *   />
  */
 export function UserSearchBar({ value, onChange }: UserSearchBarProps) {
+  const t = useTranslations('admin')
   const [inputValue, setInputValue] = useState(value)
   const debouncedValue = useDebounce(inputValue, 300)
 
@@ -61,7 +63,7 @@ export function UserSearchBar({ value, onChange }: UserSearchBarProps) {
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         type="text"
-        placeholder="搜尋名稱或電子郵件..."
+        placeholder={t('users.search.placeholder')}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         className="pl-9"

@@ -20,7 +20,8 @@
 export {
   CompanyTypeSelector,
   CompanyTypeBadge,
-  COMPANY_TYPE_CONFIG,
+  COMPANY_TYPE_I18N_KEYS,
+  COMPANY_TYPE_ICONS,
 } from './CompanyTypeSelector'
 
 // 公司合併對話框

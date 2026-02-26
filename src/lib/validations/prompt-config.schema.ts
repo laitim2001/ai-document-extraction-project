@@ -52,9 +52,20 @@ const VARIABLE_DISPLAY_NAME_MAX_LENGTH = 100;
 
 /**
  * Prompt 類型 Schema
+ * 包含原始類型 + CHANGE-025 V3.1 三階段提示類型
  */
 export const promptTypeSchema = z.enum(
-  ['ISSUER_IDENTIFICATION', 'TERM_CLASSIFICATION', 'FIELD_EXTRACTION', 'VALIDATION'],
+  [
+    // 原始類型
+    'ISSUER_IDENTIFICATION',
+    'TERM_CLASSIFICATION',
+    'FIELD_EXTRACTION',
+    'VALIDATION',
+    // CHANGE-025: V3.1 三階段提示類型
+    'STAGE_1_COMPANY_IDENTIFICATION',
+    'STAGE_2_FORMAT_IDENTIFICATION',
+    'STAGE_3_FIELD_EXTRACTION',
+  ],
   {
     message: '無效的 Prompt 類型',
   }
@@ -156,10 +167,16 @@ export const createPromptConfigSchema = z
       .nullable(),
 
     /** 公司 ID（COMPANY 或 FORMAT 範圍時必填） */
-    companyId: z.string().cuid('無效的公司 ID').optional().nullable(),
+    companyId: z.preprocess(
+      (val) => (val === '' || val === undefined ? null : val),
+      z.string().uuid('無效的公司 ID').nullable()
+    ),
 
     /** 文件格式 ID（FORMAT 範圍時必填） */
-    documentFormatId: z.string().cuid('無效的文件格式 ID').optional().nullable(),
+    documentFormatId: z.preprocess(
+      (val) => (val === '' || val === undefined ? null : val),
+      z.string().cuid('無效的文件格式 ID').nullable()
+    ),
 
     /** 系統提示詞 */
     systemPrompt: z.string().min(1, '系統提示詞不能為空'),
@@ -299,10 +316,16 @@ export const getPromptConfigsQuerySchema = z.object({
   scope: promptScopeSchema.optional(),
 
   /** 篩選公司 */
-  companyId: z.string().cuid().optional(),
+  companyId: z.preprocess(
+    (val) => (val === '' || val === undefined ? undefined : val),
+    z.string().uuid().optional()
+  ),
 
   /** 篩選文件格式 */
-  documentFormatId: z.string().cuid().optional(),
+  documentFormatId: z.preprocess(
+    (val) => (val === '' || val === undefined ? undefined : val),
+    z.string().cuid().optional()
+  ),
 
   /** 篩選啟用狀態 */
   isActive: z
@@ -349,7 +372,7 @@ export const resolvePromptSchema = z.object({
   promptType: promptTypeSchema,
 
   /** 公司 ID（可選） */
-  companyId: z.string().cuid().optional(),
+  companyId: z.string().uuid().optional(),
 
   /** 文件格式 ID（可選） */
   documentFormatId: z.string().cuid().optional(),

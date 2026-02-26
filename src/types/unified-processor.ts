@@ -469,6 +469,113 @@ export interface UnifiedProcessingResult {
   /** 是否使用了舊版處理器 */
   usedLegacyProcessor: boolean;
 
+  // ========== V3 相關標記 (CHANGE-021) ==========
+  /** 是否使用了 V3 處理器 */
+  usedV3?: boolean;
+  /** 是否從 V3 回退到 V2 */
+  usedV3Fallback?: boolean;
+  /** V3 處理元數據 */
+  v3Metadata?: {
+    /** Token 消耗 */
+    tokensUsed?: {
+      input: number;
+      output: number;
+      total: number;
+    };
+    /** 使用的模型 */
+    modelUsed?: string;
+    /** 處理時間（毫秒） */
+    processingTimeMs?: number;
+  };
+  /** CHANGE-023: AI 詳情（用於 AI 詳情 Tab 顯示） */
+  aiDetails?: {
+    /** 完整的 Prompt（System + User） */
+    prompt: string;
+    /** GPT 原始 JSON 響應 */
+    response: string;
+    /** Token 使用統計 */
+    tokenUsage: {
+      input: number;
+      output: number;
+      total: number;
+    };
+    /** 使用的模型名稱 */
+    model: string;
+    /** 圖片詳情模式 */
+    imageDetailMode: 'auto' | 'low' | 'high';
+    /** 圖片數量 */
+    imageCount: number;
+  };
+
+  // ========== V3.1 三階段架構 (CHANGE-024) ==========
+  /** 提取版本 */
+  extractionVersion?: 'v2' | 'v3' | 'v3.1';
+  /** V3.1 三階段 AI 詳情 */
+  stageAiDetails?: {
+    stage1?: {
+      model: string;
+      prompt: string;
+      response: string;
+      tokenUsage: { input: number; output: number; total: number };
+      durationMs: number;
+    };
+    stage2?: {
+      model: string;
+      prompt: string;
+      response: string;
+      tokenUsage: { input: number; output: number; total: number };
+      durationMs: number;
+    };
+    stage3?: {
+      model: string;
+      prompt: string;
+      response: string;
+      tokenUsage: { input: number; output: number; total: number };
+      durationMs: number;
+    };
+  };
+  /** V3.1 Stage 1 結果（公司識別） */
+  stage1Result?: {
+    companyId?: string;
+    companyName: string;
+    confidence: number;
+    isNewCompany: boolean;
+    configSource?: string;
+  };
+  /** V3.1 Stage 2 結果（格式識別） */
+  stage2Result?: {
+    formatId?: string;
+    formatName: string;
+    confidence: number;
+    isNewFormat: boolean;
+    configSource?: string;
+  };
+  /** V3.1 Stage 3 結果（欄位提取） */
+  stage3Result?: {
+    success: boolean;
+    fieldCount: number;
+    lineItemCount: number;
+    overallConfidence: number;
+    /** FIX-044: 保留完整 standardFields 數據 */
+    standardFields?: Record<string, unknown>;
+    /** FIX-044: 保留完整 customFields 數據 */
+    customFields?: Record<string, unknown>;
+    /** FIX-045: 保留原始 FieldDefinitionSet key */
+    fields?: Record<string, unknown>;
+    /** FIX-044: 保留完整 lineItems 數據 */
+    lineItems?: unknown[];
+  };
+
+  // ========== CHANGE-025: 智能路由標記 ==========
+  /** 是否檢測到新公司（需要配置審核） */
+  newCompanyDetected?: boolean;
+  /** 是否檢測到新格式（需要配置審核） */
+  newFormatDetected?: boolean;
+  /** 是否需要配置審核（新公司 || 新格式 || 使用預設配置） */
+  needsConfigReview?: boolean;
+  /** 配置來源（用於智能路由） */
+  configSource?: 'FORMAT' | 'COMPANY' | 'GLOBAL' | 'DEFAULT';
+
   // ========== 成功時填充的資料 ==========
   /** 文件類型 */
   fileType?: UnifiedFileType;
@@ -572,6 +679,10 @@ export interface ProcessFileInput {
   mimeType: string;
   /** 用戶 ID */
   userId: string;
+  /** 城市代碼（V3 使用，可選） */
+  cityCode?: string;
+  /** 已知公司 ID（可選，跳過公司識別） */
+  companyId?: string;
 }
 
 // ============================================================================

@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -144,6 +145,8 @@ function useRotateApiKey() {
  * @description 提供完整的 API Key 管理界面
  */
 export function ApiKeyManagement({ availableCities = [] }: ApiKeyManagementProps) {
+  const t = useTranslations('admin');
+
   // --- State ---
   const [page, setPage] = React.useState(1);
   const [search, setSearch] = React.useState('');
@@ -218,14 +221,14 @@ export function ApiKeyManagement({ availableCities = [] }: ApiKeyManagementProps
       {/* 標題和操作 */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">API Key 管理</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t('apiKeys.title')}</h2>
           <p className="text-muted-foreground">
-            管理外部系統的 API 存取金鑰
+            {t('apiKeys.description')}
           </p>
         </div>
         <Button onClick={() => setCreateDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          創建 API Key
+          {t('apiKeys.actions.create')}
         </Button>
       </div>
 
@@ -235,25 +238,25 @@ export function ApiKeyManagement({ availableCities = [] }: ApiKeyManagementProps
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="搜尋名稱或描述..."
+              placeholder={t('apiKeys.search.placeholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
             />
           </div>
           <Button type="submit" variant="secondary">
-            搜尋
+            {t('apiKeys.search.button')}
           </Button>
         </form>
 
         <Select value={isActive} onValueChange={setIsActive}>
           <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="狀態" />
+            <SelectValue placeholder={t('apiKeys.filters.status.placeholder')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部狀態</SelectItem>
-            <SelectItem value="true">已啟用</SelectItem>
-            <SelectItem value="false">已停用</SelectItem>
+            <SelectItem value="all">{t('apiKeys.filters.status.all')}</SelectItem>
+            <SelectItem value="true">{t('apiKeys.filters.status.active')}</SelectItem>
+            <SelectItem value="false">{t('apiKeys.filters.status.inactive')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -278,7 +281,7 @@ export function ApiKeyManagement({ availableCities = [] }: ApiKeyManagementProps
       {data?.meta?.pagination && data.meta.pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            共 {data.meta.pagination.total} 個 API Key
+            {t('apiKeys.pagination.total', { total: data.meta.pagination.total })}
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -287,10 +290,10 @@ export function ApiKeyManagement({ availableCities = [] }: ApiKeyManagementProps
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
             >
-              上一頁
+              {t('apiKeys.pagination.previous')}
             </Button>
             <span className="text-sm">
-              第 {page} / {data.meta.pagination.totalPages} 頁
+              {t('apiKeys.pagination.pageInfo', { page, totalPages: data.meta.pagination.totalPages })}
             </span>
             <Button
               variant="outline"
@@ -298,7 +301,7 @@ export function ApiKeyManagement({ availableCities = [] }: ApiKeyManagementProps
               disabled={page === data.meta.pagination.totalPages}
               onClick={() => setPage(page + 1)}
             >
-              下一頁
+              {t('apiKeys.pagination.next')}
             </Button>
           </div>
         </div>
@@ -316,18 +319,18 @@ export function ApiKeyManagement({ availableCities = [] }: ApiKeyManagementProps
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確定要刪除此 API Key？</AlertDialogTitle>
+            <AlertDialogTitle>{t('apiKeys.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              刪除後，使用此 Key 的所有外部系統將無法繼續存取 API。此操作無法復原。
+              {t('apiKeys.deleteDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{t('apiKeys.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteApiKey.isPending ? '刪除中...' : '確定刪除'}
+              {deleteApiKey.isPending ? t('apiKeys.deleteDialog.deleting') : t('apiKeys.deleteDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -338,31 +341,31 @@ export function ApiKeyManagement({ availableCities = [] }: ApiKeyManagementProps
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {rotatedKey ? '新 API Key 已生成' : '確定要輪替此 API Key？'}
+              {rotatedKey ? t('apiKeys.rotateDialog.successTitle') : t('apiKeys.rotateDialog.title')}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {rotatedKey ? (
                 <div className="space-y-4">
-                  <p>請立即複製並安全保存此新 Key，關閉後將無法再次查看。</p>
+                  <p>{t('apiKeys.rotateDialog.successDescription')}</p>
                   <div className="p-3 bg-muted rounded-lg">
                     <code className="break-all text-sm">{rotatedKey}</code>
                   </div>
                 </div>
               ) : (
-                '輪替將生成新的 API Key 並停用舊的 Key。使用舊 Key 的系統需要更新為新 Key。'
+                t('apiKeys.rotateDialog.description')
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             {rotatedKey ? (
               <AlertDialogAction onClick={handleCloseRotateDialog}>
-                我已保存，關閉
+                {t('apiKeys.rotateDialog.saved')}
               </AlertDialogAction>
             ) : (
               <>
-                <AlertDialogCancel>取消</AlertDialogCancel>
+                <AlertDialogCancel>{t('apiKeys.rotateDialog.cancel')}</AlertDialogCancel>
                 <AlertDialogAction onClick={handleConfirmRotate}>
-                  {rotateApiKey.isPending ? '輪替中...' : '確定輪替'}
+                  {rotateApiKey.isPending ? t('apiKeys.rotateDialog.rotating') : t('apiKeys.rotateDialog.confirm')}
                 </AlertDialogAction>
               </>
             )}

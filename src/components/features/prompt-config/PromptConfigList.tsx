@@ -1,50 +1,45 @@
 /**
- * @fileoverview Prompt 配置列表組件（按類型分組）
+ * @fileoverview Prompt 配置列表組件（可折疊分組版）
  * @description
  *   顯示 Prompt 配置的分組列表，支援按 promptType 分組。
- *   包含載入狀態、空狀態和錯誤處理。
+ *   包含可折疊分組、顯示更多、全局展開/收起控制。
+ *   Full i18n support
  *
  * @module src/components/features/prompt-config/PromptConfigList
  * @since Epic 14 - Story 14.2
- * @lastModified 2026-01-02
+ * @lastModified 2026-02-04
  *
  * @features
- *   - 按 promptType 分組顯示
- *   - 配置卡片顯示 scope、公司、格式資訊
- *   - 下拉選單操作（編輯）
+ *   - 按 promptType 可折疊分組顯示
+ *   - 每組預設顯示 6 筆，支援「顯示更多」
+ *   - 展開全部 / 收起全部快捷按鈕
+ *   - 智能預設展開（前 2 個有配置的分組）
  *   - 載入骨架屏和錯誤狀態
  *
  * @dependencies
  *   - @/types/prompt-config - 配置類型定義
  *   - @/components/ui/* - shadcn/ui 組件
+ *   - @/constants/prompt-config-list - 顯示常量
+ *
+ * @changelog
+ *   - CHANGE-028: 新增可折疊分組和顯示更多功能
  */
 
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import type { PromptConfigListItem } from '@/types/prompt-config';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  FileText,
-  Building2,
-  Globe,
-  Layers,
-  Edit,
-  MoreVertical,
-  CheckCircle,
-} from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  PROMPT_CONFIG_LIST,
+  PROMPT_TYPE_ORDER,
+} from '@/constants/prompt-config-list';
+import { CollapsibleControls } from './CollapsibleControls';
+import { CollapsiblePromptGroup } from './CollapsiblePromptGroup';
 
 // ============================================================================
-// 類型定義
+// Types
 // ============================================================================
 
 interface PromptConfigListProps {
@@ -60,32 +55,68 @@ interface PromptConfigListProps {
   onDelete?: (id: string, name: string) => void;
 }
 
-// ============================================================================
-// 常數定義
-// ============================================================================
-
-const PROMPT_TYPE_LABELS: Record<string, string> = {
-  ISSUER_IDENTIFICATION: '發行者識別',
-  TERM_CLASSIFICATION: '術語分類',
-  FIELD_EXTRACTION: '欄位提取',
-  VALIDATION: '結果驗證',
-};
-
-const PROMPT_TYPE_ICONS: Record<string, React.ReactNode> = {
-  ISSUER_IDENTIFICATION: <Building2 className="h-5 w-5" />,
-  TERM_CLASSIFICATION: <FileText className="h-5 w-5" />,
-  FIELD_EXTRACTION: <Layers className="h-5 w-5" />,
-  VALIDATION: <CheckCircle className="h-5 w-5" />,
-};
-
-const SCOPE_COLORS: Record<string, string> = {
-  GLOBAL: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  COMPANY: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  FORMAT: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-};
+interface GroupedConfig {
+  promptType: string;
+  configs: PromptConfigListItem[];
+}
 
 // ============================================================================
-// 主組件
+// Hooks
+// ============================================================================
+
+/**
+ * 按 PromptType 分組並排序
+ */
+function useGroupedConfigs(configs: PromptConfigListItem[]): GroupedConfig[] {
+  return React.useMemo(() => {
+    // 先按 promptType 分組
+    const groups: Record<string, PromptConfigListItem[]> = {};
+    for (const config of configs) {
+      if (!groups[config.promptType]) {
+        groups[config.promptType] = [];
+      }
+      groups[config.promptType].push(config);
+    }
+
+    // 轉換為陣列並按預定義順序排序
+    const result: GroupedConfig[] = [];
+
+    // 先加入有順序定義的類型
+    for (const type of PROMPT_TYPE_ORDER) {
+      if (groups[type]) {
+        result.push({ promptType: type, configs: groups[type] });
+        delete groups[type];
+      }
+    }
+
+    // 再加入其他未定義順序的類型
+    for (const [type, typeConfigs] of Object.entries(groups)) {
+      result.push({ promptType: type, configs: typeConfigs });
+    }
+
+    return result;
+  }, [configs]);
+}
+
+/**
+ * 計算預設展開的分組
+ */
+function getDefaultExpandedGroups(groups: GroupedConfig[]): Set<string> {
+  const expandedSet = new Set<string>();
+  let count = 0;
+
+  for (const group of groups) {
+    if (group.configs.length > 0 && count < PROMPT_CONFIG_LIST.DEFAULT_EXPANDED_LIMIT) {
+      expandedSet.add(group.promptType);
+      count++;
+    }
+  }
+
+  return expandedSet;
+}
+
+// ============================================================================
+// Main Component
 // ============================================================================
 
 export function PromptConfigList({
@@ -94,17 +125,73 @@ export function PromptConfigList({
   error,
   onEdit,
 }: PromptConfigListProps) {
-  // 按 promptType 分組
-  const groupedConfigs = React.useMemo(() => {
-    const groups: Record<string, PromptConfigListItem[]> = {};
-    for (const config of configs) {
-      if (!groups[config.promptType]) {
-        groups[config.promptType] = [];
+  const t = useTranslations('promptConfig');
+
+  // 分組後的配置
+  const groupedConfigs = useGroupedConfigs(configs);
+
+  // 有配置的分組
+  const groupsWithConfigs = React.useMemo(
+    () => groupedConfigs.filter((g) => g.configs.length > 0),
+    [groupedConfigs]
+  );
+
+  // 展開狀態管理
+  const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(() =>
+    getDefaultExpandedGroups(groupedConfigs)
+  );
+
+  // 每組顯示數量管理
+  const [displayCounts, setDisplayCounts] = React.useState<Record<string, number>>({});
+
+  // 當 configs 變化時，重置展開狀態
+  React.useEffect(() => {
+    setExpandedGroups(getDefaultExpandedGroups(groupedConfigs));
+  }, [groupedConfigs]);
+
+  // 切換單個分組展開狀態
+  const toggleGroup = React.useCallback((promptType: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(promptType)) {
+        next.delete(promptType);
+      } else {
+        next.add(promptType);
       }
-      groups[config.promptType].push(config);
-    }
-    return groups;
-  }, [configs]);
+      return next;
+    });
+  }, []);
+
+  // 展開全部
+  const expandAll = React.useCallback(() => {
+    const allTypes = new Set(groupsWithConfigs.map((g) => g.promptType));
+    setExpandedGroups(allTypes);
+  }, [groupsWithConfigs]);
+
+  // 收起全部
+  const collapseAll = React.useCallback(() => {
+    setExpandedGroups(new Set());
+  }, []);
+
+  // 獲取某組的當前顯示數量
+  const getDisplayCount = React.useCallback(
+    (promptType: string): number => {
+      return displayCounts[promptType] || PROMPT_CONFIG_LIST.INITIAL_DISPLAY_COUNT;
+    },
+    [displayCounts]
+  );
+
+  // 顯示更多
+  const showMore = React.useCallback((promptType: string) => {
+    setDisplayCounts((prev) => ({
+      ...prev,
+      [promptType]:
+        (prev[promptType] || PROMPT_CONFIG_LIST.INITIAL_DISPLAY_COUNT) +
+        PROMPT_CONFIG_LIST.LOAD_MORE_INCREMENT,
+    }));
+  }, []);
+
+  // --- Render ---
 
   if (isLoading) {
     return <PromptConfigListSkeleton />;
@@ -113,7 +200,7 @@ export function PromptConfigList({
   if (error) {
     return (
       <div className="text-center py-12 text-red-500">
-        載入失敗：{error.message}
+        {t('list.loadError', { error: error.message })}
       </div>
     );
   }
@@ -121,134 +208,67 @@ export function PromptConfigList({
   if (configs.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        尚無 Prompt 配置
+        {t('list.empty')}
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {Object.entries(groupedConfigs).map(([promptType, typeConfigs]) => (
-        <div key={promptType}>
-          {/* 類型標題 */}
-          <div className="flex items-center gap-2 mb-4">
-            {PROMPT_TYPE_ICONS[promptType] ?? <FileText className="h-5 w-5" />}
-            <h2 className="text-lg font-semibold">
-              {PROMPT_TYPE_LABELS[promptType] ?? promptType}
-            </h2>
-            <Badge variant="secondary">{typeConfigs.length}</Badge>
-          </div>
+    <div className="space-y-2">
+      {/* 全局控制按鈕 */}
+      <div className="flex justify-end mb-4">
+        <CollapsibleControls
+          totalGroups={groupsWithConfigs.length}
+          expandedCount={expandedGroups.size}
+          onExpandAll={expandAll}
+          onCollapseAll={collapseAll}
+        />
+      </div>
 
-          {/* 配置卡片列表 */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {typeConfigs.map((config) => (
-              <PromptConfigCard
-                key={config.id}
-                config={config}
-                onEdit={onEdit}
-              />
-            ))}
+      {/* 可折疊分組列表 */}
+      <div className="space-y-2">
+        {groupedConfigs.map(({ promptType, configs: typeConfigs }) => (
+          <div
+            key={promptType}
+            className="border rounded-lg bg-card"
+          >
+            <CollapsiblePromptGroup
+              promptType={promptType}
+              configs={typeConfigs}
+              isExpanded={expandedGroups.has(promptType)}
+              onToggle={() => toggleGroup(promptType)}
+              displayCount={getDisplayCount(promptType)}
+              onShowMore={() => showMore(promptType)}
+              onEdit={onEdit}
+            />
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
 
 // ============================================================================
-// 配置卡片組件
-// ============================================================================
-
-interface PromptConfigCardProps {
-  config: PromptConfigListItem;
-  onEdit: (id: string) => void;
-}
-
-function PromptConfigCard({ config, onEdit }: PromptConfigCardProps) {
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-base truncate">{config.name}</CardTitle>
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <Badge className={SCOPE_COLORS[config.scope] ?? ''}>
-                {config.scope}
-              </Badge>
-              {!config.isActive && (
-                <Badge variant="outline" className="text-muted-foreground">
-                  停用
-                </Badge>
-              )}
-            </div>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="flex-shrink-0">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(config.id)}>
-                <Edit className="h-4 w-4 mr-2" />
-                編輯
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {config.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {config.description}
-          </p>
-        )}
-        <div className="mt-2 text-xs text-muted-foreground space-y-1">
-          {config.companyName && (
-            <div className="flex items-center gap-1">
-              <Building2 className="h-3 w-3" />
-              <span className="truncate">{config.companyName}</span>
-            </div>
-          )}
-          {config.documentFormatName && (
-            <div className="flex items-center gap-1">
-              <FileText className="h-3 w-3" />
-              <span className="truncate">{config.documentFormatName}</span>
-            </div>
-          )}
-          {config.scope === 'GLOBAL' && !config.companyName && !config.documentFormatName && (
-            <div className="flex items-center gap-1">
-              <Globe className="h-3 w-3" />
-              全局配置
-            </div>
-          )}
-        </div>
-        <div className="mt-2 text-xs text-muted-foreground">
-          版本 v{config.version}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ============================================================================
-// 骨架屏組件
+// Skeleton Component
 // ============================================================================
 
 function PromptConfigListSkeleton() {
   return (
-    <div className="space-y-8">
-      {[1, 2].map((group) => (
-        <div key={group}>
-          <div className="flex items-center gap-2 mb-4">
+    <div className="space-y-2">
+      {/* 控制按鈕骨架 */}
+      <div className="flex justify-end mb-4 gap-2">
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-24" />
+      </div>
+
+      {/* 分組骨架 */}
+      {[1, 2, 3].map((group) => (
+        <div key={group} className="border rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-4 w-4" />
             <Skeleton className="h-5 w-5" />
-            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-5 w-40" />
             <Skeleton className="h-5 w-8" />
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((card) => (
-              <Skeleton key={card} className="h-32" />
-            ))}
           </div>
         </div>
       ))}

@@ -26,6 +26,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Check, Search, X, ChevronDown, ChevronRight, Asterisk } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -78,16 +79,6 @@ export interface TargetFieldSelectorProps {
 // ============================================================
 
 /**
- * 資料類型顯示映射
- */
-const DATA_TYPE_LABELS: Record<TargetFieldDefinition['dataType'], string> = {
-  string: '文字',
-  number: '數字',
-  date: '日期',
-  boolean: '布林',
-};
-
-/**
  * 資料類型徽章顏色
  */
 const DATA_TYPE_VARIANTS: Record<TargetFieldDefinition['dataType'], 'default' | 'secondary' | 'outline'> = {
@@ -105,11 +96,12 @@ const DATA_TYPE_VARIANTS: Record<TargetFieldDefinition['dataType'], 'default' | 
  * 按分類分組欄位
  */
 function groupFieldsByCategory(
-  fields: TargetFieldDefinition[]
+  fields: TargetFieldDefinition[],
+  defaultCategory: string
 ): Record<string, TargetFieldDefinition[]> {
   return fields.reduce(
     (acc, field) => {
-      const category = field.category || '其他';
+      const category = field.category || defaultCategory;
       if (!acc[category]) {
         acc[category] = [];
       }
@@ -164,9 +156,13 @@ export function TargetFieldSelector({
   selectedField,
   onChange,
   disabled = false,
-  placeholder = '選擇目標欄位',
+  placeholder,
   className,
 }: TargetFieldSelectorProps) {
+  // --- i18n ---
+  const t = useTranslations('documentPreview');
+  const resolvedPlaceholder = placeholder ?? t('targetFieldSelector.placeholder');
+
   // --- State ---
   const [open, setOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -181,8 +177,8 @@ export function TargetFieldSelector({
   );
 
   const groupedFields = React.useMemo(
-    () => groupFieldsByCategory(filteredFields),
-    [filteredFields]
+    () => groupFieldsByCategory(filteredFields, t('targetFieldSelector.otherCategory')),
+    [filteredFields, t]
   );
 
   const selectedFieldObject = React.useMemo(
@@ -252,11 +248,11 @@ export function TargetFieldSelector({
                   variant={DATA_TYPE_VARIANTS[selectedFieldObject.dataType]}
                   className="text-xs"
                 >
-                  {DATA_TYPE_LABELS[selectedFieldObject.dataType]}
+                  {t(`targetFieldSelector.dataTypes.${selectedFieldObject.dataType}`)}
                 </Badge>
               </>
             ) : (
-              <span>{placeholder}</span>
+              <span>{resolvedPlaceholder}</span>
             )}
           </div>
 
@@ -277,7 +273,7 @@ export function TargetFieldSelector({
           <div className="flex items-center border-b px-3">
             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
             <Input
-              placeholder="搜尋欄位..."
+              placeholder={t('targetFieldSelector.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="h-10 border-0 focus-visible:ring-0"
@@ -285,7 +281,7 @@ export function TargetFieldSelector({
           </div>
 
           <CommandList className="max-h-[300px]">
-            <CommandEmpty>找不到符合的欄位</CommandEmpty>
+            <CommandEmpty>{t('targetFieldSelector.noResults')}</CommandEmpty>
 
             {Object.entries(groupedFields).map(([category, fields], index) => (
               <React.Fragment key={category}>
@@ -342,7 +338,7 @@ export function TargetFieldSelector({
                                   variant={DATA_TYPE_VARIANTS[field.dataType]}
                                   className="text-xs"
                                 >
-                                  {DATA_TYPE_LABELS[field.dataType]}
+                                  {t(`targetFieldSelector.dataTypes.${field.dataType}`)}
                                 </Badge>
                               </div>
                               <div className="flex items-center justify-between">

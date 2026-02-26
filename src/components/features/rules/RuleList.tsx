@@ -20,6 +20,7 @@
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useRuleList, usePrefetchRules } from '@/hooks/useRuleList'
 import { RuleTable } from './RuleTable'
 import { RuleFilters } from './RuleFilters'
@@ -63,6 +64,7 @@ interface RuleListProps {
 export function RuleList({ initialFilters }: RuleListProps) {
   // --- Hooks ---
   const router = useRouter()
+  const t = useTranslations('rules')
   const prefetch = usePrefetchRules()
 
   // --- State ---
@@ -150,11 +152,11 @@ export function RuleList({ initialFilters }: RuleListProps) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">
         <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-        <h3 className="text-lg font-medium">載入失敗</h3>
+        <h3 className="text-lg font-medium">{t('list.loadError')}</h3>
         <p className="text-sm text-muted-foreground mb-4">{error.message}</p>
         <Button onClick={() => refetch()}>
           <RefreshCw className="h-4 w-4 mr-2" />
-          重試
+          {t('list.retry')}
         </Button>
       </div>
     )
@@ -190,7 +192,7 @@ export function RuleList({ initialFilters }: RuleListProps) {
           <RefreshCw
             className={`h-4 w-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`}
           />
-          刷新
+          {t('list.refresh')}
         </Button>
       </div>
 
@@ -216,8 +218,11 @@ export function RuleList({ initialFilters }: RuleListProps) {
 
       {/* 結果統計 */}
       <div className="text-center text-sm text-muted-foreground">
-        共 {pagination.total} 條規則，第 {pagination.page} /{' '}
-        {pagination.totalPages} 頁
+        {t('list.pagination.summary', {
+          total: pagination.total,
+          page: pagination.page,
+          totalPages: pagination.totalPages,
+        })}
       </div>
     </div>
   )

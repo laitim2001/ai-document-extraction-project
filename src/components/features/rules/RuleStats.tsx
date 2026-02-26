@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * @fileoverview 規則統計組件
+ * @fileoverview 規則統計組件（國際化版本）
  * @description
  *   顯示映射規則的應用統計：
  *   - 總應用次數和成功次數
@@ -9,16 +9,19 @@
  *   - 近 7 天應用次數和成功率
  *   - 成功率趨勢（上升/下降/穩定）
  *   - 平均信心度
+ *   - 完整國際化支援
  *
  * @module src/components/features/rules/RuleStats
  * @since Epic 4 - Story 4.1 (映射規則列表與查看)
- * @lastModified 2025-12-18
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/card - shadcn Card 組件
  *   - lucide-react - 圖標庫
  */
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import {
@@ -47,38 +50,45 @@ interface RuleStatsProps {
 // Helper Components
 // ============================================================
 
+// 趨勢翻譯 key 映射
+const TREND_I18N_KEYS: Record<'up' | 'down' | 'stable', string> = {
+  up: 'up',
+  down: 'down',
+  stable: 'stable',
+}
+
 /**
  * 趨勢指示器
  */
 function TrendIndicator({
   trend,
   percentage,
+  t,
 }: {
   trend: 'up' | 'down' | 'stable'
   percentage: number
+  t: (key: string) => string
 }) {
   const config = {
     up: {
       icon: TrendingUp,
       color: 'text-green-600 dark:text-green-400',
       bgColor: 'bg-green-100 dark:bg-green-900/30',
-      label: '上升',
     },
     down: {
       icon: TrendingDown,
       color: 'text-red-600 dark:text-red-400',
       bgColor: 'bg-red-100 dark:bg-red-900/30',
-      label: '下降',
     },
     stable: {
       icon: Minus,
       color: 'text-slate-600 dark:text-slate-400',
       bgColor: 'bg-slate-100 dark:bg-slate-800',
-      label: '穩定',
     },
   }
 
-  const { icon: Icon, color, bgColor, label } = config[trend]
+  const { icon: Icon, color, bgColor } = config[trend]
+  const label = t(`trend.${TREND_I18N_KEYS[trend]}`)
 
   return (
     <div
@@ -156,6 +166,8 @@ function SuccessRateProgress({
  * ```
  */
 export function RuleStats({ stats, className }: RuleStatsProps) {
+  const t = useTranslations('rules')
+
   return (
     <div className={cn('grid grid-cols-1 md:grid-cols-2 gap-4', className)}>
       {/* 應用統計 */}
@@ -163,24 +175,24 @@ export function RuleStats({ stats, className }: RuleStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <Activity className="h-4 w-4 text-muted-foreground" />
-            應用統計
+            {t('stats.applicationStats')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-2xl font-bold">{stats.totalApplications}</p>
-              <p className="text-xs text-muted-foreground">總應用次數</p>
+              <p className="text-xs text-muted-foreground">{t('stats.totalApplications')}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {stats.successfulApplications}
               </p>
-              <p className="text-xs text-muted-foreground">成功次數</p>
+              <p className="text-xs text-muted-foreground">{t('stats.successfulApplications')}</p>
             </div>
           </div>
 
-          <SuccessRateProgress rate={stats.successRate} label="整體成功率" />
+          <SuccessRateProgress rate={stats.successRate} label={t('stats.overallSuccessRate')} />
         </CardContent>
       </Card>
 
@@ -189,7 +201,7 @@ export function RuleStats({ stats, className }: RuleStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            近 7 天表現
+            {t('stats.last7DaysPerformance')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -198,17 +210,18 @@ export function RuleStats({ stats, className }: RuleStatsProps) {
               <p className="text-2xl font-bold">
                 {stats.last7DaysApplications}
               </p>
-              <p className="text-xs text-muted-foreground">應用次數</p>
+              <p className="text-xs text-muted-foreground">{t('stats.last7DaysApplications')}</p>
             </div>
             <TrendIndicator
               trend={stats.trend}
               percentage={stats.trendPercentage}
+              t={t}
             />
           </div>
 
           <SuccessRateProgress
             rate={stats.last7DaysSuccessRate}
-            label="近 7 天成功率"
+            label={t('stats.last7DaysSuccessRate')}
           />
         </CardContent>
       </Card>
@@ -218,7 +231,7 @@ export function RuleStats({ stats, className }: RuleStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <Target className="h-4 w-4 text-muted-foreground" />
-            信心度配置
+            {t('stats.confidenceConfig')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -230,9 +243,9 @@ export function RuleStats({ stats, className }: RuleStatsProps) {
                 </span>
               </div>
               <div>
-                <p className="font-medium">信心度閾值</p>
+                <p className="font-medium">{t('stats.confidenceThreshold')}</p>
                 <p className="text-xs text-muted-foreground">
-                  低於此值需人工審核
+                  {t('stats.belowRequiresReview')}
                 </p>
               </div>
             </div>

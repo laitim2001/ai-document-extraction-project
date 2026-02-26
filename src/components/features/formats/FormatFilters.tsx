@@ -8,10 +8,11 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.1
- * @lastModified 2026-01-12
+ * @lastModified 2026-01-20
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Select,
   SelectContent,
@@ -21,10 +22,10 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, X } from 'lucide-react';
-import type { FormatFiltersState } from '@/types/document-format';
+import type { FormatFiltersState, DocumentType, DocumentSubtype } from '@/types/document-format';
 import {
-  DOCUMENT_TYPE_OPTIONS,
-  DOCUMENT_SUBTYPE_OPTIONS,
+  ALL_DOCUMENT_TYPES,
+  ALL_DOCUMENT_SUBTYPES,
 } from '@/types/document-format';
 
 // ============================================================================
@@ -44,10 +45,7 @@ export interface FormatFiltersProps {
 // Constants
 // ============================================================================
 
-const SORT_OPTIONS = [
-  { value: 'fileCount', label: '文件數量' },
-  { value: 'updatedAt', label: '更新時間' },
-] as const;
+const SORT_OPTIONS = ['fileCount', 'updatedAt'] as const;
 
 // ============================================================================
 // Component
@@ -65,6 +63,7 @@ const SORT_OPTIONS = [
  * @param props - 組件屬性
  */
 export function FormatFilters({ value, onChange, className }: FormatFiltersProps) {
+  const t = useTranslations('formats');
   // --- Handlers ---
   const handleDocumentTypeChange = React.useCallback(
     (newValue: string) => {
@@ -124,13 +123,13 @@ export function FormatFilters({ value, onChange, className }: FormatFiltersProps
         onValueChange={handleDocumentTypeChange}
       >
         <SelectTrigger className="w-[160px]">
-          <SelectValue placeholder="文件類型" />
+          <SelectValue placeholder={t('filters.documentType')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="__all__">全部類型</SelectItem>
-          {DOCUMENT_TYPE_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
-              {opt.label}
+          <SelectItem value="__all__">{t('filters.allTypes')}</SelectItem>
+          {ALL_DOCUMENT_TYPES.map((type: DocumentType) => (
+            <SelectItem key={type} value={type}>
+              {t(`documentTypes.${type}`)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -142,13 +141,13 @@ export function FormatFilters({ value, onChange, className }: FormatFiltersProps
         onValueChange={handleDocumentSubtypeChange}
       >
         <SelectTrigger className="w-[140px]">
-          <SelectValue placeholder="子類型" />
+          <SelectValue placeholder={t('filters.subtype')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="__all__">全部子類型</SelectItem>
-          {DOCUMENT_SUBTYPE_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
-              {opt.label}
+          <SelectItem value="__all__">{t('filters.allSubtypes')}</SelectItem>
+          {ALL_DOCUMENT_SUBTYPES.map((subtype: DocumentSubtype) => (
+            <SelectItem key={subtype} value={subtype}>
+              {t(`documentSubtypes.${subtype}`)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -158,12 +157,12 @@ export function FormatFilters({ value, onChange, className }: FormatFiltersProps
       <div className="flex items-center gap-1">
         <Select value={value.sortBy} onValueChange={handleSortByChange}>
           <SelectTrigger className="w-[130px]">
-            <SelectValue placeholder="排序" />
+            <SelectValue placeholder={t('filters.sortBy')} />
           </SelectTrigger>
           <SelectContent>
             {SORT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+              <SelectItem key={opt} value={opt}>
+                {t(`sort.${opt}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -180,7 +179,7 @@ export function FormatFilters({ value, onChange, className }: FormatFiltersProps
             }`}
           />
           <span className="sr-only">
-            {value.sortOrder === 'desc' ? '切換為升序' : '切換為降序'}
+            {value.sortOrder === 'desc' ? t('filters.sortOrderAsc') : t('filters.sortOrderDesc')}
           </span>
         </Button>
       </div>
@@ -189,7 +188,7 @@ export function FormatFilters({ value, onChange, className }: FormatFiltersProps
       {hasFilters && (
         <Button variant="ghost" size="sm" onClick={handleReset}>
           <X className="mr-1 h-3 w-3" />
-          清除篩選
+          {t('filters.clearFilters')}
         </Button>
       )}
     </div>

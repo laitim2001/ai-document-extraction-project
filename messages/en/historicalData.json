@@ -1,0 +1,398 @@
+{
+  "page": {
+    "title": "Historical Data Management",
+    "description": "Upload and process historical invoice files",
+    "loading": "Loading...",
+    "tabs": {
+      "files": "File List",
+      "upload": "Upload Files"
+    },
+    "toast": {
+      "batchCreated": "Batch created successfully",
+      "batchCreatedDesc": "Batch \"{name}\" has been created",
+      "createFailed": "Creation failed",
+      "createFailedDesc": "Unable to create batch",
+      "batchDeleted": "Batch deleted",
+      "deleteFailed": "Deletion failed",
+      "deleteFailedDesc": "Unable to delete batch",
+      "fileDeleted": "File deleted",
+      "fileDeleteFailed": "Deletion failed",
+      "fileDeleteFailedDesc": "Unable to delete file",
+      "typeUpdated": "Type updated",
+      "typeUpdateFailed": "Update failed",
+      "typeUpdateFailedDesc": "Unable to update file type",
+      "uploadComplete": "Upload complete",
+      "uploadCompleteDesc": "Successful: {successful}, Failed: {failed}",
+      "batchNotFound": "Batch not found",
+      "batchNotFoundDesc": "Unable to find the batch",
+      "fetchDetailFailed": "Failed to fetch details",
+      "fetchDetailFailedDesc": "Unable to fetch batch details",
+      "processingStarted": "Processing started",
+      "processingStartedDesc": "Batch processing has begun, please wait for completion",
+      "startProcessingFailed": "Failed to start processing",
+      "startProcessingFailedDesc": "Unable to start batch processing"
+    }
+  },
+  "fileDetail": {
+    "loading": "Loading file details...",
+    "loadFailed": "Load failed",
+    "loadFailedDesc": "Unable to load file details",
+    "backToList": "Back to list",
+    "notFound": "File not found",
+    "notFoundDesc": "File ID: {id} does not exist or has been deleted",
+    "batch": "Batch",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed",
+      "skipped": "Skipped"
+    },
+    "tabs": {
+      "extraction": "Extraction Results",
+      "issuer": "Issuer Identification",
+      "lineitems": "Line Items",
+      "raw": "Raw JSON"
+    },
+    "fileInfo": {
+      "title": "File Information",
+      "fileType": "File Type",
+      "fileSize": "File Size",
+      "processingMethod": "Processing Method",
+      "processingCost": "Processing Cost",
+      "originalName": "Original Name",
+      "mimeType": "MIME Type"
+    },
+    "timeline": {
+      "title": "Processing Timeline",
+      "totalDuration": "Total Duration: {duration}",
+      "created": "Created",
+      "typeDetection": "Type Detection",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed",
+      "waiting": "Waiting"
+    },
+    "extraction": {
+      "title": "Extraction Results",
+      "noResults": "No extraction results",
+      "invoiceInfo": "Invoice Information",
+      "invoiceNumber": "Invoice Number",
+      "invoiceDate": "Invoice Date",
+      "dueDate": "Due Date",
+      "amountInfo": "Amount Information",
+      "subtotal": "Subtotal",
+      "taxAmount": "Tax Amount",
+      "totalAmount": "Total Amount",
+      "parties": "Transaction Parties",
+      "vendor": "Vendor",
+      "customer": "Customer",
+      "vendorAddress": "Vendor Address",
+      "customerAddress": "Customer Address"
+    },
+    "issuer": {
+      "title": "Issuer Identification",
+      "noInfo": "No issuer identification information",
+      "method": {
+        "notIdentified": "Not Identified",
+        "header": "Header Identification",
+        "logo": "Logo Identification",
+        "manual": "Manual Setting"
+      },
+      "matchedCompany": "Matched Company",
+      "notMatched": "Not Matched",
+      "documentFormat": "Document Format",
+      "notClassified": "Not Classified",
+      "code": "Code",
+      "formatConfidence": "Format Confidence: {value}"
+    },
+    "lineItems": {
+      "title": "Line Items",
+      "noData": "No Line Items data",
+      "itemCount": "{count} items",
+      "columns": {
+        "description": "Description",
+        "quantity": "Quantity",
+        "unitPrice": "Unit Price",
+        "amount": "Amount",
+        "unit": "Unit",
+        "total": "Total",
+        "productCode": "Product Code",
+        "taxRate": "Tax Rate"
+      }
+    }
+  },
+  "batchList": {
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paused": "Paused",
+      "aggregating": "Aggregating",
+      "aggregated": "Aggregated",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "empty": {
+      "title": "No batches",
+      "description": "Create a new batch to start uploading files"
+    },
+    "progress": {
+      "label": "Processing Progress"
+    },
+    "stats": {
+      "totalFiles": "Total Files",
+      "processed": "Processed",
+      "failed": "Failed",
+      "createdAt": "Created At"
+    },
+    "creator": "Created by: {name}",
+    "actions": {
+      "startProcessing": "Start Processing"
+    },
+    "deleteDialog": {
+      "title": "Confirm Delete Batch",
+      "description": "Are you sure you want to delete this batch? All files within the batch will also be deleted. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
+  },
+  "fileList": {
+    "fileType": {
+      "nativePdf": "Native PDF",
+      "scannedPdf": "Scanned PDF",
+      "image": "Image",
+      "unknown": "Unknown"
+    },
+    "status": {
+      "pending": "Pending",
+      "detecting": "Detecting",
+      "detected": "Detected",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "filter": {
+      "fileType": "File Type",
+      "allTypes": "All Types",
+      "status": "Status",
+      "allStatus": "All Status"
+    },
+    "bulk": {
+      "selected": "{count} files selected",
+      "changeType": "Change Type",
+      "deleteSelected": "Delete Selected"
+    },
+    "table": {
+      "fileName": "File Name",
+      "type": "Type",
+      "size": "Size",
+      "status": "Status",
+      "detectedAt": "Detected At",
+      "actions": "Actions",
+      "selectType": "Select Type",
+      "selectAll": "Select All",
+      "selectFile": "Select {name}"
+    },
+    "empty": "No files match the criteria",
+    "stats": {
+      "total": "{count} files total",
+      "filtered": "(showing {count})",
+      "completed": "Completed",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "actions": {
+      "viewDetails": "View Details",
+      "retryDetection": "Retry Detection",
+      "deleteFile": "Delete File"
+    },
+    "deleteDialog": {
+      "title": "Confirm Delete",
+      "description": "Are you sure you want to delete this file? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
+  },
+  "fileUploader": {
+    "dropzone": {
+      "active": "Drop files here",
+      "default": "Drag and drop files here, or click to select",
+      "formats": "Supports PDF, JPG, PNG, TIFF formats, max {maxSize}MB per file, up to {maxFiles} files"
+    },
+    "stats": {
+      "selected": "{count} files selected",
+      "success": "Success {count}",
+      "failed": "Failed {count}",
+      "pending": "Pending {count}"
+    },
+    "actions": {
+      "upload": "Upload {count} files",
+      "clearAll": "Clear All"
+    },
+    "progress": {
+      "uploading": "Uploading...",
+      "percent": "{percent}%"
+    },
+    "fileType": {
+      "nativePdf": "Native PDF",
+      "scannedPdf": "Scanned PDF",
+      "image": "Image"
+    },
+    "errors": {
+      "uploadFailed": "Upload failed",
+      "networkError": "Network error"
+    },
+    "confidence": "Confidence: {value}%"
+  },
+  "processingDialog": {
+    "loading": {
+      "title": "Processing Confirmation",
+      "description": "Calculating processing cost..."
+    },
+    "empty": {
+      "title": "No Files to Process",
+      "description": "No eligible files to process",
+      "hint": "Please ensure files have been uploaded and metadata detection is complete."
+    },
+    "confirm": {
+      "title": "Confirm Processing",
+      "description": "The following files are about to start AI processing. Please confirm the cost estimate.",
+      "descriptionWithBatch": "Batch \"{name}\" is about to start AI processing"
+    },
+    "methods": {
+      "azureDI": {
+        "title": "Azure Document Intelligence",
+        "description": "Native PDF text extraction (lower cost)"
+      },
+      "gptVision": {
+        "title": "GPT-5.2 Vision",
+        "description": "Scanned PDF and image OCR (higher accuracy)"
+      }
+    },
+    "card": {
+      "fileCount": "{count} files",
+      "estimatedPages": "Estimated Pages",
+      "pageCount": "{count} pages",
+      "costPerPage": "Cost per Page",
+      "estimatedCost": "Estimated Cost"
+    },
+    "summary": {
+      "totalCost": "Total Estimated Cost",
+      "filesAndPages": "{files} files / {pages} pages"
+    },
+    "notes": {
+      "costDisclaimer": "Actual costs may vary depending on file pages. Please do not close the page during processing."
+    },
+    "actions": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "startProcessing": "Start Processing ({count} files)",
+      "processing": "Processing..."
+    }
+  },
+  "createBatchDialog": {
+    "trigger": "Create Batch",
+    "title": "Create New Batch",
+    "description": "Create a new batch to upload historical data files",
+    "form": {
+      "name": {
+        "label": "Batch Name",
+        "placeholder": "e.g., 2024-Q1 Historical Invoices",
+        "description": "Give the batch an easy-to-identify name"
+      },
+      "description": {
+        "label": "Description (Optional)",
+        "placeholder": "Batch description..."
+      }
+    },
+    "validation": {
+      "nameRequired": "Please enter a batch name",
+      "nameMaxLength": "Batch name cannot exceed 100 characters",
+      "descriptionMaxLength": "Description cannot exceed 500 characters"
+    },
+    "sections": {
+      "expand": "Expand",
+      "collapse": "Collapse"
+    },
+    "companyIdentification": {
+      "title": "Company Identification Settings",
+      "enable": {
+        "label": "Enable Company Identification",
+        "description": "Automatically identify and match company data from documents"
+      },
+      "fuzzyThreshold": {
+        "label": "Fuzzy Match Threshold",
+        "description": "Match similarity must reach this threshold to be considered the same company (recommended 85-95%)"
+      },
+      "autoMerge": {
+        "label": "Auto Merge Similar Companies",
+        "description": "Automatically merge similar company names into one company"
+      }
+    },
+    "termAggregation": {
+      "title": "Term Aggregation Settings",
+      "enable": {
+        "label": "Enable Term Aggregation",
+        "description": "Automatically aggregate term statistics after batch processing"
+      },
+      "similarityThreshold": {
+        "label": "Term Similarity Threshold",
+        "description": "Terms with similarity reaching this threshold will be considered the same term (recommended 80-90%)"
+      },
+      "autoClassify": {
+        "label": "Auto Classify Terms",
+        "description": "Use AI to automatically classify terms into expense categories"
+      }
+    },
+    "issuerIdentification": {
+      "title": "Issuer Identification Settings",
+      "enable": {
+        "label": "Enable Issuer Identification",
+        "description": "Identify issuing company from document Logo/Header/Letterhead"
+      },
+      "confidenceThreshold": {
+        "label": "Identification Confidence Threshold",
+        "description": "Only accept identification results when confidence reaches this threshold (recommended 60-80%)"
+      },
+      "fuzzyThreshold": {
+        "label": "Company Match Threshold",
+        "description": "Match similarity must reach this threshold to be considered the same issuing company (recommended 85-95%)"
+      },
+      "autoCreate": {
+        "label": "Auto Create Issuer Company",
+        "description": "Automatically create new company when no existing company matches"
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create",
+      "creating": "Creating..."
+    }
+  },
+  "export": {
+    "button": {
+      "label": "Export Terms",
+      "exporting": "Exporting...",
+      "tooltip": "Export hierarchical terms report (Excel)"
+    },
+    "status": {
+      "pending": "Batch not yet started",
+      "processing": "Batch is processing",
+      "paused": "Batch is paused",
+      "aggregating": "Batch is aggregating terms",
+      "aggregated": "Batch aggregation completed",
+      "completed": "Batch completed",
+      "failed": "Batch processing failed",
+      "cancelled": "Batch cancelled",
+      "cannotExport": ", cannot export terms report"
+    },
+    "toast": {
+      "success": "Export successful",
+      "successDesc": "Downloaded \"{fileName}\"",
+      "failed": "Export failed",
+      "failedDesc": "Unable to export terms report",
+      "authExpired": "Authentication expired, please login again"
+    }
+  }
+}

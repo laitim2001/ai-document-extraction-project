@@ -24,6 +24,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Accordion,
   AccordionContent,
@@ -78,6 +79,9 @@ export function PermissionSelector({
   disabled = false,
   className,
 }: PermissionSelectorProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- Handlers ---
 
   /**
@@ -168,7 +172,10 @@ export function PermissionSelector({
                     <div className="flex flex-col items-start text-left">
                       <span className="font-medium">{category.label}</span>
                       <span className="text-xs text-muted-foreground">
-                        {selectedCount} / {category.permissions.length} 個權限
+                        {t('roles.permissionSelector.permissionCount', {
+                          selected: selectedCount,
+                          total: category.permissions.length,
+                        })}
                       </span>
                     </div>
                   </div>
@@ -225,13 +232,15 @@ export function PermissionSelector({
 
         {/* 已選權限統計 */}
         <div className="flex items-center justify-between border-t pt-3 text-sm">
-          <span className="text-muted-foreground">已選擇權限</span>
+          <span className="text-muted-foreground">{t('roles.permissionSelector.selectedLabel')}</span>
           <span className="font-medium">
-            {value.length} /{' '}
-            {PERMISSION_CATEGORIES.reduce(
-              (acc, cat) => acc + cat.permissions.length,
-              0
-            )}
+            {t('roles.permissionSelector.selectedCount', {
+              selected: value.length,
+              total: PERMISSION_CATEGORIES.reduce(
+                (acc, cat) => acc + cat.permissions.length,
+                0
+              ),
+            })}
           </span>
         </div>
       </div>

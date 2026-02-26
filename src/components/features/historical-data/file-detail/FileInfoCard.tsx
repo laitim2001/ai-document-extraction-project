@@ -14,6 +14,7 @@
 
 import * as React from 'react';
 import { FileText, HardDrive, Cpu, DollarSign, FolderOpen } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { HistoricalFileDetail } from '@/hooks/use-historical-file-detail';
@@ -77,30 +78,32 @@ function formatFileType(detectedType: string | null): string {
  * @description 顯示文件基本資訊的卡片組件
  */
 export function FileInfoCard({ file }: FileInfoCardProps) {
+  const t = useTranslations('historicalData.fileDetail.fileInfo');
+
   const infoItems = [
     {
       icon: FileText,
-      label: '文件類型',
+      label: t('fileType'),
       value: formatFileType(file.detectedType),
     },
     {
       icon: HardDrive,
-      label: '文件大小',
+      label: t('fileSize'),
       value: formatFileSize(file.fileSize),
     },
     {
       icon: Cpu,
-      label: '處理方法',
+      label: t('processingMethod'),
       value: formatProcessingMethod(file.processingMethod),
     },
     {
       icon: DollarSign,
-      label: '處理成本',
+      label: t('processingCost'),
       value: formatCost(file.actualCost),
     },
     {
       icon: FolderOpen,
-      label: '原始名稱',
+      label: t('originalName'),
       value: file.originalName || file.fileName,
     },
   ];
@@ -108,7 +111,7 @@ export function FileInfoCard({ file }: FileInfoCardProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">文件資訊</CardTitle>
+        <CardTitle className="text-base">{t('title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4">
@@ -128,7 +131,7 @@ export function FileInfoCard({ file }: FileInfoCardProps) {
         {/* MIME Type */}
         {file.mimeType && (
           <div className="mt-4 rounded-md bg-muted/50 p-3">
-            <p className="text-xs text-muted-foreground">MIME Type</p>
+            <p className="text-xs text-muted-foreground">{t('mimeType')}</p>
             <p className="mt-1 text-sm font-mono">{file.mimeType}</p>
           </div>
         )}

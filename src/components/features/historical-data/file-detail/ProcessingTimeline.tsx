@@ -16,10 +16,13 @@
 
 import * as React from 'react';
 import { Upload, Search, Cpu, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { formatDateTime } from '@/lib/i18n-date';
 import type { FileTimeline } from '@/hooks/use-historical-file-detail';
+import type { Locale } from '@/i18n/config';
 
 // ============================================================
 // Types
@@ -46,17 +49,9 @@ interface TimelineStep {
 /**
  * 格式化時間戳
  */
-function formatTimestamp(timestamp: string | null): string {
+function formatTimestamp(timestamp: string | null, locale: Locale): string {
   if (!timestamp) return '-';
-  const date = new Date(timestamp);
-  return date.toLocaleString('zh-TW', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
+  return formatDateTime(new Date(timestamp), locale);
 }
 
 /**
@@ -82,6 +77,9 @@ function calculateDuration(start: string | null, end: string | null): string {
  * @description 顯示處理流程時間軸的卡片組件
  */
 export function ProcessingTimeline({ timeline, status }: ProcessingTimelineProps) {
+  const t = useTranslations('historicalData.fileDetail.timeline');
+  const locale = useLocale() as Locale;
+
   const isFailed = status === 'FAILED';
   const isProcessing = status === 'PROCESSING';
   const isCompleted = status === 'COMPLETED';
@@ -90,7 +88,7 @@ export function ProcessingTimeline({ timeline, status }: ProcessingTimelineProps
   const steps: TimelineStep[] = [
     {
       icon: Upload,
-      label: '建立',
+      label: t('created'),
       time: timeline.createdAt,
       isCompleted: !!timeline.createdAt,
       isCurrent: !timeline.detectedAt && !isFailed,
@@ -98,7 +96,7 @@ export function ProcessingTimeline({ timeline, status }: ProcessingTimelineProps
     },
     {
       icon: Search,
-      label: '類型偵測',
+      label: t('typeDetection'),
       time: timeline.detectedAt,
       isCompleted: !!timeline.detectedAt,
       isCurrent: !!timeline.detectedAt && !timeline.processingStartAt && !isFailed,
@@ -106,7 +104,7 @@ export function ProcessingTimeline({ timeline, status }: ProcessingTimelineProps
     },
     {
       icon: Cpu,
-      label: '處理中',
+      label: t('processing'),
       time: timeline.processingStartAt,
       isCompleted: !!timeline.processingEndAt,
       isCurrent: isProcessing,
@@ -114,7 +112,7 @@ export function ProcessingTimeline({ timeline, status }: ProcessingTimelineProps
     },
     {
       icon: isCompleted ? CheckCircle : isFailed ? XCircle : Clock,
-      label: isCompleted ? '完成' : isFailed ? '失敗' : '等待中',
+      label: isCompleted ? t('completed') : isFailed ? t('failed') : t('waiting'),
       time: timeline.processingEndAt,
       isCompleted: isCompleted,
       isCurrent: false,
@@ -132,9 +130,11 @@ export function ProcessingTimeline({ timeline, status }: ProcessingTimelineProps
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">處理時間軸</CardTitle>
+          <CardTitle className="text-base">{t('title')}</CardTitle>
           {totalDuration && (
-            <span className="text-sm text-muted-foreground">總耗時: {totalDuration}</span>
+            <span className="text-sm text-muted-foreground">
+              {t('totalDuration', { duration: totalDuration })}
+            </span>
           )}
         </div>
       </CardHeader>
@@ -180,7 +180,7 @@ export function ProcessingTimeline({ timeline, status }: ProcessingTimelineProps
                     {step.label}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {formatTimestamp(step.time)}
+                    {formatTimestamp(step.time, locale)}
                   </p>
 
                   {/* Duration between steps */}

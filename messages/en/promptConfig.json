@@ -1,0 +1,231 @@
+{
+  "page": {
+    "title": "Prompt Configuration Management",
+    "description": "Manage AI Prompt configurations used in processing workflows",
+    "refresh": "Refresh",
+    "addConfig": "Add Configuration",
+    "filterTitle": "Filters",
+    "loadError": "Error loading configuration data:",
+    "unknownError": "Unknown error",
+    "totalConfigs": "{count} configurations",
+    "deleteDialog": {
+      "title": "Confirm Delete Configuration",
+      "message": "Are you sure you want to delete configuration \"{name}\"? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm Delete",
+      "deleting": "Deleting..."
+    },
+    "toast": {
+      "deleteSuccess": "Deleted Successfully",
+      "deleteSuccessDesc": "Configuration \"{name}\" has been deleted",
+      "deleteFailed": "Delete Failed",
+      "createSuccess": "Created Successfully",
+      "createSuccessDesc": "Configuration \"{name}\" has been created",
+      "createFailed": "Create Failed",
+      "updateSuccess": "Updated Successfully",
+      "updateSuccessDesc": "Configuration has been updated",
+      "updateFailed": "Update Failed",
+      "testFailed": "Test failed"
+    }
+  },
+  "newPage": {
+    "title": "Add Prompt Configuration",
+    "description": "Create a new AI Prompt configuration"
+  },
+  "editPage": {
+    "title": "Edit Prompt Configuration",
+    "loadFailed": "Load Failed",
+    "loadError": "Unable to load configuration data:",
+    "notFound": "Configuration does not exist or has been deleted",
+    "backToList": "Back to Configuration List"
+  },
+  "list": {
+    "empty": "No Prompt configurations yet",
+    "loadError": "Load failed: {error}",
+    "version": "Version v{version}",
+    "globalConfig": "Global configuration",
+    "disabled": "Disabled",
+    "edit": "Edit"
+  },
+  "types": {
+    "ISSUER_IDENTIFICATION": "Issuer Identification",
+    "TERM_CLASSIFICATION": "Term Classification",
+    "FIELD_EXTRACTION": "Field Extraction",
+    "VALIDATION": "Result Validation",
+    "STAGE_1_COMPANY_IDENTIFICATION": "Stage 1 - Company Identification",
+    "STAGE_2_FORMAT_IDENTIFICATION": "Stage 2 - Format Identification",
+    "STAGE_3_FIELD_EXTRACTION": "Stage 3 - Field Extraction"
+  },
+  "filters": {
+    "search": {
+      "placeholder": "Search configuration names..."
+    },
+    "promptType": {
+      "all": "All types"
+    },
+    "scope": {
+      "all": "All scopes"
+    },
+    "status": {
+      "all": "All statuses",
+      "active": "Active",
+      "inactive": "Disabled"
+    },
+    "clear": "Clear filters",
+    "label": "Filters:"
+  },
+  "form": {
+    "basicInfo": {
+      "title": "Basic Information",
+      "description": "Set the basic properties of the Prompt configuration"
+    },
+    "name": {
+      "label": "Configuration Name",
+      "placeholder": "e.g., DHL Invoice Term Classification"
+    },
+    "description": {
+      "label": "Description",
+      "placeholder": "Description of the configuration's purpose..."
+    },
+    "promptType": {
+      "label": "Prompt Type",
+      "placeholder": "Select type"
+    },
+    "scope": {
+      "label": "Scope",
+      "placeholder": "Select scope"
+    },
+    "company": {
+      "label": "Company",
+      "placeholder": "Select company"
+    },
+    "documentFormat": {
+      "label": "Document Format",
+      "placeholder": "Select document format"
+    },
+    "mergeStrategy": {
+      "label": "Merge Strategy",
+      "placeholder": "Select strategy"
+    },
+    "isActive": {
+      "label": "Active Status",
+      "description": "When disabled, this configuration will not be used"
+    },
+    "promptContent": {
+      "title": "Prompt Content",
+      "description": "Edit System Prompt and User Prompt Template"
+    },
+    "validation": {
+      "typeRequired": "Please select a Prompt type",
+      "scopeRequired": "Please select a scope",
+      "nameRequired": "Please enter a configuration name",
+      "nameMaxLength": "Name must be 100 characters or less",
+      "descriptionMaxLength": "Description must be 500 characters or less",
+      "systemPromptRequired": "Please enter System Prompt",
+      "userPromptRequired": "Please enter User Prompt Template"
+    },
+    "submit": {
+      "saving": "Saving...",
+      "create": "Create Configuration",
+      "update": "Update Configuration"
+    },
+    "testUnavailable": "Test feature unavailable"
+  },
+  "scopes": {
+    "GLOBAL": {
+      "label": "Global",
+      "description": "Applies to all companies and document formats"
+    },
+    "COMPANY": {
+      "label": "Company",
+      "description": "Applies to a specific company"
+    },
+    "FORMAT": {
+      "label": "Format",
+      "description": "Applies to a specific document format"
+    }
+  },
+  "mergeStrategies": {
+    "OVERRIDE": {
+      "label": "Override",
+      "description": "Completely replace parent configuration"
+    },
+    "APPEND": {
+      "label": "Append",
+      "description": "Append to parent configuration"
+    },
+    "PREPEND": {
+      "label": "Prepend",
+      "description": "Insert before parent configuration"
+    }
+  },
+  "tester": {
+    "title": "Test Prompt",
+    "uploadLabel": "Upload Test File",
+    "dropzone": "Drop file here, or click to select",
+    "supportedFormats": "Supports PDF, PNG, JPG, JPEG",
+    "runTest": "Run Test",
+    "testing": "Testing...",
+    "saveFirst": "Please save the configuration before testing",
+    "success": "Test Successful",
+    "failed": "Test Failed",
+    "extractedResult": "Extracted Result:",
+    "rawResponse": "Raw Response:",
+    "tokenUsage": "Token Usage:",
+    "tokenPrompt": "Prompt",
+    "tokenCompletion": "Completion"
+  },
+  "editor": {
+    "viewSource": "Source",
+    "viewPreview": "Preview",
+    "systemPromptDescription": "Define the AI's role and behavioral guidelines",
+    "userPromptDescription": "User prompt template, supports variables like '{{companyName}}', '{{knownTerms}}'",
+    "charCount": "System: {systemCount} chars | User: {userCount} chars",
+    "insertVariable": "Insert Variable",
+    "variableCategories": {
+      "static": {
+        "label": "Static Variables",
+        "description": "Fixed values, resolved at configuration time"
+      },
+      "dynamic": {
+        "label": "Dynamic Variables",
+        "description": "Values resolved at runtime based on context"
+      },
+      "context": {
+        "label": "Context Variables",
+        "description": "Document-specific contextual information"
+      }
+    }
+  },
+  "templateInserter": {
+    "button": "Insert Template",
+    "dialogTitle": "Insert Default Template - {typeName}",
+    "dialogDescription": "Preview the default template and choose how to insert it",
+    "versionLabel": "Template Version",
+    "versionWithVariables": "With Variables",
+    "versionWithVariablesDesc": "Contains variable placeholders like $'{'variableName'}', will be replaced with actual values at runtime",
+    "versionExample": "Example (Plain Text)",
+    "versionExampleDesc": "Shows example values, for reference only",
+    "systemPromptPreview": "System Prompt",
+    "userPromptPreview": "User Prompt",
+    "supportedVariables": "Supported Variables",
+    "variableName": "Variable",
+    "variableDescription": "Description",
+    "variableExample": "Example",
+    "insertModeLabel": "Insert Mode",
+    "modeOverride": "Override existing content",
+    "modeOverrideDesc": "Replace current System and User prompts",
+    "modeAppend": "Append to existing content",
+    "modeAppendDesc": "Add template content after current prompts",
+    "cancel": "Cancel",
+    "confirm": "Confirm Insert"
+  },
+  "collapsible": {
+    "expandAll": "Expand All",
+    "collapseAll": "Collapse All",
+    "showMore": "Show More (+{count})",
+    "showLess": "Show Less",
+    "configCount": "{count} configurations",
+    "emptyGroup": "No configurations in this category"
+  }
+}

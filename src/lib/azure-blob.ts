@@ -18,7 +18,7 @@
  *   - 生成 SAS URL（時間或日期過期）
  */
 
-import { BlobServiceClient, ContainerClient } from '@azure/storage-blob'
+import { BlobServiceClient, BlobSASPermissions, ContainerClient } from '@azure/storage-blob'
 import { v4 as uuidv4 } from 'uuid'
 
 // =====================
@@ -26,7 +26,7 @@ import { v4 as uuidv4 } from 'uuid'
 // =====================
 
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
-const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || 'uploads'
+const containerName = process.env.AZURE_STORAGE_CONTAINER || 'documents'
 
 let containerClient: ContainerClient | null = null
 
@@ -159,13 +159,48 @@ export async function generateSasUrl(
   const expiresOn = new Date()
   expiresOn.setMinutes(expiresOn.getMinutes() + expiresInMinutes)
 
-  // 注意：這需要 SAS 權限，可能需要額外設定
   const sasUrl = await blockBlobClient.generateSasUrl({
-    permissions: { read: true } as unknown as import('@azure/storage-blob').BlobSASPermissions,
+    permissions: BlobSASPermissions.parse('r'),
     expiresOn
   })
 
   return sasUrl
+}
+
+/**
+ * 從 Azure Blob Storage 下載文件為 Buffer
+ * @description
+ *   用於統一處理管線（Epic 15）：從 Blob 下載文件供處理器消費。
+ *   將 Azure Blob 的 ReadableStream 轉換為 Node.js Buffer。
+ *
+ * @param blobName - Blob 名稱/路徑
+ * @returns 文件內容的 Buffer
+ * @throws Error 如果 blob 不存在或下載失敗
+ *
+ * @since CHANGE-014 Phase 2
+ */
+export async function downloadBlob(blobName: string): Promise<Buffer> {
+  const container = await getContainerClient()
+  const blobClient = container.getBlobClient(blobName)
+
+  // 檢查 blob 是否存在
+  const exists = await blobClient.exists()
+  if (!exists) {
+    throw new Error(`Blob not found: ${blobName}`)
+  }
+
+  const response = await blobClient.download(0)
+
+  if (!response.readableStreamBody) {
+    throw new Error(`Failed to get readable stream for blob: ${blobName}`)
+  }
+
+  // 將 ReadableStream 轉換為 Buffer
+  const chunks: Buffer[] = []
+  for await (const chunk of response.readableStreamBody) {
+    chunks.push(Buffer.from(chunk))
+  }
+  return Buffer.concat(chunks)
 }
 
 /**
@@ -241,7 +276,7 @@ export async function generateSignedUrl(
   const blockBlobClient = container.getBlockBlobClient(blobName)
 
   const sasUrl = await blockBlobClient.generateSasUrl({
-    permissions: { read: true } as unknown as import('@azure/storage-blob').BlobSASPermissions,
+    permissions: BlobSASPermissions.parse('r'),
     expiresOn: expiresAt
   })
 

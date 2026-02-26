@@ -1,25 +1,28 @@
 'use client'
 
 /**
- * @fileoverview 案例升級對話框組件
+ * @fileoverview 案例升級對話框組件（國際化版本）
  * @description
  *   提供案例升級的對話框介面：
  *   - 顯示升級原因選項（4 種）
  *   - 某些原因需要填寫詳情說明
  *   - 確認後觸發升級流程
+ *   - 完整國際化支援
  *
  * @module src/components/features/review/EscalationDialog
  * @since Epic 3 - Story 3.7 (升級複雜案例)
- * @lastModified 2025-12-22
+ * @lastModified 2026-01-17
  * @refactor REFACTOR-001 (Forwarder → Company)
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/* - shadcn/ui 組件
  *   - @/types/escalation - 升級類型定義
  *   - lucide-react - 圖示
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   HelpCircle,
   FileX,
@@ -80,6 +83,28 @@ const REASON_ICONS: Record<EscalationReason, React.ElementType> = {
   OTHER: MoreHorizontal,
 }
 
+/**
+ * 升級原因翻譯 key 映射
+ */
+const REASON_I18N_KEYS: Record<EscalationReason, string> = {
+  UNKNOWN_FORWARDER: 'unknownCompany',
+  UNKNOWN_COMPANY: 'unknownCompany',
+  RULE_NOT_APPLICABLE: 'mappingNotApplicable',
+  POOR_QUALITY: 'documentQuality',
+  OTHER: 'other',
+}
+
+/**
+ * placeholder 翻譯 key 映射
+ */
+const PLACEHOLDER_I18N_KEYS: Record<string, string> = {
+  UNKNOWN_COMPANY: 'unidentified',
+  UNKNOWN_FORWARDER: 'unidentified',
+  RULE_NOT_APPLICABLE: 'mappingRules',
+  POOR_QUALITY: 'documentQuality',
+  OTHER: 'other',
+}
+
 // ============================================================
 // Component
 // ============================================================
@@ -108,6 +133,8 @@ export function EscalationDialog({
   documentName,
   isSubmitting = false,
 }: EscalationDialogProps) {
+  const t = useTranslations('escalation')
+
   // --- State ---
   const [selectedReason, setSelectedReason] =
     React.useState<EscalationReason | null>(null)
@@ -147,6 +174,13 @@ export function EscalationDialog({
     setReasonDetail('')
   }
 
+  // 取得 placeholder 翻譯
+  const getPlaceholderText = (reason: EscalationReason | null): string => {
+    if (!reason) return t('dialog.placeholders.default')
+    const key = PLACEHOLDER_I18N_KEYS[reason] || 'default'
+    return t(`dialog.placeholders.${key}`)
+  }
+
   // --- Render ---
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -154,24 +188,24 @@ export function EscalationDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-amber-600" />
-            升級案例
+            {t('dialog.title')}
           </DialogTitle>
           <DialogDescription>
-            將此發票升級給 Super User 處理。請選擇升級原因。
+            {t('dialog.description')}
           </DialogDescription>
         </DialogHeader>
 
         {/* 文件資訊 */}
         <div className="rounded-lg border bg-muted/50 p-3">
           <p className="text-sm">
-            <span className="text-muted-foreground">文件：</span>
+            <span className="text-muted-foreground">{t('dialog.document')}</span>
             <span className="font-medium">{documentName}</span>
           </p>
         </div>
 
         {/* 原因選擇 */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium">選擇升級原因</Label>
+          <Label className="text-sm font-medium">{t('dialog.selectReason')}</Label>
           <RadioGroup
             value={selectedReason || ''}
             onValueChange={handleReasonChange}
@@ -180,6 +214,7 @@ export function EscalationDialog({
             {ESCALATION_REASONS.map((reason: EscalationReasonConfig) => {
               const Icon = REASON_ICONS[reason.value]
               const isSelected = selectedReason === reason.value
+              const i18nKey = REASON_I18N_KEYS[reason.value]
 
               return (
                 <div
@@ -203,15 +238,15 @@ export function EscalationDialog({
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <Icon className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{reason.label}</span>
+                      <span className="font-medium">{t(`reasons.${i18nKey}`)}</span>
                       {reason.requiresDetail && (
                         <span className="text-xs text-muted-foreground">
-                          *需說明
+                          {t('dialog.required')}
                         </span>
                       )}
                     </Label>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {reason.description}
+                      {t(`reasons.${i18nKey}Desc`)}
                     </p>
                   </div>
                 </div>
@@ -224,7 +259,7 @@ export function EscalationDialog({
         {selectedReasonConfig && (
           <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
             <Label htmlFor="detail" className="text-sm">
-              詳細說明
+              {t('dialog.detailedDescription')}
               {selectedReasonConfig.requiresDetail && (
                 <span className="text-destructive ml-1">*</span>
               )}
@@ -233,14 +268,14 @@ export function EscalationDialog({
               id="detail"
               value={reasonDetail}
               onChange={(e) => setReasonDetail(e.target.value)}
-              placeholder={getPlaceholder(selectedReason)}
+              placeholder={getPlaceholderText(selectedReason)}
               className="min-h-[80px] resize-none"
               maxLength={1000}
               disabled={isSubmitting}
             />
             <div className="flex justify-between items-center">
               {selectedReasonConfig.requiresDetail && !reasonDetail.trim() && (
-                <p className="text-xs text-destructive">請提供詳細說明</p>
+                <p className="text-xs text-destructive">{t('dialog.provideDescription')}</p>
               )}
               <p className="text-xs text-muted-foreground ml-auto">
                 {reasonDetail.length}/1000
@@ -255,7 +290,7 @@ export function EscalationDialog({
             onClick={() => handleOpenChange(false)}
             disabled={isSubmitting}
           >
-            取消
+            {t('dialog.cancel')}
           </Button>
           <Button
             variant="default"
@@ -266,10 +301,10 @@ export function EscalationDialog({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                提交中...
+                {t('dialog.submitting')}
               </>
             ) : (
-              '確認升級'
+              t('dialog.confirmEscalation')
             )}
           </Button>
         </DialogFooter>
@@ -278,24 +313,3 @@ export function EscalationDialog({
   )
 }
 
-// ============================================================
-// Helpers
-// ============================================================
-
-/**
- * 根據選擇的原因返回對應的 placeholder
- */
-function getPlaceholder(reason: EscalationReason | null): string {
-  switch (reason) {
-    case 'UNKNOWN_COMPANY': // REFACTOR-001: 原 UNKNOWN_FORWARDER
-      return '描述無法識別的情況（選填）...'
-    case 'RULE_NOT_APPLICABLE':
-      return '請說明哪個欄位的規則需要調整...'
-    case 'POOR_QUALITY':
-      return '請描述文件的品質問題...'
-    case 'OTHER':
-      return '請提供更多詳情...'
-    default:
-      return '請提供詳細說明...'
-  }
-}

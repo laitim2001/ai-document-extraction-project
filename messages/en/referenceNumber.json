@@ -1,0 +1,169 @@
+{
+  "title": "Reference Numbers",
+  "description": "Manage Shipment/Delivery Numbers and other reference numbers",
+  "loading": "Loading...",
+  "noData": "No reference numbers found",
+  "notFound": "Reference number not found",
+  "columns": {
+    "number": "Number",
+    "type": "Type",
+    "year": "Year",
+    "region": "Region",
+    "status": "Status",
+    "matchCount": "Matches",
+    "createdAt": "Created",
+    "updatedAt": "Updated",
+    "actions": "Actions"
+  },
+  "types": {
+    "SHIPMENT": "Shipment",
+    "DELIVERY": "Delivery",
+    "BOOKING": "Booking",
+    "CONTAINER": "Container",
+    "HAWB": "HAWB",
+    "MAWB": "MAWB",
+    "BL": "Bill of Lading",
+    "CUSTOMS": "Customs",
+    "OTHER": "Other"
+  },
+  "statuses": {
+    "ACTIVE": "Active",
+    "EXPIRED": "Expired",
+    "CANCELLED": "Cancelled"
+  },
+  "filters": {
+    "search": "Search",
+    "searchPlaceholder": "Search by number...",
+    "all": "All",
+    "year": "Year",
+    "region": "Region",
+    "type": "Type",
+    "status": "Status",
+    "clear": "Clear"
+  },
+  "actions": {
+    "add": "Add New",
+    "import": "Import",
+    "export": "Export",
+    "edit": "Edit",
+    "copy": "Copy Number",
+    "delete": "Delete",
+    "refresh": "Refresh",
+    "backToList": "Back to List"
+  },
+  "pagination": {
+    "showing": "Showing {from} - {to} of {total}",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "deleteDialog": {
+    "title": "Delete Reference Number",
+    "description": "Are you sure you want to delete this reference number? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "deleting": "Deleting..."
+  },
+  "toast": {
+    "deleteSuccess": "Reference number deleted",
+    "deleteSuccessDesc": "The reference number has been deleted successfully.",
+    "deleteFailed": "Delete failed",
+    "copySuccess": "Number copied to clipboard",
+    "copyFailed": "Failed to copy number"
+  },
+  "summary": {
+    "total": "{count} reference numbers"
+  },
+  "form": {
+    "code": "Code",
+    "number": "Number",
+    "numberPlaceholder": "Enter number...",
+    "type": "Type",
+    "year": "Year",
+    "region": "Region",
+    "regionPlaceholder": "Select region...",
+    "validFrom": "Valid From",
+    "validUntil": "Valid Until",
+    "selectDate": "Select date",
+    "clearDate": "Clear",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description...",
+    "matchCount": "Match Count",
+    "cancel": "Cancel",
+    "create": "Create",
+    "update": "Update"
+  },
+  "new": {
+    "title": "New Reference Number",
+    "description": "Create a new reference number record"
+  },
+  "edit": {
+    "title": "Edit Reference Number",
+    "description": "Modify reference number information"
+  },
+  "import": {
+    "title": "Import Reference Numbers",
+    "description": "Batch import reference numbers from Excel file (.xlsx)",
+    "dropzone": "Click or drag and drop an Excel file (.xlsx)",
+    "dropzoneHint": "Supports .xlsx format. Download the template below for the correct format.",
+    "items": "items",
+    "fileSize": "({size})",
+    "downloadTemplate": "Download Template",
+    "downloadTemplateDesc": "Download an Excel template with column headers and instructions",
+    "overwriteExisting": "Overwrite existing records",
+    "skipInvalid": "Skip invalid records",
+    "import": "Start Import",
+    "cancel": "Cancel",
+    "close": "Close",
+    "parseError": "Failed to parse file. Please ensure it is a valid .xlsx file.",
+    "emptyFile": "No data rows found in the Excel file.",
+    "invalidFormat": "Invalid file format. Only .xlsx files are accepted.",
+    "preview": {
+      "title": "Data Preview",
+      "showing": "Showing first {count} of {total} rows",
+      "allRows": "All {total} rows",
+      "valid": "Valid",
+      "invalid": "Invalid",
+      "rowNumber": "Row"
+    },
+    "columns": {
+      "number": "Number",
+      "type": "Type",
+      "year": "Year",
+      "regionCode": "Region Code",
+      "code": "Code",
+      "description": "Description",
+      "validFrom": "Valid From",
+      "validUntil": "Valid Until",
+      "isActive": "Is Active",
+      "status": "Status"
+    },
+    "template": {
+      "dataSheet": "Data",
+      "instructionsSheet": "Instructions",
+      "column": "Column",
+      "required": "Required",
+      "format": "Format",
+      "example": "Example",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "result": {
+      "title": "Import Complete",
+      "imported": "Imported: {count}",
+      "updated": "Updated: {count}",
+      "skipped": "Skipped: {count}",
+      "errors": "Errors: {count}"
+    }
+  },
+  "export": {
+    "exporting": "Exporting..."
+  },
+  "messages": {
+    "created": "Reference number created successfully",
+    "createFailed": "Failed to create reference number",
+    "updated": "Reference number updated successfully",
+    "updateFailed": "Failed to update reference number",
+    "importFailed": "Import failed",
+    "exportFailed": "Export failed"
+  }
+}

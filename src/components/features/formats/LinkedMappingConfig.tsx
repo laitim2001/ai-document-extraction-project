@@ -9,11 +9,12 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.4
- * @lastModified 2026-01-12
+ * @lastModified 2026-02-26
  */
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, X, ExternalLink, Plus } from 'lucide-react';
@@ -78,6 +79,7 @@ export function LinkedMappingConfig({
   effectiveLevel,
 }: LinkedMappingConfigProps) {
   const router = useRouter();
+  const t = useTranslations('formats');
 
   // --- Handlers ---
 
@@ -106,21 +108,21 @@ export function LinkedMappingConfig({
           <X className="h-6 w-6 text-muted-foreground" />
         </div>
         <p className="text-sm text-muted-foreground mb-1">
-          尚未配置格式專屬的欄位映射
+          {t('detail.configs.mapping.empty.description')}
         </p>
         {effectiveLevel !== 'NONE' && (
           <div className="text-xs text-muted-foreground mb-4">
-            目前使用 <Badge variant="outline" className="text-xs">{effectiveLevel}</Badge> 級別配置
+            {t('detail.configs.mapping.empty.usingLevel', { level: effectiveLevel })}
           </div>
         )}
         {effectiveLevel === 'NONE' && (
           <p className="text-xs text-muted-foreground mb-4">
-            目前使用系統預設配置
+            {t('detail.configs.mapping.empty.usingDefault')}
           </p>
         )}
         <Button onClick={handleCreate} size="sm">
           <Plus className="h-4 w-4 mr-2" />
-          創建映射配置
+          {t('detail.configs.mapping.createButton')}
         </Button>
       </div>
     );
@@ -142,9 +144,9 @@ export function LinkedMappingConfig({
             <div>
               <p className="font-medium">{config.name}</p>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>規則: {config.rulesCount} 個</span>
+                <span>{t('detail.configs.mapping.rulesLabel')}{config.rulesCount}</span>
                 <span>|</span>
-                <span>更新: {formatDateTime(config.updatedAt)}</span>
+                <span>{t('detail.configs.mapping.updatedLabel')}{formatDateTime(config.updatedAt)}</span>
               </div>
             </div>
           </div>
@@ -153,7 +155,7 @@ export function LinkedMappingConfig({
             size="sm"
             onClick={() => handleEdit(config.id)}
           >
-            編輯
+            {t('detail.configs.mapping.editButton')}
             <ExternalLink className="h-3 w-3 ml-1" />
           </Button>
         </div>
@@ -167,7 +169,7 @@ export function LinkedMappingConfig({
         onClick={handleCreate}
       >
         <Plus className="h-4 w-4 mr-2" />
-        創建新的映射配置
+        {t('detail.configs.mapping.createNewButton')}
       </Button>
     </div>
   );

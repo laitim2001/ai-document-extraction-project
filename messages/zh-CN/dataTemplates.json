@@ -1,0 +1,115 @@
+{
+  "page": {
+    "title": "数据模板管理",
+    "description": "管理目标字段结构模板，用于字段映射配置",
+    "refresh": "刷新",
+    "create": "新建模板",
+    "filters": "筛选条件",
+    "loadError": "加载模板数据时发生错误：",
+    "unknownError": "未知错误",
+    "templateCount": "共 {count} 个模板"
+  },
+  "deleteDialog": {
+    "title": "确认删除模板",
+    "description": "确定要删除模板「{name}」吗？此操作会将模板设为停用状态。",
+    "cancel": "取消",
+    "deleting": "删除中...",
+    "confirm": "确认删除"
+  },
+  "toast": {
+    "deleteSuccess": "删除成功",
+    "deleteSuccessDesc": "已删除模板「{name}」",
+    "deleteFailed": "删除失败",
+    "createSuccess": "创建成功",
+    "createSuccessDesc": "已创建模板「{name}」",
+    "createFailed": "创建失败",
+    "updateSuccess": "更新成功",
+    "updateSuccessDesc": "已更新模板「{name}」",
+    "updateFailed": "更新失败"
+  },
+  "new": {
+    "title": "新建数据模板",
+    "description": "创建新的目标字段结构模板"
+  },
+  "edit": {
+    "viewTitle": "查看模板",
+    "editTitle": "编辑模板",
+    "viewDescription": "系统模板仅供查看，无法修改",
+    "editDescription": "编辑模板「{name}」",
+    "systemNotice": "这是系统内建模板，无法进行修改。如需自定义，请创建新的模板。",
+    "notFound": "找不到指定的模板"
+  },
+  "card": {
+    "global": "全局",
+    "company": "公司",
+    "system": "系统",
+    "inactive": "停用",
+    "viewDetails": "查看详情",
+    "edit": "编辑",
+    "delete": "删除",
+    "fieldCount": "{count} 个字段",
+    "usageCount": "{count} 个配置使用",
+    "updatedAt": "更新于 {date}"
+  },
+  "list": {
+    "loadFailed": "加载失败",
+    "loadFailedDesc": "无法加载模板列表",
+    "empty": "暂无数据模板",
+    "emptyDesc": "点击「新建模板」按钮创建第一个数据模板"
+  },
+  "filters": {
+    "searchPlaceholder": "搜索模板名称或说明...",
+    "scope": "范围",
+    "allScopes": "全部范围",
+    "global": "全局",
+    "company": "公司",
+    "status": "状态",
+    "allStatuses": "全部状态",
+    "active": "启用",
+    "inactive": "停用",
+    "type": "类型",
+    "allTypes": "全部类型",
+    "systemTemplate": "系统模板",
+    "customTemplate": "自定义模板",
+    "clear": "清除"
+  },
+  "form": {
+    "basicInfo": "基本信息",
+    "templateName": "模板名称",
+    "templateNameRequired": "模板名称 *",
+    "templateNamePlaceholder": "例：ERP 标准导入格式",
+    "description": "说明",
+    "descriptionPlaceholder": "描述此模板的用途...",
+    "scopeRequired": "配置范围 *",
+    "companyRequired": "所属公司 *",
+    "companyPlaceholder": "选择公司",
+    "fieldDefinitions": "字段定义",
+    "back": "返回",
+    "saving": "保存中...",
+    "updateTemplate": "更新模板",
+    "createTemplate": "创建模板"
+  },
+  "fieldEditor": {
+    "title": "字段定义",
+    "addField": "新增字段",
+    "emptyState": "暂无字段定义，点击「新增字段」开始创建",
+    "fieldName": "字段名称",
+    "fieldLabel": "显示标签",
+    "dataType": "数据类型",
+    "options": "选项",
+    "required": "必填",
+    "defaultFieldLabel": "字段 {number}"
+  },
+  "fieldTypes": {
+    "string": "文本",
+    "number": "数字",
+    "date": "日期",
+    "currency": "金额",
+    "boolean": "布尔值",
+    "array": "数组"
+  },
+  "scopes": {
+    "GLOBAL": "全局",
+    "COMPANY": "公司"
+  }
+}

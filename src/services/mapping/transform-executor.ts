@@ -54,11 +54,13 @@ interface TransformStrategy {
 
 /**
  * DIRECT 策略：直接映射
- * @description 直接返回第一個來源欄位的值
+ * @description
+ *   sourceFields 作為別名列表時，values 中可能有多個 null（未匹配的別名）。
+ *   返回第一個非 null 的值，確保已匹配的別名值被正確提取。
  */
 class DirectStrategy implements TransformStrategy {
   execute(values: (string | number | null)[]): string | number | null {
-    return values[0] ?? null;
+    return values.find((v) => v !== null && v !== undefined) ?? null;
   }
 }
 
@@ -88,14 +90,14 @@ class ConcatStrategy implements TransformStrategy {
 
 /**
  * SPLIT 策略：分割取值
- * @description 使用分隔符分割第一個欄位值，返回指定索引位置的值
+ * @description 使用分隔符分割第一個非 null 欄位值，返回指定索引位置的值
  */
 class SplitStrategy implements TransformStrategy {
   execute(
     values: (string | number | null)[],
     params: TransformParams | null
   ): string | number | null {
-    const value = values[0];
+    const value = values.find((v) => v !== null && v !== undefined) ?? null;
     if (value === null || value === undefined) {
       return null;
     }
@@ -120,7 +122,7 @@ class LookupStrategy implements TransformStrategy {
     values: (string | number | null)[],
     params: TransformParams | null
   ): string | number | null {
-    const value = values[0];
+    const value = values.find((v) => v !== null && v !== undefined) ?? null;
     if (value === null || value === undefined) {
       return params?.defaultValue ?? null;
     }

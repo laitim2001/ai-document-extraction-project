@@ -5717,6 +5717,109 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
+### Story 13-8: 發票詳情頁面
+
+```
+# 開發任務：Story 13-8 發票詳情頁面
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-13-document-preview/13-8-invoice-detail-page.md
+3. docs/04-implementation/tech-specs/epic-13-document-preview/tech-spec-story-13-8.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/component-registry.md
+- src/components/features/document-preview/index.ts（Story 13-1, 13-2 組件）
+- src/components/features/invoice/ProcessingStatus.tsx（現有狀態組件）
+- src/components/features/confidence/ConfidenceBadge.tsx（信心度徽章）
+- messages/{locale}/invoices.json（i18n 翻譯）
+
+## 開發要求
+1. 嚴格遵循 Story 文件和 Tech Spec 的設計
+2. 建立發票詳情頁面 `/[locale]/(dashboard)/invoices/[id]/page.tsx`
+3. 實現以下組件：
+   - InvoiceDetailHeader（頭部：返回、標題、狀態、操作按鈕）
+   - InvoiceDetailStats（統計卡片：狀態、信心度、上傳、來源）
+   - InvoiceDetailTabs（Tabs 容器）
+   - PreviewTab（整合 DynamicPDFViewer + FieldHighlightOverlay）
+   - FieldsTab（整合 ExtractedFieldsPanel）
+   - ProcessingTab + ProcessingTimeline
+   - AuditTab + InvoiceAuditLog
+4. 建立 useInvoiceDetail Hook（含處理中狀態輪詢）
+5. 新增 i18n 翻譯（en, zh-TW, zh-CN 三語言）
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 可復用組件索引
+
+### 文件預覽組件（來自 Story 13-1, 13-2）
+- DynamicPDFViewer - PDF 預覽（含懶加載）
+- FieldHighlightOverlay - 欄位高亮覆蓋層
+- ExtractedFieldsPanel - 提取欄位面板
+- PDFControls - PDF 控制列
+- FieldFilters - 欄位篩選器
+
+### 現有發票組件
+- ProcessingStatus - 處理狀態徽章
+- RetryButton - 重試按鈕
+
+### 現有通用組件
+- ConfidenceBadge - 信心度徽章
+- DocumentSourceBadge - 來源徽章
+
+## API 端點（已存在）
+- GET /api/documents/[id] - 文件詳情
+- GET /api/documents/[id]/download - 文件下載
+- POST /api/documents/[id]/retry - 重試處理
+- GET /api/documents/[id]/trace - 處理追蹤
+- GET /api/extraction/[id]/fields - 提取欄位
+- GET /api/confidence/[id] - 信心度詳情
+- GET /api/audit-logs - 審計日誌
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 從發票列表可點擊進入詳情頁 `/invoices/{id}`
+- [ ] 頭部組件正確顯示（返回按鈕、標題、狀態、操作）
+- [ ] 4 張統計卡片數據正確
+- [ ] 文件預覽 Tab 功能正常（PDF 預覽 + 欄位高亮）
+- [ ] 提取欄位 Tab 功能正常（搜尋、篩選、聯動）
+- [ ] 處理詳情 Tab 時間軸正確顯示
+- [ ] 審計日誌 Tab 正確載入
+- [ ] 處理中狀態有輪詢更新（3 秒間隔）
+- [ ] 失敗狀態可重試
+
+### 3. i18n 驗證
+- [ ] 所有文字使用翻譯系統
+- [ ] en / zh-TW / zh-CN 翻譯完整
+- [ ] 日期、數字格式化正確
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件 (`13-8-invoice-detail-page.md`)：Status 改為 `done`
+
+### 5. 附加文檔（如適用）
+- [ ] 更新 src/components/features/invoice/index.ts（導出新組件）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 6. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
 ## Epic 14: Prompt 配置系統
 
 > **說明**：此 Epic 提供 GPT Vision Prompt 的可配置化管理，支援層級覆蓋與動態解析。
@@ -6560,6 +6663,698 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 
 ---
 
+### Story 16-8: 手動新增格式
+
+```
+# 開發任務：Story 16-8 手動新增格式
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-16-format-management/tech-spec-story-16-8.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-16-format-management/16-8-manual-format-creation.md
+- src/services/document-format.service.ts（現有服務）
+- src/components/features/format/FormatList.tsx（整合點）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 新增 POST /api/v1/formats API（支援 Prisma transaction）
+3. 新增 createDocumentFormatSchema Zod 驗證
+4. 新增 useCreateFormat mutation hook
+5. 新增 CreateFormatDialog 組件（進階選項展開）
+6. 整合到 FormatList（空狀態、統計資訊旁）
+7. 支援自動建立 FieldMappingConfig/PromptConfig 選項
+8. 處理 409 duplicate format 錯誤
+9. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 3. 附加文檔（如適用）
+- [ ] 如有新模組 → 更新/建立對應 index.ts
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 4. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+## Epic 17: 國際化 (i18n)
+
+> **說明**：此 Epic 為系統添加多語言支援，使用 next-intl 框架實現國際化。支援語言：zh-TW（繁體中文）、en（英文，預設）、zh-CN（簡體中文）。
+
+### Story 17-1: i18n 基礎架構設置
+
+```
+# 開發任務：Story 17-1 i18n 基礎架構設置
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-17-i18n/17-1-i18n-infrastructure-setup.md
+- https://next-intl-docs.vercel.app/（next-intl 官方文檔）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 安裝 next-intl 套件
+3. 建立 src/i18n/ 配置檔案（config.ts, request.ts, routing.ts）
+4. 建立 messages/{locale}/common.json 翻譯檔案（zh-TW, en, zh-CN）
+5. 建立 src/app/[locale]/layout.tsx 語言感知佈局
+6. 更新 src/middleware.ts 實現語言偵測和重定向
+7. 更新 next.config.ts 添加 next-intl plugin
+8. 移動現有 (auth) 和 (dashboard) 路由到 [locale]/ 下
+9. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run build` 確認建置成功
+
+### 2. 路由驗證
+- [ ] 訪問 `/` 重定向到 `/en`
+- [ ] 訪問 `/invoices` 重定向到 `/en/invoices`
+- [ ] 訪問 `/zh-TW/invoices` 正常顯示
+- [ ] 訪問 `/en/invoices` 正常顯示
+
+### 3. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 4. 附加文檔
+- [ ] 更新 CLAUDE.md 技術棧（新增 next-intl）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 17-2: 核心 UI 文字國際化
+
+```
+# 開發任務：Story 17-2 核心 UI 文字國際化
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-17-i18n/17-2-core-ui-text-internationalization.md
+- docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-1.md（依賴）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立翻譯檔案命名空間：
+   - messages/{locale}/common.json（通用文字 ~150 字串）
+   - messages/{locale}/navigation.json（導航 ~30 字串）
+   - messages/{locale}/invoices.json（發票模組 ~100 字串）
+   - messages/{locale}/review.json（審核模組 ~80 字串）
+3. 更新 src/i18n/request.ts 支援多命名空間載入
+4. 重構發票列表頁（/invoices）使用 useTranslations
+5. 重構審核頁面（/review）使用 useTranslations
+6. 重構導航組件和側邊欄使用翻譯
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 翻譯驗證
+- [ ] 訪問 `/zh-TW/invoices` 顯示繁體中文
+- [ ] 訪問 `/en/invoices` 顯示英文
+- [ ] 導航欄在兩種語言下正確顯示
+
+### 3. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 4. 附加文檔（如適用）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 17-3: 驗證訊息與錯誤處理國際化
+
+```
+# 開發任務：Story 17-3 驗證訊息與錯誤處理國際化
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-17-i18n/17-3-validation-error-internationalization.md
+- docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-1.md（依賴）
+- src/validations/（現有 Zod schemas）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立翻譯檔案：
+   - messages/{locale}/validation.json（驗證訊息）
+   - messages/{locale}/errors.json（API 錯誤、Toast）
+3. 建立 src/lib/i18n-zod.ts（Zod 錯誤訊息映射）
+4. 建立 useLocalizedZod hook（整合 Zod 4.x 內建 locales）
+5. 建立 useLocalizedToast hook
+6. 建立 createLocalizedError 工具函數
+7. 更新現有 Zod Schema 使用國際化訊息
+8. 更新 API 路由返回國際化錯誤響應
+9. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 表單驗證錯誤以當前語言顯示
+- [ ] API 錯誤響應以當前語言返回
+- [ ] Toast 通知以當前語言顯示
+
+### 3. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 4. 附加文檔（如適用）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 17-4: 日期、數字與貨幣格式化
+
+```
+# 開發任務：Story 17-4 日期、數字與貨幣格式化
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-17-i18n/17-4-date-number-currency-formatting.md
+- docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-1.md（依賴）
+- src/components/ui/date-range-picker.tsx（需更新）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立 src/lib/i18n-date.ts：
+   - 整合 date-fns 多語言 locale（zhTW, enUS, zhCN）
+   - formatLocalizedDate, formatRelativeTime 函數
+3. 建立 src/lib/i18n-number.ts：
+   - formatNumber, formatPercent 函數
+   - 使用 Intl.NumberFormat
+4. 建立 src/lib/i18n-currency.ts：
+   - formatCurrency 函數
+   - 支援多貨幣（USD, TWD, CNY, HKD）
+5. 建立相關 hooks（useLocalizedDate, useLocalizedNumber）
+6. 更新 DateRangePicker 組件
+7. 更新 StatCard 和表格數字顯示
+8. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 格式化驗證
+- [ ] 日期在 zh-TW 顯示為「2026年1月16日」格式
+- [ ] 日期在 en 顯示為「January 16, 2026」格式
+- [ ] 數字千位分隔符正確顯示
+- [ ] 貨幣格式正確顯示（NT$、US$）
+
+### 3. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 4. 附加文檔（如適用）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 17-5: 語言偏好設置與切換 UI
+
+```
+# 開發任務：Story 17-5 語言偏好設置與切換 UI
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-17-i18n/17-5-language-preference-settings.md
+- docs/04-implementation/tech-specs/epic-17-i18n/tech-spec-story-17-1.md（依賴）
+- prisma/schema.prisma（需擴展 User model）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立 LocaleSwitcher.tsx 組件（Dropdown 顯示語言選項）
+3. 整合 LocaleSwitcher 到 Header 組件
+4. 建立 useLocalePreference hook（LocalStorage 持久化）
+5. 擴展 User model 添加 preferredLocale 欄位
+6. 執行 Prisma 遷移
+7. 建立 PATCH /api/v1/users/me/locale API
+8. 實作語言偏好優先級邏輯：
+   - 資料庫偏好 > LocalStorage > 瀏覽器語言 > 預設語言
+9. 更新 [locale]/layout.tsx 添加 hreflang 標籤
+10. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npx prisma migrate dev` 確認遷移成功
+
+### 2. 功能驗證
+- [ ] LocaleSwitcher 組件正確顯示在 Header
+- [ ] 切換語言後頁面即時更新
+- [ ] 重新訪問網站自動載入上次選擇的語言
+- [ ] 登入後載入資料庫中的語言偏好
+
+### 3. SEO 驗證
+- [ ] HTML lang 屬性正確設置
+- [ ] hreflang 標籤正確生成
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+- [ ] 更新 sprint-status.yaml 將 epic-17 狀態改為 `done`
+
+### 5. 附加文檔
+- [ ] 更新 CLAUDE.md 的 Prisma 模型清單
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 6. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+## Epic 18: 本地帳號認證系統
+
+> **說明**：此 Epic 實現完整的本地帳號認證功能，包括用戶註冊、登入、密碼重設及郵件驗證。
+
+### Story 18-1: 用戶註冊
+
+```
+# 開發任務：Story 18-1 用戶註冊
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-local-auth/18-1-user-registration.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/lib/auth.ts（現有認證配置）
+- src/lib/auth.config.ts（Provider 配置）
+- prisma/schema.prisma（User 模型）
+- messages/{locale}/auth.json（i18n 翻譯）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 更新 Prisma Schema 添加驗證欄位：
+   - emailVerificationToken, emailVerificationExpires
+   - passwordResetToken, passwordResetExpires
+3. 執行 Prisma 遷移
+4. 建立密碼工具 src/lib/password.ts：
+   - hashPassword（bcrypt cost 12）
+   - verifyPassword
+   - validatePasswordStrength
+5. 建立 Token 工具 src/lib/token.ts：
+   - generateToken（crypto.randomBytes）
+   - getTokenExpiry
+6. 建立郵件服務 src/lib/email.ts：
+   - sendEmail（nodemailer）
+   - sendVerificationEmail
+7. 建立註冊 API POST /api/auth/register
+8. 建立註冊頁面 /[locale]/(auth)/auth/register/page.tsx
+9. 建立驗證 Schema src/validations/auth.ts
+10. 新增 i18n 翻譯（en, zh-TW, zh-CN）
+11. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 環境變數需求
+確保 .env 中已配置：
+- SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM
+- BCRYPT_SALT_ROUNDS="12"（可選，預設 12）
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npx prisma migrate dev` 確認遷移成功
+
+### 2. 功能驗證
+- [ ] 註冊頁面正確顯示並可輸入
+- [ ] 電子郵件驗證（格式、唯一性）
+- [ ] 密碼強度驗證正確運作
+- [ ] 註冊成功後發送驗證郵件
+- [ ] 重複郵件註冊顯示錯誤訊息
+
+### 3. 安全驗證
+- [ ] 密碼以 bcrypt 加密存儲
+- [ ] 驗證 Token 長度 64 字元
+- [ ] Token 有效期正確設置（24 小時）
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 5. 附加文檔
+- [ ] 更新 src/lib/index.ts（如存在）
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 6. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-2: 本地帳號登入
+
+```
+# 開發任務：Story 18-2 本地帳號登入
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-local-auth/18-2-local-account-login.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-1.md（依賴）
+- src/lib/auth.config.ts（需修改 Credentials Provider）
+- src/lib/auth.ts（需修改 JWT Callback）
+- src/lib/password.ts（Story 18-1 建立）
+- messages/{locale}/auth.json（i18n 翻譯）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 修改 Credentials Provider（src/lib/auth.config.ts）：
+   - 實現真正的帳號密碼驗證
+   - 檢查帳號狀態（ACTIVE/SUSPENDED/DISABLED）
+   - 檢查郵件驗證狀態
+3. 修改 JWT Callback（src/lib/auth.ts）：
+   - 確保 Session 結構與 Azure AD 一致
+   - 統一載入用戶角色和城市權限
+4. 更新登入頁面 /[locale]/(auth)/auth/login/page.tsx：
+   - 整合 Azure AD 和本地帳號雙重登入選項
+   - 實現本地帳號登入表單
+   - 處理各種登入錯誤
+5. 建立登入驗證 Schema（如未在 18-1 建立）
+6. 新增 i18n 翻譯
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 依賴
+- Story 19-1（用戶註冊）必須先完成
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 登入頁面顯示 Azure AD 和本地帳號雙重選項
+- [ ] Azure AD 登入仍正常運作
+- [ ] 本地帳號登入成功後正確跳轉
+- [ ] 錯誤密碼顯示正確錯誤訊息
+- [ ] 未驗證郵件用戶無法登入並顯示提示
+- [ ] 被暫停帳號無法登入並顯示提示
+
+### 3. Session 驗證
+- [ ] 本地帳號登入後 Session 包含所有必要資訊
+- [ ] Session 結構與 Azure AD 登入一致
+- [ ] 角色和城市權限正確載入
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-3: 忘記密碼與重設
+
+```
+# 開發任務：Story 18-3 忘記密碼與重設
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-local-auth/18-3-password-reset.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-1.md（依賴）
+- src/lib/token.ts（Token 工具）
+- src/lib/email.ts（郵件服務）
+- src/lib/password.ts（密碼工具）
+- messages/{locale}/auth.json（i18n 翻譯）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立忘記密碼 API POST /api/auth/forgot-password：
+   - 查詢用戶但不洩漏是否存在（安全考量）
+   - 產生 Token（32 字元，1 小時有效）
+   - 發送重設郵件
+3. 建立重設密碼 API POST /api/auth/reset-password：
+   - 驗證 Token 有效性
+   - 驗證密碼強度
+   - 更新密碼並清除 Token
+   - 發送密碼變更通知郵件
+4. 建立 Token 驗證 API GET /api/auth/verify-reset-token
+5. 更新郵件服務（src/lib/email.ts）：
+   - sendPasswordResetEmail
+   - sendPasswordChangedEmail
+6. 建立忘記密碼頁面 /[locale]/(auth)/auth/forgot-password/page.tsx
+7. 建立重設密碼頁面 /[locale]/(auth)/auth/reset-password/page.tsx
+8. 新增 i18n 翻譯
+9. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 依賴
+- Story 19-1（用戶註冊）必須先完成
+- Story 19-2（本地帳號登入）必須先完成
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 忘記密碼頁面正確顯示
+- [ ] 輸入已註冊郵件後發送重設郵件
+- [ ] 輸入未註冊郵件顯示相同成功訊息（安全）
+- [ ] 有效 Token 可進入重設密碼頁面
+- [ ] 過期 Token 顯示錯誤並提供重新請求選項
+- [ ] 成功重設密碼後重導向登入頁面
+
+### 3. 安全驗證
+- [ ] Token 僅 1 小時有效
+- [ ] Token 使用後立即失效
+- [ ] 密碼變更後發送通知郵件
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+
+### 5. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 18-4: 郵件驗證系統
+
+```
+# 開發任務：Story 18-4 郵件驗證系統
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-18-local-auth/18-4-email-verification.md
+3. docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/tech-specs/epic-18-local-auth/tech-spec-story-19-1.md（依賴）
+- src/lib/token.ts（Token 工具）
+- src/lib/email.ts（郵件服務）
+- messages/{locale}/auth.json（i18n 翻譯）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的架構設計
+2. 建立郵件驗證 API GET /api/auth/verify-email：
+   - 處理有效 Token → 更新 emailVerified → 重導向登入
+   - 處理過期 Token → 顯示過期訊息
+   - 處理無效 Token → 顯示錯誤訊息
+3. 建立重新發送 API POST /api/auth/resend-verification：
+   - 實現速率限制（5 次/小時）
+   - 產生新 Token 並失效舊 Token
+   - 發送新驗證郵件
+4. 確保驗證郵件模板已在 18-1 建立
+5. 建立驗證結果頁面 /[locale]/(auth)/auth/verify-email/page.tsx：
+   - 顯示各種驗證結果狀態
+   - 提供重新發送功能
+6. 整合到登入頁面（未驗證用戶提示）
+7. 新增 i18n 翻譯
+8. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+## 依賴
+- Story 19-1（用戶註冊）必須先完成
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+> ⚠️ **重要**: 以下所有項目完成前，Story 不視為完成。
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 功能驗證
+- [ ] 點擊有效驗證連結成功驗證並重導向登入
+- [ ] 點擊過期連結顯示過期訊息
+- [ ] 點擊無效連結顯示錯誤訊息
+- [ ] 重新發送驗證郵件成功
+- [ ] 已驗證用戶請求重發顯示適當訊息
+- [ ] 速率限制正常運作（超過 5 次/小時顯示錯誤）
+
+### 3. 安全驗證
+- [ ] Token 驗證後立即刪除
+- [ ] Token 僅 24 小時有效
+- [ ] 重發請求不洩漏帳號存在資訊
+
+### 4. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`：將此 Story 狀態改為 `done`
+- [ ] 更新 Story 文件：Status 改為 `done`，Tasks 打勾 `[x]`
+- [ ] 如這是 Epic 最後一個 Story，更新 Epic 狀態為 `done`
+
+### 5. 附加文檔
+- [ ] 更新 CLAUDE.md 的項目進度追蹤表
+- [ ] 如發現踩坑經驗 → 更新 .claude/rules/
+
+### 6. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
 ## 使用說明
 
 ### 如何使用這些提示
@@ -6582,3 +7377,987 @@ function transformToVisualConfig(apiData: FieldMappingConfigDTO): VisualMappingC
 - **Epic 02**: 依賴 Epic 01 的認證基礎
 - **Epic 03**: 依賴 Epic 02 的處理結果
 - **Epic 06**: 多城市功能可能需要回頭調整早期 Story
+- **Epic 17**: Story 17-1 是 i18n 基礎，必須先完成；其他 Stories 可平行開發
+- **Epic 18**: Story 18-1 是認證基礎，必須先完成；18-2 依賴 18-1；18-3 依賴 18-1、18-2；18-4 依賴 18-1
+
+---
+
+## Epic 19: 數據模版匹配與輸出
+
+> **說明**：此 Epic 實現第二層映射系統，將提取的標準化數據填入用戶定義的數據模版，並支援導出。
+
+### Story 19-1: Template Field Mapping 數據模型與服務
+
+```
+# 開發任務：Story 19-1 Template Field Mapping 數據模型與服務
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-1-template-field-mapping-model.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- docs/04-implementation/stories/epic-19-template-matching/epic-19-overview.md
+- docs/04-implementation/stories/epic-16-format-management/16-7-data-template-management.md
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的 Prisma Schema 設計
+2. 實現三層優先級解析（FORMAT → COMPANY → GLOBAL）
+3. 實現映射規則的 CRUD 和快取機制
+4. 新增的 API 需更新 api-registry.md
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**，必須先詢問用戶
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 19-2: Template Instance 數據模型與管理服務
+
+```
+# 開發任務：Story 19-2 Template Instance 數據模型與管理服務
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-2-template-instance-model.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 19-1 的實現（TemplateFieldMapping 模型）
+
+## 開發要求
+1. 嚴格遵循 Tech Spec 的 Prisma Schema 設計
+2. 實現 TemplateInstance 和 TemplateInstanceRow 模型
+3. 實現行驗證邏輯（根據 DataTemplate.fields）
+4. 實現統計數據自動更新
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 19-3: 模版匹配引擎服務
+
+```
+# 開發任務：Story 19-3 模版匹配引擎服務
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-3-template-matching-engine.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 19-1（TemplateFieldMapping 服務）
+- Story 19-2（TemplateInstance 服務）
+
+## 開發要求
+1. 實現核心的 TemplateMatchingEngineService
+2. 實現三種轉換器（DIRECT、FORMULA、LOOKUP）
+3. 實現批量處理和事務一致性
+4. 實現同 rowKey 多文件合併邏輯
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 19-4: Template Field Mapping 配置 UI
+
+```
+# 開發任務：Story 19-4 Template Field Mapping 配置 UI
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-4-template-field-mapping-ui.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 19-1（TemplateFieldMapping API）
+- src/constants/standard-fields.ts（標準欄位列表）
+
+## 開發要求
+1. 實現映射配置列表頁面
+2. 實現可視化映射規則編輯器
+3. 實現公式編輯器和查表編輯器
+4. 實現映射測試預覽功能
+5. 完整 i18n 支援
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 19-5: Template Instance 管理介面
+
+```
+# 開發任務：Story 19-5 Template Instance 管理介面
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-5-template-instance-ui.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 19-2（TemplateInstance API）
+- Story 19-3（匹配引擎服務）
+
+## 開發要求
+1. 實現實例列表頁面和詳情頁面
+2. 實現根據 DataTemplate.fields 動態生成表格列
+3. 實現錯誤行高亮和編輯功能
+4. 實現批量操作（刪除、重新驗證）
+5. 完整 i18n 支援
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 19-6: 模版實例導出功能
+
+```
+# 開發任務：Story 19-6 模版實例導出功能
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-6-template-export.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-6.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 19-5（Template Instance UI）
+
+## 開發要求
+1. 安裝 exceljs 依賴
+2. 實現 Excel 和 CSV 導出功能
+3. 實現導出對話框（格式選擇、行篩選、欄位選擇）
+4. 實現導出 API（支援串流）
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 19-7: 批量文件自動匹配到模版
+
+```
+# 開發任務：Story 19-7 批量文件自動匹配到模版
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-7-batch-auto-matching.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-7.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 19-3（匹配引擎服務）
+- 現有的 Document 模型和處理流程
+
+## 開發要求
+1. 更新 Document、DocumentFormat、Company 模型
+2. 實現自動匹配服務（三層優先級規則解析）
+3. 實現手動匹配和批量匹配 UI
+4. 整合到現有處理流程
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 19-8: 模版匹配整合測試與驗證
+
+```
+# 開發任務：Story 19-8 模版匹配整合測試與驗證
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-19-template-matching/19-8-integration-testing.md
+3. docs/04-implementation/tech-specs/epic-19-template-matching/tech-spec-story-19-8.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- Story 19-1 ~ 19-7 的所有實現
+
+## 開發要求
+1. 實現測試向導頁面（6 個步驟）
+2. 實現模擬數據生成功能
+3. 實現端到端測試流程
+4. 實現測試報告生成
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+## Epic 20: Reference Number Master Setup
+
+> **說明**：此 Epic 建立 Reference Number 主檔管理功能，以「地區」為主要分類維度。
+
+### Story 20-1: 資料庫模型與基礎設施
+
+```
+# 開發任務：Story 20-1 資料庫模型與基礎設施
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-1-database-model-infrastructure.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- prisma/schema.prisma
+
+## 開發要求
+1. 新增 Region 和 ReferenceNumber 模型到 Prisma Schema
+2. 新增枚舉 ReferenceNumberType 和 ReferenceNumberStatus
+3. 執行資料庫遷移
+4. 建立預設地區種子資料（APAC, EMEA, AMER, GLOBAL）
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npx prisma migrate dev` 並確認成功
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 20-2: Region 管理 API 與 UI
+
+```
+# 開發任務：Story 20-2 Region 管理 API 與 UI
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-2-region-management-api-ui.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/services/company.service.ts（參考 Service 模式）
+
+## 開發要求
+1. 建立 Region CRUD API（GET/POST/PATCH/DELETE）
+2. 建立 RegionSelect 共用組件
+3. 新增 i18n 翻譯文件
+4. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 20-3: Reference Number CRUD API
+
+```
+# 開發任務：Story 20-3 Reference Number CRUD API
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-3-reference-number-crud-api.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/app/api/v1/prompt-configs/route.ts（參考 API 模式）
+
+## 開發要求
+1. 建立 Zod 驗證 Schema
+2. 建立 reference-number.service.ts
+3. 建立 CRUD API 端點（支援分頁、篩選、排序）
+4. 建立 React Query Hooks
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 20-4: 導入/導出與驗證 API
+
+```
+# 開發任務：Story 20-4 導入/導出與驗證 API
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-4-import-export-validate-api.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/app/api/v1/field-mapping-configs/import/route.ts（參考 Import 模式）
+
+## 開發要求
+1. 建立 Import API（POST /import）
+2. 建立 Export API（GET /export）
+3. 建立 Validate API（POST /validate）
+4. 實現 skipInvalid 和 overwriteExisting 選項
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 20-5: 管理頁面 - 列表與篩選
+
+```
+# 開發任務：Story 20-5 管理頁面 - 列表與篩選
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-5-management-page-list-filter.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/app/[locale]/(dashboard)/admin/prompt-configs/page.tsx（參考頁面模式）
+
+## 開發要求
+1. 建立 /admin/reference-numbers 列表頁
+2. 建立 ReferenceNumberList 組件
+3. 建立 ReferenceNumberFilters 組件
+4. 整合 RegionSelect 組件
+5. 新增 i18n 翻譯
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 20-6: 管理頁面 - 表單與導入
+
+```
+# 開發任務：Story 20-6 管理頁面 - 表單與導入
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-20-reference-number-master/20-6-management-page-form-import.md
+3. docs/04-implementation/tech-specs/epic-20-reference-number-master/tech-spec-story-20-6.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/components/features/prompt-config/（參考表單組件模式）
+
+## 開發要求
+1. 建立新增/編輯頁面
+2. 建立 ReferenceNumberForm 組件
+3. 建立 ReferenceNumberImportDialog 組件
+4. 使用 React Hook Form + Zod 驗證
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+## Epic 21: Exchange Rate Management
+
+> **說明**：此 Epic 建立匯率管理功能，支援雙向匯率處理和貨幣轉換計算。
+
+### Story 21-1: 資料庫模型與遷移
+
+```
+# 開發任務：Story 21-1 資料庫模型與遷移
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-1-database-model-migration.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-1.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- prisma/schema.prisma
+
+## 開發要求
+1. 新增 ExchangeRateSource 枚舉
+2. 新增 ExchangeRate 模型（含自關聯 inverseOf/inverseRates）
+3. 設定 Decimal(18,8) 精度
+4. 執行資料庫遷移
+5. 建立類型定義和貨幣代碼常數
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npx prisma migrate dev` 並確認成功
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-2: 核心服務層
+
+```
+# 開發任務：Story 21-2 核心服務層
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-2-core-service-layer.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-2.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/services/reference-number.service.ts（參考 Service 模式）
+
+## 開發要求
+1. 建立 Zod 驗證 Schema（create, update, convert, batch）
+2. 建立 exchange-rate.service.ts
+3. 實現 CRUD 操作
+4. 實現 convert 方法（含 Fallback: direct → inverse → cross）
+5. 實現 batchGetRates 方法
+6. 實現自動反向匯率建立邏輯
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-3: CRUD API 端點
+
+```
+# 開發任務：Story 21-3 CRUD API 端點
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-3-crud-api-endpoints.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-3.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/app/api/v1/reference-numbers/route.ts（參考 API 模式）
+
+## 開發要求
+1. 建立 /api/v1/exchange-rates 端點（GET/POST）
+2. 建立 /api/v1/exchange-rates/[id] 端點（GET/PATCH/DELETE）
+3. 建立 /api/v1/exchange-rates/[id]/toggle 端點（POST）
+4. 建立 React Query Hooks
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-4: 轉換計算 API
+
+```
+# 開發任務：Story 21-4 轉換計算 API
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-4-convert-calculation-api.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-4.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+
+## 開發要求
+1. 建立 /api/v1/exchange-rates/convert 端點（POST）
+2. 建立 /api/v1/exchange-rates/batch 端點（POST）
+3. 實現 Fallback 邏輯（direct → inverse → cross via USD）
+4. 建立 useConvertCurrency 和 useBatchRates hooks
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-5: Import/Export API
+
+```
+# 開發任務：Story 21-5 Import/Export API
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-5-import-export-api.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-5.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/app/api/v1/reference-numbers/import/route.ts（參考 Import 模式）
+
+## 開發要求
+1. 建立 /api/v1/exchange-rates/export 端點（GET）
+2. 建立 /api/v1/exchange-rates/import 端點（POST）
+3. 實現 skipInvalid 和 overwriteExisting 選項
+4. 支援 createInverse 選項（導入時建立反向匯率）
+5. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-6: 管理頁面 - 列表與篩選
+
+```
+# 開發任務：Story 21-6 管理頁面 - 列表與篩選
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-6-management-page-list-filter.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-6.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/components/features/reference-number/（參考組件模式）
+
+## 開發要求
+1. 建立 /admin/exchange-rates 列表頁
+2. 建立 ExchangeRateList 組件
+3. 建立 ExchangeRateFilters 組件
+4. 建立 CurrencySelect 組件
+5. 新增 i18n 翻譯文件
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-7: 管理頁面 - 表單
+
+```
+# 開發任務：Story 21-7 管理頁面 - 表單
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-7-management-page-form.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-7.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/components/features/exchange-rate/CurrencySelect.tsx
+
+## 開發要求
+1. 建立新增頁面（/admin/exchange-rates/new）
+2. 建立編輯頁面（/admin/exchange-rates/[id]）
+3. 建立 ExchangeRateForm 組件
+4. 實現反向匯率預覽功能
+5. 使用 React Hook Form + Zod 驗證
+6. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+
+### Story 21-8: 管理頁面 - 計算器與 Import
+
+```
+# 開發任務：Story 21-8 管理頁面 - 計算器與 Import
+
+## 必讀文件 (請依序閱讀)
+1. docs/04-implementation/implementation-context.md
+2. docs/04-implementation/stories/epic-21-exchange-rate-management/21-8-management-page-calculator-import.md
+3. docs/04-implementation/tech-specs/epic-21-exchange-rate-management/tech-spec-story-21-8.md
+
+## 參考文件 (開發時查閱)
+- docs/04-implementation/dev-checklist.md
+- src/components/features/exchange-rate/
+
+## 開發要求
+1. 建立 ExchangeRateCalculator 組件
+2. 建立 ExchangeRateImportDialog 組件
+3. 實現即時匯率計算預覽
+4. 實現 JSON 檔案上傳和貼上
+5. 實現導入結果統計顯示
+6. 實現導出功能
+7. **🚨 技術障礙處理**：遇到技術障礙時**絕不擅自改變設計**
+
+請開始實作此 Story。
+
+---
+
+## 🚨 強制完成檢查（不可跳過）
+
+### 1. 代碼品質驗證
+- [ ] 執行 `npm run type-check` 並確認通過
+- [ ] 執行 `npm run lint` 並確認通過
+- [ ] 執行 `npm run i18n:check` 並確認通過
+
+### 2. 狀態文檔更新（必須執行）
+- [ ] 更新 `docs/04-implementation/sprint-status.yaml`
+- [ ] 更新 Story 文件 Status 改為 `done`
+
+### 3. Git 提交
+- [ ] Git commit 並 push
+
+**⛔ 未完成以上所有步驟，禁止回報 Story 完成。**
+```
+
+---
+

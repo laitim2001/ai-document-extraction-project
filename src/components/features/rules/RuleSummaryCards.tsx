@@ -20,6 +20,7 @@
  *   - lucide-react - 圖標庫
  */
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   FileText,
@@ -49,7 +50,7 @@ interface RuleSummaryCardsProps {
 
 interface CardConfig {
   key: keyof RulesSummary
-  label: string
+  labelKey: string
   icon: typeof FileText
   color: string
   bgColor: string
@@ -58,42 +59,42 @@ interface CardConfig {
 const CARD_CONFIGS: CardConfig[] = [
   {
     key: 'totalRules',
-    label: '總規則數',
+    labelKey: 'summary.totalRules',
     icon: FileText,
     color: 'text-slate-600 dark:text-slate-400',
     bgColor: 'bg-slate-100 dark:bg-slate-800',
   },
   {
     key: 'activeRules',
-    label: '生效中',
+    labelKey: 'summary.activeRules',
     icon: CheckCircle2,
     color: 'text-green-600 dark:text-green-400',
     bgColor: 'bg-green-100 dark:bg-green-900/30',
   },
   {
     key: 'draftRules',
-    label: '草稿',
+    labelKey: 'summary.draftRules',
     icon: FileEdit,
     color: 'text-slate-500 dark:text-slate-400',
     bgColor: 'bg-slate-100 dark:bg-slate-800',
   },
   {
     key: 'pendingReviewRules',
-    label: '待審核',
+    labelKey: 'summary.pendingReviewRules',
     icon: Clock,
     color: 'text-amber-600 dark:text-amber-400',
     bgColor: 'bg-amber-100 dark:bg-amber-900/30',
   },
   {
     key: 'deprecatedRules',
-    label: '已棄用',
+    labelKey: 'summary.deprecatedRules',
     icon: Archive,
     color: 'text-red-600 dark:text-red-400',
     bgColor: 'bg-red-100 dark:bg-red-900/30',
   },
   {
     key: 'universalRules',
-    label: '通用規則',
+    labelKey: 'summary.universalRules',
     icon: Globe,
     color: 'text-blue-600 dark:text-blue-400',
     bgColor: 'bg-blue-100 dark:bg-blue-900/30',
@@ -113,6 +114,8 @@ const CARD_CONFIGS: CardConfig[] = [
  * ```
  */
 export function RuleSummaryCards({ summary, className }: RuleSummaryCardsProps) {
+  const t = useTranslations('rules')
+
   return (
     <div
       className={cn(
@@ -138,7 +141,7 @@ export function RuleSummaryCards({ summary, className }: RuleSummaryCardsProps) 
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{value}</p>
-                  <p className="text-xs text-muted-foreground">{config.label}</p>
+                  <p className="text-xs text-muted-foreground">{t(config.labelKey)}</p>
                 </div>
               </div>
             </CardContent>

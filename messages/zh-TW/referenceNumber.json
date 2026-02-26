@@ -1,0 +1,169 @@
+{
+  "title": "參考號碼管理",
+  "description": "管理 Shipment/Delivery Number 等參考號碼",
+  "loading": "載入中...",
+  "noData": "暫無資料",
+  "notFound": "找不到此參考號碼",
+  "columns": {
+    "number": "號碼",
+    "type": "類型",
+    "year": "年份",
+    "region": "地區",
+    "status": "狀態",
+    "matchCount": "匹配次數",
+    "createdAt": "建立時間",
+    "updatedAt": "更新時間",
+    "actions": "操作"
+  },
+  "types": {
+    "SHIPMENT": "運輸單號",
+    "DELIVERY": "交貨單號",
+    "BOOKING": "訂艙號",
+    "CONTAINER": "櫃號",
+    "HAWB": "分提單",
+    "MAWB": "主提單",
+    "BL": "提單",
+    "CUSTOMS": "報關單",
+    "OTHER": "其他"
+  },
+  "statuses": {
+    "ACTIVE": "有效",
+    "EXPIRED": "已過期",
+    "CANCELLED": "已取消"
+  },
+  "filters": {
+    "search": "搜尋",
+    "searchPlaceholder": "搜尋號碼...",
+    "all": "全部",
+    "year": "年份",
+    "region": "地區",
+    "type": "類型",
+    "status": "狀態",
+    "clear": "清除篩選"
+  },
+  "actions": {
+    "add": "新增",
+    "import": "導入",
+    "export": "導出",
+    "edit": "編輯",
+    "copy": "複製號碼",
+    "delete": "刪除",
+    "refresh": "重新整理",
+    "backToList": "返回列表"
+  },
+  "pagination": {
+    "showing": "顯示 {from} - {to} 筆，共 {total} 筆",
+    "previous": "上一頁",
+    "next": "下一頁"
+  },
+  "deleteDialog": {
+    "title": "刪除參考號碼",
+    "description": "確定要刪除此參考號碼嗎？此操作無法復原。",
+    "cancel": "取消",
+    "confirm": "刪除",
+    "deleting": "刪除中..."
+  },
+  "toast": {
+    "deleteSuccess": "參考號碼已刪除",
+    "deleteSuccessDesc": "參考號碼已成功刪除。",
+    "deleteFailed": "刪除失敗",
+    "copySuccess": "號碼已複製到剪貼簿",
+    "copyFailed": "複製號碼失敗"
+  },
+  "summary": {
+    "total": "共 {count} 筆參考號碼"
+  },
+  "form": {
+    "code": "識別碼",
+    "number": "號碼",
+    "numberPlaceholder": "輸入號碼...",
+    "type": "類型",
+    "year": "年份",
+    "region": "地區",
+    "regionPlaceholder": "選擇地區...",
+    "validFrom": "有效起始日",
+    "validUntil": "有效結束日",
+    "selectDate": "選擇日期",
+    "clearDate": "清除",
+    "description": "說明",
+    "descriptionPlaceholder": "輸入說明...",
+    "matchCount": "匹配次數",
+    "cancel": "取消",
+    "create": "建立",
+    "update": "更新"
+  },
+  "new": {
+    "title": "新增參考號碼",
+    "description": "建立新的參考號碼記錄"
+  },
+  "edit": {
+    "title": "編輯參考號碼",
+    "description": "修改參考號碼資訊"
+  },
+  "import": {
+    "title": "導入參考號碼",
+    "description": "從 Excel 文件（.xlsx）批次導入參考號碼",
+    "dropzone": "點擊或拖放 Excel 文件（.xlsx）",
+    "dropzoneHint": "支援 .xlsx 格式。請下載下方範本以取得正確格式。",
+    "items": "筆資料",
+    "fileSize": "({size})",
+    "downloadTemplate": "下載範本",
+    "downloadTemplateDesc": "下載包含欄位名稱和說明的 Excel 範本",
+    "overwriteExisting": "覆蓋已存在的記錄",
+    "skipInvalid": "跳過無效記錄",
+    "import": "開始導入",
+    "cancel": "取消",
+    "close": "關閉",
+    "parseError": "無法解析文件，請確認是否為有效的 .xlsx 文件。",
+    "emptyFile": "Excel 文件中沒有資料列。",
+    "invalidFormat": "無效的文件格式，僅接受 .xlsx 文件。",
+    "preview": {
+      "title": "資料預覽",
+      "showing": "顯示前 {count} 筆，共 {total} 筆",
+      "allRows": "共 {total} 筆",
+      "valid": "有效",
+      "invalid": "無效",
+      "rowNumber": "列"
+    },
+    "columns": {
+      "number": "號碼",
+      "type": "類型",
+      "year": "年份",
+      "regionCode": "地區代碼",
+      "code": "識別碼",
+      "description": "描述",
+      "validFrom": "有效起始日",
+      "validUntil": "有效結束日",
+      "isActive": "啟用",
+      "status": "狀態"
+    },
+    "template": {
+      "dataSheet": "資料",
+      "instructionsSheet": "說明",
+      "column": "欄位",
+      "required": "必填",
+      "format": "格式",
+      "example": "範例",
+      "yes": "是",
+      "no": "否"
+    },
+    "result": {
+      "title": "導入完成",
+      "imported": "導入：{count} 筆",
+      "updated": "更新：{count} 筆",
+      "skipped": "跳過：{count} 筆",
+      "errors": "錯誤：{count} 筆"
+    }
+  },
+  "export": {
+    "exporting": "導出中..."
+  },
+  "messages": {
+    "created": "參考號碼建立成功",
+    "createFailed": "建立參考號碼失敗",
+    "updated": "參考號碼更新成功",
+    "updateFailed": "更新參考號碼失敗",
+    "importFailed": "導入失敗",
+    "exportFailed": "導出失敗"
+  }
+}

@@ -1,24 +1,27 @@
 'use client'
 
 /**
- * @fileoverview 近期文件列表組件
+ * @fileoverview 近期文件列表組件（國際化版本）
  * @description
  *   顯示 Forwarder 最近處理的文件列表，包含：
  *   - 文件名稱和連結
  *   - 處理狀態
  *   - 信心度
  *   - 處理時間
+ *   - 完整國際化支援
  *
  * @module src/components/features/forwarders/RecentDocumentsTable
  * @author Development Team
  * @since Epic 5 - Story 5.2 (Forwarder Detail Config View)
- * @lastModified 2025-12-19
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/types/forwarder - 類型定義
  *   - @/components/ui - UI 組件
  */
 
+import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -36,7 +39,7 @@ import type { RecentDocumentItem } from '@/types/forwarder'
 import { DOCUMENT_PROCESSING_STATUS_CONFIG } from '@/types/forwarder'
 import { FileText, ExternalLink, Clock } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { zhTW } from 'date-fns/locale'
+import { zhTW, enUS } from 'date-fns/locale'
 import Link from 'next/link'
 
 // ============================================================
@@ -64,6 +67,11 @@ export function RecentDocumentsTable({
   forwarderId,
   limit = 10,
 }: RecentDocumentsTableProps) {
+  const t = useTranslations('companies')
+  const tInvoice = useTranslations('invoice')
+  const locale = useLocale()
+  const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
+
   // 使用 hook 獲取近期文件
   const { documents, isLoading, error } = useForwarderDocuments(
     forwarderId,
@@ -73,7 +81,7 @@ export function RecentDocumentsTable({
   // 格式化時間
   const formatTime = (date: Date | string | null) => {
     if (!date) return '-'
-    return formatDistanceToNow(new Date(date), { addSuffix: true, locale: zhTW })
+    return formatDistanceToNow(new Date(date), { addSuffix: true, locale: dateLocale })
   }
 
   // 格式化信心度
@@ -97,7 +105,7 @@ export function RecentDocumentsTable({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            近期文件
+            {t('recentDocs.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -116,7 +124,7 @@ export function RecentDocumentsTable({
     return (
       <Card>
         <CardContent className="py-10 text-center">
-          <p className="text-destructive">載入近期文件失敗</p>
+          <p className="text-destructive">{t('recentDocs.loadFailed')}</p>
         </CardContent>
       </Card>
     )
@@ -127,26 +135,26 @@ export function RecentDocumentsTable({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
-          近期文件
+          {t('recentDocs.title')}
           <span className="text-sm font-normal text-muted-foreground">
-            (最近 {limit} 筆)
+            {t('recentDocs.recentCount', { count: limit })}
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {documents.length === 0 ? (
           <div className="py-10 text-center text-muted-foreground">
-            尚無處理紀錄
+            {t('recentDocs.noRecords')}
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>檔案名稱</TableHead>
-                <TableHead>狀態</TableHead>
-                <TableHead className="text-right">信心度</TableHead>
-                <TableHead>處理時間</TableHead>
-                <TableHead className="w-[80px]">操作</TableHead>
+                <TableHead>{t('recentDocs.columns.fileName')}</TableHead>
+                <TableHead>{t('recentDocs.columns.status')}</TableHead>
+                <TableHead className="text-right">{t('recentDocs.columns.confidence')}</TableHead>
+                <TableHead>{t('recentDocs.columns.processedAt')}</TableHead>
+                <TableHead className="w-[80px]">{t('recentDocs.columns.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -162,7 +170,7 @@ export function RecentDocumentsTable({
                   </TableCell>
                   <TableCell>
                     <Badge className={DOCUMENT_PROCESSING_STATUS_CONFIG[doc.status].className}>
-                      {DOCUMENT_PROCESSING_STATUS_CONFIG[doc.status].label}
+                      {tInvoice(`status.${doc.status.toLowerCase()}`)}
                     </Badge>
                   </TableCell>
                   <TableCell className={`text-right ${getConfidenceStyle(doc.confidence)}`}>

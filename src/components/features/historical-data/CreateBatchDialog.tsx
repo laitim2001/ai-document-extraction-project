@@ -1,26 +1,29 @@
 'use client'
 
 /**
- * @fileoverview 建立批次對話框組件
+ * @fileoverview 建立批次對話框組件（國際化版本）
  * @description
  *   提供建立新批次的表單對話框，包含：
  *   - 批次基本資訊（名稱、描述）
  *   - 公司識別配置選項（Story 0.6）
  *   - 術語聚合配置選項（Story 0.7）
  *   - 發行者識別配置選項（Story 0.8）
+ *   - 完整國際化支援
  *
  * @module src/components/features/historical-data/CreateBatchDialog
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-26
+ * @lastModified 2026-01-17
  *
  * @features
  *   - Story 0.1: 基本批次建立
  *   - Story 0.6: 公司識別配置
  *   - Story 0.7: 術語聚合配置
  *   - Story 0.8: 發行者識別配置
+ *   - Epic 17: 完整國際化支援
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -56,34 +59,36 @@ import {
 } from '@/components/ui/collapsible'
 
 // ============================================================
-// Schema
+// Schema Factory
 // ============================================================
 
-const createBatchSchema = z.object({
-  name: z
-    .string()
-    .min(1, '請輸入批次名稱')
-    .max(100, '批次名稱不能超過 100 個字元'),
-  description: z
-    .string()
-    .max(500, '描述不能超過 500 個字元')
-    .optional(),
-  // Story 0.6: 公司識別配置（不使用 .default()，改用 form 的 defaultValues）
-  enableCompanyIdentification: z.boolean(),
-  fuzzyMatchThreshold: z.number().min(0.5).max(1),
-  autoMergeSimilar: z.boolean(),
-  // Story 0.7: 術語聚合配置
-  enableTermAggregation: z.boolean(),
-  termSimilarityThreshold: z.number().min(0.5).max(1),
-  autoClassifyTerms: z.boolean(),
-  // Story 0.8: 發行者識別配置
-  enableIssuerIdentification: z.boolean(),
-  issuerConfidenceThreshold: z.number().min(0.5).max(1),
-  autoCreateIssuerCompany: z.boolean(),
-  issuerFuzzyThreshold: z.number().min(0.5).max(1),
-})
+function createBatchSchemaFactory(t: (key: string) => string) {
+  return z.object({
+    name: z
+      .string()
+      .min(1, t('createBatchDialog.validation.nameRequired'))
+      .max(100, t('createBatchDialog.validation.nameMaxLength')),
+    description: z
+      .string()
+      .max(500, t('createBatchDialog.validation.descriptionMaxLength'))
+      .optional(),
+    // Story 0.6: 公司識別配置（不使用 .default()，改用 form 的 defaultValues）
+    enableCompanyIdentification: z.boolean(),
+    fuzzyMatchThreshold: z.number().min(0.5).max(1),
+    autoMergeSimilar: z.boolean(),
+    // Story 0.7: 術語聚合配置
+    enableTermAggregation: z.boolean(),
+    termSimilarityThreshold: z.number().min(0.5).max(1),
+    autoClassifyTerms: z.boolean(),
+    // Story 0.8: 發行者識別配置
+    enableIssuerIdentification: z.boolean(),
+    issuerConfidenceThreshold: z.number().min(0.5).max(1),
+    autoCreateIssuerCompany: z.boolean(),
+    issuerFuzzyThreshold: z.number().min(0.5).max(1),
+  })
+}
 
-type CreateBatchFormData = z.infer<typeof createBatchSchema>
+type CreateBatchFormData = z.infer<ReturnType<typeof createBatchSchemaFactory>>
 
 // ============================================================
 // Types
@@ -128,11 +133,15 @@ export function CreateBatchDialog({
   onCreateBatch,
   triggerProps,
 }: CreateBatchDialogProps) {
+  const t = useTranslations('historicalData')
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [showTermAggregation, setShowTermAggregation] = useState(false)
   const [showIssuerIdentification, setShowIssuerIdentification] = useState(false)
+
+  // Create schema with i18n validation messages
+  const createBatchSchema = React.useMemo(() => createBatchSchemaFactory(t), [t])
 
   const form = useForm<CreateBatchFormData>({
     resolver: zodResolver(createBatchSchema),
@@ -197,14 +206,14 @@ export function CreateBatchDialog({
       <DialogTrigger asChild>
         <Button {...triggerProps}>
           <Plus className="h-4 w-4 mr-2" />
-          建立批次
+          {t('createBatchDialog.trigger')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>建立新批次</DialogTitle>
+          <DialogTitle>{t('createBatchDialog.title')}</DialogTitle>
           <DialogDescription>
-            建立一個新的批次以上傳歷史數據文件
+            {t('createBatchDialog.description')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -214,16 +223,16 @@ export function CreateBatchDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>批次名稱</FormLabel>
+                  <FormLabel>{t('createBatchDialog.form.name.label')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="例如：2024-Q1 歷史發票"
+                      placeholder={t('createBatchDialog.form.name.placeholder')}
                       {...field}
                       disabled={isSubmitting}
                     />
                   </FormControl>
                   <FormDescription>
-                    為批次取一個容易識別的名稱
+                    {t('createBatchDialog.form.name.description')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -234,10 +243,10 @@ export function CreateBatchDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>描述（選填）</FormLabel>
+                  <FormLabel>{t('createBatchDialog.form.description.label')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="批次說明..."
+                      placeholder={t('createBatchDialog.form.description.placeholder')}
                       className="resize-none"
                       rows={3}
                       {...field}
@@ -260,10 +269,10 @@ export function CreateBatchDialog({
                 >
                   <span className="flex items-center gap-2">
                     <Building2 className="h-4 w-4" />
-                    公司識別設定
+                    {t('createBatchDialog.companyIdentification.title')}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {showAdvanced ? '收起' : '展開'}
+                    {showAdvanced ? t('createBatchDialog.sections.collapse') : t('createBatchDialog.sections.expand')}
                   </span>
                 </Button>
               </CollapsibleTrigger>
@@ -276,10 +285,10 @@ export function CreateBatchDialog({
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                       <div className="space-y-0.5">
                         <FormLabel className="text-sm font-medium">
-                          啟用公司識別
+                          {t('createBatchDialog.companyIdentification.enable.label')}
                         </FormLabel>
                         <FormDescription className="text-xs">
-                          自動從文件中識別並匹配公司資料
+                          {t('createBatchDialog.companyIdentification.enable.description')}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -303,7 +312,7 @@ export function CreateBatchDialog({
                         <FormItem className="rounded-lg border p-3">
                           <div className="flex items-center justify-between">
                             <FormLabel className="text-sm font-medium">
-                              模糊匹配閾值
+                              {t('createBatchDialog.companyIdentification.fuzzyThreshold.label')}
                             </FormLabel>
                             <span className="text-sm text-muted-foreground font-mono">
                               {(field.value * 100).toFixed(0)}%
@@ -323,7 +332,7 @@ export function CreateBatchDialog({
                             />
                           </FormControl>
                           <FormDescription className="text-xs mt-1">
-                            匹配相似度達此閾值才視為同一公司（建議 85-95%）
+                            {t('createBatchDialog.companyIdentification.fuzzyThreshold.description')}
                           </FormDescription>
                         </FormItem>
                       )}
@@ -337,10 +346,10 @@ export function CreateBatchDialog({
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                           <div className="space-y-0.5">
                             <FormLabel className="text-sm font-medium">
-                              自動合併相似公司
+                              {t('createBatchDialog.companyIdentification.autoMerge.label')}
                             </FormLabel>
                             <FormDescription className="text-xs">
-                              自動將相似的公司名稱合併為同一公司
+                              {t('createBatchDialog.companyIdentification.autoMerge.description')}
                             </FormDescription>
                           </div>
                           <FormControl>
@@ -369,10 +378,10 @@ export function CreateBatchDialog({
                 >
                   <span className="flex items-center gap-2">
                     <Hash className="h-4 w-4" />
-                    術語聚合設定
+                    {t('createBatchDialog.termAggregation.title')}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {showTermAggregation ? '收起' : '展開'}
+                    {showTermAggregation ? t('createBatchDialog.sections.collapse') : t('createBatchDialog.sections.expand')}
                   </span>
                 </Button>
               </CollapsibleTrigger>
@@ -385,10 +394,10 @@ export function CreateBatchDialog({
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                       <div className="space-y-0.5">
                         <FormLabel className="text-sm font-medium">
-                          啟用術語聚合
+                          {t('createBatchDialog.termAggregation.enable.label')}
                         </FormLabel>
                         <FormDescription className="text-xs">
-                          批量處理完成後自動聚合術語統計
+                          {t('createBatchDialog.termAggregation.enable.description')}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -412,7 +421,7 @@ export function CreateBatchDialog({
                         <FormItem className="rounded-lg border p-3">
                           <div className="flex items-center justify-between">
                             <FormLabel className="text-sm font-medium">
-                              術語相似度閾值
+                              {t('createBatchDialog.termAggregation.similarityThreshold.label')}
                             </FormLabel>
                             <span className="text-sm text-muted-foreground font-mono">
                               {(field.value * 100).toFixed(0)}%
@@ -432,7 +441,7 @@ export function CreateBatchDialog({
                             />
                           </FormControl>
                           <FormDescription className="text-xs mt-1">
-                            相似度達此閾值的術語會被視為相同術語（建議 80-90%）
+                            {t('createBatchDialog.termAggregation.similarityThreshold.description')}
                           </FormDescription>
                         </FormItem>
                       )}
@@ -446,10 +455,10 @@ export function CreateBatchDialog({
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                           <div className="space-y-0.5">
                             <FormLabel className="text-sm font-medium">
-                              自動分類術語
+                              {t('createBatchDialog.termAggregation.autoClassify.label')}
                             </FormLabel>
                             <FormDescription className="text-xs">
-                              使用 AI 自動將術語分類到費用類別
+                              {t('createBatchDialog.termAggregation.autoClassify.description')}
                             </FormDescription>
                           </div>
                           <FormControl>
@@ -478,10 +487,10 @@ export function CreateBatchDialog({
                 >
                   <span className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
-                    發行者識別設定
+                    {t('createBatchDialog.issuerIdentification.title')}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {showIssuerIdentification ? '收起' : '展開'}
+                    {showIssuerIdentification ? t('createBatchDialog.sections.collapse') : t('createBatchDialog.sections.expand')}
                   </span>
                 </Button>
               </CollapsibleTrigger>
@@ -494,10 +503,10 @@ export function CreateBatchDialog({
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                       <div className="space-y-0.5">
                         <FormLabel className="text-sm font-medium">
-                          啟用發行者識別
+                          {t('createBatchDialog.issuerIdentification.enable.label')}
                         </FormLabel>
                         <FormDescription className="text-xs">
-                          從文件 Logo/Header/Letterhead 識別發行公司
+                          {t('createBatchDialog.issuerIdentification.enable.description')}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -522,7 +531,7 @@ export function CreateBatchDialog({
                         <FormItem className="rounded-lg border p-3">
                           <div className="flex items-center justify-between">
                             <FormLabel className="text-sm font-medium">
-                              識別信心度閾值
+                              {t('createBatchDialog.issuerIdentification.confidenceThreshold.label')}
                             </FormLabel>
                             <span className="text-sm text-muted-foreground font-mono">
                               {(field.value * 100).toFixed(0)}%
@@ -542,7 +551,7 @@ export function CreateBatchDialog({
                             />
                           </FormControl>
                           <FormDescription className="text-xs mt-1">
-                            信心度達此閾值才接受識別結果（建議 60-80%）
+                            {t('createBatchDialog.issuerIdentification.confidenceThreshold.description')}
                           </FormDescription>
                         </FormItem>
                       )}
@@ -556,7 +565,7 @@ export function CreateBatchDialog({
                         <FormItem className="rounded-lg border p-3">
                           <div className="flex items-center justify-between">
                             <FormLabel className="text-sm font-medium">
-                              公司匹配閾值
+                              {t('createBatchDialog.issuerIdentification.fuzzyThreshold.label')}
                             </FormLabel>
                             <span className="text-sm text-muted-foreground font-mono">
                               {(field.value * 100).toFixed(0)}%
@@ -576,7 +585,7 @@ export function CreateBatchDialog({
                             />
                           </FormControl>
                           <FormDescription className="text-xs mt-1">
-                            匹配相似度達此閾值才視為同一發行公司（建議 85-95%）
+                            {t('createBatchDialog.issuerIdentification.fuzzyThreshold.description')}
                           </FormDescription>
                         </FormItem>
                       )}
@@ -590,10 +599,10 @@ export function CreateBatchDialog({
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                           <div className="space-y-0.5">
                             <FormLabel className="text-sm font-medium">
-                              自動建立發行公司
+                              {t('createBatchDialog.issuerIdentification.autoCreate.label')}
                             </FormLabel>
                             <FormDescription className="text-xs">
-                              未匹配到現有公司時自動建立新公司
+                              {t('createBatchDialog.issuerIdentification.autoCreate.description')}
                             </FormDescription>
                           </div>
                           <FormControl>
@@ -618,16 +627,16 @@ export function CreateBatchDialog({
                 onClick={() => setOpen(false)}
                 disabled={isSubmitting}
               >
-                取消
+                {t('createBatchDialog.actions.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    建立中...
+                    {t('createBatchDialog.actions.creating')}
                   </>
                 ) : (
-                  '建立'
+                  t('createBatchDialog.actions.create')
                 )}
               </Button>
             </DialogFooter>

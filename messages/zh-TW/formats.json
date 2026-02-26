@@ -1,0 +1,289 @@
+{
+  "filters": {
+    "allTypes": "全部類型",
+    "allSubtypes": "全部子類型",
+    "documentType": "文件類型",
+    "subtype": "子類型",
+    "sortBy": "排序",
+    "clearFilters": "清除篩選",
+    "sortOrderAsc": "切換為升序",
+    "sortOrderDesc": "切換為降序"
+  },
+  "sort": {
+    "fileCount": "文件數量",
+    "updatedAt": "更新時間"
+  },
+  "documentTypes": {
+    "INVOICE": "發票",
+    "DEBIT_NOTE": "借項通知單",
+    "CREDIT_NOTE": "貸項通知單",
+    "STATEMENT": "對帳單",
+    "QUOTATION": "報價單",
+    "BILL_OF_LADING": "提單",
+    "CUSTOMS_DECLARATION": "報關單",
+    "OTHER": "其他"
+  },
+  "documentSubtypes": {
+    "OCEAN_FREIGHT": "海運",
+    "AIR_FREIGHT": "空運",
+    "LAND_TRANSPORT": "陸運",
+    "CUSTOMS_CLEARANCE": "報關",
+    "WAREHOUSING": "倉儲",
+    "IMPORT": "進口",
+    "EXPORT": "出口",
+    "GENERAL": "一般"
+  },
+  "card": {
+    "files": "{count} 個文件",
+    "terms": "{count} 個術語",
+    "prompt": "Prompt:",
+    "mapping": "映射:",
+    "openMenu": "開啟選單"
+  },
+  "deleteDialog": {
+    "description": "確定要刪除格式「{name}」嗎？這將移除所有格式專屬配置（Prompt、欄位映射等）。關聯的文件不會被刪除，但會失去格式關聯。此操作無法復原。",
+    "deleting": "刪除中..."
+  },
+  "list": {
+    "totalFormats": "共 {count} 個格式",
+    "createFormat": "建立格式",
+    "emptyTitle": "尚無已識別的格式",
+    "emptyDescription": "上傳文件後系統會自動識別格式，或者您可以手動建立格式。",
+    "errorTitle": "載入失敗",
+    "errorDescription": "無法載入格式列表，請稍後再試。",
+    "retry": "重試",
+    "noResultsTitle": "無符合條件的格式",
+    "noResultsDescription": "調整篩選條件以查看更多格式。",
+    "clearFilters": "清除篩選"
+  },
+  "createDialog": {
+    "triggerButton": "建立格式",
+    "title": "建立文件格式",
+    "description": "為此公司建立新的文件格式，用於管理特定類型文件的處理配置。",
+    "documentTypeLabel": "文件類型 *",
+    "documentTypePlaceholder": "請選擇文件類型",
+    "documentSubtypeLabel": "文件子類型 *",
+    "documentSubtypePlaceholder": "請選擇文件子類型",
+    "nameLabel": "格式名稱（選填）",
+    "namePlaceholder": "留空時將自動生成",
+    "nameDescription": "自動生成的名稱格式：「公司名 - 子類型類型」",
+    "advancedOptions": "進階選項",
+    "fieldMappingLabel": "建立欄位映射配置",
+    "fieldMappingDescription": "自動建立格式專屬的欄位映射配置",
+    "promptConfigLabel": "建立 Prompt 配置",
+    "promptConfigDescription": "自動建立格式專屬的 AI Prompt 配置",
+    "submitButton": "建立格式"
+  },
+  "sourceFieldCombobox": {
+    "placeholder": "選擇來源欄位...",
+    "searchPlaceholder": "搜尋欄位...",
+    "loadingDynamic": "載入動態欄位中...",
+    "noResults": "找不到匹配的欄位",
+    "customFields": "自訂欄位",
+    "addCustomField": "新增自訂欄位：",
+    "fieldsCount": "{count} 個欄位",
+    "usedBadge": "已使用",
+    "categoryLabels": {
+      "basic": "基本資訊",
+      "shipper": "發貨人資訊",
+      "consignee": "收貨人資訊",
+      "shipping": "運輸資訊",
+      "charges": "費用明細",
+      "reference": "參考編號",
+      "payment": "付款資訊",
+      "extracted": "提取欄位",
+      "custom": "自訂欄位",
+      "lineItem": "行項目費用 (li_*)",
+      "syntheticRef": "Pipeline 參考編號 (_ref_*)"
+    }
+  },
+  "detail": {
+    "loadError": "無法載入格式資料",
+    "loadErrorDescription": "載入格式詳情時發生錯誤，請稍後再試。",
+    "retry": "重試",
+    "notFound": "找不到格式",
+    "notFoundDescription": "該格式可能已被刪除或您沒有權限存取。",
+    "back": "返回",
+    "refresh": "重新整理",
+    "edit": "編輯",
+    "tabs": {
+      "basic": "基本資訊",
+      "terms": "常見術語",
+      "files": "文件列表",
+      "rules": "識別規則",
+      "configs": "專屬配置"
+    },
+    "basicInfo": {
+      "formatInfo": "格式資訊",
+      "formatName": "格式名稱",
+      "documentType": "文件類型",
+      "documentSubtype": "文件子類型",
+      "fileCount": "文件數量",
+      "termCount": "術語數量",
+      "fileUnit": "{count} 個",
+      "termUnit": "{count} 個",
+      "features": "格式特徵",
+      "hasLineItems": "包含明細項目",
+      "hasHeaderLogo": "包含公司 Logo",
+      "currency": "貨幣",
+      "language": "語言",
+      "layoutPattern": "版面特徵",
+      "company": "所屬公司",
+      "companyName": "公司名稱",
+      "companyCode": "公司代碼",
+      "time": "時間資訊",
+      "createdAt": "創建時間",
+      "updatedAt": "更新時間",
+      "typicalFields": "常見欄位",
+      "yes": "是",
+      "no": "否"
+    },
+    "terms": {
+      "title": "常見術語",
+      "emptyTitle": "尚無常見術語",
+      "emptyDescription": "處理更多文件後，系統會自動識別並記錄常見術語。",
+      "searchPlaceholder": "搜尋術語...",
+      "showing": "顯示 {start} - {end} 共 {total} 個術語",
+      "page": "第 {page} / {total} 頁",
+      "previous": "上一頁",
+      "next": "下一頁",
+      "noResults": "找不到符合「{query}」的術語",
+      "clearSearch": "清除搜尋"
+    },
+    "rules": {
+      "logoPatterns": {
+        "title": "Logo 特徵",
+        "description": "定義文件中 Logo 的位置和特徵，用於識別此格式",
+        "descriptionPlaceholder": "Logo 描述（例如：DHL 黃色 Logo）",
+        "addButton": "新增 Logo 特徵",
+        "removeTitle": "刪除",
+        "maxReached": "已達到最大數量（10 個）",
+        "positions": {
+          "top-left": "左上角",
+          "top-right": "右上角",
+          "top-center": "頂部中央",
+          "bottom-left": "左下角",
+          "bottom-right": "右下角",
+          "center": "中央"
+        }
+      },
+      "keywords": {
+        "title": "關鍵字",
+        "description": "文件中包含這些關鍵字時，更可能被識別為此格式",
+        "placeholder": "輸入關鍵字後按 Enter（例如：Ocean Freight、B/L No）"
+      },
+      "layoutHints": {
+        "title": "版面特徵",
+        "description": "描述此格式的版面佈局特徵，供 AI 識別參考",
+        "placeholder": "描述此格式的版面特徵，例如：表格式文件，左側有公司 Logo，右上角有文件編號，下方有明細表格...",
+        "maxLength": "最多 1000 字元"
+      },
+      "priority": {
+        "title": "識別優先級",
+        "description": "當多個格式匹配時，優先級越高的格式會被優先選用",
+        "label": "優先級: {value}",
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "lowValue": "低 (0)",
+        "mediumValue": "中 (50)",
+        "highValue": "高 (100)"
+      },
+      "actions": {
+        "reset": "重設",
+        "save": "保存規則",
+        "saving": "保存中..."
+      },
+      "toast": {
+        "saveSuccess": "保存成功",
+        "saveSuccessDescription": "識別規則已更新",
+        "saveError": "保存失敗",
+        "saveErrorRetry": "請稍後再試"
+      }
+    },
+    "files": {
+      "title": "關聯文件",
+      "titleWithCount": "關聯文件 ({count})",
+      "loadError": "載入失敗",
+      "loadErrorDescription": "無法載入文件列表",
+      "retry": "重試",
+      "emptyTitle": "尚無關聯文件",
+      "emptyDescription": "上傳文件後，符合此格式的文件會自動關聯到這裡。",
+      "table": {
+        "fileName": "文件名稱",
+        "status": "狀態",
+        "confidence": "識別信心度",
+        "uploadedAt": "上傳時間"
+      },
+      "status": {
+        "UPLOADED": "已上傳",
+        "PROCESSING": "處理中",
+        "COMPLETED": "已完成",
+        "APPROVED": "已批准",
+        "FAILED": "失敗",
+        "REJECTED": "已拒絕",
+        "PENDING": "待處理"
+      },
+      "pagination": {
+        "info": "第 {page} / {totalPages} 頁，共 {total} 個文件",
+        "previous": "上一頁",
+        "next": "下一頁"
+      }
+    },
+    "configs": {
+      "loadError": "載入配置失敗",
+      "loadErrorDescription": "無法獲取配置資訊，請稍後再試。",
+      "retry": "重試",
+      "noData": "無法獲取配置資料",
+      "inheritance": {
+        "title": "配置優先級說明",
+        "description": "系統採用三層配置繼承機制，優先級由高到低：",
+        "fallback": "如未配置格式專屬配置，系統會自動使用公司級或全域配置。",
+        "promptLabel": "Prompt 配置：",
+        "mappingLabel": "映射配置：",
+        "levels": {
+          "FORMAT": "格式專屬",
+          "COMPANY": "公司級",
+          "GLOBAL": "全域",
+          "NONE": "預設"
+        }
+      },
+      "prompt": {
+        "title": "Prompt 配置",
+        "description": "定義 AI 提取和分類時使用的提示詞，格式專屬配置優先於公司和全域配置",
+        "empty": {
+          "description": "尚未配置格式專屬的 Prompt",
+          "usingLevel": "目前使用{level}級別配置",
+          "usingDefault": "目前使用系統預設配置"
+        },
+        "typeLabel": "類型：",
+        "updatedLabel": "更新：",
+        "createButton": "創建 Prompt 配置",
+        "editButton": "編輯",
+        "createNewButton": "創建新的 Prompt 配置"
+      },
+      "mapping": {
+        "title": "欄位映射配置",
+        "description": "定義欄位轉換規則，將提取的欄位映射到標準格式",
+        "empty": {
+          "description": "尚未配置格式專屬的欄位映射",
+          "usingLevel": "目前使用{level}級別配置",
+          "usingDefault": "目前使用系統預設配置"
+        },
+        "rulesLabel": "規則：",
+        "updatedLabel": "更新：",
+        "createButton": "創建映射配置",
+        "editButton": "編輯",
+        "createNewButton": "創建新的映射配置"
+      },
+      "inheritance_legacy": {
+        "title": "配置繼承",
+        "description": "配置遵循階層結構：格式 > 公司 > 全域。較高優先級會覆蓋較低優先級。",
+        "effectiveLevel": "生效層級",
+        "formatLevel": "格式層級",
+        "companyLevel": "公司層級",
+        "globalLevel": "全域層級"
+      }
+    }
+  }
+}

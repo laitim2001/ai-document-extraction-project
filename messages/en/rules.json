@@ -1,0 +1,450 @@
+{
+  "page": {
+    "title": "Mapping Rules",
+    "description": "Manage document field extraction mapping rules and configure company-specific or universal extraction patterns",
+    "addRule": "Add Rule"
+  },
+  "summary": {
+    "totalRules": "Total Rules",
+    "activeRules": "Active",
+    "draftRules": "Draft",
+    "pendingReviewRules": "Pending Review",
+    "deprecatedRules": "Deprecated",
+    "universalRules": "Universal Rules"
+  },
+  "tabs": {
+    "universal": "Universal Rules",
+    "companySpecific": "Company-Specific Rules",
+    "learned": "Learned Rules"
+  },
+  "tier": {
+    "universal": "Universal Tier",
+    "companyOverride": "Company Override Tier",
+    "llmClassification": "AI Classification"
+  },
+  "list": {
+    "searchPlaceholder": "Search rules...",
+    "loadError": "Failed to load",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "pagination": {
+      "summary": "Total {total} rules, Page {page} / {totalPages}"
+    },
+    "filters": {
+      "tier": "Rule Tier",
+      "company": "Company",
+      "chargeType": "Charge Type",
+      "status": "Status",
+      "allTiers": "All Tiers",
+      "allCompanies": "All Companies",
+      "allTypes": "All Types"
+    }
+  },
+  "ruleTable": {
+    "company": "Company",
+    "fieldName": "Field Name",
+    "extractionType": "Extraction Type",
+    "status": "Status",
+    "version": "Version",
+    "priority": "Priority",
+    "successRate": "Success Rate",
+    "updatedAt": "Updated",
+    "universalRule": "Universal Rule",
+    "noMatchingRules": "No matching rules found"
+  },
+  "ruleFilters": {
+    "company": "Company",
+    "fieldName": "Field Name",
+    "status": "Status",
+    "category": "Category",
+    "all": "All",
+    "allCompanies": "All Companies",
+    "universalRules": "Universal Rules",
+    "allStatuses": "All Statuses",
+    "allCategories": "All Categories",
+    "searchField": "Search field...",
+    "clearFilters": "Clear Filters"
+  },
+  "ruleStatus": {
+    "active": "Active",
+    "draft": "Draft",
+    "pendingReview": "Pending Review",
+    "deprecated": "Deprecated"
+  },
+  "detail": {
+    "loadFailed": "Failed to load",
+    "backToList": "Back to List",
+    "universalRule": "Universal Rule",
+    "noDescription": "No description",
+    "fieldLabel": "Field Label:",
+    "versionHistory": "Version History",
+    "edit": "Edit",
+    "extractionType": "Extraction Type",
+    "version": "Version",
+    "priority": "Priority",
+    "confidenceThreshold": "Confidence Threshold",
+    "extractionPattern": "Extraction Pattern",
+    "applications": "Applications",
+    "patternDetails": "Pattern Details",
+    "recentApplications": "Recent Applications",
+    "createdBy": "Created by:",
+    "createdAt": "Created at:",
+    "company": "Company:",
+    "updatedAt": "Updated at:",
+    "category": "Category:",
+    "requiredField": "Required field:",
+    "system": "System",
+    "yes": "Yes"
+  },
+  "stats": {
+    "applicationStats": "Application Statistics",
+    "totalApplications": "Total Applications",
+    "successfulApplications": "Successful",
+    "overallSuccessRate": "Overall Success Rate",
+    "last7DaysPerformance": "Last 7 Days Performance",
+    "last7DaysApplications": "Applications",
+    "last7DaysSuccessRate": "Last 7 Days Success Rate",
+    "confidenceConfig": "Confidence Configuration",
+    "confidenceThreshold": "Confidence Threshold",
+    "belowRequiresReview": "Below this value requires manual review"
+  },
+  "trend": {
+    "up": "Rising",
+    "down": "Falling",
+    "stable": "Stable"
+  },
+  "extractionType": {
+    "regex": "Regex",
+    "regexDesc": "Extract using regular expression pattern matching",
+    "keyword": "Keyword",
+    "keywordDesc": "Extract based on keyword location",
+    "position": "Position",
+    "positionDesc": "Extract based on PDF coordinate position",
+    "azureField": "Azure Field",
+    "azureFieldDesc": "Use Azure Document Intelligence field",
+    "aiPrompt": "AI Prompt",
+    "aiPromptDesc": "Use LLM for intelligent extraction"
+  },
+  "applications": {
+    "document": "Document",
+    "extractedValue": "Extracted Value",
+    "status": "Status",
+    "appliedAt": "Applied At",
+    "noRecords": "No application records",
+    "noRecordsDesc": "Records will appear here when this rule is applied to documents",
+    "noValue": "No value"
+  },
+  "accuracy": {
+    "unverified": "Unverified",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
+  "table": {
+    "columns": {
+      "sourceText": "Source Text",
+      "chargeType": "Charge Type",
+      "tier": "Tier",
+      "company": "Company",
+      "confidence": "Confidence",
+      "usageCount": "Usage Count",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": "No mapping rules found",
+    "emptyDescription": "Create a new rule to get started"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending Verification",
+    "rejected": "Rejected"
+  },
+  "actions": {
+    "create": "Add Rule",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "approve": "Approve",
+    "reject": "Reject",
+    "test": "Test Rule",
+    "bulkImport": "Bulk Import",
+    "export": "Export"
+  },
+  "form": {
+    "sourceText": "Source Text",
+    "sourceTextPlaceholder": "Enter text from document (regex supported)",
+    "chargeType": "Charge Type",
+    "chargeTypePlaceholder": "Select or enter charge type",
+    "tier": "Rule Tier",
+    "company": "Applicable Company",
+    "companyPlaceholder": "Select company (leave empty for universal)",
+    "format": "Applicable Format",
+    "formatPlaceholder": "Select format (optional)",
+    "isRegex": "Use Regular Expression",
+    "caseSensitive": "Case Sensitive",
+    "priority": "Priority",
+    "notes": "Notes"
+  },
+  "dialog": {
+    "createTitle": "Add Mapping Rule",
+    "editTitle": "Edit Mapping Rule",
+    "deleteTitle": "Confirm Deletion",
+    "deleteMessage": "Are you sure you want to delete this mapping rule?",
+    "testTitle": "Test Rule",
+    "testInput": "Enter test text",
+    "testResult": "Match Result",
+    "bulkImportTitle": "Bulk Import Rules",
+    "bulkImportDescription": "Upload a CSV file to import multiple rules"
+  },
+  "test": {
+    "inputPlaceholder": "Enter text to test...",
+    "matched": "Matched",
+    "notMatched": "Not Matched",
+    "matchedRule": "Matched Rule",
+    "confidence": "Confidence"
+  },
+  "chargeTypes": {
+    "oceanFreight": "Ocean Freight",
+    "airFreight": "Air Freight",
+    "documentFee": "Document Fee",
+    "customsClearance": "Customs Clearance",
+    "handling": "Handling Fee",
+    "insurance": "Insurance",
+    "storage": "Storage",
+    "delivery": "Delivery",
+    "other": "Other"
+  },
+  "learning": {
+    "title": "Rule Learning",
+    "description": "Rules learned from manual corrections",
+    "pendingApproval": "Pending Approval",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "source": "Learning Source",
+    "learnedFrom": "Learned From",
+    "corrections": "corrections"
+  },
+  "newRule": {
+    "pageTitle": "Suggest New Mapping Rule",
+    "pageDescription": "Create a new extraction rule suggestion. It will be applied to document processing after review.",
+    "instructions": {
+      "title": "Rule Suggestion Process",
+      "step1": "Select a company (if applicable to a specific company) or set as universal rule",
+      "step2": "Select the target field to extract",
+      "step3": "Configure extraction pattern (regex, keyword, etc.)",
+      "step4": "Use the test function to verify extraction results",
+      "step5": "Submit for review, or save as draft first"
+    },
+    "basicSettings": {
+      "title": "Basic Settings",
+      "description": "Select the company and target field for this rule"
+    },
+    "company": {
+      "label": "Company",
+      "placeholder": "Select company...",
+      "universalRule": "Universal Rule",
+      "universalRuleAppliesAll": "(Applies to all companies)",
+      "universalRuleDescription": "Selecting \"Universal Rule\" will apply to all companies"
+    },
+    "fieldName": {
+      "label": "Field Name",
+      "placeholder": "e.g.: invoice_number",
+      "description": "Enter field name or click a suggestion"
+    },
+    "description": {
+      "label": "Description (Optional)",
+      "placeholder": "Describe the purpose or special cases of this rule..."
+    },
+    "extractionMode": {
+      "title": "Extraction Mode",
+      "description": "Configure how to extract the target field value from documents",
+      "typeLabel": "Extraction Type",
+      "patternLabel": "Pattern Configuration"
+    },
+    "extractionTypes": {
+      "regex": {
+        "label": "Regex",
+        "description": "Match and extract text using regular expressions"
+      },
+      "keyword": {
+        "label": "Keyword",
+        "description": "Extract adjacent text based on keyword position"
+      },
+      "position": {
+        "label": "Position",
+        "description": "Extract based on PDF coordinate position (requires OCR)",
+        "notAvailable": "Position extraction requires OCR coordinate data. This feature is under development."
+      },
+      "aiPrompt": {
+        "label": "AI Prompt",
+        "description": "Use AI to understand and extract content (requires AI service)",
+        "notAvailable": "AI Prompt extraction requires Azure OpenAI integration. This feature is under development."
+      },
+      "template": {
+        "label": "Template",
+        "description": "Use predefined templates for matching and extraction",
+        "notAvailable": "Template matching has a dedicated test page. Please use the Template Matching Test page.",
+        "linkText": "Go to Template Matching Test"
+      }
+    },
+    "regex": {
+      "placeholder": "Enter regex, e.g.: ^Invoice No[.:]?\\\\s*(\\\\S+)",
+      "presetInvoiceNumber": "Invoice Number",
+      "presetDateFormat": "Date Format",
+      "presetAmountFormat": "Amount Format"
+    },
+    "keyword": {
+      "placeholder": "Enter JSON format:\n'{'\\n  \"keywords\": [\"Invoice No\", \"Invoice Number\"],\\n  \"position\": \"after\",\\n  \"maxDistance\": 100\\n'}'"
+    },
+    "aiPrompt": {
+      "placeholder": "Enter AI prompt, e.g.: Extract the invoice number from the document"
+    },
+    "priority": {
+      "label": "Priority (0-100)",
+      "description": "Higher number means higher priority"
+    },
+    "confidence": {
+      "label": "Default Confidence (0-1)",
+      "description": "Recommended between 0.7-0.9"
+    },
+    "buttons": {
+      "saveDraft": "Save as Draft",
+      "submitReview": "Submit for Review"
+    },
+    "toast": {
+      "success": "Success",
+      "error": "Error",
+      "draftError": "Cannot Save as Draft",
+      "draftMinFields": "Please fill in at least Company, Field Name, and Pattern"
+    },
+    "validation": {
+      "companyRequired": "Please select a company or universal rule",
+      "fieldNameRequired": "Please enter field name",
+      "extractionTypeRequired": "Please select extraction type",
+      "patternRequired": "Please enter extraction pattern"
+    }
+  },
+  "testPanel": {
+    "title": "Test Rule",
+    "description": "Test extraction results before submitting to ensure the rule works correctly",
+    "configureFirst": "Please configure the extraction pattern above before testing",
+    "testText": "Test Text",
+    "useSample": "Use Sample",
+    "clear": "Clear",
+    "placeholder": "Paste invoice text content for testing...",
+    "testing": "Testing...",
+    "runTest": "Run Test",
+    "result": "Test Result",
+    "matched": "Matched",
+    "notMatched": "Not Matched",
+    "confidenceLabel": "Confidence",
+    "extractedValue": "Extracted Value",
+    "matchPositions": "Match Positions",
+    "matchPositionCount": "{count} matches",
+    "lineColumn": "Line {line}, Col {column} (char {start}-{end})",
+    "moreMatches": "{count} more matches...",
+    "debugInfo": "Debug Info",
+    "processingTime": "Processing Time: {time} ms",
+    "matchAttempts": "Match Attempts: {count}",
+    "errors": "Errors:"
+  },
+  "ruleEdit": {
+    "dialog": {
+      "title": "Edit Rule: {fieldLabel}",
+      "description": "Submit changes for review. Changes will take effect after approval."
+    },
+    "toast": {
+      "submitted": "Changes Submitted",
+      "submittedDesc": "Rule change request has been submitted for review and will take effect after approval."
+    },
+    "form": {
+      "ruleInfo": "Rule Information",
+      "fieldName": "Field Name:",
+      "fieldLabel": "Field Label:",
+      "extractionType": "Extraction Type",
+      "patternConfig": "Pattern Configuration",
+      "priority": "Priority (1-100)",
+      "priorityDesc": "Higher number means higher priority",
+      "confidence": "Confidence Threshold (0-1)",
+      "confidenceDesc": "Recommended range: 0.7-0.9",
+      "description": "Description (Optional)",
+      "descriptionPlaceholder": "Describe the purpose or special cases of this rule...",
+      "reason": "Change Reason",
+      "reasonRequired": "Change Reason *",
+      "reasonPlaceholder": "Please explain why this rule needs to be modified...",
+      "reasonDesc": "The reason will be recorded in the audit history"
+    },
+    "extractionTypes": {
+      "regex": {
+        "label": "Regular Expression",
+        "description": "Match and extract text using regular expressions"
+      },
+      "keyword": {
+        "label": "Keyword",
+        "description": "Extract adjacent text based on keyword position"
+      },
+      "position": {
+        "label": "Position",
+        "description": "Extract from specific PDF coordinates (requires OCR)"
+      },
+      "aiPrompt": {
+        "label": "AI Prompt",
+        "description": "Use AI to understand and extract content (requires AI service)"
+      },
+      "template": {
+        "label": "Template",
+        "description": "Match and extract using predefined templates (requires template system)"
+      }
+    },
+    "regex": {
+      "expression": "Regular Expression",
+      "expressionPlaceholder": "e.g.: Invoice\\s*(?:No|Number)?[.:]?\\s*(\\S+)",
+      "flags": "Flags",
+      "flagsGi": "gi (global, case-insensitive)",
+      "flagsG": "g (global)",
+      "flagsI": "i (case-insensitive)",
+      "flagsGim": "gim (global, case-insensitive, multiline)",
+      "groupIndex": "Capture Group Index"
+    },
+    "keyword": {
+      "keywords": "Keywords (one per line)",
+      "keywordsPlaceholder": "Invoice No\nInvoice Number\nINV#",
+      "direction": "Search Direction",
+      "directionRight": "Right",
+      "directionLeft": "Left",
+      "directionBelow": "Below",
+      "directionAbove": "Above",
+      "extractLength": "Extract Length"
+    },
+    "aiPrompt": {
+      "prompt": "AI Prompt",
+      "promptPlaceholder": "Extract the invoice number from the document...",
+      "promptDesc": "The prompt will be sent to the AI model. Clearly describe what to extract."
+    },
+    "position": {
+      "notice": "Position extraction requires OCR coordinates. Use the test panel to get coordinates."
+    },
+    "template": {
+      "notAvailable": "Template matching editing is not yet available"
+    },
+    "preview": {
+      "title": "Rule Preview",
+      "testPlaceholder": "Paste test text content...",
+      "button": "Preview",
+      "loading": "Previewing...",
+      "matched": "Matched",
+      "notMatched": "Not Matched",
+      "confidence": "Confidence: {value}%",
+      "extractedValue": "Extracted Value",
+      "clickToTest": "Click \"Preview\" button to test the rule"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "submit": "Submit Changes"
+    },
+    "validation": {
+      "reasonRequired": "Please explain the reason for this change"
+    }
+  }
+}

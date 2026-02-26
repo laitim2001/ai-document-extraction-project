@@ -29,6 +29,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Save, RotateCcw, Settings2, Eye, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -112,6 +113,7 @@ function generateId(): string {
 
 /**
  * 創建空白配置
+ * @description 建立初始配置，name 將在儲存時由 handleSave 設定翻譯名稱
  */
 function createEmptyConfig(
   scope: ConfigScope,
@@ -123,7 +125,7 @@ function createEmptyConfig(
     scope,
     companyId,
     documentFormatId: formatId,
-    name: getConfigName(scope, companyId, formatId),
+    name: '', // 將在 handleSave 時使用翻譯設定
     description: '',
     rules: [],
     isActive: true,
@@ -135,19 +137,25 @@ function createEmptyConfig(
 
 /**
  * 生成配置名稱
+ * @param t - 翻譯函數
  */
 function getConfigName(
   scope: ConfigScope,
   companyId: string | null,
-  formatId: string | null
+  formatId: string | null,
+  t: ReturnType<typeof useTranslations<'documentPreview'>>
 ): string {
   switch (scope) {
     case 'GLOBAL':
-      return '全域映射配置';
+      return t('mappingConfigPanel.configName.global');
     case 'COMPANY':
-      return `公司映射配置 (${companyId || '未選擇'})`;
+      return companyId
+        ? t('mappingConfigPanel.configName.company', { id: companyId })
+        : t('mappingConfigPanel.configName.companyNoId');
     case 'FORMAT':
-      return `格式映射配置 (${formatId || '未選擇'})`;
+      return formatId
+        ? t('mappingConfigPanel.configName.format', { id: formatId })
+        : t('mappingConfigPanel.configName.formatNoId');
   }
 }
 
@@ -188,6 +196,9 @@ export function MappingConfigPanel({
   onScopeChange,
   className,
 }: MappingConfigPanelProps) {
+  // --- Translations ---
+  const t = useTranslations('documentPreview');
+
   // --- State ---
   const [scope, setScope] = React.useState<ConfigScope>(
     initialConfig?.scope ?? 'GLOBAL'
@@ -416,12 +427,12 @@ export function MappingConfigPanel({
       scope,
       companyId,
       documentFormatId: formatId,
-      name: getConfigName(scope, companyId, formatId),
+      name: getConfigName(scope, companyId, formatId, t),
       updatedAt: new Date().toISOString(),
     };
     onSave?.(updatedConfig);
     setHasUnsavedChanges(false);
-  }, [config, scope, companyId, formatId, onSave]);
+  }, [config, scope, companyId, formatId, onSave, t]);
 
   const handleReset = React.useCallback(() => {
     if (initialConfig) {
@@ -461,15 +472,15 @@ export function MappingConfigPanel({
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Settings2 className="h-5 w-5" />
-                欄位映射配置
+                {t('mappingConfigPanel.title')}
                 {hasUnsavedChanges && (
                   <Badge variant="outline" className="text-orange-500 border-orange-500">
-                    未儲存
+                    {t('mappingConfigPanel.unsaved')}
                   </Badge>
                 )}
               </CardTitle>
               <CardDescription>
-                設定來源欄位與目標欄位的映射規則，支援多種轉換類型。
+                {t('mappingConfigPanel.description')}
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -480,7 +491,7 @@ export function MappingConfigPanel({
                 disabled={!hasUnsavedChanges || isSaving}
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
-                重設
+                {t('mappingConfigPanel.reset')}
               </Button>
               <Button
                 size="sm"
@@ -492,7 +503,7 @@ export function MappingConfigPanel({
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                儲存
+                {t('mappingConfigPanel.save')}
               </Button>
             </div>
           </div>
@@ -515,14 +526,14 @@ export function MappingConfigPanel({
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="rules" className="flex items-center gap-2">
                 <Settings2 className="h-4 w-4" />
-                映射規則
+                {t('mappingConfigPanel.tabs.rules')}
                 <Badge variant="secondary" className="ml-1">
                   {rules.length}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger value="preview" className="flex items-center gap-2">
                 <Eye className="h-4 w-4" />
-                預覽結果
+                {t('mappingConfigPanel.tabs.preview')}
               </TabsTrigger>
             </TabsList>
 
@@ -542,11 +553,11 @@ export function MappingConfigPanel({
               {rules.length > 0 && (
                 <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
                   <span>
-                    啟用中: <strong>{activeRulesCount}</strong>
+                    {t('mappingConfigPanel.stats.active')}: <strong>{activeRulesCount}</strong>
                   </span>
                   {inactiveRulesCount > 0 && (
                     <span>
-                      已停用: <strong>{inactiveRulesCount}</strong>
+                      {t('mappingConfigPanel.stats.inactive')}: <strong>{inactiveRulesCount}</strong>
                     </span>
                   )}
                 </div>
@@ -586,15 +597,17 @@ export function MappingConfigPanel({
       <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>放棄未儲存的變更？</AlertDialogTitle>
+            <AlertDialogTitle>{t('mappingConfigPanel.discardDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              您有未儲存的變更。切換配置範圍將會遺失這些變更。確定要繼續嗎？
+              {t('mappingConfigPanel.discardDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelDiscard}>取消</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleCancelDiscard}>
+              {t('mappingConfigPanel.discardDialog.cancel')}
+            </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmDiscard}>
-              放棄變更
+              {t('mappingConfigPanel.discardDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

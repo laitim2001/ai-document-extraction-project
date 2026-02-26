@@ -1,15 +1,16 @@
 /**
- * @fileoverview 欄位提取結果面板
+ * @fileoverview 欄位提取結果面板 (i18n version)
  * @description
  *   展示所有提取欄位的主面板，支援：
  *   - 搜尋、過濾、排序功能
  *   - 按類別分組顯示
  *   - 與 PDF 預覽雙向聯動
  *   - 欄位 inline 編輯
+ *   - Full i18n support
  *
  * @module src/components/features/document-preview
  * @since Epic 13 - Story 13.2 (欄位提取結果面板)
- * @lastModified 2026-01-02
+ * @lastModified 2026-01-17
  *
  * @features
  *   - 搜尋欄位名稱和值
@@ -22,6 +23,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { FieldCard } from './FieldCard'
 import { FieldFilters } from './FieldFilters'
@@ -78,6 +80,7 @@ export function ExtractedFieldsPanel({
   showFilters = true,
   showStats = true,
 }: ExtractedFieldsPanelProps) {
+  const t = useTranslations('documentPreview')
   const [filters, setFilters] = React.useState<FieldFilterState>(DEFAULT_FILTER_STATE)
 
   // --- Memoized Computations ---
@@ -194,19 +197,19 @@ export function ExtractedFieldsPanel({
       {showStats && (
         <div className="flex items-center justify-between border-b bg-gray-50 px-4 py-2 text-sm text-gray-600">
           <div>
-            顯示 {stats.filtered} / {stats.total} 個欄位
+            {t('fieldsPanel.stats.showing', { filtered: stats.filtered, total: stats.total })}
             {filters.showEditedOnly && (
-              <span className="ml-2 text-orange-600">（僅顯示已修改）</span>
+              <span className="ml-2 text-orange-600">{t('fieldsPanel.stats.editedOnly')}</span>
             )}
           </div>
           <div className="flex items-center gap-4">
             {stats.edited > 0 && (
-              <span className="text-orange-600">{stats.edited} 個已修改</span>
+              <span className="text-orange-600">{t('fieldsPanel.stats.edited', { count: stats.edited })}</span>
             )}
             {stats.lowConfidence > 0 && (
-              <span className="text-red-600">{stats.lowConfidence} 個低信心度</span>
+              <span className="text-red-600">{t('fieldsPanel.stats.lowConfidence', { count: stats.lowConfidence })}</span>
             )}
-            <span>平均信心度: {stats.avgConfidence}%</span>
+            <span>{t('fieldsPanel.stats.avgConfidence', { value: stats.avgConfidence })}</span>
           </div>
         </div>
       )}
@@ -240,13 +243,13 @@ export function ExtractedFieldsPanel({
         {/* 空狀態 */}
         {filteredFields.length === 0 && (
           <div className="flex h-32 flex-col items-center justify-center text-gray-500">
-            <p>沒有符合條件的欄位</p>
+            <p>{t('fieldsPanel.empty.noFields')}</p>
             {filters.search && (
               <button
                 className="mt-2 text-sm text-blue-600 hover:underline"
                 onClick={() => setFilters({ ...filters, search: '' })}
               >
-                清除搜尋
+                {t('fieldsPanel.empty.clearSearch')}
               </button>
             )}
           </div>

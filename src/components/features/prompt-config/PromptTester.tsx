@@ -22,6 +22,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -47,6 +48,7 @@ interface PromptTesterProps {
 // ============================================================================
 
 export function PromptTester({ configId: _configId, onTest, disabled = false }: PromptTesterProps) {
+  const t = useTranslations('promptConfig.tester');
   const [file, setFile] = React.useState<File | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [result, setResult] = React.useState<PromptTestResult | null>(null);
@@ -97,12 +99,12 @@ export function PromptTester({ configId: _configId, onTest, disabled = false }: 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">測試 Prompt</CardTitle>
+        <CardTitle className="text-base">{t('title')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* 文件上傳區域 */}
         <div>
-          <Label htmlFor="testFile">上傳測試文件</Label>
+          <Label htmlFor="testFile">{t('uploadLabel')}</Label>
           <div
             className="mt-2 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
             onDrop={handleDrop}
@@ -119,10 +121,10 @@ export function PromptTester({ configId: _configId, onTest, disabled = false }: 
             />
             <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">
-              拖放文件到此處，或點擊選擇
+              {t('dropzone')}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              支援 PDF, PNG, JPG, JPEG
+              {t('supportedFormats')}
             </p>
           </div>
 
@@ -148,12 +150,12 @@ export function PromptTester({ configId: _configId, onTest, disabled = false }: 
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    測試中...
+                    {t('testing')}
                   </>
                 ) : (
                   <>
                     <Play className="h-4 w-4 mr-2" />
-                    執行測試
+                    {t('runTest')}
                   </>
                 )}
               </Button>
@@ -162,13 +164,13 @@ export function PromptTester({ configId: _configId, onTest, disabled = false }: 
 
           {disabled && (
             <p className="text-sm text-muted-foreground mt-2">
-              請先儲存配置後再進行測試
+              {t('saveFirst')}
             </p>
           )}
         </div>
 
         {/* 測試結果 */}
-        {result && <TestResultDisplay result={result} />}
+        {result && <TestResultDisplay result={result} t={t} />}
       </CardContent>
     </Card>
   );
@@ -180,9 +182,10 @@ export function PromptTester({ configId: _configId, onTest, disabled = false }: 
 
 interface TestResultDisplayProps {
   result: PromptTestResult;
+  t: ReturnType<typeof useTranslations>;
 }
 
-function TestResultDisplay({ result }: TestResultDisplayProps) {
+function TestResultDisplay({ result, t }: TestResultDisplayProps) {
   return (
     <div className="border rounded-md p-4 space-y-3">
       {/* 狀態標題 */}
@@ -193,7 +196,7 @@ function TestResultDisplay({ result }: TestResultDisplayProps) {
           <XCircle className="h-5 w-5 text-red-500" />
         )}
         <span className="font-medium">
-          {result.success ? '測試成功' : '測試失敗'}
+          {result.success ? t('success') : t('failed')}
         </span>
         <span className="text-sm text-muted-foreground">
           ({result.executionTimeMs.toFixed(0)}ms)
@@ -210,7 +213,7 @@ function TestResultDisplay({ result }: TestResultDisplayProps) {
       {/* 提取結果 */}
       {result.extractedData && (
         <div>
-          <h4 className="font-medium text-sm mb-2">提取結果：</h4>
+          <h4 className="font-medium text-sm mb-2">{t('extractedResult')}</h4>
           <pre className="p-3 bg-muted rounded text-xs overflow-auto max-h-[300px]">
             {JSON.stringify(result.extractedData, null, 2)}
           </pre>
@@ -220,7 +223,7 @@ function TestResultDisplay({ result }: TestResultDisplayProps) {
       {/* 原始回應 */}
       {result.rawResponse && (
         <div>
-          <h4 className="font-medium text-sm mb-2">原始回應：</h4>
+          <h4 className="font-medium text-sm mb-2">{t('rawResponse')}</h4>
           <pre className="p-3 bg-muted rounded text-xs overflow-auto max-h-[200px] whitespace-pre-wrap">
             {result.rawResponse}
           </pre>
@@ -230,10 +233,10 @@ function TestResultDisplay({ result }: TestResultDisplayProps) {
       {/* Token 使用量 */}
       {result.tokensUsed && (
         <div className="text-sm text-muted-foreground pt-2 border-t">
-          <span className="font-medium">Token 使用量：</span>
+          <span className="font-medium">{t('tokenUsage')}</span>
           <span className="ml-2">
-            Prompt {result.tokensUsed.prompt.toLocaleString()} +
-            Completion {result.tokensUsed.completion.toLocaleString()} =
+            {t('tokenPrompt')} {result.tokensUsed.prompt.toLocaleString()} +
+            {t('tokenCompletion')} {result.tokensUsed.completion.toLocaleString()} =
             <span className="font-medium ml-1">
               {(result.tokensUsed.prompt + result.tokensUsed.completion).toLocaleString()}
             </span>

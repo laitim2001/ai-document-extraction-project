@@ -31,6 +31,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -85,9 +86,9 @@ interface CityRankingsProps {
 // ============================================================
 
 const RANKING_TYPES = [
-  { key: 'byVolume', label: '處理量', icon: BarChart3 },
-  { key: 'bySuccessRate', label: '成功率', icon: Target },
-  { key: 'byEfficiency', label: '效率', icon: Zap },
+  { key: 'byVolume', labelKey: 'rankings.sortBy.volume', icon: BarChart3 },
+  { key: 'bySuccessRate', labelKey: 'rankings.sortBy.successRate', icon: Target },
+  { key: 'byEfficiency', labelKey: 'rankings.sortBy.efficiency', icon: Zap },
 ] as const
 
 // ============================================================
@@ -99,6 +100,7 @@ const RANKING_TYPES = [
  * @description 顯示城市多維度排名的組件
  */
 export function CityRankings({ period = '30d' }: CityRankingsProps) {
+  const t = useTranslations('global')
   const [activeTab, setActiveTab] = useState<keyof CityRankingsData>('byVolume')
 
   const { data, isLoading } = useQuery({
@@ -125,7 +127,7 @@ export function CityRankings({ period = '30d' }: CityRankingsProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-yellow-500" />
-          城市排行榜
+          {t('rankings.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -141,7 +143,7 @@ export function CityRankings({ period = '30d' }: CityRankingsProps) {
                 className="flex items-center gap-2"
               >
                 <type.icon className="h-4 w-4" />
-                {type.label}
+                {t(type.labelKey)}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -174,10 +176,11 @@ function RankingTable({
   items: CityRankItem[]
   type: keyof CityRankingsData
 }) {
+  const t = useTranslations('global')
   if (items.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        目前沒有排名數據
+        {t('rankings.noData')}
       </div>
     )
   }
@@ -193,13 +196,13 @@ function RankingTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-16">排名</TableHead>
-          <TableHead>城市</TableHead>
-          <TableHead>區域</TableHead>
+          <TableHead className="w-16">{t('rankings.rank')}</TableHead>
+          <TableHead>{t('rankings.city')}</TableHead>
+          <TableHead>{t('rankings.region')}</TableHead>
           <TableHead className="text-right">
-            {type === 'byVolume' ? '處理量' : type === 'bySuccessRate' ? '成功率' : '效率'}
+            {type === 'byVolume' ? t('rankings.sortBy.volume') : type === 'bySuccessRate' ? t('rankings.sortBy.successRate') : t('rankings.sortBy.efficiency')}
           </TableHead>
-          <TableHead className="text-right">變化</TableHead>
+          <TableHead className="text-right">{t('rankings.change')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

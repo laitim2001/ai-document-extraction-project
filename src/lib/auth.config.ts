@@ -13,28 +13,53 @@
  *   - 分離 Edge-compatible 配置和完整配置
  *   - Middleware 使用此配置進行基本認證檢查
  *   - API Routes 和 Server Components 使用完整配置
- *   - 開發模式支援 Credentials 提供者
+ *   - 支援本地帳號登入（Credentials 提供者）
+ *   - 支援 Azure AD SSO 登入
  *
  * @module src/lib/auth.config
  * @author Development Team
  * @since Epic 1 - Story 1.1 (Azure AD SSO Login)
- * @lastModified 2025-12-21
+ * @lastModified 2026-01-19
  *
  * @features
  *   - Edge Runtime 兼容
  *   - Azure AD (Entra ID) 提供者配置
- *   - 開發模式 Credentials 提供者
+ *   - 本地帳號 Credentials 提供者（密碼驗證）
  *   - JWT session 策略
  *   - 基本頁面配置
+ *   - 帳號狀態檢查（ACTIVE/SUSPENDED/DISABLED）
+ *   - 郵件驗證狀態檢查
  *
  * @related
  *   - src/lib/auth.ts - 完整認證配置（含資料庫）
  *   - src/middleware.ts - 使用此配置的中間件
+ *   - src/lib/password.ts - 密碼驗證工具
  */
 
 import type { NextAuthConfig } from 'next-auth'
 import type { Provider } from 'next-auth/providers'
 import Credentials from 'next-auth/providers/credentials'
+import { CredentialsSignin } from 'next-auth'
+
+// ============================================================
+// Custom Auth Errors
+// ============================================================
+
+/**
+ * 自定義認證錯誤類別
+ * 用於向客戶端傳遞特定的錯誤代碼
+ */
+class EmailNotVerifiedError extends CredentialsSignin {
+  code = 'EmailNotVerified'
+}
+
+class AccountSuspendedError extends CredentialsSignin {
+  code = 'AccountSuspended'
+}
+
+class AccountDisabledError extends CredentialsSignin {
+  code = 'AccountDisabled'
+}
 
 /**
  * Session 最大存活時間（秒）
@@ -52,9 +77,15 @@ function isAzureADConfigured(): boolean {
 
   // 檢查是否為模擬值
   if (!clientId || !clientSecret || !tenantId) return false
-  if (clientId.startsWith('your-') || clientId === 'placeholder') return false
-  if (clientSecret.startsWith('your-') || clientSecret === 'placeholder') return false
-  if (tenantId.startsWith('your-') || tenantId === 'placeholder') return false
+
+  // 常見的模擬值前綴
+  const mockPrefixes = ['your-', 'test-', 'placeholder', 'mock-', 'fake-', 'dummy-']
+  const isMockValue = (value: string) =>
+    mockPrefixes.some(prefix => value.toLowerCase().startsWith(prefix))
+
+  if (isMockValue(clientId)) return false
+  if (isMockValue(clientSecret)) return false
+  if (isMockValue(tenantId)) return false
 
   return true
 }
@@ -62,26 +93,45 @@ function isAzureADConfigured(): boolean {
 /**
  * 構建認證提供者列表
  * 根據環境配置選擇適當的提供者
+ *
+ * @description
+ *   Story 18-2: 支援本地帳號登入
+ *   - 本地帳號使用 Credentials 提供者進行密碼驗證
+ *   - 動態導入 Prisma 和密碼工具以保持 Edge-compatible
+ *   - 檢查帳號狀態和郵件驗證狀態
  */
 function buildProviders(): Provider[] {
   const providers: Provider[] = []
 
-  // 開發模式或 Azure AD 未配置時，使用 Credentials 提供者
-  if (process.env.NODE_ENV === 'development' || !isAzureADConfigured()) {
-    providers.push(
-      Credentials({
-        id: 'credentials',
-        name: 'Development Login',
-        credentials: {
-          email: { label: 'Email', type: 'email', placeholder: 'test@example.com' },
-          password: { label: 'Password', type: 'password' },
-        },
-        async authorize(credentials) {
-          // 開發模式：接受任何有效的 email 格式
-          if (credentials?.email && typeof credentials.email === 'string') {
-            const email = credentials.email
-            // 基本 email 驗證
+  // 本地帳號 Credentials 提供者 - 始終啟用
+  // authorize 函數只在 API Routes 中執行，不影響 Edge Runtime
+  providers.push(
+    Credentials({
+      id: 'credentials',
+      name: 'Email Login',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        try {
+          // 驗證輸入
+          if (!credentials?.email || !credentials?.password) {
+            console.log('[Auth] Missing email or password')
+            return null
+          }
+
+          const email = (credentials.email as string).toLowerCase().trim()
+          const password = credentials.password as string
+
+          // 開發模式：如果 Azure AD 未配置，使用簡化驗證
+          const isDevelopmentMode = process.env.NODE_ENV === 'development' && !isAzureADConfigured()
+          console.log('[Auth] isDevelopmentMode:', isDevelopmentMode, 'NODE_ENV:', process.env.NODE_ENV)
+
+          if (isDevelopmentMode) {
+            // 開發模式下接受任何有效的 email 格式
             if (email.includes('@')) {
+              console.log('[Auth] Development mode login for:', email)
               return {
                 id: 'dev-user-1',
                 email: email,
@@ -89,12 +139,82 @@ function buildProviders(): Provider[] {
                 image: null,
               }
             }
+            return null
           }
+
+          // 生產模式：真正的帳號密碼驗證
+          console.log('[Auth] Production mode - verifying credentials for:', email)
+
+          // 動態導入以保持 Edge-compatible
+          const { prisma } = await import('@/lib/prisma')
+          const { verifyPassword } = await import('@/lib/password')
+
+          // 查詢用戶
+          const user = await prisma.user.findUnique({
+            where: { email },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              image: true,
+              password: true,
+              status: true,
+              emailVerified: true,
+            },
+          })
+
+          // 用戶不存在或無密碼（Azure AD 用戶沒有本地密碼）
+          if (!user || !user.password) {
+            console.log('[Auth] User not found or no password:', email)
+            return null
+          }
+
+          // 驗證密碼
+          const isValidPassword = await verifyPassword(password, user.password)
+          if (!isValidPassword) {
+            console.log('[Auth] Invalid password for:', email)
+            return null
+          }
+
+          // 檢查帳號狀態
+          if (user.status !== 'ACTIVE') {
+            console.log('[Auth] User status not ACTIVE:', user.status)
+            // 使用自定義錯誤類別，以便前端顯示正確訊息
+            if (user.status === 'SUSPENDED') {
+              throw new AccountSuspendedError()
+            } else {
+              throw new AccountDisabledError()
+            }
+          }
+
+          // 檢查郵件驗證狀態
+          if (!user.emailVerified) {
+            console.log('[Auth] Email not verified for:', email)
+            throw new EmailNotVerifiedError()
+          }
+
+          console.log('[Auth] Login successful for:', email)
+          // 返回用戶資訊（不包含密碼和敏感資料）
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+          }
+        } catch (error) {
+          // 重新拋出已知的認證錯誤
+          if (error instanceof EmailNotVerifiedError ||
+              error instanceof AccountSuspendedError ||
+              error instanceof AccountDisabledError) {
+            throw error
+          }
+          // 記錄未預期的錯誤
+          console.error('[Auth] Unexpected error during authorization:', error)
           return null
-        },
-      })
-    )
-  }
+        }
+      },
+    })
+  )
 
   // 如果 Azure AD 已配置，動態載入提供者
   if (isAzureADConfigured()) {

@@ -8,7 +8,7 @@
  *
  * @module src/services/mapping
  * @since Epic 16 - Story 16.6
- * @lastModified 2026-01-13
+ * @lastModified 2026-02-25 (CHANGE-047: add _ref_* synthetic field options)
  *
  * @features
  *   - 取得標準發票欄位列表
@@ -44,7 +44,7 @@ export interface SourceFieldOption {
   /** 分類 */
   category: string;
   /** 來源類型 */
-  source: 'standard' | 'extracted' | 'custom';
+  source: 'standard' | 'extracted' | 'custom' | 'definition';
   /** 資料類型（標準欄位有） */
   dataType?: string;
   /** 是否必填（標準欄位有） */
@@ -82,7 +82,7 @@ export interface ExtractedFieldInfo {
  * 分類顯示名稱（中文）
  * @description 用於 UI 顯示的分類標籤
  */
-export const CATEGORY_LABELS: Record<FieldCategory | 'extracted' | 'custom', string> = {
+export const CATEGORY_LABELS: Record<FieldCategory | 'extracted' | 'custom' | 'lineItem' | 'syntheticRef', string> = {
   basic: '基本資訊',
   shipper: '發貨人資訊',
   consignee: '收貨人資訊',
@@ -93,6 +93,8 @@ export const CATEGORY_LABELS: Record<FieldCategory | 'extracted' | 'custom', str
   payment: '付款資訊',
   extracted: '提取欄位',
   custom: '自訂欄位',
+  lineItem: '行項目費用',
+  syntheticRef: 'Pipeline 參考編號',  // CHANGE-047
 };
 
 /**
@@ -108,9 +110,101 @@ export const CATEGORY_ORDER: string[] = [
   'charges',
   'reference',
   'payment',
+  'syntheticRef',  // CHANGE-047: Pipeline 匹配的參考編號
+  'lineItem',
   'extracted',
   'custom',
 ];
+
+/**
+ * Line Item pseudo-field 常見費用分類建議
+ * @description
+ *   CHANGE-043 Phase 1 將 lineItems 按 classifiedAs 展平為 li_* pseudo-fields。
+ *   此列表提供常見費用分類供 SourceFieldCombobox 顯示，使用者可在搜尋框輸入其他分類。
+ *   每個分類產生 _total（金額合計）和 _count（筆數）兩個欄位。
+ * @since CHANGE-043 Step 9a
+ */
+export const LINE_ITEM_SUGGESTIONS: Array<{ classifiedAs: string; label: string }> = [
+  { classifiedAs: 'OCEAN_FREIGHT', label: 'Ocean Freight' },
+  { classifiedAs: 'THC', label: 'THC (Terminal Handling)' },
+  { classifiedAs: 'HANDLING_FEE', label: 'Handling Fee' },
+  { classifiedAs: 'DOC_FEE', label: 'Documentation Fee' },
+  { classifiedAs: 'CUSTOMS_CLEARANCE', label: 'Customs Clearance' },
+  { classifiedAs: 'INSURANCE', label: 'Insurance' },
+  { classifiedAs: 'BAF', label: 'BAF (Bunker Adjustment)' },
+  { classifiedAs: 'CAF', label: 'CAF (Currency Adjustment)' },
+  { classifiedAs: 'TRUCKING', label: 'Trucking / Drayage' },
+  { classifiedAs: 'WAREHOUSE', label: 'Warehouse / Storage' },
+  { classifiedAs: 'SEAL_FEE', label: 'Seal Fee' },
+  { classifiedAs: 'ISPS', label: 'ISPS (Security)' },
+];
+
+/**
+ * 將 LINE_ITEM_SUGGESTIONS 轉為 SourceFieldOption[]
+ * @description 每個分類產生 _total 和 _count 兩個選項
+ * @since CHANGE-043 Step 9a
+ */
+export function getLineItemFieldOptions(): SourceFieldOption[] {
+  const options: SourceFieldOption[] = [];
+  for (const { classifiedAs, label } of LINE_ITEM_SUGGESTIONS) {
+    options.push({
+      name: `li_${classifiedAs}_total`,
+      label: `${label} (Total)`,
+      category: 'lineItem',
+      source: 'standard' as const,
+      dataType: 'number',
+    });
+    options.push({
+      name: `li_${classifiedAs}_count`,
+      label: `${label} (Count)`,
+      category: 'lineItem',
+      source: 'standard' as const,
+      dataType: 'number',
+    });
+  }
+  return options;
+}
+
+/**
+ * Pipeline 匹配的 Reference Number 合成欄位
+ * @description
+ *   CHANGE-047 在 Template Matching 時注入 _ref_* 合成欄位。
+ *   此列表提供固定的合成欄位供 SourceFieldCombobox 顯示，
+ *   讓用戶在建立映射規則時可以選擇它們。
+ *
+ *   注入規則（由 template-matching-engine.service.ts 執行）：
+ *   - `_ref_number`: 主要匹配的 referenceNumber（第一筆最高信心度）
+ *   - `_ref_type`: 主要匹配的類型（如 SHIPMENT、HAWB）
+ *   - `_ref_{TYPE}`: 按類型分別注入
+ *
+ * @since CHANGE-047
+ */
+export const REFERENCE_NUMBER_SYNTHETIC_FIELDS: Array<{
+  name: string;
+  label: string;
+  description?: string;
+}> = [
+  { name: '_ref_number', label: 'Ref Number (Primary)', description: 'Pipeline matched reference number (highest confidence)' },
+  { name: '_ref_type', label: 'Ref Number Type', description: 'Type of the primary match (e.g. SHIPMENT, HAWB)' },
+  { name: '_ref_SHIPMENT', label: 'Ref: Shipment No' },
+  { name: '_ref_HAWB', label: 'Ref: HAWB' },
+  { name: '_ref_MAWB', label: 'Ref: MAWB' },
+  { name: '_ref_BOOKING', label: 'Ref: Booking No' },
+];
+
+/**
+ * 將 REFERENCE_NUMBER_SYNTHETIC_FIELDS 轉為 SourceFieldOption[]
+ * @since CHANGE-047
+ */
+export function getReferenceNumberFieldOptions(): SourceFieldOption[] {
+  return REFERENCE_NUMBER_SYNTHETIC_FIELDS.map((f) => ({
+    name: f.name,
+    label: f.label,
+    category: 'syntheticRef',
+    source: 'standard' as const,
+    dataType: 'string',
+  }));
+}
 
 // ============================================================================
 // Functions
@@ -311,4 +405,50 @@ export function getFieldStatistics(): {
     byCategory,
     required,
   };
+}
+
+/**
+ * 將 FieldDefinitionEntry 轉換為 SourceFieldOption
+ * @description 用於 SourceFieldCombobox 整合 FieldDefinitionSet 欄位
+ * @param entry FieldDefinitionEntry
+ * @returns SourceFieldOption
+ * @since CHANGE-042 Phase 3
+ */
+export function fieldDefinitionEntryToSourceFieldOption(
+  entry: { key: string; label: string; category: string; dataType?: string; required?: boolean; aliases?: string[]; fieldType?: string }
+): SourceFieldOption {
+  return {
+    name: entry.key,
+    label: entry.label,
+    category: entry.fieldType === 'lineItem' ? 'lineItem' : entry.category,
+    source: 'definition',
+    dataType: entry.dataType,
+    isRequired: entry.required,
+    aliases: entry.aliases,
+  };
+}
+
+/**
+ * 從 FieldDefinitionEntry[] 中篩選 lineItem 類型的欄位
+ * @description 用於 SourceFieldCombobox 判斷是否需要隱藏硬編碼 li_*
+ * @param entries FieldDefinitionEntry[]
+ * @returns lineItem 類型的欄位列表
+ * @since CHANGE-045
+ */
+export function getLineItemFieldsFromDefinitions(
+  entries: Array<{ key: string; label: string; category: string; dataType?: string; required?: boolean; aliases?: string[]; fieldType?: string }>
+): SourceFieldOption[] {
+  return entries
+    .filter((e) => e.fieldType === 'lineItem')
+    .map(fieldDefinitionEntryToSourceFieldOption);
+}
+
+/**
+ * 檢查 FieldDefinitionEntry[] 中是否有 lineItem 類型的欄位
+ * @since CHANGE-045
+ */
+export function hasLineItemDefinitions(
+  entries: Array<{ fieldType?: string }>
+): boolean {
+  return entries.some((e) => e.fieldType === 'lineItem');
 }

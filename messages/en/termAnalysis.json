@@ -1,0 +1,82 @@
+{
+  "page": {
+    "title": "Term Analysis",
+    "description": "Analyze charge terms from historical processing results and create mapping rules",
+    "refresh": "Refresh"
+  },
+  "stats": {
+    "uniqueTerms": "Unique Terms",
+    "totalOccurrences": "Total Occurrences",
+    "companiesCount": "Companies Involved",
+    "batchesCount": "Batches Involved"
+  },
+  "actions": {
+    "selectedCount": "Selected {count} terms",
+    "aiClassifying": "AI Classifying...",
+    "aiClassify": "AI Classify ({count})",
+    "batchCreateRules": "Batch Create Rules"
+  },
+  "errors": {
+    "loadFailed": "Error loading term data:",
+    "unknownError": "Unknown error"
+  },
+  "aiInfo": {
+    "description": "AI classification uses the GPT-5.2 model to analyze terms and provide suggestions based on logistics industry standard charge categories. Confidence ≥90% is high (auto-approve), 70-89% is medium (quick review), <70% is low (full review)."
+  },
+  "table": {
+    "headers": {
+      "term": "Term",
+      "frequency": "Frequency",
+      "companies": "Companies",
+      "suggestedCategory": "Suggested Category",
+      "confidence": "Confidence",
+      "actions": "Actions"
+    },
+    "empty": "No terms found. Try adjusting your filters or process more historical data.",
+    "selectAll": "Select all",
+    "selectTerm": "Select {term}",
+    "similarTerms": "+{count} similar",
+    "companyCount": "{count, plural, =1 {# company} other {# companies}}",
+    "moreCompanies": "+{count} more...",
+    "createRule": "Create Rule",
+    "confidence": {
+      "high": "High confidence - Auto approve",
+      "medium": "Medium confidence - Quick review",
+      "low": "Low confidence - Full review"
+    },
+    "categories": {
+      "OCEAN_FREIGHT": "Ocean Freight",
+      "AIR_FREIGHT": "Air Freight",
+      "HANDLING_FEE": "Handling Fee",
+      "CUSTOMS_CLEARANCE": "Customs Clearance",
+      "DOCUMENTATION_FEE": "Documentation Fee",
+      "TERMINAL_HANDLING": "Terminal Handling",
+      "INLAND_TRANSPORT": "Inland Transport",
+      "INSURANCE": "Insurance",
+      "STORAGE": "Storage",
+      "FUEL_SURCHARGE": "Fuel Surcharge",
+      "SECURITY_FEE": "Security Fee",
+      "OTHER": "Other"
+    }
+  },
+  "filters": {
+    "title": "Filters",
+    "clear": "Clear",
+    "batch": {
+      "label": "Batch",
+      "all": "All batches"
+    },
+    "company": {
+      "label": "Company",
+      "all": "All companies"
+    },
+    "minFrequency": {
+      "label": "Min. Frequency",
+      "placeholder": "1"
+    },
+    "limit": {
+      "label": "Result Limit",
+      "default": "500 (default)"
+    }
+  }
+}

@@ -19,6 +19,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useTranslations } from 'next-intl';
 import { DocumentType, DocumentSubtype } from '@prisma/client';
 import { Plus, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -77,30 +78,14 @@ interface CreateFormatDialogProps {
 }
 
 /**
- * 文件類型標籤
+ * 文件類型列表
  */
-const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
-  INVOICE: '發票',
-  DEBIT_NOTE: '借項通知單',
-  CREDIT_NOTE: '貸項通知單',
-  STATEMENT: '對帳單',
-  QUOTATION: '報價單',
-  BILL_OF_LADING: '提單',
-  CUSTOMS_DECLARATION: '報關單',
-  OTHER: '其他',
-};
+const DOCUMENT_TYPES = Object.values(DocumentType);
 
 /**
- * 文件子類型標籤
+ * 文件子類型列表
  */
-const DOCUMENT_SUBTYPE_LABELS: Record<DocumentSubtype, string> = {
-  OCEAN_FREIGHT: '海運',
-  AIR_FREIGHT: '空運',
-  LAND_TRANSPORT: '陸運',
-  CUSTOMS_CLEARANCE: '報關',
-  WAREHOUSING: '倉儲',
-  GENERAL: '一般',
-};
+const DOCUMENT_SUBTYPES = Object.values(DocumentSubtype);
 
 /**
  * 表單 Schema
@@ -138,6 +123,8 @@ export function CreateFormatDialog({
   className,
   onSuccess,
 }: CreateFormatDialogProps) {
+  const t = useTranslations('formats');
+  const tCommon = useTranslations('common');
   const [open, setOpen] = React.useState(false);
   const [showAdvanced, setShowAdvanced] = React.useState(false);
 
@@ -189,14 +176,14 @@ export function CreateFormatDialog({
       <DialogTrigger asChild>
         <Button variant={triggerVariant} className={className}>
           <Plus className="mr-2 h-4 w-4" />
-          建立格式
+          {t('createDialog.triggerButton')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>建立文件格式</DialogTitle>
+          <DialogTitle>{t('createDialog.title')}</DialogTitle>
           <DialogDescription>
-            為此公司建立新的文件格式，用於管理特定類型文件的處理配置。
+            {t('createDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -208,20 +195,20 @@ export function CreateFormatDialog({
               name="documentType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>文件類型 *</FormLabel>
+                  <FormLabel>{t('createDialog.documentTypeLabel')}</FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="請選擇文件類型" />
+                        <SelectValue placeholder={t('createDialog.documentTypePlaceholder')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Object.entries(DOCUMENT_TYPE_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
+                      {DOCUMENT_TYPES.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {t(`documentTypes.${type}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -237,20 +224,20 @@ export function CreateFormatDialog({
               name="documentSubtype"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>文件子類型 *</FormLabel>
+                  <FormLabel>{t('createDialog.documentSubtypeLabel')}</FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="請選擇文件子類型" />
+                        <SelectValue placeholder={t('createDialog.documentSubtypePlaceholder')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Object.entries(DOCUMENT_SUBTYPE_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
+                      {DOCUMENT_SUBTYPES.map((subtype) => (
+                        <SelectItem key={subtype} value={subtype}>
+                          {t(`documentSubtypes.${subtype}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -266,16 +253,16 @@ export function CreateFormatDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>格式名稱（選填）</FormLabel>
+                  <FormLabel>{t('createDialog.nameLabel')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="留空時將自動生成"
+                      placeholder={t('createDialog.namePlaceholder')}
                       {...field}
                       value={field.value ?? ''}
                     />
                   </FormControl>
                   <FormDescription>
-                    自動生成的名稱格式：「公司名 - 子類型類型」
+                    {t('createDialog.nameDescription')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -296,7 +283,7 @@ export function CreateFormatDialog({
                   ) : (
                     <ChevronRight className="mr-2 h-4 w-4" />
                   )}
-                  進階選項
+                  {t('createDialog.advancedOptions')}
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-4 pt-4">
@@ -308,10 +295,10 @@ export function CreateFormatDialog({
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">
-                          建立欄位映射配置
+                          {t('createDialog.fieldMappingLabel')}
                         </FormLabel>
                         <FormDescription>
-                          自動建立格式專屬的欄位映射配置
+                          {t('createDialog.fieldMappingDescription')}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -332,10 +319,10 @@ export function CreateFormatDialog({
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">
-                          建立 Prompt 配置
+                          {t('createDialog.promptConfigLabel')}
                         </FormLabel>
                         <FormDescription>
-                          自動建立格式專屬的 AI Prompt 配置
+                          {t('createDialog.promptConfigDescription')}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -357,11 +344,11 @@ export function CreateFormatDialog({
                 onClick={() => handleOpenChange(false)}
                 disabled={isPending}
               >
-                取消
+                {tCommon('actions.cancel')}
               </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                建立格式
+                {t('createDialog.submitButton')}
               </Button>
             </DialogFooter>
           </form>

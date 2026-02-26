@@ -30,6 +30,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useSession } from 'next-auth/react'
 import { MoreHorizontal, UserCheck, UserX } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -107,10 +108,13 @@ export function UserStatusToggle({
   const [showDisableDialog, setShowDisableDialog] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- Derived State ---
   const isCurrentUser = session?.user?.id === userId
   const isActive = currentStatus === 'ACTIVE'
-  const displayName = userName || '此用戶'
+  const displayName = userName || t('users.statusToggle.thisUser')
 
   // --- Handlers ---
 
@@ -132,14 +136,14 @@ export function UserStatusToggle({
       {
         onSuccess: () => {
           toast({
-            title: '用戶已停用',
-            description: `${displayName} 的帳戶已被停用，該用戶將無法登入系統。`,
+            title: t('users.statusToggle.toast.disabled.title'),
+            description: t('users.statusToggle.toast.disabled.description', { name: displayName }),
           })
           setShowDisableDialog(false)
         },
         onError: (error) => {
           toast({
-            title: '停用失敗',
+            title: t('users.statusToggle.toast.disableError.title'),
             description: error.message,
             variant: 'destructive',
           })
@@ -160,13 +164,13 @@ export function UserStatusToggle({
       {
         onSuccess: () => {
           toast({
-            title: '用戶已啟用',
-            description: `${displayName} 的帳戶已恢復啟用，該用戶現在可以登入系統。`,
+            title: t('users.statusToggle.toast.enabled.title'),
+            description: t('users.statusToggle.toast.enabled.description', { name: displayName }),
           })
         },
         onError: (error) => {
           toast({
-            title: '啟用失敗',
+            title: t('users.statusToggle.toast.enableError.title'),
             description: error.message,
             variant: 'destructive',
           })
@@ -187,7 +191,7 @@ export function UserStatusToggle({
             className="h-8 w-8 p-0"
             disabled={isPending}
           >
-            <span className="sr-only">操作選單</span>
+            <span className="sr-only">{t('users.statusToggle.actionsMenu')}</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -196,7 +200,7 @@ export function UserStatusToggle({
           {onEdit && (
             <>
               <DropdownMenuItem onClick={onEdit}>
-                編輯用戶
+                {t('users.statusToggle.editUser')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
@@ -212,14 +216,14 @@ export function UserStatusToggle({
                 className="text-destructive focus:text-destructive"
               >
                 <UserX className="mr-2 h-4 w-4" />
-                停用帳戶
+                {t('users.statusToggle.disableAccount')}
               </DropdownMenuItem>
             )
           ) : (
             // 當前為停用狀態，顯示啟用選項
             <DropdownMenuItem onClick={handleEnable}>
               <UserCheck className="mr-2 h-4 w-4" />
-              啟用帳戶
+              {t('users.statusToggle.enableAccount')}
             </DropdownMenuItem>
           )}
 
@@ -227,7 +231,7 @@ export function UserStatusToggle({
           {isActive && isCurrentUser && (
             <DropdownMenuItem disabled>
               <span className="text-muted-foreground text-xs">
-                您無法停用自己的帳戶
+                {t('users.statusToggle.cannotDisableSelf')}
               </span>
             </DropdownMenuItem>
           )}
@@ -238,22 +242,27 @@ export function UserStatusToggle({
       <AlertDialog open={showDisableDialog} onOpenChange={setShowDisableDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認停用帳戶</AlertDialogTitle>
-            <AlertDialogDescription>
-              您確定要停用 <strong>{displayName}</strong> 的帳戶嗎？
-              <br />
-              <br />
-              停用後，該用戶將無法登入系統。您可以隨時重新啟用此帳戶。
+            <AlertDialogTitle>{t('users.statusToggle.dialog.title')}</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div>
+                {t.rich('users.statusToggle.dialog.description', {
+                  name: displayName,
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
+                <br />
+                <br />
+                {t('users.statusToggle.dialog.warning')}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>{t('users.statusToggle.dialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDisable}
               disabled={isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isPending ? '處理中...' : '確認停用'}
+              {isPending ? t('users.statusToggle.dialog.processing') : t('users.statusToggle.dialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

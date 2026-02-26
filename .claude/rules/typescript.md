@@ -72,3 +72,47 @@ function isValidDocument(value: unknown): value is Document {
 - `TData` - 數據類型
 - `TError` - 錯誤類型
 - `K extends keyof T` - 鍵類型
+
+## i18n 類型支援
+
+### Locale 類型
+
+```typescript
+import type { Locale } from '@/i18n/config';
+
+// Locale 類型為 'en' | 'zh-TW' | 'zh-CN'
+function formatByLocale(date: Date, locale: Locale): string {
+  // ...
+}
+```
+
+### 翻譯函數類型
+
+```typescript
+// 取得翻譯函數類型
+type TranslateFunction = ReturnType<typeof useTranslations>;
+
+// 在 Props 中傳遞翻譯函數
+interface ComponentProps {
+  t: TranslateFunction;
+}
+```
+
+### 格式化函數參數
+
+```typescript
+import type { Locale } from '@/i18n/config';
+
+// 所有格式化函數接受 Locale 類型
+function formatDate(date: Date | string | number, locale: Locale): string;
+function formatNumber(value: number, locale: Locale): string;
+function formatCurrency(value: number, currency: string, locale: Locale): string;
+```
+
+### 訊息命名空間類型
+
+```typescript
+// 使用 namespace 限制翻譯範圍
+const t = useTranslations('common');      // 只能訪問 common.* keys
+const tNav = useTranslations('navigation'); // 只能訪問 navigation.* keys
+```

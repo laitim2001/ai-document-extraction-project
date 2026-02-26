@@ -41,6 +41,8 @@ const querySchema = z.object({
   minTermFrequency: z.coerce.number().min(1).default(1),
   maxTermsPerFormat: z.coerce.number().min(10).max(1000).default(500),
   includeExamples: z.coerce.boolean().default(true),
+  /** 語言代碼 (en, zh-TW, zh-CN) */
+  locale: z.string().optional().default('en'),
 });
 
 // ============================================================================
@@ -131,10 +133,11 @@ export async function GET(
       minTermFrequency: options.minTermFrequency,
       maxTermsPerFormat: options.maxTermsPerFormat,
       includeExamples: options.includeExamples,
+      locale: options.locale,
     });
 
     // 4. 返回 Excel 文件
-    const fileName = generateReportFileName(batch.name);
+    const fileName = generateReportFileName(batch.name, new Date(), options.locale);
 
     return new NextResponse(new Uint8Array(excelBuffer), {
       status: 200,

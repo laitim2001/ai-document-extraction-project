@@ -1,0 +1,72 @@
+{
+  "common": {
+    "confirmTitle": "確認操作",
+    "confirmMessage": "確定要執行此操作嗎？",
+    "cancelButton": "取消",
+    "confirmButton": "確認"
+  },
+  "delete": {
+    "title": "確認刪除",
+    "message": "確定要刪除此項目嗎？此操作無法復原。",
+    "itemMessage": "確定要刪除「{name}」嗎？此操作無法復原。",
+    "multipleMessage": "確定要刪除選中的 {count} 個項目嗎？此操作無法復原。"
+  },
+  "save": {
+    "title": "儲存變更",
+    "message": "您有未儲存的變更，是否儲存？",
+    "saveButton": "儲存",
+    "discardButton": "放棄變更"
+  },
+  "leave": {
+    "title": "離開頁面",
+    "message": "您有未儲存的變更，確定要離開嗎？"
+  },
+  "approve": {
+    "title": "確認批准",
+    "message": "確定要批准此項目嗎？",
+    "batchMessage": "確定要批准選中的 {count} 個項目嗎？"
+  },
+  "reject": {
+    "title": "確認拒絕",
+    "message": "請輸入拒絕原因：",
+    "reasonPlaceholder": "輸入拒絕原因...",
+    "reasonRequired": "請填寫拒絕原因"
+  },
+  "upload": {
+    "title": "上傳文件",
+    "dropzone": "拖放文件到此處，或點擊選擇",
+    "selectedFiles": "已選擇 {count} 個文件",
+    "uploading": "正在上傳...",
+    "uploadComplete": "上傳完成",
+    "uploadFailed": "上傳失敗"
+  },
+  "export": {
+    "title": "匯出數據",
+    "formatLabel": "選擇格式",
+    "rangeLabel": "日期範圍",
+    "exportButton": "匯出",
+    "exporting": "正在匯出...",
+    "success": "匯出成功",
+    "failed": "匯出失敗"
+  },
+  "filter": {
+    "title": "進階篩選",
+    "applyButton": "套用篩選",
+    "resetButton": "重設",
+    "noFilters": "沒有設定篩選條件"
+  },
+  "error": {
+    "title": "操作失敗",
+    "defaultMessage": "發生錯誤，請稍後再試。",
+    "networkMessage": "網路連線失敗，請檢查網路後重試。",
+    "retryButton": "重試"
+  },
+  "success": {
+    "title": "操作成功",
+    "defaultMessage": "操作已成功完成。"
+  },
+  "loading": {
+    "title": "請稍候",
+    "message": "正在處理中..."
+  }
+}

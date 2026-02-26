@@ -1,30 +1,34 @@
 'use client';
 
 /**
- * @fileoverview 映射預覽組件
+ * @fileoverview 映射預覽組件（國際化版本）
  * @description
  *   顯示映射規則的轉換預覽：
  *   - 來源值 → 轉換後值 對照
  *   - 支援範例數據預覽
  *   - 顯示轉換錯誤和警告
  *   - 即時更新預覽
+ *   - 完整國際化支援
  *
  * @module src/components/features/mapping-config/MappingPreview
  * @since Epic 13 - Story 13.3
- * @lastModified 2026-01-02
+ * @lastModified 2026-01-19
  *
  * @features
  *   - 即時預覽轉換結果
  *   - 範例數據支援
  *   - 錯誤/警告提示
  *   - 刷新預覽功能
+ *   - 完整 i18n 支援
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/* - UI 組件
  *   - @/types/field-mapping - 類型定義
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   ArrowRight,
   RefreshCw,
@@ -149,12 +153,16 @@ function getFieldDisplayName(
 /**
  * 格式化值顯示
  */
-function formatValue(value: string | number | null | undefined): string {
+function formatValue(
+  value: string | number | null | undefined,
+  emptyText: string,
+  emptyStringText: string
+): string {
   if (value === null || value === undefined) {
-    return '(空)';
+    return emptyText;
   }
   if (typeof value === 'string' && value.trim() === '') {
-    return '(空字串)';
+    return emptyStringText;
   }
   return String(value);
 }
@@ -196,7 +204,7 @@ function EmptyState({ message }: { message: string }) {
 /**
  * 預覽統計
  */
-function PreviewStats({ data }: { data: PreviewRow[] }) {
+function PreviewStats({ data, t }: { data: PreviewRow[]; t: ReturnType<typeof useTranslations<'documentPreview'>> }) {
   const successCount = data.filter((r) => r.status === 'success').length;
   const warningCount = data.filter((r) => r.status === 'warning').length;
   const errorCount = data.filter((r) => r.status === 'error').length;
@@ -205,18 +213,18 @@ function PreviewStats({ data }: { data: PreviewRow[] }) {
     <div className="flex items-center gap-4 text-sm">
       <div className="flex items-center gap-1">
         <CheckCircle2 className="h-4 w-4 text-green-600" />
-        <span>{successCount} 成功</span>
+        <span>{t('mappingPreview.stats.success', { count: successCount })}</span>
       </div>
       {warningCount > 0 && (
         <div className="flex items-center gap-1">
           <AlertCircle className="h-4 w-4 text-yellow-600" />
-          <span>{warningCount} 警告</span>
+          <span>{t('mappingPreview.stats.warning', { count: warningCount })}</span>
         </div>
       )}
       {errorCount > 0 && (
         <div className="flex items-center gap-1">
           <XCircle className="h-4 w-4 text-red-600" />
-          <span>{errorCount} 錯誤</span>
+          <span>{t('mappingPreview.stats.error', { count: errorCount })}</span>
         </div>
       )}
     </div>
@@ -255,6 +263,13 @@ export function MappingPreview({
   isRefreshing = false,
   className,
 }: MappingPreviewProps) {
+  // --- Translations ---
+  const t = useTranslations('documentPreview');
+
+  // --- Memoized translation strings ---
+  const emptyText = t('mappingPreview.empty');
+  const emptyStringText = t('mappingPreview.emptyString');
+
   // --- State ---
   const [showOnlyErrors, setShowOnlyErrors] = React.useState(false);
   const [expandedRows, setExpandedRows] = React.useState<Set<string>>(new Set());
@@ -288,8 +303,8 @@ export function MappingPreview({
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle className="text-base">預覽結果</CardTitle>
-          <CardDescription>載入中...</CardDescription>
+          <CardTitle className="text-base">{t('mappingPreview.title')}</CardTitle>
+          <CardDescription>{t('mappingPreview.loading')}</CardDescription>
         </CardHeader>
         <CardContent>
           <PreviewSkeleton />
@@ -302,11 +317,11 @@ export function MappingPreview({
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle className="text-base">預覽結果</CardTitle>
-          <CardDescription>查看映射規則的轉換效果</CardDescription>
+          <CardTitle className="text-base">{t('mappingPreview.title')}</CardTitle>
+          <CardDescription>{t('mappingPreview.description')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <EmptyState message="請先新增映射規則以查看預覽" />
+          <EmptyState message={t('mappingPreview.noRules')} />
         </CardContent>
       </Card>
     );
@@ -317,8 +332,8 @@ export function MappingPreview({
       <Card className={className}>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base">預覽結果</CardTitle>
-            <CardDescription>查看映射規則的轉換效果</CardDescription>
+            <CardTitle className="text-base">{t('mappingPreview.title')}</CardTitle>
+            <CardDescription>{t('mappingPreview.description')}</CardDescription>
           </div>
           {onRefresh && (
             <Button
@@ -330,12 +345,12 @@ export function MappingPreview({
               <RefreshCw
                 className={cn('h-4 w-4 mr-2', isRefreshing && 'animate-spin')}
               />
-              載入預覽
+              {t('mappingPreview.loadPreview')}
             </Button>
           )}
         </CardHeader>
         <CardContent>
-          <EmptyState message="尚無預覽數據，請點擊「載入預覽」" />
+          <EmptyState message={t('mappingPreview.noData')} />
         </CardContent>
       </Card>
     );
@@ -345,13 +360,13 @@ export function MappingPreview({
     <Card className={className}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle className="text-base">預覽結果</CardTitle>
+          <CardTitle className="text-base">{t('mappingPreview.title')}</CardTitle>
           <CardDescription>
-            共 {previewData.length} 筆數據，套用 {activeRules.length} 條規則
+            {t('mappingPreview.dataCount', { count: previewData.length, rules: activeRules.length })}
           </CardDescription>
         </div>
         <div className="flex items-center gap-4">
-          <PreviewStats data={previewData} />
+          <PreviewStats data={previewData} t={t} />
           {onRefresh && (
             <Button
               variant="outline"
@@ -362,7 +377,7 @@ export function MappingPreview({
               <RefreshCw
                 className={cn('h-4 w-4 mr-2', isRefreshing && 'animate-spin')}
               />
-              刷新
+              {t('mappingPreview.refresh')}
             </Button>
           )}
         </div>
@@ -378,13 +393,13 @@ export function MappingPreview({
               onCheckedChange={setShowOnlyErrors}
             />
             <Label htmlFor="show-errors-only" className="text-sm">
-              僅顯示警告和錯誤
+              {t('mappingPreview.showErrorsOnly')}
             </Label>
           </div>
           {showOnlyErrors && filteredData.length === 0 && (
             <Badge variant="outline" className="text-green-600">
               <CheckCircle2 className="h-3 w-3 mr-1" />
-              所有轉換均成功
+              {t('mappingPreview.allSuccess')}
             </Badge>
           )}
         </div>
@@ -395,11 +410,11 @@ export function MappingPreview({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40px]">狀態</TableHead>
-                  <TableHead>來源欄位</TableHead>
+                  <TableHead className="w-[40px]">{t('mappingPreview.table.status')}</TableHead>
+                  <TableHead>{t('mappingPreview.table.sourceFields')}</TableHead>
                   <TableHead className="w-[40px]"></TableHead>
-                  <TableHead>目標欄位</TableHead>
-                  <TableHead className="w-[100px]">訊息</TableHead>
+                  <TableHead>{t('mappingPreview.table.targetFields')}</TableHead>
+                  <TableHead className="w-[100px]">{t('mappingPreview.table.message')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -423,10 +438,10 @@ export function MappingPreview({
                               </TooltipTrigger>
                               <TooltipContent>
                                 {row.status === 'success'
-                                  ? '轉換成功'
+                                  ? t('mappingPreview.tooltip.success')
                                   : row.status === 'warning'
-                                    ? '轉換警告'
-                                    : '轉換錯誤'}
+                                    ? t('mappingPreview.tooltip.warning')
+                                    : t('mappingPreview.tooltip.error')}
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -438,7 +453,7 @@ export function MappingPreview({
                               .map(([fieldId, value]) => (
                                 <Badge key={fieldId} variant="secondary" className="font-mono text-xs">
                                   {getFieldDisplayName(fieldId, sourceFields)}:{' '}
-                                  <span className="font-normal">{formatValue(value)}</span>
+                                  <span className="font-normal">{formatValue(value, emptyText, emptyStringText)}</span>
                                 </Badge>
                               ))}
                             {Object.keys(row.sourceValues).length > 2 && (
@@ -458,7 +473,7 @@ export function MappingPreview({
                               .map(([fieldId, value]) => (
                                 <Badge key={fieldId} variant="default" className="font-mono text-xs">
                                   {getFieldDisplayName(fieldId, targetFields)}:{' '}
-                                  <span className="font-normal">{formatValue(value)}</span>
+                                  <span className="font-normal">{formatValue(value, emptyText, emptyStringText)}</span>
                                 </Badge>
                               ))}
                             {Object.keys(row.targetValues).length > 2 && (
@@ -495,7 +510,7 @@ export function MappingPreview({
                           <TableCell colSpan={5} className="bg-muted/30 p-4">
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <h4 className="text-sm font-medium mb-2">來源欄位值</h4>
+                                <h4 className="text-sm font-medium mb-2">{t('mappingPreview.details.sourceFieldValues')}</h4>
                                 <div className="space-y-1">
                                   {Object.entries(row.sourceValues).map(([fieldId, value]) => (
                                     <div
@@ -505,13 +520,13 @@ export function MappingPreview({
                                       <span className="text-muted-foreground">
                                         {getFieldDisplayName(fieldId, sourceFields)}
                                       </span>
-                                      <span className="font-mono">{formatValue(value)}</span>
+                                      <span className="font-mono">{formatValue(value, emptyText, emptyStringText)}</span>
                                     </div>
                                   ))}
                                 </div>
                               </div>
                               <div>
-                                <h4 className="text-sm font-medium mb-2">目標欄位值</h4>
+                                <h4 className="text-sm font-medium mb-2">{t('mappingPreview.details.targetFieldValues')}</h4>
                                 <div className="space-y-1">
                                   {Object.entries(row.targetValues).map(([fieldId, value]) => (
                                     <div
@@ -521,7 +536,7 @@ export function MappingPreview({
                                       <span className="text-muted-foreground">
                                         {getFieldDisplayName(fieldId, targetFields)}
                                       </span>
-                                      <span className="font-mono">{formatValue(value)}</span>
+                                      <span className="font-mono">{formatValue(value, emptyText, emptyStringText)}</span>
                                     </div>
                                   ))}
                                 </div>

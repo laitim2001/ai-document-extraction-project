@@ -1,21 +1,24 @@
 'use client'
 
 /**
- * @fileoverview Forwarder 篩選器組件
+ * @fileoverview Forwarder 篩選器組件（國際化版本）
  * @description
  *   提供搜尋和狀態篩選功能。
  *   支援 URL 參數同步和 debounced 搜尋。
+ *   - 完整國際化支援
  *
  * @module src/components/features/forwarders/ForwarderFilters
  * @author Development Team
  * @since Epic 5 - Story 5.1 (Forwarder Profile List)
- * @lastModified 2025-12-19
+ * @lastModified 2026-01-17
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui - shadcn/ui 組件
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -26,7 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { FORWARDER_STATUS_OPTIONS } from '@/types/forwarder'
 
 // ============================================================
 // Types
@@ -73,6 +75,8 @@ export function ForwarderFilters({
   onStatusChange,
   isLoading = false,
 }: ForwarderFiltersProps) {
+  const t = useTranslations('companies')
+
   // 本地搜尋狀態（用於即時顯示）
   const [localSearch, setLocalSearch] = React.useState(search)
 
@@ -104,6 +108,13 @@ export function ForwarderFilters({
     onStatusChange('all')
   }
 
+  // Status options with i18n
+  const statusOptions = [
+    { value: 'all', labelKey: 'list.filters.allStatus' },
+    { value: 'active', labelKey: 'status.active' },
+    { value: 'inactive', labelKey: 'status.inactive' },
+  ]
+
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       {/* 搜尋和篩選區域 */}
@@ -113,7 +124,7 @@ export function ForwarderFilters({
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="搜尋名稱或代碼..."
+            placeholder={t('list.searchPlaceholder')}
             value={localSearch}
             onChange={handleSearchChange}
             className="pl-8 pr-8"
@@ -142,12 +153,12 @@ export function ForwarderFilters({
           disabled={isLoading}
         >
           <SelectTrigger className="w-[140px]" aria-label="Filter by status">
-            <SelectValue placeholder="全部狀態" />
+            <SelectValue placeholder={t('list.filters.allStatus')} />
           </SelectTrigger>
           <SelectContent>
-            {FORWARDER_STATUS_OPTIONS.map((option) => (
+            {statusOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -163,7 +174,7 @@ export function ForwarderFilters({
             aria-label="Clear all filters"
           >
             <X className="mr-1 h-4 w-4" />
-            清除
+            {t('list.filters.clear')}
           </Button>
         )}
       </div>

@@ -120,6 +120,10 @@ TodoWrite: 更新任務狀態
 - **QUICK_REVIEW**: [是否影響]
 - **FULL_REVIEW**: [是否影響]
 
+### 國際化 (i18n) 影響
+- **翻譯文件**: [是否需要新增/更新翻譯]
+- **格式化**: [是否涉及日期/數字/貨幣格式化]
+
 ## 測試驗證
 - ✅ [測試項目 1]
 - ✅ [測試項目 2]
@@ -219,6 +223,7 @@ claudedocs/4-changes/
 - [情況2: 開發前準備](./SITUATION-2-FEATURE-DEV-PREP.md)
 - [情況4: 新功能開發](./SITUATION-4-NEW-FEATURE-DEV.md)
 - [情況5: 保存進度](./SITUATION-5-SAVE-PROGRESS.md)
+- [情況6: 服務啟動](./SITUATION-6-SERVICE-STARTUP.md)
 
 ### 開發規範
 - [CLAUDE.md](../../../CLAUDE.md) - 開發規範
@@ -228,5 +233,5 @@ claudedocs/4-changes/
 ---
 
 **維護者**: AI 助手 + 開發團隊
-**最後更新**: 2025-12-26
-**版本**: 1.1
+**最後更新**: 2026-02-06
+**版本**: 1.3

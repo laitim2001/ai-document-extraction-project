@@ -1,0 +1,60 @@
+{
+  "breakdown": {
+    "title": "置信度分解",
+    "totalScore": "总分",
+    "formula": "置信度计算公式",
+    "v2Formula": "分数 = OCR(30%) + 规则(30%) + 格式(25%) + 历史(15%)",
+    "v3Formula": "分数 = 提取(30%) + 发行方(20%) + 格式(15%) + 完整性(20%) + 历史(15%)",
+    "rawScore": "原始分数",
+    "contribution": "贡献值",
+    "weight": "权重",
+    "version": {
+      "v2": "V2（7 维度）",
+      "v3": "V3（5 维度）"
+    }
+  },
+  "dimensions": {
+    "v2": {
+      "EXTRACTION": "提取品质",
+      "ISSUER_IDENTIFICATION": "发行方识别",
+      "FORMAT_MATCHING": "格式匹配",
+      "CONFIG_MATCH": "配置匹配",
+      "HISTORICAL_ACCURACY": "历史准确率",
+      "FIELD_COMPLETENESS": "字段完整性",
+      "TERM_MATCHING": "术语匹配"
+    },
+    "v3": {
+      "EXTRACTION": "GPT 提取品质",
+      "ISSUER_IDENTIFICATION": "发行方识别",
+      "FORMAT_MATCHING": "格式匹配",
+      "FIELD_COMPLETENESS": "字段完整性",
+      "HISTORICAL_ACCURACY": "历史准确率"
+    }
+  },
+  "factors": {
+    "ocrConfidence": "OCR 清晰度",
+    "ruleMatchScore": "规则匹配",
+    "formatValidation": "格式验证",
+    "historicalAccuracy": "历史准确率"
+  },
+  "levels": {
+    "veryHigh": "非常高",
+    "high": "高",
+    "medium": "中等",
+    "low": "低",
+    "veryLow": "非常低"
+  },
+  "routing": {
+    "autoApprove": "自动通过",
+    "quickReview": "快速审核",
+    "fullReview": "完整审核"
+  },
+  "document": {
+    "title": "文件置信度",
+    "scoreRange": "分数范围",
+    "recommendation": "处理建议",
+    "highCount": "高置信",
+    "mediumCount": "中置信",
+    "lowCount": "低置信"
+  }
+}

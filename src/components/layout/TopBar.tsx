@@ -11,14 +11,14 @@
  * @features
  *   - 移動選單切換按鈕（lg 以下顯示）
  *   - 全域搜尋欄
- *   - 語言切換器（預留，未實現 i18n）
+ *   - 語言切換器（Story 17-5：i18n 整合）
  *   - 主題切換器
  *   - 通知鈴鐺（靜態展示）
  *   - 用戶下拉選單（頭像、姓名、角色、登出）
  *   - 響應式設計
  *
  * @since CHANGE-001 - Dashboard Layout Redesign
- * @lastModified 2025-12-21
+ * @lastModified 2026-01-17
  *
  * @dependencies
  *   - next-auth/react: 用戶會話管理和登出功能
@@ -31,6 +31,7 @@
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
 import {
   Search,
   Menu,
@@ -41,7 +42,6 @@ import {
   Bell,
   Sun,
   Moon,
-  Globe,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
@@ -55,6 +55,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { CityIndicator } from '@/components/layout/CityIndicator'
+import { LocaleSwitcher } from '@/components/features/locale/LocaleSwitcher'
 
 // ============================================================
 // Types
@@ -65,47 +66,16 @@ interface TopBarProps {
 }
 
 // ============================================================
-// Mock Notifications Data
+// Role Keys (for translation lookup)
 // ============================================================
 
-const mockNotifications = [
-  {
-    id: 1,
-    type: 'success',
-    title: '發票審核完成',
-    message: '發票 INV-2024-001 已通過自動審核',
-    time: '5分鐘前',
-    unread: true,
-  },
-  {
-    id: 2,
-    type: 'info',
-    title: '新規則建議',
-    message: '系統建議為 DHL 新增映射規則',
-    time: '1小時前',
-    unread: true,
-  },
-  {
-    id: 3,
-    type: 'warning',
-    title: '低信心度警告',
-    message: '3 張發票需要人工審核',
-    time: '3小時前',
-    unread: false,
-  },
-]
-
-// ============================================================
-// Role Display Names
-// ============================================================
-
-const ROLE_DISPLAY_NAMES: Record<string, string> = {
-  'System Admin': '系統管理員',
-  'Super User': '超級用戶',
-  'Data Processor': '資料處理員',
-  'City Manager': '城市經理',
-  'Regional Manager': '區域經理',
-  Auditor: '審計員',
+const ROLE_TRANSLATION_KEYS: Record<string, string> = {
+  'System Admin': 'systemAdmin',
+  'Super User': 'superUser',
+  'Data Processor': 'dataProcessor',
+  'City Manager': 'cityManager',
+  'Regional Manager': 'regionalManager',
+  Auditor: 'auditor',
 }
 
 // ============================================================
@@ -121,13 +91,40 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const { data: session } = useSession()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
+  const t = useTranslations('navigation.topbar')
 
   // 避免 hydration mismatch
   React.useEffect(() => {
     setMounted(true)
   }, [])
 
-  const notifications = mockNotifications
+  // Mock notifications with translations
+  const notifications = React.useMemo(() => [
+    {
+      id: 1,
+      type: 'success',
+      title: t('mockNotifications.documentApproved.title'),
+      message: t('mockNotifications.documentApproved.message'),
+      time: t('mockNotifications.time.minutesAgo', { count: 5 }),
+      unread: true,
+    },
+    {
+      id: 2,
+      type: 'info',
+      title: t('mockNotifications.ruleSuggestion.title'),
+      message: t('mockNotifications.ruleSuggestion.message'),
+      time: t('mockNotifications.time.hoursAgo', { count: 1 }),
+      unread: true,
+    },
+    {
+      id: 3,
+      type: 'warning',
+      title: t('mockNotifications.lowConfidence.title'),
+      message: t('mockNotifications.lowConfidence.message'),
+      time: t('mockNotifications.time.hoursAgo', { count: 3 }),
+      unread: false,
+    },
+  ], [t])
   const unreadCount = notifications.filter((n) => n.unread).length
 
   // 獲取用戶名稱首字母用於 Avatar
@@ -145,7 +142,8 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const getUserRole = () => {
     const roles = (session?.user as { roles?: Array<{ name: string }> })?.roles
     const primaryRole = roles?.[0]?.name ?? 'Data Processor'
-    return ROLE_DISPLAY_NAMES[primaryRole] ?? primaryRole
+    const translationKey = ROLE_TRANSLATION_KEYS[primaryRole]
+    return translationKey ? t(`roles.${translationKey}`) : primaryRole
   }
 
   // 處理登出
@@ -171,13 +169,13 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             onClick={onMenuClick}
           >
             <Menu className="h-5 w-5" />
-            <span className="sr-only">開啟選單</span>
+            <span className="sr-only">{t('openMenu')}</span>
           </Button>
 
           {/* 搜索欄 */}
           <div className="w-full max-w-lg lg:max-w-xs">
             <label htmlFor="search" className="sr-only">
-              搜尋
+              {t('search')}
             </label>
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -187,7 +185,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                 id="search"
                 name="search"
                 type="search"
-                placeholder="搜尋發票、Forwarder..."
+                placeholder={t('searchPlaceholder')}
                 className="block w-full pl-10"
               />
             </div>
@@ -199,11 +197,8 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           {/* 城市指示器 */}
           <CityIndicator />
 
-          {/* 語言切換（預留） */}
-          <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700">
-            <Globe className="h-5 w-5" />
-            <span className="sr-only">切換語言</span>
-          </Button>
+          {/* 語言切換 (Story 17-5) */}
+          <LocaleSwitcher className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" />
 
           {/* 主題切換 */}
           {mounted && (
@@ -218,7 +213,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
               ) : (
                 <Moon className="h-5 w-5" />
               )}
-              <span className="sr-only">切換主題</span>
+              <span className="sr-only">{t('toggleTheme')}</span>
             </Button>
           )}
 
@@ -239,14 +234,14 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                     {unreadCount}
                   </Badge>
                 )}
-                <span className="sr-only">查看通知</span>
+                <span className="sr-only">{t('notifications.title')}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80">
               <div className="flex items-center justify-between px-4 py-2 border-b">
-                <h3 className="text-sm font-medium">通知</h3>
+                <h3 className="text-sm font-medium">{t('notifications.title')}</h3>
                 <Button variant="ghost" size="sm" className="text-xs text-blue-600">
-                  全部標為已讀
+                  {t('notifications.markAllRead')}
                 </Button>
               </div>
               <div className="max-h-96 overflow-y-auto">
@@ -278,7 +273,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
               </div>
               <div className="border-t p-2">
                 <Button variant="ghost" size="sm" className="w-full text-center text-blue-600">
-                  查看全部通知
+                  {t('notifications.viewAll')}
                 </Button>
               </div>
             </DropdownMenuContent>
@@ -295,7 +290,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                 </div>
                 <div className="hidden lg:block text-left">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {session?.user?.name || '用戶'}
+                    {session?.user?.name || t('user.defaultName')}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     {session?.user?.email}
@@ -307,7 +302,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-3 py-2 border-b">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">
-                  {session?.user?.name || '用戶'}
+                  {session?.user?.name || t('user.defaultName')}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   {session?.user?.email}
@@ -321,14 +316,14 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                 onClick={() => router.push('/settings/profile')}
               >
                 <User className="h-4 w-4" />
-                <span>個人資料</span>
+                <span>{t('user.profile')}</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={() => router.push('/settings')}
               >
                 <Settings className="h-4 w-4" />
-                <span>系統設定</span>
+                <span>{t('user.settings')}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -336,7 +331,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                 onClick={handleSignOut}
               >
                 <LogOut className="h-4 w-4" />
-                <span>登出</span>
+                <span>{t('user.logout')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

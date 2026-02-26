@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-02-01T09:47:04.224Z",
+  "fileName": "CEVA_CEX250440_52240.pdf",
+  "results": [
+    {
+      "testCase": "V3.1 Three-Stage 100%",
+      "success": false,
+      "extractionVersion": "v3",
+      "duration": 24450,
+      "error": "Stage 2 failed: Failed to parse GPT format identification response: "
+    },
+    {
+      "testCase": "V3.1 Fallback Test",
+      "success": false,
+      "extractionVersion": "v3",
+      "duration": 15765,
+      "error": "Stage 2 failed: Failed to parse GPT format identification response: "
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 0,
+    "failed": 2,
+    "passRate": "0.0%"
+  }
+}

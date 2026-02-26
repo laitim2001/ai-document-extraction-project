@@ -1,0 +1,362 @@
+{
+  "testPage": {
+    "backToAdmin": "Back to Admin",
+    "title": "Document Preview Integration Test",
+    "subtitle": "Epic 13 Component Integration Test Environment",
+    "panel": {
+      "extractedFields": "Extracted Fields",
+      "fieldsCount": "{count} fields",
+      "uploadToView": "Upload a file to view extracted fields",
+      "pdfPreview": "PDF Preview",
+      "pageInfo": "Page {current} / {total}",
+      "processing": "Processing...",
+      "mappingConfig": "Mapping Configuration"
+    },
+    "emptyState": {
+      "noFile": "No file loaded",
+      "uploadPrompt": "Please upload a file or load sample data"
+    },
+    "toolbar": {
+      "uploadFile": "Upload File",
+      "uploadTooltip": "Upload PDF, PNG, or JPG file for testing",
+      "loadSample": "Load Sample",
+      "loadSampleTooltip": "Load preset sample extracted fields",
+      "reset": "Reset",
+      "resetTooltip": "Clear all data and reset page state"
+    },
+    "uploader": {
+      "unsupportedFormat": "Unsupported file format",
+      "supportedFormats": "Only PDF, PNG, JPG supported",
+      "dropToUpload": "Drop to upload",
+      "dragHere": "Drag and drop files here",
+      "orClickToSelect": "or click to select files",
+      "maxSize": "Supports PDF, PNG, JPG (max 20MB)"
+    },
+    "errors": {
+      "extractionFailed": "Extraction failed",
+      "processingFailed": "File processing failed",
+      "unknownError": "Unknown error",
+      "uploadFailed": "File upload failed",
+      "fileTooLarge": "File too large",
+      "maxSizeAllowed": "Maximum allowed {size}MB"
+    },
+    "metadata": {
+      "title": "Document Preview Integration Test | Admin",
+      "description": "Epic 13 Document Preview and Field Mapping Component Integration Test Page"
+    }
+  },
+  "fieldsPanel": {
+    "stats": {
+      "showing": "Showing {filtered} / {total} fields",
+      "editedOnly": "(showing edited only)",
+      "edited": "{count} edited",
+      "lowConfidence": "{count} low confidence",
+      "avgConfidence": "Avg. confidence: {value}%"
+    },
+    "empty": {
+      "noFields": "No matching fields",
+      "clearSearch": "Clear search"
+    }
+  },
+  "filters": {
+    "search": {
+      "placeholder": "Search field names or values..."
+    },
+    "confidence": {
+      "label": "Confidence",
+      "all": "All confidence",
+      "high": "High (≥90%)",
+      "medium": "Medium (70-89%)",
+      "low": "Low (<70%)"
+    },
+    "source": {
+      "label": "Source",
+      "all": "All sources",
+      "azureDi": "Azure DI",
+      "gptVision": "GPT Vision",
+      "manual": "Manual",
+      "mapping": "Mapping Rule"
+    },
+    "sortBy": {
+      "label": "Sort",
+      "category": "Category",
+      "name": "Name",
+      "confidence": "Confidence"
+    },
+    "sortOrder": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "showEditedOnly": "Show edited only"
+  },
+  "controls": {
+    "navigation": {
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "pageNumber": "Page number"
+    },
+    "zoom": {
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "resetZoom": "Reset zoom (100%)",
+      "fitWidth": "Fit width"
+    }
+  },
+  "error": {
+    "title": "Error",
+    "loading": "Failed to load document",
+    "retry": "Retry"
+  },
+  "mappingConfigPanel": {
+    "title": "Field Mapping Configuration",
+    "description": "Configure mapping rules between source fields and target fields, supporting various transform types.",
+    "unsaved": "Unsaved",
+    "reset": "Reset",
+    "save": "Save",
+    "configName": {
+      "global": "Global Mapping Configuration",
+      "company": "Company Mapping Configuration ({id})",
+      "companyNoId": "Company Mapping Configuration (Not Selected)",
+      "format": "Format Mapping Configuration ({id})",
+      "formatNoId": "Format Mapping Configuration (Not Selected)"
+    },
+    "tabs": {
+      "rules": "Mapping Rules",
+      "preview": "Preview Results"
+    },
+    "stats": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "discardDialog": {
+      "title": "Discard unsaved changes?",
+      "description": "You have unsaved changes. Switching configuration scope will lose these changes. Are you sure you want to continue?",
+      "cancel": "Cancel",
+      "confirm": "Discard Changes"
+    }
+  },
+  "mappingRuleList": {
+    "empty": {
+      "title": "No Mapping Rules",
+      "description": "Click the button below to create your first mapping rule",
+      "addRule": "Add Rule"
+    },
+    "title": "Mapping Rules",
+    "dragHint": "Drag to adjust priority, lower number means higher priority",
+    "addRule": "Add Rule",
+    "rulesCount": "{count} rules",
+    "disabledCount": "({count} disabled)"
+  },
+  "mappingPreview": {
+    "title": "Preview Results",
+    "description": "View the transformation effects of mapping rules",
+    "loading": "Loading...",
+    "noRules": "Please add mapping rules first to view preview",
+    "noData": "No preview data. Click \"Load Preview\" to load.",
+    "loadPreview": "Load Preview",
+    "refresh": "Refresh",
+    "dataCount": "{count} records, applying {rules} rules",
+    "showErrorsOnly": "Show warnings and errors only",
+    "allSuccess": "All transformations successful",
+    "stats": {
+      "success": "{count} success",
+      "warning": "{count} warning",
+      "error": "{count} error"
+    },
+    "table": {
+      "status": "Status",
+      "sourceFields": "Source Fields",
+      "targetFields": "Target Fields",
+      "message": "Message"
+    },
+    "tooltip": {
+      "success": "Transform successful",
+      "warning": "Transform warning",
+      "error": "Transform error"
+    },
+    "details": {
+      "sourceFieldValues": "Source Field Values",
+      "targetFieldValues": "Target Field Values"
+    },
+    "empty": "(empty)",
+    "emptyString": "(empty string)"
+  },
+  "ruleEditor": {
+    "title": {
+      "create": "Add Mapping Rule",
+      "edit": "Edit Mapping Rule"
+    },
+    "description": "Configure the mapping relationship and transformation logic from source fields to target fields.",
+    "sourceFields": {
+      "label": "Source Fields",
+      "required": "*",
+      "multipleHint": "(multiple selection allowed)"
+    },
+    "targetField": {
+      "label": "Target Field",
+      "required": "*"
+    },
+    "transformType": {
+      "label": "Transform Type",
+      "placeholder": "Select transform type"
+    },
+    "transformTypes": {
+      "DIRECT": {
+        "label": "Direct Mapping",
+        "description": "Directly map source value to target field"
+      },
+      "CONCAT": {
+        "label": "Concatenate",
+        "description": "Concatenate multiple source fields into one value"
+      },
+      "SPLIT": {
+        "label": "Split",
+        "description": "Split source value by delimiter"
+      },
+      "LOOKUP": {
+        "label": "Lookup",
+        "description": "Transform value using lookup table"
+      },
+      "CUSTOM": {
+        "label": "Custom Formula",
+        "description": "Use custom JavaScript expression"
+      }
+    },
+    "validation": {
+      "title": "Validation Error",
+      "sourceFieldsRequired": "Please select at least one source field",
+      "sourceFieldsSingleOnly": "{type} only supports single source field",
+      "targetFieldRequired": "Please select a target field",
+      "delimiterRequired": "Split mode requires a delimiter",
+      "lookupTableRequired": "Lookup mode requires selecting a lookup table",
+      "formulaRequired": "Custom mode requires entering a formula"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    }
+  },
+  "configSelector": {
+    "scope": {
+      "label": "Configuration Scope",
+      "placeholder": "Select scope",
+      "global": "Global",
+      "globalDesc": "Default rules for all companies",
+      "company": "Company",
+      "companyDesc": "Override rules for specific company",
+      "format": "Format",
+      "formatDesc": "Precise rules for specific document format"
+    },
+    "company": {
+      "label": "Company",
+      "placeholder": "Select company"
+    },
+    "format": {
+      "label": "Document Format",
+      "placeholder": "Select format",
+      "selectCompanyFirst": "Please select a company first",
+      "noFormats": "No formats available for this company",
+      "fileCount": "{count} files"
+    },
+    "priorityInfo": {
+      "title": "Mapping Priority",
+      "format": "Format: Highest priority, for specific document formats",
+      "company": "Company: Overrides global rules, for specific companies",
+      "global": "Global: Default rules, applies to all companies"
+    }
+  },
+  "transformConfig": {
+    "title": "Transform Configuration",
+    "descriptions": {
+      "DIRECT": "Direct Mapping: Maps source field value directly to target field without any transformation.",
+      "CONCAT": "Concatenate: Combines multiple source field values in sequence with specified delimiter.",
+      "SPLIT": "Split: Splits source field value by delimiter and selects specified index.",
+      "LOOKUP": "Lookup: Finds corresponding target value in lookup table based on source field value.",
+      "CUSTOM": "Custom: Uses custom formula for complex value transformation."
+    },
+    "directHint": "Direct mapping requires no additional configuration. Source field value will be mapped directly to target field.",
+    "delimiter": {
+      "label": "Delimiter",
+      "tooltip": "Delimiter used when concatenating field values",
+      "splitTooltip": "Delimiter used to split source field value",
+      "placeholder": "Select delimiter",
+      "customPlaceholder": "Or custom delimiter"
+    },
+    "delimiters": {
+      "space": "Space",
+      "commaSpace": "Comma + Space",
+      "hyphen": "Hyphen (-)",
+      "slash": "Slash (/)",
+      "underscore": "Underscore (_)",
+      "pipe": "Pipe (|)"
+    },
+    "nullHandling": {
+      "label": "Null Handling",
+      "tooltip": "How to handle empty source field values",
+      "placeholder": "Select handling method",
+      "skip": "Skip nulls",
+      "skipDesc": "Ignore nulls, exclude from concatenation",
+      "empty": "Keep as empty",
+      "emptyDesc": "Include nulls as empty strings",
+      "default": "Use default value",
+      "defaultDesc": "Replace nulls with default value"
+    },
+    "defaultValue": {
+      "label": "Default Value",
+      "tooltip": "Value to use when source is empty",
+      "lookupTooltip": "Value to use when no match is found in lookup table",
+      "placeholder": "Enter default value",
+      "optionalPlaceholder": "Enter default value (optional)"
+    },
+    "splitIndex": {
+      "label": "Split Index",
+      "tooltip": "Which part to take after splitting (starting from 0)"
+    },
+    "keepAll": {
+      "label": "Keep All",
+      "tooltip": "When checked, keeps all split results as an array"
+    },
+    "lookupTable": {
+      "label": "Lookup Table",
+      "tooltip": "Select lookup table for value transformation",
+      "placeholder": "Select lookup table",
+      "currency": "Currency Code Conversion Table",
+      "country": "Country Code Conversion Table",
+      "unit": "Unit Conversion Table"
+    },
+    "caseSensitive": {
+      "label": "Case Sensitive",
+      "tooltip": "Whether to distinguish between uppercase and lowercase letters during lookup"
+    },
+    "customFormula": {
+      "label": "Custom Formula",
+      "tooltip": "Use JavaScript expression for value transformation. Use $value for source value, $fields for all fields.",
+      "placeholder": "Example:\n// Get first 10 characters\n$value.substring(0, 10)\n\n// Combine multiple fields\n$fields['firstName'] + ' ' + $fields['lastName']\n\n// Conditional transform\n$value > 1000 ? 'high' : 'low'",
+      "availableVariables": "Available Variables:",
+      "varValue": "$value - Source field value",
+      "varFields": "$fields - Key-value pairs of all fields",
+      "varIndex": "$index - Current row index"
+    }
+  },
+  "sourceFieldSelector": {
+    "placeholder": "Select source fields",
+    "searchPlaceholder": "Search fields...",
+    "noResults": "No matching fields found",
+    "otherCategory": "Other",
+    "sampleValue": "Sample: {value}",
+    "selectedCount": "{count} fields selected"
+  },
+  "targetFieldSelector": {
+    "placeholder": "Select target field",
+    "searchPlaceholder": "Search fields...",
+    "noResults": "No matching fields found",
+    "otherCategory": "Other",
+    "dataTypes": {
+      "string": "Text",
+      "number": "Number",
+      "date": "Date",
+      "boolean": "Boolean"
+    }
+  }
+}

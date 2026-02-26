@@ -26,6 +26,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Select,
   SelectContent,
@@ -37,7 +38,7 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCompanyOptions } from '@/hooks/use-companies';
 import { useDocumentFormatOptions } from '@/hooks/use-document-formats';
-import { CONFIG_SCOPE_OPTIONS, type ConfigScope } from '@/types/field-mapping';
+import type { ConfigScope } from '@/types/field-mapping';
 import { cn } from '@/lib/utils';
 
 // ============================================================
@@ -101,12 +102,22 @@ export function ConfigSelector({
   disabled = false,
   className,
 }: ConfigSelectorProps) {
+  // --- Translations ---
+  const t = useTranslations('documentPreview');
+
   // --- Data Fetching ---
   const { data: companiesData, isLoading: isLoadingCompanies } = useCompanyOptions();
   const { formats, isLoading: isLoadingFormats } = useDocumentFormatOptions({
     companyId: companyId || undefined,
     enabled: scope === 'FORMAT' && !!companyId,
   });
+
+  // --- Scope Options ---
+  const scopeOptions: Array<{ value: ConfigScope; labelKey: string; descKey: string }> = [
+    { value: 'GLOBAL', labelKey: 'configSelector.scope.global', descKey: 'configSelector.scope.globalDesc' },
+    { value: 'COMPANY', labelKey: 'configSelector.scope.company', descKey: 'configSelector.scope.companyDesc' },
+    { value: 'FORMAT', labelKey: 'configSelector.scope.format', descKey: 'configSelector.scope.formatDesc' },
+  ];
 
   // --- Derived State ---
   const companies = companiesData?.data ?? [];
@@ -153,22 +164,22 @@ export function ConfigSelector({
     <div className={cn('space-y-4', className)}>
       {/* 配置範圍選擇 */}
       <div className="space-y-2">
-        <Label htmlFor="config-scope">配置範圍</Label>
+        <Label htmlFor="config-scope">{t('configSelector.scope.label')}</Label>
         <Select
           value={scope}
           onValueChange={handleScopeChange}
           disabled={disabled}
         >
           <SelectTrigger id="config-scope" className="w-full">
-            <SelectValue placeholder="選擇配置範圍" />
+            <SelectValue placeholder={t('configSelector.scope.placeholder')} />
           </SelectTrigger>
           <SelectContent>
-            {CONFIG_SCOPE_OPTIONS.map((option) => (
+            {scopeOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 <div className="flex flex-col">
-                  <span>{option.label}</span>
+                  <span>{t(option.labelKey)}</span>
                   <span className="text-xs text-muted-foreground">
-                    {option.description}
+                    {t(option.descKey)}
                   </span>
                 </div>
               </SelectItem>
@@ -180,7 +191,7 @@ export function ConfigSelector({
       {/* 公司選擇（當範圍為 COMPANY 或 FORMAT） */}
       {showCompanySelect && (
         <div className="space-y-2">
-          <Label htmlFor="config-company">公司</Label>
+          <Label htmlFor="config-company">{t('configSelector.company.label')}</Label>
           {isLoadingCompanies ? (
             <Skeleton className="h-10 w-full" />
           ) : (
@@ -190,7 +201,7 @@ export function ConfigSelector({
               disabled={disabled}
             >
               <SelectTrigger id="config-company" className="w-full">
-                <SelectValue placeholder="選擇公司" />
+                <SelectValue placeholder={t('configSelector.company.placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 {companies.map((company) => (
@@ -207,13 +218,13 @@ export function ConfigSelector({
       {/* 文件格式選擇（當範圍為 FORMAT） */}
       {showFormatSelect && (
         <div className="space-y-2">
-          <Label htmlFor="config-format">文件格式</Label>
+          <Label htmlFor="config-format">{t('configSelector.format.label')}</Label>
           {!companyId ? (
-            <p className="text-sm text-muted-foreground">請先選擇公司</p>
+            <p className="text-sm text-muted-foreground">{t('configSelector.format.selectCompanyFirst')}</p>
           ) : isLoadingFormats ? (
             <Skeleton className="h-10 w-full" />
           ) : formats.length === 0 ? (
-            <p className="text-sm text-muted-foreground">該公司沒有文件格式</p>
+            <p className="text-sm text-muted-foreground">{t('configSelector.format.noFormats')}</p>
           ) : (
             <Select
               value={documentFormatId || ''}
@@ -221,7 +232,7 @@ export function ConfigSelector({
               disabled={disabled || !companyId}
             >
               <SelectTrigger id="config-format" className="w-full">
-                <SelectValue placeholder="選擇文件格式" />
+                <SelectValue placeholder={t('configSelector.format.placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 {formats.map((format) => (
@@ -232,7 +243,7 @@ export function ConfigSelector({
                           `${format.documentType}${format.documentSubtype ? ` - ${format.documentSubtype}` : ''}`}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {format.fileCount} 個文件
+                        {t('configSelector.format.fileCount', { count: format.fileCount })}
                       </span>
                     </div>
                   </SelectItem>
@@ -245,17 +256,11 @@ export function ConfigSelector({
 
       {/* 配置說明 */}
       <div className="rounded-md bg-muted p-3 text-sm">
-        <p className="font-medium">映射優先級說明</p>
+        <p className="font-medium">{t('configSelector.priorityInfo.title')}</p>
         <ul className="mt-1 list-inside list-disc text-muted-foreground">
-          <li>
-            <strong>格式層</strong>：最高優先級，針對特定文件格式
-          </li>
-          <li>
-            <strong>公司層</strong>：覆蓋通用規則，針對特定公司
-          </li>
-          <li>
-            <strong>通用層</strong>：預設規則，適用於所有公司
-          </li>
+          <li>{t('configSelector.priorityInfo.format')}</li>
+          <li>{t('configSelector.priorityInfo.company')}</li>
+          <li>{t('configSelector.priorityInfo.global')}</li>
         </ul>
       </div>
     </div>

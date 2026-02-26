@@ -14,6 +14,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import {
@@ -88,6 +89,9 @@ interface BackupListProps {
  * 備份列表組件
  */
 export function BackupList({ onViewDetail }: BackupListProps) {
+  // --- i18n ---
+  const t = useTranslations('admin')
+
   // --- State ---
   const [params, setParams] = useState<BackupListParams>({
     page: 1,
@@ -120,23 +124,23 @@ export function BackupList({ onViewDetail }: BackupListProps) {
     if (!cancelId) return
     try {
       await cancelMutation.mutateAsync(cancelId)
-      toast.success('備份已取消')
+      toast.success(t('backup.list.toast.cancelled'))
       setCancelId(null)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : '取消失敗')
+      toast.error(err instanceof Error ? err.message : t('backup.list.toast.cancelError'))
     }
-  }, [cancelId, cancelMutation])
+  }, [cancelId, cancelMutation, t])
 
   const handleDelete = useCallback(async () => {
     if (!deleteId) return
     try {
       await deleteMutation.mutateAsync(deleteId)
-      toast.success('備份已刪除')
+      toast.success(t('backup.list.toast.deleted'))
       setDeleteId(null)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : '刪除失敗')
+      toast.error(err instanceof Error ? err.message : t('backup.list.toast.deleteError'))
     }
-  }, [deleteId, deleteMutation])
+  }, [deleteId, deleteMutation, t])
 
   // --- Render helpers ---
   const getSourceIcon = (source: BackupSource) => {
@@ -157,7 +161,7 @@ export function BackupList({ onViewDetail }: BackupListProps) {
       <Card>
         <CardContent className="py-10">
           <p className="text-center text-destructive">
-            載入失敗：{error instanceof Error ? error.message : '未知錯誤'}
+            {t('backup.list.loadError', { error: error instanceof Error ? error.message : 'Unknown error' })}
           </p>
         </CardContent>
       </Card>
@@ -170,8 +174,8 @@ export function BackupList({ onViewDetail }: BackupListProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>備份記錄</CardTitle>
-        <CardDescription>系統備份歷史記錄</CardDescription>
+        <CardTitle>{t('backup.list.title')}</CardTitle>
+        <CardDescription>{t('backup.list.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* 篩選器 */}
@@ -181,15 +185,15 @@ export function BackupList({ onViewDetail }: BackupListProps) {
             onValueChange={(v) => handleFilterChange('status', v)}
           >
             <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder="狀態" />
+              <SelectValue placeholder={t('backup.list.table.status')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部狀態</SelectItem>
-              <SelectItem value="COMPLETED">已完成</SelectItem>
-              <SelectItem value="IN_PROGRESS">執行中</SelectItem>
-              <SelectItem value="FAILED">失敗</SelectItem>
-              <SelectItem value="CANCELLED">已取消</SelectItem>
-              <SelectItem value="PENDING">待處理</SelectItem>
+              <SelectItem value="all">{t('backup.list.filters.status.all')}</SelectItem>
+              <SelectItem value="COMPLETED">{t('backup.list.filters.status.completed')}</SelectItem>
+              <SelectItem value="IN_PROGRESS">{t('backup.list.filters.status.inProgress')}</SelectItem>
+              <SelectItem value="FAILED">{t('backup.list.filters.status.failed')}</SelectItem>
+              <SelectItem value="CANCELLED">{t('backup.list.filters.status.cancelled')}</SelectItem>
+              <SelectItem value="PENDING">{t('backup.list.filters.status.pending')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -198,14 +202,14 @@ export function BackupList({ onViewDetail }: BackupListProps) {
             onValueChange={(v) => handleFilterChange('source', v)}
           >
             <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder="來源" />
+              <SelectValue placeholder={t('backup.list.table.source')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部來源</SelectItem>
-              <SelectItem value="DATABASE">資料庫</SelectItem>
-              <SelectItem value="FILES">檔案</SelectItem>
-              <SelectItem value="CONFIG">設定</SelectItem>
-              <SelectItem value="FULL_SYSTEM">完整系統</SelectItem>
+              <SelectItem value="all">{t('backup.list.filters.source.all')}</SelectItem>
+              <SelectItem value="DATABASE">{t('backup.list.filters.source.database')}</SelectItem>
+              <SelectItem value="FILES">{t('backup.list.filters.source.files')}</SelectItem>
+              <SelectItem value="CONFIG">{t('backup.list.filters.source.config')}</SelectItem>
+              <SelectItem value="FULL_SYSTEM">{t('backup.list.filters.source.fullSystem')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -214,13 +218,13 @@ export function BackupList({ onViewDetail }: BackupListProps) {
             onValueChange={(v) => handleFilterChange('type', v)}
           >
             <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder="類型" />
+              <SelectValue placeholder={t('backup.list.table.type')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部類型</SelectItem>
-              <SelectItem value="FULL">完整備份</SelectItem>
-              <SelectItem value="INCREMENTAL">增量備份</SelectItem>
-              <SelectItem value="DIFFERENTIAL">差異備份</SelectItem>
+              <SelectItem value="all">{t('backup.list.filters.type.all')}</SelectItem>
+              <SelectItem value="FULL">{t('backup.list.filters.type.full')}</SelectItem>
+              <SelectItem value="INCREMENTAL">{t('backup.list.filters.type.incremental')}</SelectItem>
+              <SelectItem value="DIFFERENTIAL">{t('backup.list.filters.type.differential')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -230,12 +234,12 @@ export function BackupList({ onViewDetail }: BackupListProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>備份時間</TableHead>
-                <TableHead>來源</TableHead>
-                <TableHead>類型</TableHead>
-                <TableHead>大小</TableHead>
-                <TableHead>狀態</TableHead>
-                <TableHead>操作者</TableHead>
+                <TableHead>{t('backup.list.table.backupTime')}</TableHead>
+                <TableHead>{t('backup.list.table.source')}</TableHead>
+                <TableHead>{t('backup.list.table.type')}</TableHead>
+                <TableHead>{t('backup.list.table.size')}</TableHead>
+                <TableHead>{t('backup.list.table.status')}</TableHead>
+                <TableHead>{t('backup.list.table.operator')}</TableHead>
                 <TableHead className="w-[80px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -253,7 +257,7 @@ export function BackupList({ onViewDetail }: BackupListProps) {
               ) : backups.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                    沒有備份記錄
+                    {t('backup.list.emptyState')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -294,7 +298,7 @@ export function BackupList({ onViewDetail }: BackupListProps) {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{backup.createdByName || '系統'}</span>
+                          <span className="text-sm">{backup.createdByName || t('backup.list.table.system')}</span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -306,12 +310,12 @@ export function BackupList({ onViewDetail }: BackupListProps) {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => onViewDetail?.(backup.id)}>
-                              查看詳情
+                              {t('backup.list.actions.viewDetails')}
                             </DropdownMenuItem>
                             {backup.status === 'COMPLETED' && (
                               <DropdownMenuItem>
                                 <Download className="mr-2 h-4 w-4" />
-                                下載
+                                {t('backup.list.actions.download')}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
@@ -321,7 +325,7 @@ export function BackupList({ onViewDetail }: BackupListProps) {
                                 className="text-orange-600"
                               >
                                 <StopCircle className="mr-2 h-4 w-4" />
-                                取消備份
+                                {t('backup.list.actions.cancelBackup')}
                               </DropdownMenuItem>
                             )}
                             {canDelete && (
@@ -330,7 +334,7 @@ export function BackupList({ onViewDetail }: BackupListProps) {
                                 className="text-destructive"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
-                                刪除
+                                {t('backup.list.actions.delete')}
                               </DropdownMenuItem>
                             )}
                           </DropdownMenuContent>
@@ -348,7 +352,11 @@ export function BackupList({ onViewDetail }: BackupListProps) {
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              共 {pagination.total} 筆，第 {pagination.page} / {pagination.totalPages} 頁
+              {t('backup.list.pagination.total', {
+                total: pagination.total,
+                page: pagination.page,
+                totalPages: pagination.totalPages,
+              })}
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -376,13 +384,15 @@ export function BackupList({ onViewDetail }: BackupListProps) {
       <AlertDialog open={!!cancelId} onOpenChange={(open) => !open && setCancelId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認取消備份</AlertDialogTitle>
+            <AlertDialogTitle>{t('backup.list.cancelDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要取消這個正在執行的備份嗎？此操作無法復原。
+              {t('backup.list.cancelDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={cancelMutation.isPending}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={cancelMutation.isPending}>
+              {t('backup.list.cancelDialog.cancel')}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancel}
               disabled={cancelMutation.isPending}
@@ -391,10 +401,10 @@ export function BackupList({ onViewDetail }: BackupListProps) {
               {cancelMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  取消中...
+                  {t('backup.list.cancelDialog.cancelling')}
                 </>
               ) : (
-                '確認取消'
+                t('backup.list.cancelDialog.confirm')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -405,13 +415,15 @@ export function BackupList({ onViewDetail }: BackupListProps) {
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除備份</AlertDialogTitle>
+            <AlertDialogTitle>{t('backup.list.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要刪除這個備份嗎？刪除後將無法復原，備份檔案也會被永久移除。
+              {t('backup.list.deleteDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>
+              {t('backup.list.deleteDialog.cancel')}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
@@ -420,10 +432,10 @@ export function BackupList({ onViewDetail }: BackupListProps) {
               {deleteMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  刪除中...
+                  {t('backup.list.deleteDialog.deleting')}
                 </>
               ) : (
-                '確認刪除'
+                t('backup.list.deleteDialog.confirm')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
