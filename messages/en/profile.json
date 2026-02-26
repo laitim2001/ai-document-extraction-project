@@ -1,0 +1,50 @@
+{
+  "pageTitle": "My Profile",
+  "pageDescription": "View and manage your account information",
+  "basicInfo": {
+    "title": "Basic Information",
+    "name": "Display Name",
+    "namePlaceholder": "Enter your display name",
+    "email": "Email",
+    "provider": "Login Method",
+    "providerAzureAd": "Azure AD (SSO)",
+    "providerLocal": "Local Account",
+    "memberSince": "Member Since",
+    "lastLogin": "Last Login",
+    "neverLoggedIn": "Never",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "updateSuccess": "Profile updated successfully",
+    "updateError": "Failed to update profile"
+  },
+  "roles": {
+    "title": "Roles & Permissions",
+    "rolesLabel": "Roles",
+    "permissionsLabel": "Permissions",
+    "noRoles": "No roles assigned",
+    "noPermissions": "No permissions assigned",
+    "cityLabel": "City"
+  },
+  "language": {
+    "title": "Language Preference",
+    "label": "Language",
+    "description": "Select your preferred language for the interface"
+  },
+  "password": {
+    "title": "Change Password",
+    "description": "Change your local account password",
+    "azureAdNote": "Your password is managed by Azure AD. Please use your organization's portal to change it.",
+    "currentPassword": "Current Password",
+    "currentPasswordPlaceholder": "Enter current password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmPassword": "Confirm New Password",
+    "confirmPasswordPlaceholder": "Re-enter new password",
+    "submit": "Change Password",
+    "success": "Password changed successfully",
+    "error": "Failed to change password",
+    "mismatch": "Passwords do not match",
+    "requirements": "Password must be at least 8 characters with uppercase, lowercase, and numbers"
+  }
+}

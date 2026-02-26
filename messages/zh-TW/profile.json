@@ -1,0 +1,50 @@
+{
+  "pageTitle": "個人資料",
+  "pageDescription": "查看和管理您的帳號資訊",
+  "basicInfo": {
+    "title": "基本資訊",
+    "name": "顯示名稱",
+    "namePlaceholder": "輸入您的顯示名稱",
+    "email": "電子郵件",
+    "provider": "登入方式",
+    "providerAzureAd": "Azure AD (SSO)",
+    "providerLocal": "本地帳號",
+    "memberSince": "註冊日期",
+    "lastLogin": "最後登入",
+    "neverLoggedIn": "從未登入",
+    "edit": "編輯",
+    "save": "儲存",
+    "cancel": "取消",
+    "updateSuccess": "個人資料已更新",
+    "updateError": "更新個人資料失敗"
+  },
+  "roles": {
+    "title": "角色與權限",
+    "rolesLabel": "角色",
+    "permissionsLabel": "權限",
+    "noRoles": "尚未指派角色",
+    "noPermissions": "尚無權限",
+    "cityLabel": "城市"
+  },
+  "language": {
+    "title": "語言偏好",
+    "label": "語言",
+    "description": "選擇您偏好的介面語言"
+  },
+  "password": {
+    "title": "修改密碼",
+    "description": "修改您的本地帳號密碼",
+    "azureAdNote": "您的密碼由 Azure AD 管理，請使用組織入口網站修改密碼。",
+    "currentPassword": "目前密碼",
+    "currentPasswordPlaceholder": "輸入目前密碼",
+    "newPassword": "新密碼",
+    "newPasswordPlaceholder": "輸入新密碼",
+    "confirmPassword": "確認新密碼",
+    "confirmPasswordPlaceholder": "再次輸入新密碼",
+    "submit": "修改密碼",
+    "success": "密碼已成功修改",
+    "error": "修改密碼失敗",
+    "mismatch": "密碼不一致",
+    "requirements": "密碼至少需要 8 個字元，包含大小寫字母和數字"
+  }
+}

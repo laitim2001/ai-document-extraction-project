@@ -313,7 +313,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
               </div>
               <DropdownMenuItem
                 className="flex items-center space-x-2 cursor-pointer"
-                onClick={() => router.push('/settings/profile')}
+                onClick={() => router.push('/profile')}
               >
                 <User className="h-4 w-4" />
                 <span>{t('user.profile')}</span>
