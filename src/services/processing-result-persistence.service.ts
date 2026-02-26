@@ -9,7 +9,7 @@
  *
  * @module src/services/processing-result-persistence
  * @since CHANGE-014 Phase 2 — 端到端管線整合
- * @lastModified 2026-02-11 (FIX-036: REF_MATCH_FAILED 狀態 + referenceNumberMatch 持久化)
+ * @lastModified 2026-02-26 (FIX-048: 在持久化交易中建立 ProcessingQueue 記錄)
  *
  * @features
  *   - UnifiedProcessingResult → ExtractionResult 轉換
@@ -25,7 +25,7 @@
  *   - src/services/template-matching-engine.service.ts - 模版匹配（消費 ExtractionResult）
  */
 
-import { Prisma, ProcessingPath } from '@prisma/client';
+import { Prisma, ProcessingPath, QueueStatus } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import type {
   UnifiedProcessingResult,
@@ -254,8 +254,14 @@ export async function persistProcessingResult(
     : result.success ? 'MAPPING_COMPLETED' : 'OCR_FAILED';
   const processingPath = mapRoutingDecisionToProcessingPath(result.routingDecision);
 
-  // 使用 Prisma 交易確保原子性
-  const [extractionResult] = await prisma.$transaction([
+  // FIX-048: 查詢 Document.cityCode 以建立 ProcessingQueue
+  const currentDocument = await prisma.document.findUnique({
+    where: { id: documentId },
+    select: { cityCode: true },
+  });
+
+  // 構建交易操作列表（FIX-048: 改為動態陣列以支援條件性 ProcessingQueue 建立）
+  const txOperations: Prisma.PrismaPromise<unknown>[] = [
     // 1. Upsert ExtractionResult
     prisma.extractionResult.upsert({
       where: { documentId },
@@ -345,7 +351,39 @@ export async function persistProcessingResult(
         errorMessage: result.success ? null : (result.error ?? 'Processing failed'),
       },
     }),
-  ]);
+  ];
+
+  // FIX-048: 建立 ProcessingQueue（僅 QUICK_REVIEW/FULL_REVIEW 且處理成功的文件）
+  if (
+    processingPath &&
+    processingPath !== ProcessingPath.AUTO_APPROVE &&
+    result.success &&
+    !isRefMatchFailed
+  ) {
+    const queuePriority = processingPath === ProcessingPath.FULL_REVIEW ? 10 : 5;
+    txOperations.push(
+      prisma.processingQueue.upsert({
+        where: { documentId },
+        create: {
+          documentId,
+          cityCode: currentDocument?.cityCode || '',
+          processingPath,
+          priority: queuePriority,
+          routingReason: `信心度 ${Math.round((result.overallConfidence ?? 0) * 100)}%`,
+          status: QueueStatus.PENDING,
+        },
+        update: {
+          processingPath,
+          priority: queuePriority,
+          routingReason: `信心度 ${Math.round((result.overallConfidence ?? 0) * 100)}%`,
+          status: QueueStatus.PENDING,
+        },
+      })
+    );
+  }
+
+  // 使用 Prisma 交易確保原子性
+  const [extractionResult] = await prisma.$transaction(txOperations) as [{ id: string }, ...unknown[]];
 
   return {
     extractionResultId: extractionResult.id,
@@ -520,8 +558,21 @@ export async function persistV3_1ProcessingResult(
       }
     : null;
 
-  // 使用 Prisma 交易確保原子性
-  const [extractionResult] = await prisma.$transaction([
+  // FIX-048: 查詢 Document.cityCode 以建立 ProcessingQueue
+  const currentDocument = await prisma.document.findUnique({
+    where: { id: documentId },
+    select: { cityCode: true },
+  });
+
+  // FIX-048: 預先計算 processingPath（供 Document 更新和 ProcessingQueue 建立使用）
+  const processingPath: ProcessingPath = result.routingDecision?.decision === 'AUTO_APPROVE'
+    ? ProcessingPath.AUTO_APPROVE
+    : result.routingDecision?.decision === 'QUICK_REVIEW'
+      ? ProcessingPath.QUICK_REVIEW
+      : ProcessingPath.FULL_REVIEW;
+
+  // 構建交易操作列表（FIX-048: 改為動態陣列以支援條件性 ProcessingQueue 建立）
+  const txOperations: Prisma.PrismaPromise<unknown>[] = [
     // 1. Upsert ExtractionResult
     prisma.extractionResult.upsert({
       where: { documentId },
@@ -633,11 +684,7 @@ export async function persistV3_1ProcessingResult(
       data: {
         status: documentStatus,
         companyId: stage1Result?.companyId ?? undefined,
-        processingPath: result.routingDecision?.decision === 'AUTO_APPROVE'
-          ? 'AUTO_APPROVE'
-          : result.routingDecision?.decision === 'QUICK_REVIEW'
-            ? 'QUICK_REVIEW'
-            : 'FULL_REVIEW',
+        processingPath,
         routingDecision: result.routingDecision
           ? ({
               decision: result.routingDecision.decision,
@@ -650,7 +697,38 @@ export async function persistV3_1ProcessingResult(
         errorMessage: result.success ? null : (result.error ?? 'Processing failed'),
       },
     }),
-  ]);
+  ];
+
+  // FIX-048: 建立 ProcessingQueue（僅 QUICK_REVIEW/FULL_REVIEW 且處理成功的文件）
+  if (
+    processingPath !== ProcessingPath.AUTO_APPROVE &&
+    result.success &&
+    !isRefMatchAbort
+  ) {
+    const queuePriority = processingPath === ProcessingPath.FULL_REVIEW ? 10 : 5;
+    txOperations.push(
+      prisma.processingQueue.upsert({
+        where: { documentId },
+        create: {
+          documentId,
+          cityCode: currentDocument?.cityCode || '',
+          processingPath,
+          priority: queuePriority,
+          routingReason: result.routingDecision?.reasons?.join('; ') || `信心度 ${Math.round(overallConfidence)}%`,
+          status: QueueStatus.PENDING,
+        },
+        update: {
+          processingPath,
+          priority: queuePriority,
+          routingReason: result.routingDecision?.reasons?.join('; ') || `信心度 ${Math.round(overallConfidence)}%`,
+          status: QueueStatus.PENDING,
+        },
+      })
+    );
+  }
+
+  // 使用 Prisma 交易確保原子性
+  const [extractionResult] = await prisma.$transaction(txOperations) as [{ id: string }, ...unknown[]];
 
   return {
     extractionResultId: extractionResult.id,
