@@ -1,0 +1,85 @@
+{
+  "pageTitle": "System Settings",
+  "pageDescription": "Manage system-wide configurations and preferences",
+  "categories": {
+    "general": "General Settings",
+    "notifications": "Notification Settings",
+    "retention": "Data Retention",
+    "pipeline": "Pipeline Settings",
+    "prompt": "Prompt Configs",
+    "config": "System Config",
+    "health": "Health Monitoring",
+    "backup": "Backup & Restore",
+    "alerts": "Alert Rules"
+  },
+  "general": {
+    "title": "General Settings",
+    "description": "Configure basic system preferences",
+    "systemName": "System Name",
+    "systemNameDescription": "The display name of the system",
+    "defaultLocale": "Default Language",
+    "defaultLocaleDescription": "Default language for new users",
+    "timezone": "Timezone",
+    "timezoneDescription": "Default timezone for the system",
+    "dateFormat": "Date Format",
+    "dateFormatDescription": "Default date display format",
+    "saveSuccess": "General settings saved successfully",
+    "saveError": "Failed to save general settings"
+  },
+  "notifications": {
+    "title": "Notification Settings",
+    "description": "Configure email alerts and notification preferences",
+    "emailEnabled": "Enable Email Notifications",
+    "emailEnabledDescription": "Master switch for all email notifications",
+    "alertThreshold": "Alert Threshold",
+    "alertThresholdDescription": "Minimum severity level for alert notifications",
+    "digestFrequency": "Digest Frequency",
+    "digestFrequencyDescription": "How often to send notification digests",
+    "recipients": "Default Recipients",
+    "recipientsDescription": "Default email recipients for system notifications",
+    "addRecipient": "Add Recipient",
+    "saveSuccess": "Notification settings saved successfully",
+    "saveError": "Failed to save notification settings",
+    "thresholds": {
+      "info": "Info",
+      "warning": "Warning",
+      "error": "Error",
+      "critical": "Critical"
+    },
+    "frequencies": {
+      "realtime": "Real-time",
+      "hourly": "Hourly",
+      "daily": "Daily",
+      "weekly": "Weekly"
+    }
+  },
+  "retention": {
+    "title": "Data Retention",
+    "description": "Configure how long data is retained in the system",
+    "documentDays": "Document Retention",
+    "documentDaysDescription": "Number of days to retain processed documents",
+    "logDays": "Log Retention",
+    "logDaysDescription": "Number of days to retain system logs",
+    "auditDays": "Audit Log Retention",
+    "auditDaysDescription": "Number of days to retain audit trail records",
+    "tempFileDays": "Temporary File Retention",
+    "tempFileDaysDescription": "Number of days to retain temporary files",
+    "days": "{count} days",
+    "saveSuccess": "Data retention settings saved successfully",
+    "saveError": "Failed to save data retention settings"
+  },
+  "settingsCard": {
+    "configure": "Configure",
+    "viewDetails": "View Details",
+    "lastUpdated": "Last updated: {date}",
+    "linkBadge": "External Page"
+  },
+  "actions": {
+    "save": "Save Changes",
+    "reset": "Reset to Default",
+    "cancel": "Cancel",
+    "resetConfirm": "Are you sure you want to reset this setting to its default value?",
+    "resetSuccess": "Setting reset to default successfully",
+    "resetError": "Failed to reset setting"
+  }
+}

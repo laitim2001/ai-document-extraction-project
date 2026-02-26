@@ -64,6 +64,7 @@ const namespaces = [
   'pipelineConfig',
   'fieldDefinitionSet',
   'profile',
+  'systemSettings',
 ] as const
 
 export type Namespace = (typeof namespaces)[number]

@@ -149,6 +149,7 @@ const navigation: NavSection[] = [
   {
     titleKey: 'sections.admin',
     items: [
+      { nameKey: 'sidebar.systemSettings', href: '/admin/settings', icon: Wrench },
       { nameKey: 'sidebar.users', href: '/admin/users', icon: Users },
       { nameKey: 'sidebar.historicalData', href: '/admin/historical-data', icon: Database },
     ],

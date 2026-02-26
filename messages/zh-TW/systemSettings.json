@@ -1,0 +1,85 @@
+{
+  "pageTitle": "系統設定",
+  "pageDescription": "管理系統全域配置和偏好設定",
+  "categories": {
+    "general": "一般設定",
+    "notifications": "通知設定",
+    "retention": "資料保留",
+    "pipeline": "管線設定",
+    "prompt": "Prompt 配置",
+    "config": "系統配置",
+    "health": "健康監控",
+    "backup": "備份與還原",
+    "alerts": "警報規則"
+  },
+  "general": {
+    "title": "一般設定",
+    "description": "設定基本系統偏好",
+    "systemName": "系統名稱",
+    "systemNameDescription": "系統的顯示名稱",
+    "defaultLocale": "預設語言",
+    "defaultLocaleDescription": "新用戶的預設語言",
+    "timezone": "時區",
+    "timezoneDescription": "系統的預設時區",
+    "dateFormat": "日期格式",
+    "dateFormatDescription": "預設日期顯示格式",
+    "saveSuccess": "一般設定儲存成功",
+    "saveError": "儲存一般設定失敗"
+  },
+  "notifications": {
+    "title": "通知設定",
+    "description": "設定電子郵件警報和通知偏好",
+    "emailEnabled": "啟用電子郵件通知",
+    "emailEnabledDescription": "所有電子郵件通知的總開關",
+    "alertThreshold": "告警等級",
+    "alertThresholdDescription": "告警通知的最低嚴重等級",
+    "digestFrequency": "摘要通知頻率",
+    "digestFrequencyDescription": "傳送通知摘要的頻率",
+    "recipients": "預設收件人",
+    "recipientsDescription": "系統通知的預設電子郵件收件人",
+    "addRecipient": "新增收件人",
+    "saveSuccess": "通知設定儲存成功",
+    "saveError": "儲存通知設定失敗",
+    "thresholds": {
+      "info": "資訊",
+      "warning": "警告",
+      "error": "錯誤",
+      "critical": "嚴重"
+    },
+    "frequencies": {
+      "realtime": "即時",
+      "hourly": "每小時",
+      "daily": "每日",
+      "weekly": "每週"
+    }
+  },
+  "retention": {
+    "title": "資料保留",
+    "description": "設定系統中資料的保留時間",
+    "documentDays": "文件保留期",
+    "documentDaysDescription": "已處理文件的保留天數",
+    "logDays": "日誌保留期",
+    "logDaysDescription": "系統日誌的保留天數",
+    "auditDays": "審計記錄保留期",
+    "auditDaysDescription": "審計追蹤記錄的保留天數",
+    "tempFileDays": "暫存檔案保留期",
+    "tempFileDaysDescription": "暫存檔案的保留天數",
+    "days": "{count} 天",
+    "saveSuccess": "資料保留設定儲存成功",
+    "saveError": "儲存資料保留設定失敗"
+  },
+  "settingsCard": {
+    "configure": "設定",
+    "viewDetails": "查看詳情",
+    "lastUpdated": "最後更新：{date}",
+    "linkBadge": "外部頁面"
+  },
+  "actions": {
+    "save": "儲存變更",
+    "reset": "重設為預設值",
+    "cancel": "取消",
+    "resetConfirm": "確定要將此設定重設為預設值嗎？",
+    "resetSuccess": "設定已重設為預設值",
+    "resetError": "重設設定失敗"
+  }
+}

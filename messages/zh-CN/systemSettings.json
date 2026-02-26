@@ -1,0 +1,85 @@
+{
+  "pageTitle": "系统设置",
+  "pageDescription": "管理系统全局配置和偏好设置",
+  "categories": {
+    "general": "一般设置",
+    "notifications": "通知设置",
+    "retention": "数据保留",
+    "pipeline": "管线设置",
+    "prompt": "Prompt 配置",
+    "config": "系统配置",
+    "health": "健康监控",
+    "backup": "备份与还原",
+    "alerts": "警报规则"
+  },
+  "general": {
+    "title": "一般设置",
+    "description": "配置基本系统偏好",
+    "systemName": "系统名称",
+    "systemNameDescription": "系统的显示名称",
+    "defaultLocale": "默认语言",
+    "defaultLocaleDescription": "新用户的默认语言",
+    "timezone": "时区",
+    "timezoneDescription": "系统的默认时区",
+    "dateFormat": "日期格式",
+    "dateFormatDescription": "默认日期显示格式",
+    "saveSuccess": "一般设置保存成功",
+    "saveError": "保存一般设置失败"
+  },
+  "notifications": {
+    "title": "通知设置",
+    "description": "配置电子邮件警报和通知偏好",
+    "emailEnabled": "启用电子邮件通知",
+    "emailEnabledDescription": "所有电子邮件通知的总开关",
+    "alertThreshold": "告警等级",
+    "alertThresholdDescription": "告警通知的最低严重等级",
+    "digestFrequency": "摘要通知频率",
+    "digestFrequencyDescription": "发送通知摘要的频率",
+    "recipients": "默认收件人",
+    "recipientsDescription": "系统通知的默认电子邮件收件人",
+    "addRecipient": "添加收件人",
+    "saveSuccess": "通知设置保存成功",
+    "saveError": "保存通知设置失败",
+    "thresholds": {
+      "info": "信息",
+      "warning": "警告",
+      "error": "错误",
+      "critical": "严重"
+    },
+    "frequencies": {
+      "realtime": "实时",
+      "hourly": "每小时",
+      "daily": "每日",
+      "weekly": "每周"
+    }
+  },
+  "retention": {
+    "title": "数据保留",
+    "description": "配置系统中数据的保留时间",
+    "documentDays": "文件保留期",
+    "documentDaysDescription": "已处理文件的保留天数",
+    "logDays": "日志保留期",
+    "logDaysDescription": "系统日志的保留天数",
+    "auditDays": "审计记录保留期",
+    "auditDaysDescription": "审计追踪记录的保留天数",
+    "tempFileDays": "临时文件保留期",
+    "tempFileDaysDescription": "临时文件的保留天数",
+    "days": "{count} 天",
+    "saveSuccess": "数据保留设置保存成功",
+    "saveError": "保存数据保留设置失败"
+  },
+  "settingsCard": {
+    "configure": "设置",
+    "viewDetails": "查看详情",
+    "lastUpdated": "最后更新：{date}",
+    "linkBadge": "外部页面"
+  },
+  "actions": {
+    "save": "保存更改",
+    "reset": "重置为默认值",
+    "cancel": "取消",
+    "resetConfirm": "确定要将此设置重置为默认值吗？",
+    "resetSuccess": "设置已重置为默认值",
+    "resetError": "重置设置失败"
+  }
+}

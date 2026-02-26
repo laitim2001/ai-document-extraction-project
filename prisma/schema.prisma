@@ -4336,3 +4336,19 @@ model PipelineConfig {
   @@index([isActive])
   @@map("pipeline_configs")
 }
+
+/// 系統設定
+/// 儲存全域設定（key-value 結構），支援分類管理
+/// @since CHANGE-050
+model SystemSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  category  String   @default("general")
+  updatedBy String?  @map("updated_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([category])
+  @@map("system_settings")
+}
