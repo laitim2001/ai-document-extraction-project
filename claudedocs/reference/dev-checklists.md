@@ -12,16 +12,21 @@
 ```
 開發任務完成後，依序檢查：
 
-1. 是否涉及技術棧/架構變更？
+1. 是否完成 CHANGE-XXX 或 FIX-XXX？（🔴 必須）
+   └─ 是 → 將規劃文件的「狀態」從 📋 規劃中 改為 ✅ 已完成
+   └─ 路徑: claudedocs/4-changes/feature-changes/CHANGE-XXX-*.md
+   └─ 路徑: claudedocs/4-changes/bug-fixes/FIX-XXX-*.md
+
+2. 是否涉及技術棧/架構變更？
    └─ 是 → 更新 CLAUDE.md（技術棧、目錄結構等章節）
 
-2. 是否新增/修改模組的公開 API？
+3. 是否新增/修改模組的公開 API？
    └─ 是 → 更新對應模組的 index.ts（導出、文檔註釋）
 
-3. 是否發現新的開發規範/最佳實踐/踩坑經驗？
+4. 是否發現新的開發規範/最佳實踐/踩坑經驗？
    └─ 是 → 更新對應的 .claude/rules/*.md
 
-4. 是否完成 Epic/Story？
+5. 是否完成 Epic/Story？
    └─ 是 → 更新 CLAUDE.md 項目進度追蹤表
 ```
 
@@ -52,6 +57,7 @@
 
 ### 文檔同步
 
+- [ ] 如完成 CHANGE/FIX → 已更新規劃文件狀態為 ✅ 已完成（🔴 必須）
 - [ ] 如涉及新模組 → 已更新/建立 index.ts
 - [ ] 如涉及架構變更 → 已更新 CLAUDE.md
 - [ ] 如發現新規範/踩坑 → 已更新 .claude/rules/

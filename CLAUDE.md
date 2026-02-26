@@ -447,10 +447,11 @@ templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
 ## 開發後文檔更新檢查
 
 每次完成開發任務後，依序檢查：
-1. 是否涉及技術棧/架構變更？ → 更新 CLAUDE.md
-2. 是否新增/修改模組的公開 API？ → 更新對應 index.ts
-3. 是否發現新的開發規範/踩坑經驗？ → 更新 `.claude/rules/*.md`
-4. 是否完成 Epic/Story？ → 更新進度追蹤
+1. **是否完成 CHANGE/FIX？（🔴 必須）** → 更新規劃文件狀態為 ✅ 已完成
+2. 是否涉及技術棧/架構變更？ → 更新 CLAUDE.md
+3. 是否新增/修改模組的公開 API？ → 更新對應 index.ts
+4. 是否發現新的開發規範/踩坑經驗？ → 更新 `.claude/rules/*.md`
+5. 是否完成 Epic/Story？ → 更新進度追蹤
 
 > 📋 完整檢查清單、自動提醒規則與更新範例：`claudedocs/reference/dev-checklists.md`
 

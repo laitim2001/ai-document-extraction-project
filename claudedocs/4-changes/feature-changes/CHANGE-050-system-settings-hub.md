@@ -1,7 +1,7 @@
 # CHANGE-050: System Settings Hub 統一系統設定頁面
 
 > **日期**: 2026-02-26
-> **狀態**: 📋 規劃中
+> **狀態**: ✅ 已完成
 > **優先級**: Low
 > **類型**: New Feature
 > **影響範圍**: 新增 `/admin/settings` 頁面路由、Sidebar 導航、i18n 新命名空間、Prisma Model

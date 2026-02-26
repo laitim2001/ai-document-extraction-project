@@ -1,7 +1,7 @@
 # CHANGE-051: Extracted Fields 顯示重構 -- 來源標籤 i18n 化 + Line Items 支援
 
 > **日期**: 2026-02-26
-> **狀態**: 📋 規劃中
+> **狀態**: ✅ 已完成
 > **優先級**: High
 > **類型**: Enhancement / Refactor
 > **影響範圍**: 文件詳情頁 Extracted Fields Tab（API 端 + 前端組件 + i18n）
