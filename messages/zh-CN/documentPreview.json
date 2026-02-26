@@ -1,4 +1,29 @@
 {
+  "fieldCard": {
+    "source": {
+      "azureDi": "Azure DI",
+      "gptVision": "GPT Vision",
+      "manual": "手动输入",
+      "mapping": "映射规则"
+    }
+  },
+  "lineItems": {
+    "title": "行项目",
+    "empty": "未提取到行项目",
+    "columns": {
+      "description": "描述",
+      "classifiedAs": "分类",
+      "quantity": "数量",
+      "unitPrice": "单价",
+      "amount": "金额",
+      "confidence": "置信度"
+    },
+    "needsClassification": "需要分类",
+    "stats": {
+      "total": "共 {count} 个行项目",
+      "needsReview": "{count} 个需审核"
+    }
+  },
   "testPage": {
     "backToAdmin": "返回管理后台",
     "title": "文件预览整合测试",

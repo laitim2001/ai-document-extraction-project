@@ -45,6 +45,7 @@ export { PDFErrorDisplay } from './PDFErrorDisplay'
 export { FieldCard } from './FieldCard'
 export { FieldFilters } from './FieldFilters'
 export { ExtractedFieldsPanel } from './ExtractedFieldsPanel'
+export { LineItemsTable } from './LineItemsTable'
 
 // Types re-export for convenience
 export type {
@@ -60,6 +61,7 @@ export type {
 
 export {
   FIELD_SOURCE_LABELS,
+  FIELD_SOURCE_I18N_KEYS,
   CONFIDENCE_THRESHOLDS,
   DEFAULT_CATEGORIES,
   DEFAULT_FILTER_STATE,

@@ -29,6 +29,7 @@ import { DocumentAuditLog } from './DocumentAuditLog'
 import { AiDetailsTab } from './AiDetailsTab'
 import { FileText, ListChecks, Clock, History, Bot } from 'lucide-react'
 import type { ExtractedField } from '@/types/extracted-field'
+import type { LineItemV3 } from '@/types/extraction-v3.types'
 import type { DocumentStatusKey } from '@/lib/document-status'
 import type { BoundingBox } from '@/lib/pdf'
 
@@ -55,6 +56,8 @@ interface DocumentData {
   status: DocumentStatusKey | string
   blobUrl?: string | null
   extractedFields?: ExtractedField[] | null
+  /** CHANGE-051: 行項目列表 */
+  lineItems?: LineItemV3[] | null
   processingSteps?: ProcessingStep[] | null
   totalProcessingTime?: number | null
   /** CHANGE-023: AI 詳情 */
@@ -193,6 +196,7 @@ export function DocumentDetailTabs({ document }: DocumentDetailTabsProps) {
             {document.extractedFields && document.extractedFields.length > 0 ? (
               <ExtractedFieldsPanel
                 fields={document.extractedFields}
+                lineItems={document.lineItems ?? undefined}
                 selectedFieldId={selectedFieldId}
                 onFieldSelect={handleFieldSelect}
                 onFieldEdit={handleFieldEdit}

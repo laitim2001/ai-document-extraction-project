@@ -32,6 +32,7 @@ import { prisma } from '@/lib/prisma'
 import type { ExtractedField } from '@/types/extracted-field'
 import { getConfidenceLevelFromScore } from '@/types/extracted-field'
 import { detectExtractionVersion } from '@/types/extraction-v3.types'
+import type { LineItemV3 } from '@/types/extraction-v3.types'
 
 // ============================================================
 // Types
@@ -177,7 +178,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             extractionVersion: true,
             stage1Result: true,
             stage2Result: true,
-            stage3Result: includes.has('stageDetails') || includes.has('aiDetails'),
+            // CHANGE-051: 查詢 stage3Result 以取得 lineItems
+            stage3Result: includes.has('extractedFields') || includes.has('stageDetails') || includes.has('aiDetails'),
             stage1AiDetails: includes.has('stageDetails') || includes.has('aiDetails'),
             stage2AiDetails: includes.has('stageDetails') || includes.has('aiDetails'),
             stage3AiDetails: includes.has('stageDetails') || includes.has('aiDetails'),
@@ -216,6 +218,18 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       } catch (err) {
         console.error(`[Document Detail] Failed to parse fieldMappings for ${id}:`, err)
         extractedFields = []
+      }
+    }
+
+    // CHANGE-051: 提取 lineItems
+    let lineItems: LineItemV3[] | undefined
+    if (includes.has('extractedFields') && document.extractionResult?.stage3Result) {
+      try {
+        const stage3 = document.extractionResult.stage3Result as Record<string, unknown>
+        const rawLineItems = stage3.lineItems as LineItemV3[] | undefined
+        lineItems = Array.isArray(rawLineItems) ? rawLineItems : []
+      } catch {
+        lineItems = []
       }
     }
 
@@ -371,6 +385,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       // 前端期望 uploadedBy 為 { id, name, email } 物件
       uploadedBy: uploader ?? null,
       ...(includes.has('extractedFields') && { extractedFields: extractedFields ?? [] }),
+      // CHANGE-051: 新增 lineItems
+      ...(includes.has('extractedFields') && { lineItems: lineItems ?? [] }),
       ...(includes.has('processingSteps') && {
         processingSteps: processingSteps ?? [],
         totalProcessingTime: document.extractionResult?.processingTime

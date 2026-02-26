@@ -1,4 +1,29 @@
 {
+  "fieldCard": {
+    "source": {
+      "azureDi": "Azure DI",
+      "gptVision": "GPT Vision",
+      "manual": "手動輸入",
+      "mapping": "映射規則"
+    }
+  },
+  "lineItems": {
+    "title": "行項目",
+    "empty": "未提取到行項目",
+    "columns": {
+      "description": "描述",
+      "classifiedAs": "分類",
+      "quantity": "數量",
+      "unitPrice": "單價",
+      "amount": "金額",
+      "confidence": "信心度"
+    },
+    "needsClassification": "需要分類",
+    "stats": {
+      "total": "共 {count} 個行項目",
+      "needsReview": "{count} 個需審核"
+    }
+  },
   "testPage": {
     "backToAdmin": "返回管理後台",
     "title": "文件預覽整合測試",

@@ -27,20 +27,24 @@ import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { FieldCard } from './FieldCard'
 import { FieldFilters } from './FieldFilters'
+import { LineItemsTable } from './LineItemsTable'
 import type {
   ExtractedField,
   FieldCategory,
   FieldFilterState,
 } from '@/types/extracted-field'
 import { DEFAULT_CATEGORIES, DEFAULT_FILTER_STATE } from '@/types/extracted-field'
+import type { LineItemV3 } from '@/types/extraction-v3.types'
 
 // ============================================================
 // Types
 // ============================================================
 
 export interface ExtractedFieldsPanelProps {
-  /** 欄位列表 */
+  /** Header 欄位列表 */
   fields: ExtractedField[]
+  /** CHANGE-051: 行項目列表 */
+  lineItems?: LineItemV3[]
   /** 欄位類別定義 */
   categories?: FieldCategory[]
   /** 選中的欄位 ID */
@@ -72,6 +76,7 @@ interface FieldGroup {
  */
 export function ExtractedFieldsPanel({
   fields,
+  lineItems,
   categories = DEFAULT_CATEGORIES,
   selectedFieldId,
   onFieldSelect,
@@ -255,6 +260,19 @@ export function ExtractedFieldsPanel({
           </div>
         )}
       </div>
+
+      {/* CHANGE-051: Line Items 區（表格佈局） */}
+      {lineItems && lineItems.length > 0 && (
+        <div className="border-t p-4">
+          <h3 className="mb-3 flex items-center font-semibold text-gray-900">
+            <span>{t('lineItems.title')}</span>
+            <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-normal text-gray-500">
+              {lineItems.length}
+            </span>
+          </h3>
+          <LineItemsTable lineItems={lineItems} />
+        </div>
+      )}
     </div>
   )
 }

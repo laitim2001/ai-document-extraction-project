@@ -26,6 +26,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { DocumentSourceType } from '@prisma/client'
 import type { ExtractedField } from '@/types/extracted-field'
+import type { LineItemV3 } from '@/types/extraction-v3.types'
 import type { DocumentStatusKey } from '@/lib/document-status'
 
 // ============================================================
@@ -107,6 +108,8 @@ interface DocumentDetail {
     code: string
   } | null
   extractedFields: ExtractedField[] | null
+  /** CHANGE-051: 行項目列表 */
+  lineItems?: LineItemV3[] | null
   processingSteps: ProcessingStep[] | null
   totalProcessingTime: number | null
   /** CHANGE-023: AI 詳情 */

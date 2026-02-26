@@ -22,6 +22,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Check, X, Pencil, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -31,7 +32,7 @@ import type {
   FieldSource,
   ConfidenceLevel,
 } from '@/types/extracted-field'
-import { FIELD_SOURCE_LABELS } from '@/types/extracted-field'
+import { FIELD_SOURCE_I18N_KEYS } from '@/types/extracted-field'
 
 // ============================================================
 // Types
@@ -103,6 +104,7 @@ export function FieldCard({
   onEdit,
   className,
 }: FieldCardProps) {
+  const t = useTranslations('documentPreview')
   const [isEditing, setIsEditing] = React.useState(false)
   const [editValue, setEditValue] = React.useState(String(field.value ?? ''))
   const inputRef = React.useRef<HTMLInputElement>(null)
@@ -204,7 +206,7 @@ export function FieldCard({
               getSourceStyles(field.source)
             )}
           >
-            {FIELD_SOURCE_LABELS[field.source]}
+            {t(FIELD_SOURCE_I18N_KEYS[field.source])}
           </span>
         </div>
       </div>

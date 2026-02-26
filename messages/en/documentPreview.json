@@ -1,4 +1,29 @@
 {
+  "fieldCard": {
+    "source": {
+      "azureDi": "Azure DI",
+      "gptVision": "GPT Vision",
+      "manual": "Manual",
+      "mapping": "Mapping Rule"
+    }
+  },
+  "lineItems": {
+    "title": "Line Items",
+    "empty": "No line items extracted",
+    "columns": {
+      "description": "Description",
+      "classifiedAs": "Classification",
+      "quantity": "Qty",
+      "unitPrice": "Unit Price",
+      "amount": "Amount",
+      "confidence": "Confidence"
+    },
+    "needsClassification": "Needs classification",
+    "stats": {
+      "total": "{count} line items",
+      "needsReview": "{count} needs review"
+    }
+  },
   "testPage": {
     "backToAdmin": "Back to Admin",
     "title": "Document Preview Integration Test",

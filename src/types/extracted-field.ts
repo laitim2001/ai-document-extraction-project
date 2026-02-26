@@ -22,12 +22,25 @@ export type FieldSource = 'AZURE_DI' | 'GPT_VISION' | 'MANUAL' | 'MAPPING';
 
 /**
  * 來源顯示標籤
+ * @deprecated 使用 i18n key 代替。請參考 FIELD_SOURCE_I18N_KEYS
  */
 export const FIELD_SOURCE_LABELS: Record<FieldSource, string> = {
   AZURE_DI: 'Azure DI',
   GPT_VISION: 'GPT Vision',
-  MANUAL: '手動輸入',
-  MAPPING: '映射規則',
+  MANUAL: 'Manual',
+  MAPPING: 'Mapping',
+};
+
+/**
+ * 來源 i18n key 映射
+ * @description 將 FieldSource 映射到 documentPreview.json 的 i18n key
+ * @since CHANGE-051
+ */
+export const FIELD_SOURCE_I18N_KEYS: Record<FieldSource, string> = {
+  AZURE_DI: 'fieldCard.source.azureDi',
+  GPT_VISION: 'fieldCard.source.gptVision',
+  MANUAL: 'fieldCard.source.manual',
+  MAPPING: 'fieldCard.source.mapping',
 };
 
 // ============================================================
