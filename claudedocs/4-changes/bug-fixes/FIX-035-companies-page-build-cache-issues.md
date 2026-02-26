@@ -4,7 +4,7 @@
 > **發現方式**: Playwright E2E 手動測試
 > **影響頁面**: `/[locale]/companies`, `/[locale]/companies/[id]`
 > **優先級**: 中
-> **狀態**: 🚧 待修復
+> **狀態**: ✅ 已完成（BUG-2 代碼修復 commit: `65f2199`；BUG-1/3 為快取問題，清除 .next 解決）
 
 ---
 

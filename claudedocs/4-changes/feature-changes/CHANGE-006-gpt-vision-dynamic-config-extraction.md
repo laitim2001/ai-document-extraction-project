@@ -1,6 +1,6 @@
 # CHANGE-006: GPT Vision 動態配置提取與 Term 記錄
 
-> **狀態**: 🚧 進行中 - 需要建立 PromptConfig
+> **狀態**: ✅ 已完成（commit: `e1930a7`）
 > **類型**: Feature Enhancement
 > **影響範圍**: Epic 14/15 - PromptConfig 系統與統一處理管道
 > **建立日期**: 2026-01-06

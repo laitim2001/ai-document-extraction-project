@@ -1,6 +1,6 @@
 # CHANGE-004: Azure DI BoundingBox 座標提取
 
-> **狀態**: 📋 待審核
+> **狀態**: ✅ 已完成（commit: `5e423f2`）
 > **類型**: Feature Enhancement
 > **影響範圍**: Epic 13 - 文件預覽與欄位映射
 > **建立日期**: 2026-01-04

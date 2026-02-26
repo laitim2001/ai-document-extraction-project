@@ -4,7 +4,7 @@
 > **發現方式**: Playwright E2E 測試 (Phase 4 CHANGE-016)
 > **影響頁面**: `/[locale]/invoices/[id]`
 > **優先級**: 高
-> **狀態**: 🚧 待修復
+> **狀態**: ✅ 已完成（commits: `367c8a3`, `36173b0`）
 > **發現 commit**: `1c89dff`
 
 ---

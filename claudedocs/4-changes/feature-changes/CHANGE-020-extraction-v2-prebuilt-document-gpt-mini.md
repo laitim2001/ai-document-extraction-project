@@ -2,7 +2,7 @@
 
 > **建立日期**: 2026-01-29
 > **完成日期**: -
-> **狀態**: 📋 待審核
+> **狀態**: ✅ 已完成（commit: `5cadfa3`；後被 CHANGE-021 Extraction V3 取代）
 > **優先級**: High
 > **類型**: Architecture Enhancement (Extraction Pipeline)
 > **影響範圍**: Epic 15 (統一處理管線) + Epic 14 (Prompt 配置)
