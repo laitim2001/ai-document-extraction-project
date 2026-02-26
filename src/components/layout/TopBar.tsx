@@ -29,7 +29,7 @@
 'use client'
 
 import * as React from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
 import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import {
@@ -320,7 +320,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="flex items-center space-x-2 cursor-pointer"
-                onClick={() => router.push('/settings')}
+                onClick={() => router.push('/admin/settings')}
               >
                 <Settings className="h-4 w-4" />
                 <span>{t('user.settings')}</span>
