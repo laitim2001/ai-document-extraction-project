@@ -40,6 +40,10 @@
     "mapping": "Mapping:",
     "openMenu": "Open menu"
   },
+  "deleteDialog": {
+    "description": "Are you sure you want to delete the format \"{name}\"? This will remove all format-specific configurations (Prompt, field mapping, etc.). Associated files will not be deleted but will lose their format association. This action cannot be undone.",
+    "deleting": "Deleting..."
+  },
   "list": {
     "totalFormats": "{count} format(s)",
     "createFormat": "Create Format",
@@ -149,7 +153,19 @@
     "rules": {
       "logoPatterns": {
         "title": "Logo Patterns",
-        "description": "Define the position and features of logos in the document for format identification"
+        "description": "Define the position and features of logos in the document for format identification",
+        "descriptionPlaceholder": "Logo description (e.g., DHL yellow logo)",
+        "addButton": "Add Logo Pattern",
+        "removeTitle": "Remove",
+        "maxReached": "Maximum number reached (10)",
+        "positions": {
+          "top-left": "Top Left",
+          "top-right": "Top Right",
+          "top-center": "Top Center",
+          "bottom-left": "Bottom Left",
+          "bottom-right": "Bottom Right",
+          "center": "Center"
+        }
       },
       "keywords": {
         "title": "Keywords",

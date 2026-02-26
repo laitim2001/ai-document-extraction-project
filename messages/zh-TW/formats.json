@@ -40,6 +40,10 @@
     "mapping": "映射:",
     "openMenu": "開啟選單"
   },
+  "deleteDialog": {
+    "description": "確定要刪除格式「{name}」嗎？這將移除所有格式專屬配置（Prompt、欄位映射等）。關聯的文件不會被刪除，但會失去格式關聯。此操作無法復原。",
+    "deleting": "刪除中..."
+  },
   "list": {
     "totalFormats": "共 {count} 個格式",
     "createFormat": "建立格式",
@@ -149,7 +153,19 @@
     "rules": {
       "logoPatterns": {
         "title": "Logo 特徵",
-        "description": "定義文件中 Logo 的位置和特徵，用於識別此格式"
+        "description": "定義文件中 Logo 的位置和特徵，用於識別此格式",
+        "descriptionPlaceholder": "Logo 描述（例如：DHL 黃色 Logo）",
+        "addButton": "新增 Logo 特徵",
+        "removeTitle": "刪除",
+        "maxReached": "已達到最大數量（10 個）",
+        "positions": {
+          "top-left": "左上角",
+          "top-right": "右上角",
+          "top-center": "頂部中央",
+          "bottom-left": "左下角",
+          "bottom-right": "右下角",
+          "center": "中央"
+        }
       },
       "keywords": {
         "title": "關鍵字",

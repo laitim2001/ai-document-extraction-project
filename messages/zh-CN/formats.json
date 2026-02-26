@@ -40,6 +40,10 @@
     "mapping": "映射:",
     "openMenu": "打开菜单"
   },
+  "deleteDialog": {
+    "description": "确定要删除格式「{name}」吗？这将移除所有格式专属配置（Prompt、字段映射等）。关联的文件不会被删除，但会失去格式关联。此操作无法撤销。",
+    "deleting": "删除中..."
+  },
   "list": {
     "totalFormats": "共 {count} 个格式",
     "createFormat": "创建格式",
@@ -149,7 +153,19 @@
     "rules": {
       "logoPatterns": {
         "title": "Logo 特征",
-        "description": "定义文件中 Logo 的位置和特征，用于识别此格式"
+        "description": "定义文件中 Logo 的位置和特征，用于识别此格式",
+        "descriptionPlaceholder": "Logo 描述（例如：DHL 黄色 Logo）",
+        "addButton": "添加 Logo 特征",
+        "removeTitle": "删除",
+        "maxReached": "已达到最大数量（10 个）",
+        "positions": {
+          "top-left": "左上角",
+          "top-right": "右上角",
+          "top-center": "顶部中央",
+          "bottom-left": "左下角",
+          "bottom-right": "右下角",
+          "center": "中央"
+        }
       },
       "keywords": {
         "title": "关键字",
