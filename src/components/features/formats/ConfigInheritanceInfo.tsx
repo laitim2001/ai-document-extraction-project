@@ -8,9 +8,10 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.4
- * @lastModified 2026-01-12
+ * @lastModified 2026-02-26
  */
 
+import { useTranslations } from 'next-intl';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Info } from 'lucide-react';
@@ -38,13 +39,6 @@ export interface ConfigInheritanceInfoProps {
 // Constants
 // ============================================================================
 
-const LEVEL_LABELS: Record<string, string> = {
-  FORMAT: '格式專屬',
-  COMPANY: '公司級',
-  GLOBAL: '全域',
-  NONE: '預設',
-};
-
 const LEVEL_VARIANTS: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
   FORMAT: 'default',
   COMPANY: 'secondary',
@@ -63,18 +57,19 @@ const LEVEL_VARIANTS: Record<string, 'default' | 'secondary' | 'outline' | 'dest
  *   顯示配置的三層繼承機制說明，以及目前 Prompt 和映射各自生效的層級。
  */
 export function ConfigInheritanceInfo({ inheritance }: ConfigInheritanceInfoProps) {
+  const t = useTranslations('formats');
   const promptLevel = inheritance.effectivePromptLevel;
   const mappingLevel = inheritance.effectiveMappingLevel;
 
   return (
     <Alert>
       <Info className="h-4 w-4" />
-      <AlertTitle>配置優先級說明</AlertTitle>
+      <AlertTitle>{t('detail.configs.inheritance.title')}</AlertTitle>
       <AlertDescription>
         <div className="mt-2 space-y-3 text-sm">
           {/* 優先級說明 */}
           <p className="text-muted-foreground">
-            系統採用三層配置繼承機制，優先級由高到低：
+            {t('detail.configs.inheritance.description')}
           </p>
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="default">FORMAT</Badge>
@@ -84,21 +79,21 @@ export function ConfigInheritanceInfo({ inheritance }: ConfigInheritanceInfoProp
             <Badge variant="outline">GLOBAL</Badge>
           </div>
           <p className="text-muted-foreground">
-            如未配置格式專屬配置，系統會自動使用公司級或全域配置。
+            {t('detail.configs.inheritance.fallback')}
           </p>
 
           {/* 當前生效配置 */}
           <div className="mt-3 pt-3 border-t space-y-2">
             <div className="flex items-center justify-between">
-              <span className="font-medium">Prompt 配置：</span>
+              <span className="font-medium">{t('detail.configs.inheritance.promptLabel')}</span>
               <Badge variant={LEVEL_VARIANTS[promptLevel]}>
-                {LEVEL_LABELS[promptLevel]}
+                {t(`detail.configs.inheritance.levels.${promptLevel}`)}
               </Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-medium">映射配置：</span>
+              <span className="font-medium">{t('detail.configs.inheritance.mappingLabel')}</span>
               <Badge variant={LEVEL_VARIANTS[mappingLevel]}>
-                {LEVEL_LABELS[mappingLevel]}
+                {t(`detail.configs.inheritance.levels.${mappingLevel}`)}
               </Badge>
             </div>
           </div>

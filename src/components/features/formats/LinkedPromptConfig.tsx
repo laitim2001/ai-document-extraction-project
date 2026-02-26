@@ -9,11 +9,12 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.4
- * @lastModified 2026-01-12
+ * @lastModified 2026-02-26
  */
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, X, ExternalLink, Plus } from 'lucide-react';
@@ -79,6 +80,7 @@ export function LinkedPromptConfig({
   effectiveLevel,
 }: LinkedPromptConfigProps) {
   const router = useRouter();
+  const t = useTranslations('formats');
 
   // --- Handlers ---
 
@@ -107,21 +109,21 @@ export function LinkedPromptConfig({
           <X className="h-6 w-6 text-muted-foreground" />
         </div>
         <p className="text-sm text-muted-foreground mb-1">
-          尚未配置格式專屬的 Prompt
+          {t('detail.configs.prompt.empty.description')}
         </p>
         {effectiveLevel !== 'NONE' && (
           <div className="text-xs text-muted-foreground mb-4">
-            目前使用 <Badge variant="outline" className="text-xs">{effectiveLevel}</Badge> 級別配置
+            {t('detail.configs.prompt.empty.usingLevel', { level: effectiveLevel })}
           </div>
         )}
         {effectiveLevel === 'NONE' && (
           <p className="text-xs text-muted-foreground mb-4">
-            目前使用系統預設配置
+            {t('detail.configs.prompt.empty.usingDefault')}
           </p>
         )}
         <Button onClick={handleCreate} size="sm">
           <Plus className="h-4 w-4 mr-2" />
-          創建 Prompt 配置
+          {t('detail.configs.prompt.createButton')}
         </Button>
       </div>
     );
@@ -143,9 +145,9 @@ export function LinkedPromptConfig({
             <div>
               <p className="font-medium">{config.name}</p>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>類型: {getPromptTypeLabel(config.promptType)}</span>
+                <span>{t('detail.configs.prompt.typeLabel')}{getPromptTypeLabel(config.promptType)}</span>
                 <span>|</span>
-                <span>更新: {formatDateTime(config.updatedAt)}</span>
+                <span>{t('detail.configs.prompt.updatedLabel')}{formatDateTime(config.updatedAt)}</span>
               </div>
             </div>
           </div>
@@ -154,7 +156,7 @@ export function LinkedPromptConfig({
             size="sm"
             onClick={() => handleEdit(config.id)}
           >
-            編輯
+            {t('detail.configs.prompt.editButton')}
             <ExternalLink className="h-3 w-3 ml-1" />
           </Button>
         </div>
@@ -168,7 +170,7 @@ export function LinkedPromptConfig({
         onClick={handleCreate}
       >
         <Plus className="h-4 w-4 mr-2" />
-        創建新的 Prompt 配置
+        {t('detail.configs.prompt.createNewButton')}
       </Button>
     </div>
   );
