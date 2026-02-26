@@ -4,7 +4,7 @@
 > **發現方式**: Template Instance 頁面 UI 驗證
 > **影響頁面/功能**: Template Instance 列表 + Template Matching 整條鏈路
 > **優先級**: P0 (Critical)
-> **狀態**: ✅ 已完成（代碼修改 + type-check 通過，待上傳文件驗證）
+> **狀態**: ✅ 已完成
 > **相關**: CHANGE-021（V3 純 GPT Vision 管線）、CHANGE-042（FieldDefinition 動態化）
 
 ---

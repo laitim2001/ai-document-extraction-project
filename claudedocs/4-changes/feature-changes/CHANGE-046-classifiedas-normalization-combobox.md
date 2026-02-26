@@ -1,7 +1,7 @@
 # CHANGE-046: classifiedAs 入口正規化 + UI 下拉選單
 
 > **日期**: 2026-02-25
-> **狀態**: 📋 規劃完成（計畫已批准，待實作）
+> **狀態**: ✅ 已完成
 > **優先級**: High
 > **類型**: Feature Enhancement + Bug Fix
 > **影響範圍**: Stage 3 提取服務、AGGREGATE 轉換、Template Field Mapping UI、i18n

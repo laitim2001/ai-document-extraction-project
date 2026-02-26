@@ -1,7 +1,7 @@
 # CHANGE-036: Reference Number 匹配改為 DB Substring 模糊匹配
 
 > **日期**: 2026-02-10
-> **狀態**: ⏳ 待實作
+> **狀態**: ✅ 已完成
 > **優先級**: High
 > **類型**: Refactor / Feature Enhancement
 > **影響範圍**: extraction-v3 pipeline — Reference Number Matcher 服務、PipelineConfig、Admin UI

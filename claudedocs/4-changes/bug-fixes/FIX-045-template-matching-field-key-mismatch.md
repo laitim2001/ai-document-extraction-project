@@ -4,7 +4,7 @@
 > **發現方式**: FIX-044 Phase 1 完成後，重新處理文件仍無法匹配
 > **影響頁面/功能**: Template Instance 欄位值 → Template Field Mapping → Template Matching 整條鏈路
 > **優先級**: P0 (Critical)
-> **狀態**: 📋 規劃中（等待確認）
+> **狀態**: ✅ 已完成
 > **前置修復**: FIX-044（已 commit `23258a9`，`ExtractionResult.fieldMappings` 不再為空）
 > **相關**: CHANGE-021（V3 管線）、CHANGE-042（FieldDefinitionSet 動態欄位）
 

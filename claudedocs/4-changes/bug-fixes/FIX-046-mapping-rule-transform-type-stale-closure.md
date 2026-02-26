@@ -4,7 +4,7 @@
 > **發現方式**: 用戶報告 Template Field Mapping 頁面中 Transform Type 下拉選單選擇後無反應
 > **影響頁面/功能**: `/admin/template-field-mappings/[id]` — Mapping Rule 詳細配置
 > **優先級**: P1 (High)
-> **狀態**: ✅ 已完成（已修改，待 commit）
+> **狀態**: ✅ 已完成
 > **相關**: CHANGE-043（AGGREGATE transform）、CHANGE-045（FieldDefinitionSet fieldType）
 
 ---

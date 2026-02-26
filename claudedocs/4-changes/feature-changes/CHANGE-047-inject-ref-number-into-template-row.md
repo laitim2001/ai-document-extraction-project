@@ -1,7 +1,7 @@
 # CHANGE-047: 將匹配的 Reference Number 注入 Template Instance Row
 
 > **日期**: 2026-02-25
-> **狀態**: ⏳ 待實作
+> **狀態**: ✅ 已完成
 > **優先級**: High
 > **類型**: Feature Enhancement
 > **影響範圍**: Template Matching Engine、Template Instance Row、匯出流程

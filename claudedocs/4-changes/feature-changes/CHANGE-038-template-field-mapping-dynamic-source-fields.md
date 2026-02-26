@@ -4,7 +4,7 @@
 > **發現方式**: 手動 UI 測試
 > **影響範圍**: Template Field Mapping 建立/編輯頁面
 > **優先級**: P2
-> **狀態**: 實施中
+> **狀態**: ✅ 已完成
 > **相關**: CHANGE-037（Data Template Flow Completion）
 
 ---
