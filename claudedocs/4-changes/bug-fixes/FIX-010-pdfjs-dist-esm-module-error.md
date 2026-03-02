@@ -1,5 +1,7 @@
 # FIX-010: pdfjs-dist v5 ESM Module Error
 
+> **狀態**: ⏸️ 已取代（被 FIX-026 最終方案取代）
+
 ## 問題描述
 
 ### 錯誤訊息

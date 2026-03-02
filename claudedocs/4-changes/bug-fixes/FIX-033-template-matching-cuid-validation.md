@@ -6,6 +6,7 @@
 **影響範圍**: Epic 19 - Template Matching API（Story 19.3, 19.7）
 **嚴重程度**: 高
 **關聯**: 與 FIX-032（Field Mapping Config UUID 驗證錯誤）為同類問題，方向相反
+**狀態**: ✅ 已完成
 
 ### 症狀
 

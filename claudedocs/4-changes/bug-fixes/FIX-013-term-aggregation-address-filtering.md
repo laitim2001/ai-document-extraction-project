@@ -10,6 +10,7 @@
 | 嚴重程度 | Medium |
 | 影響範圍 | 術語聚合服務 (term-aggregation, batch-term-aggregation, hierarchical-term-aggregation) |
 | 相關 Epic | Epic 0 - 歷史數據初始化 |
+| 狀態 | ✅ 已完成 |
 
 ---
 

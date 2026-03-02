@@ -10,6 +10,7 @@
 | **嚴重程度** | High |
 | **影響範圍** | `/admin/document-preview-test` 頁面 |
 | **相關 Epic** | Epic 13 - 文件預覽與欄位映射 |
+| **狀態** | ✅ 已完成 |
 
 ---
 
