@@ -1,4 +1,4 @@
-# FIX-024: EmailNotVerified 錯誤訊息未正確顯示
+# FIX-024b: EmailNotVerified 錯誤訊息未正確顯示
 
 **建立日期**: 2026-01-19
 **修復日期**: 2026-01-19
