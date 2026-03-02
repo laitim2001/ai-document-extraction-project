@@ -13,7 +13,7 @@
  *
  * @module prisma/seed-data/prompt-configs
  * @since CHANGE-039
- * @lastModified 2026-02-13
+ * @lastModified 2026-03-02
  */
 
 export interface PromptConfigSeed {
@@ -73,70 +73,47 @@ export const PROMPT_CONFIG_SEEDS: PromptConfigSeed[] = [
 
   // ============================================================================
   // 2. STAGE_2_FORMAT_IDENTIFICATION - V3.1 階段二：格式識別
+  // FIX-049: 重寫為正確的格式識別內容（原本錯誤地使用了欄位提取 Prompt）
   // ============================================================================
   {
     promptType: 'STAGE_2_FORMAT_IDENTIFICATION',
     scope: 'GLOBAL',
     name: 'V3.1 Stage 2 - Format Identification',
-    description: 'V3.1 提取管線階段二：識別文件格式和子類型，用於匹配格式模板',
-    systemPrompt: `你是一位專業的發票數據提取專家。
-你的任務是從貨運和物流發票圖片中提取結構化數據。
+    description: 'V3.1 提取管線階段二：識別文件格式模板，用於匹配格式模板和載入對應配置',
+    systemPrompt: `你是一位專業的文件格式識別專家，專門分析貨運和物流發票的版面格式。
+你的任務是從文件圖片中識別文件格式/模板類型。
 
-提取規則：
-1. 發票基本資訊：發票號碼、日期、到期日
-2. 供應商資訊：名稱、地址、稅號
-3. 買方資訊：名稱、地址
-4. 費用明細：項目描述、數量、單價、金額
-5. 金額彙總：小計、稅額、總額、幣別
+識別要點：
+1. 觀察文件整體版面佈局（信頭位置、表格結構、頁尾資訊）
+2. 識別行項目/費用明細的排列方式（表格 vs 列表 vs 自由格式）
+3. 注意日期和金額的顯示格式（DD/MM/YYYY vs MM/DD/YYYY，千分位符號等）
+4. 觀察是否有特定的文件編號格式、浮水印、或標誌性元素
+5. 信心度評分：0-100（越高越確定）
 
-注意事項：
-- 日期格式：YYYY-MM-DD
-- 金額保留兩位小數
-- 如無法識別某欄位，設為 null
-- 信心度評分：0-1（越高越確定）`,
-    userPromptTemplate: `請從這張發票圖片中提取以下資訊：
+如果提供了已知格式列表，優先嘗試匹配已知格式。
+如果無法匹配已知格式，描述該文件的格式特徵以便日後識別。`,
+    userPromptTemplate: `請分析這張文件圖片，識別其格式/模板類型。
 
 輸出 JSON 格式：
 {
-  "success": true,
-  "confidence": 0.0-1.0,
-  "invoiceData": {
-    "invoiceNumber": "發票號碼",
-    "invoiceDate": "YYYY-MM-DD",
-    "dueDate": "YYYY-MM-DD 或 null",
-    "vendor": {
-      "name": "供應商名稱",
-      "address": "供應商地址",
-      "taxId": "稅號"
-    },
-    "buyer": {
-      "name": "買方名稱",
-      "address": "買方地址"
-    },
-    "lineItems": [
-      {
-        "description": "項目描述",
-        "quantity": 1,
-        "unitPrice": 0.00,
-        "amount": 0.00
-      }
-    ],
-    "subtotal": 0.00,
-    "taxAmount": 0.00,
-    "totalAmount": 0.00,
-    "currency": "USD/TWD/CNY/etc"
-  }
+  "formatName": "識別到的格式名稱（如 'DHL Standard Invoice', 'Maersk Freight Note'）",
+  "confidence": 0-100,
+  "matchedKnownFormat": "匹配的已知格式名稱，若無匹配則為 null",
+  "formatCharacteristics": [
+    "觀察到的格式特徵（如 '橫向表格佈局'、'右上角有公司 Logo'、'底部有銀行資訊'）"
+  ]
 }
 
 只輸出有效的 JSON，不要有其他文字。`,
     mergeStrategy: 'OVERRIDE',
     variables: [],
     isActive: true,
-    version: 1,
+    version: 2,
   },
 
   // ============================================================================
   // 3. STAGE_3_FIELD_EXTRACTION - V3.1 階段三：欄位提取
+  // FIX-049: 信心度範圍從 0-1 修正為 0-100
   // ============================================================================
   {
     promptType: 'STAGE_3_FIELD_EXTRACTION',
@@ -157,13 +134,13 @@ export const PROMPT_CONFIG_SEEDS: PromptConfigSeed[] = [
 - 日期格式：YYYY-MM-DD
 - 金額保留兩位小數
 - 如無法識別某欄位，設為 null
-- 信心度評分：0-1（越高越確定）`,
+- 信心度評分：0-100（越高越確定）`,
     userPromptTemplate: `請從這張發票圖片中提取以下資訊：
 
 輸出 JSON 格式：
 {
   "success": true,
-  "confidence": 0.0-1.0,
+  "confidence": 0-100,
   "invoiceData": {
     "invoiceNumber": "發票號碼",
     "invoiceDate": "YYYY-MM-DD",
@@ -196,11 +173,12 @@ export const PROMPT_CONFIG_SEEDS: PromptConfigSeed[] = [
     mergeStrategy: 'OVERRIDE',
     variables: [],
     isActive: true,
-    version: 1,
+    version: 2,
   },
 
   // ============================================================================
   // 4. FIELD_EXTRACTION - V3 管線使用的單步提取
+  // FIX-049: 信心度範圍從 0-1 修正為 0-100
   // ============================================================================
   {
     promptType: 'FIELD_EXTRACTION',
@@ -221,13 +199,13 @@ export const PROMPT_CONFIG_SEEDS: PromptConfigSeed[] = [
 - 日期格式：YYYY-MM-DD
 - 金額保留兩位小數
 - 如無法識別某欄位，設為 null
-- 信心度評分：0-1（越高越確定）`,
+- 信心度評分：0-100（越高越確定）`,
     userPromptTemplate: `請從這張發票圖片中提取以下資訊：
 
 輸出 JSON 格式：
 {
   "success": true,
-  "confidence": 0.0-1.0,
+  "confidence": 0-100,
   "invoiceData": {
     "invoiceNumber": "發票號碼",
     "invoiceDate": "YYYY-MM-DD",
@@ -260,7 +238,7 @@ export const PROMPT_CONFIG_SEEDS: PromptConfigSeed[] = [
     mergeStrategy: 'OVERRIDE',
     variables: [],
     isActive: true,
-    version: 1,
+    version: 2,
   },
 
   // ============================================================================

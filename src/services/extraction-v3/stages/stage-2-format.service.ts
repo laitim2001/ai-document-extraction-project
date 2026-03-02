@@ -14,7 +14,7 @@
  *
  * @module src/services/extraction-v3/stages/stage-2-format.service
  * @since CHANGE-024 - Three-Stage Extraction Architecture
- * @lastModified 2026-02-03
+ * @lastModified 2026-03-02
  *
  * @features
  *   - 分層配置查詢：公司特定 → 統一格式 → LLM 推斷
@@ -331,19 +331,29 @@ export class Stage2FormatService {
       : '';
 
     return {
-      system: `You are an invoice format identification specialist.
-Your task is to identify the format/template of this invoice.
+      system: `You are an invoice format identification specialist for freight and logistics documents.
+Your task is to identify the format/template of this document by analyzing its visual layout and structure.
 
-${hasKnownFormats ? `Known formats (${config.source}):\n${formatList}` : 'No known formats - identify format characteristics from document.'}
+Key aspects to observe:
+1. Overall layout: header position, table structure, footer information, page orientation
+2. Line items arrangement: table format vs list format vs free-form text
+3. Date and amount display formats (DD/MM/YYYY vs MM/DD/YYYY, decimal separators, thousand separators)
+4. Distinctive elements: watermarks, logos placement, document numbering patterns, barcodes
+5. Company branding: color schemes, fonts, specific section arrangements
+
+${hasKnownFormats
+  ? `Known formats (${config.source}):\n${formatList}\n\nFirst try to match against these known formats. If no match, describe the format characteristics for future identification.`
+  : 'No known formats available. Describe the format characteristics in detail for future identification.'}
 
 Response format (JSON):
 {
-  "formatName": "string - identified format name",
+  "formatName": "string - identified format name (e.g., 'DHL Standard Invoice', 'Maersk Freight Note')",
   "confidence": number (0-100),
-  "matchedKnownFormat": "string | null - if matched to known format",
-  "formatCharacteristics": ["array of observed format characteristics"]
+  "matchedKnownFormat": "string | null - name of matched known format, null if new format",
+  "formatCharacteristics": ["array of observed format characteristics, e.g., 'landscape table layout', 'logo at top-right', 'bank details in footer'"]
 }`,
-      user: 'Identify the format/template of this invoice image.',
+      user: `Analyze this document image and identify its format/template type.
+Focus on the visual layout, table structure, and distinctive formatting elements rather than the content data.`,
     };
   }
 
