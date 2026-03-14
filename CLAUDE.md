@@ -466,6 +466,36 @@ templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
 
 ---
 
+## 🖥️ 跨電腦開發協作（多機同步）
+
+本項目在多台電腦上同時開發，透過 GitHub 同步代碼。
+
+### Git Slash Commands
+
+| 命令 | 用途 | 說明 |
+|------|------|------|
+| `/git-status` | 快速狀態檢查 | 唯讀操作 — 一次輸出 Git 分支、同步狀態、Docker 服務、開發伺服器狀態 |
+| `/git-sync` | 完整同步流程 | 拉取/推送 + 自動偵測依賴、Schema 變更並建議更新環境 |
+
+### 切換電腦時的標準流程
+
+```
+1. /git-sync                          → 拉取最新代碼 + 同步環境
+2. docker-compose up -d               → 確認 Docker 服務運行
+3. npm run dev -- -p 3300             → 啟動開發伺服器
+```
+
+### 關鍵注意事項
+
+- **DATABASE_URL 端口**: Docker PostgreSQL 對外映射端口為 **5433**（非 5432），`.env` 必須對應
+- **`.next` 快取**: 跨電腦複製項目後必須 `rm -rf .next`，否則會有舊路徑導致 500 錯誤
+- **Schema 同步**: 本項目使用 `prisma db push` 同步 Schema（非 migration），拉取後可能需要 `npx prisma db push --accept-data-loss`
+- **種子資料**: 新環境首次設定需要 `npx prisma db seed` 建立基礎資料（角色、區域、城市、公司等）
+
+> 📋 完整初始化指南：`docs/06-deployment/project-initialization-guide.md`
+
+---
+
 ## 按需查閱文檔索引
 
 | 需要了解 | 查閱路徑 |
@@ -486,6 +516,9 @@ templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
 | i18n 完整規範 | `.claude/rules/i18n.md` |
 | 技術障礙處理流程 | `.claude/rules/technical-obstacles.md` |
 | 並行 Agent 編排協議 | `CLAUDE.md` §開發編排協議 |
+| 跨電腦開發與 Git 同步 | `CLAUDE.md` §跨電腦開發協作 |
+| 項目初始化指南 | `docs/06-deployment/project-initialization-guide.md` |
+| Git Slash Commands | `.claude/skills/git-sync/` + `.claude/skills/git-status/` |
 | PRD | `docs/01-planning/prd/prd.md` |
 | 系統架構設計 | `docs/02-architecture/` |
 | Tech Specs | `docs/03-stories/tech-specs/` |
@@ -495,7 +528,7 @@ templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
 
 ## 版本資訊
 
-- **CLAUDE.md 版本**: 3.1.0
-- **最後更新**: 2026-02-23
-- **變更記錄**: 新增開發編排協議（並行 Agent 自動化）（v3.0.0 → v3.1.0）
+- **CLAUDE.md 版本**: 3.2.0
+- **最後更新**: 2026-03-14
+- **變更記錄**: 新增跨電腦開發協作章節、Git Slash Commands、初始化指南引用（v3.1.0 → v3.2.0）
 - **完整版本歷史**: `claudedocs/reference/project-progress.md`
