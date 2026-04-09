@@ -75,6 +75,14 @@ scripts/reaggregate-*
 scripts/reset-*
 scripts/e2e-*
 
+# Conversation logs and screenshots (development artifacts)
+2026-*.txt
+conversation-*.txt
+*.png
+!docs/**/*.png
+!public/**/*.png
+!src/**/*.png
+
 # Corrupted filenames (Windows encoding issues)
 *執行日期*
 *批次*
