@@ -368,7 +368,13 @@ export class ConfidenceV3_1Service {
   }
 
   /**
-   * 生成路由決策
+   * 生成路由決策（Pipeline 內部路徑）
+   *
+   * @description 被 `calculate()` 主流程呼叫。從完整三階段結果抽取路由標記，
+   *   委派給 `applyRoutingStrategy()` 執行統一的策略核心。
+   *
+   * FIX-053: 原本這裡有一套獨立的條件分支；與 `getSmartReviewType` 形成雙路徑。
+   *   現已抽出 `applyRoutingStrategy` 為唯一策略核心，兩個 API 保證行為一致。
    */
   private static generateRoutingDecision(
     input: ConfidenceInputV3_1,
@@ -376,81 +382,110 @@ export class ConfidenceV3_1Service {
   ): RoutingDecisionV3_1 {
     const { stage1Result, stage2Result, stage3Result } = input;
 
-    // 基於分數的基本路由
-    let decision: 'AUTO_APPROVE' | 'QUICK_REVIEW' | 'FULL_REVIEW';
-
-    if (score >= ROUTING_THRESHOLDS_V3_1.AUTO_APPROVE) {
-      decision = 'AUTO_APPROVE';
-    } else if (score >= ROUTING_THRESHOLDS_V3_1.QUICK_REVIEW) {
-      decision = 'QUICK_REVIEW';
-    } else {
-      decision = 'FULL_REVIEW';
-    }
-
-    // 構建決策理由
-    const reasons: string[] = [];
-
-    // 基於分數的基本原因
-    if (score >= ROUTING_THRESHOLDS_V3_1.AUTO_APPROVE) {
-      reasons.push('整體信心度達到自動批准閾值');
-    } else if (score >= ROUTING_THRESHOLDS_V3_1.QUICK_REVIEW) {
-      reasons.push('整體信心度達到快速審核閾值');
-    } else {
-      reasons.push('整體信心度低於快速審核閾值');
-    }
-
-    // 額外檢查：新公司
-    if (stage1Result.isNewCompany) {
-      if (decision === 'AUTO_APPROVE') {
-        decision = 'QUICK_REVIEW';
-      }
-      reasons.push('識別到新公司');
-    }
-
-    // 額外檢查：新格式
-    if (stage2Result.isNewFormat) {
-      if (decision === 'AUTO_APPROVE') {
-        decision = 'QUICK_REVIEW';
-      }
-      reasons.push('識別到新文件格式');
-    }
-
-    // 額外檢查：LLM 推斷配置
-    if (stage2Result.configSource === 'LLM_INFERRED') {
-      if (decision === 'AUTO_APPROVE') {
-        decision = 'QUICK_REVIEW';
-      }
-      reasons.push('格式由 LLM 推斷（無預設配置）');
-    }
-
-    // 額外檢查：需要分類的項目
     const itemsNeedingClassification =
       stage3Result.lineItems.filter((item) => item.needsClassification)
         .length +
       (stage3Result.extraCharges?.filter((charge) => charge.needsClassification)
         .length || 0);
 
-    if (itemsNeedingClassification > 3 && decision === 'AUTO_APPROVE') {
+    // pipeline 內部使用 FormatConfigSource：只有 LLM_INFERRED 需要降級
+    const shouldDowngradeByConfig =
+      stage2Result.configSource === 'LLM_INFERRED';
+    const configDowngradeReason = '格式由 LLM 推斷（無預設配置）';
+
+    return this.applyRoutingStrategy(score, {
+      isNewCompany: stage1Result.isNewCompany,
+      isNewFormat: stage2Result.isNewFormat,
+      shouldDowngradeByConfig,
+      configDowngradeReason,
+      itemsNeedingClassification,
+      stage1Success: stage1Result.success,
+      stage2Success: stage2Result.success,
+      stage3Success: stage3Result.success,
+    });
+  }
+
+  /**
+   * 路由策略核心（FIX-053 新增）
+   *
+   * @description 統一的路由策略實作，供 `generateRoutingDecision()`
+   *   和 `getSmartReviewType()` 共同使用。
+   *
+   *   策略原則：
+   *   - 先依 `score` 決定基本決策（≥90 AUTO_APPROVE / ≥70 QUICK_REVIEW / 其他 FULL_REVIEW）
+   *   - **新公司 / 新格式 / 配置來源觸發降級**：AUTO_APPROVE → 降級為 QUICK_REVIEW
+   *   - **>3 項需分類**：AUTO_APPROVE → 降級為 QUICK_REVIEW
+   *   - **任一 Stage 失敗**：強制 FULL_REVIEW
+   *
+   *   `shouldDowngradeByConfig` 是抽象旗標，由呼叫方根據自己的 configSource
+   *   語義決定是否觸發。例如：
+   *   - Pipeline（`FormatConfigSource`）：`LLM_INFERRED` → true
+   *   - 簡化 API（`ConfigSourceType`）：`DEFAULT` → true
+   */
+  private static applyRoutingStrategy(
+    score: number,
+    flags: {
+      isNewCompany: boolean;
+      isNewFormat: boolean;
+      shouldDowngradeByConfig: boolean;
+      configDowngradeReason: string;
+      itemsNeedingClassification: number;
+      stage1Success: boolean;
+      stage2Success: boolean;
+      stage3Success: boolean;
+    }
+  ): RoutingDecisionV3_1 {
+    let decision: 'AUTO_APPROVE' | 'QUICK_REVIEW' | 'FULL_REVIEW';
+    const reasons: string[] = [];
+
+    // 基本決策（基於 score）
+    if (score >= ROUTING_THRESHOLDS_V3_1.AUTO_APPROVE) {
+      decision = 'AUTO_APPROVE';
+      reasons.push('整體信心度達到自動批准閾值');
+    } else if (score >= ROUTING_THRESHOLDS_V3_1.QUICK_REVIEW) {
       decision = 'QUICK_REVIEW';
-      reasons.push(`${itemsNeedingClassification} 個項目需要人工分類`);
+      reasons.push('整體信心度達到快速審核閾值');
+    } else {
+      decision = 'FULL_REVIEW';
+      reasons.push('整體信心度低於快速審核閾值');
     }
 
-    // 額外檢查：Stage 失敗
-    if (!stage1Result.success) {
-      if (decision !== 'FULL_REVIEW') {
-        decision = 'FULL_REVIEW';
-      }
+    // 新公司 → AUTO_APPROVE 降級
+    if (flags.isNewCompany) {
+      if (decision === 'AUTO_APPROVE') decision = 'QUICK_REVIEW';
+      reasons.push('識別到新公司');
+    }
+
+    // 新格式 → AUTO_APPROVE 降級
+    if (flags.isNewFormat) {
+      if (decision === 'AUTO_APPROVE') decision = 'QUICK_REVIEW';
+      reasons.push('識別到新文件格式');
+    }
+
+    // 配置來源觸發降級（語義由呼叫方定義）
+    if (flags.shouldDowngradeByConfig) {
+      if (decision === 'AUTO_APPROVE') decision = 'QUICK_REVIEW';
+      reasons.push(flags.configDowngradeReason);
+    }
+
+    // 過多項目需分類 → AUTO_APPROVE 降級
+    if (flags.itemsNeedingClassification > 3 && decision === 'AUTO_APPROVE') {
+      decision = 'QUICK_REVIEW';
+      reasons.push(
+        `${flags.itemsNeedingClassification} 個項目需要人工分類`
+      );
+    }
+
+    // Stage 失敗覆蓋（最高優先級）
+    if (!flags.stage1Success) {
+      decision = 'FULL_REVIEW';
       reasons.push('Stage 1 公司識別失敗');
     }
-
-    if (!stage2Result.success) {
-      if (decision !== 'FULL_REVIEW') {
-        decision = 'FULL_REVIEW';
-      }
+    if (!flags.stage2Success) {
+      decision = 'FULL_REVIEW';
       reasons.push('Stage 2 格式識別失敗');
     }
-
-    if (!stage3Result.success) {
+    if (!flags.stage3Success) {
       decision = 'FULL_REVIEW';
       reasons.push('Stage 3 欄位提取失敗');
     }
@@ -512,14 +547,20 @@ export class ConfidenceV3_1Service {
   }
 
   /**
-   * CHANGE-025: 智能路由決策
+   * CHANGE-025: 智能路由決策（外部 API 簡化介面）
    *
-   * @description 根據智能路由標記決定審核類型
-   *   - 新公司 + 新格式 → FULL_REVIEW（需人工配置公司和格式）
-   *   - 新公司 → FULL_REVIEW（需人工配置公司識別規則）
-   *   - 新格式 → QUICK_REVIEW（需人工配置格式映射）
-   *   - DEFAULT 配置 → 根據信心度降級一級
-   *   - 否則 → 標準信心度路由
+   * @description 根據簡化的路由標記決定審核類型。
+   *
+   *   **FIX-053（2026-04-21）**: 原本此函數有獨立的條件分支邏輯，與
+   *   `generateRoutingDecision()` 形成雙路徑，在新公司場景下會回傳相反結論
+   *   （強制 FULL_REVIEW vs 降級 QUICK_REVIEW）。現已重構為 adapter，內部
+   *   委派給共用的 `applyRoutingStrategy()` 策略核心，**保證與 pipeline
+   *   主流程 `generateRoutingDecision()` 在相同業務輸入下回傳一致**。
+   *
+   *   由於此 API 接受簡化輸入（不含完整 stage 結果），部分資訊會以預設值填入：
+   *   - `itemsNeedingClassification = 0`（簡化 API 無此資訊）
+   *   - `stageNSuccess = true`（簡化 API 假設所有 stage 都成功；若 stage 失敗
+   *     請使用 `generateRoutingDecision()` 透過 `calculate()` 取得完整結果）
    *
    * @param input - 智能路由輸入
    * @returns 智能路由輸出（審核類型 + 原因 + 配置審核標記）
@@ -527,82 +568,31 @@ export class ConfidenceV3_1Service {
   static getSmartReviewType(input: SmartRoutingInput): SmartRoutingOutput {
     const { overallConfidence, isNewCompany, isNewFormat, configSource } = input;
 
-    // 1. 新公司 + 新格式：強制 FULL_REVIEW
-    if (isNewCompany && isNewFormat) {
-      return {
-        reviewType: 'FULL_REVIEW',
-        reason: '新公司且新格式：需要人工配置公司識別規則和格式映射',
-        needsConfigReview: true,
-      };
-    }
+    // SmartRoutingInput 使用 ConfigSourceType (FORMAT/COMPANY/GLOBAL/DEFAULT)
+    // DEFAULT 代表「非公司/格式特定」配置，應觸發降級（與 pipeline 的 LLM_INFERRED 語義一致）
+    const shouldDowngradeByConfig = configSource === 'DEFAULT';
+    const configDowngradeReason = '使用預設配置（非公司/格式特定）';
 
-    // 2. 新公司：強制 FULL_REVIEW
-    if (isNewCompany) {
-      return {
-        reviewType: 'FULL_REVIEW',
-        reason: '新公司：需要人工配置公司識別規則（Logo/關鍵字）',
-        needsConfigReview: true,
-      };
-    }
+    const routing = this.applyRoutingStrategy(overallConfidence, {
+      isNewCompany,
+      isNewFormat,
+      shouldDowngradeByConfig,
+      configDowngradeReason,
+      itemsNeedingClassification: 0,
+      stage1Success: true,
+      stage2Success: true,
+      stage3Success: true,
+    });
 
-    // 3. 新格式：強制 QUICK_REVIEW
-    if (isNewFormat) {
-      return {
-        reviewType: 'QUICK_REVIEW',
-        reason: '新格式：需要人工驗證格式映射',
-        needsConfigReview: true,
-      };
-    }
+    // `needsConfigReview` 標記：代表此決策是否因配置缺失而觸發（非僅信心度不足）
+    const needsConfigReview =
+      isNewCompany || isNewFormat || configSource === 'DEFAULT';
 
-    // 4. DEFAULT 配置來源：根據信心度但降級一級
-    if (configSource === 'DEFAULT') {
-      const baseDecision = this.getBaseDecisionByConfidence(overallConfidence);
-      const downgraded = this.downgradeDecision(baseDecision);
-      return {
-        reviewType: downgraded,
-        reason: `使用預設配置（非公司/格式特定）：${baseDecision} → ${downgraded}`,
-        needsConfigReview: false,
-      };
-    }
-
-    // 5. 標準信心度路由
-    const decision = this.getBaseDecisionByConfidence(overallConfidence);
     return {
-      reviewType: decision,
-      reason: `標準信心度路由：${overallConfidence.toFixed(1)}% (${configSource} 配置)`,
-      needsConfigReview: false,
+      reviewType: routing.decision,
+      reason: routing.reasons.join('; '),
+      needsConfigReview,
     };
-  }
-
-  /**
-   * 根據信心度獲取基本決策
-   */
-  private static getBaseDecisionByConfidence(
-    confidence: number
-  ): 'AUTO_APPROVE' | 'QUICK_REVIEW' | 'FULL_REVIEW' {
-    if (confidence >= ROUTING_THRESHOLDS_V3_1.AUTO_APPROVE) {
-      return 'AUTO_APPROVE';
-    } else if (confidence >= ROUTING_THRESHOLDS_V3_1.QUICK_REVIEW) {
-      return 'QUICK_REVIEW';
-    } else {
-      return 'FULL_REVIEW';
-    }
-  }
-
-  /**
-   * 降級決策（AUTO_APPROVE → QUICK_REVIEW, QUICK_REVIEW → FULL_REVIEW）
-   */
-  private static downgradeDecision(
-    decision: 'AUTO_APPROVE' | 'QUICK_REVIEW' | 'FULL_REVIEW'
-  ): 'AUTO_APPROVE' | 'QUICK_REVIEW' | 'FULL_REVIEW' {
-    switch (decision) {
-      case 'AUTO_APPROVE':
-        return 'QUICK_REVIEW';
-      case 'QUICK_REVIEW':
-        return 'FULL_REVIEW';
-      case 'FULL_REVIEW':
-        return 'FULL_REVIEW';
-    }
   }
 }
 

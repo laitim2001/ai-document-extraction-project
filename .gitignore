@@ -67,6 +67,7 @@ scripts/test-*
 scripts/run-*
 scripts/validate-*
 scripts/verify-*
+!scripts/verify-claude-md-sync.sh
 scripts/create-*
 scripts/export-*
 scripts/list-*

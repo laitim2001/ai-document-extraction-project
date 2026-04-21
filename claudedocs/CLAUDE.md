@@ -10,7 +10,7 @@
 
 - **項目規劃**: Epic 架構設計、功能規劃、路線圖
 - **進度追蹤**: 每日/每週進度報告、Sprint 計劃
-- **變更管理**: Bug 修復記錄（35 份）、功能變更追蹤（33 份）
+- **變更管理**: Bug 修復記錄（53 份，FIX-050~053 全數完成）、功能變更追蹤（53 份）
 - **AI 協作**: 情境提示詞、工作流程指南、分析報告
 - **知識傳承**: 開發經驗、故障排查、部署指南
 
@@ -154,12 +154,21 @@ claudedocs/
 | Epic 20 | 參考編號主檔管理 | ✅ 已完成 | 2026-02-05 |
 | Epic 21 | 匯率管理 | ✅ 已完成 | 2026-02-06 |
 
-### 變更管理統計
+### 變更管理統計（2026-04-21 更新）
 
-| 類型 | 數量 | 路徑 |
+| 類型 | 數量 | 最新編號 | 路徑 |
+|------|------|---------|------|
+| 功能變更 (CHANGE) | **53 份** | CHANGE-053 | `4-changes/feature-changes/` |
+| Bug 修復 (FIX) | **53 份**（全部已完成）| FIX-053 | `4-changes/bug-fixes/` |
+
+### FIX-050 ~ FIX-053（Codebase Security Audit 系列）✅ 全數完成
+
+| 編號 | 名稱 | 狀態 |
 |------|------|------|
-| 功能變更 (CHANGE) | 33 份 | `4-changes/feature-changes/` |
-| Bug 修復 (FIX) | 35 份 | `4-changes/bug-fixes/` |
+| FIX-050 | auth.config.ts PII Leakage | ✅ 已修復（2026-04-21） |
+| FIX-051 | db-context.ts SQL Injection Risk | ✅ 已修復（2026-04-21） |
+| FIX-052 | Rate Limit in-memory → Upstash Redis | ✅ 已修復（2026-04-21） |
+| FIX-053 | Smart Routing Dual Logic Conflict | ✅ 已修復（2026-04-21） |
 
 ### 重要重構記錄
 
@@ -168,12 +177,15 @@ claudedocs/
 | REFACTOR-001 | Forwarder -> Company 模型重構 | ✅ 已完成 |
 | CHANGE-031 | Frontend Invoice -> Document 重命名 | ✅ 已完成 |
 
-### 進行中的功能變更
+### 主要功能變更（近期）
 
 | 編號 | 名稱 | 狀態 | 描述 |
 |------|------|------|------|
-| CHANGE-032 | Pipeline 參考編號匹配 + 匯率轉換 | 📋 規劃中 | 提取管線新增參考編號匹配與匯率轉換階段 |
+| CHANGE-032 | Pipeline 參考編號匹配 + 匯率轉換 | ✅ 已完成 | 提取管線新增 `pipeline-config.service.ts` 及參考編號/匯率階段 |
 | CHANGE-033 | CLAUDE.md Token 優化 | ✅ 已完成 | 精簡系統提示至 ~350 行，移出參考資料 |
+| CHANGE-044 ~ 053 | Line item / Field definition / User profile / System settings / Role unification 等 | ✅ 已完成 | 多項後續增強（詳見 feature-changes/） |
+
+> CHANGE-034 ~ 053 共 20 份近期變更未列於此表，請查閱 `4-changes/feature-changes/` 獲取完整清單。
 
 ---
 
@@ -197,13 +209,13 @@ claudedocs/
 
 位於 `claudedocs/4-changes/feature-changes/`，命名格式 `CHANGE-{NNN}-{description}.md`
 
-**CHANGE 編號範圍**: 001-033（共 33 份）
+**CHANGE 編號範圍**: 001-053（共 53 份）
 
 ### Bug 修復 (FIX-*)
 
 位於 `claudedocs/4-changes/bug-fixes/`，命名格式 `FIX-{NNN}-{description}.md`
 
-**FIX 編號範圍**: 001-035（共 35 份）
+**FIX 編號範圍**: 001-053（共 53 份；FIX-050~053 全數完成）
 
 ### 進度報告
 
@@ -225,11 +237,11 @@ claudedocs/
 ### 核心框架
 - **前端**: Next.js 15.0.0 (App Router) + TypeScript 5.0 + React 18.3
 - **樣式**: Tailwind CSS 3.4 + shadcn/ui (Radix UI 20+ primitives)
-- **資料庫**: PostgreSQL 15 + Prisma ORM 7.2 (117 models)
+- **資料庫**: PostgreSQL 15 + Prisma ORM 7.2 (122 models, 113 enums)
 - **狀態管理**: Zustand 5.x (UI) + React Query 5.x (Server State)
 - **表單**: React Hook Form 7.x + Zod 4.x 驗證
-- **國際化**: next-intl 4.7（支援 en, zh-TW, zh-CN，30 個命名空間）
-- **快取**: @upstash/redis
+- **國際化**: next-intl 4.7（支援 en, zh-TW, zh-CN，34 個命名空間）
+- **快取**: @upstash/redis（⚠️ Rate limit 實作使用 in-memory Map，見主 CLAUDE.md §已知差異）
 - **拖放**: @dnd-kit (sortable UI)
 
 ### 外部服務
@@ -240,16 +252,20 @@ claudedocs/
 - **文件來源**: SharePoint / Outlook / Azure Blob Storage
 - **Office 365**: Microsoft Graph Client
 
-### 代碼規模
+### 代碼規模（同步 codebase-analyze 2026-04-09）
 
 | 指標 | 數量 | 說明 |
 |------|------|------|
-| React 組件 | 165+ | src/components/ 下所有 .tsx |
-| 業務服務 | 124+ | src/services/ 下所有 .ts |
-| API 路由文件 | 175+ | 每個 route.ts 處理多個 HTTP 方法，約 300+ 端點 |
-| 自定義 Hooks | 89 | src/hooks/ |
-| Prisma Models | 117 | 資料庫模型定義 |
-| i18n 命名空間 | 30/語言 | 3 種語言各 30 個 JSON 文件 |
+| React 組件 | **371** | src/components/ 下所有 .tsx（~98K LOC） |
+| 業務服務 | **200** | src/services/ 下所有 .ts（~100K LOC） |
+| API 路由文件 | **331** | 414 HTTP methods，約 **400+ 端點** |
+| 自定義 Hooks | **104** | src/hooks/ |
+| Types | **93** | src/types/ |
+| Prisma Models | **122** | 資料庫模型定義 |
+| Prisma Enums | **113** | 列舉類型 |
+| i18n 命名空間 | **34/語言** | 3 種語言各 34 個 JSON 文件（共 102 個） |
+
+> **完整深度分析**: `docs/06-codebase-analyze/00-analysis-index.md`（80 份：31 分析 + 5 diagrams + 44 驗證報告）
 
 ---
 
@@ -359,6 +375,8 @@ claudedocs/
 2. **使用正確的命名約定** - CHANGE 下一個編號 034，FIX 下一個編號 036
 3. **遵循格式範本** - 參考 `7-archive/templates/` 下的範本
 
+> **下一個可用編號**: CHANGE-054、FIX-054（建立前請 Glob `CHANGE-*.md` / `FIX-*.md` 確認最新編號）
+
 ---
 
 ## 重要約定
@@ -391,5 +409,5 @@ claudedocs/
 ---
 
 **維護者**: AI 助手 + 開發團隊
-**最後更新**: 2026-02-09
-**文檔版本**: 3.0.0
+**最後更新**: 2026-04-21（同步 codebase-analyze 2026-04-09 掃瞄）
+**文檔版本**: 3.1.0

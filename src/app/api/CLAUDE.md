@@ -1,8 +1,12 @@
 # API 目錄 - Next.js API Routes
 
-> **端點數量**: 318+ API 端點（175+ route files）
-> **最後更新**: 2026-02-09
-> **版本**: 2.0.0
+> **Route 文件**: **331** files
+> **HTTP Methods**: 414（GET 201 / POST 141 / PATCH 33 / DELETE 31 / PUT 8）
+> **估計端點**: ~400+（平均 1.25 methods/file）
+> **最後更新**: 2026-04-21（同步 codebase-analyze 2026-04-09 掃瞄）
+> **版本**: 2.1.0
+> **深度分析**: `docs/06-codebase-analyze/02-module-mapping/api-routes-overview.md`
+> **⚠️ 已知差異**: Rate limit 使用 in-memory Map（非 Redis）；RFC 7807 格式部分 top-level、部分 nested；Auth 覆蓋率 73%（非舊文檔聲稱的 59%）
 
 ---
 

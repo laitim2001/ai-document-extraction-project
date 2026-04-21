@@ -40,6 +40,7 @@ import type { NextAuthConfig } from 'next-auth'
 import type { Provider } from 'next-auth/providers'
 import Credentials from 'next-auth/providers/credentials'
 import { CredentialsSignin } from 'next-auth'
+import { edgeLogger } from '@/lib/edge-logger'
 
 // ============================================================
 // Custom Auth Errors
@@ -117,7 +118,7 @@ function buildProviders(): Provider[] {
         try {
           // 驗證輸入
           if (!credentials?.email || !credentials?.password) {
-            console.log('[Auth] Missing email or password')
+            edgeLogger.info('[Auth] Missing email or password')
             return null
           }
 
@@ -126,12 +127,16 @@ function buildProviders(): Provider[] {
 
           // 開發模式：如果 Azure AD 未配置，使用簡化驗證
           const isDevelopmentMode = process.env.NODE_ENV === 'development' && !isAzureADConfigured()
-          console.log('[Auth] isDevelopmentMode:', isDevelopmentMode, 'NODE_ENV:', process.env.NODE_ENV)
+          edgeLogger.debug('[Auth] Auth mode resolved', {
+            isDevelopmentMode,
+            nodeEnv: process.env.NODE_ENV,
+          })
 
           if (isDevelopmentMode) {
             // 開發模式下接受任何有效的 email 格式
             if (email.includes('@')) {
-              console.log('[Auth] Development mode login for:', email)
+              // PII 保護: email 僅於 debug 級別輸出（生產環境預設不顯示）
+              edgeLogger.debug('[Auth] Development mode login', { email })
               return {
                 id: 'dev-user-1',
                 email: email,
@@ -143,7 +148,7 @@ function buildProviders(): Provider[] {
           }
 
           // 生產模式：真正的帳號密碼驗證
-          console.log('[Auth] Production mode - verifying credentials for:', email)
+          edgeLogger.info('[Auth] Production mode - verifying credentials')
 
           // 動態導入以保持 Edge-compatible
           const { prisma } = await import('@/lib/prisma')
@@ -163,22 +168,35 @@ function buildProviders(): Provider[] {
             },
           })
 
-          // 用戶不存在或無密碼（Azure AD 用戶沒有本地密碼）
+          // 用戶不存在或密碼無效（合併兩個分支以緩解帳號列舉攻擊）
+          // 注意：L175 的密碼驗證只在 user 存在時執行，故此處合併後的訊息
+          // 在外觀上無法區分「帳號不存在」vs「密碼錯誤」
           if (!user || !user.password) {
-            console.log('[Auth] User not found or no password:', email)
+            edgeLogger.info('[Auth] Credential check failed')
+            edgeLogger.debug('[Auth] Failure detail', {
+              email,
+              reason: !user ? 'USER_NOT_FOUND' : 'NO_PASSWORD',
+            })
             return null
           }
 
           // 驗證密碼
           const isValidPassword = await verifyPassword(password, user.password)
           if (!isValidPassword) {
-            console.log('[Auth] Invalid password for:', email)
+            edgeLogger.info('[Auth] Credential check failed')
+            edgeLogger.debug('[Auth] Failure detail', {
+              email,
+              reason: 'INVALID_PASSWORD',
+            })
             return null
           }
 
           // 檢查帳號狀態
           if (user.status !== 'ACTIVE') {
-            console.log('[Auth] User status not ACTIVE:', user.status)
+            edgeLogger.info('[Auth] User status not ACTIVE', {
+              userId: user.id,
+              status: user.status,
+            })
             // 使用自定義錯誤類別，以便前端顯示正確訊息
             if (user.status === 'SUSPENDED') {
               throw new AccountSuspendedError()
@@ -189,11 +207,12 @@ function buildProviders(): Provider[] {
 
           // 檢查郵件驗證狀態
           if (!user.emailVerified) {
-            console.log('[Auth] Email not verified for:', email)
+            edgeLogger.info('[Auth] Email not verified', { userId: user.id })
             throw new EmailNotVerifiedError()
           }
 
-          console.log('[Auth] Login successful for:', email)
+          // 登入成功僅記錄 userId（不記錄 email）
+          edgeLogger.info('[Auth] Login successful', { userId: user.id })
           // 返回用戶資訊（不包含密碼和敏感資料）
           return {
             id: user.id,
@@ -208,8 +227,10 @@ function buildProviders(): Provider[] {
               error instanceof AccountDisabledError) {
             throw error
           }
-          // 記錄未預期的錯誤
-          console.error('[Auth] Unexpected error during authorization:', error)
+          // 記錄未預期的錯誤（不含 PII）
+          edgeLogger.error('[Auth] Unexpected error during authorization', {
+            error: error instanceof Error ? error.message : String(error),
+          })
           return null
         }
       },

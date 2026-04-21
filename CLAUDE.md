@@ -69,11 +69,11 @@
 
 - **前端**: Next.js 15.0.0 (App Router) + TypeScript 5.0 + React 18.3
 - **樣式**: Tailwind CSS 3.4 + shadcn/ui (Radix UI 20+ primitives)
-- **資料庫**: PostgreSQL 15 + Prisma ORM 7.2 (117 models)
+- **資料庫**: PostgreSQL 15 + Prisma ORM 7.2 (122 models, 113 enums)
 - **狀態管理**: Zustand 5.x (UI) + React Query 5.x (Server State)
 - **表單**: React Hook Form 7.x + Zod 4.x 驗證
-- **國際化**: next-intl 4.7 (支援 en, zh-TW, zh-CN，30 個命名空間)
-- **快取**: @upstash/redis
+- **國際化**: next-intl 4.7 (支援 en, zh-TW, zh-CN，34 個命名空間)
+- **快取**: @upstash/redis（Rate limit 優先使用，Redis 未配置時 fallback 為 in-memory Map；FIX-052 已修復）
 - **拖放**: @dnd-kit (sortable UI)
 
 ### 外部服務
@@ -100,14 +100,21 @@
 
 ### 代碼規模概覽
 
+> **數據來源**: `docs/06-codebase-analyze/` 全面掃瞄結果（2026-04-09）。
+> 參見 `docs/06-codebase-analyze/00-analysis-index.md` 獲取完整 80 份分析 + 驗證報告索引。
+
 | 指標 | 數量 | 說明 |
 |------|------|------|
-| React 組件 | 165+ | `src/components/` 下所有 `.tsx` |
-| 業務服務 | 124+ | `src/services/` 下所有 `.ts` |
-| API 路由文件 | 175+ | 每個 route.ts 處理多個 HTTP 方法，約 300+ 端點 |
-| 自定義 Hooks | 89 | `src/hooks/` |
-| Prisma Models | 117 | 資料庫模型定義 |
-| i18n 命名空間 | 30/語言 | 3 種語言各 30 個 JSON 文件 |
+| React 組件 | **371** | `src/components/` 下所有 `.tsx`（~98K LOC） |
+| 業務服務 | **200** | `src/services/` 下所有 `.ts`（~100K LOC，13 個子目錄） |
+| API 路由文件 | **331** | 每個 route.ts 處理多個 HTTP 方法，約 **400+ 端點**（414 HTTP methods） |
+| 自定義 Hooks | **104** | `src/hooks/`（~28K LOC） |
+| Types | **93** | `src/types/`（~38K LOC） |
+| Prisma Models | **122** | 資料庫模型定義（4,354 行 schema） |
+| Prisma Enums | **113** | 列舉類型 |
+| i18n JSON 文件 | **102** | 3 語言 × 34 命名空間 |
+| Python 服務 | 12 | `python-services/`（~2.7K LOC） |
+| src/ 總行數 | ~136,000 | 1,363 個 src/ 文件 |
 
 ---
 
@@ -118,19 +125,19 @@ ai-document-extraction-project/
 ├── .claude/              # Claude Code 配置（rules/ 9 規則 + agents/ 8 個 + skills/ 4 個）
 ├── claudedocs/           # AI 助手文檔（planning/sprints/progress/changes/status/reference）
 ├── docs/                 # 項目正式文檔（discovery/planning/architecture/stories/implementation）
-├── messages/             # i18n 翻譯文件（en/ zh-TW/ zh-CN/，各 30 個命名空間）
-├── prisma/               # Prisma Schema（117 models）和遷移
-├── python-services/      # Python 後端（extraction/ + mapping/）
+├── messages/             # i18n 翻譯文件（en/ zh-TW/ zh-CN/，各 34 個命名空間）
+├── prisma/               # Prisma Schema（122 models, 113 enums）和遷移
+├── python-services/      # Python 後端（extraction/ + mapping/，12 個服務）
 ├── src/
 │   ├── app/[locale]/     # App Router（(auth)/ + (dashboard)/ 25+ admin 頁面）
-│   ├── app/api/          # API 路由（175 files, ~300 端點）
-│   ├── components/       # React 組件（ui/ + features/ + layout/，165+）
-│   ├── hooks/            # 自定義 Hooks（89 個）
+│   ├── app/api/          # API 路由（331 files, ~400+ 端點）
+│   ├── components/       # React 組件（ui/ + features/ + layout/，371 個）
+│   ├── hooks/            # 自定義 Hooks（104 個）
 │   ├── i18n/             # i18n 配置（config.ts + routing.ts + request.ts）
 │   ├── lib/              # 工具庫（含 validations/ Zod Schema）
-│   ├── services/         # 業務邏輯服務層（124+，含 extraction-v3/ 三階段管線）
+│   ├── services/         # 業務邏輯服務層（200 個，含 extraction-v3/ 三階段管線）
 │   ├── stores/           # Zustand 狀態管理
-│   └── types/            # TypeScript 類型定義
+│   └── types/            # TypeScript 類型定義（93 個）
 └── tests/                # 測試（unit/ + integration/ + e2e/）
 ```
 
@@ -205,7 +212,8 @@ ai-document-extraction-project/
 
 - **成功響應**: `{ success: true, data: T, meta?: { pagination? } }`
 - **錯誤響應**: RFC 7807 格式 `{ type, title, status, detail, instance, errors? }`
-- **路由總量**: 175 route files，約 300+ 端點
+- **路由總量**: 331 route files，約 **400+ 端點**（414 HTTP methods：GET 201 / POST 141 / PATCH 33 / DELETE 31 / PUT 8）
+- ⚠️ **RFC 7807 格式不一致**: 部分路由使用 top-level，部分使用 nested — 新 API 必須採用**統一的 top-level 格式**（見「已知差異」）
 
 > 📋 完整 API 設計規範與代碼範例：`.claude/rules/api-design.md`
 > 📋 API 路由完整目錄結構：`claudedocs/reference/directory-structure.md`
@@ -318,6 +326,28 @@ npm run test                  # 測試
 - ❌ 不要忽略 TypeScript 錯誤
 - ❌ **不要擅自偏離設計規格**（見技術障礙處理規範）
 
+### 🎯 編碼核心原則 — Karpathy Guidelines（🔴 必須遵守）
+
+> **來源**: [Andrej Karpathy on LLM coding pitfalls](https://x.com/karpathy/status/2015883857489522876)
+> **完整 Skill**: `andrej-karpathy-skills:karpathy-guidelines`（透過 Skill tool 載入完整版）
+> **取向**: 偏向謹慎而非速度；瑣碎任務可憑判斷簡化執行流程
+
+#### 四大守則
+
+| 守則 | 核心要求 | 具體行為 |
+|------|----------|----------|
+| **1. Think Before Coding**<br>動手前先思考 | 不假設、不隱藏困惑、浮現取捨 | ✅ 明確陳述假設；不確定就問<br>✅ 多種解讀時並列呈現，不要默默選一個<br>✅ 有更簡單方案就講出來，必要時反駁<br>✅ 不清楚就停下，指明混淆點並提問 |
+| **2. Simplicity First**<br>簡潔優先 | 最少的代碼解決問題，不做推測性開發 | ❌ 不加未要求的功能<br>❌ 不為單次使用的代碼建抽象層<br>❌ 不做未要求的「彈性」「可配置性」<br>❌ 不為不可能的情境加錯誤處理<br>✅ 200 行能寫成 50 行就重寫 |
+| **3. Surgical Changes**<br>外科手術式修改 | 只動必要的，只清理自己造成的 | ❌ 不「改善」周邊代碼、註釋、格式<br>❌ 不重構沒壞的東西<br>❌ 即使風格不合你習慣也要遵循現有風格<br>✅ 發現無關死代碼 → 提及，不刪除<br>✅ 你的改動產生的孤兒（imports/變數/函數）要清理 |
+| **4. Goal-Driven Execution**<br>目標驅動執行 | 定義成功標準，循環直到驗證通過 | ✅ 「加驗證」→「寫無效輸入的測試並讓它通過」<br>✅ 「修 bug」→「寫重現測試並讓它通過」<br>✅ 「重構 X」→「確保重構前後測試都通過」<br>✅ 多步任務先列計劃：`[步驟] → verify: [檢查點]` |
+
+#### 自我檢查（每次實作前後）
+
+- [ ] 資深工程師會說這「過度複雜」嗎？是 → 簡化。
+- [ ] 每一行改動都能直接對應到用戶要求嗎？不能 → 刪除。
+- [ ] 成功標準是可驗證的嗎？還是只是「讓它動」？
+- [ ] 我是否默默做了假設？是 → 浮現出來。
+
 ---
 
 ## 🤖 開發編排協議 — 並行 Agent 自動化（🟡 重要）
@@ -399,15 +429,18 @@ Step 5: 統一 Commit（僅在用戶要求時）
 
 > **常見問題**：開發者在 TypeScript 中新增常量但忘記更新 i18n 翻譯，導致 `IntlError: MISSING_MESSAGE` 錯誤。
 
-### i18n 命名空間完整列表（30 個/語言）
+### i18n 命名空間完整列表（34 個/語言）
 
 ```
-common, navigation, dialogs, auth, validation, errors, dashboard, global,
-escalation, review, documents, rules, companies, reports, admin, confidence,
-historicalData, termAnalysis, documentPreview, fieldMappingConfig,
-promptConfig, dataTemplates, formats, templateFieldMapping, templateInstance,
-templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
+admin, auth, common, companies, confidence, dashboard, dataTemplates, dialogs,
+documentPreview, documents, errors, escalation, exchangeRate, fieldDefinitionSet,
+fieldMappingConfig, formats, global, historicalData, navigation, pipelineConfig,
+profile, promptConfig, referenceNumber, region, reports, review, rules,
+standardFields, systemSettings, templateFieldMapping, templateInstance,
+templateMatchingTest, termAnalysis, validation
 ```
+
+> **變更歷史**: 從 30 增加到 34 — 新增 `pipelineConfig`（CHANGE-032）、`fieldDefinitionSet`、`profile`、`systemSettings`
 
 > **重要**: 新增命名空間時，除了建立 3 個語言的 JSON 文件外，還必須在 `src/i18n/request.ts` 的 `namespaces` 陣列中加入新命名空間名稱。
 
@@ -496,10 +529,116 @@ templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
 
 ---
 
+## 🗺️ Sub-CLAUDE.md 地圖（🟢 重要）
+
+> **機制說明**: Claude Code 會**自動遞迴載入**當前工作目錄及父目錄的 CLAUDE.md 內容。修改子目錄檔案時，相對應的 sub-CLAUDE.md 會自動注入 context，無需手動讀取。
+> **總數**: 15 個 sub-CLAUDE.md（不含根）
+
+### 依目錄分層索引
+
+| 目錄 | 路徑 | 用途 | 何時自動載入 |
+|------|------|------|------------|
+| 🎯 **根** | `CLAUDE.md` | 專案總指南（本檔） | 所有 session |
+| 🛠️ Claude 設定 | `.claude/CLAUDE.md` | 服務啟動流程、問題排解 | 修改 `.claude/**` |
+| 📚 AI 助手文檔 | `claudedocs/CLAUDE.md` | ClaudeDocs 完整索引（7 層分類） | 修改 `claudedocs/**` |
+| 🌐 i18n 翻譯 | `messages/CLAUDE.md` | 34 個命名空間清單、同步規則 | 修改翻譯文件 |
+| 🗃️ 資料庫 | `prisma/CLAUDE.md` | 122 Models / 113 Enums / Migration 流程 | 修改 Schema/Migration |
+| 📜 工具腳本 | `scripts/CLAUDE.md` | 104 個腳本分類（測試/調試/資料檢查） | 修改 scripts/ |
+| 📄 Next.js 頁面 | `src/app/[locale]/CLAUDE.md` | 76 個 page.tsx，2 個路由組 | 修改頁面 |
+| 🔌 API Routes | `src/app/api/CLAUDE.md` | 331 routes / 414 HTTP methods | 修改 API |
+| 🎨 組件庫 | `src/components/CLAUDE.md` | 371 組件，37 個 feature 子目錄 | 修改組件 |
+| 🪝 React Hooks | `src/hooks/CLAUDE.md` | 104 Hooks，命名風格混用 | 修改 Hooks |
+| 🌍 i18n 配置 | `src/i18n/CLAUDE.md` | next-intl 設定、34 命名空間註冊 | 修改 i18n 配置 |
+| 🧰 工具庫 | `src/lib/CLAUDE.md` | 65 個工具文件，12 子目錄 | 修改 lib/ |
+| ⚙️ 業務服務 | `src/services/CLAUDE.md` | 200 服務，22 個分類 | 修改服務 |
+| 🔄 V3 提取管線 | `src/services/extraction-v3/CLAUDE.md` | 三階段管線（V3 vs V3.1） | 修改 extraction-v3/ |
+| 📦 類型定義 | `src/types/CLAUDE.md` | 93 types，index.ts 616 行 | 修改 types/ |
+
+### 使用規則
+
+- **新增目錄時**：若新目錄 ≥ 10 個文件或具有獨立架構，考慮新增 sub-CLAUDE.md
+- **更新規則**：sub-CLAUDE.md 必須標註「最後更新」日期與版本，並引用對應的 `docs/06-codebase-analyze/` 分析文件
+- **避免重複**：根 CLAUDE.md 放「跨目錄共通規則」，sub-CLAUDE.md 放「該目錄特定規則」，禁止兩處重複
+
+### 已知過時檢查（建議下次批次更新）
+
+以下 sub-CLAUDE.md 的統計與 `docs/06-codebase-analyze/` 仍有小幅差異（未在 P1 修正）：
+- `src/hooks/CLAUDE.md` 說 101 Hook（實際 104）
+- `src/types/CLAUDE.md` 說 83 類型文件（實際 93）
+- `src/lib/CLAUDE.md` 說 65 文件（實際 68）
+- `src/app/[locale]/CLAUDE.md` 說 76 page.tsx（實際 82）
+- `src/i18n/CLAUDE.md` 說 31 命名空間（實際 34）
+- `src/services/extraction-v3/CLAUDE.md` 說 19 文件（實際 17）
+- `scripts/CLAUDE.md` 說 104 腳本（待驗證）
+
+---
+
+## 📚 Codebase 深度分析資料（🟢 強烈建議參考）
+
+> **全面掃瞄報告**: `docs/06-codebase-analyze/`（80 份文檔：31 分析 + 5 Mermaid diagrams + 44 驗證報告）
+> **分析日期**: 2026-04-09 | **整體驗證通過率**: 91.1%（4,487 / 4,928 驗證點）
+> **主索引**: `docs/06-codebase-analyze/00-analysis-index.md`
+
+### 🔄 自動同步機制（避免分析報告過時）
+
+| 層級 | 工具 | 觸發時機 | 效果 |
+|------|------|---------|------|
+| **輕量檢查** | `scripts/verify-claude-md-sync.sh` | 每次 session 結束（Stop hook） | 檢查主 CLAUDE.md 統計數字是否與 codebase 漂移 > 5% |
+| **深度同步** | `/refresh-codebase-analysis` skill | 季度結束 / Epic 完成 / 手動 | 重掃 codebase → 產生 `verification/R-refresh-YYYY-MM-DD.md` 差異報告 → 詢問是否更新 |
+| **完整重做** | `docs/06-codebase-analyze/codebase-analyze-playbook.md` | 重大重構後 | 重跑整套 R1-R15 驗證流程 |
+
+### 開發前必看（按場景）
+
+| 開發場景 | 必讀文件 |
+|---------|---------|
+| 新功能規劃 | `01-project-overview/architecture-patterns.md` + `02-module-mapping/services-overview.md` |
+| 新 API 路由 | `02-module-mapping/api-routes-overview.md` + `05-security-quality/security-audit.md` |
+| 新 Prisma Model | `03-database/prisma-model-inventory.md` + `03-database/enum-inventory.md` |
+| 新組件 | `02-module-mapping/components-overview.md` + `08-ui-design-system/ui-patterns.md` |
+| 外部整合 | `07-external-integrations/integration-map.md` + `07-external-integrations/python-services.md` |
+| i18n 相關 | `06-i18n-analysis/i18n-coverage.md` |
+| 資料流理解 | `04-diagrams/data-flow.md` + `04-diagrams/business-process-flows.md` |
+| 安全/品質審查 | `05-security-quality/security-audit.md` + `05-security-quality/code-quality.md` |
+| 測試策略 | `09-testing/testing-infrastructure.md` |
+
+---
+
+## ⚠️ 已知差異與關鍵發現（🔴 開發前必讀）
+
+> **來源**: `docs/06-codebase-analyze/` 驗證報告 R1-R15（44 份），以下為 codebase 真實狀態與文檔聲稱的差異。
+
+### 🔴 HIGH 優先級（影響設計決策）
+
+| # | 項目 | 文檔聲稱 | Codebase 實際 | 對開發影響 | 狀態 |
+|---|------|---------|--------------|-----------|------|
+| 1 | ~~**Rate Limiting 實作**~~ | `@upstash/redis` | **Redis 優先 + in-memory fallback** | 多實例部署已支援 | ✅ **FIX-052 已修復**（2026-04-21） |
+| 2 | ~~**Smart Routing 衝突**~~ | 單一路由決策邏輯 | **統一 adapter 架構**（`applyRoutingStrategy` 為唯一策略核心） | 業務邏輯已統一 | ✅ **FIX-053 已修復**（2026-04-21） |
+| 3 | **Auth 覆蓋率** | 59%（舊 security-audit） | **實際 73%**（200/331 routes 有 auth 檢查） | 新 API 路由安全設計參考有偏差 | — |
+
+### 🟡 MEDIUM 優先級（影響一致性）
+
+| # | 項目 | 說明 |
+|---|------|------|
+| 4 | **RFC 7807 格式不一致** | 部分 API 用 top-level `{ type, title, status, ... }`，部分用 nested `{ error: {...} }` — 新 API 應統一採 top-level |
+| 5 | **Prisma Model 欄位計數** | 舊報告系統性低估 — 以 `prisma/schema.prisma` 實際內容為準 |
+| 6 | **依賴套件數** | 依賴實際為 77（main）+ 20（dev） — `package.json` 為準 |
+
+### 🚨 Security Code-Level 審計（來自 MEMORY 記錄）
+
+| # | 風險 | 位置 | 狀態 |
+|---|------|------|------|
+| A | ~~**PII 洩漏**（`auth.config.ts` 6 處 console.log email）~~ | `auth.config.ts` + `edge-logger.ts` | ✅ **FIX-050 已修復**（2026-04-21） |
+| B | ~~**SQL Injection 風險**（`db-context.ts:87` cityCodes 未跳脫）~~ | `db-context.ts` | ✅ **FIX-051 已修復**（2026-04-21，白名單正則 `^[A-Z]{2,4}$`） |
+| C | console.log 總數 | 279 處 / 87 個文件 | 逐步替換為 logger |
+| D | Zod 驗證覆蓋率 | 60-65%（~40 個 POST/PATCH/PUT/DELETE 缺驗證） | 新 API 必須加 |
+
+---
+
 ## 按需查閱文檔索引
 
 | 需要了解 | 查閱路徑 |
 |----------|----------|
+| 🆕 Codebase 全面分析（31 份 + 44 驗證） | `docs/06-codebase-analyze/00-analysis-index.md` |
 | 完整目錄結構與 API 路由 | `claudedocs/reference/directory-structure.md` |
 | 開發後檢查清單與提醒規則 | `claudedocs/reference/dev-checklists.md` |
 | 項目進度表與版本記錄 | `claudedocs/reference/project-progress.md` |
@@ -516,6 +655,7 @@ templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
 | i18n 完整規範 | `.claude/rules/i18n.md` |
 | 技術障礙處理流程 | `.claude/rules/technical-obstacles.md` |
 | 並行 Agent 編排協議 | `CLAUDE.md` §開發編排協議 |
+| 編碼核心原則（Karpathy 四守則） | `CLAUDE.md` §編碼核心原則 + Skill `andrej-karpathy-skills:karpathy-guidelines` |
 | 跨電腦開發與 Git 同步 | `CLAUDE.md` §跨電腦開發協作 |
 | 項目初始化指南 | `docs/06-deployment/project-initialization-guide.md` |
 | Git Slash Commands | `.claude/skills/git-sync/` + `.claude/skills/git-status/` |
@@ -528,7 +668,10 @@ templateMatchingTest, standardFields, referenceNumber, exchangeRate, region
 
 ## 版本資訊
 
-- **CLAUDE.md 版本**: 3.2.0
-- **最後更新**: 2026-03-14
-- **變更記錄**: 新增跨電腦開發協作章節、Git Slash Commands、初始化指南引用（v3.1.0 → v3.2.0）
+- **CLAUDE.md 版本**: 3.4.0
+- **最後更新**: 2026-04-21
+- **變更記錄**:
+  - v3.4.0（2026-04-21）: 整合 Karpathy Guidelines — 在「AI 開發輔助指引」下新增「🎯 編碼核心原則」段落（4 守則：Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution）；連結到已安裝的 `andrej-karpathy-skills:karpathy-guidelines` plugin skill
+  - v3.3.0（2026-04-21）: 同步 `docs/06-codebase-analyze/` 2026-04-09 掃瞄結果 — 修正 6 項代碼規模統計、新增 Codebase 分析索引、新增「已知差異」區塊（Rate limit 實作、Smart routing 衝突、Auth 覆蓋率、PII/SQL 安全風險）、i18n 命名空間列表 30→34
+  - v3.2.0（2026-03-14）: 新增跨電腦開發協作章節、Git Slash Commands、初始化指南引用
 - **完整版本歷史**: `claudedocs/reference/project-progress.md`

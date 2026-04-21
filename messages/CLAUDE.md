@@ -1,9 +1,10 @@
 # Messages 目錄 - i18n 翻譯文件
 
 > **語言數量**: 3 種（en, zh-TW, zh-CN）
-> **命名空間數量**: 31 個/語言（共 93 個 JSON 文件）
-> **最後更新**: 2026-02-09
-> **版本**: 1.0.0
+> **命名空間數量**: **34** 個/語言（共 **102** 個 JSON 文件）
+> **最後更新**: 2026-04-21（同步 codebase-analyze 2026-04-09 掃瞄）
+> **版本**: 1.1.0
+> **深度分析**: `docs/06-codebase-analyze/06-i18n-analysis/i18n-coverage.md`
 
 ---
 
@@ -20,8 +21,8 @@ messages/
 ├── en/              # English（預設語言，fallback）
 │   ├── common.json
 │   ├── navigation.json
-│   ├── ... (共 31 個 JSON)
-│   └── pipelineConfig.json
+│   ├── ... (共 34 個 JSON)
+│   └── systemSettings.json
 ├── zh-TW/           # 繁體中文（主要目標語言）
 │   └── (同 en/)
 └── zh-CN/           # 简体中文
@@ -30,7 +31,11 @@ messages/
 
 ---
 
-## 命名空間完整列表（31 個）
+## 命名空間完整列表（34 個）
+
+> **實際命名空間清單**（依字母排序）：`admin, auth, common, companies, confidence, dashboard, dataTemplates, dialogs, documentPreview, documents, errors, escalation, exchangeRate, fieldDefinitionSet, fieldMappingConfig, formats, global, historicalData, navigation, pipelineConfig, profile, promptConfig, referenceNumber, region, reports, review, rules, standardFields, systemSettings, templateFieldMapping, templateInstance, templateMatchingTest, termAnalysis, validation`
+>
+> **新增項目**（相對於原 31 個）：`fieldDefinitionSet`、`profile`、`systemSettings`（新增 3 個）
 
 ### 通用基礎（6 個）
 

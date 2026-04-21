@@ -1,8 +1,10 @@
 # Components 目錄 - React 組件庫
 
-> **組件數量**: 356+ 組件文件
-> **最後更新**: 2026-02-09
-> **版本**: 2.0.0
+> **組件數量**: **371** 組件文件（~98K LOC）
+> **最後更新**: 2026-04-21（同步 codebase-analyze 2026-04-09 掃瞄）
+> **版本**: 2.1.0
+> **深度分析**: `docs/06-codebase-analyze/02-module-mapping/components-overview.md`
+> **UI 設計系統**: `docs/06-codebase-analyze/08-ui-design-system/ui-patterns.md`
 
 ---
 

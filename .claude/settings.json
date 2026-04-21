@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/verify-claude-md-sync.sh || true"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "andrej-karpathy-skills@karpathy-skills": true
+  }
+}

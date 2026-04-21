@@ -1,10 +1,11 @@
 # Prisma 目錄 - 資料庫 Schema 與遷移
 
-> **Models**: 119 個資料模型
-> **Enums**: 112 個列舉類型
-> **Schema 行數**: 4,200+ 行
-> **最後更新**: 2026-02-09
-> **版本**: 1.0.0
+> **Models**: **122** 個資料模型
+> **Enums**: **113** 個列舉類型
+> **Schema 行數**: 4,354 行
+> **最後更新**: 2026-04-21（同步 codebase-analyze 2026-04-09 掃瞄）
+> **版本**: 1.1.0
+> **深度分析**: `docs/06-codebase-analyze/03-database/prisma-model-inventory.md`、`enum-inventory.md`、`migration-history.md`
 
 ---
 
@@ -18,7 +19,7 @@
 
 ```
 prisma/
-├── schema.prisma          # 主 Schema（119 models, 112 enums, 4200+ 行）
+├── schema.prisma          # 主 Schema（122 models, 113 enums, 4354 行）
 ├── seed.ts                # 種子資料入口
 ├── seed-data/             # 種子資料模組
 │   ├── forwarders.ts      # 公司/Forwarder 種子
@@ -35,7 +36,7 @@ prisma/
 
 ---
 
-## 模型分類概覽（119 個 Models）
+## 模型分類概覽（122 個 Models）
 
 ### 1. 用戶與權限 (User & Auth) - 8 個
 

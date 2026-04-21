@@ -61,6 +61,35 @@ export const SERVICE_ROLE_CONTEXT: RlsContext = {
 }
 
 // ============================================================
+// Input Validation (FIX-051: SQL Injection Defense)
+// ============================================================
+
+/**
+ * 城市代碼白名單正則
+ *
+ * 所有 seed 資料的城市代碼皆為 2-4 個大寫英文字母（如 TPE, HKG, SGP, NYC, LAX）。
+ * 此正則僅接受此格式，拒絕任何含有 SQL 特殊字元（引號、分號、空白等）的輸入。
+ *
+ * 此驗證是為了防禦 SQL Injection：`set_config()` 的 value 參數為字面量，
+ * PostgreSQL 不支援 parameterized binding，因此必須於組字串前做嚴格輸入驗證。
+ */
+const CITY_CODE_PATTERN = /^[A-Z]{2,4}$/
+
+/**
+ * 嚴格驗證城市代碼，不符合白名單即 throw
+ *
+ * @throws Error 當輸入不符合 `^[A-Z]{2,4}$` 格式
+ */
+function sanitizeCityCode(code: string): string {
+  if (typeof code !== 'string' || !CITY_CODE_PATTERN.test(code)) {
+    throw new Error(
+      `[RLS] Invalid city code rejected by sanitizer: ${JSON.stringify(code)}`
+    )
+  }
+  return code
+}
+
+// ============================================================
 // RLS Context Functions
 // ============================================================
 
@@ -74,15 +103,23 @@ export const SERVICE_ROLE_CONTEXT: RlsContext = {
  *
  *   這些變數會被 RLS 策略中的 user_has_city_access() 函數讀取
  *
+ *   **安全防護 (FIX-051)**: 本函數使用 `$executeRawUnsafe` 是因為 PostgreSQL
+ *   `set_config()` 的 value 參數必須為字面量，無法使用 Prisma parameterized
+ *   query。為防禦 SQL Injection，所有 cityCodes 會先經過 `sanitizeCityCode()`
+ *   白名單驗證（`^[A-Z]{2,4}$`），不符合即 throw。
+ *
  * @param prismaClient - Prisma 客戶端實例
  * @param context - RLS 上下文
+ * @throws Error 當 `context.cityCodes` 包含不符合白名單的值
  */
 export async function setRlsContext(
   prismaClient: PrismaClient,
   context: RlsContext
 ): Promise<void> {
   const isGlobalAdmin = context.isGlobalAdmin ? 'true' : 'false'
-  const cityCodes = context.cityCodes.join(',')
+
+  // 白名單驗證 — 任一項失敗即 throw，保護下方 $executeRawUnsafe
+  const cityCodes = context.cityCodes.map(sanitizeCityCode).join(',')
 
   await prismaClient.$executeRawUnsafe(`
     SELECT
@@ -97,6 +134,11 @@ export async function setRlsContext(
  * @description
  *   重置所有 RLS 相關的 session variables。
  *   通常在請求結束或錯誤處理時調用。
+ *
+ *   **安全注意 (FIX-051)**: 本函數使用 `$executeRawUnsafe` 但**僅嵌入
+ *   hard-coded 字面量**（'false' 和空字串），無任何動態輸入。若未來需要加入
+ *   動態參數，**必須**先經過白名單/正則驗證（參考 `sanitizeCityCode`），
+ *   禁止直接字串插值。
  *
  * @param prismaClient - Prisma 客戶端實例
  */
