@@ -155,18 +155,17 @@ if (Test-Path '.next') {
 # =================================================================
 Write-Step 8 "同步 Prisma Schema 到資料庫"
 
-$hasUsers = $false
+$skipDbPush = $false
 try {
     $checkOutput = docker exec ai-doc-extraction-db psql -U postgres -d ai_document_extraction -tAc "SELECT 1 FROM information_schema.tables WHERE table_name = 'users';" 2>&1
     if ($checkOutput -match '1') {
         $userCount = docker exec ai-doc-extraction-db psql -U postgres -d ai_document_extraction -tAc "SELECT COUNT(*) FROM users;" 2>&1
         $userCount = [int]($userCount.Trim())
         if ($userCount -gt 0) {
-            $hasUsers = $true
             Write-Warn "資料庫已有 $userCount 筆 user 資料"
             if (-not (Ask "是否繼續執行 prisma db push --accept-data-loss？（可能刪除欄位資料）")) {
-                Write-Warn "跳過 db push（你需要手動同步 schema）"
-                $hasUsers = 'skip'
+                Write-Warn "跳過 db push（Schema 未同步；若有 schema 變更請手動執行：npx prisma db push）"
+                $skipDbPush = $true
             }
         }
     }
@@ -174,7 +173,7 @@ try {
     # 表不存在，繼續 push
 }
 
-if ($hasUsers -ne 'skip') {
+if (-not $skipDbPush) {
     npx prisma db push --accept-data-loss
     if ($LASTEXITCODE -ne 0) { Write-Fail "prisma db push 失敗" }
     Write-OK "Schema 同步完成"

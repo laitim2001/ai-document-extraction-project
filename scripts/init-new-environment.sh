@@ -148,6 +148,7 @@ step 8 "同步 Prisma Schema 到資料庫"
 
 # 偵測資料庫是否已有資料（僅檢查 users 表）
 # 若已有資料，詢問是否繼續執行 db push --accept-data-loss
+SKIP_DB_PUSH=0
 if docker exec ai-doc-extraction-db psql -U postgres -d ai_document_extraction -tAc "SELECT 1 FROM information_schema.tables WHERE table_name = 'users';" 2>/dev/null | grep -q 1; then
   USER_COUNT="$(docker exec ai-doc-extraction-db psql -U postgres -d ai_document_extraction -tAc "SELECT COUNT(*) FROM users;" 2>/dev/null || echo 0)"
   if [[ "$USER_COUNT" -gt 0 ]]; then
@@ -155,7 +156,8 @@ if docker exec ai-doc-extraction-db psql -U postgres -d ai_document_extraction -
     if ask "是否繼續執行 prisma db push --accept-data-loss？（可能刪除欄位資料）"; then
       npx prisma db push --accept-data-loss
     else
-      warn "跳過 db push（你需要手動同步 schema）"
+      SKIP_DB_PUSH=1
+      warn "跳過 db push（Schema 未同步；若有 schema 變更請手動執行：npx prisma db push）"
     fi
   else
     npx prisma db push --accept-data-loss
@@ -163,7 +165,10 @@ if docker exec ai-doc-extraction-db psql -U postgres -d ai_document_extraction -
 else
   npx prisma db push --accept-data-loss
 fi
-ok "Schema 同步完成"
+
+if [[ $SKIP_DB_PUSH -eq 0 ]]; then
+  ok "Schema 同步完成"
+fi
 
 # =================================================================
 # Step 9: 執行 Seed
