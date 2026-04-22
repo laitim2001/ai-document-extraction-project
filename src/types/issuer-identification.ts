@@ -341,12 +341,17 @@ export function hasCompanyMatch(
 
 /**
  * 預設識別選項
+ *
+ * @remarks
+ *   `createdById` 由 FIX-054 起改為引用 `SYSTEM_USER_ID` 常量（支援 env 覆蓋），
+ *   不再硬編碼 `'dev-user-1'`。
  */
 export const DEFAULT_IDENTIFICATION_OPTIONS: Required<IssuerIdentificationOptions> = {
   autoCreateCompany: false,
   source: 'unified-processor',
   fuzzyThreshold: 0.8,
   minConfidenceThreshold: 0.5,
-  createdById: 'dev-user-1', // FIX-028: 使用有效的系統用戶 ID
+  // FIX-028 + FIX-054: 改用共用常量，避免硬編碼 'dev-user-1'
+  createdById: process.env.SYSTEM_USER_ID ?? 'system-user-1',
   skipCompanyMatching: false,
 };

@@ -98,9 +98,14 @@ export interface AutoCreateConfig {
  *   必須對應到資料庫中已存在的用戶 ID，否則會觸發 FK 約束錯誤：
  *   `Foreign key constraint violated on the constraint: companies_created_by_id_fkey`
  *
+ *   行為（FIX-054 後）：
+ *   - 全新環境：預設 `'system-user-1'`（由 prisma/seed.ts 建立的系統用戶固定 ID）
+ *   - 既有環境：可透過 `SYSTEM_USER_ID` env 覆蓋為現有 systemUser UUID，避免資料遷移
+ *
  * @since FIX-002 - 修復公司自動建立 FK 約束問題
+ * @lastModified FIX-054 - 改為可覆蓋常量，命名由 'dev-user-1' 改為 'system-user-1'
  */
-export const SYSTEM_USER_ID = 'dev-user-1'
+export const SYSTEM_USER_ID = process.env.SYSTEM_USER_ID ?? 'system-user-1'
 
 // ============================================================
 // Core Functions

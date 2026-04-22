@@ -381,6 +381,9 @@ async function main() {
   // ===========================================
   // Create System User for seeding
   // REFACTOR-001: Required as Company creator
+  // FIX-054: 固定 ID 為 'system-user-1'（或由 SYSTEM_USER_ID env 覆蓋），
+  //         讓運行時服務層（company-auto-create, batch-processor, issuer-identification 等）
+  //         可安全地以常量引用系統用戶 ID，避免硬編碼 'dev-user-1' 帶來的 FK 風險。
   // ===========================================
   console.log('\n👤 Creating system user...\n')
 
@@ -393,14 +396,18 @@ async function main() {
     throw new Error('System Admin role not found. Roles must be seeded first.')
   }
 
-  // Create or update system user
+  // FIX-054: 系統用戶使用固定 ID；允許既有環境以 env 覆蓋（指向現有 UUID 以免動 FK）
+  const SYSTEM_USER_SEED_ID = process.env.SYSTEM_USER_ID ?? 'system-user-1'
+
+  // Create or update system user（以 id 為查詢鍵，讓既有環境可透過 env 對齊現有 UUID）
   const systemUser = await prisma.user.upsert({
-    where: { email: 'system@ai-document-extraction.internal' },
+    where: { id: SYSTEM_USER_SEED_ID },
     update: {
       name: 'System',
       status: 'ACTIVE',
     },
     create: {
+      id: SYSTEM_USER_SEED_ID,
       email: 'system@ai-document-extraction.internal',
       name: 'System',
       status: 'ACTIVE',
