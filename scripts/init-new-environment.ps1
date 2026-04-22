@@ -217,5 +217,6 @@ Write-Host "   npm run dev                    # 啟動開發伺服器（port 300
 Write-Host "   npm run dev -- -p 3200         # 使用其他端口"
 Write-Host ""
 Write-Host "📚 文件："
-Write-Host "   docs/06-deployment/project-initialization-guide.md"
+Write-Host "   docs/06-deployment/01-local-deployment/project-initialization-guide.md"
+Write-Host "   docs/06-deployment/01-local-deployment/README.md  ← 本地部署索引"
 Write-Host ""

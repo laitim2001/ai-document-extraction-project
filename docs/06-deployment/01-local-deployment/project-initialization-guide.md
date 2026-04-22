@@ -1,7 +1,16 @@
-# 項目初始化指南
+# 項目初始化指南（本地開發環境）
 
-> 本文件記錄 AI Document Extraction 項目在新環境中初始化時需要檢查和準備的所有事項。
+> 本文件記錄 AI Document Extraction 項目在**本地開發環境**中初始化時需要檢查和準備的所有事項。
 > 適用於：新機器部署、從 GitHub 克隆、跨電腦複製項目等場景。
+>
+> 🔗 **本地部署其他文件**：
+> - [`README.md`](./README.md) — 本地部署索引
+> - [`environment-variables-reference.md`](./environment-variables-reference.md) — 41 個 env 變數詳解
+> - [`docker-services-architecture.md`](./docker-services-architecture.md) — Docker 服務與進階操作
+> - [`cross-computer-workflow.md`](./cross-computer-workflow.md) — 跨電腦開發流程
+> - [`onboarding-checklist.md`](./onboarding-checklist.md) — 新開發者 Day-1 checklist
+>
+> ☁️ **Azure 生產部署**：見 [`../02-azure-deployment/README.md`](../02-azure-deployment/README.md)（規劃中）
 
 ---
 

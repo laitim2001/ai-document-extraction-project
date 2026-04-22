@@ -525,7 +525,8 @@ templateMatchingTest, termAnalysis, validation
 - **Schema 同步**: 本項目使用 `prisma db push` 同步 Schema（非 migration），拉取後可能需要 `npx prisma db push --accept-data-loss`
 - **種子資料**: 新環境首次設定需要 `npx prisma db seed` 建立基礎資料（角色、區域、城市、公司等）
 
-> 📋 完整初始化指南：`docs/06-deployment/project-initialization-guide.md`
+> 📋 完整初始化指南：`docs/06-deployment/01-local-deployment/project-initialization-guide.md`
+> 📋 部署文件中心（本地 / Azure）：`docs/06-deployment/README.md`
 
 ---
 
@@ -657,7 +658,13 @@ templateMatchingTest, termAnalysis, validation
 | 並行 Agent 編排協議 | `CLAUDE.md` §開發編排協議 |
 | 編碼核心原則（Karpathy 四守則） | `CLAUDE.md` §編碼核心原則 + Skill `andrej-karpathy-skills:karpathy-guidelines` |
 | 跨電腦開發與 Git 同步 | `CLAUDE.md` §跨電腦開發協作 |
-| 項目初始化指南 | `docs/06-deployment/project-initialization-guide.md` |
+| 部署文件中心（本地 / Azure 導覽） | `docs/06-deployment/README.md` |
+| 本地部署完整指南 | `docs/06-deployment/01-local-deployment/project-initialization-guide.md` |
+| 環境變數完整參考 | `docs/06-deployment/01-local-deployment/environment-variables-reference.md` |
+| Docker 服務架構 | `docs/06-deployment/01-local-deployment/docker-services-architecture.md` |
+| 跨電腦開發工作流 | `docs/06-deployment/01-local-deployment/cross-computer-workflow.md` |
+| 新人 Day-1 Checklist | `docs/06-deployment/01-local-deployment/onboarding-checklist.md` |
+| Azure 部署（規劃中） | `docs/06-deployment/02-azure-deployment/README.md` |
 | Git Slash Commands | `.claude/skills/git-sync/` + `.claude/skills/git-status/` |
 | PRD | `docs/01-planning/prd/prd.md` |
 | 系統架構設計 | `docs/02-architecture/` |

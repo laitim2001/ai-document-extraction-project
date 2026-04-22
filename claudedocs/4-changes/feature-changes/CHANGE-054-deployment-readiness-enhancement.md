@@ -208,7 +208,7 @@ NODE_ENV="development"
 | `scripts/init-new-environment.ps1` | ➕ 新增（PowerShell 版本） | 204 行 |
 | `scripts/verify-environment.ts` | ➕ 新增（環境自檢） | 265 行 |
 | `package.json` | 🔄 新增 `verify-environment` + `init-env` scripts | +2 |
-| `docs/06-deployment/project-initialization-guide.md` | 🔄 更新（Section 0 一鍵腳本、Step 5.5 遷移、問題 7-9） | +120 行 |
+| `docs/06-deployment/01-local-deployment/project-initialization-guide.md` | 🔄 更新（Section 0 一鍵腳本、Step 5.5 遷移、問題 7-9）；2026-04-22 目錄重構後新位置 | +120 行 |
 | `.gitignore` | ✅ 無需調整（`exported-data.json` 已在 git 中追蹤） | 0 |
 | `prisma/seed/exported-data.json` | ✅ 已在 git 中（169KB，2026-02-05 匯出） | 0 |
 

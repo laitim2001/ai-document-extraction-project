@@ -203,7 +203,7 @@ npx prisma db seed
 ### 為何 `issuer-identification.ts` 沒有匯入 `SYSTEM_USER_ID` 常量
 
 原規劃中 Step 3 想用 `import { SYSTEM_USER_ID } from '@/services/company-auto-create.service'`。
-實作時改為內聯 `process.env.SYSTEM_USER_ID ?? 'system-user-1'`，理由：
+實作時改為內聯 `process.env.SYSTEM_USER_ID ?? 'system-user-1'`（完整遷移指引見 `docs/06-deployment/01-local-deployment/cross-computer-workflow.md` §FIX-054 SYSTEM_USER_ID 跨電腦遷移），理由：
 
 - `issuer-identification.ts` 屬於 `src/types/`（類型定義層），避免反向依賴 `src/services/`（業務邏輯層）
 - 避免潛在的 circular import 風險
