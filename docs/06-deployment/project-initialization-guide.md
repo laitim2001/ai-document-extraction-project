@@ -7,6 +7,7 @@
 
 ## 目錄
 
+0. [快速啟動（推薦：一鍵腳本）](#0-快速啟動推薦一鍵腳本)
 1. [前置條件](#1-前置條件)
 2. [環境變數配置](#2-環境變數配置)
 3. [Docker 服務啟動](#3-docker-服務啟動)
@@ -17,6 +18,56 @@
 8. [預設帳號](#8-預設帳號)
 9. [常見問題排解](#9-常見問題排解)
 10. [快速指令參考](#10-快速指令參考)
+
+---
+
+## 0. 快速啟動（推薦：一鍵腳本）
+
+> **新增於 CHANGE-054（2026-04-22）**
+
+自 CHANGE-054 起，建議使用一鍵初始化腳本，10 步自動化流程：
+
+### 前置
+
+1. 確認 Docker Desktop 已啟動
+2. clone 專案並 cd 到根目錄
+
+### 執行
+
+```bash
+# Unix / macOS / Git Bash
+./scripts/init-new-environment.sh
+
+# Windows PowerShell
+.\scripts\init-new-environment.ps1
+
+# 或透過 npm
+npm run init-env
+```
+
+### 腳本流程
+
+| 步驟 | 動作 | 失敗時提示 |
+|------|------|-----------|
+| 1 | 檢查 node / npm / docker / git | 明確指出缺少的軟體 |
+| 2 | 複製 `.env.example` → `.env`（若不存在） | 既有 .env 不覆寫 |
+| 3 | `docker-compose up -d` | 檢查 Docker Desktop 是否啟動 |
+| 4 | 等待 PostgreSQL healthy | 最多 60 秒超時 |
+| 5 | `npm install` | — |
+| 6 | `npx prisma generate` | — |
+| 7 | 清除 `.next` 快取 | — |
+| 8 | `npx prisma db push --accept-data-loss` | **偵測到非空 DB 會詢問**是否繼續 |
+| 9 | `npx prisma db seed` | — |
+| 10 | `npm run verify-environment` 環境自檢 | 列出所有 critical / warning |
+
+### 執行後
+
+- 填入 `.env` 的實際 Azure / OpenAI 憑證
+- 🔴 必要變數若保留 placeholder 會被 `verify-environment` 偵測為錯誤
+
+### 不想用腳本？
+
+下方 Section 1-6 為完整的手動初始化流程，保留作為偵錯 / 進階參考。
 
 ---
 
@@ -248,10 +299,57 @@ npx prisma db seed
 | 匯率 | 16 | 主要幣別對美元匯率 |
 | 用戶 | 3 | 系統用戶、開發用戶、管理員用戶 |
 
-### Step 5.4: 驗證種子資料
+### Step 5.4: 驗證種子資料（推薦使用 verify-environment）
 
 ```bash
-# 快速驗證（使用 Node.js 直接查詢）
+# 推薦（CHANGE-054）：一次完成所有環境檢查
+npm run verify-environment
+```
+
+`verify-environment.ts` 會檢查：
+- 所有 🔴 必要環境變數（不能是 placeholder）
+- Docker 容器狀態（postgres / azurite）
+- 資料庫連線
+- Schema 同步（核心 tables 可查詢）
+- Seed 完整性（roles / regions / cities / companies / users 數量）
+- **FIX-054 關鍵檢查**：`SYSTEM_USER_ID` 對應的 User 存在
+
+退出碼：`0`（通過或僅警告） / `1`（critical 錯誤）
+
+---
+
+### Step 5.5: SYSTEM_USER_ID 遷移（FIX-054）
+
+> **僅既有開發環境需要**。全新環境保持 `.env.example` 預設的 `SYSTEM_USER_ID="system-user-1"` 即可。
+
+FIX-054 起，`company-auto-create` / `batch-processor` / `issuer-identification` 等服務讀取 `process.env.SYSTEM_USER_ID`（預設 `"system-user-1"`）。若既有 DB 的 system user 已有不同 UUID（早期版本遷移），建議覆蓋 env 而非動資料庫。
+
+#### 既有環境遷移步驟
+
+```bash
+# Step 1: 查詢現有 systemUser UUID
+node -e "
+require('dotenv').config();
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+pool.query(\"SELECT id, email FROM users WHERE email = 'system@ai-document-extraction.internal';\")
+  .then(r => { console.log(r.rows); pool.end(); });
+"
+
+# Step 2: 將查到的 UUID 寫入 .env
+# 手動編輯 .env，加入或修改：
+# SYSTEM_USER_ID="<查到的 UUID>"
+
+# Step 3: 重啟服務，驗證
+npm run verify-environment   # 應看到 FIX-054 check 通過
+```
+
+---
+
+### Step 5.6: 驗證種子資料（手動查詢，選用）
+
+```bash
+# 直接查詢 Node.js（verify-environment 已包含此檢查）
 node -e "
 const { Pool } = require('pg');
 const pool = new Pool({ connectionString: 'postgresql://postgres:postgres@localhost:5433/ai_document_extraction' });
@@ -509,6 +607,64 @@ npx prisma db seed
 
 ---
 
+### 問題 7: SYSTEM_USER_ID 對應的 User 不存在（FIX-054）
+
+**症狀**: `npm run verify-environment` 報錯：
+```
+❌ SYSTEM_USER_ID="system-user-1" does not exist in users table
+```
+或執行批次處理 / 公司自動建立時拋 FK 違規：`companies_created_by_id_fkey`
+
+**原因**: 既有環境的 `systemUser` UUID 與預設 `"system-user-1"` 不符，或 seed 尚未執行。
+
+**解決方案**（擇一）:
+- **既有環境**：查出現有 UUID 並設到 `.env`（見 Section 5.5 遷移指引）
+- **全新環境**：`npx prisma db seed`（會建立 id=`'system-user-1'` 的系統用戶）
+
+---
+
+### 問題 8: .env.example 和 .env 變數對不上（CHANGE-054）
+
+**症狀**: 從 GitHub pull 後，應用啟動失敗，抱怨某個 env 變數未定義。
+
+**原因**: CHANGE-054（2026-04-22）補齊了 15 個先前缺失的變數（如 `JWT_SECRET`、`ENCRYPTION_KEY`、`AUTH_TRUST_HOST` 等）。既有本機 `.env` 可能缺少這些新變數。
+
+**解決方案**:
+```bash
+# 比對本機 .env 與範本
+diff <(grep -oE '^[A-Z_]+' .env | sort) <(grep -oE '^[A-Z_]+' .env.example | sort)
+
+# 若有差異，參考 .env.example 補齊缺失變數
+npm run verify-environment   # 確認所有必要變數就位
+```
+
+---
+
+### 問題 9: Docker Desktop 運行中但 docker 指令失敗
+
+**症狀**:
+```
+error during connect: Get "http://localhost:2375/v1.xx/containers/json":
+  dial tcp [::1]:2375: connectex: No connection could be made ...
+```
+
+**原因**: `DOCKER_HOST` 環境變數指向舊式 TCP 位址（`tcp://localhost:2375`），但 Docker Desktop 實際使用 named pipe。
+
+**解決方案**:
+```bash
+# 方法 1: 當前 shell 臨時取消
+unset DOCKER_HOST                 # Unix / Git Bash
+$env:DOCKER_HOST=$null            # PowerShell
+
+# 方法 2: 切換至 desktop-linux context
+docker context use desktop-linux
+
+# 方法 3: 永久移除環境變數（Windows）
+# 控制台 → 系統 → 進階系統設定 → 環境變數，刪除 DOCKER_HOST
+```
+
+---
+
 ## 10. 快速指令參考
 
 ### 完整初始化流程（一鍵參考）
@@ -544,6 +700,8 @@ npm run dev                  # 啟動開發伺服器
 npm run type-check           # TypeScript 類型檢查
 npm run lint                 # ESLint 代碼檢查
 npm run i18n:check           # i18n 翻譯同步檢查
+npm run verify-environment   # 環境自檢（CHANGE-054）
+npm run init-env             # 一鍵新環境初始化（CHANGE-054）
 npx prisma studio            # 開啟 Prisma 資料庫管理 UI
 npx prisma generate          # Schema 變更後重新生成 Client
 ```
@@ -561,4 +719,5 @@ docker-compose restart db    # 重啟 PostgreSQL
 ---
 
 *文件建立日期: 2026-03-14*
+*最後更新: 2026-04-22（CHANGE-054 新增 Section 0 一鍵腳本、5.5 SYSTEM_USER_ID 遷移、問題 7-9；FIX-054 修復）*
 *適用版本: AI Document Extraction Project v3.1+*
