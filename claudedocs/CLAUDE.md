@@ -10,7 +10,7 @@
 
 - **項目規劃**: Epic 架構設計、功能規劃、路線圖
 - **進度追蹤**: 每日/每週進度報告、Sprint 計劃
-- **變更管理**: Bug 修復記錄（53 份，FIX-050~053 全數完成）、功能變更追蹤（53 份）
+- **變更管理**: Bug 修復記錄（54 份，FIX-050~054 全數完成）、功能變更追蹤（54 份）
 - **AI 協作**: 情境提示詞、工作流程指南、分析報告
 - **知識傳承**: 開發經驗、故障排查、部署指南
 
@@ -154,14 +154,14 @@ claudedocs/
 | Epic 20 | 參考編號主檔管理 | ✅ 已完成 | 2026-02-05 |
 | Epic 21 | 匯率管理 | ✅ 已完成 | 2026-02-06 |
 
-### 變更管理統計（2026-04-21 更新）
+### 變更管理統計（2026-04-22 更新）
 
 | 類型 | 數量 | 最新編號 | 路徑 |
 |------|------|---------|------|
-| 功能變更 (CHANGE) | **53 份** | CHANGE-053 | `4-changes/feature-changes/` |
-| Bug 修復 (FIX) | **53 份**（全部已完成）| FIX-053 | `4-changes/bug-fixes/` |
+| 功能變更 (CHANGE) | **54 份** | CHANGE-054 | `4-changes/feature-changes/` |
+| Bug 修復 (FIX) | **54 份**（全部已完成）| FIX-054 | `4-changes/bug-fixes/` |
 
-### FIX-050 ~ FIX-053（Codebase Security Audit 系列）✅ 全數完成
+### FIX-050 ~ FIX-054（Codebase 品質與部署可靠性系列）✅ 全數完成
 
 | 編號 | 名稱 | 狀態 |
 |------|------|------|
@@ -169,6 +169,13 @@ claudedocs/
 | FIX-051 | db-context.ts SQL Injection Risk | ✅ 已修復（2026-04-21） |
 | FIX-052 | Rate Limit in-memory → Upstash Redis | ✅ 已修復（2026-04-21） |
 | FIX-053 | Smart Routing Dual Logic Conflict | ✅ 已修復（2026-04-21） |
+| FIX-054 | SYSTEM_USER_ID 硬編碼 'dev-user-1' 為生產依賴 | ✅ 已修復（2026-04-22） |
+
+### CHANGE-054（部署可靠性強化，與 FIX-054 配對）
+
+| 編號 | 名稱 | 狀態 |
+|------|------|------|
+| CHANGE-054 | Deployment Readiness：一鍵 init 腳本 + verify-environment + .env.example 全面重寫 | ✅ 已完成（2026-04-22） |
 
 ### 重要重構記錄
 
@@ -184,8 +191,9 @@ claudedocs/
 | CHANGE-032 | Pipeline 參考編號匹配 + 匯率轉換 | ✅ 已完成 | 提取管線新增 `pipeline-config.service.ts` 及參考編號/匯率階段 |
 | CHANGE-033 | CLAUDE.md Token 優化 | ✅ 已完成 | 精簡系統提示至 ~350 行，移出參考資料 |
 | CHANGE-044 ~ 053 | Line item / Field definition / User profile / System settings / Role unification 等 | ✅ 已完成 | 多項後續增強（詳見 feature-changes/） |
+| CHANGE-054 | Deployment Readiness Enhancement | ✅ 已完成 | 新環境一鍵腳本 + verify-environment + .env.example 全面重寫（與 FIX-054 配對） |
 
-> CHANGE-034 ~ 053 共 20 份近期變更未列於此表，請查閱 `4-changes/feature-changes/` 獲取完整清單。
+> CHANGE-034 ~ 054 共 21 份近期變更未全部列於此表，請查閱 `4-changes/feature-changes/` 獲取完整清單。
 
 ---
 
@@ -209,13 +217,13 @@ claudedocs/
 
 位於 `claudedocs/4-changes/feature-changes/`，命名格式 `CHANGE-{NNN}-{description}.md`
 
-**CHANGE 編號範圍**: 001-053（共 53 份）
+**CHANGE 編號範圍**: 001-054（共 54 份）
 
 ### Bug 修復 (FIX-*)
 
 位於 `claudedocs/4-changes/bug-fixes/`，命名格式 `FIX-{NNN}-{description}.md`
 
-**FIX 編號範圍**: 001-053（共 53 份；FIX-050~053 全數完成）
+**FIX 編號範圍**: 001-054（共 54 份；FIX-050~054 全數完成）
 
 ### 進度報告
 
@@ -375,7 +383,7 @@ claudedocs/
 2. **使用正確的命名約定** - CHANGE 下一個編號 034，FIX 下一個編號 036
 3. **遵循格式範本** - 參考 `7-archive/templates/` 下的範本
 
-> **下一個可用編號**: CHANGE-054、FIX-054（建立前請 Glob `CHANGE-*.md` / `FIX-*.md` 確認最新編號）
+> **下一個可用編號**: CHANGE-055、FIX-055（建立前請 Glob `CHANGE-*.md` / `FIX-*.md` 確認最新編號）
 
 ---
 
@@ -409,5 +417,5 @@ claudedocs/
 ---
 
 **維護者**: AI 助手 + 開發團隊
-**最後更新**: 2026-04-21（同步 codebase-analyze 2026-04-09 掃瞄）
-**文檔版本**: 3.1.0
+**最後更新**: 2026-04-22（新增 FIX-054 + CHANGE-054 部署可靠性強化）
+**文檔版本**: 3.2.0
