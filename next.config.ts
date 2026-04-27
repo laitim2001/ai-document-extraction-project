@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
+  // Production output mode: standalone
+  // Required for Docker deployment to Azure Container Apps (CHANGE-055 Phase 2)
+  // Generates .next/standalone/ with minimal node_modules + server.js
+  // Reference: docs/06-deployment/02-azure-deployment/uat-deployment/04-container-build-push.md (Action 4.2)
+  output: 'standalone',
+
   // ESLint configuration for build
   // Note: Warnings are treated as errors in production build by default
   // Setting ignoreDuringBuilds to allow build with warnings (temporary for testing)
@@ -43,12 +49,14 @@ const nextConfig: NextConfig = {
     }
 
     // Mark native modules and PDF libraries as external for server to avoid bundling issues
+    // pg-native: optional C++ libpq binding (pg fallback to pure JS when not installed)
     if (isServer) {
       config.externals = config.externals || []
       config.externals.push({
         canvas: 'commonjs canvas',
         'pdf-to-img': 'commonjs pdf-to-img',
         'pdfjs-dist': 'commonjs pdfjs-dist',
+        'pg-native': 'commonjs pg-native',
       })
     }
 

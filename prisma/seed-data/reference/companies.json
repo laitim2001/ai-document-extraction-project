@@ -1,0 +1,122 @@
+[
+  {
+    "code": "DHL",
+    "name": "DHL Express",
+    "displayName": "DHL Express",
+    "type": "FORWARDER",
+    "status": "ACTIVE",
+    "source": "MANUAL",
+    "contactEmail": "freight-hk@dhl.com",
+    "description": "DHL Express - APAC HKG",
+    "defaultConfidence": 0.85,
+    "priority": 100
+  },
+  {
+    "code": "FEDEX",
+    "name": "FedEx",
+    "displayName": "FedEx",
+    "type": "FORWARDER",
+    "status": "ACTIVE",
+    "source": "MANUAL",
+    "contactEmail": "customerservice.hk@fedex.com",
+    "description": "FedEx - APAC HKG",
+    "defaultConfidence": 0.85,
+    "priority": 100
+  },
+  {
+    "code": "UPS",
+    "name": "UPS",
+    "displayName": "UPS",
+    "type": "FORWARDER",
+    "status": "ACTIVE",
+    "source": "MANUAL",
+    "contactEmail": "customerservice.hk@ups.com",
+    "description": "UPS - APAC HKG",
+    "defaultConfidence": 0.85,
+    "priority": 100
+  },
+  {
+    "code": "KN",
+    "name": "Kuehne+Nagel",
+    "displayName": "Kuehne+Nagel",
+    "type": "FORWARDER",
+    "status": "ACTIVE",
+    "source": "MANUAL",
+    "contactEmail": "info.hongkong@kuehne-nagel.com",
+    "description": "Kuehne+Nagel - APAC HKG",
+    "defaultConfidence": 0.85,
+    "priority": 100
+  },
+  {
+    "code": "SCHENKER",
+    "name": "DB Schenker",
+    "displayName": "DB Schenker",
+    "type": "FORWARDER",
+    "status": "ACTIVE",
+    "source": "MANUAL",
+    "contactEmail": "info.sg@dbschenker.com",
+    "description": "DB Schenker - APAC SIN",
+    "defaultConfidence": 0.85,
+    "priority": 100
+  },
+  {
+    "code": "DSV",
+    "name": "DSV",
+    "displayName": "DSV",
+    "type": "FORWARDER",
+    "status": "ACTIVE",
+    "source": "MANUAL",
+    "contactEmail": "info.sg@dsv.com",
+    "description": "DSV - APAC SIN",
+    "defaultConfidence": 0.85,
+    "priority": 100
+  },
+  {
+    "code": "EXPED",
+    "name": "Expeditors",
+    "displayName": "Expeditors",
+    "type": "FORWARDER",
+    "status": "ACTIVE",
+    "source": "MANUAL",
+    "contactEmail": "hkg@expeditors.com",
+    "description": "Expeditors - APAC HKG",
+    "defaultConfidence": 0.85,
+    "priority": 100
+  },
+  {
+    "code": "YUSEN",
+    "name": "Yusen Logistics",
+    "displayName": "Yusen Logistics",
+    "type": "FORWARDER",
+    "status": "ACTIVE",
+    "source": "MANUAL",
+    "contactEmail": "info.hk@yusen-logistics.com",
+    "description": "Yusen Logistics - APAC HKG",
+    "defaultConfidence": 0.85,
+    "priority": 100
+  },
+  {
+    "code": "NIPPON",
+    "name": "Nippon Express",
+    "displayName": "Nippon Express",
+    "type": "FORWARDER",
+    "status": "ACTIVE",
+    "source": "MANUAL",
+    "contactEmail": "info.hk@nipponexpress.com",
+    "description": "Nippon Express - APAC HKG",
+    "defaultConfidence": 0.85,
+    "priority": 100
+  },
+  {
+    "code": "CEVA",
+    "name": "Ceva Logistics",
+    "displayName": "Ceva Logistics",
+    "type": "FORWARDER",
+    "status": "ACTIVE",
+    "source": "MANUAL",
+    "contactEmail": "info.sg@cevalogistics.com",
+    "description": "Ceva Logistics - APAC SIN",
+    "defaultConfidence": 0.85,
+    "priority": 100
+  }
+]

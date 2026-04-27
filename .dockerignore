@@ -1,0 +1,170 @@
+# ============================================================================
+# .dockerignore — Production Image Build Exclusions
+# ============================================================================
+# Purpose: Reduce build context size, prevent leaking secrets/dev-only files
+# Reference: docs/06-deployment/02-azure-deployment/uat-deployment/04-container-build-push.md
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Git
+# ----------------------------------------------------------------------------
+.git
+.gitignore
+.gitattributes
+
+# ----------------------------------------------------------------------------
+# Node / npm
+# ----------------------------------------------------------------------------
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+
+# ----------------------------------------------------------------------------
+# Next.js build output（builder stage 會重新產生）
+# ----------------------------------------------------------------------------
+.next
+out
+build
+dist
+
+# ----------------------------------------------------------------------------
+# Environment（🔴 絕不可入 image）
+# ----------------------------------------------------------------------------
+.env
+.env.local
+.env.local.tmp
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production.local
+.env.example
+
+# ----------------------------------------------------------------------------
+# Editor / IDE
+# ----------------------------------------------------------------------------
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ----------------------------------------------------------------------------
+# Testing
+# ----------------------------------------------------------------------------
+tests
+tests/__test_results__
+coverage
+playwright-report
+test-results
+*.spec.ts
+*.test.ts
+
+# ----------------------------------------------------------------------------
+# Documentation（不需入 production image）
+# ----------------------------------------------------------------------------
+docs
+claudedocs
+claudedocs_sample
+openapi
+*.md
+LICENSE
+AI-ASSISTANT-GUIDE.md
+INDEX-MAINTENANCE-GUIDE.md
+PROJECT-INDEX.md
+
+# ----------------------------------------------------------------------------
+# Claude Code / AI 助手相關
+# ----------------------------------------------------------------------------
+.claude
+CLAUDE.md
+CLAUDE_backup.md
+CLAUDE_backup_v2.6.0_20260209.md
+CLAUDE-Karpathy.md
+.serena
+.bmad-core
+bmad-custom-src
+
+# ----------------------------------------------------------------------------
+# Logs / Temp
+# ----------------------------------------------------------------------------
+logs
+*.log
+nul
+
+# ----------------------------------------------------------------------------
+# OS
+# ----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------------------------------------------------------------
+# Backup / 暫存
+# ----------------------------------------------------------------------------
+*.bak
+*.backup
+backups/
+deployment-state/
+
+# Conversation transcripts（Claude Code 自動產生）
+2026-*-local-command-caveat*.txt
+2026-*.txt
+conversation-*.txt
+
+# Screenshot artifacts
+*.png
+!public/**/*.png
+
+# Excel / batch artifacts（dev 產出）
+*.xlsx
+batch-result.json
+exports/
+
+# ----------------------------------------------------------------------------
+# Docker（不需在 image 內）
+# ----------------------------------------------------------------------------
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose*.yml
+
+# ----------------------------------------------------------------------------
+# Scripts（僅 dev 用，不入 image）
+# ----------------------------------------------------------------------------
+scripts/dev-*
+scripts/local-*
+scripts/check-*
+scripts/init-new-environment.sh
+
+# ----------------------------------------------------------------------------
+# Prisma（部分排除）
+# ----------------------------------------------------------------------------
+# 排除 dev seed 與測試資料
+prisma/seed.ts
+prisma/seed/
+prisma/seed-data
+prisma/sql
+prisma/migrations/_archive
+
+# 但保留 schema、production migration、production seeds：
+# !prisma/schema.prisma
+# !prisma/migrations
+# （以上在 Dockerfile 中明確 COPY，這裡只排除上述子路徑）
+
+# ----------------------------------------------------------------------------
+# Python services（Container Apps 部署為獨立 service，本 image 不需要）
+# ----------------------------------------------------------------------------
+python-services
+
+# ----------------------------------------------------------------------------
+# Misc
+# ----------------------------------------------------------------------------
+processingSteps
+hierarchical-terms-report.xlsx
+FIX-*.xlsx
+*.tar
+*.zip
