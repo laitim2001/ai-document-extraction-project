@@ -123,6 +123,16 @@
 
 ---
 
+## Supplementary Synthesis (Added 2026-05-31, beyond the 2026-04-09 batch)
+
+> Cross-cutting flow syntheses produced after the original 80-file batch. Not counted in the "80 files / 2026-04-09" snapshot above.
+
+| Document | Path | Date | Status |
+|----------|------|------|--------|
+| 端到端功能架構流程說明（前置設定 → 處理 → Data Template） | `end-to-end-processing-flow.md` | 2026-05-31 | ✅ Done |
+
+---
+
 ## Verification Summary
 
 ### Round 1-3: Level 1-3 (Existence / Count / Signature)
