@@ -13,7 +13,11 @@
  *
  * @module src/services/extraction-v3/stages/stage-1-company.service
  * @since CHANGE-024 - Three-Stage Extraction Architecture
- * @lastModified 2026-02-03
+ * @lastModified 2026-05-31
+ *
+ *   FIX-057：強化公司配對（resolveCompanyId）
+ *   - 後備配對加入 nameVariants 精確比對 + 公司名正規化比對（移除 LTD./標點）
+ *   - 解決「DB 存短名 vs 發票印法定全名」無法配對、每份文件 JIT 增生重複公司的問題
  *
  * @features
  *   - 公司識別方法：LOGO / HEADER / ADDRESS / TAX_ID / LLM_INFERRED
@@ -403,21 +407,55 @@ Response format (JSON):
       }
     }
 
-    // 2. 嘗試模糊匹配
-    const fuzzyMatch = await this.prisma.company.findFirst({
-      where: {
-        name: { contains: parsed.companyName, mode: 'insensitive' },
-        status: 'ACTIVE',
-      },
-      select: { id: true, name: true },
-    });
+    // 2. 後備配對（FIX-057：強化以涵蓋「DB 短名 vs 發票法定全名」）
+    if (parsed.companyName) {
+      const candidate = parsed.companyName;
 
-    if (fuzzyMatch) {
-      return {
-        companyId: fuzzyMatch.id,
-        companyName: fuzzyMatch.name,
-        isNewCompany: false,
-      };
+      // 2a. DB 層 OR 條件：精確變體 / 大小寫不敏感相等 / 公司名包含發票名
+      const dbMatch = await this.prisma.company.findFirst({
+        where: {
+          status: 'ACTIVE',
+          OR: [
+            { nameVariants: { has: candidate } },
+            { name: { equals: candidate, mode: 'insensitive' } },
+            { name: { contains: candidate, mode: 'insensitive' } },
+          ],
+        },
+        select: { id: true, name: true },
+      });
+
+      if (dbMatch) {
+        return {
+          companyId: dbMatch.id,
+          companyName: dbMatch.name,
+          isNewCompany: false,
+        };
+      }
+
+      // 2b. 正規化配對：移除公司後綴（LTD./LIMITED/CO. 等）與標點後，
+      //     以 name 及 nameVariants 與發票名做正規化相等比對
+      //     （例：「Fairate Express」↔「FAIRATE EXPRESS LTD.」皆正規化為「fairate express」）
+      const normCandidate = this.normalizeCompanyName(candidate);
+      if (normCandidate) {
+        const activeCompanies = await this.prisma.company.findMany({
+          where: { status: 'ACTIVE' },
+          select: { id: true, name: true, nameVariants: true },
+        });
+
+        const matched = activeCompanies.find((c) =>
+          [c.name, ...(c.nameVariants ?? [])].some(
+            (n) => this.normalizeCompanyName(n) === normCandidate
+          )
+        );
+
+        if (matched) {
+          return {
+            companyId: matched.id,
+            companyName: matched.name,
+            isNewCompany: false,
+          };
+        }
+      }
     }
 
     // 3. 如果允許自動創建，則 JIT 創建公司
@@ -438,6 +476,28 @@ Response format (JSON):
       companyName: parsed.companyName,
       isNewCompany: true,
     };
+  }
+
+  /**
+   * FIX-057：公司名稱正規化（用於配對比對）
+   * @description
+   *   移除常見公司後綴（LTD / LIMITED / CO / COMPANY / INC / CORP / LLC / PTE / GMBH / SA / BV 等）
+   *   與標點符號，並統一為小寫、壓縮空白，使「Fairate Express」與「FAIRATE EXPRESS LTD.」
+   *   正規化後相等而可互相配對。
+   * @param name 原始公司名稱
+   * @returns 正規化後的字串（可能為空字串）
+   */
+  private normalizeCompanyName(name: string): string {
+    if (!name) return '';
+    return name
+      .toLowerCase()
+      .replace(
+        /\b(ltd|limited|co|company|inc|incorporated|corp|corporation|llc|pte|gmbh|sa|bv|ag|nv)\b\.?/g,
+        ' '
+      )
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .replace(/\s+/g, ' ');
   }
 
   /**
