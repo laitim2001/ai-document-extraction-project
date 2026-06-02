@@ -1731,6 +1731,8 @@ export interface EffectivePipelineConfig {
   fxFallbackBehavior: 'skip' | 'warn' | 'error';
   /** CHANGE-071: 只轉指定來源幣別清單（null/空 = 全轉，向後相容） */
   fxSourceCurrencies: string[] | null;
+  /** CHANGE-073: 來源幣別補值 fallback（抽取無幣別時假定為此；null = 無 fallback） */
+  fxSourceCurrency: string | null;
   /** 配置來源摘要 */
   resolvedFrom: {
     global?: string;

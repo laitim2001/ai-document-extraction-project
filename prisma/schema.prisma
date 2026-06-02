@@ -4326,6 +4326,8 @@ model PipelineConfig {
   fxFallbackBehavior     String              @default("skip") @map("fx_fallback_behavior")
   // CHANGE-071: 只轉指定來源幣別清單（null/空 = 全轉，向後相容）
   fxSourceCurrencies     Json?               @map("fx_source_currencies")
+  // CHANGE-073: 來源幣別補值 fallback（抽取無幣別時假定為此；null = 無 fallback，向後相容）
+  fxSourceCurrency       String?             @map("fx_source_currency") @db.VarChar(3)
 
   // 通用欄位
   isActive               Boolean             @default(true) @map("is_active")

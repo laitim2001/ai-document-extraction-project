@@ -1,7 +1,7 @@
 # CHANGE-073: FX 來源幣別 fallback — 由 PipelineConfig 指定
 
 > **日期**: 2026-06-01
-> **狀態**: ⏳ 待實作（僅規劃；含 H1 觸發，實作前需用戶批准）
+> **狀態**: ✅ 已完成（2026-06-01 實作；H1 已批准、採選項 A fallback-only）
 > **優先級**: High（真實 THB→HKD 業務場景的關鍵阻塞）
 > **類型**: Feature
 > **影響範圍**: PipelineConfig（122 models 之一）/ FX 換算器來源幣別解析 / Pipeline Config UI / i18n
@@ -44,14 +44,16 @@ sourceCurrency = stage3Result.standardFields.currency?.value
 
 - 仍維持「來源 == 目標 → 不換」「無匯率 → 依 fallbackBehavior」等既有行為。
 
-### 變更項目 3（待用戶決策）：fallback-only vs 強制覆蓋
+### 變更項目 3（✅ 已決策：選項 A）：fallback-only vs 強制覆蓋
 
 | 選項 | 語意 | 取捨 |
 |------|------|------|
-| **A（推薦）fallback-only** | 僅當抽取**無**來源幣別時才用 `fxSourceCurrency` | 安全，不覆蓋正確抽取值；對 Fairate 純費用欄位場景即足夠 |
+| **A（已採用）fallback-only** | 僅當抽取**無**來源幣別時才用 `fxSourceCurrency` | 安全，不覆蓋正確抽取值；對 Fairate 純費用欄位場景即足夠 |
 | B 強制覆蓋 | 一律以 `fxSourceCurrency` 為來源，忽略抽取值 | 適合「格式幣別 100% 固定」但會蓋掉文件真實幣別，誤設風險高 |
 
-> 規劃預設採 **A**。若用戶要 B，可加一個 `fxForceSourceCurrency: boolean` 開關，預設 false。
+> **用戶決策（2026-06-01）採選項 A fallback-only**。換算器解析為
+> `sourceCurrency = extractedCurrency || config.fxSourceCurrency || undefined`，
+> 抽取有值時一律以抽取值為準，不引入 `fxForceSourceCurrency` 開關（YAGNI）。
 
 ---
 
@@ -98,7 +100,9 @@ sourceCurrency = stage3Result.standardFields.currency?.value
 - 不影響已處理文件。
 
 ### H1 註記（Strict Mode）
-本變更**改 PipelineConfig 結構 + 換算器來源幣別解析邏輯**，屬 H1 Architectural Change（純加 nullable 欄位 + 解析 fallback）。**規劃階段不動 code，實作前需用戶 approve**，並於本文件記錄批准日期。
+本變更**改 PipelineConfig 結構 + 換算器來源幣別解析邏輯**，屬 H1 Architectural Change（純加 nullable 欄位 + 解析 fallback）。
+
+**✅ H1 批准記錄**：用戶於 2026-06-01 以「執行 CHANGE-073」指令批准實作，並拍板採選項 A（fallback-only）。實作僅純加 1 個 nullable 欄位 + 在既有解析點加 fallback，未動三層映射、信心度路由或其他 121 個 model，向後完全相容。
 
 ---
 
@@ -131,6 +135,34 @@ sourceCurrency = stage3Result.standardFields.currency?.value
 
 ---
 
+## 實作摘要（2026-06-01 完成）
+
+### 最終改動檔案（8 個）
+
+| # | 檔案 | 改動 |
+|---|------|------|
+| 1 | `prisma/schema.prisma` | `PipelineConfig` 加 `fxSourceCurrency String? @map("fx_source_currency") @db.VarChar(3)`；`prisma db push` 套用至 dev DB |
+| 2 | `src/types/extraction-v3.types.ts` | `EffectivePipelineConfig` 加 `fxSourceCurrency: string \| null` |
+| 3 | `src/lib/validations/pipeline-config.schema.ts` | create + update schema 加 `fxSourceCurrency: z.string().length(3).toUpperCase().nullable().optional()` |
+| 4 | `src/services/pipeline-config.service.ts` | DEFAULT 加 `fxSourceCurrency: null`；create/update interface + createPipelineConfig data；`resolveEffectiveConfig` 加「非 null 才覆蓋」合併 |
+| 5 | `src/services/extraction-v3/stages/exchange-rate-converter.service.ts` | 來源幣別解析改 `extractedCurrency \|\| config.fxSourceCurrency \|\| undefined`（fallback-only） |
+| 6 | `src/hooks/use-pipeline-configs.ts` | `PipelineConfigItem` + Create/Update Input 加 `fxSourceCurrency` |
+| 7 | `src/components/features/pipeline-config/PipelineConfigForm.tsx` | zod schema + defaultValues + create/update payload + FX 區塊新增「來源幣別補值」下拉（含「無」選項） |
+| 8 | `messages/{en,zh-TW,zh-CN}/pipelineConfig.json` | 三語 `form.fxSourceCurrency` / `fxSourceCurrencyDescription` / `fxSourceCurrencyNone` |
+
+### 品質閘
+
+- `npx prisma db push` ✅ DB 同步、`prisma generate` ✅
+- `npm run i18n:check` ✅ 通過
+- `npm run type-check` ✅ 改動 8 檔零型別錯誤（另有 2 處 pre-existing 無關錯誤：`reports/CityDetailPanel.tsx` Recharts Formatter 型別、`tests/.../batch-processor-parallel.test.ts` 缺 test runner 型別）
+- `eslint`（改動 6 個 TS/TSX）✅ 零 warning
+
+### 待後續驗證（非阻塞）
+
+- 真實 THB→HKD E2E：對某公司×格式設 `fxSourceCurrency=THB`、`fxTargetCurrency=HKD`、補 THB→HKD 對應年份匯率 → 上傳純費用欄位（無幣別代碼）文件，驗證動態 currency 欄位由 THB 換成 HKD、原值入 `fxConversionResult`。
+
+---
+
 *文件建立日期: 2026-06-01*
 *最後更新: 2026-06-01*
-*狀態: ⏳ 待實作（僅規劃；H1 觸發，實作前需用戶批准）*
+*狀態: ✅ 已完成（H1 已批准、採選項 A fallback-only；待真實 THB E2E 場景驗證）*

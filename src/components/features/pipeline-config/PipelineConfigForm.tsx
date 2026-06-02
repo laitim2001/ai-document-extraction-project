@@ -109,6 +109,7 @@ const formSchema = z
     fxRoundingPrecision: z.number().int().min(0).max(8),
     fxFallbackBehavior: z.enum(['skip', 'warn', 'error']),
     fxSourceCurrencies: z.array(z.string()),
+    fxSourceCurrency: z.string().nullable().optional(),
     isActive: z.boolean(),
     description: z.string().nullable().optional(),
   })
@@ -191,6 +192,7 @@ export function PipelineConfigForm({ initialData }: PipelineConfigFormProps) {
       fxFallbackBehavior:
         (initialData?.fxFallbackBehavior as 'skip' | 'warn' | 'error') ?? 'skip',
       fxSourceCurrencies: (initialData?.fxSourceCurrencies as string[]) ?? [],
+      fxSourceCurrency: initialData?.fxSourceCurrency ?? null,
       isActive: initialData?.isActive ?? true,
       description: initialData?.description ?? null,
     },
@@ -221,6 +223,7 @@ export function PipelineConfigForm({ initialData }: PipelineConfigFormProps) {
                 values.fxSourceCurrencies.length > 0
                   ? values.fxSourceCurrencies
                   : null,
+              fxSourceCurrency: values.fxSourceCurrency ?? null,
               isActive: values.isActive,
               description: values.description,
             },
@@ -246,6 +249,7 @@ export function PipelineConfigForm({ initialData }: PipelineConfigFormProps) {
               values.fxSourceCurrencies.length > 0
                 ? values.fxSourceCurrencies
                 : null,
+            fxSourceCurrency: values.fxSourceCurrency ?? null,
             isActive: values.isActive,
             description: values.description,
           })
@@ -595,6 +599,43 @@ export function PipelineConfigForm({ initialData }: PipelineConfigFormProps) {
                   ))}
                 </div>
               </div>
+
+              {/* CHANGE-073: 來源幣別補值 fallback（抽取無幣別時假定為此，不覆蓋已抽取值） */}
+              <FormField
+                control={form.control}
+                name="fxSourceCurrency"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('form.fxSourceCurrency')}</FormLabel>
+                    <FormDescription>
+                      {t('form.fxSourceCurrencyDescription')}
+                    </FormDescription>
+                    <Select
+                      value={field.value ?? '__NONE__'}
+                      onValueChange={(v) =>
+                        field.onChange(v === '__NONE__' ? null : v)
+                      }
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="__NONE__">
+                          {t('form.fxSourceCurrencyNone')}
+                        </SelectItem>
+                        {COMMON_CURRENCIES.map((currency) => (
+                          <SelectItem key={currency.code} value={currency.code}>
+                            {currency.code}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="grid grid-cols-2 gap-4">
                 <FormField

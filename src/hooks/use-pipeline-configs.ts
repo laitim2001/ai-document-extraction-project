@@ -51,6 +51,7 @@ export interface PipelineConfigItem {
   fxRoundingPrecision: number
   fxFallbackBehavior: string
   fxSourceCurrencies: string[] | null
+  fxSourceCurrency: string | null
   isActive: boolean
   description: string | null
   createdAt: string
@@ -131,6 +132,7 @@ export interface CreatePipelineConfigInput {
   fxRoundingPrecision?: number
   fxFallbackBehavior?: string
   fxSourceCurrencies?: string[] | null
+  fxSourceCurrency?: string | null
   isActive?: boolean
   description?: string | null
 }
@@ -149,6 +151,7 @@ export interface UpdatePipelineConfigInput {
   fxRoundingPrecision?: number
   fxFallbackBehavior?: string
   fxSourceCurrencies?: string[] | null
+  fxSourceCurrency?: string | null
   isActive?: boolean
   description?: string | null
 }

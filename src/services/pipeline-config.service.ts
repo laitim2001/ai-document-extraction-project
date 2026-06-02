@@ -56,6 +56,7 @@ interface PipelineConfigCreateInput {
   fxRoundingPrecision?: number;
   fxFallbackBehavior?: string;
   fxSourceCurrencies?: string[] | null;
+  fxSourceCurrency?: string | null;
   isActive?: boolean;
   description?: string | null;
 }
@@ -71,6 +72,7 @@ interface PipelineConfigUpdateInput {
   fxRoundingPrecision?: number;
   fxFallbackBehavior?: string;
   fxSourceCurrencies?: string[] | null;
+  fxSourceCurrency?: string | null;
   isActive?: boolean;
   description?: string | null;
 }
@@ -90,6 +92,7 @@ const DEFAULT_EFFECTIVE_CONFIG: EffectivePipelineConfig = {
   fxRoundingPrecision: 2,
   fxFallbackBehavior: 'skip',
   fxSourceCurrencies: null,
+  fxSourceCurrency: null,
   resolvedFrom: {},
 };
 
@@ -253,6 +256,8 @@ export async function createPipelineConfig(data: PipelineConfigCreateInput) {
         data.fxSourceCurrencies == null
           ? undefined
           : (data.fxSourceCurrencies as unknown as Prisma.InputJsonValue),
+      // CHANGE-073: 來源幣別補值 fallback
+      fxSourceCurrency: data.fxSourceCurrency ?? null,
       isActive: data.isActive ?? true,
       description: data.description ?? null,
     },
@@ -443,6 +448,10 @@ export async function resolveEffectiveConfig(
     // CHANGE-071: 來源幣別清單為 nullable，非 null 時才覆蓋（含明確空陣列 = 全轉）
     if (config.fxSourceCurrencies != null) {
       resolved.fxSourceCurrencies = config.fxSourceCurrencies as unknown as string[];
+    }
+    // CHANGE-073: 來源幣別補值為 nullable，非 null/空字串時才覆蓋
+    if (config.fxSourceCurrency) {
+      resolved.fxSourceCurrency = config.fxSourceCurrency;
     }
 
     resolvedFrom[scopeLabel] = config.id;

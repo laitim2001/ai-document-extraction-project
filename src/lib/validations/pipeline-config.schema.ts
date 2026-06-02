@@ -80,6 +80,8 @@ export const createPipelineConfigSchema = z
       .array(z.string().length(3).toUpperCase())
       .nullable()
       .optional(),
+    // CHANGE-073: 來源幣別補值 fallback（抽取無幣別時假定為此）
+    fxSourceCurrency: z.string().length(3).toUpperCase().nullable().optional(),
 
     // General
     isActive: z.boolean().default(true),
@@ -134,6 +136,8 @@ export const updatePipelineConfigSchema = z.object({
     .array(z.string().length(3).toUpperCase())
     .nullable()
     .optional(),
+  // CHANGE-073: 來源幣別補值 fallback（抽取無幣別時假定為此）
+  fxSourceCurrency: z.string().length(3).toUpperCase().nullable().optional(),
   isActive: z.boolean().optional(),
   description: z.string().max(500).nullable().optional(),
 });

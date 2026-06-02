@@ -80,14 +80,19 @@ export class ExchangeRateConverterService {
     }
 
     // 讀取來源貨幣
-    const sourceCurrency = stage3Result.standardFields.currency?.value?.toString();
+    // CHANGE-073: 抽取無來源幣別時，fallback 至設定的 fxSourceCurrency
+    //   採 fallback-only 語意：僅當抽取結果無幣別時補值，不覆蓋已抽取的幣別。
+    const extractedCurrency = stage3Result.standardFields.currency?.value?.toString();
+    const sourceCurrency = extractedCurrency || config.fxSourceCurrency || undefined;
     if (!sourceCurrency) {
       return {
         enabled: true,
         conversions: [],
         sourceCurrency: undefined,
         targetCurrency,
-        warnings: ['No source currency found in extracted data'],
+        warnings: [
+          'No source currency found in extracted data (and no fxSourceCurrency fallback configured)',
+        ],
         processingTimeMs: Date.now() - startTime,
       };
     }
