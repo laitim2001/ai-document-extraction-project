@@ -104,5 +104,146 @@
     "correctionsSavedDesc": "已儲存 {count} 個欄位的修正",
     "saveFailedRetry": "儲存失敗",
     "tryAgainLater": "請稍後再試"
+  },
+  "panel": {
+    "forwarder": "Forwarder",
+    "overallConfidence": "整體信心度:",
+    "noLowConfidenceFields": "沒有低信心度欄位",
+    "noFields": "沒有提取欄位",
+    "needsAttention": "需要關注",
+    "showLowConfidenceOnly": "僅顯示低信心度欄位"
+  },
+  "fieldGroups": {
+    "header": "發票基本資訊",
+    "shipper": "發貨人資訊",
+    "consignee": "收貨人資訊",
+    "shipment": "運輸資訊",
+    "charges": "費用明細",
+    "totals": "金額合計",
+    "other": "其他資訊"
+  },
+  "fields": {
+    "invoiceNumber": "發票號碼",
+    "invoiceDate": "發票日期",
+    "dueDate": "到期日",
+    "poNumber": "PO 號碼",
+    "currency": "幣別",
+    "shipperName": "發貨人名稱",
+    "shipperAddress": "發貨人地址",
+    "shipperContact": "發貨人聯絡人",
+    "consigneeName": "收貨人名稱",
+    "consigneeAddress": "收貨人地址",
+    "consigneeContact": "收貨人聯絡人",
+    "vesselName": "船名",
+    "voyageNumber": "航次",
+    "containerNumber": "貨櫃號",
+    "blNumber": "提單號",
+    "portOfLoading": "裝貨港",
+    "portOfDischarge": "卸貨港",
+    "etd": "預計開航日",
+    "eta": "預計到港日",
+    "oceanFreight": "海運費",
+    "thc": "THC",
+    "docFee": "文件費",
+    "customsFee": "報關費",
+    "handlingFee": "手續費",
+    "totalAmount": "總金額",
+    "taxAmount": "稅額",
+    "netAmount": "淨額"
+  },
+  "fieldMeta": {
+    "sourcePositionTooltip": "點擊查看 PDF 對應位置（第 {page} 頁）",
+    "modifiedTooltip": "已修改（未儲存）"
+  },
+  "reviewActions": {
+    "quickReviewHint": "快速審核模式：僅需確認需關注欄位",
+    "fullReviewHint": "完整審核模式：請詳細檢查所有欄位",
+    "confirm": "確認無誤",
+    "saveCorrections": "儲存修正",
+    "escalate": "升級",
+    "confirmTooltipSubmitting": "正在確認中...",
+    "confirmTooltipPending": "請先儲存修改後再確認",
+    "confirmTooltipReady": "確認 {count} 個欄位無誤，文件將標記為已核准",
+    "saveTooltipPending": "儲存目前的修改",
+    "saveTooltipNone": "沒有需要儲存的修改",
+    "escalateTooltip": "升級至主管處理",
+    "unsavedHint": "有未儲存的修改"
+  },
+  "quickReview": {
+    "title": "快速審核模式",
+    "summary": "系統已自動確認 {high} 個高信心度欄位，請審核以下 {needsReview} 個需要關注的欄位。",
+    "badgeLow": "低信心度: {count}",
+    "badgeMedium": "中信心度: {count}",
+    "badgeAutoConfirmed": "已自動確認: {count}",
+    "needsAttentionTitle": "需要關注的欄位 ({count})",
+    "allHighConfidence": "所有欄位皆為高信心度，可直接確認",
+    "autoConfirmedToggle": "已自動確認的欄位 ({count})",
+    "confirmAll": "確認全部欄位 ({count})",
+    "confirming": "確認中..."
+  },
+  "fieldEditor": {
+    "validationFailed": "驗證失敗",
+    "save": "儲存",
+    "saveWithKey": "儲存 (Enter)",
+    "cancel": "取消",
+    "cancelWithKey": "取消 (Escape)",
+    "emptyValue": "（空）"
+  },
+  "correctionType": {
+    "dialogTitle": "儲存修正 - 選擇修正類型",
+    "dialogDesc": "請為以下 {count} 個修正選擇類型。正常修正會用於系統學習，特例修正則不會影響學習統計。",
+    "batchSet": "批量設定：",
+    "allNormal": "全部正常",
+    "allException": "全部特例",
+    "normalCount": "正常: {count}",
+    "exceptionCount": "特例: {count}",
+    "typeNormal": "正常",
+    "typeException": "特例",
+    "collapse": "收合",
+    "details": "詳細設定",
+    "emptyValue": "(空)",
+    "cancel": "取消",
+    "saving": "儲存中...",
+    "confirmSave": "確認儲存 ({count} 項)",
+    "normalTitle": "正常修正",
+    "normalDesc1": "此修正將被記錄用於系統學習，幫助改善未來的自動識別準確度。",
+    "normalDesc2": "當相同欄位累積足夠修正次數時，系統會自動建議新的映射規則。",
+    "exceptionTitle": "特例修正",
+    "exceptionDesc1": "此修正為特殊案例，不會影響系統學習統計。",
+    "exceptionDesc2": "適用於一次性錯誤、特殊格式、或不應作為規則參考的情況。",
+    "exceptionReasonLabel": "特例原因（選填）",
+    "exceptionReasonPlaceholder": "說明為何此修正為特例情況..."
+  },
+  "confidenceDetail": {
+    "factorsTitle": "信心度計算因素",
+    "description": {
+      "high": "提取結果可信度高，通常無需修改",
+      "medium": "建議快速檢查確認",
+      "low": "需要仔細檢查和可能的修正"
+    },
+    "aria": {
+      "high": "高信心度",
+      "medium": "中信心度",
+      "low": "低信心度"
+    },
+    "factors": {
+      "ocrConfidence": "OCR 清晰度",
+      "ruleMatchScore": "規則匹配",
+      "formatValidation": "格式驗證",
+      "historicalAccuracy": "歷史準確率"
+    }
+  },
+  "pdf": {
+    "loadFailed": "無法載入 PDF 文件",
+    "loading": "載入 PDF 中...",
+    "prevPage": "上一頁",
+    "nextPage": "下一頁",
+    "zoomIn": "放大",
+    "zoomOut": "縮小",
+    "resetZoom": "點擊重置為 100%"
+  },
+  "layout": {
+    "pdfTab": "PDF 檢視",
+    "reviewTab": "審核欄位"
   }
 }

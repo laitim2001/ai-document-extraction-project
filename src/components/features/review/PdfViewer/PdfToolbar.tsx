@@ -13,6 +13,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   ChevronLeft,
@@ -75,6 +76,8 @@ export function PdfToolbar({
   onZoomOut,
   onZoomReset,
 }: PdfToolbarProps) {
+  const t = useTranslations('review')
+
   return (
     <div className="flex items-center justify-between px-4 py-2 border-b bg-background">
       {/* 翻頁控制 */}
@@ -84,7 +87,7 @@ export function PdfToolbar({
           size="icon"
           onClick={onPrevPage}
           disabled={currentPage <= 1}
-          aria-label="上一頁"
+          aria-label={t('pdf.prevPage')}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -98,7 +101,7 @@ export function PdfToolbar({
           size="icon"
           onClick={onNextPage}
           disabled={currentPage >= pageCount}
-          aria-label="下一頁"
+          aria-label={t('pdf.nextPage')}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -111,7 +114,7 @@ export function PdfToolbar({
           size="icon"
           onClick={onZoomOut}
           disabled={zoomLevel <= 0.5}
-          aria-label="縮小"
+          aria-label={t('pdf.zoomOut')}
         >
           <ZoomOut className="h-4 w-4" />
         </Button>
@@ -121,7 +124,7 @@ export function PdfToolbar({
           size="sm"
           onClick={onZoomReset}
           className="min-w-[60px] tabular-nums"
-          title="點擊重置為 100%"
+          title={t('pdf.resetZoom')}
         >
           {Math.round(zoomLevel * 100)}%
         </Button>
@@ -131,7 +134,7 @@ export function PdfToolbar({
           size="icon"
           onClick={onZoomIn}
           disabled={zoomLevel >= 3}
-          aria-label="放大"
+          aria-label={t('pdf.zoomIn')}
         >
           <ZoomIn className="h-4 w-4" />
         </Button>

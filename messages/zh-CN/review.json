@@ -104,5 +104,146 @@
     "correctionsSavedDesc": "已保存 {count} 个字段的修正",
     "saveFailedRetry": "保存失败",
     "tryAgainLater": "请稍后再试"
+  },
+  "panel": {
+    "forwarder": "Forwarder",
+    "overallConfidence": "整体信心度:",
+    "noLowConfidenceFields": "没有低信心度字段",
+    "noFields": "没有提取字段",
+    "needsAttention": "需要关注",
+    "showLowConfidenceOnly": "仅显示低信心度字段"
+  },
+  "fieldGroups": {
+    "header": "发票基本信息",
+    "shipper": "发货人信息",
+    "consignee": "收货人信息",
+    "shipment": "运输信息",
+    "charges": "费用明细",
+    "totals": "金额合计",
+    "other": "其他信息"
+  },
+  "fields": {
+    "invoiceNumber": "发票号码",
+    "invoiceDate": "发票日期",
+    "dueDate": "到期日",
+    "poNumber": "PO 号码",
+    "currency": "币别",
+    "shipperName": "发货人名称",
+    "shipperAddress": "发货人地址",
+    "shipperContact": "发货人联系人",
+    "consigneeName": "收货人名称",
+    "consigneeAddress": "收货人地址",
+    "consigneeContact": "收货人联系人",
+    "vesselName": "船名",
+    "voyageNumber": "航次",
+    "containerNumber": "货柜号",
+    "blNumber": "提单号",
+    "portOfLoading": "装货港",
+    "portOfDischarge": "卸货港",
+    "etd": "预计开航日",
+    "eta": "预计到港日",
+    "oceanFreight": "海运费",
+    "thc": "THC",
+    "docFee": "文件费",
+    "customsFee": "报关费",
+    "handlingFee": "手续费",
+    "totalAmount": "总金额",
+    "taxAmount": "税额",
+    "netAmount": "净额"
+  },
+  "fieldMeta": {
+    "sourcePositionTooltip": "点击查看 PDF 对应位置（第 {page} 页）",
+    "modifiedTooltip": "已修改（未保存）"
+  },
+  "reviewActions": {
+    "quickReviewHint": "快速审核模式：仅需确认需关注字段",
+    "fullReviewHint": "完整审核模式：请详细检查所有字段",
+    "confirm": "确认无误",
+    "saveCorrections": "保存修正",
+    "escalate": "升级",
+    "confirmTooltipSubmitting": "正在确认中...",
+    "confirmTooltipPending": "请先保存修改后再确认",
+    "confirmTooltipReady": "确认 {count} 个字段无误，文件将标记为已核准",
+    "saveTooltipPending": "保存当前的修改",
+    "saveTooltipNone": "没有需要保存的修改",
+    "escalateTooltip": "升级至主管处理",
+    "unsavedHint": "有未保存的修改"
+  },
+  "quickReview": {
+    "title": "快速审核模式",
+    "summary": "系统已自动确认 {high} 个高信心度字段，请审核以下 {needsReview} 个需要关注的字段。",
+    "badgeLow": "低信心度: {count}",
+    "badgeMedium": "中信心度: {count}",
+    "badgeAutoConfirmed": "已自动确认: {count}",
+    "needsAttentionTitle": "需要关注的字段 ({count})",
+    "allHighConfidence": "所有字段皆为高信心度，可直接确认",
+    "autoConfirmedToggle": "已自动确认的字段 ({count})",
+    "confirmAll": "确认全部字段 ({count})",
+    "confirming": "确认中..."
+  },
+  "fieldEditor": {
+    "validationFailed": "验证失败",
+    "save": "保存",
+    "saveWithKey": "保存 (Enter)",
+    "cancel": "取消",
+    "cancelWithKey": "取消 (Escape)",
+    "emptyValue": "（空）"
+  },
+  "correctionType": {
+    "dialogTitle": "保存修正 - 选择修正类型",
+    "dialogDesc": "请为以下 {count} 个修正选择类型。正常修正会用于系统学习，特例修正则不会影响学习统计。",
+    "batchSet": "批量设定：",
+    "allNormal": "全部正常",
+    "allException": "全部特例",
+    "normalCount": "正常: {count}",
+    "exceptionCount": "特例: {count}",
+    "typeNormal": "正常",
+    "typeException": "特例",
+    "collapse": "收合",
+    "details": "详细设定",
+    "emptyValue": "(空)",
+    "cancel": "取消",
+    "saving": "保存中...",
+    "confirmSave": "确认保存 ({count} 项)",
+    "normalTitle": "正常修正",
+    "normalDesc1": "此修正将被记录用于系统学习，帮助改善未来的自动识别准确度。",
+    "normalDesc2": "当相同字段累积足够修正次数时，系统会自动建议新的映射规则。",
+    "exceptionTitle": "特例修正",
+    "exceptionDesc1": "此修正为特殊案例，不会影响系统学习统计。",
+    "exceptionDesc2": "适用于一次性错误、特殊格式、或不应作为规则参考的情况。",
+    "exceptionReasonLabel": "特例原因（选填）",
+    "exceptionReasonPlaceholder": "说明为何此修正为特例情况..."
+  },
+  "confidenceDetail": {
+    "factorsTitle": "信心度计算因素",
+    "description": {
+      "high": "提取结果可信度高，通常无需修改",
+      "medium": "建议快速检查确认",
+      "low": "需要仔细检查和可能的修正"
+    },
+    "aria": {
+      "high": "高信心度",
+      "medium": "中信心度",
+      "low": "低信心度"
+    },
+    "factors": {
+      "ocrConfidence": "OCR 清晰度",
+      "ruleMatchScore": "规则匹配",
+      "formatValidation": "格式验证",
+      "historicalAccuracy": "历史准确率"
+    }
+  },
+  "pdf": {
+    "loadFailed": "无法载入 PDF 文件",
+    "loading": "载入 PDF 中...",
+    "prevPage": "上一页",
+    "nextPage": "下一页",
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "resetZoom": "点击重置为 100%"
+  },
+  "layout": {
+    "pdfTab": "PDF 查看",
+    "reviewTab": "审核字段"
   }
 }

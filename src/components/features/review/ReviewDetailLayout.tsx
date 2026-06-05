@@ -19,6 +19,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -93,6 +94,7 @@ export function ReviewDetailLayout({
   pdfViewer,
   reviewPanel,
 }: ReviewDetailLayoutProps) {
+  const t = useTranslations('review')
   const isSmallScreen = useMediaQuery(SMALL_SCREEN_BREAKPOINT)
 
   // --- 行動版：Tab 切換模式 ---
@@ -102,11 +104,11 @@ export function ReviewDetailLayout({
         <TabsList className="grid w-full grid-cols-2 shrink-0">
           <TabsTrigger value="pdf" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            PDF 檢視
+            {t('layout.pdfTab')}
           </TabsTrigger>
           <TabsTrigger value="review" className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4" />
-            審核欄位
+            {t('layout.reviewTab')}
           </TabsTrigger>
         </TabsList>
 
