@@ -13,6 +13,11 @@ build/
 out/
 tsconfig.tsbuildinfo
 
+# CHANGE-055: Docker build 階段產生的 runtime bootstrap 檔（每次 build 重新產生，不入 git）
+prisma/init.sql
+prisma/init.err
+prisma/dist/
+
 # IDE
 .idea/
 *.swp
@@ -90,3 +95,12 @@ conversation-*.txt
 *執行日期*
 *批次*
 *批次名稱*
+
+# Dev server runtime artifacts
+.dev-server.pid
+.dev-server.log.err
+
+# CLAUDE.md authoring reference drafts (local only, not part of project)
+CLAUDE-Karpathy.md
+CLAUDE_reference_from_EKP.md
+claudedocs/CLAUDE.md.draft-v4.md
