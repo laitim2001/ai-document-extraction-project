@@ -1,9 +1,10 @@
-# Azure 部署文件（🚧 Phase 1 規劃中）
+# Azure 部署文件（🚧 Phase 1 完成 → Phase 2 文件化階段）
 
-> **狀態**: 📋 Phase 1 規劃中（CHANGE-055 已建立）
+> **狀態**: 📋 全 10 項決策已定案 + UAT 部署文件骨架完成（v0.3，2026-04-27）
 > **建立日期**: 2026-04-22
-> **追蹤**: [CHANGE-055](../../../claudedocs/4-changes/feature-changes/CHANGE-055-azure-deployment-foundation.md)
-> **主規劃文件**: [`azure-deployment-plan.md`](./azure-deployment-plan.md)（已完成初稿）
+> **追蹤**: [CHANGE-055](../../../claudedocs/4-changes/feature-changes/CHANGE-055-azure-deployment-foundation.md) + [CHANGE-056](../../../claudedocs/4-changes/feature-changes/CHANGE-056-prisma-migration-baseline.md)
+> **主規劃文件**: [`azure-deployment-plan.md`](./azure-deployment-plan.md) v0.3
+> **UAT 部署流程**: [`uat-deployment/`](./uat-deployment/) — 12 份人 + AI 雙向可讀文件
 
 本目錄存放 AI Document Extraction 項目部署到 Azure 生產環境的所有相關文件。
 
@@ -11,8 +12,10 @@
 
 | 要做什麼 | 去哪裡 |
 |---------|--------|
-| **理解整體規劃** | 👉 [`azure-deployment-plan.md`](./azure-deployment-plan.md) — 9 大類決策 + Phase 1-4 路徑 + Effort 估算 |
-| **追蹤實施進度** | 👉 CHANGE-055 追蹤文件（claudedocs/4-changes/feature-changes/） |
+| **理解整體規劃** | 👉 [`azure-deployment-plan.md`](./azure-deployment-plan.md) — 全 10 項決策 + 10 週 Sprint 對齊 7 月 Pilot |
+| **執行 UAT 部署** | 👉 [`uat-deployment/00-overview.md`](./uat-deployment/00-overview.md) — 12 份步驟文件入口 |
+| **AI 助手協議** | 🤖 [`uat-deployment/99-ai-execution-guide.md`](./uat-deployment/99-ai-execution-guide.md) — AI 執行協議必讀 |
+| **追蹤實施進度** | 👉 CHANGE-055 + CHANGE-056 追蹤文件（claudedocs/4-changes/feature-changes/） |
 | **了解為何分拆 Azure / 本地** | 👉 [頂層 `../README.md`](../README.md) |
 
 ---

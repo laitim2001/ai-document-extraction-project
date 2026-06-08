@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": { "value": "prod" },
+    "location": { "value": "southeastasia" },
+    "projectShortName": { "value": "aidocextract" },
+
+    "acrName": { "value": "acraidocextractprod" },
+    "postgresName": { "value": "psql-aidocextract-prod" },
+    "storageName": { "value": "staidocextractprod" },
+    "caeName": { "value": "cae-aidocextract-prod" },
+    "caName": { "value": "ca-aidocextract-prod" },
+    "appInsightsName": { "value": "appi-aidocextract-prod" },
+    "kvName": { "value": "" },
+
+    "deployKeyVault": { "value": false },
+    "sharedKeyVaultUri": { "value": "<REPLACE_WITH_SHARED_KV_URI_FROM_INFRA>" },
+
+    "logAnalyticsWorkspaceId": { "value": "<REPLACE_FROM_INFRA_HANDOFF>" },
+    "logAnalyticsCustomerId": { "value": "<REPLACE_FROM_INFRA_HANDOFF>" },
+    "logAnalyticsSharedKey": { "value": "<INJECT_VIA_CLI_OR_KV>" },
+
+    "postgresAdminLogin": { "value": "aidocadmin" },
+    "postgresAdminPassword": { "value": "<INJECT_VIA_CLI_OR_KV>" },
+    "postgresEntraAdminObjectId": { "value": "<REPLACE_WITH_ENTRA_ADMIN_OBJECT_ID>" },
+    "postgresEntraAdminName": { "value": "<REPLACE_WITH_ENTRA_ADMIN_NAME>" },
+
+    "imageName": { "value": "ai-document-extraction" },
+    "imageTag": { "value": "prod-latest" },
+
+    "minReplicas": { "value": 1 },
+    "maxReplicas": { "value": 5 },
+    "cpuCores": { "value": "1.0" },
+    "memoryGi": { "value": "2.0Gi" },
+
+    "acrSku": { "value": "Standard" },
+    "postgresSkuName": { "value": "Standard_D2ds_v5" },
+    "postgresSkuTier": { "value": "GeneralPurpose" },
+    "postgresStorageSizeGB": { "value": 64 },
+    "storageSkuName": { "value": "Standard_ZRS" }
+  }
+}
