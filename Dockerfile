@@ -73,6 +73,9 @@ COPY . .
 # 關閉 Next.js telemetry，避免 build 期間外部請求
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+# 提高 Node heap 上限，避免大型 Next.js build（371 組件）在 ACR build agent OOM
+# 預設約 2GB；此值僅作用於 builder stage，不影響 runtime（runner 為獨立 FROM）
+ENV NODE_OPTIONS=--max-old-space-size=4096
 
 # Build-time dummy environment variables
 # Next.js 在 "Collecting page data" 階段會 module-load 所有 API routes，
@@ -89,6 +92,19 @@ RUN npx prisma generate
 
 # Build Next.js（依 next.config.ts 的 output: 'standalone' 產生 .next/standalone/）
 RUN npm run build
+
+# ----------------------------------------------------------------------------
+# CHANGE-055: 產生 runtime 啟動所需的資源（schema DDL + 編譯後的 essential seed）
+# ----------------------------------------------------------------------------
+# init.sql：涵蓋全部 122 models / 113 enums 的完整 DDL。
+# --from-empty --to-schema 為離線操作（不連資料庫），runtime 由 bootstrap-db.js 套用。
+RUN node node_modules/prisma/build/index.js migrate diff \
+      --from-empty --to-schema prisma/schema.prisma --script > prisma/init.sql
+
+# 將 production essential seed 編譯為純 JS（runtime 精簡映像不含 ts-node / prisma CLI）。
+RUN node node_modules/typescript/bin/tsc prisma/seed-prod-essential.ts \
+      --outDir prisma/dist --module commonjs --target es2020 \
+      --moduleResolution node --esModuleInterop --skipLibCheck --resolveJsonModule
 
 
 # ============================================================================
@@ -148,6 +164,25 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modul
 # @prisma/client 含 generated client code
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
+# --------------------------------------------------------------------------
+# CHANGE-055: 容器啟動時 bootstrap schema + seed 所需檔案
+# --------------------------------------------------------------------------
+# seed / bootstrap 在 runtime 以獨立 node process 執行（非 Next bundle），需這些套件
+# 存在於 node_modules。Next standalone trace 只含 app 直接用到的（pg / @prisma/client /
+# .prisma），以下為 seed 額外需要、未被 trace 的完整依賴閉包：
+#   @prisma/adapter-pg → postgres-array + @prisma/driver-adapter-utils → @prisma/debug
+#   bcryptjs（密碼雜湊）、dotenv（seed 載入 env）— 皆零依賴
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/adapter-pg ./node_modules/@prisma/adapter-pg
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/driver-adapter-utils ./node_modules/@prisma/driver-adapter-utils
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/debug ./node_modules/@prisma/debug
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/postgres-array ./node_modules/postgres-array
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/bcryptjs ./node_modules/bcryptjs
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/dotenv ./node_modules/dotenv
+
+# 啟動腳本（bootstrap schema → essential seed → 啟動 server）
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+
 # 切換至非 root user 執行
 USER nextjs
 
@@ -161,5 +196,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))" || exit 1
 
-# 啟動 Next.js standalone server
-CMD ["node", "server.js"]
+# 啟動：先 bootstrap schema + essential seed，再啟動 Next.js standalone server
+# 詳見 scripts/docker-entrypoint.sh
+CMD ["./docker-entrypoint.sh"]

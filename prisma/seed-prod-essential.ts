@@ -2,13 +2,14 @@
  * @fileoverview Production Essential Seed — 系統基礎資料 idempotent seed
  * @module prisma/seed-prod-essential
  * @since CHANGE-055 Phase 2 - 2026-04-27
- * @lastModified 2026-04-27
+ * @lastModified 2026-06-08
  *
  * 用途：每次部署時自動執行，建立系統運作必要的基礎資料：
  * - Roles（7 個系統角色，含 SYSTEM 內部角色）
  * - Regions（5 個區域，含 GLOBAL）
  * - Cities（23 個城市，含 HKG + SIN Pilot 必要）
  * - SystemUser（system-user-prod，與 FIX-054 機制配合）
+ * - AdminUser（本地管理員，UAT/DEV 首次登入用；密碼由 SEED_ADMIN_PASSWORD 提供，未設定則略過）
  * - 預設 SystemSettings（含 feature flags，用 category 區分）
  *
  * 設計原則（嚴格遵守）：
@@ -38,6 +39,7 @@
  */
 
 import 'dotenv/config'
+import bcrypt from 'bcryptjs'
 import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
@@ -48,6 +50,12 @@ import { Pool } from 'pg'
 
 const SYSTEM_USER_ID = process.env.SYSTEM_USER_ID || 'system-user-prod'
 const DRY_RUN = process.argv.includes('--dry-run')
+
+// 本地管理員帳號（CHANGE-055：UAT/DEV 首次登入用，因 Azure AD SSO 尚未設定）
+// 密碼來源為環境變數（不硬編碼）；未提供 SEED_ADMIN_PASSWORD 時略過此步驟（保持 idempotent 與安全）
+const ADMIN_EMAIL = (process.env.SEED_ADMIN_EMAIL || 'admin@rci-t.com').toLowerCase().trim()
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || ''
+const SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10)
 
 // ============================================================
 // Prisma Client
@@ -400,6 +408,83 @@ async function seedSystemUser(): Promise<void> {
   console.log(`  ✅ Role assignment: System → ${systemUser.id}`)
 }
 
+/**
+ * 建立 / 更新本地管理員帳號（UAT / DEV 首次登入用）
+ *
+ * 背景：Azure 部署採 NODE_ENV=production，auth.config.ts 的開發模式旁路不生效，
+ * 且 Azure AD SSO 尚未設定，因此需要一個可用本地密碼登入的管理員帳號。
+ *
+ * 登入條件（對齊 src/lib/auth.config.ts authorize()，缺一不可）：
+ * - password 為 bcrypt 雜湊（非 null）
+ * - status = ACTIVE
+ * - emailVerified 有值（否則 authorize 拋 EmailNotVerifiedError）
+ *
+ * 密碼來源：環境變數 SEED_ADMIN_PASSWORD（不硬編碼）。
+ * 未設定時略過（例如純 SSO 環境），保持 idempotent 與安全。
+ * 安全措施：只記錄 email，絕不記錄密碼。
+ */
+async function seedAdminUser(): Promise<void> {
+  console.log('\n🔑 Seeding local admin user...')
+
+  if (!ADMIN_PASSWORD) {
+    console.log('  ⏭️  Skipped: SEED_ADMIN_PASSWORD not set (no local admin created)')
+    return
+  }
+
+  if (DRY_RUN) {
+    console.log(`  [DRY-RUN] Would upsert admin user: ${ADMIN_EMAIL}`)
+    console.log(`  [DRY-RUN] Would assign 'System Admin' role to ${ADMIN_EMAIL}`)
+    return
+  }
+
+  const adminRole = await prisma.role.findUnique({
+    where: { name: 'System Admin' },
+  })
+  if (!adminRole) {
+    throw new Error("'System Admin' role not found — seedRoles() must run first")
+  }
+
+  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, SALT_ROUNDS)
+
+  const adminUser = await prisma.user.upsert({
+    where: { email: ADMIN_EMAIL },
+    update: {
+      name: 'System Administrator',
+      password: passwordHash,
+      status: 'ACTIVE',
+      emailVerified: new Date(),
+      isGlobalAdmin: true,
+    },
+    create: {
+      email: ADMIN_EMAIL,
+      name: 'System Administrator',
+      password: passwordHash,
+      status: 'ACTIVE',
+      emailVerified: new Date(),
+      isGlobalAdmin: true,
+      isRegionalManager: false,
+    },
+  })
+
+  // 確保 'System Admin' role 已 assign（idempotent via unique [userId, roleId]）
+  await prisma.userRole.upsert({
+    where: {
+      userId_roleId: {
+        userId: adminUser.id,
+        roleId: adminRole.id,
+      },
+    },
+    update: {},
+    create: {
+      userId: adminUser.id,
+      roleId: adminRole.id,
+    },
+  })
+
+  console.log(`  ✅ Upserted admin: ${adminUser.email} (status=ACTIVE, globalAdmin=true)`)
+  console.log(`  ✅ Role assignment: System Admin → ${adminUser.email}`)
+}
+
 async function seedSystemSettings(): Promise<void> {
   console.log('\n⚙️ Seeding system settings (incl. feature flags)...')
 
@@ -464,6 +549,7 @@ async function main(): Promise<void> {
   const regionIdMap = await seedRegions()
   await seedCities(regionIdMap)
   await seedSystemUser()
+  await seedAdminUser()
   await seedSystemSettings()
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(1)
