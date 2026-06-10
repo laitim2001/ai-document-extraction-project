@@ -77,19 +77,19 @@ function isAzureADConfigured(): boolean {
  * 檢查是否為開發/示範模式
  *
  * @description
- *   此邏輯必須與 auth.config.ts 中的 Credentials Provider 啟用條件一致：
- *   - development 模式：使用開發模式認證
- *   - Azure AD 未配置：使用開發模式認證（允許在生產環境測試）
+ *   此邏輯與 auth.config.ts:129 的 Credentials Provider dev 判斷一致（皆採 &&）：
+ *   僅在「本地開發（NODE_ENV=development）且 Azure AD 未配置」時才啟用開發模式認證。
  *
- *   這確保當 Credentials Provider 啟用時，JWT callback 也使用相應的開發模式邏輯，
- *   避免嘗試從資料庫獲取不存在的用戶資訊。
+ *   ⚠️ 安全（CHANGE-077）：先前使用 `||`，會導致「生產環境但 Azure AD 未配置」時
+ *   開發模式邏輯誤啟用（dev-bypass 後門 + JWT dev 分支 + 略過 PrismaAdapter）。
+ *   改為 `&&` 後，生產環境（NODE_ENV=production）恆為非 dev 模式，後門關閉（fail-closed）。
  *
  *   注意：使用函數而非常數，確保在運行時動態計算（避免構建時烘焙）
  *
  * @returns 是否為開發/示範模式
  */
 function isDevelopmentMode(): boolean {
-  return process.env.NODE_ENV === 'development' || !isAzureADConfigured()
+  return process.env.NODE_ENV === 'development' && !isAzureADConfigured()
 }
 
 /**
@@ -391,7 +391,9 @@ const DEV_MOCK_SESSION = {
  */
 export async function getAuthSession(request?: NextRequest) {
   // 檢查開發模式繞過
-  if (isDevelopmentMode() && request) {
+  // CHANGE-077（縱深防禦）：獨立硬性要求 NODE_ENV=development，與 isDevelopmentMode() 解耦，
+  // 確保即使 isDevelopmentMode 未來再被改寬，此後門在生產環境仍被 NODE_ENV 擋住。
+  if (process.env.NODE_ENV === 'development' && request) {
     const bypassHeader = request.headers.get('X-Dev-Bypass-Auth')
     if (bypassHeader === 'true') {
       console.log('[Auth] Development mode bypass enabled via X-Dev-Bypass-Auth header')
