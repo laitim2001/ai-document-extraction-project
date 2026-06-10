@@ -40,6 +40,7 @@ import type {
   ApiSourceMetadata,
   SourceTypeTrendData,
 } from '@/types/document-source.types'
+import { intersectCityCodes } from '@/lib/auth/city-scope'
 
 // ============================================================
 // 類型定義
@@ -55,6 +56,26 @@ type DocumentWithUploader = Document & {
 
 export class DocumentSourceService {
   constructor(private prisma: PrismaClient) {}
+
+  /**
+   * CHANGE-079（城市 IDOR）：計算實際應查詢的城市代碼。
+   * - 提供授權上下文（authorizedCityCodes 非 undefined）時：套用城市範圍交集（空交集回 __NONE__ 確保無結果）
+   * - 否則維持 cityId 單值行為（向後相容）
+   */
+  private resolveCityCodes(
+    cityId: string | undefined,
+    authorizedCityCodes: string[] | undefined,
+    isGlobalAdmin: boolean | undefined
+  ): string[] {
+    if (authorizedCityCodes !== undefined) {
+      return intersectCityCodes(
+        cityId ? [cityId] : undefined,
+        authorizedCityCodes,
+        isGlobalAdmin ?? false
+      )
+    }
+    return cityId ? [cityId] : []
+  }
 
   // ============================================
   // 來源資訊查詢
@@ -227,12 +248,19 @@ export class DocumentSourceService {
     cityId?: string
     dateFrom?: Date
     dateTo?: Date
+    authorizedCityCodes?: string[]
+    isGlobalAdmin?: boolean
   }): Promise<SourceTypeStats[]> {
     const where: Prisma.DocumentWhereInput = {}
 
-    // 城市篩選（使用 cityCode）
-    if (options?.cityId) {
-      where.cityCode = options.cityId
+    // 城市篩選（CHANGE-079：套用授權城市範圍）
+    const cityCodes = this.resolveCityCodes(
+      options?.cityId,
+      options?.authorizedCityCodes,
+      options?.isGlobalAdmin
+    )
+    if (cityCodes.length > 0) {
+      where.cityCode = { in: cityCodes }
     }
 
     if (options?.dateFrom || options?.dateTo) {
@@ -266,6 +294,8 @@ export class DocumentSourceService {
   async getSourceTypeTrend(options?: {
     cityId?: string
     months?: number
+    authorizedCityCodes?: string[]
+    isGlobalAdmin?: boolean
   }): Promise<SourceTypeTrendData[]> {
     const monthsCount = options?.months || 6
     const startDate = new Date()
@@ -277,9 +307,14 @@ export class DocumentSourceService {
       createdAt: { gte: startDate },
     }
 
-    // 城市篩選（使用 cityCode）
-    if (options?.cityId) {
-      where.cityCode = options.cityId
+    // 城市篩選（CHANGE-079：套用授權城市範圍）
+    const cityCodes = this.resolveCityCodes(
+      options?.cityId,
+      options?.authorizedCityCodes,
+      options?.isGlobalAdmin
+    )
+    if (cityCodes.length > 0) {
+      where.cityCode = { in: cityCodes }
     }
 
     const documents = await this.prisma.document.findMany({
@@ -334,9 +369,14 @@ export class DocumentSourceService {
       where.sourceType = options.sourceType
     }
 
-    // 城市篩選（使用 cityCode）
-    if (options.cityId) {
-      where.cityCode = options.cityId
+    // 城市篩選（CHANGE-079：套用授權城市範圍）
+    const cityCodes = this.resolveCityCodes(
+      options.cityId,
+      options.authorizedCityCodes,
+      options.isGlobalAdmin
+    )
+    if (cityCodes.length > 0) {
+      where.cityCode = { in: cityCodes }
     }
 
     // Outlook 特定搜尋 - 寄件者 Email

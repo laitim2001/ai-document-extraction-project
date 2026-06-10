@@ -198,6 +198,10 @@ export interface SourceSearchOptions {
   sharepointUrl?: string
   /** 城市 ID */
   cityId?: string
+  /** 授權城市範圍（CHANGE-079：非全域使用者限制可見城市）*/
+  authorizedCityCodes?: string[]
+  /** 是否為全域管理員（CHANGE-079）*/
+  isGlobalAdmin?: boolean
   /** 頁碼 */
   page?: number
   /** 每頁數量 */

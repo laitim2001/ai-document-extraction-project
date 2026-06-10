@@ -45,6 +45,7 @@ import {
 } from '@/lib/middleware/n8n-api.middleware';
 import { WorkflowTriggerType, DocumentStatus } from '@prisma/client';
 import type { Prisma } from '@prisma/client';
+import type { N8nErrorCode } from '@/types/n8n';
 
 // ============================================================
 // Validation Schema
@@ -105,6 +106,33 @@ export async function POST(request: NextRequest) {
         receivedAt: new Date(validatedData.timestamp),
       },
     });
+
+    // CHANGE-079（城市 IDOR / API-MISC-03）：document.status_changed 為跨城市寫操作，
+    // 寫入前驗證 API key 城市與目標文件城市一致（全域金鑰 cityCode 為 null 時不限制）
+    if (
+      validatedData.event === 'document.status_changed' &&
+      validatedData.documentId &&
+      authResult.apiKey!.cityCode
+    ) {
+      const targetDoc = await prisma.document.findUnique({
+        where: { id: validatedData.documentId },
+        select: { cityCode: true },
+      });
+      if (targetDoc && targetDoc.cityCode !== authResult.apiKey!.cityCode) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'CITY_MISMATCH' satisfies N8nErrorCode,
+              message: 'API key city does not match the target document city',
+            },
+            traceId: authResult.traceId,
+            timestamp: new Date().toISOString(),
+          },
+          { status: 403 }
+        );
+      }
+    }
 
     // 根據事件類型處理
     await processWebhookEvent(validatedData);

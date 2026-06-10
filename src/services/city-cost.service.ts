@@ -26,6 +26,7 @@
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { CityFilterContext } from '@/middlewares/city-filter'
+import { intersectCityCodes } from '@/lib/auth/city-scope'
 import type { ApiProviderType } from '@/types/ai-cost'
 import type {
   CityCostSummary,
@@ -170,7 +171,12 @@ export class CityCostService {
         ? { startDate: new Date(params.startDate), endDate: new Date(params.endDate) }
         : getDateRange(30)
 
-    const cityCodes = params.cityCodes || cityFilter.cityCodes
+    // CHANGE-079（城市 IDOR）：交集取代覆蓋，杜絕客戶端 cityCodes 凌駕授權範圍
+    const cityCodes = intersectCityCodes(
+      params.cityCodes,
+      cityFilter.cityCodes,
+      cityFilter.isGlobalAdmin
+    )
 
     // 檢查快取
     const cacheKey = generateCacheKey('city-cost-summary', {
@@ -391,7 +397,12 @@ export class CityCostService {
     const startDate = new Date(params.startDate)
     const endDate = new Date(params.endDate)
     const granularity = params.granularity || 'day'
-    const cityCodes = params.cityCodes || cityFilter.cityCodes
+    // CHANGE-079（城市 IDOR）：交集取代覆蓋，杜絕客戶端 cityCodes 凌駕授權範圍
+    const cityCodes = intersectCityCodes(
+      params.cityCodes,
+      cityFilter.cityCodes,
+      cityFilter.isGlobalAdmin
+    )
 
     // 查詢數據
     const usageLogs = await prisma.apiUsageLog.findMany({
@@ -550,7 +561,12 @@ export class CityCostService {
         ? { startDate: new Date(params.startDate), endDate: new Date(params.endDate) }
         : getDateRange(30)
 
-    const cityCodes = params.cityCodes || cityFilter.cityCodes
+    // CHANGE-079（城市 IDOR）：交集取代覆蓋，杜絕客戶端 cityCodes 凌駕授權範圍
+    const cityCodes = intersectCityCodes(
+      params.cityCodes,
+      cityFilter.cityCodes,
+      cityFilter.isGlobalAdmin
+    )
     const sortBy = params.sortBy || 'cost'
     const sortOrder = params.sortOrder || 'desc'
 
