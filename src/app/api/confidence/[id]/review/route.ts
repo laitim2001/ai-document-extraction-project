@@ -12,6 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { auth } from '@/lib/auth'
 import { recordReviewResult } from '@/services/confidence.service'
 import { prisma } from '@/lib/prisma'
 
@@ -57,6 +58,20 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // 認證檢查
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/unauthorized',
+          title: 'Unauthorized',
+          status: 401,
+          detail: 'Authentication required',
+        },
+        { status: 401 }
+      )
+    }
+
     const resolvedParams = await params
     const { id: documentId } = paramsSchema.parse(resolvedParams)
 
