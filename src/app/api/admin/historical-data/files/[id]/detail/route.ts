@@ -23,6 +23,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/auth/city-permission';
+import { PERMISSIONS } from '@/types/permissions';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -116,6 +119,33 @@ export async function GET(
   const fileId = resolvedParams.id;
 
   try {
+    // 認證與權限檢查（FIX-063 / ADMIN0-01：原無任何認證，洩漏 storagePath 與發票業務資料）
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/unauthorized',
+          title: 'Unauthorized',
+          status: 401,
+          detail: '請先登入以訪問此資源',
+          instance: `/api/admin/historical-data/files/${fileId}/detail`,
+        },
+        { status: 401 }
+      );
+    }
+    if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/forbidden',
+          title: 'Forbidden',
+          status: 403,
+          detail: '需要管理員權限以訪問歷史文件詳情',
+          instance: `/api/admin/historical-data/files/${fileId}/detail`,
+        },
+        { status: 403 }
+      );
+    }
+
     // 查詢文件詳情（含所有關聯資料）
     // 欄位名稱對應 Prisma Schema: HistoricalFile 模型
     const file = await prisma.historicalFile.findUnique({

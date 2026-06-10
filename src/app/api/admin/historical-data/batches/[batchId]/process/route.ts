@@ -11,7 +11,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/city-permission'
+import { PERMISSIONS } from '@/types/permissions'
 import { HistoricalBatchStatus, HistoricalFileStatus } from '@prisma/client'
 import { processBatch } from '@/services/batch-processor.service'
 
@@ -39,8 +41,7 @@ interface RouteContext {
  */
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    // 支援開發模式 X-Dev-Bypass-Auth header
-    const session = await getAuthSession(request)
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json(
         {
@@ -50,6 +51,19 @@ export async function POST(request: NextRequest, context: RouteContext) {
           detail: '請先登入',
         },
         { status: 401 }
+      )
+    }
+
+    // 檢查管理權限
+    if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/forbidden',
+          title: 'Forbidden',
+          status: 403,
+          detail: '權限不足',
+        },
+        { status: 403 }
       )
     }
 

@@ -12,6 +12,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/auth/city-permission';
+import { PERMISSIONS } from '@/types/permissions';
 import {
   aggregateTerms,
   type TermAggregationFilters,
@@ -62,6 +65,31 @@ const classifyRequestSchema = z.object({
  */
 export async function GET(request: NextRequest) {
   try {
+    // 認證與權限檢查（FIX-063 / ADMIN-1-001：原無任何認證，洩漏術語彙總業務資料）
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/unauthorized',
+          title: 'Unauthorized',
+          status: 401,
+          detail: '請先登入以訪問此資源',
+        },
+        { status: 401 }
+      );
+    }
+    if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/forbidden',
+          title: 'Forbidden',
+          status: 403,
+          detail: '需要管理員權限以訪問術語分析',
+        },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
 
     // Parse query parameters
@@ -129,6 +157,31 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // 認證與權限檢查（FIX-063 / ADMIN-1-001：原無任何認證，可任意觸發 AI 分類消耗成本）
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/unauthorized',
+          title: 'Unauthorized',
+          status: 401,
+          detail: '請先登入以訪問此資源',
+        },
+        { status: 401 }
+      );
+    }
+    if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/forbidden',
+          title: 'Forbidden',
+          status: 403,
+          detail: '需要管理員權限以觸發術語 AI 分類',
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
 
     // Validate request body

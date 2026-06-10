@@ -24,6 +24,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as os from 'os';
+import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/auth/city-permission';
+import { PERMISSIONS } from '@/types/permissions';
+import { UPLOAD_CONFIG, UPLOAD_ERRORS } from '@/lib/upload/constants';
 import {
   processImageWithVision,
   type InvoiceExtractionResult,
@@ -279,6 +283,31 @@ export async function POST(request: NextRequest): Promise<NextResponse<ExtractRe
   let tempFilePath: string | null = null;
 
   try {
+    // 認證與權限檢查（FIX-063 / ADMIN0-04：原無任何認證，可任意上傳檔案觸發 OCR/AI 成本）
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          success: false,
+          fields: [],
+          pageCount: 0,
+          error: '請先登入以訪問此資源',
+        },
+        { status: 401 }
+      );
+    }
+    if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+      return NextResponse.json(
+        {
+          success: false,
+          fields: [],
+          pageCount: 0,
+          error: '需要管理員權限以使用文件預覽測試',
+        },
+        { status: 403 }
+      );
+    }
+
     // 解析 multipart/form-data
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
@@ -292,6 +321,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<ExtractRe
           error: '未提供文件',
         },
         { status: 400 }
+      );
+    }
+
+    // 檔案大小上限檢查（FIX-063 / ADMIN0-04：防止超大檔案耗盡資源）
+    if (file.size > UPLOAD_CONFIG.MAX_FILE_SIZE) {
+      return NextResponse.json(
+        {
+          success: false,
+          fields: [],
+          pageCount: 0,
+          error: UPLOAD_ERRORS.FILE_TOO_LARGE,
+        },
+        { status: 413 }
       );
     }
 

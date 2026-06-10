@@ -19,7 +19,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { getAuthSession } from '@/lib/auth'
+import { auth } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/city-permission'
+import { PERMISSIONS } from '@/types/permissions'
 import { HistoricalBatchStatus } from '@prisma/client'
 
 // ============================================================
@@ -67,8 +69,8 @@ const ListBatchQuerySchema = z.object({
  */
 export async function POST(request: NextRequest) {
   try {
-    // 驗證用戶身份（支援開發模式 X-Dev-Bypass-Auth header）
-    const session = await getAuthSession(request)
+    // 驗證用戶身份
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json(
         {
@@ -78,6 +80,19 @@ export async function POST(request: NextRequest) {
           detail: '請先登入',
         },
         { status: 401 }
+      )
+    }
+
+    // 檢查管理權限
+    if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/forbidden',
+          title: 'Forbidden',
+          status: 403,
+          detail: '權限不足',
+        },
+        { status: 403 }
       )
     }
 
@@ -193,8 +208,8 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    // 驗證用戶身份（支援開發模式 X-Dev-Bypass-Auth header）
-    const session = await getAuthSession(request)
+    // 驗證用戶身份
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json(
         {
@@ -204,6 +219,19 @@ export async function GET(request: NextRequest) {
           detail: '請先登入',
         },
         { status: 401 }
+      )
+    }
+
+    // 檢查管理權限
+    if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/forbidden',
+          title: 'Forbidden',
+          status: 403,
+          detail: '權限不足',
+        },
+        { status: 403 }
       )
     }
 
