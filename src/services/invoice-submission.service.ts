@@ -34,6 +34,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { safeFetch } from '@/lib/security/safe-fetch';
 import { ExternalApiKey, SubmissionType, TaskPriority } from '@prisma/client';
 import {
   SubmitInvoiceRequest,
@@ -296,13 +297,11 @@ export class InvoiceSubmissionService {
     mimeType: string;
   }> {
     try {
-      // 驗證 URL 協議
+      // parsedUrl 供下方提取檔名使用（pathname）
       const parsedUrl = new URL(url);
-      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-        throw new Error('Only HTTP and HTTPS protocols are supported');
-      }
 
-      const response = await fetch(url, {
+      // FIX-068（SSRF）：safeFetch 內含 protocol 檢查 + 私網/metadata 位址封鎖（取代原本只驗 protocol 的檢查）
+      const response = await safeFetch(url, {
         signal: AbortSignal.timeout(URL_FETCH_TIMEOUT),
         headers: {
           'User-Agent': 'InvoiceExtractionAPI/1.0',

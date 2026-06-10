@@ -39,6 +39,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { safeFetch } from '@/lib/security/safe-fetch';
 import { encrypt, decrypt, maskToken } from '@/lib/encryption';
 import {
   DEFAULT_RETRY_STRATEGY,
@@ -518,7 +519,8 @@ export class WebhookConfigService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-      const response = await fetch(testUrl, {
+      // FIX-068（SSRF）：testUrl 源自使用者 baseUrl，經 safeFetch 封鎖私網/metadata 位址
+      const response = await safeFetch(testUrl, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${authToken}`,
