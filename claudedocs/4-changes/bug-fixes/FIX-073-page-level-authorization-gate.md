@@ -4,7 +4,7 @@
 > **發現方式**: 代碼審查（2026-06-10 全面安全審查）
 > **影響頁面/功能**: `src/app/[locale]/(dashboard)` route group、`admin/test/*`、`admin/template-field-mappings/*` 等 admin server component 頁面
 > **優先級**: 高
-> **狀態**: 🚧 待修復
+> **狀態**: ✅ 已完成（2026-06-11）
 > **來源**: SECURITY-ASSESSMENT.md §5 主題 C（A-01/A-02、PAGES-A-01/A-02）、REMEDIATION-ROADMAP.md WP-11
 > **相依**: 聚焦頁面層授權；對應 API 由 FIX-063/066/067/071 收口
 
@@ -128,31 +128,28 @@ export default async function SomeAdminPage({ params }: { params: Promise<{ loca
 
 ## 修改的檔案
 
+> **實際採用方案：B-局部子樹 layout**（用戶 2026-06-11 拍板，見下方「用戶決策結果」）。各子頁 `page.tsx` 皆不修改，由子樹 layout 統一收口。
+
 | 檔案 | 修改內容 |
 |------|----------|
-| `src/app/[locale]/(dashboard)/admin/layout.tsx`（新增，選項 B） | admin 子樹基線角色 gate（`auth()` + admin 判斷 + redirect） |
-| `src/app/[locale]/(dashboard)/admin/template-field-mappings/page.tsx` | 補 server 端角色 gate（若未由 admin layout 覆蓋則頁內補） |
-| `src/app/[locale]/(dashboard)/admin/template-field-mappings/[id]/page.tsx` | gate 必須在 `prisma.*` 查詢**之前**執行 |
-| `src/app/[locale]/(dashboard)/admin/template-field-mappings/new/page.tsx` | 補 server 端角色 gate |
-| `src/app/[locale]/(dashboard)/admin/test/extraction-v2/page.tsx` | 由 admin layout 保護；若維持逐頁，需以 server 包裝補 gate（不可只靠 client `useSession`） |
-| `src/app/[locale]/(dashboard)/admin/test/extraction-compare/page.tsx` | 同上 |
-| `src/app/[locale]/(dashboard)/admin/test/template-matching/page.tsx` | 補 server 端角色 gate |
+| `src/app/[locale]/(dashboard)/admin/test/layout.tsx`（新增） | test 子樹基線角色 gate（`auth()` + `ADMIN_MANAGE` + redirect）；保護 extraction-v2 / extraction-compare（皆 `'use client'`）/ template-matching |
+| `src/app/[locale]/(dashboard)/admin/template-field-mappings/layout.tsx`（新增） | template-field-mappings 子樹基線 gate；先於 `[id]/page.tsx` 的 `prisma.*` 查詢執行（授權前不查 DB） |
 
-> **不修改**：`(dashboard)/layout.tsx`（選項 A 已否決，避免誤擋非 admin 頁面）。
+> **不修改**：`(dashboard)/layout.tsx`（選項 A 已否決）；整個 `admin/layout.tsx`（選項 B-全域 已否決，避免誤擋既有細權限頁面）；6 個子頁 `page.tsx`（由 layout 統一收口，無需逐頁改）。
 
 ---
 
 ## 測試驗證
 
 **程式碼層面**
-- [ ] admin 子樹（layout 或逐頁）已有 server 端角色 gate，未授權 redirect / `notFound`
-- [ ] `template-field-mappings/[id]` 的角色 gate 在所有 `prisma.*` 查詢**之前**執行（授權前不查 DB）
-- [ ] `admin/test/*` 三頁皆有 server 端 gate（`'use client'` 頁面改由 server 包裝，不依賴 client `useSession`）
-- [ ] gate 沿用既有 `hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)` / `isGlobalAdmin`，未新造重複 helper
-- [ ] 非 admin 頁面（dashboard / documents / review / reports / companies）行為**未受影響**（未誤加 admin gate）
-- [ ] `npm run type-check`：`src/` 零新增錯誤
-- [ ] `npm run lint`：本批檔案無新增 error
-- [ ] 涉及任何新 UI 文字（如 access_denied 提示）→ `npm run i18n:check`（本 FIX 預期沿用既有 `error=access_denied` query 機制，無新增字串）
+- [x] admin 子樹（test / template-field-mappings 兩個 layout）已有 server 端角色 gate，未授權 redirect
+- [x] `template-field-mappings/[id]` 的角色 gate 在所有 `prisma.*` 查詢**之前**執行（layout `redirect()` 先於子頁 render，授權前不查 DB）
+- [x] `admin/test/*` 三頁皆受 server 端 gate 保護（`'use client'` 頁面由 server layout 攔截，不依賴 client `useSession`）
+- [x] gate 沿用既有 `hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)`，未新造重複 helper
+- [x] 非 admin 頁面（dashboard / documents / review / reports / companies）行為**未受影響**（gate 僅在兩個子樹 layout，未動 `(dashboard)/layout.tsx` 與其他 admin 頁）
+- [x] `npm run type-check`：兩個新 layout 零錯誤
+- [x] `npm run lint`：本批檔案無 warning/error
+- [x] 無新 UI 文字：沿用既有 `error=access_denied` query 機制，無新增字串（i18n 無涉）
 
 **執行期（待 staging 驗證）**
 - [ ] 非 admin 已登入帳號開 `/admin/test/extraction-v2`、`/admin/template-field-mappings` → 被 redirect（非渲染內容）
@@ -161,13 +158,37 @@ export default async function SomeAdminPage({ params }: { params: Promise<{ loca
 
 ---
 
-## 待用戶決策事項
+## 用戶決策結果（2026-06-11）
 
-1. **是否採選項 B（新增 `admin/layout.tsx`）** 作為 admin 子樹統一 gate？或退回選項 C 逐頁補 gate？（H6 決策點）
-2. **admin 基線判斷**用 `PERMISSIONS.ADMIN_MANAGE` 還是 `isGlobalAdmin`？建議與 FIX-063 對齊（`ADMIN_MANAGE`）。
-3. `template-field-mappings`、`test/*` 是否需要比「是 admin」更精確的權限語意？（預設：套 admin 基線即可）
+| 決策點 | 結果 |
+|--------|------|
+| 1. Gate 方案（H6） | **B-局部子樹 layout**：新增 `admin/test/layout.tsx` + `admin/template-field-mappings/layout.tsx`，不採整個 `admin/layout.tsx`（避免誤擋既有細權限頁面），亦不逐頁拆 server wrapper |
+| 2. admin 基線權限 | **`PERMISSIONS.ADMIN_MANAGE`**（透過 `hasPermission`，含 `'*'` 通配符；對齊 FIX-063/064/072） |
+| 3. test / template-field-mappings 是否需更細權限 | 否，套 admin 基線即可 |
+
+> 盤點關鍵發現：`admin/users` 用 `USER_VIEW`、`monitoring` 用 `SYSTEM_MONITOR` 等更細權限；若對整個 `admin/` 套 `ADMIN_MANAGE` 基線會誤擋「有 `user:view` 但無 `admin:manage`」角色 → 故採局部子樹 layout，零迴歸。
+
+---
+
+## 實作筆記（2026-06-11）
+
+### 採用方案：B-局部子樹 layout
+- 新增 2 個 server component layout，各做 `auth()`（未登入 redirect 登入頁）+ `hasPermission(ADMIN_MANAGE)`（未過 redirect `dashboard?error=access_denied`）+ render children。
+- **server layout 先於子頁 render**：`redirect()` 在 `return <>{children}</>` 之前拋出 `NEXT_REDIRECT`，子頁 Server Component 函數（含 `[id]/page.tsx` 的 Prisma 查詢）不會被呼叫 → 授權前不查 DB、不洩漏資料。
+- **保護 `'use client'` 頁面**：`extraction-v2` / `extraction-compare` 為 client component，無法靠自身 server gate；改由 server layout 在其載入前統一攔截。
+- 各子頁 `page.tsx` **皆不需修改**（layout 統一收口），符合 surgical 原則。
+
+### 不影響範圍
+- 其他 admin 頁（users / roles / monitoring / config / backup / integrations 等）**未動**，保留各自既有細權限 gate。
+- 非 admin 頁（dashboard / documents / review / reports / companies）**零影響**。
+- `(dashboard)/layout.tsx` 維持原狀（選項 A 已否決）。
+
+### 相依 / 殘留
+- 本 FIX 聚焦頁面層 gate；對應 API 認證由 FIX-063/066/067/071 收口。
+- 與 CHANGE-078（middleware 認證閘）互補：middleware 為全域第一道、本 FIX 為 admin 子樹頁面層第二道（縱深防禦）。
+- 執行期 redirect 分支（非 admin 被擋 / admin 正常 / 未登入導登入頁）待 staging 驗證。
 
 ---
 
 *文件建立日期: 2026-06-10*
-*最後更新: 2026-06-10*
+*最後更新: 2026-06-11（B-局部子樹 layout 實作完成）*
