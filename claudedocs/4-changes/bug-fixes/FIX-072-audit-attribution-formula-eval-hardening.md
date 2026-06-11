@@ -1,6 +1,6 @@
 # FIX-072: 審計來源偽造（exchange-rates createdById='system'）+ FORMULA 表達式求值加固
 
-> **狀態**: 🚧 待修復
+> **狀態**: ✅ 已完成（2026-06-11）
 > **建立日期**: 2026-06-10
 > **發現方式**: 代碼審查（2026-06-10 全面安全審查）
 > **影響頁面/功能**: `/api/v1/exchange-rates`、`/api/v1/exchange-rates/import`、`src/services/transform/formula.transform.ts`（FORMULA 轉換）
@@ -124,12 +124,12 @@
 ## 測試驗證
 
 ### 程式碼層面
-- [ ] `exchange-rates` POST 與 `import` POST：補 `auth()` + 權限檢查，401（未登入）/ 403（無權限）/ 201（有權限）分支齊備
-- [ ] 兩端點硬編碼 `createdById = 'system'` 已移除（grep 計數 = 0），改用 `session.user.id`
-- [ ] 兩處誤導性 TODO 註解已移除
-- [ ] FORMULA 加固：採方案 B 則 `Function()` 已完全移除（grep `Function(` 在該檔計數 = 0）、`eslint-disable.*no-implied-eval` 已移除；採方案 A 則新正則 + 前置檢查到位
-- [ ] `npm run type-check`：`src/` 零錯誤
-- [ ] `npm run lint`：本批檔案無 error
+- [x] `exchange-rates` POST 與 `import` POST：補 `auth()` + 權限檢查，401（未登入）/ 403（無權限）/ 201（有權限）分支齊備
+- [x] 兩端點硬編碼 `createdById = 'system'` 已移除（grep 計數 = 0），改用 `session.user.id`
+- [x] 兩處誤導性 TODO 註解已移除
+- [x] FORMULA 加固：採方案 B，`Function()` 已完全移除（grep `Function(` 在該檔計數 = 0，僅餘說明性註解亦去括號）、`eslint-disable @typescript-eslint/no-implied-eval` 已移除
+- [x] `npm run type-check`：本批改動檔案零錯誤
+- [x] `npm run lint`：本批檔案無 warning/error
 
 ### 功能/迴歸層面
 - [ ] 匯率建立：有權限使用者建立匯率後，查 `exchangeRate.createdById` 為**真實操作者 ID**（非 `'system'`）
@@ -140,6 +140,32 @@
 ### 執行期（待 staging 驗證）
 - [ ] 未認證直打 `POST /api/v1/exchange-rates` → 401（驗證 CHANGE-077/078 上線後 session 可信）
 - [ ] 審計記錄可正確歸責至實際操作者
+
+---
+
+## 實作筆記（2026-06-11）
+
+### 採用方案
+- **第一部分（BUG-1/2）**：沿用 FIX-064 同類做法 — 補 `auth()`（401）+ `hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)`（403），審計歸屬改 `session.user.id`。兩端點既有錯誤回應已是 RFC 7807 top-level，401/403 沿用同格式（match existing style）。
+- **第二部分（BUG-3）**：經用戶拍板採 **方案 B（AST 解析器，自實作）**（H6 方案抉擇，approve 2026-06-11）。以受限算術解析器（`tokenizeArithmetic` → `toReversePolish` shunting-yard → `evaluateReversePolish`）取代 `Function`，完全移除 eval 路徑，無新依賴（不觸發 H2）。
+
+### 修改檔案
+| 檔案 | 改動 |
+|------|------|
+| `src/app/api/v1/exchange-rates/route.ts` | POST 補 auth + ADMIN_MANAGE；`createdById` 改 `session.user.id`；移除誤導性 TODO 註解 |
+| `src/app/api/v1/exchange-rates/import/route.ts` | 同上（批次導入） |
+| `src/services/transform/formula.transform.ts` | 新增受限算術解析器（tokenize / shunting-yard / RPN 計算）取代 `Function`；`safeEval` 求值核心替換；移除 `no-implied-eval` disable；保留 `SAFE_FORMULA_PATTERN` 作第一道快速白名單（縱深防禦） |
+
+### 行為一致性（迴歸保證）
+- 解析器支援數字、`+ - * / ( )` 與一元正負號，與原 `SAFE_FORMULA_PATTERN` 涵蓋範圍一致；既有合法公式（變數替換後純算術式）計算結果不變。
+- 運算符優先級（`* /` > `+ -`）、左結合、括號、一元負號（如 `a + -b`、`-(a+b)`）行為與原 `Function` 求值一致。
+- 除以零 / `0/0` 保留 JS 語義（Infinity / NaN），由 `safeEval` 尾端既有 `Number.isFinite` 檢查統一守門 → 與原行為一致（拋「計算結果無效」）。
+- 科學記號（極端數值 `String()` 產生的 `1e21`）：tokenizer 視 `e` 為不允許字符而拒絕 → 與原白名單拒絕行為一致。
+
+### 殘留風險 / 相依
+- BUG-1/2 的「`session.user.id` 完全可信」前提依賴 CHANGE-077（移除 auth fail-open）/ CHANGE-078（middleware 認證閘）上線；本路由層補認證邏輯已先行完成，commit 標註 `Note: depends on CHANGE-077/078`。
+- 本 FIX 聚焦兩個 High（V1-0-A-02、TRANSFORM-01）；roadmap WP-10 之 Low（EX-07、reference-numbers D-01）未展開。
+- 驗證範圍：程式碼層面（type-check / lint / grep）已通過；功能迴歸與執行期 401 分支待 staging（專案目前無單元測試框架，單元測試延後）。
 
 ---
 

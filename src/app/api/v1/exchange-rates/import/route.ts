@@ -14,6 +14,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/auth/city-permission';
+import { PERMISSIONS } from '@/types/permissions';
 import { importExchangeRates } from '@/services/exchange-rate.service';
 import { importExchangeRatesSchema } from '@/lib/validations/exchange-rate.schema';
 import { ZodError } from 'zod';
@@ -47,6 +50,33 @@ import { ZodError } from 'zod';
  */
 export async function POST(request: NextRequest) {
   try {
+    // 認證檢查（FIX-072：匯率批次導入屬高敏感寫入，須登入 + 管理權限）
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/unauthorized',
+          title: 'Unauthorized',
+          status: 401,
+          detail: 'Authentication required',
+        },
+        { status: 401 }
+      );
+    }
+
+    // 權限檢查（沿用 FIX-063/064：匯率管理需 ADMIN_MANAGE 權限）
+    if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/forbidden',
+          title: 'Forbidden',
+          status: 403,
+          detail: 'Admin permission required to manage exchange rates',
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
 
     // 驗證請求體
@@ -64,9 +94,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 執行導入
-    // 目前使用固定的 createdById，後續整合認證後替換
-    const createdById = 'system';
+    // 執行導入（FIX-072：以實際操作者身分歸屬審計，取代硬編碼 'system'）
+    const createdById = session.user.id;
     const result = await importExchangeRates(parsed.data, createdById);
 
     return NextResponse.json({
