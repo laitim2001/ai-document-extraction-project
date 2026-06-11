@@ -49,6 +49,9 @@ export async function GET(request: NextRequest) {
       subject: searchParams.get('subject') || undefined,
       sharepointUrl: searchParams.get('sharepointUrl') || undefined,
       cityId: searchParams.get('cityId') || undefined,
+      // CHANGE-079（城市 IDOR）：傳入授權城市範圍，service 內做交集校驗
+      authorizedCityCodes: session.user.cityCodes,
+      isGlobalAdmin: session.user.isGlobalAdmin,
       page: parseInt(searchParams.get('page') || '1'),
       limit: parseInt(searchParams.get('limit') || '20'),
     })

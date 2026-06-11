@@ -42,6 +42,7 @@ import {
 } from '@/services/processing-result-persistence.service'
 import { autoTemplateMatchingService } from '@/services/auto-template-matching.service'
 import type { ProcessFileInput } from '@/types/unified-processor'
+import { intersectCityCodes, type SessionCityUser } from '@/lib/auth/city-scope'
 
 // ===========================================
 // Types
@@ -67,6 +68,8 @@ export interface GetDocumentsParams {
   sortBy?: 'createdAt' | 'fileName' | 'status' | 'fileSize'
   /** 排序方向 */
   sortOrder?: 'asc' | 'desc'
+  /** 授權城市範圍（非全域使用者限制可見城市，CHANGE-079）*/
+  cityScope?: SessionCityUser
 }
 
 /**
@@ -163,12 +166,30 @@ export async function getDocuments(
     uploadedBy,
     sortBy = 'createdAt',
     sortOrder = 'desc',
+    cityScope,
   } = params
+
+  // CHANGE-079（城市 IDOR）：套用授權城市範圍（與客戶端 cityCode 篩選取交集）
+  // - cityScope 提供時：非全域使用者限定授權城市；空交集回 __NONE__ 確保無結果
+  // - 未提供 cityScope 時：維持原本的 cityCode 單值篩選（向後相容）
+  let cityWhere: Prisma.DocumentWhereInput = {}
+  if (cityScope) {
+    const allowed = intersectCityCodes(
+      cityCode ? [cityCode] : undefined,
+      cityScope.cityCodes,
+      cityScope.isGlobalAdmin
+    )
+    if (allowed.length > 0) {
+      cityWhere = { cityCode: { in: allowed } }
+    }
+  } else if (cityCode) {
+    cityWhere = { cityCode }
+  }
 
   // 構建查詢條件
   const where: Prisma.DocumentWhereInput = {
     ...(status && { status }),
-    ...(cityCode && { cityCode }),
+    ...cityWhere,
     ...(uploadedBy && { uploadedBy }),
     ...(search && {
       OR: [

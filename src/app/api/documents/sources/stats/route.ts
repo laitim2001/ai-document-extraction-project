@@ -44,6 +44,9 @@ export async function GET(request: NextRequest) {
       cityId,
       dateFrom: dateFrom ? new Date(dateFrom) : undefined,
       dateTo: dateTo ? new Date(dateTo) : undefined,
+      // CHANGE-079（城市 IDOR）：傳入授權城市範圍，service 內做交集校驗
+      authorizedCityCodes: session.user.cityCodes,
+      isGlobalAdmin: session.user.isGlobalAdmin,
     })
 
     return NextResponse.json({

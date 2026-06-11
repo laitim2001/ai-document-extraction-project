@@ -18,6 +18,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { normalizeClassifiedAs } from '@/services/extraction-v3/utils/classify-normalizer';
 
@@ -70,6 +71,21 @@ export async function GET(
   try {
     const { id } = await params;
     companyId = id;
+
+    // 0. 認證檢查
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          type: 'about:blank',
+          title: 'Unauthorized',
+          status: 401,
+          detail: 'Authentication required',
+          instance: `/api/companies/${companyId}/classified-as-values`,
+        },
+        { status: 401 }
+      );
+    }
 
     // 1. 驗證 companyId 參數
     if (!companyId || companyId.trim().length === 0) {

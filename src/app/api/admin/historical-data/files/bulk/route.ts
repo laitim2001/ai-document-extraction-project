@@ -13,6 +13,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/city-permission'
+import { PERMISSIONS } from '@/types/permissions'
 import { DetectedFileType, HistoricalBatchStatus, HistoricalFileStatus } from '@prisma/client'
 import fs from 'fs/promises'
 
@@ -60,6 +62,18 @@ export async function POST(request: NextRequest) {
           detail: '請先登入',
         },
         { status: 401 }
+      )
+    }
+
+    if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/forbidden',
+          title: 'Forbidden',
+          status: 403,
+          detail: '權限不足',
+        },
+        { status: 403 }
       )
     }
 

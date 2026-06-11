@@ -21,6 +21,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { requireCityScope } from '@/lib/auth/city-scope';
 import { traceabilityService } from '@/services/traceability.service';
 import { withAuditLogParams } from '@/middlewares/audit-log.middleware';
 
@@ -66,6 +68,27 @@ async function handleGet(
   const { id } = await context.params;
 
   try {
+    // CHANGE-079（城市 IDOR）：先驗證文件城市範圍，避免跨城市下載原始檔
+    const document = await prisma.document.findUnique({
+      where: { id },
+      select: { cityCode: true },
+    });
+
+    if (!document) {
+      return NextResponse.json(
+        { success: false, error: 'Document not found' },
+        { status: 404 }
+      );
+    }
+
+    const scope = requireCityScope(session.user, document.cityCode);
+    if (!scope.authorized) {
+      return NextResponse.json(
+        { success: false, error: scope.detail },
+        { status: scope.status }
+      );
+    }
+
     // 獲取文件來源
     const source = await traceabilityService.getDocumentSource(id);
 

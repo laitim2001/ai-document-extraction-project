@@ -669,6 +669,9 @@ export const regexPatternSchema = z.object({
   expression: z
     .string()
     .min(1, '請輸入正則表達式')
+    // FIX-069: 限長作為 ReDoS 防護第一道閘。字面值對齊 src/lib/safe-regex.ts
+    // 的 MAX_REGEX_PATTERN_LENGTH（此處不 import safe-regex，避免將 re2-wasm 拉進前端 bundle）。
+    .max(1000, '正則表達式過長（上限 1000 字元）')
     .refine(
       (val) => {
         try {

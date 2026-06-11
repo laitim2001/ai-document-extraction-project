@@ -65,7 +65,15 @@ const querySchema = z.object({
   cities: z
     .string()
     .min(1, '必須選擇至少一個城市')
-    .transform((s) => s.split(',').filter(Boolean)),
+    .transform((s) => s.split(',').filter(Boolean))
+    // FIX-071 (BUG-5): 限制城市數量上限與代碼格式，避免 N 倍並行查詢放大 DoS。
+    // schema 於請求入口套用於所有角色（含全域管理員），收口「全域管理員路徑跳過代碼合法性驗證」。
+    .refine((arr) => arr.length <= 20, {
+      message: '一次最多比較 20 個城市',
+    })
+    .refine((arr) => arr.every((code) => /^[A-Za-z0-9]{2,10}$/.test(code)), {
+      message: '城市代碼格式不正確（須為 2-10 位英數字）',
+    }),
   period: z.enum(['7d', '30d', '90d', '1y']).default('30d'),
   metrics: z
     .string()

@@ -94,17 +94,47 @@ export class RateLimitService {
    * @returns 速率限制結果
    */
   async checkLimit(apiKey: ExternalApiKey): Promise<RateLimitResult> {
+    return this.checkLimitForKey(
+      this.keyFormatter(apiKey.id),
+      apiKey.rateLimit || 60
+    );
+  }
+
+  /**
+   * 以通用鍵（userId / IP 等）檢查速率限制（FIX-071）
+   *
+   * @description
+   *   供內部 session / 匿名端點（如昂貴的 AI/OCR 測試端點）使用，重用與
+   *   `checkLimit` 相同的 sliding-window 後端（Redis 優先 + in-memory fallback）。
+   *   呼叫端負責提供已命名空間化的完整鍵，避免與 external_api 鍵衝突，
+   *   例如 `rate_limit:ai_test:user:${userId}` 或 `rate_limit:ai_test:ip:${ip}`。
+   *
+   * @param key 完整速率限制鍵
+   * @param limit 每分鐘請求上限
+   * @returns 速率限制結果
+   */
+  async checkLimitByKey(key: string, limit: number): Promise<RateLimitResult> {
+    return this.checkLimitForKey(key, limit);
+  }
+
+  /**
+   * 共用分派：Redis 優先，故障 / 未配置時降級 in-memory。
+   */
+  private async checkLimitForKey(
+    key: string,
+    limit: number
+  ): Promise<RateLimitResult> {
     const redis = getRedisClient();
 
     if (redis) {
       try {
-        return await this.checkLimitRedis(redis, apiKey);
+        return await this.checkWindowRedis(redis, key, limit);
       } catch (error) {
         edgeLogger.warn('[RateLimit] Redis check failed, falling back to in-memory', {
-          apiKeyId: apiKey.id,
+          key,
           error: error instanceof Error ? error.message : String(error),
         });
-        return this.checkLimitMemory(apiKey);
+        return this.checkWindowMemory(key, limit);
       }
     }
 
@@ -116,7 +146,7 @@ export class RateLimitService {
       );
       this.hasWarnedFallback = true;
     }
-    return this.checkLimitMemory(apiKey);
+    return this.checkWindowMemory(key, limit);
   }
 
   /**
@@ -125,12 +155,12 @@ export class RateLimitService {
    * 使用 ZSET 存儲 timestamp，搭配 ZREMRANGEBYSCORE 清理過期 + ZCARD 計數。
    * 若超限則 rollback 剛加入的 member，避免累積誤差。
    */
-  private async checkLimitRedis(
+  private async checkWindowRedis(
     redis: Redis,
-    apiKey: ExternalApiKey
+    key: string,
+    limit: number
   ): Promise<RateLimitResult> {
-    const rateLimit = apiKey.rateLimit || 60;
-    const key = this.keyFormatter(apiKey.id);
+    const rateLimit = limit;
     const now = Date.now();
     const windowStart = now - this.windowMs;
     const ttlSec = Math.ceil(this.windowMs / 1000) + 1;
@@ -182,9 +212,8 @@ export class RateLimitService {
    *
    * 與原 Epic 11 實作等價，僅在 Redis 未配置或故障時使用。
    */
-  private checkLimitMemory(apiKey: ExternalApiKey): RateLimitResult {
-    const rateLimit = apiKey.rateLimit || 60;
-    const key = this.keyFormatter(apiKey.id);
+  private checkWindowMemory(key: string, limit: number): RateLimitResult {
+    const rateLimit = limit;
     const now = Date.now();
     const windowStart = now - this.windowMs;
 
@@ -224,7 +253,7 @@ export class RateLimitService {
       };
     } catch (error) {
       edgeLogger.error('[RateLimit] In-memory check error, degrading to allow', {
-        apiKeyId: apiKey.id,
+        key,
         error: error instanceof Error ? error.message : String(error),
       });
       // 出錯時優雅降級：允許請求（不阻斷業務）

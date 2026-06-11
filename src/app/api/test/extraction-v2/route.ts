@@ -136,6 +136,14 @@ interface ConfigStatusResponse {
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ConfigStatusResponse>> {
+  // 開發測試端點：生產環境禁用
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { error: 'Not found' } as unknown as ConfigStatusResponse,
+      { status: 404 }
+    );
+  }
+
   const testConnections = request.nextUrl.searchParams.get('testConnections') === 'true';
 
   // 檢查配置
@@ -177,6 +185,17 @@ export async function GET(
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ExtractionV2TestResponse>> {
+  // 開發測試端點：生產環境禁用
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Not found',
+      },
+      { status: 404 }
+    );
+  }
+
   try {
     // 解析表單數據
     const formData = await request.formData();

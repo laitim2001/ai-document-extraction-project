@@ -21,6 +21,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { PromptType } from '@prisma/client';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getPromptResolver } from '@/services/prompt-resolver.factory';
 import type { PromptResolutionRequest } from '@/types/prompt-resolution';
@@ -52,6 +53,20 @@ const PromptResolutionRequestSchema = z.object({
  */
 export async function POST(request: NextRequest) {
   try {
+    // 0. 認證檢查
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/unauthorized',
+          title: 'Unauthorized',
+          status: 401,
+          detail: 'Authentication required',
+        },
+        { status: 401 }
+      );
+    }
+
     // 1. 解析請求體
     const body = await request.json();
 
@@ -144,6 +159,20 @@ export async function POST(request: NextRequest) {
  */
 export async function GET() {
   try {
+    // 認證檢查
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/unauthorized',
+          title: 'Unauthorized',
+          status: 401,
+          detail: 'Authentication required',
+        },
+        { status: 401 }
+      );
+    }
+
     const resolver = getPromptResolver(prisma);
     const supportedVariables = resolver.getSupportedVariables();
 

@@ -41,6 +41,9 @@ export async function GET(request: NextRequest) {
     const trend = await service.getSourceTypeTrend({
       cityId,
       months: Math.min(months, 12), // 最多 12 個月
+      // CHANGE-079（城市 IDOR）：傳入授權城市範圍，service 內做交集校驗
+      authorizedCityCodes: session.user.cityCodes,
+      isGlobalAdmin: session.user.isGlobalAdmin,
     })
 
     return NextResponse.json({

@@ -30,6 +30,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/city-permission'
+import { PERMISSIONS } from '@/types/permissions'
 import { systemSettingsService } from '@/services/system-settings.service'
 import { z } from 'zod'
 
@@ -141,6 +143,19 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
         detail: 'Authentication required',
       },
       { status: 401 }
+    )
+  }
+
+  // --- 管理員權限檢查 ---
+  if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+    return NextResponse.json(
+      {
+        type: 'https://api.example.com/errors/forbidden',
+        title: 'Forbidden',
+        status: 403,
+        detail: 'Admin permission required',
+      },
+      { status: 403 }
     )
   }
 

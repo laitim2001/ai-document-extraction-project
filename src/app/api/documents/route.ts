@@ -88,6 +88,8 @@ export async function GET(request: NextRequest) {
         search,
         sortBy,
         sortOrder,
+        // CHANGE-079（城市 IDOR）：限定使用者授權城市範圍（全域管理員不受限）
+        cityScope: session.user,
       }),
       getProcessingStatsEnhanced(),
     ])

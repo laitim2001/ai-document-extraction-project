@@ -28,6 +28,7 @@ from pydantic import BaseModel, Field, HttpUrl
 from pydantic_settings import BaseSettings
 
 from ocr import AzureDocumentIntelligenceClient, DocumentProcessor
+from security import SsrfBlockedError, assert_safe_url
 
 
 # ============================================================
@@ -213,6 +214,20 @@ async def extract_from_url(request: ExtractUrlRequest) -> ExtractResponse:
             status_code=503,
             detail="Azure Document Intelligence not configured",
         )
+
+    # FIX-068（SSRF）：驗證使用者 URL 未指向內網/雲端 metadata 位址
+    try:
+        assert_safe_url(str(request.documentUrl))
+    except SsrfBlockedError as exc:
+        logger.warning(
+            "extract_url_blocked",
+            document_id=request.documentId,
+            reason=str(exc),
+        )
+        raise HTTPException(
+            status_code=400,
+            detail="Target URL is not allowed",
+        ) from exc
 
     logger.info(
         "extract_url_request",
