@@ -28,6 +28,8 @@ import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/auth/city-permission';
 import { PERMISSIONS } from '@/types/permissions';
 import { UPLOAD_CONFIG, UPLOAD_ERRORS } from '@/lib/upload/constants';
+import { verifyMagicByte } from '@/lib/upload/magic-byte';
+import { rateLimitService } from '@/services/rate-limit.service';
 import {
   processImageWithVision,
   type InvoiceExtractionResult,
@@ -308,6 +310,28 @@ export async function POST(request: NextRequest): Promise<NextResponse<ExtractRe
       );
     }
 
+    // FIX-071: 速率限制（此端點觸發 Azure DI + GPT Vision，避免成本濫用）
+    const rateLimit = await rateLimitService.checkLimitByKey(
+      `rate_limit:ai_test:user:${session.user.id}`,
+      10
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          fields: [],
+          pageCount: 0,
+          error: '請求過於頻繁，請稍後再試',
+        },
+        {
+          status: 429,
+          headers: rateLimit.retryAfter
+            ? { 'Retry-After': String(rateLimit.retryAfter) }
+            : undefined,
+        }
+      );
+    }
+
     // 解析 multipart/form-data
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
@@ -360,6 +384,20 @@ export async function POST(request: NextRequest): Promise<NextResponse<ExtractRe
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    // FIX-071: magic byte 內容驗證（不採信客戶端宣告的 file.type）
+    if (!verifyMagicByte(buffer, file.type)) {
+      return NextResponse.json(
+        {
+          success: false,
+          fields: [],
+          pageCount: 0,
+          error: '檔案內容與宣告的類型不符',
+        },
+        { status: 400 }
+      );
+    }
+
     await fs.writeFile(tempFilePath, buffer);
 
     console.log(`[Test Extract API] Processing file: ${file.name} (${file.type})`);
