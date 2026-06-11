@@ -97,6 +97,7 @@
     "pdfjs-dist": "^4.10.38",
     "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
+    "re2-wasm": "^1.0.2",
     "react": "^18.3.0",
     "react-day-picker": "^9.13.0",
     "react-dom": "^18.3.0",

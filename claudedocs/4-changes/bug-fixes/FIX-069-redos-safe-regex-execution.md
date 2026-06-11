@@ -1,6 +1,6 @@
 # FIX-069: ReDoS — 使用者 regex 對大文本執行無逾時保護（安全 regex 執行工具）
 
-> **狀態**: 🚧 待修復
+> **狀態**: ✅ 核心已完成（2026-06-11，程式碼層面；執行期 staging 驗證待部署）
 > **建立日期**: 2026-06-10
 > **發現方式**: 代碼審查（2026-06-10 全面安全審查）
 > **影響頁面/功能**: 規則測試 / 規則預覽（`/api/rules/test`、`/api/rules/[id]/preview`）+ 多處服務層 regex 執行
@@ -122,13 +122,16 @@
 ## 測試驗證
 
 **程式碼層面**
-- [ ] `src/lib/safe-regex.ts` 新增，含 pattern 限長（`MAX_REGEX_PATTERN_LENGTH`）+ flags 白名單 + 語法驗證 + 逾時（方案 A）
-- [ ] BUG-1（`rules/test`）、BUG-2（`rules/[id]/preview`）兩端點改用 helper，移除直接 `new RegExp(...)` 對全文執行
-- [ ] `regexPatternSchema` 補 `.max()` 限長
-- [ ] 前端表單提交前語法驗證 + 限長，錯誤訊息走 i18n
-- [ ] `npm run type-check`：`src/` 零錯誤
-- [ ] `npm run lint`：本批檔案無 error
-- [ ] `npm run i18n:check`：新增 key 3 語言同步通過
+- [x] `src/lib/safe-regex.ts` 新增，含 pattern 限長（`MAX_REGEX_PATTERN_LENGTH=1000`）+ flags 白名單 + 語法驗證 + **RE2 引擎執行**（方案 B 變體 re2-wasm，線性時間無需逾時）
+- [x] BUG-1（`rules/test`）、BUG-2（`rules/[id]/preview`）兩端點改用 `createSafeRegex`，移除直接 `new RegExp(...)` 對全文執行
+- [x] `regexPatternSchema` 補 `.max(1000)` 限長
+- [x] 前端表單（`RuleEditForm` 的 `RegexPatternEditor`）提交前即時語法驗證 + 限長，錯誤訊息走 i18n
+- [x] `npm run type-check`：`src/` + `prisma/` 零錯誤（含 re2-wasm 型別解析）
+- [x] `npm run lint`：本批 5 檔零輸出
+- [x] `npm run i18n:check`：新增 `errorSyntax`/`errorTooLong` 3 語言同步通過
+- [x] runtime smoke test：re2-wasm 本地 Node 載入成功；惡意 pattern `(a+)+$` 線性 3ms 返回（無 ReDoS）
+
+> **附帶 Medium 範圍（11+ 服務層）+ Python PY-04 + 單元測試**：依用戶 2026-06-11 決策「只修 2 個 High」，附帶範圍另開後續 FIX；Python 併入 WP-8（CHANGE-080）；單元測試待專案測試框架就緒。
 
 **功能 / 安全行為（待 staging 驗證）**
 - [ ] 提交惡意 pattern `(a+)+$` + 長文本 → 在逾時上限內返回（408/422），事件迴圈不被阻塞（並發其他請求正常）
@@ -142,14 +145,47 @@
 
 ---
 
-## 待用戶決策事項
+## 待用戶決策事項（已決，2026-06-11）
 
-1. **方案 A vs B**：是否採預設方案 A（限長 + worker timeout，無新依賴）？或需要方案 B（RE2，**觸發 H2 需 approve 新增 `re2` 依賴** + 既有規則語法相容性盤點）？
-2. **逾時上限值**：`safeRegex` 執行逾時建議值（例如 100ms / 500ms）— 需權衡正常複雜 regex 的合理執行時間 vs DoS 防護。
-3. **附帶 Medium 範圍批次**：是否本 FIX 一併處理服務層 11+ 處，或先只修 BUG-1/BUG-2 兩個 High、其餘另開後續 FIX？
-4. **Python 對等防護（PY-04）**：是否併入 WP-8（Python 服務）一起處理，或於本 FIX 同步？
+1. **方案 A vs B** → **採方案 B（RE2 引擎根治）**。但 `re2` 原生套件在本機編譯失敗（見技術障礙），改採其 WebAssembly 版 `re2-wasm`（同 RE2 引擎、線性時間，無需原生編譯）。
+2. **逾時上限值** → **不適用**。RE2 為線性時間，無 catastrophic backtracking，不需逾時機制（方案 A 的 worker timeout 已不需要）。仍保留 pattern 限長 1000 作為輕量第一道閘。
+3. **附帶 Medium 範圍批次** → **只修 2 個 High（BUG-1/BUG-2）+ 前端驗證**。服務層 11+ 處另開後續 FIX。
+4. **Python 對等防護（PY-04）** → **併入 WP-8（CHANGE-080）**，本 FIX 不動 Python。
+
+---
+
+## Implementation Notes（2026-06-11）
+
+### 技術障礙與解法（re2 原生 → re2-wasm）
+
+- **障礙**：`npm install re2`（原生套件）失敗——本機無 Visual Studio Build Tools，且 Node v25.2.1 過新、`re2` 1.24.1 無對應 prebuilt binary，node-gyp 本地編譯失敗。
+- **解法（用戶 2026-06-11 approve）**：改用 `re2-wasm@^1.0.2`（Google 倉庫 `github.com/google/re2-wasm`，RE2 的 WebAssembly 綁定），同為 RE2 引擎、線性時間，**無需原生編譯**、跨平台。
+- **H2 記錄**：新增 `re2-wasm` 依賴屬 H2，已 approve。失敗的 `re2` 安裝已完整 rollback（未污染 package.json）。
+
+### 已實作
+
+| 項目 | 檔案 | 說明 |
+|------|------|------|
+| 共用 helper | `src/lib/safe-regex.ts`（新增）| `createSafeRegex()`／`validateSafeRegex()`：限長 1000 + flags 白名單（gimsuy）+ RE2 執行 + `SafeRegexError`（EMPTY/TOO_LONG/INVALID_FLAGS/UNSUPPORTED_PATTERN）|
+| BUG-1 | `app/api/rules/test/route.ts` | `testRegexPattern` 兩處 `new RegExp` → `createSafeRegex`；`content.match` → RE2 `.match()`（RE2 非 RegExp 子型別）|
+| BUG-2 | `app/api/rules/[id]/preview/route.ts` | `executeRegexPattern` `new RegExp` → `createSafeRegex` |
+| 後端 schema | `src/types/rule.ts` | `regexPatternSchema.expression` 補 `.max(1000)`（字面值對齊，不 import safe-regex 以免 WASM 進前端 bundle）|
+| 前端驗證 | `src/components/features/rules/RuleEditForm.tsx` | `RegexPatternEditor` 加 `React.useMemo` 即時語法+限長驗證（前端用原生 `RegExp` 驗語法，不需 RE2）|
+| i18n | `messages/{en,zh-TW,zh-CN}/rules.json` | `ruleEdit.regex.errorSyntax` / `errorTooLong`（3 語言）|
+
+### RE2 限制與相容性（重要）
+
+- **強制 Unicode 模式**：RE2 僅在 Unicode 模式運作，`createSafeRegex` 強制附加 `u` flag。少數在非 Unicode 模式合法、Unicode 模式非法的 pattern 會被拒絕（回 `SafeRegexError`，端點回傳「pattern 不支援」測試結果，不 crash）。
+- **不支援語法**：RE2 不支援 backreference（`\1`）與 lookahead（`(?=)`/`(?!)`），建構時 throw → 統一轉 `SafeRegexError`。
+- **相容性盤點**：種子規則 `prisma/seed-data/mapping-rules.ts` 經 Grep 確認**無** lookahead/lookbehind/backreference，對 RE2 相容。
+- **⚠️ 殘留風險（待 staging）**：使用者在 DB 自建、含 lookahead/backreference 或 Unicode 不相容的規則，在 `rules/test`／`rules/[id]/preview` 會收到「pattern 不被安全引擎支援」。屬預期的 fail-safe（不 crash、不 ReDoS），但會改變該類規則的測試/預覽行為，需 staging 以實際規則驗證。
+
+### 待 staging 驗證
+
+- WASM 在 Azure Linux 容器（App Service for Containers）的載入與效能（本地 Node smoke test 已通過：載入正常、`(a+)+$` 線性 3ms）。
+- Next.js 生產 build 對 `re2-wasm` 的 `.wasm` 資產打包。
 
 ---
 
 *文件建立日期: 2026-06-10*
-*最後更新: 2026-06-10*
+*最後更新: 2026-06-11（核心已完成：safe-regex helper + 2 端點 + schema + 前端 + i18n；採 re2-wasm）*

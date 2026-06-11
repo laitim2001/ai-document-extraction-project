@@ -405,7 +405,9 @@
       "flagsG": "g (global)",
       "flagsI": "i (case-insensitive)",
       "flagsGim": "gim (global, case-insensitive, multiline)",
-      "groupIndex": "Capture Group Index"
+      "groupIndex": "Capture Group Index",
+      "errorSyntax": "Invalid regular expression syntax",
+      "errorTooLong": "Regular expression is too long (max 1000 characters)"
     },
     "keyword": {
       "keywords": "Keywords (one per line)",

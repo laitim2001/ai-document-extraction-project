@@ -24,6 +24,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { createSafeRegex } from '@/lib/safe-regex'
 import { hasPermission } from '@/lib/auth/city-permission'
 import { PERMISSIONS } from '@/types/permissions'
 import { ExtractionType } from '@prisma/client'
@@ -463,11 +464,12 @@ function executeRegexPattern(
   }
 
   try {
-    const regex = new RegExp(expression, flags)
+    // FIX-069: 改用 RE2 線性時間引擎，消除 ReDoS（ocrText 可為整份 OCR 全文）。
+    const regex = createSafeRegex(expression, flags)
     const match = regex.exec(text)
 
     if (match) {
-      const extractedValue = match[groupIndex] ?? match[0]
+      const extractedValue = match[groupIndex] ?? match[0] ?? ''
 
       // 應用預處理
       let processedValue = extractedValue

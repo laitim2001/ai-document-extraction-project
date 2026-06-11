@@ -31,6 +31,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { createSafeRegex } from '@/lib/safe-regex'
 import { PERMISSIONS } from '@/types/permissions'
 import type { ExtractionType } from '@/types/rule'
 
@@ -118,8 +119,10 @@ function testRegexPattern(
       flags = pattern.flags as string | undefined
     }
 
-    const regex = new RegExp(expression, flags || 'gm')
-    const matches = content.match(regex)
+    // FIX-069: 改用 RE2 線性時間引擎，消除 ReDoS（原生 RegExp 同步不可中斷）。
+    // RE2 非 RegExp 子型別，改用其 String-based .match() 方法（語義同 String.match）。
+    const regex = createSafeRegex(expression, flags || 'gm')
+    const matches = regex.match(content)
 
     if (!matches || matches.length === 0) {
       return {
@@ -136,25 +139,26 @@ function testRegexPattern(
     // 找出所有匹配位置
     const matchPositions: MatchPosition[] = []
     let match
-    const regexForPos = new RegExp(expression, flags || 'gm')
+    const regexForPos = createSafeRegex(expression, flags || 'gm')
 
     while ((match = regexForPos.exec(content)) !== null) {
       const lines = content.substring(0, match.index).split('\n')
+      const matchedText = match[0] ?? ''
       matchPositions.push({
         start: match.index,
-        end: match.index + match[0].length,
+        end: match.index + matchedText.length,
         line: lines.length,
         column: lines[lines.length - 1].length + 1,
         context: content.substring(
           Math.max(0, match.index - 20),
-          Math.min(content.length, match.index + match[0].length + 20)
+          Math.min(content.length, match.index + matchedText.length + 20)
         ),
       })
     }
 
     return {
       matched: true,
-      extractedValue: matches[0],
+      extractedValue: matches[0] ?? null,
       confidence: 0.85,
       matchPositions,
       debugInfo: {
