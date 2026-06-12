@@ -21,4 +21,4 @@ python-dotenv==1.0.1
 structlog==24.4.0
 
 # Health Check
-prometheus-client==0.21.1
+prometheus-client==0.25.0
