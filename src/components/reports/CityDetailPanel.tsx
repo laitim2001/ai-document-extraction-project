@@ -148,13 +148,14 @@ export function CityDetailPanel({ cityCode }: CityDetailPanelProps) {
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '6px'
                       }}
-                      formatter={(value: number | undefined, name: string | undefined) => {
-                        const displayName = name ?? ''
-                        if (value === undefined) return ['-', displayName]
+                      formatter={(value, name) => {
+                        const displayName = name == null ? '' : String(name)
+                        if (value == null) return ['-', displayName]
+                        const num = typeof value === 'number' ? value : Number(value)
                         if (displayName === '成功率 %') {
-                          return [`${value.toFixed(1)}%`, displayName]
+                          return [`${num.toFixed(1)}%`, displayName]
                         }
-                        return [value.toLocaleString(), displayName]
+                        return [num.toLocaleString(), displayName]
                       }}
                     />
                     <Legend />

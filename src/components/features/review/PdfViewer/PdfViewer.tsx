@@ -15,6 +15,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Document, Page, pdfjs } from 'react-pdf'
 import { useReviewStore } from '@/stores/reviewStore'
 import { PdfToolbar } from './PdfToolbar'
@@ -57,6 +58,7 @@ interface PdfViewerProps {
  * ```
  */
 export function PdfViewer({ url, pageCount, className }: PdfViewerProps) {
+  const t = useTranslations('review')
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerWidth, setContainerWidth] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -97,9 +99,9 @@ export function PdfViewer({ url, pageCount, className }: PdfViewerProps) {
 
   const handleLoadError = useCallback((err: Error) => {
     setIsLoading(false)
-    setError('無法載入 PDF 文件')
+    setError(t('pdf.loadFailed'))
     console.error('PDF load error:', err)
-  }, [])
+  }, [t])
 
   const handlePrevPage = useCallback(() => {
     setCurrentPage(Math.max(1, currentPage - 1))

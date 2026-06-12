@@ -18,6 +18,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { CheckCircle, Loader2 } from 'lucide-react'
 import {
   AlertDialog,
@@ -81,6 +82,9 @@ export function ApprovalConfirmDialog({
   isSubmitting = false,
   processingPath,
 }: ApprovalConfirmDialogProps) {
+  // --- Hooks ---
+  const t = useTranslations('review')
+
   // --- State ---
   const [notes, setNotes] = React.useState('')
 
@@ -102,11 +106,11 @@ export function ApprovalConfirmDialog({
   const getPathDescription = () => {
     switch (processingPath) {
       case 'QUICK_REVIEW':
-        return '快速審核模式'
+        return t('approval.quickReviewMode')
       case 'FULL_REVIEW':
-        return '完整審核模式'
+        return t('approval.fullReviewMode')
       default:
-        return '審核'
+        return t('approval.review')
     }
   }
 
@@ -116,16 +120,16 @@ export function ApprovalConfirmDialog({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-600" />
-            確認審核結果
+            {t('approval.confirmTitle')}
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-3">
               <p>
-                您即將確認此文件的{getPathDescription()}結果。
-                共 <span className="font-medium text-foreground">{fieldCount}</span> 個欄位將被標記為已確認。
+                {t('approval.confirmDesc', { mode: getPathDescription() })}
+                {t('approval.fieldsConfirmed', { count: fieldCount })}
               </p>
               <p className="text-xs text-muted-foreground">
-                確認後，文件狀態將更新為「已核准」，並記錄審核日誌。
+                {t('approval.afterConfirm')}
               </p>
             </div>
           </AlertDialogDescription>
@@ -134,11 +138,11 @@ export function ApprovalConfirmDialog({
         {/* 備註輸入 */}
         <div className="space-y-2">
           <Label htmlFor="approval-notes" className="text-sm">
-            審核備註（選填）
+            {t('approval.reviewNotes')}
           </Label>
           <Textarea
             id="approval-notes"
-            placeholder="輸入任何需要記錄的備註..."
+            placeholder={t('approval.notesPlaceholder')}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             disabled={isSubmitting}
@@ -152,7 +156,7 @@ export function ApprovalConfirmDialog({
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isSubmitting}>
-            取消
+            {t('approval.cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
@@ -162,12 +166,12 @@ export function ApprovalConfirmDialog({
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                確認中...
+                {t('approval.confirming')}
               </>
             ) : (
               <>
                 <CheckCircle className="mr-2 h-4 w-4" />
-                確認無誤
+                {t('reviewActions.confirm')}
               </>
             )}
           </AlertDialogAction>

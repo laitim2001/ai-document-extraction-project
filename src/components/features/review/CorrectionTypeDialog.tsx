@@ -20,6 +20,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Save, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react'
 import {
   Dialog,
@@ -113,6 +114,9 @@ export function CorrectionTypeDialog({
   onConfirm,
   isSubmitting = false,
 }: CorrectionTypeDialogProps) {
+  // --- Hooks ---
+  const t = useTranslations('review')
+
   // --- State ---
   // 為每個修正項目儲存類型設定
   const [typeSettings, setTypeSettings] = React.useState<
@@ -218,17 +222,17 @@ export function CorrectionTypeDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Save className="h-5 w-5 text-primary" />
-            儲存修正 - 選擇修正類型
+            {t('correctionType.dialogTitle')}
           </DialogTitle>
           <DialogDescription>
-            請為以下 {corrections.length} 個修正選擇類型。正常修正會用於系統學習，特例修正則不會影響學習統計。
+            {t('correctionType.dialogDesc', { count: corrections.length })}
           </DialogDescription>
         </DialogHeader>
 
         {/* 批量操作按鈕 */}
         {corrections.length > 1 && (
           <div className="flex items-center gap-2 py-2">
-            <span className="text-sm text-muted-foreground">批量設定：</span>
+            <span className="text-sm text-muted-foreground">{t('correctionType.batchSet')}</span>
             <Button
               variant="outline"
               size="sm"
@@ -237,7 +241,7 @@ export function CorrectionTypeDialog({
               className="gap-1"
             >
               <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />
-              全部正常
+              {t('correctionType.allNormal')}
             </Button>
             <Button
               variant="outline"
@@ -247,17 +251,17 @@ export function CorrectionTypeDialog({
               className="gap-1"
             >
               <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
-              全部特例
+              {t('correctionType.allException')}
             </Button>
             <div className="flex-1" />
             <div className="flex items-center gap-2 text-sm">
               <Badge variant="secondary" className="gap-1">
                 <CheckCircle2 className="h-3 w-3 text-blue-600" />
-                正常: {normalCount}
+                {t('correctionType.normalCount', { count: normalCount })}
               </Badge>
               <Badge variant="secondary" className="gap-1">
                 <AlertTriangle className="h-3 w-3 text-amber-600" />
-                特例: {exceptionCount}
+                {t('correctionType.exceptionCount', { count: exceptionCount })}
               </Badge>
             </div>
           </div>
@@ -302,7 +306,9 @@ export function CorrectionTypeDialog({
                             : 'bg-blue-100 text-blue-700 hover:bg-blue-100'
                         )}
                       >
-                        {setting?.correctionType === 'EXCEPTION' ? '特例' : '正常'}
+                        {setting?.correctionType === 'EXCEPTION'
+                          ? t('correctionType.typeException')
+                          : t('correctionType.typeNormal')}
                       </Badge>
                     </div>
                     <Button
@@ -313,14 +319,14 @@ export function CorrectionTypeDialog({
                       }
                       disabled={isSubmitting}
                     >
-                      {isExpanded ? '收合' : '詳細設定'}
+                      {isExpanded ? t('correctionType.collapse') : t('correctionType.details')}
                     </Button>
                   </div>
 
                   {/* 值變更顯示 */}
                   <div className="flex items-center gap-2 text-sm mb-3">
                     <span className="text-muted-foreground line-through">
-                      {correction.originalValue || '(空)'}
+                      {correction.originalValue || t('correctionType.emptyValue')}
                     </span>
                     <span className="text-muted-foreground">→</span>
                     <span className="font-medium text-primary">
@@ -349,7 +355,7 @@ export function CorrectionTypeDialog({
                         )}
                       >
                         <CheckCircle2 className="h-3.5 w-3.5" />
-                        正常
+                        {t('correctionType.typeNormal')}
                       </Button>
                       <Button
                         variant={
@@ -369,7 +375,7 @@ export function CorrectionTypeDialog({
                         )}
                       >
                         <AlertTriangle className="h-3.5 w-3.5" />
-                        特例
+                        {t('correctionType.typeException')}
                       </Button>
                     </div>
                   )}
@@ -402,7 +408,7 @@ export function CorrectionTypeDialog({
             onClick={() => handleOpenChange(false)}
             disabled={isSubmitting}
           >
-            取消
+            {t('correctionType.cancel')}
           </Button>
           <Button
             onClick={handleConfirm}
@@ -412,12 +418,12 @@ export function CorrectionTypeDialog({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                儲存中...
+                {t('correctionType.saving')}
               </>
             ) : (
               <>
                 <Save className="h-4 w-4" />
-                確認儲存 ({corrections.length} 項)
+                {t('correctionType.confirmSave', { count: corrections.length })}
               </>
             )}
           </Button>

@@ -14,6 +14,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import type { ExtractedField, FieldGroupData } from '@/types/review'
 import { FieldRow } from './FieldRow'
 import { ChevronDown, ChevronRight } from 'lucide-react'
@@ -54,6 +55,7 @@ export function FieldGroup({
   selectedFieldId,
   onFieldSelect,
 }: FieldGroupProps) {
+  const t = useTranslations('review')
   const [isExpanded, setIsExpanded] = useState(group.isExpanded)
 
   // 計算該組的最低信心度
@@ -84,7 +86,7 @@ export function FieldGroup({
         </div>
 
         {hasLowConfidence && (
-          <span className="text-xs text-red-600 dark:text-red-400">需要關注</span>
+          <span className="text-xs text-red-600 dark:text-red-400">{t('panel.needsAttention')}</span>
         )}
       </Button>
 

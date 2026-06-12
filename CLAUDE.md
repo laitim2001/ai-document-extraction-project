@@ -405,7 +405,8 @@ npm run test
 | PRD | `docs/01-planning/prd/prd.md` |
 | Tech Specs | `docs/03-stories/tech-specs/` |
 | 系統架構設計 | `docs/02-architecture/` |
-| 部署文件中心 | `docs/06-deployment/README.md` |
+| 部署文件中心 | `docs/07-deployment/README.md` |
+| 本地 vs Azure 部署差異 | `docs/07-deployment/local-vs-azure-differences.md` |
 | 開發後檢查清單 | `claudedocs/reference/dev-checklists.md` |
 | 項目進度與歷史 | `claudedocs/reference/project-progress.md` |
 | Sub-CLAUDE.md 地圖 | `claudedocs/reference/sub-claude-md-map.md` |
@@ -432,7 +433,7 @@ npm run test
 - 拉取後可能需要 `npx prisma db push --accept-data-loss`
 - 新環境首次需 `npx prisma db seed`
 
-> 📋 完整初始化指南：`docs/06-deployment/01-local-deployment/project-initialization-guide.md`
+> 📋 完整初始化指南：`docs/07-deployment/01-local-deployment/project-initialization-guide.md`
 
 ---
 

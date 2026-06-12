@@ -24,8 +24,8 @@
 'use client'
 
 import { useCallback, useEffect, use, useRef } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link, useRouter } from '@/i18n/routing'
 import { useReviewDetail } from '@/hooks/useReviewDetail'
 import { useApproveReview } from '@/hooks/useApproveReview'
 import { useEscalateReview } from '@/hooks/useEscalateReview'
@@ -94,19 +94,20 @@ interface ErrorStateProps {
 }
 
 function ErrorState({ error, onRetry }: ErrorStateProps) {
+  const t = useTranslations('review')
   return (
     <div className="h-[calc(100vh-120px)] flex items-center justify-center">
       <div className="text-center space-y-4">
         <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
           <AlertTriangle className="h-6 w-6 text-destructive" />
         </div>
-        <h2 className="text-xl font-semibold">載入失敗</h2>
+        <h2 className="text-xl font-semibold">{t('detail.loadFailed')}</h2>
         <p className="text-muted-foreground max-w-md">
-          {error.message || '無法載入審核資料，請稍後再試。'}
+          {error.message || t('detail.loadFailedDesc')}
         </p>
         <Button onClick={onRetry} variant="outline">
           <RefreshCw className="h-4 w-4 mr-2" />
-          重新載入
+          {t('detail.reload')}
         </Button>
       </div>
     </div>
@@ -128,18 +129,23 @@ function UnsavedChangesDialog({
   onConfirm,
   onCancel,
 }: UnsavedChangesDialogProps) {
+  const t = useTranslations('review')
   return (
     <AlertDialog open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>有未儲存的修改</AlertDialogTitle>
+          <AlertDialogTitle>{t('dialog.unsavedChanges')}</AlertDialogTitle>
           <AlertDialogDescription>
-            您有尚未儲存的修改。離開此頁面將會遺失這些修改。確定要離開嗎？
+            {t('dialog.unsavedChangesDesc')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>繼續編輯</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>放棄修改</AlertDialogAction>
+          <AlertDialogCancel onClick={onCancel}>
+            {t('dialog.continueEditing')}
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>
+            {t('dialog.discardChanges')}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -162,6 +168,7 @@ function UnsavedChangesDialog({
  */
 export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
   const router = useRouter()
+  const t = useTranslations('review')
   const resolvedParams = use(params)
   const documentId = resolvedParams.id
 
@@ -184,14 +191,14 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
   // 審核確認 Hook (Story 3.4)
   const { mutate: approveDocument, isPending: isApproving } = useApproveReview({
     onSuccess: () => {
-      toast.success('審核已確認', {
-        description: '文件已標記為審核通過',
+      toast.success(t('toast.reviewConfirmed'), {
+        description: t('toast.documentApproved'),
       })
       resetStore()
       router.push('/review')
     },
     onError: (err) => {
-      toast.error('審核確認失敗', {
+      toast.error(t('toast.confirmFailed'), {
         description: err.message,
       })
     },
@@ -201,15 +208,15 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
   const { mutate: escalateDocument, isPending: isEscalating } =
     useEscalateReview({
       onSuccess: () => {
-        toast.success('案例已升級', {
-          description: '已通知 Super User 處理此案例',
+        toast.success(t('toast.caseEscalated'), {
+          description: t('toast.escalationNotified'),
         })
         setShowEscalateDialog(false)
         resetStore()
         router.push('/review')
       },
       onError: (err) => {
-        toast.error('升級失敗', {
+        toast.error(t('toast.escalationFailed'), {
           description: err.message,
         })
       },
@@ -308,7 +315,7 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
     const pendingChanges = useReviewStore.getState().pendingChanges
 
     if (pendingChanges.size === 0) {
-      toast.info('沒有需要儲存的修改')
+      toast.info(t('toast.noChanges'))
       return
     }
 
@@ -328,23 +335,25 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
       })
 
       if (!response.ok) {
-        throw new Error('儲存修正失敗')
+        throw new Error(t('toast.saveFailed'))
       }
 
-      toast.success('修正已儲存', {
-        description: `已儲存 ${corrections.length} 個欄位的修正`,
+      toast.success(t('toast.correctionsSaved'), {
+        description: t('toast.correctionsSavedDesc', {
+          count: corrections.length,
+        }),
       })
 
       resetStore()
       refetch()
     } catch (err) {
-      toast.error('儲存失敗', {
-        description: err instanceof Error ? err.message : '請稍後再試',
+      toast.error(t('toast.saveFailedRetry'), {
+        description: err instanceof Error ? err.message : t('toast.tryAgainLater'),
       })
     } finally {
       setIsSubmitting(false)
     }
-  }, [documentId, refetch, resetStore])
+  }, [documentId, refetch, resetStore, t])
 
   /**
    * 升級案例按鈕點擊（顯示升級對話框）
@@ -398,7 +407,7 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
           <Button variant="ghost" size="icon" onClick={handleBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold">審核詳情</h1>
+          <h1 className="text-2xl font-bold">{t('page.reviewDetails')}</h1>
         </div>
         <ErrorState error={error as Error} onRetry={() => refetch()} />
       </div>
@@ -415,9 +424,9 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold">找不到文件</h1>
+          <h1 className="text-2xl font-bold">{t('page.documentNotFound')}</h1>
         </div>
-        <p className="text-muted-foreground">指定的文件不存在或已被刪除。</p>
+        <p className="text-muted-foreground">{t('page.documentNotFoundDesc')}</p>
       </div>
     )
   }
@@ -431,12 +440,12 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
           variant="ghost"
           size="icon"
           onClick={handleBack}
-          title="返回審核列表"
+          title={t('page.backToList')}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-xl font-semibold truncate">
-          審核：{data.document.fileName}
+          {t('page.review', { fileName: data.document.fileName })}
         </h1>
       </div>
 
@@ -445,7 +454,7 @@ export default function ReviewDetailPage({ params }: ReviewDetailPageProps) {
         <ReviewDetailLayout
           pdfViewer={
             <DynamicPdfViewer
-              url={data.document.fileUrl}
+              url={`/api/documents/${documentId}/blob`}
               pageCount={data.document.pageCount || 1}
             />
           }

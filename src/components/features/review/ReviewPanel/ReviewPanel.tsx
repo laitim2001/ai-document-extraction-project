@@ -19,6 +19,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import type { ExtractedField, FieldGroupData, ReviewDetailData } from '@/types/review'
 import { useReviewStore } from '@/stores/reviewStore'
 import { FieldGroup } from './FieldGroup'
@@ -35,16 +36,16 @@ import { getConfidenceLevel } from '@/lib/confidence'
 // ============================================================
 
 /**
- * 欄位分組配置
+ * 欄位分組順序（顯示名稱由 i18n 提供）
  */
-const FIELD_GROUPS: { key: string; displayName: string }[] = [
-  { key: 'header', displayName: '發票基本資訊' },
-  { key: 'shipper', displayName: '發貨人資訊' },
-  { key: 'consignee', displayName: '收貨人資訊' },
-  { key: 'shipment', displayName: '運輸資訊' },
-  { key: 'charges', displayName: '費用明細' },
-  { key: 'totals', displayName: '金額合計' },
-  { key: 'other', displayName: '其他資訊' },
+const FIELD_GROUP_KEYS = [
+  'header',
+  'shipper',
+  'consignee',
+  'shipment',
+  'charges',
+  'totals',
+  'other',
 ]
 
 // ============================================================
@@ -93,6 +94,7 @@ export function ReviewPanel({
   onEscalate,
   isSubmitting,
 }: ReviewPanelProps) {
+  const t = useTranslations('review')
   const { selectedFieldId, setSelectedField, hasPendingChanges } = useReviewStore()
 
   // --- 低信心度篩選狀態 (AC3) ---
@@ -131,12 +133,12 @@ export function ReviewPanel({
     })
 
     // 按配置順序排列
-    FIELD_GROUPS.forEach(({ key, displayName }) => {
+    FIELD_GROUP_KEYS.forEach((key) => {
       const fields = fieldsByGroup.get(key)
       if (fields && fields.length > 0) {
         groups.push({
           groupName: key,
-          displayName,
+          displayName: t(`fieldGroups.${key}`),
           fields,
           isExpanded: true,
         })
@@ -144,7 +146,7 @@ export function ReviewPanel({
     })
 
     return groups
-  }, [filteredFields])
+  }, [filteredFields, t])
 
   // --- 處理欄位選擇 ---
   const handleFieldSelect = (field: ExtractedField) => {
@@ -172,10 +174,10 @@ export function ReviewPanel({
         </div>
 
         <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-          <span>Forwarder: {data.company?.name || '未識別'}</span>
+          <span>{t('panel.forwarder')}: {data.company?.name || t('table.unidentified')}</span>
           <Separator orientation="vertical" className="h-4" />
           <div className="flex items-center gap-2">
-            <span>整體信心度:</span>
+            <span>{t('panel.overallConfidence')}</span>
             <ConfidenceBadge score={data.extraction.overallConfidence} />
           </div>
         </div>
@@ -196,7 +198,7 @@ export function ReviewPanel({
         <div className="p-4 space-y-4">
           {groupedFields.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
-              {showLowConfidenceOnly ? '沒有低信心度欄位' : '沒有提取欄位'}
+              {showLowConfidenceOnly ? t('panel.noLowConfidenceFields') : t('panel.noFields')}
             </p>
           ) : (
             groupedFields.map((group) => (

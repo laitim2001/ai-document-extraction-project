@@ -20,6 +20,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -88,6 +89,9 @@ export function FieldEditor({
   disabled = false,
   className,
 }: FieldEditorProps) {
+  // --- Hooks ---
+  const t = useTranslations('review')
+
   // --- State ---
   const [editValue, setEditValue] = React.useState(value ?? '')
   const [validationError, setValidationError] = React.useState<string | null>(null)
@@ -120,7 +124,7 @@ export function FieldEditor({
     (val: string): boolean => {
       const result = validateFieldValue(fieldName, val)
       if (!result.valid) {
-        setValidationError(result.error ?? '驗證失敗')
+        setValidationError(result.error ?? t('fieldEditor.validationFailed'))
         setIsValidated(false)
         return false
       }
@@ -128,7 +132,7 @@ export function FieldEditor({
       setIsValidated(true)
       return true
     },
-    [fieldName]
+    [fieldName, t]
   )
 
   /**
@@ -208,10 +212,10 @@ export function FieldEditor({
             className="h-7 w-7 text-green-600 hover:text-green-700 hover:bg-green-50"
             onClick={handleSave}
             disabled={!!validationError}
-            title="儲存 (Enter)"
+            title={t('fieldEditor.saveWithKey')}
           >
             <Check className="h-4 w-4" />
-            <span className="sr-only">儲存</span>
+            <span className="sr-only">{t('fieldEditor.save')}</span>
           </Button>
           <Button
             type="button"
@@ -219,10 +223,10 @@ export function FieldEditor({
             size="icon"
             className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
             onClick={handleCancel}
-            title="取消 (Escape)"
+            title={t('fieldEditor.cancelWithKey')}
           >
             <X className="h-4 w-4" />
-            <span className="sr-only">取消</span>
+            <span className="sr-only">{t('fieldEditor.cancel')}</span>
           </Button>
         </div>
         <ValidationMessage
@@ -257,7 +261,7 @@ export function FieldEditor({
           !value && 'text-muted-foreground italic'
         )}
       >
-        {value || '（空）'}
+        {value || t('fieldEditor.emptyValue')}
       </span>
       {!disabled && (
         <Pencil

@@ -18,6 +18,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { AlertTriangle } from 'lucide-react'
@@ -70,6 +71,8 @@ export function LowConfidenceFilter({
   totalCount,
   className,
 }: LowConfidenceFilterProps) {
+  const t = useTranslations('review')
+
   return (
     <div
       className={cn(
@@ -93,7 +96,7 @@ export function LowConfidenceFilter({
           htmlFor="low-confidence-filter"
           className="text-sm cursor-pointer"
         >
-          僅顯示低信心度欄位
+          {t('panel.showLowConfidenceOnly')}
         </Label>
         <span className="text-xs text-muted-foreground">
           ({lowConfidenceCount}/{totalCount})

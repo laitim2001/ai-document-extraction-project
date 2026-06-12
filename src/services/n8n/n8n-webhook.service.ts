@@ -43,6 +43,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { safeFetch } from '@/lib/security/safe-fetch';
 import type {
   SendEventInput,
   WebhookPayload,
@@ -166,7 +167,8 @@ export class N8nWebhookService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT);
 
-      const response = await fetch(event.webhookUrl, {
+      // FIX-068（SSRF）：webhookUrl 為使用者配置，經 safeFetch 封鎖私網/metadata 位址
+      const response = await safeFetch(event.webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

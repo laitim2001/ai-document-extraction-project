@@ -92,7 +92,9 @@ services:
       - "10012:10002"  # Table Service
     volumes:
       - azurite_data:/data
-    command: "azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0"
+    # --skipApiVersionCheck: Azurite 3.35.0 不支援 Azure SDK 12.31.0 送出的新版 API (2026-02-06)，
+    # 跳過版本檢查以相容較新的 SDK（dev-only，修復上傳 400 InvalidHeaderValue）
+    command: "azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --skipApiVersionCheck"
     restart: unless-stopped
 
 volumes:

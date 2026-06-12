@@ -405,7 +405,9 @@
       "flagsG": "g (全域)",
       "flagsI": "i (不分大小寫)",
       "flagsGim": "gim (全域, 不分大小寫, 多行)",
-      "groupIndex": "擷取群組索引"
+      "groupIndex": "擷取群組索引",
+      "errorSyntax": "正則表達式語法錯誤",
+      "errorTooLong": "正則表達式過長（上限 1000 字元）"
     },
     "keyword": {
       "keywords": "關鍵字（每行一個）",

@@ -25,6 +25,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
+import { rateLimitService } from '@/services/rate-limit.service';
+import { isAllowedSize, UPLOAD_ERRORS } from '@/lib/upload/constants';
+import { verifyMagicByte } from '@/lib/upload/magic-byte';
 import { AzureOpenAI } from 'openai';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -277,6 +281,42 @@ export async function POST(request: NextRequest) {
   let tempFilePath: string | null = null;
 
   try {
+    // FIX-071: 補認證 + 速率限制（此端點觸發付費 GPT Vision，原本完全公開可達）
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/unauthorized',
+          title: 'Unauthorized',
+          status: 401,
+          detail: '請先登入',
+          instance: '/api/v1/prompt-configs/test',
+        },
+        { status: 401 }
+      );
+    }
+    const rateLimit = await rateLimitService.checkLimitByKey(
+      `rate_limit:ai_test:user:${session.user.id}`,
+      10
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/rate-limit-exceeded',
+          title: 'Too Many Requests',
+          status: 429,
+          detail: '測試請求過於頻繁，請稍後再試',
+          instance: '/api/v1/prompt-configs/test',
+        },
+        {
+          status: 429,
+          headers: rateLimit.retryAfter
+            ? { 'Retry-After': String(rateLimit.retryAfter) }
+            : undefined,
+        }
+      );
+    }
+
     // 1. 解析 FormData
     const formData = await request.formData();
     const configId = formData.get('configId') as string;
@@ -305,6 +345,20 @@ export async function POST(request: NextRequest) {
           instance: '/api/v1/prompt-configs/test',
         },
         { status: 400 }
+      );
+    }
+
+    // FIX-071: 檔案大小上限（避免大檔耗盡暫存磁碟與昂貴的 PDF→圖片轉換）
+    if (!isAllowedSize(file.size)) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/payload-too-large',
+          title: 'Payload Too Large',
+          status: 413,
+          detail: UPLOAD_ERRORS.FILE_TOO_LARGE,
+          instance: '/api/v1/prompt-configs/test',
+        },
+        { status: 413 }
       );
     }
 
@@ -370,6 +424,21 @@ export async function POST(request: NextRequest) {
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    // FIX-071: magic byte 內容驗證（不採信客戶端宣告的 file.type，擋偽造類型）
+    if (!verifyMagicByte(buffer, file.type)) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/validation',
+          title: 'Validation Error',
+          status: 400,
+          detail: '檔案內容與宣告的類型不符',
+          instance: '/api/v1/prompt-configs/test',
+        },
+        { status: 400 }
+      );
+    }
+
     await fs.writeFile(tempFilePath, buffer);
 
     console.log(`[Prompt Test API] Processing file: ${file.name} (${file.type})`);

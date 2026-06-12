@@ -29,6 +29,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { requireCityScope } from '@/lib/auth/city-scope'
 import { downloadBlob } from '@/lib/azure-blob'
 
 // ============================================================
@@ -78,16 +79,25 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { id } = await params
 
-    // 查詢文件取得 blobName 和 fileName
+    // 查詢文件取得 blobName 和 fileName（CHANGE-079：一併取 cityCode 供城市範圍比對）
     const document = await prisma.document.findUnique({
       where: { id },
-      select: { blobName: true, fileName: true, fileType: true },
+      select: { blobName: true, fileName: true, fileType: true, cityCode: true },
     })
 
     if (!document) {
       return NextResponse.json(
         { success: false, error: 'Document not found' },
         { status: 404 }
+      )
+    }
+
+    // CHANGE-079（城市 IDOR）：驗證文件城市範圍，避免跨城市讀取 Blob
+    const scope = requireCityScope(session.user, document.cityCode)
+    if (!scope.authorized) {
+      return NextResponse.json(
+        { success: false, error: scope.detail },
+        { status: scope.status }
       )
     }
 

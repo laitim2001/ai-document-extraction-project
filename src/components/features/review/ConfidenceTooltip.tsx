@@ -20,6 +20,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Tooltip,
   TooltipContent,
@@ -30,9 +31,7 @@ import { Progress } from '@/components/ui/progress'
 import type { ConfidenceFactors } from '@/types/confidence'
 import {
   getConfidenceLevel,
-  CONFIDENCE_THRESHOLDS,
   formatConfidenceFactors,
-  getConfidenceDescription,
 } from '@/lib/confidence'
 import { ConfidenceIndicator } from './ConfidenceIndicator'
 
@@ -82,9 +81,8 @@ export function ConfidenceTooltip({
   children,
   delayDuration = 300,
 }: ConfidenceTooltipProps) {
+  const t = useTranslations('review')
   const level = getConfidenceLevel(score)
-  const config = CONFIDENCE_THRESHOLDS[level]
-  const description = getConfidenceDescription(level)
 
   return (
     <TooltipProvider>
@@ -95,24 +93,26 @@ export function ConfidenceTooltip({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <ConfidenceIndicator level={level} size="lg" />
-              <span className="font-semibold">{config.labelZh}</span>
+              <span className="font-semibold">{t(`confidence.${level}`)}</span>
             </div>
             <span className="text-2xl font-bold">{score}%</span>
           </div>
 
           {/* 描述 */}
-          <p className="text-sm text-muted-foreground mb-3">{description}</p>
+          <p className="text-sm text-muted-foreground mb-3">
+            {t(`confidenceDetail.description.${level}`)}
+          </p>
 
           {/* 因素分解（如有） */}
           {factors && (
             <div className="space-y-2 pt-3 border-t">
               <p className="text-xs font-medium text-muted-foreground">
-                信心度計算因素
+                {t('confidenceDetail.factorsTitle')}
               </p>
               {formatConfidenceFactors(factors).map((factor) => (
                 <div key={factor.key} className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span>{factor.label}</span>
+                    <span>{t(`confidenceDetail.factors.${factor.key}`)}</span>
                     <span className="text-muted-foreground">
                       {factor.value}% ({factor.weight})
                     </span>

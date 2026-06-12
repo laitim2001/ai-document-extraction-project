@@ -20,6 +20,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { CheckCircle, AlertTriangle, Eye, ChevronDown, ChevronUp } from 'lucide-react'
 import type { ExtractedField } from '@/types/review'
 import { getConfidenceLevel } from '@/lib/confidence'
@@ -120,6 +121,9 @@ export function QuickReviewMode({
   onConfirmAll,
   isSubmitting = false,
 }: QuickReviewModeProps) {
+  // --- Hooks ---
+  const t = useTranslations('review')
+
   // --- State ---
   const [showAutoApproved, setShowAutoApproved] = React.useState(false)
 
@@ -142,13 +146,15 @@ export function QuickReviewMode({
         <CardHeader className="py-3">
           <CardTitle className="flex items-center gap-2 text-sm font-medium text-blue-700 dark:text-blue-300">
             <Eye className="h-4 w-4" />
-            快速審核模式
+            {t('quickReview.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="py-2">
           <p className="text-sm text-muted-foreground">
-            系統已自動確認 {stats.high} 個高信心度欄位，
-            請審核以下 {stats.needsReview} 個需要關注的欄位。
+            {t('quickReview.summary', {
+              high: stats.high,
+              needsReview: stats.needsReview,
+            })}
           </p>
         </CardContent>
       </Card>
@@ -157,14 +163,14 @@ export function QuickReviewMode({
       <div className="flex flex-wrap gap-2">
         <Badge variant="outline" className="bg-red-50 border-red-200 text-red-700">
           <AlertTriangle className="h-3 w-3 mr-1" />
-          低信心度: {stats.low}
+          {t('quickReview.badgeLow', { count: stats.low })}
         </Badge>
         <Badge variant="outline" className="bg-yellow-50 border-yellow-200 text-yellow-700">
-          中信心度: {stats.medium}
+          {t('quickReview.badgeMedium', { count: stats.medium })}
         </Badge>
         <Badge variant="outline" className="bg-green-50 border-green-200 text-green-700">
           <CheckCircle className="h-3 w-3 mr-1" />
-          已自動確認: {stats.high}
+          {t('quickReview.badgeAutoConfirmed', { count: stats.high })}
         </Badge>
       </div>
 
@@ -174,7 +180,9 @@ export function QuickReviewMode({
           <div className="px-3 py-2 bg-muted/50 border-b">
             <h3 className="text-sm font-medium flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
-              需要關注的欄位 ({fieldsNeedingReview.length})
+              {t('quickReview.needsAttentionTitle', {
+                count: fieldsNeedingReview.length,
+              })}
             </h3>
           </div>
           <div className="divide-y">
@@ -195,7 +203,7 @@ export function QuickReviewMode({
           <CardContent className="py-4 flex items-center justify-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-600" />
             <span className="text-green-700 dark:text-green-300">
-              所有欄位皆為高信心度，可直接確認
+              {t('quickReview.allHighConfidence')}
             </span>
           </CardContent>
         </Card>
@@ -215,7 +223,9 @@ export function QuickReviewMode({
           >
             <span className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-green-500" />
-              已自動確認的欄位 ({autoApprovedFields.length})
+              {t('quickReview.autoConfirmedToggle', {
+                count: autoApprovedFields.length,
+              })}
             </span>
             {showAutoApproved ? (
               <ChevronUp className="h-4 w-4" />
@@ -248,11 +258,11 @@ export function QuickReviewMode({
         disabled={isSubmitting}
       >
         {isSubmitting ? (
-          '確認中...'
+          t('quickReview.confirming')
         ) : (
           <>
             <CheckCircle className="h-4 w-4 mr-2" />
-            確認全部欄位 ({stats.total})
+            {t('quickReview.confirmAll', { count: stats.total })}
           </>
         )}
       </Button>

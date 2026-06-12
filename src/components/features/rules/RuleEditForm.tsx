@@ -162,6 +162,19 @@ function RegexPatternEditor({
   const flags = (value.flags as string) ?? 'gi'
   const groupIndex = (value.groupIndex as number) ?? 1
 
+  // FIX-069: 提交前即時驗證（語法 + 限長）。前端以原生 RegExp 驗語法即可，
+  // 不需 RE2 引擎（執行端的 ReDoS 防護由後端 safe-regex 負責）。
+  const expressionError = React.useMemo(() => {
+    if (!expression) return null
+    if (expression.length > 1000) return t('ruleEdit.regex.errorTooLong')
+    try {
+      new RegExp(expression, flags)
+      return null
+    } catch {
+      return t('ruleEdit.regex.errorSyntax')
+    }
+  }, [expression, flags, t])
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -174,6 +187,9 @@ function RegexPatternEditor({
             onChange({ ...value, expression: e.target.value })
           }
         />
+        {expressionError && (
+          <p className="text-sm text-destructive">{expressionError}</p>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">

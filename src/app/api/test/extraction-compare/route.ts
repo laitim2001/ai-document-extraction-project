@@ -19,6 +19,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as os from 'os';
+import { randomUUID } from 'crypto';
 import {
   runExtractionV2Pipeline,
   validateAzureDIConfig,
@@ -84,6 +85,26 @@ interface ComparisonResponse {
 // ============================================================
 // Helper Functions
 // ============================================================
+
+/**
+ * 允許的副檔名白名單（對應 allowedTypes 的 MIME 類型）
+ * 用於從使用者上傳檔名安全取得副檔名，避免 path traversal。
+ */
+const ALLOWED_EXTENSIONS = ['.pdf', '.png', '.jpg', '.jpeg', '.tiff', '.tif'];
+
+/**
+ * 從原始檔名安全取得副檔名（白名單驗證）
+ *
+ * 僅取出副檔名部分並比對白名單，不信任原檔名其餘內容，
+ * 避免 `../` 等路徑穿越字元進入暫存檔路徑。
+ *
+ * @param fileName 使用者上傳的原始檔名
+ * @returns 白名單內的副檔名（含 `.`），不在白名單則回傳空字串
+ */
+function getSafeExtension(fileName: string): string {
+  const ext = path.extname(fileName).toLowerCase();
+  return ALLOWED_EXTENSIONS.includes(ext) ? ext : '';
+}
 
 /**
  * 標準化 GPT Vision 結果為統一的欄位格式
@@ -356,6 +377,11 @@ Rules:
  * 檢查兩種方案的配置狀態
  */
 export async function GET(): Promise<NextResponse> {
+  // 開發測試端點：生產環境禁用
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const azureDIConfig = validateAzureDIConfig();
   const gptMiniConfig = validateGptMiniConfig();
   const gptVisionConfig = validateGptVisionConfig();
@@ -390,6 +416,18 @@ export async function GET(): Promise<NextResponse> {
  * 執行對比測試
  */
 export async function POST(request: NextRequest): Promise<NextResponse<ComparisonResponse>> {
+  // 開發測試端點：生產環境禁用
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      {
+        success: false,
+        comparison: null as unknown as ComparisonResponse['comparison'],
+        error: 'Not found',
+      },
+      { status: 404 }
+    );
+  }
+
   let tempFilePath: string | null = null;
 
   try {
@@ -431,8 +469,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<Compariso
     );
 
     // 為 GPT Vision 創建臨時文件
+    // 注意：不可直接使用使用者可控的 file.name 組裝路徑（path traversal 風險）。
+    // 改用 randomUUID() 生成檔名，並從原檔名以白名單方式取得安全副檔名，
+    // 以保留 PDF/圖片判斷所需的副檔名。
     const tempDir = os.tmpdir();
-    tempFilePath = path.join(tempDir, `extraction-compare-${Date.now()}-${file.name}`);
+    const safeExtension = getSafeExtension(file.name);
+    tempFilePath = path.join(
+      tempDir,
+      `extraction-compare-${randomUUID()}${safeExtension}`
+    );
     await fs.writeFile(tempFilePath, buffer);
 
     const targetFields = 8; // 標準欄位數

@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { CheckCircle2, AlertTriangle } from 'lucide-react'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
@@ -75,6 +76,10 @@ export function CorrectionTypeSelector({
   disabled = false,
   className,
 }: CorrectionTypeSelectorProps) {
+  // --- Hooks ---
+  const t = useTranslations('review')
+
+  // --- Render ---
   return (
     <div className={cn('space-y-4', className)}>
       <RadioGroup
@@ -99,11 +104,11 @@ export function CorrectionTypeSelector({
               className="flex items-center gap-2 font-medium cursor-pointer"
             >
               <CheckCircle2 className="h-4 w-4 text-blue-600" />
-              正常修正
+              {t('correctionType.normalTitle')}
             </Label>
             <p className="text-sm text-muted-foreground mt-1">
-              此修正將被記錄用於系統學習，幫助改善未來的自動識別準確度。
-              當相同欄位累積足夠修正次數時，系統會自動建議新的映射規則。
+              {t('correctionType.normalDesc1')}
+              {t('correctionType.normalDesc2')}
             </p>
           </div>
         </div>
@@ -128,11 +133,11 @@ export function CorrectionTypeSelector({
               className="flex items-center gap-2 font-medium cursor-pointer"
             >
               <AlertTriangle className="h-4 w-4 text-amber-600" />
-              特例修正
+              {t('correctionType.exceptionTitle')}
             </Label>
             <p className="text-sm text-muted-foreground mt-1">
-              此修正為特殊案例，不會影響系統學習統計。
-              適用於一次性錯誤、特殊格式、或不應作為規則參考的情況。
+              {t('correctionType.exceptionDesc1')}
+              {t('correctionType.exceptionDesc2')}
             </p>
           </div>
         </div>
@@ -142,11 +147,11 @@ export function CorrectionTypeSelector({
       {value === 'EXCEPTION' && (
         <div className="pl-7 space-y-2 animate-in slide-in-from-top-2 duration-200">
           <Label htmlFor="exception-reason" className="text-sm">
-            特例原因（選填）
+            {t('correctionType.exceptionReasonLabel')}
           </Label>
           <Textarea
             id="exception-reason"
-            placeholder="說明為何此修正為特例情況..."
+            placeholder={t('correctionType.exceptionReasonPlaceholder')}
             value={exceptionReason}
             onChange={(e) => onExceptionReasonChange?.(e.target.value)}
             disabled={disabled}

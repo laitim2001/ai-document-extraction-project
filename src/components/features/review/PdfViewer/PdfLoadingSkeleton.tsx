@@ -10,6 +10,9 @@
  * @lastModified 2025-12-18
  */
 
+'use client'
+
+import { useTranslations } from 'next-intl'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Loader2 } from 'lucide-react'
 
@@ -26,10 +29,12 @@ import { Loader2 } from 'lucide-react'
  * ```
  */
 export function PdfLoadingSkeleton() {
+  const t = useTranslations('review')
+
   return (
     <div className="flex flex-col items-center justify-center p-8 space-y-4">
       <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      <p className="text-sm text-muted-foreground">載入 PDF 中...</p>
+      <p className="text-sm text-muted-foreground">{t('pdf.loading')}</p>
       {/* A4 比例骨架 (約 1:1.414) */}
       <Skeleton className="w-[400px] h-[566px]" />
     </div>

@@ -25,6 +25,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/city-permission'
+import { PERMISSIONS } from '@/types/permissions'
 import { prisma } from '@/lib/prisma'
 import type {
   BatchCompanyStats,
@@ -75,6 +78,15 @@ export async function GET(
   context: RouteContext
 ): Promise<NextResponse<CompanyStatsResponse | { error: string }>> {
   try {
+    // 認證與權限檢查（FIX-063 / ADMIN0-02：原無任何認證）
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (!hasPermission(session.user, PERMISSIONS.ADMIN_MANAGE)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const { batchId } = await context.params
 
     // 驗證批次是否存在

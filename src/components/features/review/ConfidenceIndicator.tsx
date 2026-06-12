@@ -15,6 +15,9 @@
  *   - @/lib/utils - cn 工具函數
  */
 
+'use client'
+
+import { useTranslations } from 'next-intl'
 import type { ConfidenceLevel } from '@/types/confidence'
 import { Check, Circle, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -65,6 +68,7 @@ export function ConfidenceIndicator({
   size = 'default',
   className,
 }: ConfidenceIndicatorProps) {
+  const t = useTranslations('review')
   const iconClass = cn(SIZE_MAP[size], className)
 
   switch (level) {
@@ -72,21 +76,21 @@ export function ConfidenceIndicator({
       return (
         <Check
           className={cn(iconClass, 'text-[hsl(var(--confidence-high))]')}
-          aria-label="高信心度"
+          aria-label={t('confidenceDetail.aria.high')}
         />
       )
     case 'medium':
       return (
         <Circle
           className={cn(iconClass, 'text-[hsl(var(--confidence-medium))]')}
-          aria-label="中信心度"
+          aria-label={t('confidenceDetail.aria.medium')}
         />
       )
     case 'low':
       return (
         <AlertTriangle
           className={cn(iconClass, 'text-[hsl(var(--confidence-low))]')}
-          aria-label="低信心度"
+          aria-label={t('confidenceDetail.aria.low')}
         />
       )
   }

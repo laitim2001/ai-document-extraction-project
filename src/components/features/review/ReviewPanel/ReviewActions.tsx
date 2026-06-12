@@ -15,6 +15,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -82,6 +83,8 @@ export function ReviewActions({
   processingPath,
   fieldCount = 0,
 }: ReviewActionsProps) {
+  const t = useTranslations('review')
+
   // 判斷確認按鈕是否可用
   const isApproveDisabled = hasPendingChanges || isSubmitting
 
@@ -91,12 +94,12 @@ export function ReviewActions({
   // 生成確認按鈕的 Tooltip 內容
   const getApproveTooltipContent = () => {
     if (isSubmitting) {
-      return '正在確認中...'
+      return t('reviewActions.confirmTooltipSubmitting')
     }
     if (hasPendingChanges) {
-      return '請先儲存修改後再確認'
+      return t('reviewActions.confirmTooltipPending')
     }
-    return `確認 ${fieldCount} 個欄位無誤，文件將標記為已核准`
+    return t('reviewActions.confirmTooltipReady', { count: fieldCount })
   }
 
   return (
@@ -113,9 +116,9 @@ export function ReviewActions({
         >
           <AlertCircle className="h-3.5 w-3.5" />
           {isQuickReview ? (
-            <span>快速審核模式：僅需確認需關注欄位</span>
+            <span>{t('reviewActions.quickReviewHint')}</span>
           ) : (
-            <span>完整審核模式：請詳細檢查所有欄位</span>
+            <span>{t('reviewActions.fullReviewHint')}</span>
           )}
         </div>
       )}
@@ -139,7 +142,7 @@ export function ReviewActions({
                   ) : (
                     <Check className="h-4 w-4 mr-2" />
                   )}
-                  確認無誤
+                  {t('reviewActions.confirm')}
                 </Button>
               </div>
             </TooltipTrigger>
@@ -165,15 +168,15 @@ export function ReviewActions({
                   ) : (
                     <Save className="h-4 w-4 mr-2" />
                   )}
-                  儲存修正
+                  {t('reviewActions.saveCorrections')}
                 </Button>
               </div>
             </TooltipTrigger>
             <TooltipContent>
               <p>
                 {hasPendingChanges
-                  ? '儲存目前的修改'
-                  : '沒有需要儲存的修改'}
+                  ? t('reviewActions.saveTooltipPending')
+                  : t('reviewActions.saveTooltipNone')}
               </p>
             </TooltipContent>
           </Tooltip>
@@ -189,11 +192,11 @@ export function ReviewActions({
                 disabled={isSubmitting}
               >
                 <ArrowUpRight className="h-4 w-4 mr-2" />
-                升級
+                {t('reviewActions.escalate')}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>升級至主管處理</p>
+              <p>{t('reviewActions.escalateTooltip')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -202,7 +205,7 @@ export function ReviewActions({
       {hasPendingChanges && (
         <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 text-center flex items-center justify-center gap-1">
           <AlertCircle className="h-3 w-3" />
-          有未儲存的修改
+          {t('reviewActions.unsavedHint')}
         </p>
       )}
     </div>

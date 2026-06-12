@@ -405,7 +405,9 @@
       "flagsG": "g (全局)",
       "flagsI": "i (不分大小写)",
       "flagsGim": "gim (全局, 不分大小写, 多行)",
-      "groupIndex": "捕获组索引"
+      "groupIndex": "捕获组索引",
+      "errorSyntax": "正则表达式语法错误",
+      "errorTooLong": "正则表达式过长（上限 1000 字符）"
     },
     "keyword": {
       "keywords": "关键字（每行一个）",

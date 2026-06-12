@@ -104,5 +104,146 @@
     "correctionsSavedDesc": "Saved corrections for {count} fields",
     "saveFailedRetry": "Save Failed",
     "tryAgainLater": "Please try again later"
+  },
+  "panel": {
+    "forwarder": "Forwarder",
+    "overallConfidence": "Overall Confidence:",
+    "noLowConfidenceFields": "No low confidence fields",
+    "noFields": "No extracted fields",
+    "needsAttention": "Needs Attention",
+    "showLowConfidenceOnly": "Show low confidence fields only"
+  },
+  "fieldGroups": {
+    "header": "Invoice Information",
+    "shipper": "Shipper Information",
+    "consignee": "Consignee Information",
+    "shipment": "Shipment Information",
+    "charges": "Charge Details",
+    "totals": "Amount Totals",
+    "other": "Other Information"
+  },
+  "fields": {
+    "invoiceNumber": "Invoice Number",
+    "invoiceDate": "Invoice Date",
+    "dueDate": "Due Date",
+    "poNumber": "PO Number",
+    "currency": "Currency",
+    "shipperName": "Shipper Name",
+    "shipperAddress": "Shipper Address",
+    "shipperContact": "Shipper Contact",
+    "consigneeName": "Consignee Name",
+    "consigneeAddress": "Consignee Address",
+    "consigneeContact": "Consignee Contact",
+    "vesselName": "Vessel Name",
+    "voyageNumber": "Voyage Number",
+    "containerNumber": "Container Number",
+    "blNumber": "B/L Number",
+    "portOfLoading": "Port of Loading",
+    "portOfDischarge": "Port of Discharge",
+    "etd": "ETD",
+    "eta": "ETA",
+    "oceanFreight": "Ocean Freight",
+    "thc": "THC",
+    "docFee": "Documentation Fee",
+    "customsFee": "Customs Fee",
+    "handlingFee": "Handling Fee",
+    "totalAmount": "Total Amount",
+    "taxAmount": "Tax Amount",
+    "netAmount": "Net Amount"
+  },
+  "fieldMeta": {
+    "sourcePositionTooltip": "Click to view source position in PDF (page {page})",
+    "modifiedTooltip": "Modified (unsaved)"
+  },
+  "reviewActions": {
+    "quickReviewHint": "Quick Review Mode: only confirm fields needing attention",
+    "fullReviewHint": "Full Review Mode: please check all fields carefully",
+    "confirm": "Confirm",
+    "saveCorrections": "Save Corrections",
+    "escalate": "Escalate",
+    "confirmTooltipSubmitting": "Confirming...",
+    "confirmTooltipPending": "Please save changes before confirming",
+    "confirmTooltipReady": "Confirm {count} fields as correct; document will be marked as approved",
+    "saveTooltipPending": "Save current changes",
+    "saveTooltipNone": "No changes to save",
+    "escalateTooltip": "Escalate to supervisor",
+    "unsavedHint": "Unsaved changes"
+  },
+  "quickReview": {
+    "title": "Quick Review Mode",
+    "summary": "System auto-confirmed {high} high-confidence fields. Please review the following {needsReview} fields needing attention.",
+    "badgeLow": "Low Confidence: {count}",
+    "badgeMedium": "Medium Confidence: {count}",
+    "badgeAutoConfirmed": "Auto-confirmed: {count}",
+    "needsAttentionTitle": "Fields Needing Attention ({count})",
+    "allHighConfidence": "All fields are high confidence; you can confirm directly",
+    "autoConfirmedToggle": "Auto-confirmed fields ({count})",
+    "confirmAll": "Confirm All Fields ({count})",
+    "confirming": "Confirming..."
+  },
+  "fieldEditor": {
+    "validationFailed": "Validation failed",
+    "save": "Save",
+    "saveWithKey": "Save (Enter)",
+    "cancel": "Cancel",
+    "cancelWithKey": "Cancel (Escape)",
+    "emptyValue": "(empty)"
+  },
+  "correctionType": {
+    "dialogTitle": "Save Corrections - Select Correction Type",
+    "dialogDesc": "Please select a type for the following {count} corrections. Normal corrections are used for system learning; exception corrections do not affect learning statistics.",
+    "batchSet": "Batch set:",
+    "allNormal": "All Normal",
+    "allException": "All Exception",
+    "normalCount": "Normal: {count}",
+    "exceptionCount": "Exception: {count}",
+    "typeNormal": "Normal",
+    "typeException": "Exception",
+    "collapse": "Collapse",
+    "details": "Details",
+    "emptyValue": "(empty)",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "confirmSave": "Confirm Save ({count})",
+    "normalTitle": "Normal Correction",
+    "normalDesc1": "This correction will be recorded for system learning to help improve future automatic recognition accuracy.",
+    "normalDesc2": "When the same field accumulates enough corrections, the system will automatically suggest new mapping rules.",
+    "exceptionTitle": "Exception Correction",
+    "exceptionDesc1": "This correction is a special case and will not affect system learning statistics.",
+    "exceptionDesc2": "Suitable for one-time errors, special formats, or cases that should not be used as rule references.",
+    "exceptionReasonLabel": "Exception Reason (Optional)",
+    "exceptionReasonPlaceholder": "Explain why this correction is an exception..."
+  },
+  "confidenceDetail": {
+    "factorsTitle": "Confidence Calculation Factors",
+    "description": {
+      "high": "High extraction reliability, usually no modification needed",
+      "medium": "Quick review recommended",
+      "low": "Requires careful review and possible correction"
+    },
+    "aria": {
+      "high": "High Confidence",
+      "medium": "Medium Confidence",
+      "low": "Low Confidence"
+    },
+    "factors": {
+      "ocrConfidence": "OCR Clarity",
+      "ruleMatchScore": "Rule Match",
+      "formatValidation": "Format Validation",
+      "historicalAccuracy": "Historical Accuracy"
+    }
+  },
+  "pdf": {
+    "loadFailed": "Unable to load PDF document",
+    "loading": "Loading PDF...",
+    "prevPage": "Previous Page",
+    "nextPage": "Next Page",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "resetZoom": "Click to reset to 100%"
+  },
+  "layout": {
+    "pdfTab": "PDF View",
+    "reviewTab": "Review Fields"
   }
 }
