@@ -28,7 +28,7 @@
 # 此 stage 僅複製 package.json + lockfile + prisma schema，
 # 變更頻率最低，可最大化 Docker layer 快取命中率
 # ============================================================================
-FROM node:20-slim AS deps
+FROM node:26-slim AS deps
 
 # Debian glibc base — canvas / pdf-to-img / sharp 等套件有 napi prebuilt binaries
 # 不需要 Python / make / g++（除非 prebuild 不可用時 fallback 編譯）
@@ -55,7 +55,7 @@ RUN npm ci
 # 使用 deps stage 的 node_modules 直接 build，不再重新安裝
 # 產出 .next/standalone/（含 server.js）+ .next/static/
 # ============================================================================
-FROM node:20-slim AS builder
+FROM node:26-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -113,7 +113,7 @@ RUN node node_modules/typescript/bin/tsc prisma/seed-prod-essential.ts \
 # 只複製 standalone output + 必要的 runtime 檔案（i18n / prisma engine / public）
 # 不執行任何 npm install，最終 image 大小約 250-400 MB
 # ============================================================================
-FROM node:20-slim AS runner
+FROM node:26-slim AS runner
 
 # Runtime dependencies（Prisma query engine 需要 OpenSSL）
 RUN apt-get update && apt-get install -y --no-install-recommends \
