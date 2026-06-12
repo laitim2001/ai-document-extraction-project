@@ -16,7 +16,7 @@ structlog>=24.1.0
 psycopg2-binary>=2.9.9
 
 # HTTP Client (for internal service calls)
-httpx>=0.26.0
+httpx>=0.28.1
 
 # Development
 python-dotenv>=1.0.0
