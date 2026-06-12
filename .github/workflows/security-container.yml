@@ -1,0 +1,46 @@
+# Container Security — Trivy（Dockerfile / 依賴變動觸發 + main push）
+# Story 22-4 AC7 (SDLC-06)：掃描 Docker image 的 OS / library HIGH/CRITICAL 漏洞
+# 漸進式 rollout：本階段為 advisory（continue-on-error: true）；
+#   Week 3 升 required 時移除 continue-on-error 以強制 block merge。
+# ACR push pipeline 整合（Task 6）依賴 CHANGE-055 Azure deploy workflow，不在本次範圍。
+name: Container Security
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Dockerfile'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'python-services/**/requirements.txt'
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t local/aidocextract:scan .
+        continue-on-error: true # advisory 階段；build 失敗不阻擋（Week 3 檢討）
+      - name: Run Trivy scan
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true # advisory 階段；Week 3 移除以強制 block
+        with:
+          image-ref: 'local/aidocextract:scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true # 無 GitHub Advanced Security 時略過 SARIF 上傳
+        with:
+          sarif_file: 'trivy-results.sarif'

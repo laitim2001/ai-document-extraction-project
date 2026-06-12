@@ -1,0 +1,8 @@
+# Trivy ignore — Story 22-4 AC7 (SDLC-06)
+# 無修復版本的漏洞已由 workflow 的 `ignore-unfixed: true` 統一忽略。
+# 此處僅列出「已評估、可暫時接受」的特定 CVE，每筆須附理由與複查期限。
+#
+# 格式：
+#   CVE-XXXX-XXXXX  # 理由（評估日期 / 複查期限）
+#
+# 目前無暫時接受項；隨 Week 1-2 advisory 觀察補充。
