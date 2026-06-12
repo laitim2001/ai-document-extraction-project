@@ -1,6 +1,6 @@
 # Story 22.4: CI/CD 安全 Pipeline
 
-**Status:** planned
+**Status:** 🚧 進行中（codebase CI 配置已建立、advisory 模式，2026-06-12；Branch Protection / Repository Secrets / Week 3 required 升級待 GitHub 平台操作 — 見 `docs/08-security-and-governance/cicd-pipeline-guide.md`）
 
 ---
 
@@ -348,3 +348,37 @@ Week 2：監控 false positive、調整白名單
 Week 3：升級 required status checks（強制 block）
 Week 4：盤點 main 分支歷史 secret + 必要時 BFG 清理
 ```
+
+---
+
+## 實作記錄（2026-06-12）
+
+### 已完成（codebase 配置，advisory 模式）
+
+| Task | AC | 產出 |
+|------|-----|------|
+| Task 3 | AC3/5/6/7/8 | 5 個 workflow：`quality-checks`／`security-secrets`／`security-deps`／`security-sast`／`security-container` |
+| Task 4 | AC4 | `.github/dependabot.yml`（npm／github-actions／docker／pip x2）|
+| Task 5 | AC10/AC11 | `.github/PULL_REQUEST_TEMPLATE.md` + `.github/CODEOWNERS`（單一 owner）|
+| — | AC3/6/7 | `.gitleaks.toml`／`.semgrepignore`／`.trivyignore` 白名單 |
+| Task 9.2 | — | `docs/08-security-and-governance/cicd-pipeline-guide.md` 操作指南 |
+
+- 所有 security workflow 採 advisory（`continue-on-error: true`），符合規劃 Week 1，不立即 block merge。
+- YAML 語法已驗證可解析（6 檔全通過）。
+
+### 決策偏離（用戶確認 2026-06-12）
+
+| AC | 原規劃 | 實際 | 理由 |
+|----|--------|------|------|
+| AC2 | husky + lint-staged 本機 pre-commit | 不採用，secret 守門落 CI 端 gitleaks（AC3）| 避免新增 npm devDependency（H2）+ 不影響本機 commit |
+| AC11 | 多 org team（@data-team 等）| 單一 owner `@laitim2001`，規劃 team 以註解保留 | org team 未建立，避免指向不存在 owner 使規則失效 |
+| AC12 | webhook → SecurityLog | 先靠 GitHub 內建通知，webhook 後續 | webhook 依賴後端 endpoint，避免半成品 |
+
+### 待續（平台操作／跨 Story／多週）
+
+- **Task 1**：Branch Protection（GitHub 操作）— 命令見 cicd-pipeline-guide.md §4.1
+- **Task 6**：ACR push 整合 Trivy — 依賴 CHANGE-055
+- **Task 7 / AC12**：workflow 失敗 webhook → SecurityLog
+- **Task 8**：Week 3 升 required、Week 4 歷史 secret scan
+- **AC9**：`unit-tests` check — 依賴 Story 22-5（Vitest）
+- **Task 10**：main 歷史 secret 全量掃描

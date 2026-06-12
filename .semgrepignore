@@ -1,0 +1,19 @@
+# Semgrep ignore — Story 22-4 AC6 (SDLC-02)
+# 排除非原始碼路徑；false positive 白名單隨 Week 1-2 advisory 觀察補充。
+
+# 建置產物與依賴
+node_modules/
+.next/
+dist/
+build/
+coverage/
+out/
+
+# 測試與自動產生
+*.test.ts
+*.spec.ts
+prisma/migrations/
+
+# 靜態資源與翻譯
+public/
+messages/

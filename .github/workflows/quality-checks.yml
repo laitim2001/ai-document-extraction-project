@@ -1,0 +1,50 @@
+# Quality Checks — type-check / lint / i18n 同步
+# Story 22-4 AC8 (SDLC-08)：CI 強制 type-check + lint + i18n
+# 此 workflow 為 Day 1 required（非 advisory）；對應 npm scripts: type-check / lint / i18n:check
+name: Quality Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run type-check
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+
+  i18n-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run i18n:check

@@ -1,0 +1,19 @@
+# gitleaks 配置 — Story 22-4 AC3 (SDLC-01)
+# 繼承 gitleaks 預設規則集，並加入本專案專屬白名單以排除已知的範例 / 開發模擬器憑證。
+title = "ai-document-extraction-project gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "範例憑證與開發模擬器金鑰（非真實 secret）"
+paths = [
+  '''\.env\.example$''',     # 範例環境變數（含 demo connection string）
+  '''\.gitleaks\.toml$''',   # 本配置檔自身
+  '''\.claude/.*\.md$''',    # Claude 指引文檔含 Azurite 範例金鑰
+  '''.*\.test\.ts$''',
+  '''.*\.spec\.ts$''',
+]
+regexes = [
+  '''devstoreaccount1''',    # Azurite 開發模擬器（Microsoft 公開的固定 well-known 金鑰）
+]

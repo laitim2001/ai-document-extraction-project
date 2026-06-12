@@ -1,0 +1,16 @@
+# CODEOWNERS — Story 22-4 AC11 (Gov-02)
+#
+# 決策（2026-06-12）：先用單一 owner @laitim2001，確保 code owner review 規則即時有效。
+# 規劃的多 team 結構（@data-team / @ai-team / @infra-team / @security-team / @i18n-team）
+# 在 GitHub org 尚未建立；指向不存在的 owner 會讓規則失效，故暫以下方註解保留，
+# 待 org team 建立後再依此細分。
+#
+# 規劃 team 對應（待 GitHub org team 建立後啟用，取代下方單一 owner）：
+#   prisma/schema.prisma                  @data-team
+#   src/services/extraction-v3/           @ai-team
+#   infrastructure/bicep/                 @infra-team
+#   .github/  Dockerfile  next.config.ts  @security-team
+#   messages/                             @i18n-team
+
+# 預設 fallback：所有路徑由 repo owner 審查
+* @laitim2001
