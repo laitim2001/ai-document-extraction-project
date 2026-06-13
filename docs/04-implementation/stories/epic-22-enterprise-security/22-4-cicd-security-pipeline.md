@@ -96,6 +96,8 @@
 
 ### AC4: Dependabot 配置（npm + GitHub Actions ecosystem）
 
+> ⚠️ **2026-06-12 變更（CHANGE-081）**：`.github/dependabot.yml` 已刪除，**版本更新（version updates）自動 PR 已停用**（用戶決策：首次掃描產生 21 個 PR 噪音 + major 升級風險）。**保留** Dependabot security updates（GitHub repo 獨立設定）+ CI 端 npm audit / pip-audit / Trivy 把關。詳見 `claudedocs/4-changes/feature-changes/CHANGE-081-disable-dependabot-version-updates.md`。
+
 **Given** `.github/dependabot.yml` 已配置
 **When** Dependabot 每日掃描
 **Then** 對下列 ecosystem 自動產生 PR：

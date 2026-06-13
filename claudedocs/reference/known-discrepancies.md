@@ -23,6 +23,7 @@
 | 5 | **依賴套件數** | 報告聲稱 89，實際 77 | 以 `package.json` 為準 |
 | 6 | **console.log 總數** | 279 處 / 87 文件 | 逐步替換為 logger |
 | 7 | **Zod 驗證覆蓋率** | 60-65%（~40 個 POST/PATCH/PUT/DELETE 缺驗證） | 新 API 必須加 |
+| 8 | **治理矩陣 SDLC-04 vs Dependabot 實況** | 矩陣／Story 22-4 AC4 原述「Dependabot 自動 PR 啟用」 | **2026-06-12 版本更新已停用**（CHANGE-081），保留 security updates；矩陣與 Story 已加註；npm audit 53 漏洞改手動追蹤 |
 
 ---
 
