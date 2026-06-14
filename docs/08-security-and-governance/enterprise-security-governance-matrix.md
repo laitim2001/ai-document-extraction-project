@@ -290,7 +290,7 @@ Azure Container Apps 內建能力（無額外費用）：
 |----|--------|-----------------|----------|-------------|
 | **SDLC-01** | Secret Scanning | Pre-commit hook + CI 掃描 | 🔴 HIGH | ✅ **gitleaks**（開源）<br>• Pre-commit: husky + gitleaks<br>• CI: gitleaks/gitleaks-action（GitHub Action 免費） |
 | **SDLC-02** | SAST（靜態掃描） | CI 整合 SAST 工具 | 🟡 MED | ✅ **Semgrep CE**（開源）<br>• 規則庫：semgrep --config=auto<br>• GitHub Action: returntocorp/semgrep-action（免費） |
-| **SDLC-04** | SCA（相依套件掃描） | npm audit + Dependabot | 🔴 HIGH | ✅ **npm audit + Dependabot**<br>• `.github/dependabot.yml` 自動 PR<br>• CI: npm audit --audit-level=high<br>⛔ Snyk 不採用（付費） |
+| **SDLC-04** | SCA（相依套件掃描） | npm audit + Dependabot | 🔴 HIGH | ✅ **npm audit + Dependabot security updates + CI 把關**<br>• ⚠️ 2026-06-12（CHANGE-081）：`.github/dependabot.yml` **版本更新已停用**，保留 security updates<br>• CI: npm audit --audit-level=high（持續把關）<br>⛔ Snyk 不採用（付費） |
 | **SDLC-06** | **容器掃描**（升級為 HIGH） | Docker image 掃描 | 🔴 **HIGH**<br>🆕 v1.2 升級 | ✅ **Trivy**（開源，aquasecurity/trivy）<br>• ACR Tasks 整合<br>• GitHub Action: aquasecurity/trivy-action（免費）<br>• 必須在 push 到 ACR 前掃描<br>⛔ Snyk Container 不採用（付費） |
 | **SDLC-08** | CI/CD 守門 | 安全測試失敗則 block deploy | 🔴 HIGH | GitHub Actions branch protection<br>• gitleaks / Trivy / npm audit 失敗 → block merge<br>• 必須 type-check + lint 通過 |
 | **SDLC-09** | **環境隔離**（Container Apps 強化） | dev / staging / prod 完全隔離 | 🔴 HIGH | 🔄 v1.2 強化<br>• 三套獨立 ACA Environment（dev / staging / prod）<br>• 各自獨立 ACR repository / Key Vault / PostgreSQL<br>• Managed Identity 限制 prod 資源僅 prod ACA 可存取<br>• Network: prod ACA 用 internal-only ingress |
