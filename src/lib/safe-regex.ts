@@ -27,7 +27,27 @@
  *   - re2-wasm - Google RE2 的 WebAssembly 綁定（線性時間 regex 引擎）
  */
 
-import { RE2 } from 're2-wasm'
+// 延遲載入 re2-wasm(WASM 引擎)。
+// `import type` 只取型別(編譯後抹除,不觸發模組載入);實際建構子以 lazy require 取得。
+// 原因:re2-wasm 若在模組頂層 import,會在 `next build` 的「collect page data」階段被求值,
+// 導致引用本工具的 route(如 /api/rules/[id]/preview)收集頁面資料時失敗、整個 build 掛掉。
+// re2-wasm 為 CommonJS,可同步 require,故 createSafeRegex 仍維持同步介面;且模組仍隨 bundle,
+// runtime 一定可用(不依賴 webpack external / standalone trace)。
+import type { RE2 } from 're2-wasm'
+
+/** re2-wasm 的 RE2 建構子型別(供 lazy 取得時標註)。 */
+type RE2Constructor = new (pattern: string, flags?: string) => RE2
+
+let _re2Ctor: RE2Constructor | null = null
+
+/** 首次呼叫時才載入 re2-wasm,之後快取。 */
+function loadRE2(): RE2Constructor {
+  if (_re2Ctor === null) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    _re2Ctor = (require('re2-wasm') as { RE2: RE2Constructor }).RE2
+  }
+  return _re2Ctor
+}
 
 /**
  * 使用者正則表達式 pattern 的最大長度。
@@ -100,8 +120,9 @@ export function createSafeRegex(expression: string, flags?: string): RE2 {
 
   const normalizedFlags = normalizeFlags(flags)
 
+  const RE2Ctor = loadRE2()
   try {
-    return new RE2(expression, normalizedFlags)
+    return new RE2Ctor(expression, normalizedFlags)
   } catch (error) {
     // RE2 對 backreference / lookahead / Unicode 不相容語法會 throw SyntaxError。
     throw new SafeRegexError(
