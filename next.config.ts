@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
   // Reference: docs/06-deployment/02-azure-deployment/uat-deployment/04-container-build-push.md (Action 4.2)
   output: 'standalone',
 
+  // re2-wasm（FIX-069 safe-regex 引擎）必須從 node_modules 載入，不可被 webpack bundle。
+  // 其 emscripten glue 以 readFileSync(__dirname + '/re2.wasm') 動態載入 wasm;一旦被 bundle 進
+  // .next/server/chunks，__dirname 變成 chunks 目錄而找不到 re2.wasm（runtime ENOENT）。
+  // 標為 external → require 回 node_modules，__dirname 指向真實套件目錄找到 re2.wasm。
+  // 搭配 Dockerfile 將 node_modules/re2-wasm 複製進 runner（含 build/wasm/re2.wasm）。
+  serverExternalPackages: ['re2-wasm'],
+
   // ESLint configuration for build
   // Note: Warnings are treated as errors in production build by default
   // Setting ignoreDuringBuilds to allow build with warnings (temporary for testing)
