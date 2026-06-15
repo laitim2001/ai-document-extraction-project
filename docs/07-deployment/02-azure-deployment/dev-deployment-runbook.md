@@ -1,7 +1,7 @@
 # Azure DEV 部署 Runbook — 實戰問題與解法
 
 > **建立日期**: 2026-06-15
-> **狀態**: ✅ DEV 環境已成功上線(首次)+ 機密已正規化到 Key Vault(2026-06-15)
+> **狀態**: ✅ DEV 已上線 + 機密正規化到 Key Vault + 本地業務資料已同步(2026-06-15)
 > **適用**: Azure DEV 環境(App Service for Containers,**非**規劃文件假設的 Container Apps)
 > **相關**: [`CHANGE-055`](../../../claudedocs/4-changes/feature-changes/CHANGE-055-azure-deployment-foundation.md)、[`local-vs-azure-differences.md`](../local-vs-azure-differences.md)、[`11-troubleshooting.md`](./uat-deployment/11-troubleshooting.md)(後者為規劃架構,部分不適用)
 
@@ -171,7 +171,7 @@ WEBSITE_DNS_SERVER = 168.63.129.16
 | # | 議題 | 目前狀態 / 暫時繞法 | 正解(infra) |
 |---|------|------------|--------------|
 | 1 | 容器連不到私有 PG(VNet DNS) | 🟡 App Service 設 `WEBSITE_DNS_SERVER=168.63.129.16` | 修好自訂 DNS `10.160.65.4` 從 WebApp 子網路的可達性,或正式確認改用 Azure DNS |
-| 2 | 公司內網解析不到 app 網址 | 🔴 hosts / 手機行動網路 | 內網 DNS `10.160.50.4` 能解析此網址(公開 IP 或私有端點 + 內部紀錄) |
+| 2 | 公司內網解析不到 app 網址 | ✅ **已完成**(2026-06-15 infra 修好內網 DNS,本機/公司網路可直接開 app 網址) | — |
 | 3 | 對外存取暫時開啟 | 🟡 infra 已暫時把 `publicNetworkAccess` 設 `Enabled` | 決定最終是否關回 `Disabled`,並約定驗收訪問路徑 |
 | 4 | 機密管理(Key Vault) | ✅ **已完成** | infra 已授權部署 SP(`Secrets Officer`)+ WebApp MI(`Secrets User`);9 個機密已搬入 KV 並改用 KV 參考(見 §7)。UAT/PROD 沿用同模式即可 |
 
@@ -187,6 +187,35 @@ Warning: Cannot load "@napi-rs/canvas" package ... pdf-to-img/pdfjs-dist
 Warning: Cannot polyfill `DOMMatrix` / `ImageData` / `Path2D`
 ```
 影響:PDF 轉圖/預覽渲染品質可能受限。建議列為後續 FIX(映像補 `@napi-rs/canvas` 或對應 native 依賴)。
+
+---
+
+## 11. DEV 業務資料同步 + schema 漂移 + build 修復(2026-06-15)
+
+把本地 DB 的業務/設定資料同步到 Azure DEV 時連帶處理的事。對應 **PR #37**(分支 `feature/azure-dev-data-import`)。
+
+### 連線限制(關鍵前提)
+本機**無法直連** Azure PG:私有端點只在 VNet 內可達;公開端點(即使 `publicNetworkAccess: Enabled` + 放行 IP)因私有端點存在而 **SSL EOF**(只服務 VNet 內流量)。→ 寫入動作必須**在 VNet 內**執行 = 容器啟動時跑。
+
+### 機制
+- 本機匯出 5 張業務表 → `prisma/dev-snapshot.json`(gitignored;`az acr build` 仍會上傳未追蹤檔 → bake 進映像;`.dockerignore` 排除 `prisma/seed-data`,故快照放 `prisma/` 根層)。
+- `prisma/import-dev-data.js`(只用 `pg`,欄位型別自 `information_schema` 推斷以正確綁定 jsonb/array):owner 使用者 FK 改指目標 admin、指向未匯入表的 FK 設 null、同批 FK(`company_id`/`document_format_id`)保留;冪等(companies 有資料即略過)。
+- `scripts/docker-entrypoint.sh` 加 **gated 非致命**步驟:`RUN_DEV_DATA_IMPORT=true` 才跑(失敗只記 log、不擋啟動)。
+- 涵蓋:companies / document_formats / mapping_rules / prompt_configs / exchange_rates(`reference_numbers` 因跨環境 `region_id` FK 暫不含)。
+
+### Schema 漂移(踩坑 + 解法)
+首次部署新映像時 essential seed 崩潰:`column must_change_password does not exist`(P2022)。根因:**DB schema 是舊映像(`dev-3566a49`)建的、落後 main**(bootstrap 只「空庫才建表」、不遷移),新映像帶 main 較新的 Prisma client → 對不上。
+- 解法:bootstrap 加 gated **`FORCE_SCHEMA_RESET=true`** → `DROP SCHEMA public CASCADE` 重建 → 重套當前映像 init.sql(完整最新 schema)。⚠️ **破壞性、DEV 限定、成功後務必設回 false**(否則下次重啟再清庫)。
+- 🔴 **通案**:只要 DB schema 落後 main,部署任何新映像都會撞;根治為 **CHANGE-056**(migration baseline)。
+
+### re2-wasm build 回歸(連帶修復)
+FIX-069 在 `src/lib/safe-regex.ts` 頂層 `import { RE2 } from 're2-wasm'`,`next build` 收集頁面資料時載入 WASM 失敗 → 凡引用 safe-regex 的 route(如 `/api/rules/[id]/preview`)都讓 build 掛、**擋住所有映像重建**。改成 `import type` + 延遲 `require`(re2-wasm 為 CJS,維持同步)。⚠️ **任何容器重建都依賴此修復**。
+
+### 部署順序(一次到位)
+設 `FORCE_SCHEMA_RESET=true` + `RUN_DEV_DATA_IMPORT=true` → 切換到新映像 tag → 容器:reset schema → bootstrap 122 表 → essential seed → 匯入(實測 **32 / 7 / 31 / 12 / 16**)→ server。驗證 health 200 後,**把兩個旗標都設回 false**。
+
+### 容器重建注意(colorama 陷阱)
+`az acr build` 的本機 log 串流會在 `npx prisma generate` 的 `✔` 字元上以 cp1252 崩潰(**不影響雲端建置**)。改用控制面:輪詢 `az acr task list-runs --registry <acr> --top 1`;取完整 log 用 SAS URL —— `az rest --method post .../registries/<acr>/runs/<id>/listLogSasUrl?api-version=2019-06-01-preview` → curl `logLink`。
 
 ---
 
