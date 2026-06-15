@@ -38,6 +38,17 @@ async function main() {
 
   await client.connect()
   try {
+    // FORCE_SCHEMA_RESET:DEV 專用一次性重設。當 DB schema 落後於映像的 Prisma schema
+    // 時(bootstrap 只「空庫才建表」、不會遷移既有 schema),設此旗標清空 public schema,
+    // 讓下方邏輯重套當前映像的 init.sql(完整最新 schema)。
+    // ⚠️ 破壞性:會 DROP 所有資料表。預設關閉;成功後務必把旗標設回 false 避免下次重啟再清。
+    if (process.env.FORCE_SCHEMA_RESET === 'true') {
+      console.log('[bootstrap] FORCE_SCHEMA_RESET=true -> dropping & recreating public schema (DESTRUCTIVE)')
+      await client.query('drop schema if exists public cascade')
+      await client.query('create schema public')
+      console.log('[bootstrap] public schema reset done')
+    }
+
     const { rows } = await client.query(
       "select count(*)::int as n from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'"
     )
