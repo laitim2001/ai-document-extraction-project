@@ -17,5 +17,12 @@ node prisma/bootstrap-db.js
 echo "[entrypoint] Step 2/3: run essential seed (idempotent)"
 node prisma/dist/seed-prod-essential.js
 
+# (選用)一次性業務資料匯入 —— 由 RUN_DEV_DATA_IMPORT=true 觸發,非致命(失敗不擋啟動)。
+# 冪等:companies 已有資料則略過。匯入成功後可把 RUN_DEV_DATA_IMPORT 移除/設 false。
+if [ "$RUN_DEV_DATA_IMPORT" = "true" ]; then
+  echo "[entrypoint] (optional) importing dev business data"
+  node prisma/import-dev-data.js || echo "[entrypoint] dev data import failed (non-fatal), continuing"
+fi
+
 echo "[entrypoint] Step 3/3: starting Next.js server"
 exec node server.js

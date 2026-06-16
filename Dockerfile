@@ -179,6 +179,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/postgres-array ./nod
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/bcryptjs ./node_modules/bcryptjs
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/dotenv ./node_modules/dotenv
 
+# re2-wasm（FIX-069 safe-regex 引擎）：serverExternalPackages 標為 external 後改從
+# node_modules 載入，必須完整複製整個套件（含 build/wasm/re2.wasm），否則正則功能
+# 執行期 ENOENT '/app/.next/server/chunks/re2.wasm'。
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/re2-wasm ./node_modules/re2-wasm
+
 # 啟動腳本（bootstrap schema → essential seed → 啟動 server）
 COPY --from=builder --chown=nextjs:nodejs /app/scripts/docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh

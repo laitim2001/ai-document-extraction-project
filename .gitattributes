@@ -1,0 +1,5 @@
+# Shell scripts MUST use LF line endings.
+# On Windows checkouts (core.autocrlf=true) git would otherwise convert *.sh to
+# CRLF; a CRLF shebang (#!/bin/sh\r) makes the Linux container exec fail with
+# "not found" (exit 127). This bit the Azure DEV container build — keep LF.
+*.sh text eol=lf
