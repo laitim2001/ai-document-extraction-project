@@ -43,11 +43,20 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 
-import { useUpdateUser, type UserDetail } from '@/hooks/use-users'
+import {
+  useUpdateUser,
+  useResetUserPassword,
+  type UserDetail,
+} from '@/hooks/use-users'
 import { useRoles } from '@/hooks/use-roles'
 import { useCities } from '@/hooks/use-cities'
 import { useToast } from '@/hooks/use-toast'
-import { updateUserSchema, type UpdateUserInput } from '@/lib/validations/user.schema'
+import {
+  updateUserSchema,
+  adminResetPasswordSchema,
+  type UpdateUserInput,
+  type AdminResetPasswordInput,
+} from '@/lib/validations/user.schema'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -115,6 +124,8 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
   // --- Hooks ---
   const { toast } = useToast()
   const { mutate: updateUser, isPending } = useUpdateUser()
+  // CHANGE-082: 重設密碼
+  const { mutate: resetPassword, isPending: isResetting } = useResetUserPassword()
   const { data: roles, isLoading: isLoadingRoles } = useRoles()
   const { data: cities, isLoading: isLoadingCities } = useCities()
 
@@ -125,6 +136,15 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
       name: '',
       roleIds: [],
       cityId: null,
+    },
+  })
+
+  // CHANGE-082: 重設密碼表單（獨立於主編輯表單）
+  const passwordForm = useForm<AdminResetPasswordInput>({
+    resolver: zodResolver(adminResetPasswordSchema),
+    defaultValues: {
+      newPassword: '',
+      confirmPassword: '',
     },
   })
 
@@ -142,8 +162,10 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
         roleIds: currentRoleIds,
         cityId: currentCityId,
       })
+      // CHANGE-082: 開啟時清空密碼表單
+      passwordForm.reset({ newPassword: '', confirmPassword: '' })
     }
-  }, [user, open, form])
+  }, [user, open, form, passwordForm])
 
   // --- Handlers ---
   const onSubmit = (data: UpdateUserInput) => {
@@ -170,11 +192,39 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
     )
   }
 
+  // CHANGE-082: 重設密碼送出
+  const onResetPassword = (data: AdminResetPasswordInput) => {
+    if (!user) return
+
+    resetPassword(
+      { userId: user.id, data },
+      {
+        onSuccess: () => {
+          toast({
+            title: t('users.toast.passwordReset.title'),
+            description: t('users.toast.passwordReset.description', {
+              name: user.name || user.email,
+            }),
+          })
+          passwordForm.reset({ newPassword: '', confirmPassword: '' })
+        },
+        onError: (error) => {
+          toast({
+            variant: 'destructive',
+            title: t('users.toast.passwordResetError.title'),
+            description: error.message,
+          })
+        },
+      }
+    )
+  }
+
   const handleOpenChange = (newOpen: boolean) => {
     onOpenChange(newOpen)
     if (!newOpen) {
       // 關閉時重置表單
       form.reset()
+      passwordForm.reset({ newPassword: '', confirmPassword: '' })
     }
   }
 
@@ -335,6 +385,58 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
             </DialogFooter>
           </form>
         </Form>
+
+        {/* 重設密碼區塊（CHANGE-082；獨立表單，避免巢狀 form） */}
+        <div className="border-t pt-4">
+          <h4 className="text-sm font-medium">{t('users.dialog.resetPasswordTitle')}</h4>
+          <p className="mb-3 text-xs text-muted-foreground">
+            {t('users.dialog.resetPasswordDescription')}
+          </p>
+          <Form {...passwordForm}>
+            <form
+              onSubmit={passwordForm.handleSubmit(onResetPassword)}
+              className="space-y-4"
+            >
+              <FormField
+                control={passwordForm.control}
+                name="newPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('users.form.newPassword')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        autoComplete="new-password"
+                        placeholder={t('users.form.passwordPlaceholder')}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={passwordForm.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('users.form.confirmPassword')}</FormLabel>
+                    <FormControl>
+                      <Input type="password" autoComplete="new-password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end">
+                <Button type="submit" variant="outline" disabled={isResetting}>
+                  {isResetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {t('users.dialog.resetPasswordSubmit')}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   )

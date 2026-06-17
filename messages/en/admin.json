@@ -39,6 +39,10 @@
       "emailDescription": "Must match user's Azure AD account",
       "password": "Password",
       "confirmPassword": "Confirm Password",
+      "passwordOptional": "Password (optional)",
+      "passwordPlaceholder": "At least 8 chars, with upper/lowercase & number",
+      "passwordCreateDescription": "Local accounts only. Leave blank for Azure AD / SSO users.",
+      "newPassword": "New Password",
       "role": "Role",
       "roles": "Roles",
       "rolesDescription": "Select user role permissions (at least one required)",
@@ -61,6 +65,8 @@
       "deleteMessage": "Are you sure you want to delete user \"{name}\"? This action cannot be undone.",
       "resetPasswordTitle": "Reset Password",
       "resetPasswordMessage": "Are you sure you want to reset the password for user \"{name}\"?",
+      "resetPasswordDescription": "Set a new password for this local account. Azure AD accounts are managed by your organization.",
+      "resetPasswordSubmit": "Reset Password",
       "disableTitle": "Confirm Disable Account",
       "disableMessage": "Are you sure you want to disable {name}'s account? After disabling, the user will not be able to login. You can re-enable this account at any time.",
       "cancel": "Cancel",
@@ -137,6 +143,13 @@
       },
       "updateError": {
         "title": "Update Failed"
+      },
+      "passwordReset": {
+        "title": "Password Reset",
+        "description": "{name}'s password has been reset"
+      },
+      "passwordResetError": {
+        "title": "Password Reset Failed"
       },
       "disabled": {
         "title": "User Disabled",

@@ -32,6 +32,8 @@ import type { UserWithRoles, CreateUserFromAzureAD } from '@/types/user'
 import { AppError } from '@/lib/errors'
 import type { CreateUserInput, UpdateUserInput } from '@/lib/validations/user.schema'
 import { logUserChange } from '@/lib/audit/logger'
+// CHANGE-082: Admin 密碼管理
+import { hashPassword, validatePasswordStrength } from '@/lib/password'
 
 // ============================================================
 // 用戶查詢
@@ -546,7 +548,7 @@ export async function createUser(
   input: CreateUserInput,
   createdById: string
 ): Promise<CreatedUserWithRoles> {
-  const { email, name, roleIds, cityId } = input
+  const { email, name, roleIds, cityId, password } = input
 
   // 檢查電子郵件是否已存在
   const emailExists = await checkEmailExists(email)
@@ -559,6 +561,9 @@ export async function createUser(
     )
   }
 
+  // CHANGE-082: 若提供初始密碼則先 hash（僅本地帳號；交易外計算避免拉長交易）
+  const hashedPassword = password ? await hashPassword(password) : undefined
+
   // 使用交易確保資料一致性
   const user = await prisma.$transaction(async (tx) => {
     // 1. 創建用戶
@@ -567,6 +572,8 @@ export async function createUser(
         email: email.toLowerCase(),
         name,
         status: 'ACTIVE',
+        // CHANGE-082: 僅在提供密碼時寫入
+        ...(hashedPassword ? { password: hashedPassword } : {}),
       },
     })
 
@@ -594,6 +601,8 @@ export async function createUser(
           name,
           roleIds,
           cityId,
+          // CHANGE-082: 僅記錄是否設定密碼，絕不記錄密碼明文
+          passwordSet: Boolean(hashedPassword),
         },
       },
     })
@@ -624,6 +633,81 @@ export async function createUser(
   })
 
   return user as CreatedUserWithRoles
+}
+
+// ============================================================
+// Admin 密碼管理（CHANGE-082）
+// ============================================================
+
+/**
+ * Admin 重設用戶密碼
+ *
+ * @description
+ *   由管理員直接為**本地帳號**設定新密碼（不需舊密碼）。
+ *   Azure AD 用戶（azureAdId 存在）不可重設 —— 密碼由 Azure AD 管理。
+ *   審計日誌僅記錄重設動作，**絕不記錄密碼明文**。
+ *
+ * @param userId - 目標用戶 ID
+ * @param newPassword - 新密碼（明文，將以 bcrypt hash）
+ * @param performedBy - 執行操作的管理員 ID（審計用）
+ * @throws AppError 用戶不存在（404）/ Azure AD 帳號（400）/ 密碼強度不足（400）
+ */
+export async function adminResetPassword(
+  userId: string,
+  newPassword: string,
+  performedBy: string
+): Promise<void> {
+  // 1. 取得目標用戶（判斷是否本地帳號）
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, name: true, azureAdId: true },
+  })
+
+  if (!user) {
+    throw new AppError('not_found', 'User Not Found', 404, '用戶不存在')
+  }
+
+  // 2. Azure AD 用戶不可重設（與 /api/v1/users/me/password 一致）
+  if (user.azureAdId) {
+    throw new AppError(
+      'validation_error',
+      'Azure AD Account',
+      400,
+      '此帳號密碼由 Azure AD 管理，無法在此重設'
+    )
+  }
+
+  // 3. 密碼強度驗證
+  const strength = validatePasswordStrength(newPassword)
+  if (!strength.isValid) {
+    throw new AppError(
+      'validation_error',
+      'Weak Password',
+      400,
+      strength.errors[0] || '密碼強度不足'
+    )
+  }
+
+  // 4. hash 並更新
+  const hashedPassword = await hashPassword(newPassword)
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashedPassword },
+  })
+
+  // 5. 審計日誌（不含密碼明文）
+  await prisma.auditLog.create({
+    data: {
+      userId: performedBy,
+      userName: 'System',
+      action: 'UPDATE',
+      resourceType: 'user',
+      resourceId: userId,
+      resourceName: user.name || user.email,
+      description: `重設用戶 ${user.email} 的密碼`,
+      metadata: { passwordReset: true },
+    },
+  })
 }
 
 // ============================================================

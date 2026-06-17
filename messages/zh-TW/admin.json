@@ -39,6 +39,10 @@
       "emailDescription": "必須與用戶的 Azure AD 帳號一致",
       "password": "密碼",
       "confirmPassword": "確認密碼",
+      "passwordOptional": "密碼（選填）",
+      "passwordPlaceholder": "至少 8 碼，含大小寫字母與數字",
+      "passwordCreateDescription": "僅限本地帳號。Azure AD / SSO 用戶請留空。",
+      "newPassword": "新密碼",
       "role": "角色",
       "roles": "角色",
       "rolesDescription": "選擇用戶的角色權限（至少選擇一個）",
@@ -61,6 +65,8 @@
       "deleteMessage": "確定要刪除用戶「{name}」嗎？此操作無法復原。",
       "resetPasswordTitle": "重設密碼",
       "resetPasswordMessage": "確定要重設用戶「{name}」的密碼嗎？",
+      "resetPasswordDescription": "為此本地帳號設定新密碼。Azure AD 帳號由貴組織管理。",
+      "resetPasswordSubmit": "重設密碼",
       "disableTitle": "確認停用帳戶",
       "disableMessage": "您確定要停用 {name} 的帳戶嗎？停用後，該用戶將無法登入系統。您可以隨時重新啟用此帳戶。",
       "cancel": "取消",
@@ -137,6 +143,13 @@
       },
       "updateError": {
         "title": "更新失敗"
+      },
+      "passwordReset": {
+        "title": "密碼已重設",
+        "description": "{name} 的密碼已重設"
+      },
+      "passwordResetError": {
+        "title": "密碼重設失敗"
       },
       "disabled": {
         "title": "用戶已停用",

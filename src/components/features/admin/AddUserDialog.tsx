@@ -128,6 +128,7 @@ export function AddUserDialog({
       name: '',
       roleIds: [],
       cityId: null,
+      password: '',
     },
   })
 
@@ -216,6 +217,30 @@ export function AddUserDialog({
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 初始密碼欄位（可選，CHANGE-082；僅本地帳號） */}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('users.form.passwordOptional')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder={t('users.form.passwordPlaceholder')}
+                      autoComplete="new-password"
+                      {...field}
+                      value={field.value ?? ''}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {t('users.form.passwordCreateDescription')}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

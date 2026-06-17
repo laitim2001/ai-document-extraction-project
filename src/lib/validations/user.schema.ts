@@ -27,6 +27,23 @@
 import { z } from 'zod'
 
 // ============================================================
+// Shared Password Validation (CHANGE-082)
+// ============================================================
+
+/**
+ * 強密碼驗證
+ * @description
+ *   與 `src/lib/password.ts` 的 PASSWORD_REQUIREMENTS 一致：
+ *   至少 8 字元、含至少一個小寫字母、一個大寫字母、一個數字。
+ */
+const strongPasswordSchema = z
+  .string()
+  .min(8, '密碼至少需要 8 個字元')
+  .regex(/[a-z]/, '密碼需包含至少一個小寫字母')
+  .regex(/[A-Z]/, '密碼需包含至少一個大寫字母')
+  .regex(/[0-9]/, '密碼需包含至少一個數字')
+
+// ============================================================
 // Create User Schema
 // ============================================================
 
@@ -67,6 +84,17 @@ export const createUserSchema = z.object({
     .cuid('無效的城市 ID')
     .optional()
     .nullable(),
+
+  /**
+   * 初始密碼（CHANGE-082，可選）
+   * @description
+   *   僅本地帳號適用。留空（未填或空字串）則不設密碼，沿用原 Azure AD SSO 流程
+   *   （服務層以 `if (password)` 判斷，空字串視為不設密碼）。
+   *   有填則必須通過強密碼驗證。
+   *   註：刻意不使用 `.transform`，以免造成 schema 輸入/輸出型別分歧而破壞
+   *   react-hook-form 的 zodResolver 泛型對齊。
+   */
+  password: z.union([strongPasswordSchema, z.literal('')]).optional(),
 })
 
 /** 建立用戶輸入類型 */
@@ -131,6 +159,32 @@ export const updateUserStatusSchema = z.object({
 
 /** 更新用戶狀態輸入類型 */
 export type UpdateUserStatusInput = z.infer<typeof updateUserStatusSchema>
+
+// ============================================================
+// Admin Reset Password Schema (CHANGE-082)
+// ============================================================
+
+/**
+ * Admin 重設用戶密碼 Schema
+ *
+ * @description
+ *   供管理員直接為本地帳號設定新密碼（不需舊密碼）。
+ *   需確認兩次輸入相符；Azure AD 用戶於服務層擋下。
+ */
+export const adminResetPasswordSchema = z
+  .object({
+    /** 新密碼（強密碼驗證） */
+    newPassword: strongPasswordSchema,
+    /** 確認密碼 */
+    confirmPassword: z.string().min(1, '請再次輸入密碼'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: '兩次輸入的密碼不一致',
+    path: ['confirmPassword'],
+  })
+
+/** Admin 重設密碼輸入類型 */
+export type AdminResetPasswordInput = z.infer<typeof adminResetPasswordSchema>
 
 // ============================================================
 // Email Check Schema
