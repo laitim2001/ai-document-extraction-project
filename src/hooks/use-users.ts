@@ -36,7 +36,11 @@
 
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import type { UserStatus } from '@prisma/client'
-import type { CreateUserInput, UpdateUserInput } from '@/lib/validations/user.schema'
+import type {
+  CreateUserInput,
+  UpdateUserInput,
+  AdminResetPasswordInput,
+} from '@/lib/validations/user.schema'
 
 // ============================================================
 // Types
@@ -548,5 +552,81 @@ export function useUpdateUserStatus() {
       queryClient.invalidateQueries({ queryKey: ['users'] })
       queryClient.invalidateQueries({ queryKey: ['user', variables.userId] })
     },
+  })
+}
+
+// ============================================================
+// Reset User Password Mutation (CHANGE-082)
+// ============================================================
+
+/**
+ * 重設密碼 API 響應
+ */
+interface ResetPasswordApiResponse {
+  success: boolean
+  data?: { message: string }
+  error?: {
+    type: string
+    title: string
+    status: number
+    detail: string
+    errors?: { field: string; message: string }[]
+  }
+}
+
+/**
+ * Admin 重設用戶密碼輸入（包含用戶 ID）
+ */
+interface ResetPasswordRequestInput {
+  /** 目標用戶 ID */
+  userId: string
+  /** 重設密碼資料 */
+  data: AdminResetPasswordInput
+}
+
+/**
+ * Admin 重設用戶密碼 API 呼叫
+ * @param input - 重設密碼輸入
+ * @returns API 響應
+ */
+async function resetUserPasswordRequest(
+  input: ResetPasswordRequestInput
+): Promise<ResetPasswordApiResponse> {
+  const response = await fetch(`/api/admin/users/${input.userId}/password`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input.data),
+  })
+
+  const json: ResetPasswordApiResponse = await response.json()
+
+  if (!response.ok) {
+    throw new Error(json.error?.detail || '重設密碼失敗')
+  }
+
+  return json
+}
+
+/**
+ * Admin 重設用戶密碼 Mutation Hook
+ *
+ * @description
+ *   使用 React Query 的 useMutation 管理管理員重設密碼操作。
+ *   僅本地帳號適用；Azure AD 用戶由後端擋下並回傳錯誤。
+ *
+ * @returns React Query Mutation 結果
+ *
+ * @since CHANGE-082
+ *
+ * @example
+ *   const { mutate: resetPassword, isPending } = useResetUserPassword()
+ *   resetPassword(
+ *     { userId: 'user-id', data: { newPassword: 'New1234', confirmPassword: 'New1234' } },
+ *     { onSuccess: () => toast({ title: 'Password reset' }) }
+ *   )
+ */
+export function useResetUserPassword() {
+  return useMutation({
+    mutationFn: resetUserPasswordRequest,
   })
 }
