@@ -78,14 +78,22 @@
 | pdf-parse | 降級為監控；若 admin 歷史資料批次上傳實測 ENOENT，再補 `COPY pdf-parse` |
 | pdfjs worker（CDN） | 封閉網路下瀏覽器 PDF 預覽從 unpkg 載 worker 可能失敗；後續改本地 `public/` |
 
+## 部署紀錄
+
+| 項目 | 值 |
+|------|-----|
+| 映像 tag | `dev-fix081-20260617143758` |
+| ACR run | `cke`（Succeeded，55 步，較 FIX-080 +2 COPY） |
+| 部署 | `az webapp config container set` → 新容器 uptime 33.9s、`database: connected` |
+
 ## 測試驗證
 
-- [ ] 映像重建成功（`az acr build` Step 總數較 FIX-080 多，pdfkit/openapi COPY + fonts 安裝生效）
-- [ ] 部署後新容器接手（`/api/health` uptime 歸零）、`database: connected`
-- [ ] PDF 報表匯出（audit / monthly-cost / regional）在 Azure 成功產檔、不 `ENOENT Helvetica.afm`（pdfkit）
-- [ ] `/api/openapi`（及 `/api/docs/version`、`/api/docs/error-codes`）正常回傳 spec、不拋 `not found`（openapi）
-- [ ] 中文 PDF 上傳 → OCR 文字辨識品質正常（CJK 字型；pdfkit 中文報表仍待技術債處理）
-- [ ] 既有上傳→OCR 流程未回歸（pdf-to-img / canvas / re2.wasm 仍正常）
+- [x] 映像重建成功（cloud run `cke` Succeeded；55 步含 `COPY pdfkit`/`COPY openapi` + `fonts-noto-cjk`。本機 `az acr build` exit 1 為 cp1252 串流崩潰假失敗，已用 `az acr task show-run` 確認雲端 Succeeded）
+- [x] 部署後新容器接手（tag `dev-fix081-…`、`uptime≈34s`）、`/api/health` `database: connected`（無啟動回歸）
+- [x] **openapi 修復（live）**：`/api/openapi` + `/api/docs/version` 經 `--resolve` 實測回 `200` + `success:true` + spec（修復前應為 500 `OpenAPI spec file not found`）
+- [~] **pdfkit**：映像已含 `js/data/*.afm`（`COPY pdfkit` 步驟成功＝建置 Succeeded 的前提；同類「runtime 讀 COPY 檔」的 openapi 已 live 證實生效）。**待**在 Azure 觸發一次 PDF 報表匯出做 E2E 確認（需登入，建議用戶端觸發）
+- [ ] 中文 PDF OCR 品質（CJK 字型；待實測。⚠️ pdfkit 中文報表仍須 registerFont TTF，見上方技術債）
+- [~] 既有上傳→OCR 未回歸：容器健康 + `database: connected` 確認無啟動回歸；`pdf-to-img`/`canvas`/`re2.wasm` 為既有 COPY 未改動。完整上傳→OCR 待實測
 
 ---
 
