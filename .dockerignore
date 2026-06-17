@@ -70,7 +70,9 @@ test-results
 docs
 claudedocs
 claudedocs_sample
-openapi
+# openapi — 不可排除：openapi/spec.yaml 需在 runtime 由 openapi-loader.service 讀取
+# （/api/openapi、/api/docs/version、/api/docs/error-codes 經 process.cwd() 解析）。FIX-081
+# 須留在 build context 才能被 builder 的 `COPY . .` 帶入、再 COPY 至 runner。
 *.md
 LICENSE
 AI-ASSISTANT-GUIDE.md

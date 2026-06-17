@@ -116,9 +116,15 @@ RUN node node_modules/typescript/bin/tsc prisma/seed-prod-essential.ts \
 FROM node:26-slim AS runner
 
 # Runtime dependencies（Prisma query engine 需要 OpenSSL）
+# fonts-noto-cjk（FIX-081）：node:26-slim 不含中日韓字型。pdf-to-img / pdfjs 渲染「未內嵌
+# CJK 字型」的 PDF 頁時，會向系統 fontconfig 取代用字型；缺字型則中文呈空白/方框，連帶
+# 拉低 OCR 文字辨識品質（APAC freight invoice 多含中文）。
+# ⚠️ 此為 OS 級字型，只影響 canvas/pdfjs 類渲染；pdfkit 標準字型報表的中文「不會」因此
+#    生效，仍須在程式碼 registerFont 一個 CJK TTF（屬尚未處理的技術債，見 FIX-081 文末）。
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     openssl \
+    fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -197,6 +203,19 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@napi-rs/canvas-linu
 # 'Cannot find module pdfjs-dist/package.json' → OCR Failed。完整複製整個套件（含
 # node_modules/pdf-to-img/node_modules/pdfjs-dist）。
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pdf-to-img ./node_modules/pdf-to-img
+
+# pdfkit（FIX-081）：PDF 報表（audit-report / monthly-cost-report / regional 等）用 pdfkit
+# 產生。pdfkit@0.17 於 runtime 以 fs.readFileSync(__dirname + '/data/<Font>.afm') 讀取標準
+# 字型 metric 檔——屬「計算路徑的 fs 讀取」非靜態 import → Next standalone trace 只搬 JS、
+# 漏掉 js/data/*.afm → 產 PDF 時 ENOENT '.../pdfkit/js/data/Helvetica.afm'。整包複製
+# （含 js/data 全部 .afm + sRGB .icc）。
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pdfkit ./node_modules/pdfkit
+
+# openapi spec（FIX-081）：openapi-loader.service 於 runtime 讀 process.cwd()/openapi/spec.yaml
+# 供 /api/openapi、/api/docs/version、/api/docs/error-codes 使用。spec.yaml 不是被 trace 的
+# 程式依賴，原 .dockerignore 也排除了 openapi/（本次已解除）→ 須顯式 COPY 至 runner WORKDIR
+# (/app)，否則該 3 個 route 拋 'OpenAPI spec file not found'。
+COPY --from=builder --chown=nextjs:nodejs /app/openapi ./openapi
 
 # 啟動腳本（bootstrap schema → essential seed → 啟動 server）
 COPY --from=builder --chown=nextjs:nodejs /app/scripts/docker-entrypoint.sh ./docker-entrypoint.sh
