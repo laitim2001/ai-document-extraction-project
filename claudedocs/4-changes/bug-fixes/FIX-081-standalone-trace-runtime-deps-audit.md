@@ -4,7 +4,7 @@
 > **發現方式**: FIX-080 收尾後，以「本地正常、Azure standalone 映像 runtime 才爆」為主題對 codebase 全面審計（含 2 個 Explore agent + 人工驗證過濾）
 > **影響頁面/功能**: 各 runtime 動態載入 native/資產的功能（PDF 報表、PDF 文本備援、OpenAPI 文檔頁、中文 PDF 渲染品質等）
 > **優先級**: 中（核心上傳→OCR 已由 FIX-078/080 修好；本單聚焦**尚未觸發/未驗證**的同類風險，主動補強）
-> **狀態**: 🚧 待處理（已編目；實作需逐項驗證 + Dockerfile 改動 + 重建映像，建議集中一次處理）
+> **狀態**: ✅ 已實作（主要三項：pdfkit / openapi / CJK 字型 — Dockerfile + .dockerignore）；🚧 餘 pdf-parse、pdfjs worker 列為監控/後續
 
 ---
 
@@ -20,20 +20,20 @@
 
 > agent 初報有過度宣稱，下表已用「實測事實」修正（例：`pg`/i18n 實測可用 → 非缺口）。
 
-### 🔴 高風險（很可能真壞，但**尚未在 Azure 觸發過**，需驗證）
+### 🔴 高風險（pdfkit 已用程式碼確認並修復；pdf-parse 經複查降級）
 
-| 項目 | 位置 | 為何危險 | 驗證/修法 |
+| 項目 | 位置 | 為何危險 | 結論 / 處置 |
 |------|------|---------|----------|
-| **pdfkit** | `src/lib/reports/pdf-generator.ts`、`audit-report.service.ts`、`monthly-cost-report.service.ts` | pdfkit runtime 讀自帶的 `.afm` 字型 metric 檔（fs 讀套件內資產）→ standalone trace 易漏 → 產 PDF 報表時 `ENOENT` | 在 Azure 觸發一次 PDF 報表匯出；若爆 → Dockerfile `COPY .../node_modules/pdfkit` |
-| **pdf-parse** | `src/services/file-detection.service.ts:176` `require('pdf-parse/lib/pdf-parse')` | require 套件**內部路徑**（非套件入口）→ trace 易漏該內部檔；pdf-parse 亦有讀檔習性 | 觸發 file-detection 走 pdf-parse 分支；若爆 → `COPY .../node_modules/pdf-parse`（或改用已有的 `unpdf`） |
+| **pdfkit** ✅ 已修 | `src/lib/reports/pdf-generator.ts`、`audit-report.service.ts`、`monthly-cost-report.service.ts` | **程式碼確認**：pdfkit@0.17.2 `js/pdfkit.es5.js` 以 `fs.readFileSync(__dirname + '/data/Helvetica.afm','utf8')` 讀標準字型 metric（計算路徑 fs 讀取，非靜態 import）→ standalone trace 只搬 JS、漏 `js/data/*.afm` → 產 PDF 報表時 `ENOENT`。全專案 `.font()` 全用標準字型、**無任何 registerFont** → 所有 pdfkit 報表皆受影響 | **本次 Dockerfile `COPY .../node_modules/pdfkit`（整包含 data）** |
+| **pdf-parse** 🟡 降級監控 | `src/services/file-detection.service.ts:176` `require('pdf-parse/lib/pdf-parse')` | **複查後降級**：此為**字面量字串** require（非變數動態），Next 能靜態 trace；且刻意 require `lib/pdf-parse`（非 index.js，避開測試檔讀取坑），內部對 pdfjs 亦為靜態 require → 連帶可被 trace。僅在 **admin 歷史資料批次上傳**（`/api/admin/historical-data/upload`）會走到，非主上傳流程 | **本次不修**；若日後該分支實測 ENOENT 再 `COPY pdf-parse` |
 
 ### 🟡 中風險（功能受限/品質問題，非全掛）
 
-| 項目 | 位置 | 影響 | 修法 |
+| 項目 | 位置 | 影響 | 處置 |
 |------|------|------|------|
-| **OpenAPI spec** | `src/services/openapi-loader.service.ts` 讀 `process.cwd()/openapi/spec.yaml` | `openapi/` 目錄未在 Dockerfile COPY → `/docs` OpenAPI 頁可能讀不到 spec | Dockerfile `COPY .../openapi ./openapi`，或改 build 期 import |
-| **CJK 字型** | `node:26-slim` base | slim 無中日韓字型 → `@napi-rs/canvas` 渲染中文 PDF→圖可能空白方框（影響 OCR 品質）、pdfkit 中文報表亂碼 | Dockerfile runner `apt-get install -y fonts-noto-cjk` |
-| **pdfjs worker（CDN）** | `PDFViewer.tsx` / `PdfViewer.tsx` 從 `unpkg.com` 載 `pdf.worker` | 瀏覽器端 PDF 預覽依賴 unpkg 可達；封閉網路/proxy 擋 unpkg → 預覽失敗 | 改本地 `public/` 放 worker，`workerSrc` 指本地 |
+| **OpenAPI spec** ✅ 已修 | `src/services/openapi-loader.service.ts:92` 讀 `process.cwd()/openapi/spec.yaml`（程式碼確認；ENOENT 時拋 `OpenAPI spec file not found`），被 `/api/openapi`、`/api/docs/version`、`/api/docs/error-codes` 使用 | `openapi/` 原被 `.dockerignore` 排除 → builder 無此目錄 → 3 個 route 失敗 | **本次**：`.dockerignore` 解除排除 + Dockerfile `COPY .../openapi ./openapi` |
+| **CJK 字型** 🟡 部分修 | `node:26-slim` base | slim 無中日韓字型 → `@napi-rs/canvas`/pdfjs 渲染「未內嵌 CJK 字型」的 PDF→圖呈空白方框（影響 OCR 品質） | **本次**：runner `apt-get install fonts-noto-cjk`。⚠️ **僅解 canvas/pdfjs 渲染**；pdfkit 標準字型報表的中文需另在程式碼 `registerFont(CJK TTF)` 才生效（見文末技術債） |
+| **pdfjs worker（CDN）** 🚧 未修 | `PDFViewer.tsx` / `PdfViewer.tsx` 從 `unpkg.com` 載 `pdf.worker` | 瀏覽器端 PDF 預覽依賴 unpkg 可達；封閉網路/proxy 擋 unpkg → 預覽失敗 | 後續：改本地 `public/` 放 worker，`workerSrc` 指本地 |
 
 ### 🟢 低風險 / 非阻塞 / 已驗證可用（不需動作）
 
@@ -58,13 +58,42 @@
 
 ---
 
-## 測試驗證（待實作逐項勾選）
+## 本次實作（2026-06-17）
 
-- [ ] PDF 報表匯出（audit / monthly / regional）在 Azure 成功產檔（pdfkit）
-- [ ] file-detection 走 pdf-parse 分支不 ENOENT（pdf-parse）
-- [ ] `/docs` OpenAPI 頁正常載入 spec（openapi）
-- [ ] 中文 PDF 上傳 → OCR 文字正確、PDF 報表中文不亂碼（CJK 字型）
-- [ ] （封閉網路）瀏覽器 PDF 預覽 worker 載入正常（pdfjs CDN）
+集中處理已用程式碼確認的三項（不再「憑空 COPY」，pdf-parse 經複查確認可 trace 故不納入）。皆為**純 Dockerfile / .dockerignore 改動，無程式碼變更**。
+
+### 修改的檔案
+
+| 檔案 | 修改內容 |
+|------|----------|
+| `Dockerfile`（runner apt-get） | 加 `fonts-noto-cjk`（CJK 渲染品質） |
+| `Dockerfile`（runner COPY） | 加 `COPY .../node_modules/pdfkit`（整包含 `js/data/*.afm`）+ `COPY .../openapi ./openapi` |
+| `.dockerignore` | 解除對 `openapi` 的排除（否則 builder `COPY . .` 不含 spec.yaml，runner 無從 COPY） |
+
+### ⚠️ 技術債務（本次未解，需後續 FIX）
+
+| 項目 | 說明 |
+|------|------|
+| pdfkit 中文報表 | 安裝 OS CJK 字型**不會**讓 pdfkit 標準字型（Helvetica.afm）支援中文。報表內中文（如城市名）仍會缺字/方框。治本：程式碼 `doc.registerFont('cjk', '<TTF path>')` 並改 `.font('cjk')`，且 TTF 須一併入映像。建議另開 FIX 處理 |
+| pdf-parse | 降級為監控；若 admin 歷史資料批次上傳實測 ENOENT，再補 `COPY pdf-parse` |
+| pdfjs worker（CDN） | 封閉網路下瀏覽器 PDF 預覽從 unpkg 載 worker 可能失敗；後續改本地 `public/` |
+
+## 部署紀錄
+
+| 項目 | 值 |
+|------|-----|
+| 映像 tag | `dev-fix081-20260617143758` |
+| ACR run | `cke`（Succeeded，55 步，較 FIX-080 +2 COPY） |
+| 部署 | `az webapp config container set` → 新容器 uptime 33.9s、`database: connected` |
+
+## 測試驗證
+
+- [x] 映像重建成功（cloud run `cke` Succeeded；55 步含 `COPY pdfkit`/`COPY openapi` + `fonts-noto-cjk`。本機 `az acr build` exit 1 為 cp1252 串流崩潰假失敗，已用 `az acr task show-run` 確認雲端 Succeeded）
+- [x] 部署後新容器接手（tag `dev-fix081-…`、`uptime≈34s`）、`/api/health` `database: connected`（無啟動回歸）
+- [x] **openapi 修復（live）**：`/api/openapi` + `/api/docs/version` 經 `--resolve` 實測回 `200` + `success:true` + spec（修復前應為 500 `OpenAPI spec file not found`）
+- [~] **pdfkit**：映像已含 `js/data/*.afm`（`COPY pdfkit` 步驟成功＝建置 Succeeded 的前提；同類「runtime 讀 COPY 檔」的 openapi 已 live 證實生效）。**待**在 Azure 觸發一次 PDF 報表匯出做 E2E 確認（需登入，建議用戶端觸發）
+- [ ] 中文 PDF OCR 品質（CJK 字型；待實測。⚠️ pdfkit 中文報表仍須 registerFont TTF，見上方技術債）
+- [~] 既有上傳→OCR 未回歸：容器健康 + `database: connected` 確認無啟動回歸；`pdf-to-img`/`canvas`/`re2.wasm` 為既有 COPY 未改動。完整上傳→OCR 待實測
 
 ---
 
