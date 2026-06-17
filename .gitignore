@@ -52,6 +52,9 @@ processingSteps
 uploads/
 exports/
 
+# FIX-082: pdfjs worker 由 prebuild/predev 從 node_modules 複製產生（版本跟著 pdfjs-dist），不入 git
+public/pdfjs/
+
 # Test artifacts
 test-page-*.png
 *.test.xlsx

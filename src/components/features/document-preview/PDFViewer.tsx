@@ -73,8 +73,9 @@ function initializePdfWorker(): void {
 
   try {
     // react-pdf v9 + pdfjs-dist v4 的 worker 配置
-    // 使用 CDN 確保版本匹配
-    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
+    // FIX-082：改由本站 public/ 提供（移除對 unpkg CDN 的依賴，修復封閉網路下 PDF 預覽失敗）。
+    // 一般版 worker 由 prebuild 從 node_modules 複製到 public/pdfjs/；版本與 pdfjs.version 一致。
+    pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs'
     workerInitialized = true
     console.log('[PDFViewer] Worker initialized with version:', pdfjs.version)
   } catch (error) {

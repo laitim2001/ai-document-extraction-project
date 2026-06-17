@@ -26,8 +26,10 @@ import { cn } from '@/lib/utils'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 
-// 設置 PDF.js worker (使用 legacy 版本以兼容 Next.js 15)
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`
+// 設置 PDF.js worker：改由本站 public/ 提供（FIX-082，移除對 unpkg CDN 的依賴，
+// 修復封閉網路下 PDF 預覽失敗）。legacy 版 worker 由 prebuild 從 node_modules 複製到
+// public/pdfjs/legacy/；版本與 pdfjs.version 一致（取自同一份 pdfjs-dist）。
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/legacy/pdf.worker.min.mjs'
 
 // ============================================================
 // Types
