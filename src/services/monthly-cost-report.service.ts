@@ -28,7 +28,7 @@
  */
 
 import { prisma } from '@/lib/prisma'
-import { uploadBufferToBlob, generateSignedUrl } from '@/lib/azure-blob'
+import { uploadBufferToBlob, downloadBlob } from '@/lib/azure-blob'
 import type {
   MonthlyReportData,
   MonthlyReportRecord,
@@ -844,12 +844,17 @@ export class MonthlyCostReportService {
   }
 
   /**
-   * 獲取下載連結
+   * 獲取報表檔案 buffer（FIX-085：改 server-side 串流，不再回傳 blob SAS URL）
+   *
+   * @description
+   *   Storage 帳號為私有端點（公開存取停用），瀏覽器無法直連 blob SAS URL
+   *   （DNS_PROBE_FINISHED_NXDOMAIN）。改由 app 經私有端點 downloadBlob 取得 buffer，
+   *   再由 route 串流回客戶端（與 documents/[id]/blob 既有 pattern 一致）。
    */
-  async getDownloadUrl(
+  async getReportFile(
     reportId: string,
     format: ReportFormat
-  ): Promise<{ url: string; fileName: string; expiresAt: Date } | null> {
+  ): Promise<{ buffer: Buffer; fileName: string; contentType: string } | null> {
     const report = await prisma.monthlyReport.findUnique({
       where: { id: reportId },
     })
@@ -859,17 +864,15 @@ export class MonthlyCostReportService {
     const path = format === 'excel' ? report.excelPath : report.pdfPath
     if (!path) return null
 
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + 1)
-
+    const buffer = await downloadBlob(path)
     const month = this.formatMonth(report.reportMonth)
     const fileName = `monthly-cost-${month}.${format === 'excel' ? 'xlsx' : 'pdf'}`
+    const contentType =
+      format === 'excel'
+        ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        : 'application/pdf'
 
-    return {
-      url: await generateSignedUrl(path, expiresAt),
-      fileName,
-      expiresAt,
-    }
+    return { buffer, fileName, contentType }
   }
 
   // ============================================================

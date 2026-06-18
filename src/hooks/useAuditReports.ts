@@ -43,10 +43,8 @@ interface ListParams {
 }
 
 interface DownloadResponse {
-  downloadUrl: string
+  blob: Blob
   fileName: string
-  fileSize: number
-  checksum: string
 }
 
 // ============================================================
@@ -98,15 +96,26 @@ async function createReportJob(
   return data.data
 }
 
+function filenameFromContentDisposition(header: string | null): string | null {
+  if (!header) return null
+  const match = /filename\*?=(?:UTF-8'')?["']?([^"';]+)/i.exec(header)
+  return match ? decodeURIComponent(match[1]) : null
+}
+
 async function downloadReport(jobId: string): Promise<DownloadResponse> {
+  // FIX-085: server-side 串流下載——fetch 取檔案 bytes（app 經私有端點抓 blob），
+  // 不再導向瀏覽器搆不到的 blob SAS URL。
   const response = await fetch(`/api/audit/reports/${jobId}/download`)
   if (!response.ok) {
-    const error = await response.json()
+    const error = await response.json().catch(() => ({}))
     throw new Error(error.detail || 'Failed to download report')
   }
 
-  const data = await response.json()
-  return data.data
+  const blob = await response.blob()
+  const fileName =
+    filenameFromContentDisposition(response.headers.get('Content-Disposition')) ||
+    `audit-report-${jobId}`
+  return { blob, fileName }
 }
 
 async function verifyReport(
@@ -237,12 +246,16 @@ export function useDownloadAuditReport(
 ) {
   return useMutation({
     mutationFn: downloadReport,
-    onSuccess: (data) => {
-      // 自動開啟下載連結
+    onSuccess: ({ blob, fileName }) => {
+      // FIX-085: 用 object URL 觸發下載（檔案來自 server-side 串流，非 blob SAS URL）
+      const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
-      link.href = data.downloadUrl
-      link.download = data.fileName
+      link.href = url
+      link.download = fileName
+      document.body.appendChild(link)
       link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     },
     ...options,
   })
