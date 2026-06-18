@@ -34,7 +34,7 @@ import ExcelJS from 'exceljs'
 import PDFDocument from 'pdfkit'
 import { createHash } from 'crypto'
 import { prisma } from '@/lib/prisma'
-import { uploadBufferToBlob, generateSignedUrl } from '@/lib/azure-blob'
+import { uploadBufferToBlob, downloadBlob } from '@/lib/azure-blob'
 import type {
   AuditReportType,
   ReportOutputFormat,
@@ -267,7 +267,7 @@ export class AuditReportService {
     userId: string,
     ipAddress?: string,
     userAgent?: string
-  ): Promise<{ url: string; fileName: string; fileSize: number; checksum: string }> {
+  ): Promise<{ buffer: Buffer; fileName: string; contentType: string; fileSize: number; checksum: string }> {
     const job = await prisma.auditReportJob.findUniqueOrThrow({
       where: { id: jobId },
     })
@@ -294,9 +294,9 @@ export class AuditReportService {
       },
     })
 
-    // 生成簽名 URL（24 小時有效）
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
-    const url = await generateSignedUrl(job.fileUrl, expiresAt)
+    // FIX-085: 改 server-side 串流——Storage 私有端點，瀏覽器無法直連 blob SAS URL。
+    // app 經私有端點 downloadBlob 取得 buffer，由 route 串流回客戶端。
+    const buffer = await downloadBlob(job.fileUrl)
 
     const extensionMap: Record<ReportOutputFormat, string> = {
       EXCEL: 'xlsx',
@@ -304,14 +304,21 @@ export class AuditReportService {
       CSV: 'csv',
       JSON: 'json',
     }
+    const contentTypeMap: Record<ReportOutputFormat, string> = {
+      EXCEL: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      PDF: 'application/pdf',
+      CSV: 'text/csv',
+      JSON: 'application/json',
+    }
     const extension = extensionMap[job.outputFormat]
     const safeTitle = job.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_-]/g, '_')
     const dateStr = job.dateFrom.toISOString().split('T')[0]
     const fileName = `${safeTitle}_${dateStr}.${extension}`
 
     return {
-      url,
+      buffer,
       fileName,
+      contentType: contentTypeMap[job.outputFormat],
       fileSize: Number(job.fileSize || 0),
       checksum: job.checksum || '',
     }

@@ -124,14 +124,17 @@ export async function GET(
       userAgent
     )
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        downloadUrl: result.url,
-        fileName: result.fileName,
-        fileSize: result.fileSize,
-        checksum: result.checksum,
-      }
+    // FIX-085: server-side 串流檔案 bytes。Storage 私有端點，瀏覽器無法直連 blob SAS URL，
+    // 改由 app 經私有端點下載後串流（稽核紀錄已在 downloadReport 內寫入）。
+    return new NextResponse(new Uint8Array(result.buffer), {
+      status: 200,
+      headers: {
+        'Content-Type': result.contentType,
+        'Content-Length': String(result.buffer.length),
+        'Content-Disposition': `attachment; filename="${encodeURIComponent(result.fileName)}"`,
+        'X-Report-Checksum': result.checksum,
+        'Cache-Control': 'private, no-store',
+      },
     })
   } catch (error) {
     // 檢查具體錯誤類型

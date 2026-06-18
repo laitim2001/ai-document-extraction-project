@@ -30,7 +30,6 @@ import { useCallback, useMemo } from 'react'
 import type {
   MonthlyReportListResponse,
   MonthlyReportGenerateResponse,
-  ReportDownloadResponse,
   ReportFormat,
 } from '@/types/monthly-report'
 
@@ -52,6 +51,15 @@ export const monthlyReportQueryKeys = {
 
 /** 資料快取時間（毫秒） */
 const STALE_TIME_MS = 5 * 60 * 1000 // 5 分鐘
+
+/**
+ * 從 Content-Disposition 標頭解析檔名（FIX-085：server-side 串流下載用）
+ */
+function filenameFromContentDisposition(header: string | null): string | null {
+  if (!header) return null
+  const match = /filename\*?=(?:UTF-8'')?["']?([^"';]+)/i.exec(header)
+  return match ? decodeURIComponent(match[1]) : null
+}
 
 // ============================================================
 // Hooks
@@ -170,32 +178,37 @@ export function useGenerateMonthlyReport() {
  */
 export function useDownloadMonthlyReport() {
   return useMutation<
-    ReportDownloadResponse,
+    { blob: Blob; fileName: string },
     Error,
     { reportId: string; format: ReportFormat }
   >({
     mutationFn: async ({ reportId, format }) => {
+      // FIX-085: server-side 串流下載——fetch 取檔案 bytes（app 經私有端點抓 blob），
+      // 不再導向瀏覽器搆不到的 blob SAS URL。
       const response = await fetch(
         `/api/reports/monthly-cost/${reportId}/download?format=${format}`
       )
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to get download URL')
+        const error = await response.json().catch(() => ({}))
+        throw new Error(error.error || 'Failed to download report')
       }
 
-      return response.json()
+      const blob = await response.blob()
+      const fileName =
+        filenameFromContentDisposition(response.headers.get('Content-Disposition')) ||
+        `monthly-cost.${format === 'excel' ? 'xlsx' : 'pdf'}`
+      return { blob, fileName }
     },
-    onSuccess: (data) => {
-      // 自動觸發下載
-      if (data.success && data.data?.downloadUrl) {
-        const link = document.createElement('a')
-        link.href = data.data.downloadUrl
-        link.download = data.data.fileName
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-      }
+    onSuccess: ({ blob, fileName }) => {
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     },
   })
 }
