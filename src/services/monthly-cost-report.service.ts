@@ -640,6 +640,9 @@ export class MonthlyCostReportService {
       const doc = new PDFDocument({
         margin: 50,
         size: 'A4',
+        // FIX-083: 必須開啟 bufferPages，addPdfFooter 才能 switchToPage 回頭為每頁加頁尾。
+        // 否則頁面隨產隨 flush，bufferedPageRange 只剩當前頁 → switchToPage(0) out of bounds。
+        bufferPages: true,
       })
 
       doc.on('data', (chunk: Buffer) => chunks.push(chunk))
