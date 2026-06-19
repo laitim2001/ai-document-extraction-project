@@ -28,7 +28,7 @@
  */
 
 import { prisma } from '@/lib/prisma'
-import { uploadBufferToBlob, generateSignedUrl } from '@/lib/azure-blob'
+import { uploadBufferToBlob, downloadBlob } from '@/lib/azure-blob'
 import type {
   MonthlyReportData,
   MonthlyReportRecord,
@@ -400,11 +400,12 @@ export class MonthlyCostReportService {
   private async getPreviousMonthStats(
     currentMonthStart: Date
   ): Promise<PreviousMonthStats> {
+    // FIX-084: 全程 UTC，與 parseMonth 的 UTC startDate 一致，避免前月比較視窗 off-by-one
     const prevStart = new Date(currentMonthStart)
-    prevStart.setMonth(prevStart.getMonth() - 1)
+    prevStart.setUTCMonth(prevStart.getUTCMonth() - 1)
     const prevEnd = new Date(currentMonthStart)
-    prevEnd.setDate(prevEnd.getDate() - 1)
-    prevEnd.setHours(23, 59, 59, 999)
+    prevEnd.setUTCDate(prevEnd.getUTCDate() - 1)
+    prevEnd.setUTCHours(23, 59, 59, 999)
 
     const cityStats = await this.getCityStats(prevStart, prevEnd)
     const totalCost = cityStats.reduce((sum, c) => sum + c.totalCost, 0)
@@ -640,6 +641,9 @@ export class MonthlyCostReportService {
       const doc = new PDFDocument({
         margin: 50,
         size: 'A4',
+        // FIX-083: 必須開啟 bufferPages，addPdfFooter 才能 switchToPage 回頭為每頁加頁尾。
+        // 否則頁面隨產隨 flush，bufferedPageRange 只剩當前頁 → switchToPage(0) out of bounds。
+        bufferPages: true,
       })
 
       doc.on('data', (chunk: Buffer) => chunks.push(chunk))
@@ -840,12 +844,17 @@ export class MonthlyCostReportService {
   }
 
   /**
-   * 獲取下載連結
+   * 獲取報表檔案 buffer（FIX-085：改 server-side 串流，不再回傳 blob SAS URL）
+   *
+   * @description
+   *   Storage 帳號為私有端點（公開存取停用），瀏覽器無法直連 blob SAS URL
+   *   （DNS_PROBE_FINISHED_NXDOMAIN）。改由 app 經私有端點 downloadBlob 取得 buffer，
+   *   再由 route 串流回客戶端（與 documents/[id]/blob 既有 pattern 一致）。
    */
-  async getDownloadUrl(
+  async getReportFile(
     reportId: string,
     format: ReportFormat
-  ): Promise<{ url: string; fileName: string; expiresAt: Date } | null> {
+  ): Promise<{ buffer: Buffer; fileName: string; contentType: string } | null> {
     const report = await prisma.monthlyReport.findUnique({
       where: { id: reportId },
     })
@@ -855,17 +864,15 @@ export class MonthlyCostReportService {
     const path = format === 'excel' ? report.excelPath : report.pdfPath
     if (!path) return null
 
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + 1)
-
+    const buffer = await downloadBlob(path)
     const month = this.formatMonth(report.reportMonth)
     const fileName = `monthly-cost-${month}.${format === 'excel' ? 'xlsx' : 'pdf'}`
+    const contentType =
+      format === 'excel'
+        ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        : 'application/pdf'
 
-    return {
-      url: await generateSignedUrl(path, expiresAt),
-      fileName,
-      expiresAt,
-    }
+    return { buffer, fileName, contentType }
   }
 
   // ============================================================
@@ -874,13 +881,17 @@ export class MonthlyCostReportService {
 
   private parseMonth(month: string): { startDate: Date; endDate: Date } {
     const [year, monthNum] = month.split('-').map(Number)
-    const startDate = new Date(year, monthNum - 1, 1)
-    const endDate = new Date(year, monthNum, 0, 23, 59, 59, 999)
+    // FIX-084: 用 UTC 建構日期。原本 new Date(year, m-1, 1) 是「本地時區午夜」，在 UTC+8
+    // 環境會被 Prisma 存成 UTC 前一天（如 2026-05 → 2026-04-30T16:00Z）→ reportMonth 月份
+    // off-by-one，且 collectReportData 的 SQL 聚合視窗整體偏移一個時區差。
+    const startDate = new Date(Date.UTC(year, monthNum - 1, 1))
+    const endDate = new Date(Date.UTC(year, monthNum, 0, 23, 59, 59, 999))
     return { startDate, endDate }
   }
 
   private formatMonth(date: Date): string {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+    // FIX-084: 用 UTC getter，與 parseMonth 的 UTC 建構一致；否則在非 UTC 伺服器時區讀回會 off-by-one
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`
   }
 
   private toReportRecord(report: {

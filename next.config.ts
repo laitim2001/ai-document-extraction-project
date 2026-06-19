@@ -13,6 +13,19 @@ const nextConfig: NextConfig = {
   // Reference: docs/06-deployment/02-azure-deployment/uat-deployment/04-container-build-push.md (Action 4.2)
   output: 'standalone',
 
+  // re2-wasm（FIX-069 safe-regex 引擎）必須從 node_modules 載入，不可被 webpack bundle。
+  // 其 emscripten glue 以 readFileSync(__dirname + '/re2.wasm') 動態載入 wasm;一旦被 bundle 進
+  // .next/server/chunks，__dirname 變成 chunks 目錄而找不到 re2.wasm（runtime ENOENT）。
+  // 標為 external → require 回 node_modules，__dirname 指向真實套件目錄找到 re2.wasm。
+  // 搭配 Dockerfile 將 node_modules/re2-wasm 複製進 runner（含 build/wasm/re2.wasm）。
+  // FIX-083: pdfkit 同理——它在 route handler 是「靜態 import」，Next 15 App Router 預設會
+  // 把它打包進 .next/server/vendor-chunks/，其 fs.readFileSync(__dirname + '/data/*.afm') 便
+  // 指向 bundle 目錄而 ENOENT Helvetica.afm（本地 dev 與 Azure standalone 皆然）。手動 webpack
+  // externals 對「靜態 import 的 route handler 依賴」無效（只對 pdf-to-img 那種 await import()
+  // 動態載入有效），serverExternalPackages 才是 App Router 的正解。搭配 FIX-081 Dockerfile 的
+  // COPY node_modules/pdfkit（standalone trace 不含 .afm 資產檔）。
+  serverExternalPackages: ['re2-wasm', 'pdfkit'],
+
   // ESLint configuration for build
   // Note: Warnings are treated as errors in production build by default
   // Setting ignoreDuringBuilds to allow build with warnings (temporary for testing)
