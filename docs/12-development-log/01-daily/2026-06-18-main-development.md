@@ -824,10 +824,112 @@ orchestrator 讓它能在 Stage 3 之前就中止以省成本?
 ================================================
 
 ================================================
+● 全部處理完成，dev server 仍運行中（Running、HTTP 200），可以開始測試。以下是完整總結：
 
+  ✅ 已完成的處理
+
+  1. 未提交改動 → 3 個 commit（已 push）
+
+  ┌─────────┬────────────────────────────────────────────────────────────────────────────────┐
+  │ Commit  │                                      內容                                      │
+  ├─────────┼────────────────────────────────────────────────────────────────────────────────┤
+  │ ecd72ec │ chore: 把 prisma/dev-snapshot.json 加入 .gitignore（本地業務資料快照不進版控） │
+  ├─────────┼────────────────────────────────────────────────────────────────────────────────┤
+  │ 91cc1c3 │ docs(deployment): 新增部署治理文件 + 更新 DEV runbook（3 檔）                  │
+  ├─────────┼────────────────────────────────────────────────────────────────────────────────┤
+  │ 3f6df3b │ docs(devlog): 安全修復總結 + 2026-06-18 開發日誌（2 檔）                       │
+  └─────────┴────────────────────────────────────────────────────────────────────────────────┘
+
+  → 已推送到 origin/docs/azure-dev-runbook（2ea4aca..3f6df3b），分支與遠端同步。依你的選擇暫不開 PR。
+
+  2. FIX-083 兩個程式碼檔 → 丟棄過時版、採 origin/main 權威版
+
+  - next.config.ts、monthly-cost-report.service.ts 已還原成 origin/main 版本（含 FIX-083/084/085 +
+  re2-wasm），沒有倒退任何已合併修復。
+  - 這兩檔目前在 working tree 顯示為 M（modified）—— 這是 docs 分支落後 main 的自然現象，內容是最新權威版（供你本地測試 PDF
+  報表），不會進 docs 分支的 commit。
+
+  3. 分支整理
+
+  - 刪除 5 個已合併分支（工作皆已在 main，刪除零損失）：docs/fix-079-080-azure-native-modules、feature/azure-dev-data-import、fix
+  /077-...、fix/078-blob-public-access、fix/080-napi-canvas-ocr
+  - 更新本地 main：0214860 → 286570c（fast-forward 到最新，補上落後的 27 個 commit）
+  - 本地分支現在乾淨，只剩：docs/azure-dev-runbook（當前）+ main
+
+  4. Stash
+
+  - stash@{0} 已 drop：那是稍早還原用的備份，內容已全部 commit/push，完成處理。
+
+  ⚠️  需要你決定的一件事：一個孤兒 stash
+
+  還剩一個 stash（非本次任務產生，session 開始就存在）：
+
+  stash@{0}: On fix/review-detail-pdf-cors-i18n: epitaxy: pre-switch ...
+
+  - 對應分支 fix/review-detail-pdf-cors-i18n 本地與遠端皆已不存在
+  - 內容：CHANGE-055-azure-deployment-foundation.md、2026-06-08.md 兩個 docs 改動
+  - 我比對後發現它含有 main 沒有的內容（2026-06-08.md 有差異、CHANGE-055 那條路徑 main 不存在），所以我沒有擅自 drop ——
+  可能是還沒落地的獨特工作。
+
+  你可以選擇：
+  - 檢視內容：git stash show -p "stash@{0}"
+  - 還原到當前分支查看：git stash apply "stash@{0}"
+  - 確認不需要再丟棄：git stash drop "stash@{0}"
+
+  需要我幫你檢視這個孤兒 stash 的內容、或還原它嗎？另外，若你希望 working tree 那兩個 M 檔也變乾淨，我可以幫 docs 分支
+  rebase/merge 到最新 main（你先前選的是暫不 rebase，所以我沒做）。
 ================================================
 
 ================================================
+● 已記錄完畢。以下是「處理所有未提交 commit 和 branch」的完整最終總結：
+
+  ✅ 全部處理完成
+
+  Commit（4 個，已全部 push 到 origin/docs/azure-dev-runbook）
+
+  ┌─────────┬──────────────────────────────────────────────────────────────────────────────────────┐
+  │ Commit  │                                         內容                                         │
+  ├─────────┼──────────────────────────────────────────────────────────────────────────────────────┤
+  │ ecd72ec │ chore: prisma/dev-snapshot.json 加入 .gitignore                                      │
+  ├─────────┼──────────────────────────────────────────────────────────────────────────────────────┤
+  │ 91cc1c3 │ docs(deployment): 部署治理文件 + DEV runbook                                         │
+  ├─────────┼──────────────────────────────────────────────────────────────────────────────────────┤
+  │ 3f6df3b │ docs(devlog): 安全修復總結 + 開發日誌                                                │
+  ├─────────┼──────────────────────────────────────────────────────────────────────────────────────┤
+  │ d156c31 │ docs(deployment): 從孤兒 stash 救回的 2026-06-08 部署 session 記錄 + CHANGE-055 進度 │
+  └─────────┴──────────────────────────────────────────────────────────────────────────────────────┘
+
+  FIX-083 兩個程式碼檔
+
+  - 已丟棄過時初版、改採 origin/main 權威版（含 FIX-083/084/085 + re2-wasm），未倒退任何已合併修復。
+  - 目前在 working tree 顯示 M（供本地測試 PDF），不會進 docs 分支 commit。
+
+  分支整理
+
+  - 刪除 5 個已合併分支：docs/fix-079-080-azure-native-modules、feature/azure-dev-data-import、fix/077、fix/078、fix/080
+  - 本地 main 更新 0214860 → 286570c（補上落後的 27 個 commit）
+  - 本地只剩：docs/azure-dev-runbook（當前）+ main
+
+  Stash（兩個都清乾淨，git stash list 已空）
+
+  - 還原備份 stash → drop（內容已 commit）
+  - 孤兒 stash → 救回了 2026-06-08 的獨特部署記錄（403 診斷、Web App vs Container Apps 對比、H1/H6 架構決策），commit 為 d156c31
+  後 drop
+
+  📌 working tree 目前剩餘（皆為「預期保留」，非遺留）
+
+   M docs/12-development-log/01-daily/2026-06-18-main-development.md   ← live session log，持續被自動寫入
+   M next.config.ts                                                    ← origin/main 權威版（供本地測 PDF）
+   M src/services/monthly-cost-report.service.ts                       ← 同上
+
+  - 2026-06-18 live log：是自動記錄本 session 對話的檔，會持續增長。我刻意不反覆 commit；待你告一段落要保存時，我可幫你做一次快照
+  commit。
+  - FIX-083 兩檔：若你希望它們也變乾淨，最徹底的方式是讓 docs/azure-dev-runbook rebase/merge 到最新 main（你先前選暫不
+  rebase，故未做 —— 需要時告訴我）。
+
+  另外我記了一筆 memory，記錄「daily log 是自動追加的 live 檔、勿反覆 commit」這個發現，避免未來 session 重蹈困惑。
+
+  Git 已整理乾淨，dev server 也運行中 —— 可以開始你的頁面檢查與功能測試了。
 
 ================================================
 
