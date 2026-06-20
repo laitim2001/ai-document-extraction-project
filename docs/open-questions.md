@@ -1,7 +1,7 @@
 # Open Questions（OQ）追蹤
 
 > **本文件追蹤項目中**未解決的設計決策、文檔誤差、規格與代碼不一致**等狀況。AI 助手按 OQ 狀態決定 default behavior（詳見 CLAUDE.md §Open Questions 機制）。
-> **最後更新**：2026-05-26
+> **最後更新**：2026-06-20
 
 ---
 
@@ -51,6 +51,21 @@
 - **AI Default Behavior**：**新 API 統一採 top-level**；舊 API 在 task scope 內順帶遷移（不主動 refactor）
 - **解決方向**：規劃批次遷移 CHANGE（將所有 nested 格式 API 統一）
 - **預估工作量**：~40 個 API 文件
+
+---
+
+### OQ-Q4: MappingRule（Epic 4 三層術語映射）在 V3.1 的去留
+
+- **狀態**：🟡 Open
+- **問題**：V3.1 GPT Vision 架構下，`MappingRule` 的 `extractionPattern`/`validationPattern` 完全未被使用；Stage 3 原只撈 `fieldName→fieldLabel` 注入 prompt（DB 實查 31 筆中 30 筆為直譯冗餘）。CHANGE-083 已停用該注入，但 `MappingRule` 表、`/rules` 頁面、`/api/rules/*` 自動學習生態（26 檔）仍完整保留。
+- **代碼位置**：`src/services/extraction-v3/stages/stage-3-extraction.service.ts`（`loadTier1Mappings`/`loadTier2Mappings` 已標 `@deprecated`）
+- **影響**：`/rules` 頁面與 Epic 4 規則自動學習在新架構下實質空轉（產生的規則 V3.1 不採用）；維護成本 vs 保留價值待評估
+- **AI Default Behavior**：維持現狀（表與頁面不動）；不主動擴充也不刪除 Epic 4 規則生態
+- **解決方向**：用戶決定 —
+  - 選項 A：補完 Phase 2，把 forwarder 真實術語差異正規化餵給 GPT（重新啟用 MappingRule 價值）
+  - 選項 B：整體退場（移除 `MappingRule` 表 / `/rules` / `/api/rules/*`），另開 CHANGE
+- **相關 CHANGE**：CHANGE-083（已停用 Tier1/2 注入）
+- **待用戶決策日期**：—
 
 ---
 

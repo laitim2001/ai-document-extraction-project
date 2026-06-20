@@ -495,7 +495,7 @@ export const INVOICE_FIELDS: Record<string, InvoiceFieldDefinition> = {
     dataType: FIELD_DATA_TYPES.STRING,
     isRequired: true,
     description: '追蹤號碼',
-    aliases: ['awb', 'airway bill', 'waybill', 'tracking no', 'pro number'],
+    aliases: ['awb', 'airway bill', 'waybill', 'tracking no', 'pro number', 'bill of lading number', 'b/l no', 'bill of lading'],
     example: '1234567890',
   },
   MASTER_TRACKING_NUMBER: {

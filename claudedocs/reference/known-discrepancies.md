@@ -1,7 +1,7 @@
 # 已知差異與關鍵發現
 
 > **本文件為 CLAUDE.md §當前 Open 差異 的完整展開**。CLAUDE.md 只列 5 條精簡 open items，本文件含完整歷史 + 已修復項目（FIX-XXX 引用）+ 安全審計記錄。
-> **最後更新**：2026-06-16 | **來源**：`docs/06-codebase-analyze/` 驗證報告 R1-R15（44 份）
+> **最後更新**：2026-06-20 | **來源**：`docs/06-codebase-analyze/` 驗證報告 R1-R15（44 份）
 
 ---
 
@@ -24,6 +24,7 @@
 | 6 | **console.log 總數** | 279 處 / 87 文件 | 逐步替換為 logger |
 | 7 | **Zod 驗證覆蓋率** | 60-65%（~40 個 POST/PATCH/PUT/DELETE 缺驗證） | 新 API 必須加 |
 | 8 | **治理矩陣 SDLC-04 vs Dependabot 實況** | 矩陣／Story 22-4 AC4 原述「Dependabot 自動 PR 啟用」 | **2026-06-12 版本更新已停用**（CHANGE-081），保留 security updates；矩陣與 Story 已加註；npm audit 53 漏洞改手動追蹤 |
+| 9 | **MappingRule Tier1/2 術語注入（V3.1 半退役）** | Stage 3 原將 `MappingRule.fieldName→fieldLabel` 注入 prompt（`extractionPattern`/`validationPattern` 在 V3.1 完全未用） | **2026-06-20 已停用注入**（CHANGE-083）：DB 實查 31 筆中 30 筆為直譯冗餘、與 FieldDefinitionSet 重複；唯一有效的 Maersk 海運提單號別名已遷至 `invoice-fields.ts tracking_number.aliases`；`MappingRule` 表／`/rules`／`/api/rules/*` 不受影響；整體去留見 OQ-Q4 |
 
 ---
 
