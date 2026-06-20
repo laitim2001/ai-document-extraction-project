@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { useAccessibleCitiesGrouped } from '@/hooks/use-accessible-cities'
+import { UPLOAD_CONFIG } from '@/lib/upload/constants'
 
 /**
  * 文件上傳頁面
@@ -71,6 +72,13 @@ export default function UploadPage() {
           <CardTitle>{t('upload.title')}</CardTitle>
           <CardDescription>
             {t('upload.description')}
+            <span className="mt-1 block text-xs">
+              {t('upload.uploadLimits', {
+                count: UPLOAD_CONFIG.MAX_FILES_PER_BATCH,
+                size: UPLOAD_CONFIG.MAX_FILE_SIZE_DISPLAY,
+                formats: UPLOAD_CONFIG.ACCEPT_LABEL,
+              })}
+            </span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
