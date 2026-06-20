@@ -4,7 +4,7 @@
 > **發現方式**: 用戶回報（Phase 1 交付前頁面檢視）+ 資料庫實機驗證
 > **影響頁面/功能**: `/en/documents/[id]` 的 Extracted Fields tab
 > **優先級**: 高
-> **狀態**: ✅ 已修復（2026-06-20）— BUG-1/BUG-3 完成；BUG-2 label 友善化＋守衛放寬完成，**版面區隔依用戶決定暫緩**（開放式 UI 設計另行確認）。詳見文末實作記錄
+> **狀態**: ✅ 已修復（2026-06-20）— BUG-1/BUG-2/BUG-3 全數完成。BUG-2 版面區隔於 2026-06-20 確認設計（「標題 + 區塊容器」方案）後補完。詳見文末實作記錄
 
 ---
 
@@ -178,12 +178,14 @@ confidence: (rawItem.confidence as number) ?? <fallback>,
 | Bug | 實際改動 | 狀態 |
 |-----|----------|------|
 | BUG-1 | `src/app/api/documents/[id]/route.ts`：來源 fallback `'AZURE_DI'` → `'GPT_VISION'`（主方案，最小改動） | ✅ 完成 |
-| BUG-2 | `route.ts`：新增 `humanizeFieldName()`，`displayName` 由原始 key 改為 humanize（`airline_document_charge` → `Airline Document Charge`，純格式化、不涉 i18n 字典）；`DocumentDetailTabs.tsx:196`：守衛放寬為「extractedFields 或 lineItems 任一有值即渲染」，並補 `fields={extractedFields ?? []}` 型別修正。**版面區隔依用戶 2026-06-20 決定暫緩**（屬開放式 UI 設計，H6，另行確認後再做） | ✅ 部分（版面區隔暫緩） |
+| BUG-2 | `route.ts`：新增 `humanizeFieldName()`，`displayName` 由原始 key 改為 humanize（`airline_document_charge` → `Airline Document Charge`，純格式化、不涉 i18n 字典）；`DocumentDetailTabs.tsx:196`：守衛放寬為「extractedFields 或 lineItems 任一有值即渲染」，並補 `fields={extractedFields ?? []}` 型別修正。**版面區隔**（2026-06-20 確認設計後補完）：`ExtractedFieldsPanel.tsx` 將原本「平鋪欄位卡片 + 底部 line items」重構為兩個對稱的分區卡片容器（`<section className="overflow-hidden rounded-lg border">` + 帶 `bg-gray-50` 底色的標題列 + 計數 badge），表頭欄位區守衛 `fields.length > 0`（配合 BUG-2 守衛放寬，無 header 欄位只有 line items 時不顯示空表頭卡片）；原 category 子標題 `<h3>` 降級為 `<h4>` 以維持層次；新增 i18n key `fieldsPanel.headerFieldsTitle`（表頭欄位／Header Fields／表头字段，三語言同步） | ✅ 完成 |
 | BUG-3 | **資料庫實機查證 GPT response，確認 line item 確實回傳真實 per-item confidence（99/96/99…）**，原 `confidence: 85` 為寫死覆蓋 → 證實為真 bug（非假性修復）；`stage-3-extraction.service.ts:1230` 改為 `(rawItem.confidence as number) ?? 85`。同檔 line 993 header fallback 維持 85（GPT 未回傳時的合理 fallback，不動，surgical） | ✅ 完成 |
 
-**驗證**：`npm run type-check` ✅ 0、`npm run i18n:check` ✅ 0、`npm run lint` ✅ 0 errors（3 個 pre-existing warnings，非本次引入）。
+**驗證**：`npm run type-check` ✅ 0、`npm run i18n:check` ✅ 0、`npm run lint` ✅ 0 errors/warnings（BUG-2 版面區隔改動檔 `ExtractedFieldsPanel.tsx` 單檔 eslint 乾淨）。
 
-**待辦（後續）**：BUG-2 版面區隔的 UI 設計確認後實作。
+**版面區隔設計決策（2026-06-20）**：用戶於 3 個方案（對稱分區標題／標題 + 區塊容器／可摺疊區塊）中選定「**標題 + 區塊容器**」——兩區各以帶邊框 + 淺底色標題列的卡片容器包起來，視覺邊界最明確，徹底消除「只有 line items」的誤判。
+
+**待辦（後續）**：無（BUG-1/BUG-2/BUG-3 全數完成）。
 
 ---
 

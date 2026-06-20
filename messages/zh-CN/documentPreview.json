@@ -71,6 +71,7 @@
     }
   },
   "fieldsPanel": {
+    "headerFieldsTitle": "表头字段",
     "stats": {
       "showing": "显示 {filtered} / {total} 个字段",
       "editedOnly": "（仅显示已修改）",
