@@ -67,6 +67,17 @@ interface FieldMappingEntry {
 // ============================================================
 
 /**
+ * 將原始欄位 key 轉為人類可讀的顯示名稱
+ * 例：airline_document_charge → Airline Document Charge
+ */
+function humanizeFieldName(fieldName: string): string {
+  return fieldName
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim()
+}
+
+/**
  * 將 ExtractionResult.fieldMappings JSON 轉換為 ExtractedField[] 陣列
  */
 function mapFieldMappingsToExtractedFields(
@@ -87,12 +98,12 @@ function mapFieldMappingsToExtractedFields(
       tier3: 'GPT_VISION',
       manual: 'MANUAL',
     }
-    const source = sourceMap[entry.source?.toLowerCase() ?? ''] ?? 'AZURE_DI'
+    const source = sourceMap[entry.source?.toLowerCase() ?? ''] ?? 'GPT_VISION'
 
     return {
       id: `field-${index}-${fieldName}`,
       fieldName,
-      displayName: fieldName,
+      displayName: humanizeFieldName(fieldName),
       value: entry.value,
       rawValue: entry.rawValue ?? null,
       confidence,

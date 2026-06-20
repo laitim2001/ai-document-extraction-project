@@ -4,7 +4,7 @@
 > **發現方式**: 用戶回報（Phase 1 交付前頁面檢視）+ 資料庫實機驗證
 > **影響頁面/功能**: `/en/documents/[id]` 的 Extracted Fields tab
 > **優先級**: 高
-> **狀態**: 🚧 待修復
+> **狀態**: ✅ 已修復（2026-06-20）— BUG-1/BUG-3 完成；BUG-2 label 友善化＋守衛放寬完成，**版面區隔依用戶決定暫緩**（開放式 UI 設計另行確認）。詳見文末實作記錄
 
 ---
 
@@ -168,6 +168,22 @@ confidence: (rawItem.confidence as number) ?? <fallback>,
 - [ ] `npm run lint` 無 warning。
 - [ ] 若涉及 i18n：`npm run i18n:check` 通過、三語言同步、瀏覽器無 IntlError。
 - [ ] 回歸：舊 unified-processor 路徑文件（若有）來源標籤未被反向誤標（視 BUG-1 是否採進階方案）。
+
+---
+
+---
+
+## 實作記錄（2026-06-20）
+
+| Bug | 實際改動 | 狀態 |
+|-----|----------|------|
+| BUG-1 | `src/app/api/documents/[id]/route.ts`：來源 fallback `'AZURE_DI'` → `'GPT_VISION'`（主方案，最小改動） | ✅ 完成 |
+| BUG-2 | `route.ts`：新增 `humanizeFieldName()`，`displayName` 由原始 key 改為 humanize（`airline_document_charge` → `Airline Document Charge`，純格式化、不涉 i18n 字典）；`DocumentDetailTabs.tsx:196`：守衛放寬為「extractedFields 或 lineItems 任一有值即渲染」，並補 `fields={extractedFields ?? []}` 型別修正。**版面區隔依用戶 2026-06-20 決定暫緩**（屬開放式 UI 設計，H6，另行確認後再做） | ✅ 部分（版面區隔暫緩） |
+| BUG-3 | **資料庫實機查證 GPT response，確認 line item 確實回傳真實 per-item confidence（99/96/99…）**，原 `confidence: 85` 為寫死覆蓋 → 證實為真 bug（非假性修復）；`stage-3-extraction.service.ts:1230` 改為 `(rawItem.confidence as number) ?? 85`。同檔 line 993 header fallback 維持 85（GPT 未回傳時的合理 fallback，不動，surgical） | ✅ 完成 |
+
+**驗證**：`npm run type-check` ✅ 0、`npm run i18n:check` ✅ 0、`npm run lint` ✅ 0 errors（3 個 pre-existing warnings，非本次引入）。
+
+**待辦（後續）**：BUG-2 版面區隔的 UI 設計確認後實作。
 
 ---
 
