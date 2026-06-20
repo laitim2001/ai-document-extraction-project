@@ -283,11 +283,13 @@ export class Stage3ExtractionService {
     const standardFields = allFieldDefs.filter((f) => f.required);
     const customFields = allFieldDefs.filter((f) => !f.required);
 
-    // 3. 載入術語映射（Tier 1 + Tier 2）
-    const universalMappings = await this.loadTier1Mappings();
-    const companyMappings = companyId
-      ? await this.loadTier2Mappings(companyId)
-      : {};
+    // 3. 術語映射（Tier 1 + Tier 2）— CHANGE-083: 已停用注入
+    //    V3.1 GPT Vision 架構下，MappingRule 的 fieldName→fieldLabel 注入屬直譯冗餘
+    //    （31 筆中 30 筆與 FieldDefinitionSet 重複，對 GPT 無資訊量）；唯一有效的
+    //    Maersk 海運提單號別名已遷至 invoice-fields.ts tracking_number.aliases。
+    //    loadTier1Mappings / loadTier2Mappings 保留為 @deprecated 供未來 Phase 2 重用。
+    const universalMappings: Record<string, string> = {};
+    const companyMappings: Record<string, string> = {};
 
     // 4. CHANGE-042 Phase 2: 動態生成 JSON Schema（基於 fieldDefinitions）
     const outputSchema = this.generateOutputSchema(fieldDefSet.fields);
@@ -517,6 +519,8 @@ export class Stage3ExtractionService {
 
   /**
    * 載入 Tier 1 通用術語映射
+   * @deprecated CHANGE-083: 已停用於 Stage 3 注入（fieldName→fieldLabel 屬直譯冗餘）。
+   *   保留供未來 Phase 2 術語映射正規化重用。MappingRule 表與 /rules 頁面不受影響。
    * @description 載入沒有 companyId 的通用映射規則
    * TODO: Phase 2 - 實現完整的術語映射載入，可能需要額外的資料表
    */
@@ -542,6 +546,8 @@ export class Stage3ExtractionService {
 
   /**
    * 載入 Tier 2 公司特定術語映射
+   * @deprecated CHANGE-083: 已停用於 Stage 3 注入（fieldName→fieldLabel 屬直譯冗餘）。
+   *   保留供未來 Phase 2 術語映射正規化重用。MappingRule 表與 /rules 頁面不受影響。
    * @description 載入特定公司的映射規則覆蓋
    * TODO: Phase 2 - 實現完整的術語映射載入
    */
