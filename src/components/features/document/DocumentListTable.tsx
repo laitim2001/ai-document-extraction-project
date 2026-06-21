@@ -4,18 +4,20 @@
  * @fileoverview 文件列表表格組件（國際化版本）
  * @description
  *   顯示文件列表的表格，包含：
+ *   - No. 序號欄（CHANGE-087 共用 DataTable，跨頁連續）
  *   - 文件名稱、狀態、處理路徑
- *   - 上傳時間（相對時間）
+ *   - 上傳時間（絕對時間）、處理時間（開始/結束/耗時）
+ *   - 信心度、上傳者
  *   - 操作按鈕（查看、重試）
  *   - 完整國際化支援
  *
  * @module src/components/features/document/DocumentListTable
  * @author Development Team
  * @since Epic 2 - Story 2.7 (Processing Status Tracking & Display)
- * @lastModified 2026-02-07
+ * @lastModified 2026-06-21 (CHANGE-087 Phase 1: 遷移為共用 DataTable + No. 序號欄)
  *
  * @features
- *   - 響應式表格
+ *   - 共用 DataTable 封裝（序號欄 + 欄位定義驅動）
  *   - 狀態徽章顯示
  *   - 錯誤訊息顯示
  *   - 重試按鈕（僅失敗狀態）
@@ -23,9 +25,10 @@
  *
  * @dependencies
  *   - next-intl - 國際化
- *   - @/components/ui/table - Table 組件
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/components/ui/button - Button 組件
- *   - date-fns - 日期格式化
+ *   - @/lib/i18n-date - 日期格式化（絕對時間）
+ *   - @/components/features/confidence - 信心度徽章
  *   - lucide-react - 圖標
  *
  * @related
@@ -37,23 +40,20 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { ProcessingStatus } from './ProcessingStatus'
 import { RetryButton } from './RetryButton'
 import { getStatusConfig } from '@/lib/document-status'
-import { formatDistanceToNow } from 'date-fns'
-import { zhTW, enUS } from 'date-fns/locale'
+import { formatDateTime } from '@/lib/i18n-date'
+import { ConfidenceBadge } from '@/components/features/confidence/ConfidenceBadge'
 import { Eye, FileText } from 'lucide-react'
 import type { DocumentListItem } from '@/hooks/use-documents'
+import type { Locale } from '@/i18n/config'
 
 // ============================================================
 // Types
@@ -68,6 +68,10 @@ export interface DocumentListTableProps {
   selectedIds?: Set<string>
   /** 選擇變更回調 */
   onSelectionChange?: (ids: Set<string>) => void
+  /** CHANGE-087: 當前頁碼（1-based），用於序號欄跨頁連續 */
+  page?: number
+  /** CHANGE-087: 每頁筆數，用於序號欄跨頁連續 */
+  pageSize?: number
 }
 
 // ============================================================
@@ -99,6 +103,8 @@ const processingPathKeys: Record<string, string> = {
  * <DocumentListTable
  *   documents={documents}
  *   isLoading={isLoading}
+ *   page={page}
+ *   pageSize={pageSize}
  * />
  * ```
  */
@@ -107,12 +113,11 @@ export function DocumentListTable({
   isLoading,
   selectedIds,
   onSelectionChange,
+  page,
+  pageSize,
 }: DocumentListTableProps) {
   const t = useTranslations('documents')
-  const locale = useLocale()
-
-  // 根據 locale 選擇日期格式化的 locale
-  const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
+  const locale = useLocale() as Locale
 
   // --- Selection Helpers ---
   const hasSelection = selectedIds !== undefined && onSelectionChange !== undefined
@@ -139,6 +144,186 @@ export function DocumentListTable({
     onSelectionChange(next)
   }, [selectedIds, onSelectionChange])
 
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<DocumentListItem>[]>(() => {
+    const cols: DataTableColumn<DocumentListItem>[] = []
+
+    // 選擇欄（條件顯示）
+    if (hasSelection) {
+      cols.push({
+        id: 'select',
+        headerClassName: 'w-[40px]',
+        header: (
+          <Checkbox
+            checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+            onCheckedChange={handleSelectAll}
+            aria-label={t('table.columns.select')}
+          />
+        ),
+        cell: (doc) => (
+          <Checkbox
+            checked={selectedIds?.has(doc.id) ?? false}
+            onCheckedChange={(checked) => handleSelectOne(doc.id, !!checked)}
+            aria-label={`${t('table.columns.select')} ${doc.fileName}`}
+          />
+        ),
+      })
+    }
+
+    // 文件名稱
+    cols.push({
+      id: 'filename',
+      header: t('table.columns.filename'),
+      cellClassName: 'font-medium',
+      cell: (doc) => (
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4 text-gray-400 flex-shrink-0" />
+          <span className="break-all" title={doc.fileName}>
+            {doc.fileName}
+          </span>
+        </div>
+      ),
+    })
+
+    // 狀態
+    cols.push({
+      id: 'status',
+      header: t('table.columns.status'),
+      cell: (doc) => {
+        const statusConfig = getStatusConfig(doc.status)
+        return (
+          <>
+            <ProcessingStatus status={doc.status} />
+            {statusConfig.isError && doc.uploader && (
+              <p
+                className="text-xs text-red-500 mt-1 truncate max-w-[150px]"
+                title={t('table.processingError')}
+              >
+                {t('table.processingFailed')}
+              </p>
+            )}
+          </>
+        )
+      },
+    })
+
+    // 處理路徑
+    cols.push({
+      id: 'processingPath',
+      header: t('table.columns.processingPath'),
+      cell: (doc) =>
+        doc.processingPath ? (
+          <span className="text-sm">
+            {t(`processingPath.${processingPathKeys[doc.processingPath]}`) ||
+              doc.processingPath}
+          </span>
+        ) : (
+          <span className="text-gray-400">--</span>
+        ),
+    })
+
+    // 上傳時間（絕對時間）
+    cols.push({
+      id: 'uploadTime',
+      header: t('table.columns.uploadTime'),
+      cellClassName: 'text-gray-500 text-sm whitespace-nowrap',
+      cell: (doc) => formatDateTime(doc.createdAt, locale),
+    })
+
+    // 處理時間（開始 / 結束 / 耗時）
+    cols.push({
+      id: 'processingTime',
+      header: t('table.columns.processingTime'),
+      cellClassName: 'text-gray-500 text-xs',
+      cell: (doc) =>
+        doc.processingStartedAt ||
+        doc.processingEndedAt ||
+        doc.processingDuration != null ? (
+          <div className="space-y-0.5 whitespace-nowrap">
+            <div>
+              {t('table.processing.started')}:{' '}
+              {doc.processingStartedAt
+                ? formatDateTime(doc.processingStartedAt, locale)
+                : '--'}
+            </div>
+            <div>
+              {t('table.processing.ended')}:{' '}
+              {doc.processingEndedAt
+                ? formatDateTime(doc.processingEndedAt, locale)
+                : '--'}
+            </div>
+            <div>
+              {t('table.processing.duration')}:{' '}
+              {doc.processingDuration != null
+                ? t('table.processing.durationValue', {
+                    seconds: (doc.processingDuration / 1000).toFixed(1),
+                  })
+                : '--'}
+            </div>
+          </div>
+        ) : (
+          <span className="text-gray-400">--</span>
+        ),
+    })
+
+    // 信心度
+    cols.push({
+      id: 'confidence',
+      header: t('table.columns.confidence'),
+      cell: (doc) =>
+        doc.extractionResult?.averageConfidence != null ? (
+          <ConfidenceBadge
+            score={doc.extractionResult.averageConfidence}
+            showScore
+            size="sm"
+            locale={locale.startsWith('zh') ? 'zh' : 'en'}
+          />
+        ) : (
+          <span className="text-gray-400">--</span>
+        ),
+    })
+
+    // 上傳者
+    cols.push({
+      id: 'uploader',
+      header: t('table.columns.uploader'),
+      cellClassName: 'text-sm',
+      cell: (doc) => doc.uploader.name || doc.uploader.email,
+    })
+
+    // 操作
+    cols.push({
+      id: 'actions',
+      header: t('table.columns.actions'),
+      headerClassName: 'text-right',
+      cellClassName: 'text-right',
+      cell: (doc) => {
+        const statusConfig = getStatusConfig(doc.status)
+        return (
+          <div className="flex items-center justify-end gap-2">
+            {statusConfig.canRetry && <RetryButton documentId={doc.id} />}
+            <Link href={`/documents/${doc.id}`}>
+              <Button variant="ghost" size="sm">
+                <Eye className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        )
+      },
+    })
+
+    return cols
+  }, [
+    hasSelection,
+    allSelected,
+    someSelected,
+    handleSelectAll,
+    handleSelectOne,
+    selectedIds,
+    t,
+    locale,
+  ])
+
   // 載入中狀態
   if (isLoading) {
     return (
@@ -159,105 +344,15 @@ export function DocumentListTable({
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          {hasSelection && (
-            <TableHead className="w-[40px]">
-              <Checkbox
-                checked={allSelected ? true : someSelected ? 'indeterminate' : false}
-                onCheckedChange={handleSelectAll}
-                aria-label={t('table.columns.select')}
-              />
-            </TableHead>
-          )}
-          <TableHead>{t('table.columns.filename')}</TableHead>
-          <TableHead>{t('table.columns.status')}</TableHead>
-          <TableHead>{t('table.columns.processingPath')}</TableHead>
-          <TableHead>{t('table.columns.uploadTime')}</TableHead>
-          <TableHead className="text-right">{t('table.columns.actions')}</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {documents.map((doc) => {
-          const statusConfig = getStatusConfig(doc.status)
-
-          return (
-            <TableRow key={doc.id} data-state={selectedIds?.has(doc.id) ? 'selected' : undefined}>
-              {/* 選擇 */}
-              {hasSelection && (
-                <TableCell>
-                  <Checkbox
-                    checked={selectedIds.has(doc.id)}
-                    onCheckedChange={(checked) => handleSelectOne(doc.id, !!checked)}
-                    aria-label={`${t('table.columns.select')} ${doc.fileName}`}
-                  />
-                </TableCell>
-              )}
-
-              {/* 文件名稱 */}
-              <TableCell className="font-medium">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                  <span
-                    className="truncate max-w-[200px]"
-                    title={doc.fileName}
-                  >
-                    {doc.fileName}
-                  </span>
-                </div>
-              </TableCell>
-
-              {/* 狀態 */}
-              <TableCell>
-                <ProcessingStatus status={doc.status} />
-                {statusConfig.isError && doc.uploader && (
-                  <p
-                    className="text-xs text-red-500 mt-1 truncate max-w-[150px]"
-                    title={t('table.processingError')}
-                  >
-                    {t('table.processingFailed')}
-                  </p>
-                )}
-              </TableCell>
-
-              {/* 處理路徑 */}
-              <TableCell>
-                {doc.processingPath ? (
-                  <span className="text-sm">
-                    {t(`processingPath.${processingPathKeys[doc.processingPath]}`) ||
-                      doc.processingPath}
-                  </span>
-                ) : (
-                  <span className="text-gray-400">--</span>
-                )}
-              </TableCell>
-
-              {/* 上傳時間 */}
-              <TableCell className="text-gray-500 text-sm">
-                {formatDistanceToNow(new Date(doc.createdAt), {
-                  addSuffix: true,
-                  locale: dateLocale,
-                })}
-              </TableCell>
-
-              {/* 操作 */}
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-2">
-                  {statusConfig.canRetry && (
-                    <RetryButton documentId={doc.id} />
-                  )}
-                  <Link href={`/documents/${doc.id}`}>
-                    <Button variant="ghost" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </TableCell>
-            </TableRow>
-          )
-        })}
-      </TableBody>
-    </Table>
+    <DataTable
+      data={documents}
+      columns={columns}
+      getRowId={(doc) => doc.id}
+      page={page}
+      pageSize={pageSize}
+      rowProps={(doc) => ({
+        className: selectedIds?.has(doc.id) ? 'bg-muted' : undefined,
+      })}
+    />
   )
 }

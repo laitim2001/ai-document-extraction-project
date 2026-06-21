@@ -1,7 +1,7 @@
 # CHANGE-087: 全站列表建立共用 DataTable 封裝並加入 No. 序號欄
 
 > **日期**: 2026-06-20
-> **狀態**: ⏳ 待實作
+> **狀態**: 🚧 Phase 1 已完成（2026-06-21）；Phase 2/3（其餘 33+ 組件遷移）待實作
 > **優先級**: Medium
 > **類型**: Refactor（架構）
 > **影響範圍**: 全站 35+ 列表組件
@@ -117,7 +117,7 @@
 
 | 階段 | 範圍 | 驗證 | 狀態 |
 |------|------|------|------|
-| Phase 1 | 建 DataTable 封裝 + 試點 1–2 個列表（建議 documents 列表，與 CHANGE-084 協作）；同步新增 `common.json` `table.columns.no` ×3 語言 | type-check / lint 通過；試點頁 No. 欄正確、跨頁序號連續、原欄位與行為無回歸；`i18n:check` 通過 | ⏳ 待實作 |
+| Phase 1 | 建 DataTable 封裝 + 試點 1–2 個列表（建議 documents 列表，與 CHANGE-084 協作）；同步新增 `common.json` `table.columns.no` ×3 語言 | type-check / lint 通過；試點頁 No. 欄正確、跨頁序號連續、原欄位與行為無回歸；`i18n:check` 通過 | ✅ 已完成（2026-06-21） |
 | Phase 2 | 分批遷移其餘 ~33 個列表組件（按模組分批：documents → companies/rules → review/escalations → admin → reference/exchange/pipeline/prompt 等），每批獨立驗證 | 每批 type-check / lint / 視覺核對該批列表 No. 欄與原行為一致 | ⏳ 待實作 |
 | Phase 3 | 清理各組件遷移後遺留的手寫表頭 / 臨時序號邏輯（orphan 清理） | grep 確認已遷移組件無殘留手寫 `<TableHead>` 重複邏輯；type-check / lint 通過 | ⏳ 待實作 |
 
@@ -187,3 +187,34 @@
 | H1（架構 / 三層映射 / 信心度 / Prisma） | 否 | 純前端組件層重構，不涉及 |
 | H3（task scope / 新抽象層） | **是** | 引入全站共用 DataTable 抽象層 — **用戶已於 2026-06-20 批准**（見 §設計決策 D6） |
 | H5（i18n / 硬編碼） | **是** | 「No.」表頭 3 語言同步於 `common.json` `table.columns.no`，完成前跑 `npm run i18n:check` |
+
+---
+
+## 實作記錄 — Phase 1（2026-06-21）
+
+於分支 `feature/change-084-087-phase1` 實作完成。
+
+### D1 路徑決策（實作時定奪）
+
+採 **(a) `src/components/features/common/DataTable.tsx`**（PascalCase），**非**規劃預設傾向的 (b) `ui/data-table.tsx`。理由：本專案 `src/components/ui/` 明確標記「shadcn CLI 生成、不可修改/不放自訂組件」，放非 shadcn 的自訂封裝進去違反該目錄語義；`features/common/` 為 features 領域共用、語義正確，命名符合 features 組件 PascalCase 慣例。DataTable 內部組合 shadcn `Table` primitive，不修改 `ui/table.tsx`。
+
+### 實際修改/新增檔案
+
+| 檔案 | 類型 | 內容 |
+|------|------|------|
+| `src/components/features/common/DataTable.tsx` | 🆕 新增 | 泛型共用封裝：No. 序號欄（跨頁連續 `(page-1)*pageSize + index + 1`，無分頁退化 `index+1`）+ `columns` 定義驅動表頭/儲存格 + 可選空狀態 + `rowProps`。D5：未擴增篩選/欄位顯隱/虛擬捲動 |
+| `src/components/features/document/DocumentListTable.tsx` | 🔧 遷移 | 由手寫 `<Table>` 改為 `columns` 定義 + `<DataTable>`；保留全部 9 欄（含 CHANGE-084 新欄）、checkbox 選擇、isLoading/empty 提前 return；新增 `page`/`pageSize` props；選中列視覺改用 `className="bg-muted"`（與 shadcn `data-[state=selected]` 等價，避免 `data-state` 與 `HTMLAttributes` 型別衝突） |
+| `src/app/[locale]/(dashboard)/documents/page.tsx` | 🔧 修改 | 傳 `page={page}` + `pageSize={data?.meta?.pageSize ?? 20}` 供序號跨頁連續 |
+| `messages/{en,zh-TW,zh-CN}/common.json` | 🔧 修改 | 新增 `table.columns.no`（en `No.` / zh-TW `序號` / zh-CN `序号`） |
+
+### 驗證結果
+
+- `npm run type-check`：通過（exit 0）
+- `npm run lint`：通過（DataTable / DocumentListTable / documents page 皆無 warning）
+- `npm run i18n:check`：通過；三語言 `common.json` JSON 解析有效
+- D2 跨頁序號：documents 列表 `page`/`pageSize` 已接入；序號公式於 DataTable 統一計算
+
+### 範圍說明
+
+- **Phase 1 僅含 documents 試點**（用戶 2026-06-21 確認）。Phase 2（其餘 ~33 個列表組件分批遷移）與 Phase 3（orphan 清理）**未做**，另排跨 session。
+- 未遷移的列表頁維持原手寫表格、正常運作（新舊寫法可共存）。

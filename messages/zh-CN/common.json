@@ -30,6 +30,11 @@
     "approve": "批准",
     "reject": "拒绝"
   },
+  "table": {
+    "columns": {
+      "no": "序号"
+    }
+  },
   "errors": {
     "title": "错误",
     "generic": "发生错误，请重试",
