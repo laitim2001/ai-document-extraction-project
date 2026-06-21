@@ -45,7 +45,9 @@
     "version": "版本 v{version}",
     "globalConfig": "全局配置",
     "disabled": "停用",
-    "edit": "編輯"
+    "edit": "編輯",
+    "delete": "刪除",
+    "deleteDisabledHint": "請先停用才能刪除"
   },
   "types": {
     "ISSUER_IDENTIFICATION": "發行者識別",

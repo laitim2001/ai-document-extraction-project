@@ -124,6 +124,7 @@ export function PromptConfigList({
   isLoading,
   error,
   onEdit,
+  onDelete,
 }: PromptConfigListProps) {
   const t = useTranslations('promptConfig');
 
@@ -240,6 +241,7 @@ export function PromptConfigList({
               displayCount={getDisplayCount(promptType)}
               onShowMore={() => showMore(promptType)}
               onEdit={onEdit}
+              onDelete={onDelete}
             />
           </div>
         ))}

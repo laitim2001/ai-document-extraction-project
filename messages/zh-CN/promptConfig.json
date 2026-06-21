@@ -45,7 +45,9 @@
     "version": "版本 v{version}",
     "globalConfig": "全局配置",
     "disabled": "停用",
-    "edit": "编辑"
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteDisabledHint": "请先停用才能删除"
   },
   "types": {
     "ISSUER_IDENTIFICATION": "发行者识别",

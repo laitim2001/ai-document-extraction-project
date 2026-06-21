@@ -45,7 +45,9 @@
     "version": "Version v{version}",
     "globalConfig": "Global configuration",
     "disabled": "Disabled",
-    "edit": "Edit"
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteDisabledHint": "Deactivate before deleting"
   },
   "types": {
     "ISSUER_IDENTIFICATION": "Issuer Identification",
