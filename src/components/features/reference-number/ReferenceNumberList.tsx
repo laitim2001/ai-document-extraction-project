@@ -47,6 +47,7 @@ import { formatShortDate } from '@/lib/i18n-date'
 import { useToast } from '@/hooks/use-toast'
 import type { Locale } from '@/i18n/config'
 import { ReferenceNumberTypeBadge } from './ReferenceNumberTypeBadge'
+import { ReferenceNumberSubTypeBadge } from './ReferenceNumberSubTypeBadge'
 import { ReferenceNumberStatusBadge } from './ReferenceNumberStatusBadge'
 import { ReferenceNumberDeleteDialog } from './ReferenceNumberDeleteDialog'
 import type { ReferenceNumber } from '@/hooks/use-reference-numbers'
@@ -165,6 +166,8 @@ export function ReferenceNumberList({
               </TableHead>
               {/* 類型 */}
               <TableHead className="w-32">{t('columns.type')}</TableHead>
+              {/* 文件子類型 */}
+              <TableHead className="w-28">{t('columns.documentSubType')}</TableHead>
               {/* 年份 - 可排序 */}
               <TableHead className="w-24">
                 <Button
@@ -224,7 +227,7 @@ export function ReferenceNumberList({
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8">
+                <TableCell colSpan={10} className="text-center py-8">
                   {t('noData')}
                 </TableCell>
               </TableRow>
@@ -236,6 +239,13 @@ export function ReferenceNumberList({
                   </TableCell>
                   <TableCell>
                     <ReferenceNumberTypeBadge type={item.type} />
+                  </TableCell>
+                  <TableCell>
+                    {item.documentSubType ? (
+                      <ReferenceNumberSubTypeBadge subType={item.documentSubType} />
+                    ) : (
+                      <span className="text-muted-foreground">--</span>
+                    )}
                   </TableCell>
                   <TableCell>{item.year}</TableCell>
                   <TableCell className="text-sm">

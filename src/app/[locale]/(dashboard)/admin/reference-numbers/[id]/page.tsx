@@ -123,6 +123,7 @@ export default function EditReferenceNumberPage() {
             defaultValues={{
               number: item.number,
               type: item.type as ReferenceNumberFormValues['type'],
+              documentSubType: item.documentSubType as ReferenceNumberFormValues['documentSubType'],
               year: item.year,
               regionId: item.regionId,
               description: item.description || '',

@@ -3186,6 +3186,9 @@ model ReferenceNumber {
   type            ReferenceNumberType     @default(SHIPMENT)
   status          ReferenceNumberStatus   @default(ACTIVE)
 
+  // CHANGE-086: 文件子類型（文件方向，獨立維度，nullable；不與 type 共用 enum、不納入唯一約束）
+  documentSubType ReferenceNumberSubType? @map("document_sub_type")
+
   // ================================
   // 分類資訊
   // ================================
@@ -3228,6 +3231,7 @@ model ReferenceNumber {
   @@index([regionId])
   @@index([isActive])
   @@index([number])  // 用於搜尋
+  @@index([documentSubType])  // CHANGE-086
   @@map("reference_numbers")
 }
 
@@ -3250,6 +3254,17 @@ enum ReferenceNumberType {
   BL              // Bill of Lading
   CUSTOMS         // 報關單號
   OTHER           // 其他
+}
+
+/**
+ * 參考號碼文件子類型（文件方向，獨立維度）
+ * @since CHANGE-086
+ */
+enum ReferenceNumberSubType {
+  IMPORT          // 進口
+  EXPORT          // 出口
+  BOTH            // 兩者
+  UNKNOWN         // 未知
 }
 
 /**

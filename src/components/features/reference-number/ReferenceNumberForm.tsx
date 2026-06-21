@@ -55,6 +55,7 @@ import { Calendar } from '@/components/ui/calendar'
 import { RegionSelect } from '@/components/features/region/RegionSelect'
 import { Link } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
+import { REFERENCE_NUMBER_SUB_TYPE_OPTIONS } from '@/types/reference-number'
 
 // ============================================================
 // Constants
@@ -72,6 +73,16 @@ const REFERENCE_NUMBER_TYPES = [
   'OTHER',
 ] as const
 
+const REFERENCE_NUMBER_SUB_TYPES = [
+  'IMPORT',
+  'EXPORT',
+  'BOTH',
+  'UNKNOWN',
+] as const
+
+/** Select 中代表「清空（null）」的 sentinel 值 */
+const SUB_TYPE_NONE = '__none__'
+
 // ============================================================
 // Schema
 // ============================================================
@@ -81,6 +92,7 @@ const formSchema = z.object({
   type: z.enum(REFERENCE_NUMBER_TYPES),
   year: z.number().int().min(2000).max(2100),
   regionId: z.string().min(1),
+  documentSubType: z.enum(REFERENCE_NUMBER_SUB_TYPES).nullable().optional(),
   description: z.string().max(500).optional().or(z.literal('')),
   validFrom: z.date().optional().nullable(),
   validUntil: z.date().optional().nullable(),
@@ -126,6 +138,7 @@ export function ReferenceNumberForm({
       type: 'SHIPMENT',
       year: new Date().getFullYear(),
       regionId: '',
+      documentSubType: null,
       description: '',
       validFrom: null,
       validUntil: null,
@@ -223,6 +236,38 @@ export function ReferenceNumberForm({
             )}
           />
         </div>
+
+        {/* 文件子類型（可清空，非必填） */}
+        <FormField
+          control={form.control}
+          name="documentSubType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('form.documentSubType')}</FormLabel>
+              <Select
+                onValueChange={(value) =>
+                  field.onChange(value === SUB_TYPE_NONE ? null : value)
+                }
+                value={field.value ?? SUB_TYPE_NONE}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value={SUB_TYPE_NONE}>{t('form.none')}</SelectItem>
+                  {REFERENCE_NUMBER_SUB_TYPE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {t(`subTypes.${option.value}` as Parameters<typeof t>[0])}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* 地區 */}
         <FormField

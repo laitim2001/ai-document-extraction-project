@@ -43,6 +43,7 @@ export interface ReferenceNumber {
   number: string
   type: string
   status: string
+  documentSubType: string | null
   year: number
   regionId: string
   regionCode: string
@@ -122,6 +123,7 @@ export interface ReferenceNumberQueryParams {
   regionId?: string
   type?: string
   status?: string
+  documentSubType?: string
   isActive?: boolean
   search?: string
   sortBy?: 'number' | 'year' | 'createdAt' | 'updatedAt' | 'matchCount'
@@ -137,6 +139,7 @@ export interface CreateReferenceNumberInput {
   type: string
   year: number
   regionId: string
+  documentSubType?: string | null
   description?: string | null
   validFrom?: string | null
   validUntil?: string | null
@@ -149,6 +152,7 @@ export interface UpdateReferenceNumberInput {
   number?: string
   type?: string
   status?: string
+  documentSubType?: string | null
   year?: number
   regionId?: string
   description?: string | null
@@ -409,6 +413,7 @@ export interface ExportReferenceNumberItem {
   number: string
   type: string
   status: string
+  documentSubType: string | null
   year: number
   regionCode: string
   description: string | null
@@ -491,6 +496,7 @@ export interface ImportReferenceNumbersInput {
     type: string
     year: number
     regionCode: string
+    documentSubType?: string
     description?: string
     validFrom?: string
     validUntil?: string
@@ -510,6 +516,7 @@ export interface ExportReferenceNumbersParams {
   regionId?: string
   type?: string
   status?: string
+  documentSubType?: string
   isActive?: boolean
 }
 

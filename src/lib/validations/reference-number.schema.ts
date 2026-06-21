@@ -94,6 +94,16 @@ export const referenceNumberStatusSchema = z.enum(
   }
 );
 
+/**
+ * Reference Number 文件子類型 Schema（CHANGE-086）
+ */
+export const referenceNumberSubTypeSchema = z.enum(
+  ['IMPORT', 'EXPORT', 'BOTH', 'UNKNOWN'],
+  {
+    message: '無效的文件子類型',
+  }
+);
+
 // ============================================================================
 // Create Reference Number Schema
 // ============================================================================
@@ -121,6 +131,9 @@ export const createReferenceNumberSchema = z
 
     /** 類型 */
     type: referenceNumberTypeSchema,
+
+    /** 文件子類型（CHANGE-086，獨立維度，可空） */
+    documentSubType: referenceNumberSubTypeSchema.optional().nullable(),
 
     /** 年份 */
     year: z
@@ -183,6 +196,9 @@ export const updateReferenceNumberSchema = z
 
     /** 狀態 */
     status: referenceNumberStatusSchema.optional(),
+
+    /** 文件子類型（CHANGE-086，獨立維度，可空） */
+    documentSubType: referenceNumberSubTypeSchema.optional().nullable(),
 
     /** 年份 */
     year: z
@@ -266,6 +282,9 @@ export const getReferenceNumbersQuerySchema = z.object({
   /** 篩選狀態 */
   status: referenceNumberStatusSchema.optional(),
 
+  /** 篩選文件子類型（CHANGE-086） */
+  documentSubType: referenceNumberSubTypeSchema.optional(),
+
   /** 篩選啟用狀態 */
   isActive: z
     .string()
@@ -332,6 +351,9 @@ const importItemSchema = z.object({
 
   /** 類型 */
   type: referenceNumberTypeSchema,
+
+  /** 文件子類型（CHANGE-086，可空） */
+  documentSubType: referenceNumberSubTypeSchema.optional(),
 
   /** 年份 */
   year: z
@@ -412,6 +434,9 @@ export const exportReferenceNumbersQuerySchema = z.object({
 
   /** 篩選狀態 */
   status: referenceNumberStatusSchema.optional(),
+
+  /** 篩選文件子類型（CHANGE-086） */
+  documentSubType: referenceNumberSubTypeSchema.optional(),
 
   /** 篩選啟用狀態 */
   isActive: z

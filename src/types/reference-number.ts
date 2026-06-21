@@ -36,6 +36,16 @@ export type ReferenceNumberStatus =
   | 'EXPIRED'     // 已過期
   | 'CANCELLED';  // 已取消
 
+/**
+ * 參考號碼文件子類型（文件方向，獨立維度，與 type 正交）
+ * @since CHANGE-086
+ */
+export type ReferenceNumberSubType =
+  | 'IMPORT'      // 進口
+  | 'EXPORT'      // 出口
+  | 'BOTH'        // 兩者
+  | 'UNKNOWN';    // 未知
+
 // ================================
 // 常量定義
 // ================================
@@ -84,6 +94,28 @@ export const REFERENCE_NUMBER_STATUS_OPTIONS = Object.entries(REFERENCE_NUMBER_S
   })
 );
 
+/**
+ * 參考號碼文件子類型標籤（繁體中文；UI 顯示請用 i18n t('subTypes.*')，此常量供非 i18n 場景與選項迭代）
+ * @since CHANGE-086
+ */
+export const REFERENCE_NUMBER_SUB_TYPE_LABELS: Record<ReferenceNumberSubType, string> = {
+  IMPORT: '進口',
+  EXPORT: '出口',
+  BOTH: '兩者',
+  UNKNOWN: '未知',
+};
+
+/**
+ * 參考號碼文件子類型選項（用於下拉選單；label 顯示請用 i18n）
+ * @since CHANGE-086
+ */
+export const REFERENCE_NUMBER_SUB_TYPE_OPTIONS = Object.entries(REFERENCE_NUMBER_SUB_TYPE_LABELS).map(
+  ([value, label]) => ({
+    value: value as ReferenceNumberSubType,
+    label,
+  })
+);
+
 // ================================
 // 介面定義
 // ================================
@@ -97,6 +129,7 @@ export interface ReferenceNumber {
   number: string;
   type: ReferenceNumberType;
   status: ReferenceNumberStatus;
+  documentSubType: ReferenceNumberSubType | null;
   year: number;
   regionId: string;
   region: {
@@ -124,6 +157,7 @@ export interface ReferenceNumberListItem {
   number: string;
   type: ReferenceNumberType;
   status: ReferenceNumberStatus;
+  documentSubType: ReferenceNumberSubType | null;
   year: number;
   regionCode: string;
   regionName: string;
@@ -141,6 +175,7 @@ export interface CreateReferenceNumberInput {
   type: ReferenceNumberType;
   year: number;
   regionId: string;
+  documentSubType?: ReferenceNumberSubType | null;
   description?: string;
   validFrom?: string;
   validUntil?: string;
@@ -152,6 +187,7 @@ export interface CreateReferenceNumberInput {
 export interface UpdateReferenceNumberInput {
   description?: string | null;
   status?: ReferenceNumberStatus;
+  documentSubType?: ReferenceNumberSubType | null;
   validFrom?: string | null;
   validUntil?: string | null;
   isActive?: boolean;
@@ -166,6 +202,7 @@ export interface ReferenceNumberQueryParams {
   search?: string;
   type?: ReferenceNumberType | 'all';
   status?: ReferenceNumberStatus | 'all';
+  documentSubType?: ReferenceNumberSubType | 'all';
   year?: number;
   regionId?: string;
   isActive?: boolean;
@@ -204,6 +241,7 @@ export interface ReferenceNumberImportItem {
   type: ReferenceNumberType;
   year: number;
   regionCode: string;
+  documentSubType?: ReferenceNumberSubType;
   description?: string;
   validFrom?: string;
   validUntil?: string;
@@ -241,6 +279,14 @@ export function getReferenceNumberTypeLabel(type: ReferenceNumberType): string {
  */
 export function getReferenceNumberStatusLabel(status: ReferenceNumberStatus): string {
   return REFERENCE_NUMBER_STATUS_LABELS[status] || status;
+}
+
+/**
+ * 取得參考號碼文件子類型標籤（繁中；UI 顯示建議用 i18n t('subTypes.*')）
+ * @since CHANGE-086
+ */
+export function getReferenceNumberSubTypeLabel(subType: ReferenceNumberSubType): string {
+  return REFERENCE_NUMBER_SUB_TYPE_LABELS[subType] || subType;
 }
 
 /**

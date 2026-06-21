@@ -1,7 +1,7 @@
 # CHANGE-086: reference numbers 新增「文件子類型」（進口/出口/兩者/未知）維度
 
 > **日期**: 2026-06-20
-> **狀態**: ⏳ 待實作
+> **狀態**: ✅ 已完成（2026-06-21）
 > **優先級**: Medium
 > **類型**: Feature
 > **影響範圍**: reference number schema＋型別＋服務＋API＋前端＋i18n
@@ -265,4 +265,42 @@ model ReferenceNumber {
 
 | 編號 | 問題 | 狀態 | 處理 |
 |------|------|------|------|
-| OQ-CHANGE086-1 | 英文識別符 `documentSubType` 與 enum 名 `ReferenceNumberSubType` 為暫定，是否採此命名（或改 `direction` / `flowType` / `tradeDirection`） | Open | 實作前向用戶確認；未確認前 commit 標註 `Note: depends on OQ-CHANGE086-1` |
+| OQ-CHANGE086-1 | 英文識別符 `documentSubType` 與 enum 名 `ReferenceNumberSubType` 為暫定，是否採此命名（或改 `direction` / `flowType` / `tradeDirection`） | ✅ Resolved（2026-06-21）| 用戶確認採用 `documentSubType` / `ReferenceNumberSubType`，commit 無需標註 OQ note |
+
+---
+
+## 實作記錄（2026-06-21）
+
+於分支 `feature/change-084-087-phase1` 實作完成。
+
+### P0 命名（OQ-CHANGE086-1 已 resolved）
+用戶 2026-06-21 確認採 `documentSubType`（欄位）/ `ReferenceNumberSubType`（enum、TS 型別），顯示名「文件子類型」。
+
+### P1 資料層 — 採 `prisma db push`（非 migration 檔，符合專案慣例）
+- schema.prisma 加 `enum ReferenceNumberSubType { IMPORT EXPORT BOTH UNKNOWN }` + `ReferenceNumber.documentSubType ReferenceNumberSubType? @map("document_sub_type")` + `@@index([documentSubType])`，不動 `unique_reference_number`。
+- **技術說明（與規劃 P1「寫 migration」措辭的合理差異）**：本專案 migration history 停在 2025-12-19，`reference_numbers`／`workflow_executions` 等表皆**無 migration 檔**——確認本專案本地 schema 一律以 `prisma db push` 維護（`prisma migrate dev` 會因既有 DB 漂移要求 reset 整個 DB，不可接受）。故依專案慣例以 `prisma db push` 同步（**非破壞性，無資料遺失，未建 migration 檔**），並 `prisma generate`。nullable 欄位，既有資料 `document_sub_type` 為 NULL，向後相容。**H1 不觸發**（純加 nullable 欄位）。
+- ⚠️ Azure / 其他環境部署時，需同樣 `prisma db push` 套用此 schema 變更（與既有部署流程一致）。
+
+### P2-P5 + 頁面層
+| 層 | 檔案 | 改動 |
+|----|------|------|
+| 型別 | `src/types/reference-number.ts` | `ReferenceNumberSubType` 型別 + `REFERENCE_NUMBER_SUB_TYPE_LABELS`/`OPTIONS` + `getReferenceNumberSubTypeLabel`；6 個 interface 加 `documentSubType` |
+| 驗證 | `src/lib/validations/reference-number.schema.ts` | `referenceNumberSubTypeSchema`；串入 create/update/get/export/import（**validate 不串，D3 比對不動**） |
+| 服務 | `src/services/reference-number.service.ts` | `ListItem`/`ExportItem` interface + 4 mapper + create/update/import/export data + list/export where 篩選；**`findMatchesInText`（原生 SQL）/ validate match 完全不動（D3）** |
+| API | `reference-numbers/**/route.ts` ×5 | **無需改**（皆 schema-driven：`schema.safeParse` → 整個 `parsed.data` 傳 service，documentSubType 自動流通） |
+| 前端 | 7 組件 + `use-reference-numbers.ts` | 由 `code-implementer` 並行 Agent 完成：新建 `ReferenceNumberSubTypeBadge`（仿 TypeBadge）、Form Select（可清空）、List 欄、Filters 篩選、Import 預覽/範本、Export 型別、hook query |
+| 頁面 | `admin/reference-numbers/page.tsx` + `[id]/page.tsx` | 主 session 補串接：`parseFiltersFromParams` 解析 documentSubType、`exportFilters` 帶入、編輯頁 `defaultValues` 回填 |
+| i18n | `messages/{en,zh-TW,zh-CN}/referenceNumber.json` | `subTypes.*`、`columns/filters/form/import.columns.documentSubType`、`form.none`（Form 清空選項，三語言：None/無/无） |
+
+### 驗證結果
+- `npm run type-check`：通過（exit 0）
+- `npm run lint`：通過（reference-number 全部檔案無 warning）
+- `npm run i18n:check`：通過；三語言 `referenceNumber.json` JSON 解析有效
+- **D3 比對不動**：`findMatchesInText` 原生 SQL 與 validate match mapper 經複查未被改動，ref match 行為零變化
+- **唯一約束不變**：`unique_reference_number` 仍為 `(number, type, year, regionId)`
+
+### Hard Constraint 自檢
+- **H1**：不觸發（nullable 欄位、不動唯一約束、不改比對邏輯）。
+- **H3**：頁面層串接屬 CHANGE-086 全鏈必要部分（規劃「前端表單/列表/篩選/導入導出」隱含），非順手擴張。
+- **H5**：三語言同步 + `npm run i18n:check` 通過。
+- **並行 Agent 紀律**：Agent 僅改前端 7 組件 + hook，未碰 service/routes/messages/type/schema（主 session 處理區），無檔案衝突；Agent 未執行 git。

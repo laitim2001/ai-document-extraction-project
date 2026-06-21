@@ -70,10 +70,17 @@ const VALID_TYPES = [
   'HAWB', 'MAWB', 'BL', 'CUSTOMS', 'OTHER',
 ] as const
 
+/** Valid reference number document sub-types (document direction) */
+const VALID_SUB_TYPES = ['IMPORT', 'EXPORT', 'BOTH', 'UNKNOWN'] as const
+
 /** Column header mapping: English → system field name */
 const EN_COLUMN_MAP: Record<string, string> = {
   'number': 'number',
   'type': 'type',
+  'document sub type': 'documentSubType',
+  'documentsubtype': 'documentSubType',
+  'sub type': 'documentSubType',
+  'subtype': 'documentSubType',
   'year': 'year',
   'region code': 'regionCode',
   'regioncode': 'regionCode',
@@ -93,6 +100,8 @@ const ZH_COLUMN_MAP: Record<string, string> = {
   '号码': 'number',
   '類型': 'type',
   '类型': 'type',
+  '文件子類型': 'documentSubType',
+  '文件子类型': 'documentSubType',
   '年份': 'year',
   '地區代碼': 'regionCode',
   '地区代码': 'regionCode',
@@ -127,6 +136,7 @@ interface ReferenceNumberImportDialogProps {
 interface ParsedRow {
   number: string
   type: string
+  documentSubType?: string
   year: number
   regionCode: string
   code?: string
@@ -341,9 +351,19 @@ export function ReferenceNumberImportDialog({
           isActive = str === 'true' || str === '1' || str === 'yes'
         }
 
+        const subTypeRaw = rawData.documentSubType
+          ? cellToString(rawData.documentSubType).trim().toUpperCase()
+          : ''
+        const documentSubType = VALID_SUB_TYPES.includes(
+          subTypeRaw as typeof VALID_SUB_TYPES[number]
+        )
+          ? subTypeRaw
+          : undefined
+
         const parsed: ParsedRow = {
           number: cellToString(rawData.number).trim(),
           type: cellToString(rawData.type).trim().toUpperCase(),
+          documentSubType,
           year: yearNum,
           regionCode: cellToString(rawData.regionCode).trim(),
           code: rawData.code ? cellToString(rawData.code).trim() : undefined,
@@ -393,6 +413,7 @@ export function ReferenceNumberImportDialog({
       { header: 'Valid From', key: 'validFrom', width: 15 },
       { header: 'Valid Until', key: 'validUntil', width: 15 },
       { header: 'Is Active', key: 'isActive', width: 12 },
+      { header: 'Document Sub Type', key: 'documentSubType', width: 18 },
     ]
 
     // Style header row
@@ -416,6 +437,7 @@ export function ReferenceNumberImportDialog({
       validFrom: '2026-01-01',
       validUntil: '2026-12-31',
       isActive: 'TRUE',
+      documentSubType: 'IMPORT',
     })
 
     // Sheet 2: Instructions
@@ -448,6 +470,7 @@ export function ReferenceNumberImportDialog({
       { column: 'Valid From', required: no, format: 'YYYY-MM-DD', example: '2026-01-01' },
       { column: 'Valid Until', required: no, format: 'YYYY-MM-DD', example: '2026-12-31' },
       { column: 'Is Active', required: no, format: 'TRUE / FALSE (default: TRUE)', example: 'TRUE' },
+      { column: 'Document Sub Type', required: no, format: VALID_SUB_TYPES.join(' / '), example: 'IMPORT' },
     ])
 
     // Generate and download
@@ -517,6 +540,7 @@ export function ReferenceNumberImportDialog({
       .map((r) => ({
         ...r.data,
         code: r.data.code || undefined,
+        documentSubType: r.data.documentSubType || undefined,
         description: r.data.description || undefined,
         validFrom: r.data.validFrom || undefined,
         validUntil: r.data.validUntil || undefined,
@@ -652,6 +676,7 @@ export function ReferenceNumberImportDialog({
                           <TableHead className="w-12">#</TableHead>
                           <TableHead>{t('columns.number')}</TableHead>
                           <TableHead>{t('columns.type')}</TableHead>
+                          <TableHead>{t('columns.documentSubType')}</TableHead>
                           <TableHead>{t('columns.year')}</TableHead>
                           <TableHead>{t('columns.regionCode')}</TableHead>
                           <TableHead>{t('columns.description')}</TableHead>
@@ -671,6 +696,9 @@ export function ReferenceNumberImportDialog({
                               {row.data.number}
                             </TableCell>
                             <TableCell className="text-xs">{row.data.type}</TableCell>
+                            <TableCell className="text-xs">
+                              {row.data.documentSubType ?? '-'}
+                            </TableCell>
                             <TableCell className="text-xs">{row.data.year}</TableCell>
                             <TableCell className="text-xs">{row.data.regionCode}</TableCell>
                             <TableCell className="text-xs truncate max-w-[150px]">

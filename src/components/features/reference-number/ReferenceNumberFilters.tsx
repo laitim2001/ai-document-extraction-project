@@ -39,6 +39,7 @@ import { Search, X } from 'lucide-react'
 import {
   REFERENCE_NUMBER_TYPE_OPTIONS,
   REFERENCE_NUMBER_STATUS_OPTIONS,
+  REFERENCE_NUMBER_SUB_TYPE_OPTIONS,
 } from '@/types/reference-number'
 
 // ============================================================
@@ -50,6 +51,7 @@ interface FilterValues {
   regionId?: string
   type?: string
   status?: string
+  documentSubType?: string
   search?: string
 }
 
@@ -101,6 +103,7 @@ export function ReferenceNumberFilters({
       regionId: undefined,
       type: undefined,
       status: undefined,
+      documentSubType: undefined,
       search: undefined,
       page: 1,
     })
@@ -111,6 +114,7 @@ export function ReferenceNumberFilters({
     !!filters.regionId ||
     !!filters.type ||
     !!filters.status ||
+    !!filters.documentSubType ||
     !!filters.search
 
   return (
@@ -222,6 +226,34 @@ export function ReferenceNumberFilters({
             {REFERENCE_NUMBER_STATUS_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {t(`statuses.${option.value}` as Parameters<typeof t>[0])}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* 文件子類型 */}
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">
+          {t('filters.documentSubType')}
+        </label>
+        <Select
+          value={filters.documentSubType ?? ALL_VALUE}
+          onValueChange={(value) =>
+            onFiltersChange({
+              documentSubType: value === ALL_VALUE ? undefined : value,
+              page: 1,
+            })
+          }
+        >
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder={t('filters.all')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUE}>{t('filters.all')}</SelectItem>
+            {REFERENCE_NUMBER_SUB_TYPE_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {t(`subTypes.${option.value}` as Parameters<typeof t>[0])}
               </SelectItem>
             ))}
           </SelectContent>
