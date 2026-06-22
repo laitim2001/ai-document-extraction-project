@@ -11,7 +11,7 @@
  * @module src/components/features/outlook/OutlookConfigList
  * @author Development Team
  * @since Epic 9 - Story 9.4 (Outlook 連線設定)
- * @lastModified 2025-12-20
+ * @lastModified 2026-06-21 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  */
 
 import * as React from 'react';
@@ -40,13 +40,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -117,14 +113,165 @@ export function OutlookConfigList({
     }
   };
 
-  const handleToggleActive = async (configId: string, isActive: boolean) => {
-    setTogglingId(configId);
-    try {
-      await onToggleActive(configId, isActive);
-    } finally {
-      setTogglingId(null);
-    }
-  };
+  const handleToggleActive = React.useCallback(
+    async (configId: string, isActive: boolean) => {
+      setTogglingId(configId);
+      try {
+        await onToggleActive(configId, isActive);
+      } finally {
+        setTogglingId(null);
+      }
+    },
+    [onToggleActive]
+  );
+
+  // --- Column 定義 ---
+
+  const columns = React.useMemo<DataTableColumn<OutlookConfigApiResponse>[]>(
+    () => [
+      // 名稱
+      {
+        id: 'name',
+        header: '名稱',
+        cell: (config) => (
+          <>
+            <div className="font-medium">{config.name}</div>
+            {config.description && (
+              <div className="text-sm text-muted-foreground">
+                {config.description}
+              </div>
+            )}
+          </>
+        ),
+      },
+      // 信箱
+      {
+        id: 'mailbox',
+        header: '信箱',
+        cell: (config) => (
+          <div className="max-w-[200px]">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="cursor-help truncate block">
+                  {config.mailboxAddress}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>信箱: {config.mailboxAddress}</p>
+                <p className="text-muted-foreground">
+                  資料夾: {config.mailFolders?.join(', ') || 'inbox'}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        ),
+      },
+      // 城市/類型
+      {
+        id: 'cityType',
+        header: '城市/類型',
+        cell: (config) =>
+          config.isGlobal ? (
+            <Badge variant="secondary">
+              <Globe className="mr-1 h-3 w-3" />
+              全域
+            </Badge>
+          ) : config.city ? (
+            <Badge variant="outline">
+              <Building2 className="mr-1 h-3 w-3" />
+              {config.city.name}
+            </Badge>
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          ),
+      },
+      // 過濾規則
+      {
+        id: 'filterRules',
+        header: '過濾規則',
+        cell: (config) => <RulesCount count={config.filterRules?.length ?? 0} />,
+      },
+      // 連線狀態
+      {
+        id: 'connectionStatus',
+        header: '連線狀態',
+        cell: (config) => (
+          <ConnectionStatus
+            lastTestedAt={config.lastTestedAt}
+            lastTestResult={config.lastTestResult}
+            isTesting={testingConfigId === config.id}
+          />
+        ),
+      },
+      // 啟用
+      {
+        id: 'active',
+        header: '啟用',
+        cell: (config) => (
+          <Switch
+            checked={config.isActive}
+            onCheckedChange={(checked) =>
+              handleToggleActive(config.id, checked)
+            }
+            disabled={togglingId === config.id}
+          />
+        ),
+      },
+      // 操作
+      {
+        id: 'actions',
+        headerClassName: 'w-[100px]',
+        header: '操作',
+        cell: (config) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">操作選單</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => onTestConnection(config.id)}
+                disabled={testingConfigId === config.id}
+              >
+                {testingConfigId === config.id ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <TestTube className="mr-2 h-4 w-4" />
+                )}
+                測試連線
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onManageRules(config)}>
+                <Filter className="mr-2 h-4 w-4" />
+                管理過濾規則
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onEdit(config)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                編輯
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setDeletingId(config.id)}
+                className="text-red-600"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                刪除
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    ],
+    [
+      testingConfigId,
+      togglingId,
+      handleToggleActive,
+      onTestConnection,
+      onManageRules,
+      onEdit,
+    ]
+  );
 
   if (isLoading) {
     return (
@@ -160,123 +307,11 @@ export function OutlookConfigList({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>名稱</TableHead>
-                <TableHead>信箱</TableHead>
-                <TableHead>城市/類型</TableHead>
-                <TableHead>過濾規則</TableHead>
-                <TableHead>連線狀態</TableHead>
-                <TableHead>啟用</TableHead>
-                <TableHead className="w-[100px]">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {configs.map((config) => (
-                <TableRow key={config.id}>
-                  <TableCell>
-                    <div className="font-medium">{config.name}</div>
-                    {config.description && (
-                      <div className="text-sm text-muted-foreground">
-                        {config.description}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="max-w-[200px]">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="cursor-help truncate block">
-                            {config.mailboxAddress}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>信箱: {config.mailboxAddress}</p>
-                          <p className="text-muted-foreground">
-                            資料夾: {config.mailFolders?.join(', ') || 'inbox'}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {config.isGlobal ? (
-                      <Badge variant="secondary">
-                        <Globe className="mr-1 h-3 w-3" />
-                        全域
-                      </Badge>
-                    ) : config.city ? (
-                      <Badge variant="outline">
-                        <Building2 className="mr-1 h-3 w-3" />
-                        {config.city.name}
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <RulesCount count={config.filterRules?.length ?? 0} />
-                  </TableCell>
-                  <TableCell>
-                    <ConnectionStatus
-                      lastTestedAt={config.lastTestedAt}
-                      lastTestResult={config.lastTestResult}
-                      isTesting={testingConfigId === config.id}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Switch
-                      checked={config.isActive}
-                      onCheckedChange={(checked) =>
-                        handleToggleActive(config.id, checked)
-                      }
-                      disabled={togglingId === config.id}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">操作選單</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => onTestConnection(config.id)}
-                          disabled={testingConfigId === config.id}
-                        >
-                          {testingConfigId === config.id ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : (
-                            <TestTube className="mr-2 h-4 w-4" />
-                          )}
-                          測試連線
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onManageRules(config)}>
-                          <Filter className="mr-2 h-4 w-4" />
-                          管理過濾規則
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => onEdit(config)}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          編輯
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setDeletingId(config.id)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          刪除
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable
+            data={configs}
+            columns={columns}
+            getRowId={(config) => config.id}
+          />
         </CardContent>
       </Card>
 

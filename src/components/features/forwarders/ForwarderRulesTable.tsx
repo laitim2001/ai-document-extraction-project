@@ -14,15 +14,17 @@
  * @module src/components/features/forwarders/ForwarderRulesTable
  * @author Development Team
  * @since Epic 5 - Story 5.2 (Forwarder Detail Config View)
- * @lastModified 2026-01-17
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @dependencies
  *   - next-intl - 國際化
  *   - @/types/forwarder - 類型定義
  *   - @/components/ui - UI 組件
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/components/features/rules - 規則編輯組件
  */
 
+import * as React from 'react'
 import { useState, useCallback } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,13 +39,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -146,6 +144,89 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
     return formatDistanceToNow(new Date(date), { addSuffix: true, locale: dateLocale })
   }
 
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<RuleListItem>[]>(
+    () => [
+      // 欄位名稱
+      {
+        id: 'fieldName',
+        header: t('rulesTable.columns.fieldName'),
+        cellClassName: 'font-medium',
+        cell: (rule) => rule.fieldName,
+      },
+      // 狀態
+      {
+        id: 'status',
+        header: t('rulesTable.columns.status'),
+        cell: (rule) => (
+          <Badge className={RULE_STATUS_CONFIG[rule.status].className}>
+            {t(`rulesTable.ruleStatus.${rule.status === 'ACTIVE' ? 'active' : rule.status === 'DRAFT' ? 'draft' : rule.status === 'PENDING_REVIEW' ? 'pendingReview' : 'deprecated'}`)}
+          </Badge>
+        ),
+      },
+      // 版本
+      {
+        id: 'version',
+        header: t('rulesTable.columns.version'),
+        headerClassName: 'text-right',
+        cellClassName: 'text-right',
+        cell: (rule) => `v${rule.version}`,
+      },
+      // 信心度
+      {
+        id: 'confidence',
+        header: t('rulesTable.columns.confidence'),
+        headerClassName: 'text-right',
+        cellClassName: 'text-right',
+        cell: (rule) => `${rule.confidence}%`,
+      },
+      // 匹配次數
+      {
+        id: 'matchCount',
+        header: t('rulesTable.columns.matchCount'),
+        headerClassName: 'text-right',
+        cellClassName: 'text-right',
+        cell: (rule) => rule.matchCount.toLocaleString(),
+      },
+      // 最後匹配
+      {
+        id: 'lastMatched',
+        header: t('rulesTable.columns.lastMatched'),
+        cellClassName: 'text-muted-foreground',
+        cell: (rule) => formatTime(rule.lastMatchedAt),
+      },
+      // 操作
+      {
+        id: 'actions',
+        header: t('rulesTable.columns.actions'),
+        headerClassName: 'w-[80px]',
+        cell: (rule) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleEditRule(rule)}>
+                <Edit className="h-4 w-4 mr-2" />
+                {t('rulesTable.actions.editRule')}
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/rules/${rule.id}`}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  {t('rulesTable.actions.viewDetails')}
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, dateLocale, handleEditRule]
+  )
+
   // 載入中狀態
   if (isLoading) {
     return (
@@ -227,64 +308,13 @@ export function ForwarderRulesTable({ forwarderId }: ForwarderRulesTableProps) {
           </div>
         ) : (
           <>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('rulesTable.columns.fieldName')}</TableHead>
-                  <TableHead>{t('rulesTable.columns.status')}</TableHead>
-                  <TableHead className="text-right">{t('rulesTable.columns.version')}</TableHead>
-                  <TableHead className="text-right">{t('rulesTable.columns.confidence')}</TableHead>
-                  <TableHead className="text-right">{t('rulesTable.columns.matchCount')}</TableHead>
-                  <TableHead>{t('rulesTable.columns.lastMatched')}</TableHead>
-                  <TableHead className="w-[80px]">{t('rulesTable.columns.actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rules.map((rule: RuleListItem) => (
-                  <TableRow key={rule.id}>
-                    <TableCell className="font-medium">
-                      {rule.fieldName}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={RULE_STATUS_CONFIG[rule.status].className}>
-                        {t(`rulesTable.ruleStatus.${rule.status === 'ACTIVE' ? 'active' : rule.status === 'DRAFT' ? 'draft' : rule.status === 'PENDING_REVIEW' ? 'pendingReview' : 'deprecated'}`)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">v{rule.version}</TableCell>
-                    <TableCell className="text-right">
-                      {rule.confidence}%
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {rule.matchCount.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatTime(rule.lastMatchedAt)}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditRule(rule)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            {t('rulesTable.actions.editRule')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link href={`/rules/${rule.id}`}>
-                              <Eye className="h-4 w-4 mr-2" />
-                              {t('rulesTable.actions.viewDetails')}
-                            </Link>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <DataTable
+              data={rules}
+              columns={columns}
+              getRowId={(rule: RuleListItem) => rule.id}
+              page={currentPage}
+              pageSize={10}
+            />
 
             {/* 分頁 */}
             {pagination && pagination.totalPages > 1 && (

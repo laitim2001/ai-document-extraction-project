@@ -12,11 +12,11 @@
  *
  * @module src/components/features/pipeline-config/PipelineConfigList
  * @since CHANGE-032 - Pipeline Reference Number Matching & FX Conversion
- * @lastModified 2026-02-08
+ * @lastModified 2026-06-21 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @dependencies
  *   - next-intl - 國際化
- *   - @/components/ui/table - 表格基礎組件
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/hooks/use-pipeline-configs - React Query hooks
  *   - @/i18n/routing - i18n-aware 路由
  */
@@ -24,13 +24,9 @@
 import * as React from 'react'
 import { useTranslations } from 'next-intl'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -153,6 +149,109 @@ export function PipelineConfigList({
     [t]
   )
 
+  // --- Column 定義 ---
+
+  const columns = React.useMemo<DataTableColumn<PipelineConfigItem>[]>(
+    () => [
+      // Scope - 可排序
+      {
+        id: 'scope',
+        headerClassName: 'w-28',
+        header: (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-3 h-8"
+            onClick={() => handleSort('scope')}
+          >
+            {t('list.scope')}
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        ),
+        cell: (item) => <PipelineConfigScopeBadge scope={item.scope} />,
+      },
+      // Target
+      {
+        id: 'target',
+        headerClassName: 'w-48',
+        header: t('list.target'),
+        cellClassName: 'text-sm',
+        cell: (item) => getTargetLabel(item),
+      },
+      // Ref Match
+      {
+        id: 'refMatch',
+        headerClassName: 'w-28',
+        header: t('list.refMatch'),
+        cell: (item) => (
+          <Badge variant={item.refMatchEnabled ? 'default' : 'secondary'}>
+            {item.refMatchEnabled ? t('list.enabled') : t('list.disabled')}
+          </Badge>
+        ),
+      },
+      // FX Conversion
+      {
+        id: 'fxConversion',
+        headerClassName: 'w-28',
+        header: t('list.fxConversion'),
+        cell: (item) => (
+          <Badge variant={item.fxConversionEnabled ? 'default' : 'secondary'}>
+            {item.fxConversionEnabled ? t('list.enabled') : t('list.disabled')}
+          </Badge>
+        ),
+      },
+      // Status
+      {
+        id: 'status',
+        headerClassName: 'w-24',
+        header: t('list.status'),
+        cell: (item) => (
+          <Badge variant={item.isActive ? 'default' : 'secondary'}>
+            {item.isActive ? t('filters.active') : t('filters.inactive')}
+          </Badge>
+        ),
+      },
+      // Description
+      {
+        id: 'description',
+        header: t('list.description'),
+        cellClassName: 'text-sm text-muted-foreground truncate max-w-[200px]',
+        cell: (item) => item.description || '-',
+      },
+      // Actions
+      {
+        id: 'actions',
+        headerClassName: 'w-20',
+        header: t('list.actions'),
+        cell: (item) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/admin/pipeline-settings/${item.id}`}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  {t('actions.edit')}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => setDeleteId(item.id)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                {t('actions.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    ],
+    [t, handleSort, getTargetLabel]
+  )
+
   // --- Loading State ---
 
   if (isLoading) {
@@ -170,104 +269,14 @@ export function PipelineConfigList({
   return (
     <>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {/* Scope - 可排序 */}
-              <TableHead className="w-28">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-8"
-                  onClick={() => handleSort('scope')}
-                >
-                  {t('list.scope')}
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
-              {/* Target */}
-              <TableHead className="w-48">{t('list.target')}</TableHead>
-              {/* Ref Match */}
-              <TableHead className="w-28">{t('list.refMatch')}</TableHead>
-              {/* FX Conversion */}
-              <TableHead className="w-28">{t('list.fxConversion')}</TableHead>
-              {/* Status */}
-              <TableHead className="w-24">{t('list.status')}</TableHead>
-              {/* Description */}
-              <TableHead>{t('list.description')}</TableHead>
-              {/* Actions */}
-              <TableHead className="w-20">{t('list.actions')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  {t('list.empty')}
-                </TableCell>
-              </TableRow>
-            ) : (
-              data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <PipelineConfigScopeBadge scope={item.scope} />
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {getTargetLabel(item)}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={item.refMatchEnabled ? 'default' : 'secondary'}>
-                      {item.refMatchEnabled
-                        ? t('list.enabled')
-                        : t('list.disabled')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={item.fxConversionEnabled ? 'default' : 'secondary'}>
-                      {item.fxConversionEnabled
-                        ? t('list.enabled')
-                        : t('list.disabled')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={item.isActive ? 'default' : 'secondary'}>
-                      {item.isActive
-                        ? t('filters.active')
-                        : t('filters.inactive')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground truncate max-w-[200px]">
-                    {item.description || '-'}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/pipeline-settings/${item.id}`}>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            {t('actions.edit')}
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => setDeleteId(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          {t('actions.delete')}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+        <DataTable
+          data={data}
+          columns={columns}
+          getRowId={(item) => item.id}
+          page={pagination?.page}
+          pageSize={pagination?.limit}
+          emptyState={t('list.empty')}
+        />
       </div>
 
       {/* 分頁 */}

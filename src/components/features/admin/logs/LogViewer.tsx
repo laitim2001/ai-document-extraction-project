@@ -8,7 +8,7 @@
  *
  * @module src/components/features/admin/logs/LogViewer
  * @since Epic 12 - Story 12-7 (System Log Query)
- * @lastModified 2025-12-21
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  */
 
 import * as React from 'react';
@@ -26,13 +26,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -51,6 +47,7 @@ import {
   formatLogTimestamp,
 } from '@/hooks/use-logs';
 import { LogLevel, LogSource } from '@prisma/client';
+import type { LogEntry } from '@/types/logging';
 import {
   Search,
   Filter,
@@ -224,6 +221,59 @@ export function LogViewer({ className }: LogViewerProps) {
   // --- Render ---
   const logs = logsData?.logs || [];
   const pagination = logsData?.pagination;
+
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<LogEntry>[]>(
+    () => [
+      // 時間
+      {
+        id: 'time',
+        header: t('logsViewer.list.columns.time'),
+        headerClassName: 'w-[160px]',
+        cellClassName: 'font-mono text-sm',
+        cell: (log) => formatLogTimestamp(log.timestamp),
+      },
+      // 級別
+      {
+        id: 'level',
+        header: t('logsViewer.list.columns.level'),
+        headerClassName: 'w-[100px]',
+        cell: (log) => <LogLevelBadge level={log.level} />,
+      },
+      // 來源
+      {
+        id: 'source',
+        header: t('logsViewer.list.columns.source'),
+        headerClassName: 'w-[100px]',
+        cell: (log) => <Badge variant="outline">{getLogSourceLabel(log.source)}</Badge>,
+      },
+      // 訊息
+      {
+        id: 'message',
+        header: t('logsViewer.list.columns.message'),
+        cellClassName: 'max-w-[400px] truncate',
+        cell: (log) => (
+          <span title={log.message}>{log.message}</span>
+        ),
+      },
+      // 操作
+      {
+        id: 'actions',
+        header: t('logsViewer.list.columns.actions'),
+        headerClassName: 'w-[80px]',
+        cell: (log) => (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedLogId(log.id)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+        ),
+      },
+    ],
+    [t]
+  );
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -415,44 +465,14 @@ export function LogViewer({ className }: LogViewerProps) {
             </div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[160px]">{t('logsViewer.list.columns.time')}</TableHead>
-                    <TableHead className="w-[100px]">{t('logsViewer.list.columns.level')}</TableHead>
-                    <TableHead className="w-[100px]">{t('logsViewer.list.columns.source')}</TableHead>
-                    <TableHead>{t('logsViewer.list.columns.message')}</TableHead>
-                    <TableHead className="w-[80px]">{t('logsViewer.list.columns.actions')}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {logs.map((log) => (
-                    <TableRow key={log.id} className="cursor-pointer hover:bg-muted/50">
-                      <TableCell className="font-mono text-sm">
-                        {formatLogTimestamp(log.timestamp)}
-                      </TableCell>
-                      <TableCell>
-                        <LogLevelBadge level={log.level} />
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{getLogSourceLabel(log.source)}</Badge>
-                      </TableCell>
-                      <TableCell className="max-w-[400px] truncate" title={log.message}>
-                        {log.message}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedLogId(log.id)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                data={logs}
+                columns={columns}
+                getRowId={(log) => log.id}
+                page={filters.page}
+                pageSize={filters.limit}
+                rowProps={() => ({ className: 'cursor-pointer hover:bg-muted/50' })}
+              />
 
               {/* 分頁 */}
               {pagination && pagination.totalPages > 1 && (

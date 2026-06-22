@@ -10,7 +10,7 @@
  *
  * @module src/components/features/term-analysis/TermTable
  * @since Epic 0 - Story 0.5
- * @lastModified 2026-01-17
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @related
  *   - src/hooks/use-term-analysis.ts - 術語分析數據 Hook
@@ -25,13 +25,9 @@ import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -198,6 +194,134 @@ export function TermTable({
     [selectedTerms, onSelectionChange]
   );
 
+  const allSelected = terms.length > 0 && selectedTerms.size === terms.length;
+  const someSelected = selectedTerms.size > 0 && selectedTerms.size < terms.length;
+
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<AggregatedTerm>[]>(
+    () => [
+      {
+        id: 'select',
+        headerClassName: 'w-12',
+        header: (
+          <Checkbox
+            checked={allSelected}
+            // @ts-expect-error - indeterminate is a valid HTML attribute
+            indeterminate={someSelected}
+            onCheckedChange={(checked) => handleSelectAll(!!checked)}
+            aria-label={t('table.selectAll')}
+          />
+        ),
+        cell: (term) => (
+          <Checkbox
+            checked={selectedTerms.has(term.term)}
+            onCheckedChange={(checked) =>
+              handleSelectTerm(term.term, !!checked)
+            }
+            aria-label={t('table.selectTerm', { term: term.term })}
+          />
+        ),
+      },
+      {
+        id: 'term',
+        header: t('table.headers.term'),
+        cell: (term) => (
+          <>
+            <div className="font-medium">{term.term}</div>
+            {term.similarTerms.length > 0 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="text-xs text-muted-foreground cursor-help">
+                      {t('table.similarTerms', { count: term.similarTerms.length })}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="space-y-1">
+                      {term.similarTerms.slice(0, 5).map((s) => (
+                        <div key={s}>{s}</div>
+                      ))}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </>
+        ),
+      },
+      {
+        id: 'frequency',
+        headerClassName: 'w-24 text-right',
+        header: t('table.headers.frequency'),
+        cellClassName: 'text-right font-mono',
+        cell: (term) => term.frequency.toLocaleString(),
+      },
+      {
+        id: 'companies',
+        headerClassName: 'w-32',
+        header: t('table.headers.companies'),
+        cell: (term) => (
+          <CompanyBadge distribution={term.companyDistribution} t={t} />
+        ),
+      },
+      {
+        id: 'suggestedCategory',
+        headerClassName: 'w-40',
+        header: t('table.headers.suggestedCategory'),
+        cell: (term) => {
+          const classification = classifications[term.term];
+          return classification ? (
+            <Badge variant="secondary">
+              {t(`table.categories.${classification.category}`)}
+            </Badge>
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          );
+        },
+      },
+      {
+        id: 'confidence',
+        headerClassName: 'w-24',
+        header: t('table.headers.confidence'),
+        cell: (term) => {
+          const classification = classifications[term.term];
+          return classification ? (
+            <ConfidenceIndicator confidence={classification.confidence} t={t} />
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          );
+        },
+      },
+      {
+        id: 'actions',
+        headerClassName: 'w-32',
+        header: t('table.headers.actions'),
+        cell: (term) => {
+          const classification = classifications[term.term];
+          return (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onCreateRule?.(term, classification?.category)}
+            >
+              {t('table.createRule')}
+            </Button>
+          );
+        },
+      },
+    ],
+    [
+      allSelected,
+      someSelected,
+      handleSelectAll,
+      handleSelectTerm,
+      selectedTerms,
+      classifications,
+      onCreateRule,
+      t,
+    ]
+  );
+
   // --- Render ---
 
   if (isLoading) {
@@ -216,109 +340,16 @@ export function TermTable({
     );
   }
 
-  const allSelected = terms.length > 0 && selectedTerms.size === terms.length;
-  const someSelected = selectedTerms.size > 0 && selectedTerms.size < terms.length;
-
   return (
     <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">
-              <Checkbox
-                checked={allSelected}
-                // @ts-expect-error - indeterminate is a valid HTML attribute
-                indeterminate={someSelected}
-                onCheckedChange={(checked) => handleSelectAll(!!checked)}
-                aria-label={t('table.selectAll')}
-              />
-            </TableHead>
-            <TableHead>{t('table.headers.term')}</TableHead>
-            <TableHead className="w-24 text-right">{t('table.headers.frequency')}</TableHead>
-            <TableHead className="w-32">{t('table.headers.companies')}</TableHead>
-            <TableHead className="w-40">{t('table.headers.suggestedCategory')}</TableHead>
-            <TableHead className="w-24">{t('table.headers.confidence')}</TableHead>
-            <TableHead className="w-32">{t('table.headers.actions')}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {terms.map((term) => {
-            const classification = classifications[term.term];
-            const isSelected = selectedTerms.has(term.term);
-
-            return (
-              <TableRow
-                key={term.term}
-                className={cn(isSelected && 'bg-muted/50')}
-              >
-                <TableCell>
-                  <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={(checked) =>
-                      handleSelectTerm(term.term, !!checked)
-                    }
-                    aria-label={t('table.selectTerm', { term: term.term })}
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="font-medium">{term.term}</div>
-                  {term.similarTerms.length > 0 && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-xs text-muted-foreground cursor-help">
-                            {t('table.similarTerms', { count: term.similarTerms.length })}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="space-y-1">
-                            {term.similarTerms.slice(0, 5).map((s) => (
-                              <div key={s}>{s}</div>
-                            ))}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                </TableCell>
-                <TableCell className="text-right font-mono">
-                  {term.frequency.toLocaleString()}
-                </TableCell>
-                <TableCell>
-                  <CompanyBadge distribution={term.companyDistribution} t={t} />
-                </TableCell>
-                <TableCell>
-                  {classification ? (
-                    <Badge variant="secondary">
-                      {t(`table.categories.${classification.category}`)}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {classification ? (
-                    <ConfidenceIndicator confidence={classification.confidence} t={t} />
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      onCreateRule?.(term, classification?.category)
-                    }
-                  >
-                    {t('table.createRule')}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+      <DataTable
+        data={terms}
+        columns={columns}
+        getRowId={(term) => term.term}
+        rowProps={(term) => ({
+          className: cn(selectedTerms.has(term.term) && 'bg-muted/50'),
+        })}
+      />
     </div>
   );
 }

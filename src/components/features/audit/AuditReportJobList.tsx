@@ -10,9 +10,10 @@
  *
  * @module src/components/features/audit/AuditReportJobList
  * @since Epic 8 - Story 8.5 (審計報告匯出)
- * @lastModified 2025-12-20
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @dependencies
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/components/ui/* - shadcn/ui 組件
  *   - @/types/audit-report - 報告類型定義
  *   - lucide-react - 圖示
@@ -34,13 +35,9 @@ import {
   AlertCircle,
 } from 'lucide-react'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -171,6 +168,173 @@ export function AuditReportJobList({
   onRefresh,
   downloadingJobId,
 }: AuditReportJobListProps) {
+  // --- Column 定義（沿用原 ReportJobRow 各儲存格內容/樣式，逐欄 1:1 保留） ---
+  const columns = React.useMemo<DataTableColumn<ReportJobItem>[]>(
+    () => [
+      // 報告名稱
+      {
+        id: 'title',
+        header: '報告名稱',
+        headerClassName: 'w-[300px]',
+        cell: (job) => {
+          const FormatIcon = FORMAT_ICONS[job.outputFormat]
+          return (
+            <div className="flex items-center gap-3">
+              <FormatIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="font-medium truncate">{job.title}</p>
+                {job.totalRecords !== null && (
+                  <p className="text-xs text-muted-foreground">
+                    {job.totalRecords.toLocaleString()} 筆記錄
+                  </p>
+                )}
+              </div>
+            </div>
+          )
+        },
+      },
+      // 類型
+      {
+        id: 'reportType',
+        header: '類型',
+        cell: (job) => (
+          <span className="text-sm">{AUDIT_REPORT_TYPES[job.reportType].label}</span>
+        ),
+      },
+      // 格式
+      {
+        id: 'outputFormat',
+        header: '格式',
+        cell: (job) => (
+          <Badge variant="outline">{REPORT_OUTPUT_FORMATS[job.outputFormat].label}</Badge>
+        ),
+      },
+      // 狀態
+      {
+        id: 'status',
+        header: '狀態',
+        cell: (job) => {
+          const StatusIcon = STATUS_ICONS[job.status]
+          const statusConfig = REPORT_JOB_STATUSES[job.status]
+          const isProcessing = ['PROCESSING', 'GENERATING', 'SIGNING', 'QUEUED'].includes(
+            job.status
+          )
+          return (
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <StatusIcon
+                  className={cn(
+                    'h-4 w-4',
+                    isProcessing && 'animate-spin',
+                    job.status === 'COMPLETED' && 'text-green-500',
+                    job.status === 'FAILED' && 'text-red-500',
+                    job.status === 'EXPIRED' && 'text-orange-500'
+                  )}
+                />
+                <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+              </div>
+              {isProcessing && <Progress value={job.progress} className="h-1 w-24" />}
+              {job.expiresAt && job.status === 'COMPLETED' && (
+                <p className="text-xs text-muted-foreground">
+                  {formatRelativeTime(job.expiresAt)}
+                </p>
+              )}
+            </div>
+          )
+        },
+      },
+      // 建立時間
+      {
+        id: 'createdAt',
+        header: '建立時間',
+        cell: (job) => (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-sm text-muted-foreground cursor-help">
+                  {formatDate(job.createdAt)}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {job.completedAt && <p>完成時間：{formatDate(job.completedAt)}</p>}
+                {job.downloadCount !== undefined && job.downloadCount > 0 && (
+                  <p>下載次數：{job.downloadCount}</p>
+                )}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ),
+      },
+      // 操作
+      {
+        id: 'actions',
+        header: '操作',
+        headerClassName: 'text-right',
+        cellClassName: 'text-right',
+        cell: (job) => {
+          const isDownloadable = isReportDownloadable({
+            status: job.status,
+            expiresAt: job.expiresAt ? new Date(job.expiresAt) : null,
+            fileUrl: job.fileUrl ?? null,
+          })
+          const isDownloading = downloadingJobId === job.id
+          return (
+            <div className="flex items-center justify-end gap-2">
+              {isDownloadable && (
+                <>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onDownload(job.id)}
+                          disabled={isDownloading}
+                        >
+                          {isDownloading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Download className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>下載報告</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={() => onVerify(job.id)}>
+                          <Shield className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>驗證完整性</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </>
+              )}
+
+              {job.status === 'FAILED' && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="destructive" className="cursor-help">
+                        失敗
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>報告生成失敗，請重新建立</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
+          )
+        },
+      },
+    ],
+    [onDownload, onVerify, downloadingJobId]
+  )
+
   // --- Render ---
   if (jobs.length === 0 && !isLoading) {
     return (
@@ -197,200 +361,19 @@ export function AuditReportJobList({
         </Button>
       </div>
 
-      {/* 表格 */}
+      {/* 表格（props.jobs 無分頁，序號退化為 index + 1） */}
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[300px]">報告名稱</TableHead>
-              <TableHead>類型</TableHead>
-              <TableHead>格式</TableHead>
-              <TableHead>狀態</TableHead>
-              <TableHead>建立時間</TableHead>
-              <TableHead className="text-right">操作</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                </TableCell>
-              </TableRow>
-            ) : (
-              jobs.map((job) => (
-                <ReportJobRow
-                  key={job.id}
-                  job={job}
-                  onDownload={onDownload}
-                  onVerify={onVerify}
-                  isDownloading={downloadingJobId === job.id}
-                />
-              ))
-            )}
-          </TableBody>
-        </Table>
+        <DataTable
+          data={isLoading ? [] : jobs}
+          columns={columns}
+          getRowId={(job) => job.id}
+          emptyState={
+            isLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+            ) : null
+          }
+        />
       </div>
     </div>
-  )
-}
-
-// ============================================================
-// Sub-components
-// ============================================================
-
-interface ReportJobRowProps {
-  job: ReportJobItem
-  onDownload: (jobId: string) => void
-  onVerify: (jobId: string) => void
-  isDownloading?: boolean
-}
-
-function ReportJobRow({ job, onDownload, onVerify, isDownloading }: ReportJobRowProps) {
-  const FormatIcon = FORMAT_ICONS[job.outputFormat]
-  const StatusIcon = STATUS_ICONS[job.status]
-  const statusConfig = REPORT_JOB_STATUSES[job.status]
-  const reportTypeConfig = AUDIT_REPORT_TYPES[job.reportType]
-  const formatConfig = REPORT_OUTPUT_FORMATS[job.outputFormat]
-
-  const isDownloadable = isReportDownloadable({
-    status: job.status,
-    expiresAt: job.expiresAt ? new Date(job.expiresAt) : null,
-    fileUrl: job.fileUrl ?? null,
-  })
-
-  const isProcessing = ['PROCESSING', 'GENERATING', 'SIGNING', 'QUEUED'].includes(job.status)
-
-  return (
-    <TableRow>
-      {/* 報告名稱 */}
-      <TableCell>
-        <div className="flex items-center gap-3">
-          <FormatIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-          <div className="min-w-0">
-            <p className="font-medium truncate">{job.title}</p>
-            {job.totalRecords !== null && (
-              <p className="text-xs text-muted-foreground">
-                {job.totalRecords.toLocaleString()} 筆記錄
-              </p>
-            )}
-          </div>
-        </div>
-      </TableCell>
-
-      {/* 類型 */}
-      <TableCell>
-        <span className="text-sm">{reportTypeConfig.label}</span>
-      </TableCell>
-
-      {/* 格式 */}
-      <TableCell>
-        <Badge variant="outline">{formatConfig.label}</Badge>
-      </TableCell>
-
-      {/* 狀態 */}
-      <TableCell>
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <StatusIcon
-              className={cn(
-                'h-4 w-4',
-                isProcessing && 'animate-spin',
-                job.status === 'COMPLETED' && 'text-green-500',
-                job.status === 'FAILED' && 'text-red-500',
-                job.status === 'EXPIRED' && 'text-orange-500'
-              )}
-            />
-            <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
-          </div>
-          {isProcessing && (
-            <Progress value={job.progress} className="h-1 w-24" />
-          )}
-          {job.expiresAt && job.status === 'COMPLETED' && (
-            <p className="text-xs text-muted-foreground">
-              {formatRelativeTime(job.expiresAt)}
-            </p>
-          )}
-        </div>
-      </TableCell>
-
-      {/* 建立時間 */}
-      <TableCell>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="text-sm text-muted-foreground cursor-help">
-                {formatDate(job.createdAt)}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              {job.completedAt && (
-                <p>完成時間：{formatDate(job.completedAt)}</p>
-              )}
-              {job.downloadCount !== undefined && job.downloadCount > 0 && (
-                <p>下載次數：{job.downloadCount}</p>
-              )}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </TableCell>
-
-      {/* 操作 */}
-      <TableCell className="text-right">
-        <div className="flex items-center justify-end gap-2">
-          {isDownloadable && (
-            <>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onDownload(job.id)}
-                      disabled={isDownloading}
-                    >
-                      {isDownloading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Download className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>下載報告</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onVerify(job.id)}
-                    >
-                      <Shield className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>驗證完整性</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </>
-          )}
-
-          {job.status === 'FAILED' && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="destructive" className="cursor-help">
-                    失敗
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>報告生成失敗，請重新建立</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      </TableCell>
-    </TableRow>
   )
 }

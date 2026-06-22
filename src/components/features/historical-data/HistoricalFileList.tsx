@@ -11,7 +11,7 @@
  *
  * @module src/components/features/historical-data/HistoricalFileList
  * @since Epic 0 - Story 0.1
- * @lastModified 2025-12-28
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  */
 
 import * as React from 'react'
@@ -35,13 +35,9 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import {
   Select,
   SelectContent,
@@ -305,6 +301,167 @@ export function HistoricalFileList({
   const allSelected = filteredFiles.length > 0 && selectedIds.size === filteredFiles.length
   const someSelected = selectedIds.size > 0 && selectedIds.size < filteredFiles.length
 
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<HistoricalFile>[]>(
+    () => [
+      {
+        id: 'select',
+        headerClassName: 'w-[50px]',
+        header: (
+          <Checkbox
+            checked={allSelected}
+            onCheckedChange={handleSelectAll}
+            aria-label={t('fileList.table.selectAll')}
+            {...(someSelected ? { 'data-state': 'indeterminate' } : {})}
+          />
+        ),
+        cell: (file) => (
+          <Checkbox
+            checked={selectedIds.has(file.id)}
+            onCheckedChange={(checked) => handleSelectFile(file.id, !!checked)}
+            aria-label={t('fileList.table.selectFile', { name: file.originalName })}
+          />
+        ),
+      },
+      {
+        id: 'fileName',
+        header: t('fileList.table.fileName'),
+        cell: (file) => {
+          const typeConfig = file.detectedType ? FILE_TYPE_CONFIG[file.detectedType] : null
+          const TypeIcon = typeConfig?.icon || FileQuestion
+          return (
+            <div className="flex items-center gap-2">
+              <TypeIcon
+                className={cn('h-5 w-5 flex-shrink-0', typeConfig?.color || 'text-muted-foreground')}
+              />
+              <div className="min-w-0">
+                <p className="truncate font-medium" title={file.originalName}>
+                  {file.originalName}
+                </p>
+                {file.errorMessage && (
+                  <p className="text-xs text-destructive truncate" title={file.errorMessage}>
+                    {file.errorMessage}
+                  </p>
+                )}
+              </div>
+            </div>
+          )
+        },
+      },
+      {
+        id: 'type',
+        headerClassName: 'w-[120px]',
+        header: t('fileList.table.type'),
+        cell: (file) => {
+          const typeConfig = file.detectedType ? FILE_TYPE_CONFIG[file.detectedType] : null
+          return onUpdateFileType && file.status !== 'PROCESSING' ? (
+            <Select
+              value={file.detectedType || ''}
+              onValueChange={(value) => handleTypeChange(file.id, value as DetectedFileType)}
+              disabled={isOperating}
+            >
+              <SelectTrigger className="w-[110px] h-8">
+                <SelectValue placeholder={t('fileList.table.selectType')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NATIVE_PDF">{t('fileList.fileType.nativePdf')}</SelectItem>
+                <SelectItem value="SCANNED_PDF">{t('fileList.fileType.scannedPdf')}</SelectItem>
+                <SelectItem value="IMAGE">{t('fileList.fileType.image')}</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : (
+            <span className={typeConfig?.color}>{typeConfig ? t(`fileList.fileType.${typeConfig.labelKey}`) : t('fileList.fileType.unknown')}</span>
+          )
+        },
+      },
+      {
+        id: 'size',
+        headerClassName: 'w-[100px]',
+        header: t('fileList.table.size'),
+        cell: (file) => formatFileSize(file.fileSize),
+      },
+      {
+        id: 'status',
+        headerClassName: 'w-[100px]',
+        header: t('fileList.table.status'),
+        cell: (file) => {
+          const statusConfig = STATUS_CONFIG[file.status]
+          return (
+            <Badge variant={statusConfig.variant}>{t(`fileList.status.${statusConfig.labelKey}`)}</Badge>
+          )
+        },
+      },
+      {
+        id: 'detectedAt',
+        headerClassName: 'w-[160px]',
+        header: t('fileList.table.detectedAt'),
+        cellClassName: 'text-sm text-muted-foreground',
+        cell: (file) => formatDate(file.detectedAt),
+      },
+      {
+        id: 'actions',
+        headerClassName: 'w-[100px]',
+        header: t('fileList.table.actions'),
+        cell: (file) => (
+          <div className="flex items-center gap-1">
+            {/* 查看詳情 - 僅 COMPLETED 狀態可用 */}
+            {file.status === 'COMPLETED' && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => router.push(`/admin/historical-data/files/${file.id}`)}
+                title={t('fileList.actions.viewDetails')}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            )}
+            {file.status === 'FAILED' && onRetryDetection && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => handleRetry(file.id)}
+                disabled={isOperating}
+                title={t('fileList.actions.retryDetection')}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            )}
+            {onDeleteFile && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive"
+                onClick={() => handleDeleteClick(file.id)}
+                disabled={isOperating || file.status === 'PROCESSING'}
+                title={t('fileList.actions.deleteFile')}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        ),
+      },
+    ],
+    [
+      allSelected,
+      someSelected,
+      handleSelectAll,
+      handleSelectFile,
+      selectedIds,
+      onUpdateFileType,
+      isOperating,
+      handleTypeChange,
+      onRetryDetection,
+      handleRetry,
+      onDeleteFile,
+      handleDeleteClick,
+      router,
+      t,
+    ]
+  )
+
   // --- Render ---
 
   return (
@@ -397,143 +554,18 @@ export function HistoricalFileList({
 
       {/* 文件列表表格 */}
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]">
-                <Checkbox
-                  checked={allSelected}
-                  onCheckedChange={handleSelectAll}
-                  aria-label={t('fileList.table.selectAll')}
-                  {...(someSelected ? { 'data-state': 'indeterminate' } : {})}
-                />
-              </TableHead>
-              <TableHead>{t('fileList.table.fileName')}</TableHead>
-              <TableHead className="w-[120px]">{t('fileList.table.type')}</TableHead>
-              <TableHead className="w-[100px]">{t('fileList.table.size')}</TableHead>
-              <TableHead className="w-[100px]">{t('fileList.table.status')}</TableHead>
-              <TableHead className="w-[160px]">{t('fileList.table.detectedAt')}</TableHead>
-              <TableHead className="w-[100px]">{t('fileList.table.actions')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
-                  <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                </TableCell>
-              </TableRow>
-            ) : filteredFiles.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                  {t('fileList.empty')}
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredFiles.map((file) => {
-                const typeConfig = file.detectedType ? FILE_TYPE_CONFIG[file.detectedType] : null
-                const statusConfig = STATUS_CONFIG[file.status]
-                const TypeIcon = typeConfig?.icon || FileQuestion
-
-                return (
-                  <TableRow key={file.id}>
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedIds.has(file.id)}
-                        onCheckedChange={(checked) => handleSelectFile(file.id, !!checked)}
-                        aria-label={t('fileList.table.selectFile', { name: file.originalName })}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <TypeIcon
-                          className={cn('h-5 w-5 flex-shrink-0', typeConfig?.color || 'text-muted-foreground')}
-                        />
-                        <div className="min-w-0">
-                          <p className="truncate font-medium" title={file.originalName}>
-                            {file.originalName}
-                          </p>
-                          {file.errorMessage && (
-                            <p className="text-xs text-destructive truncate" title={file.errorMessage}>
-                              {file.errorMessage}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {onUpdateFileType && file.status !== 'PROCESSING' ? (
-                        <Select
-                          value={file.detectedType || ''}
-                          onValueChange={(value) => handleTypeChange(file.id, value as DetectedFileType)}
-                          disabled={isOperating}
-                        >
-                          <SelectTrigger className="w-[110px] h-8">
-                            <SelectValue placeholder={t('fileList.table.selectType')} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="NATIVE_PDF">{t('fileList.fileType.nativePdf')}</SelectItem>
-                            <SelectItem value="SCANNED_PDF">{t('fileList.fileType.scannedPdf')}</SelectItem>
-                            <SelectItem value="IMAGE">{t('fileList.fileType.image')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        <span className={typeConfig?.color}>{typeConfig ? t(`fileList.fileType.${typeConfig.labelKey}`) : t('fileList.fileType.unknown')}</span>
-                      )}
-                    </TableCell>
-                    <TableCell>{formatFileSize(file.fileSize)}</TableCell>
-                    <TableCell>
-                      <Badge variant={statusConfig.variant}>{t(`fileList.status.${statusConfig.labelKey}`)}</Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(file.detectedAt)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        {/* 查看詳情 - 僅 COMPLETED 狀態可用 */}
-                        {file.status === 'COMPLETED' && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => router.push(`/admin/historical-data/files/${file.id}`)}
-                            title={t('fileList.actions.viewDetails')}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {file.status === 'FAILED' && onRetryDetection && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleRetry(file.id)}
-                            disabled={isOperating}
-                            title={t('fileList.actions.retryDetection')}
-                          >
-                            <RefreshCw className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {onDeleteFile && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive hover:text-destructive"
-                            onClick={() => handleDeleteClick(file.id)}
-                            disabled={isOperating || file.status === 'PROCESSING'}
-                            title={t('fileList.actions.deleteFile')}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              })
-            )}
-          </TableBody>
-        </Table>
+        {isLoading ? (
+          <div className="flex h-24 items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <DataTable
+            data={filteredFiles}
+            columns={columns}
+            getRowId={(file) => file.id}
+            emptyState={t('fileList.empty')}
+          />
+        )}
       </div>
 
       {/* 統計資訊 */}

@@ -10,10 +10,10 @@
  *
  * @module src/components/features/admin/backup/BackupList
  * @since Epic 12 - Story 12-5 (數據備份管理)
- * @lastModified 2025-12-21
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
@@ -68,10 +68,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useBackups, useCancelBackup, useDeleteBackup } from '@/hooks/use-backup'
 import { formatFileSize, getStatusInfo, getSourceInfo, getTypeInfo } from '@/types/backup'
-import type { BackupListParams, BackupStatus, BackupSource, BackupType } from '@/types/backup'
+import type { BackupListParams, BackupStatus, BackupSource, BackupType, BackupListItem } from '@/types/backup'
 
 // ============================================================
 // Types
@@ -156,6 +160,122 @@ export function BackupList({ onViewDetail }: BackupListProps) {
     }
   }
 
+  // --- Column 定義 ---
+  const columns = useMemo<DataTableColumn<BackupListItem>[]>(
+    () => [
+      {
+        id: 'backupTime',
+        header: t('backup.list.table.backupTime'),
+        cell: (backup) => (
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <span>
+              {backup.startedAt
+                ? format(new Date(backup.startedAt), 'yyyy/MM/dd HH:mm', {
+                    locale: zhTW,
+                  })
+                : '-'}
+            </span>
+          </div>
+        ),
+      },
+      {
+        id: 'source',
+        header: t('backup.list.table.source'),
+        cell: (backup) => {
+          const sourceInfo = getSourceInfo(backup.source as BackupSource)
+          return (
+            <div className="flex items-center gap-2">
+              {getSourceIcon(backup.source as BackupSource)}
+              <span>{sourceInfo.label}</span>
+            </div>
+          )
+        },
+      },
+      {
+        id: 'type',
+        header: t('backup.list.table.type'),
+        cell: (backup) => {
+          const typeInfo = getTypeInfo(backup.type as BackupType)
+          return <Badge variant="outline">{typeInfo.label}</Badge>
+        },
+      },
+      {
+        id: 'size',
+        header: t('backup.list.table.size'),
+        cell: (backup) => formatFileSize(backup.sizeBytes),
+      },
+      {
+        id: 'status',
+        header: t('backup.list.table.status'),
+        cell: (backup) => {
+          const statusInfo = getStatusInfo(backup.status as BackupStatus)
+          return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+        },
+      },
+      {
+        id: 'operator',
+        header: t('backup.list.table.operator'),
+        cell: (backup) => (
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">{backup.createdByName || t('backup.list.table.system')}</span>
+          </div>
+        ),
+      },
+      {
+        id: 'actions',
+        header: '',
+        headerClassName: 'w-[80px]',
+        cell: (backup) => {
+          const canCancel = backup.status === 'IN_PROGRESS' || backup.status === 'PENDING'
+          const canDelete = backup.status !== 'IN_PROGRESS'
+
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onViewDetail?.(backup.id)}>
+                  {t('backup.list.actions.viewDetails')}
+                </DropdownMenuItem>
+                {backup.status === 'COMPLETED' && (
+                  <DropdownMenuItem>
+                    <Download className="mr-2 h-4 w-4" />
+                    {t('backup.list.actions.download')}
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                {canCancel && (
+                  <DropdownMenuItem
+                    onClick={() => setCancelId(backup.id)}
+                    className="text-orange-600"
+                  >
+                    <StopCircle className="mr-2 h-4 w-4" />
+                    {t('backup.list.actions.cancelBackup')}
+                  </DropdownMenuItem>
+                )}
+                {canDelete && (
+                  <DropdownMenuItem
+                    onClick={() => setDeleteId(backup.id)}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {t('backup.list.actions.delete')}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )
+        },
+      },
+    ],
+    [t, onViewDetail]
+  )
+
   if (error) {
     return (
       <Card>
@@ -231,121 +351,42 @@ export function BackupList({ onViewDetail }: BackupListProps) {
 
         {/* 表格 */}
         <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('backup.list.table.backupTime')}</TableHead>
-                <TableHead>{t('backup.list.table.source')}</TableHead>
-                <TableHead>{t('backup.list.table.type')}</TableHead>
-                <TableHead>{t('backup.list.table.size')}</TableHead>
-                <TableHead>{t('backup.list.table.status')}</TableHead>
-                <TableHead>{t('backup.list.table.operator')}</TableHead>
-                <TableHead className="w-[80px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
+          {isLoading ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[60px]"></TableHead>
+                  <TableHead>{t('backup.list.table.backupTime')}</TableHead>
+                  <TableHead>{t('backup.list.table.source')}</TableHead>
+                  <TableHead>{t('backup.list.table.type')}</TableHead>
+                  <TableHead>{t('backup.list.table.size')}</TableHead>
+                  <TableHead>{t('backup.list.table.status')}</TableHead>
+                  <TableHead>{t('backup.list.table.operator')}</TableHead>
+                  <TableHead className="w-[80px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-5 w-full" />
                       </TableCell>
                     ))}
                   </TableRow>
-                ))
-              ) : backups.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                    {t('backup.list.emptyState')}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                backups.map((backup) => {
-                  const statusInfo = getStatusInfo(backup.status as BackupStatus)
-                  const sourceInfo = getSourceInfo(backup.source as BackupSource)
-                  const typeInfo = getTypeInfo(backup.type as BackupType)
-                  const canCancel = backup.status === 'IN_PROGRESS' || backup.status === 'PENDING'
-                  const canDelete = backup.status !== 'IN_PROGRESS'
-
-                  return (
-                    <TableRow key={backup.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {backup.startedAt
-                              ? format(new Date(backup.startedAt), 'yyyy/MM/dd HH:mm', {
-                                  locale: zhTW,
-                                })
-                              : '-'}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getSourceIcon(backup.source as BackupSource)}
-                          <span>{sourceInfo.label}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{typeInfo.label}</Badge>
-                      </TableCell>
-                      <TableCell>{formatFileSize(backup.sizeBytes)}</TableCell>
-                      <TableCell>
-                        <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{backup.createdByName || t('backup.list.table.system')}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => onViewDetail?.(backup.id)}>
-                              {t('backup.list.actions.viewDetails')}
-                            </DropdownMenuItem>
-                            {backup.status === 'COMPLETED' && (
-                              <DropdownMenuItem>
-                                <Download className="mr-2 h-4 w-4" />
-                                {t('backup.list.actions.download')}
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuSeparator />
-                            {canCancel && (
-                              <DropdownMenuItem
-                                onClick={() => setCancelId(backup.id)}
-                                className="text-orange-600"
-                              >
-                                <StopCircle className="mr-2 h-4 w-4" />
-                                {t('backup.list.actions.cancelBackup')}
-                              </DropdownMenuItem>
-                            )}
-                            {canDelete && (
-                              <DropdownMenuItem
-                                onClick={() => setDeleteId(backup.id)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                {t('backup.list.actions.delete')}
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <DataTable
+              data={backups}
+              columns={columns}
+              getRowId={(backup) => backup.id}
+              page={params.page}
+              pageSize={params.limit}
+              emptyState={t('backup.list.emptyState')}
+            />
+          )}
         </div>
 
         {/* 分頁 */}

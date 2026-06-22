@@ -11,11 +11,11 @@
  *
  * @module src/components/features/exchange-rate/ExchangeRateList
  * @since Epic 21 - Story 21.6 (Management Page - List & Filter)
- * @lastModified 2026-02-06
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @dependencies
  *   - next-intl - 國際化
- *   - @/components/ui/table - 表格基礎組件
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/components/ui/button - 按鈕
  *   - @/components/ui/badge - 徽章
  *   - @/components/ui/dropdown-menu - 下拉選單
@@ -27,13 +27,9 @@
 import * as React from 'react'
 import { useTranslations } from 'next-intl'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -168,6 +164,136 @@ export function ExchangeRateList({
     [toggleMutation, toast, t]
   )
 
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<ExchangeRateItem>[]>(
+    () => [
+      // 來源貨幣 - 可排序
+      {
+        id: 'fromCurrency',
+        headerClassName: 'w-32',
+        header: (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-3 h-8"
+            onClick={() => handleSort('fromCurrency')}
+          >
+            {t('list.fromCurrency')}
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        ),
+        cellClassName: 'font-mono text-sm',
+        cell: (item) => item.fromCurrency,
+      },
+      // 目標貨幣 - 可排序
+      {
+        id: 'toCurrency',
+        headerClassName: 'w-32',
+        header: (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-3 h-8"
+            onClick={() => handleSort('toCurrency')}
+          >
+            {t('list.toCurrency')}
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        ),
+        cellClassName: 'font-mono text-sm',
+        cell: (item) => item.toCurrency,
+      },
+      // 匯率 - 可排序
+      {
+        id: 'rate',
+        headerClassName: 'w-36 text-right',
+        header: (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-3 h-8"
+            onClick={() => handleSort('rate')}
+          >
+            {t('list.rate')}
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        ),
+        cellClassName: 'text-right font-mono tabular-nums',
+        cell: (item) => Number(item.rate).toFixed(6),
+      },
+      // 年份 - 可排序
+      {
+        id: 'effectiveYear',
+        headerClassName: 'w-24',
+        header: (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-3 h-8"
+            onClick={() => handleSort('effectiveYear')}
+          >
+            {t('list.effectiveYear')}
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        ),
+        cell: (item) => item.effectiveYear,
+      },
+      // 來源
+      {
+        id: 'source',
+        headerClassName: 'w-32',
+        header: t('list.source'),
+        cell: (item) => <Badge variant="outline">{t(`source.${item.source}`)}</Badge>,
+      },
+      // 狀態
+      {
+        id: 'status',
+        headerClassName: 'w-24',
+        header: t('list.status'),
+        cell: (item) => (
+          <Badge variant={item.isActive ? 'default' : 'secondary'}>
+            {item.isActive ? t('filters.active') : t('filters.inactive')}
+          </Badge>
+        ),
+      },
+      // 操作
+      {
+        id: 'actions',
+        headerClassName: 'w-20',
+        header: t('list.actions'),
+        cell: (item) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/admin/exchange-rates/${item.id}`}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  {t('actions.edit')}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleToggle(item.id)}>
+                <ToggleLeft className="h-4 w-4 mr-2" />
+                {t('actions.toggle')}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => setDeleteId(item.id)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                {t('actions.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    ],
+    [t, handleSort, handleToggle]
+  )
+
   // --- Loading State ---
 
   if (isLoading) {
@@ -185,126 +311,14 @@ export function ExchangeRateList({
   return (
     <>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {/* 來源貨幣 - 可排序 */}
-              <TableHead className="w-32">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-8"
-                  onClick={() => handleSort('fromCurrency')}
-                >
-                  {t('list.fromCurrency')}
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
-              {/* 目標貨幣 - 可排序 */}
-              <TableHead className="w-32">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-8"
-                  onClick={() => handleSort('toCurrency')}
-                >
-                  {t('list.toCurrency')}
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
-              {/* 匯率 - 可排序 */}
-              <TableHead className="w-36 text-right">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-8"
-                  onClick={() => handleSort('rate')}
-                >
-                  {t('list.rate')}
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
-              {/* 年份 - 可排序 */}
-              <TableHead className="w-24">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-8"
-                  onClick={() => handleSort('effectiveYear')}
-                >
-                  {t('list.effectiveYear')}
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
-              {/* 來源 */}
-              <TableHead className="w-32">{t('list.source')}</TableHead>
-              {/* 狀態 */}
-              <TableHead className="w-24">{t('list.status')}</TableHead>
-              {/* 操作 */}
-              <TableHead className="w-20">{t('list.actions')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  {t('list.empty')}
-                </TableCell>
-              </TableRow>
-            ) : (
-              data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-mono text-sm">
-                    {item.fromCurrency}
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {item.toCurrency}
-                  </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">
-                    {Number(item.rate).toFixed(6)}
-                  </TableCell>
-                  <TableCell>{item.effectiveYear}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{t(`source.${item.source}`)}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={item.isActive ? 'default' : 'secondary'}>
-                      {item.isActive ? t('filters.active') : t('filters.inactive')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/exchange-rates/${item.id}`}>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            {t('actions.edit')}
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleToggle(item.id)}>
-                          <ToggleLeft className="h-4 w-4 mr-2" />
-                          {t('actions.toggle')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => setDeleteId(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          {t('actions.delete')}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+        <DataTable
+          data={data}
+          columns={columns}
+          getRowId={(item) => item.id}
+          page={pagination?.page}
+          pageSize={pagination?.limit}
+          emptyState={t('list.empty')}
+        />
       </div>
 
       {/* 分頁 */}

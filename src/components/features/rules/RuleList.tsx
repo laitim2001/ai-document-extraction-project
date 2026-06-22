@@ -203,6 +203,8 @@ export function RuleList({ initialFilters }: RuleListProps) {
         sortOrder={filters.sortOrder}
         onSort={handleSort}
         onRowClick={handleRowClick}
+        page={pagination.page}
+        pageSize={filters.pageSize}
       />
 
       {/* 分頁 */}

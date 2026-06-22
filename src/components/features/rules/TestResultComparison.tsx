@@ -11,10 +11,11 @@
  *
  * @module src/components/features/rules/TestResultComparison
  * @since Epic 5 - Story 5.4 (測試規則變更效果)
- * @lastModified 2025-12-19
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @dependencies
  *   - @/components/ui/* - shadcn UI 組件
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/types/rule-test - 類型定義
  */
 
@@ -27,13 +28,9 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import {
   Select,
   SelectContent,
@@ -129,6 +126,93 @@ export function TestResultComparison({
   isLoading = false,
   className,
 }: TestResultComparisonProps) {
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<TestDetailItem>[]>(
+    () => [
+      {
+        id: 'fileName',
+        headerClassName: 'w-[200px]',
+        header: '文件名稱',
+        cellClassName: 'font-medium',
+        cell: (detail) => (
+          <span className="line-clamp-1" title={detail.document.fileName}>
+            {detail.document.fileName}
+          </span>
+        ),
+      },
+      {
+        id: 'originalResult',
+        header: '原規則結果',
+        cell: (detail) => (
+          <div className="flex flex-col gap-1">
+            <span
+              className={cn(
+                detail.originalAccurate ? 'text-green-600' : 'text-red-600'
+              )}
+            >
+              {detail.originalResult ?? '(無)'}
+            </span>
+            {detail.originalConfidence !== null && (
+              <span className="text-xs text-muted-foreground">
+                {(detail.originalConfidence * 100).toFixed(0)}%
+              </span>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: 'testResult',
+        header: '新規則結果',
+        cell: (detail) => (
+          <div className="flex flex-col gap-1">
+            <span
+              className={cn(
+                detail.testAccurate ? 'text-green-600' : 'text-red-600'
+              )}
+            >
+              {detail.testResult ?? '(無)'}
+            </span>
+            {detail.testConfidence !== null && (
+              <span className="text-xs text-muted-foreground">
+                {(detail.testConfidence * 100).toFixed(0)}%
+              </span>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: 'actualValue',
+        header: '實際值',
+        cell: (detail) => (
+          <span className="text-muted-foreground">
+            {detail.actualValue ?? '(無)'}
+          </span>
+        ),
+      },
+      {
+        id: 'changeType',
+        headerClassName: 'w-[100px]',
+        header: '變化',
+        cell: (detail) => {
+          const config = getChangeTypeConfig(detail.changeType)
+          return (
+            <Badge
+              variant="outline"
+              className={cn(
+                'gap-1 border-0',
+                CHANGE_TYPE_COLORS[detail.changeType]
+              )}
+            >
+              {CHANGE_TYPE_ICONS[detail.changeType]}
+              {config.label}
+            </Badge>
+          )
+        },
+      },
+    ],
+    []
+  )
+
   // --- Render Loading ---
 
   if (isLoading) {
@@ -207,80 +291,13 @@ export function TestResultComparison({
       <CardContent>
         {/* 表格 */}
         <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">文件名稱</TableHead>
-                <TableHead>原規則結果</TableHead>
-                <TableHead>新規則結果</TableHead>
-                <TableHead>實際值</TableHead>
-                <TableHead className="w-[100px]">變化</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {details.map((detail) => {
-                const config = getChangeTypeConfig(detail.changeType)
-                return (
-                  <TableRow key={detail.id}>
-                    <TableCell className="font-medium">
-                      <span className="line-clamp-1" title={detail.document.fileName}>
-                        {detail.document.fileName}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className={cn(
-                          detail.originalAccurate
-                            ? 'text-green-600'
-                            : 'text-red-600'
-                        )}>
-                          {detail.originalResult ?? '(無)'}
-                        </span>
-                        {detail.originalConfidence !== null && (
-                          <span className="text-xs text-muted-foreground">
-                            {(detail.originalConfidence * 100).toFixed(0)}%
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className={cn(
-                          detail.testAccurate
-                            ? 'text-green-600'
-                            : 'text-red-600'
-                        )}>
-                          {detail.testResult ?? '(無)'}
-                        </span>
-                        {detail.testConfidence !== null && (
-                          <span className="text-xs text-muted-foreground">
-                            {(detail.testConfidence * 100).toFixed(0)}%
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-muted-foreground">
-                        {detail.actualValue ?? '(無)'}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          'gap-1 border-0',
-                          CHANGE_TYPE_COLORS[detail.changeType]
-                        )}
-                      >
-                        {CHANGE_TYPE_ICONS[detail.changeType]}
-                        {config.label}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
+          <DataTable
+            data={details}
+            columns={columns}
+            getRowId={(detail) => detail.id}
+            page={pagination.page}
+            pageSize={pagination.pageSize}
+          />
         </div>
 
         {/* 分頁 */}

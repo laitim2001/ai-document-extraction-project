@@ -10,10 +10,10 @@
  *
  * @module src/components/features/admin/restore/RestoreList
  * @since Epic 12 - Story 12-6 (數據恢復功能)
- * @lastModified 2025-12-21
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import { Eye, XCircle, RotateCcw, Loader2 } from 'lucide-react'
@@ -27,6 +27,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import {
   Select,
   SelectContent,
@@ -146,6 +150,89 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
     return ['PENDING', 'VALIDATING', 'PRE_BACKUP'].includes(status)
   }
 
+  // --- Column 定義 ---
+  const columns = useMemo<DataTableColumn<RestoreListItem>[]>(
+    () => [
+      {
+        id: 'status',
+        header: '狀態',
+        cell: (record) => renderStatusBadge(record.status),
+      },
+      {
+        id: 'type',
+        header: '類型',
+        cell: (record) => renderTypeBadge(record.type),
+      },
+      {
+        id: 'backupSource',
+        header: '備份來源',
+        cellClassName: 'max-w-[200px] truncate',
+        cell: (record) => record.backupName || record.backupId,
+      },
+      {
+        id: 'startedAt',
+        header: '開始時間',
+        cell: (record) => formatDate(record.startedAt),
+      },
+      {
+        id: 'completedAt',
+        header: '完成時間',
+        cell: (record) => formatDate(record.completedAt),
+      },
+      {
+        id: 'progress',
+        header: '進度',
+        cell: (record) =>
+          record.progress !== null && record.progress !== undefined ? (
+            <div className="flex items-center gap-2">
+              <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: `${record.progress}%` }}
+                />
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {record.progress}%
+              </span>
+            </div>
+          ) : (
+            '-'
+          ),
+      },
+      {
+        id: 'actions',
+        header: '操作',
+        headerClassName: 'text-right',
+        cellClassName: 'text-right',
+        cell: (record) => (
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onViewDetails?.(record)}
+              title="查看詳情"
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            {canCancel(record.status) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleCancelClick(record.id)}
+                title="取消恢復"
+                disabled={cancelMutation.isPending}
+              >
+                <XCircle className="h-4 w-4 text-destructive" />
+              </Button>
+            )}
+          </div>
+        ),
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onViewDetails, handleCancelClick, cancelMutation.isPending]
+  )
+
   return (
     <div className="space-y-4">
       {/* 篩選器 */}
@@ -201,87 +288,39 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
 
       {/* 表格 */}
       <div className="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>狀態</TableHead>
-              <TableHead>類型</TableHead>
-              <TableHead>備份來源</TableHead>
-              <TableHead>開始時間</TableHead>
-              <TableHead>完成時間</TableHead>
-              <TableHead>進度</TableHead>
-              <TableHead className="text-right">操作</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+        {isLoading ? (
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableHead className="w-[60px]"></TableHead>
+                <TableHead>狀態</TableHead>
+                <TableHead>類型</TableHead>
+                <TableHead>備份來源</TableHead>
+                <TableHead>開始時間</TableHead>
+                <TableHead>完成時間</TableHead>
+                <TableHead>進度</TableHead>
+                <TableHead className="text-right">操作</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center">
                   <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                   <p className="mt-2 text-sm text-muted-foreground">載入中...</p>
                 </TableCell>
               </TableRow>
-            ) : records.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                  暫無恢復記錄
-                </TableCell>
-              </TableRow>
-            ) : (
-              records.map((record) => (
-                <TableRow key={record.id}>
-                  <TableCell>{renderStatusBadge(record.status)}</TableCell>
-                  <TableCell>{renderTypeBadge(record.type)}</TableCell>
-                  <TableCell className="max-w-[200px] truncate">
-                    {record.backupName || record.backupId}
-                  </TableCell>
-                  <TableCell>{formatDate(record.startedAt)}</TableCell>
-                  <TableCell>{formatDate(record.completedAt)}</TableCell>
-                  <TableCell>
-                    {record.progress !== null && record.progress !== undefined ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary transition-all"
-                            style={{ width: `${record.progress}%` }}
-                          />
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {record.progress}%
-                        </span>
-                      </div>
-                    ) : (
-                      '-'
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onViewDetails?.(record)}
-                        title="查看詳情"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {canCancel(record.status) && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleCancelClick(record.id)}
-                          title="取消恢復"
-                          disabled={cancelMutation.isPending}
-                        >
-                          <XCircle className="h-4 w-4 text-destructive" />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+            </TableBody>
+          </Table>
+        ) : (
+          <DataTable
+            data={records}
+            columns={columns}
+            getRowId={(record) => record.id}
+            page={page}
+            pageSize={limit}
+            emptyState="暫無恢復記錄"
+          />
+        )}
       </div>
 
       {/* 分頁 */}

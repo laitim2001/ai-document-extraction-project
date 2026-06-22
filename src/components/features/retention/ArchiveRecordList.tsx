@@ -8,7 +8,7 @@
  * @module src/components/features/retention/ArchiveRecordList
  * @author Development Team
  * @since Epic 8 - Story 8.6 (Long-term Data Retention)
- * @lastModified 2025-12-20
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  */
 
 import * as React from 'react'
@@ -21,6 +21,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -41,6 +45,7 @@ import {
   ARCHIVE_STATUS_LABELS,
   STORAGE_TIER_CONFIG,
 } from '@/types/retention'
+import type { ArchiveRecordWithRelations } from '@/types/retention'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import type { ArchiveStatus, StorageTier } from '@prisma/client'
@@ -139,10 +144,10 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
     },
   })
 
-  const handleRestoreClick = (recordId: string) => {
+  const handleRestoreClick = React.useCallback((recordId: string) => {
     setSelectedRecordId(recordId)
     setRestoreDialogOpen(true)
-  }
+  }, [])
 
   const handleConfirmRestore = () => {
     if (selectedRecordId && restoreReason.trim()) {
@@ -152,6 +157,87 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
       })
     }
   }
+
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<ArchiveRecordWithRelations>[]>(
+    () => [
+      {
+        id: 'dataType',
+        header: '資料類型',
+        cell: (record) => (
+          <Badge variant="outline">{DATA_TYPE_LABELS[record.dataType]}</Badge>
+        ),
+      },
+      {
+        id: 'storageTier',
+        header: '存儲層級',
+        cell: (record) => (
+          <Badge className={cn('border', getTierColor(record.storageTier))}>
+            {STORAGE_TIER_LABELS[record.storageTier]}
+          </Badge>
+        ),
+      },
+      {
+        id: 'recordCount',
+        header: '記錄數',
+        cell: (record) => record.recordCount.toLocaleString(),
+      },
+      {
+        id: 'size',
+        header: '大小',
+        cell: (record) => (
+          <div className="text-sm">
+            <p>{formatBytes(Number(record.compressedSizeBytes))}</p>
+            <p className="text-muted-foreground text-xs">
+              原始: {formatBytes(Number(record.originalSizeBytes))}
+            </p>
+          </div>
+        ),
+      },
+      {
+        id: 'status',
+        header: '狀態',
+        cell: (record) => (
+          <Badge variant={getStatusVariant(record.status)}>
+            {ARCHIVE_STATUS_LABELS[record.status]}
+          </Badge>
+        ),
+      },
+      {
+        id: 'archivedAt',
+        header: '歸檔時間',
+        cellClassName: 'text-sm',
+        cell: (record) =>
+          record.archivedAt ? formatDate(record.archivedAt) : '-',
+      },
+      {
+        id: 'actions',
+        header: '',
+        headerClassName: 'w-[100px]',
+        cell: (record) => (
+          <>
+            {record.status === 'ARCHIVED' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleRestoreClick(record.id)}
+              >
+                <RotateCcw className="h-4 w-4 mr-1" />
+                還原
+              </Button>
+            )}
+            {record.status === 'RESTORING' && (
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Clock className="h-4 w-4 mr-1 animate-pulse" />
+                還原中
+              </div>
+            )}
+          </>
+        ),
+      },
+    ],
+    [handleRestoreClick]
+  )
 
   if (isLoading) {
     return <ArchiveListSkeleton />
@@ -176,79 +262,19 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
       </div>
 
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>資料類型</TableHead>
-              <TableHead>存儲層級</TableHead>
-              <TableHead>記錄數</TableHead>
-              <TableHead>大小</TableHead>
-              <TableHead>狀態</TableHead>
-              <TableHead>歸檔時間</TableHead>
-              <TableHead className="w-[100px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {records.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-10">
-                  <Archive className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-muted-foreground">尚無歸檔記錄</p>
-                </TableCell>
-              </TableRow>
-            ) : (
-              records.map((record) => (
-                <TableRow key={record.id}>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {DATA_TYPE_LABELS[record.dataType]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={cn('border', getTierColor(record.storageTier))}>
-                      {STORAGE_TIER_LABELS[record.storageTier]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{record.recordCount.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <p>{formatBytes(Number(record.compressedSizeBytes))}</p>
-                      <p className="text-muted-foreground text-xs">
-                        原始: {formatBytes(Number(record.originalSizeBytes))}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(record.status)}>
-                      {ARCHIVE_STATUS_LABELS[record.status]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {record.archivedAt ? formatDate(record.archivedAt) : '-'}
-                  </TableCell>
-                  <TableCell>
-                    {record.status === 'ARCHIVED' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRestoreClick(record.id)}
-                      >
-                        <RotateCcw className="h-4 w-4 mr-1" />
-                        還原
-                      </Button>
-                    )}
-                    {record.status === 'RESTORING' && (
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4 mr-1 animate-pulse" />
-                        還原中
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+        <DataTable
+          data={records}
+          columns={columns}
+          getRowId={(record) => record.id}
+          page={page}
+          pageSize={pagination?.limit ?? 10}
+          emptyState={
+            <>
+              <Archive className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-muted-foreground">尚無歸檔記錄</p>
+            </>
+          }
+        />
       </div>
 
       {/* Pagination */}
