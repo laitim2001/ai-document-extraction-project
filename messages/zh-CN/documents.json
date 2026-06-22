@@ -70,6 +70,7 @@
   "upload": {
     "title": "上传文件",
     "description": "上传文件以进行 AI 处理和数据提取。支持 PDF、JPG、PNG 格式。",
+    "uploadLimits": "单次最多 {count} 个文件，每个 ≤ {size}，支持 {formats}",
     "selectCity": "选择城市",
     "selectCityPlaceholder": "请选择城市",
     "selectCityHint": "请先选择城市，才能上传文件。",

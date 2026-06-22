@@ -54,7 +54,6 @@ import { LogoUploader } from './LogoUploader'
 import {
   CreateForwarderSchema,
   CreateForwarderFormData,
-  FORWARDER_FORM_LABELS,
 } from '@/types/forwarder'
 
 // ============================================================
@@ -312,10 +311,10 @@ export function ForwarderForm({
           <div className="grid gap-4 sm:grid-cols-2">
             {/* 名稱 */}
             <div className="space-y-2">
-              <Label htmlFor="name">{FORWARDER_FORM_LABELS.name.label}</Label>
+              <Label htmlFor="name">{t('form.name')}</Label>
               <Input
                 id="name"
-                placeholder={FORWARDER_FORM_LABELS.name.placeholder}
+                placeholder={t('form.namePlaceholder')}
                 {...register('name')}
                 disabled={isSubmitting}
               />
@@ -326,10 +325,10 @@ export function ForwarderForm({
 
             {/* 代碼 */}
             <div className="space-y-2">
-              <Label htmlFor="code">{FORWARDER_FORM_LABELS.code.label}</Label>
+              <Label htmlFor="code">{t('form.code')}</Label>
               <Input
                 id="code"
-                placeholder={FORWARDER_FORM_LABELS.code.placeholder}
+                placeholder={t('form.codePlaceholder')}
                 {...register('code', {
                   onChange: (e) => {
                     // 自動轉大寫
@@ -345,17 +344,17 @@ export function ForwarderForm({
                 <div className="h-4">{renderCodeStatus()}</div>
               )}
               <p className="text-xs text-muted-foreground">
-                {FORWARDER_FORM_LABELS.code.description}
+                {t('form.codeDescription')}
               </p>
             </div>
           </div>
 
           {/* 描述 */}
           <div className="space-y-2">
-            <Label htmlFor="description">{FORWARDER_FORM_LABELS.description.label}</Label>
+            <Label htmlFor="description">{t('form.descriptionField')}</Label>
             <Textarea
               id="description"
-              placeholder={FORWARDER_FORM_LABELS.description.placeholder}
+              placeholder={t('form.descriptionPlaceholder')}
               rows={3}
               {...register('description')}
               disabled={isSubmitting}
@@ -367,11 +366,11 @@ export function ForwarderForm({
 
           {/* 聯絡信箱 */}
           <div className="space-y-2">
-            <Label htmlFor="contactEmail">{FORWARDER_FORM_LABELS.contactEmail.label}</Label>
+            <Label htmlFor="contactEmail">{t('form.contactEmail')}</Label>
             <Input
               id="contactEmail"
               type="email"
-              placeholder={FORWARDER_FORM_LABELS.contactEmail.placeholder}
+              placeholder={t('form.contactEmailPlaceholder')}
               {...register('contactEmail')}
               disabled={isSubmitting}
             />
@@ -383,7 +382,7 @@ export function ForwarderForm({
           {/* 預設信心度 */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label>{FORWARDER_FORM_LABELS.defaultConfidence.label}</Label>
+              <Label>{t('form.defaultConfidence')}</Label>
               <span className="text-sm font-medium">
                 {Math.round((watchedConfidence || 0.8) * 100)}%
               </span>
@@ -398,13 +397,13 @@ export function ForwarderForm({
               className="py-2"
             />
             <p className="text-xs text-muted-foreground">
-              {FORWARDER_FORM_LABELS.defaultConfidence.description}
+              {t('form.defaultConfidenceDescription')}
             </p>
           </div>
 
           {/* Logo 上傳 */}
           <div className="space-y-2">
-            <Label>{FORWARDER_FORM_LABELS.logo.label}</Label>
+            <Label>{t('form.logo')}</Label>
             <LogoUploader
               currentLogoUrl={removeLogo ? null : initialData?.logoUrl}
               onLogoChange={handleLogoChange}

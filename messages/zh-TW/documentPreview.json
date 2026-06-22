@@ -71,6 +71,7 @@
     }
   },
   "fieldsPanel": {
+    "headerFieldsTitle": "表頭欄位",
     "stats": {
       "showing": "顯示 {filtered} / {total} 個欄位",
       "editedOnly": "（僅顯示已修改）",

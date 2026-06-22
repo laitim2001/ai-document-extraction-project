@@ -193,9 +193,10 @@ export function DocumentDetailTabs({ document }: DocumentDetailTabsProps) {
       <TabsContent value="fields" className="mt-4">
         <Card>
           <CardContent className="p-4">
-            {document.extractedFields && document.extractedFields.length > 0 ? (
+            {(document.extractedFields && document.extractedFields.length > 0) ||
+            (document.lineItems && document.lineItems.length > 0) ? (
               <ExtractedFieldsPanel
-                fields={document.extractedFields}
+                fields={document.extractedFields ?? []}
                 lineItems={document.lineItems ?? undefined}
                 selectedFieldId={selectedFieldId}
                 onFieldSelect={handleFieldSelect}

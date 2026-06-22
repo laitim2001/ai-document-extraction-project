@@ -70,6 +70,7 @@
   "upload": {
     "title": "上傳文件",
     "description": "上傳文件以進行 AI 處理和數據提取。支援 PDF、JPG、PNG 格式。",
+    "uploadLimits": "單次最多 {count} 個檔案，每檔 ≤ {size}，支援 {formats}",
     "selectCity": "選擇城市",
     "selectCityPlaceholder": "請選擇城市",
     "selectCityHint": "請先選擇城市，才能上傳文件。",

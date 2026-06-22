@@ -1227,7 +1227,7 @@ Respond in valid JSON format matching the provided schema.`;
         quantity: rawItem.quantity as number | undefined,
         unitPrice: (rawItem.unit_price ?? rawItem.unitPrice) as number | undefined,
         amount: (rawItem.amount as number) || 0,
-        confidence: 85,
+        confidence: (rawItem.confidence as number) ?? 85,
         needsClassification: !rawItem.category,
       };
     });

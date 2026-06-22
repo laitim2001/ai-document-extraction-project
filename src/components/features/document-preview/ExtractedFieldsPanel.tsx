@@ -219,60 +219,75 @@ export function ExtractedFieldsPanel({
         </div>
       )}
 
-      {/* 欄位列表 */}
-      <div className="flex-1 overflow-auto p-4">
-        {groupedFields.map(({ category, fields: groupFields }) => (
-          <div key={category?.id ?? 'all'} className="mb-6 last:mb-0">
-            {category && (
-              <h3 className="mb-3 flex items-center font-semibold text-gray-900">
-                <span>{category.displayName}</span>
-                <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-normal text-gray-500">
-                  {groupFields.length}
-                </span>
-              </h3>
-            )}
-            <div className="space-y-3">
-              {groupFields.map((field) => (
-                <FieldCard
-                  key={field.id}
-                  field={field}
-                  isSelected={field.id === selectedFieldId}
-                  onSelect={onFieldSelect}
-                  onEdit={onFieldEdit}
-                />
+      {/* FIX-086 BUG-2: 內容區（可滾動）— 表頭欄位與行項目各自獨立分區卡片容器，消除「只有 line items」的誤判 */}
+      <div className="flex-1 space-y-4 overflow-auto p-4">
+        {/* 表頭欄位分區 */}
+        {fields.length > 0 && (
+          <section className="overflow-hidden rounded-lg border">
+            <h3 className="flex items-center border-b bg-gray-50 px-4 py-2.5 font-semibold text-gray-900">
+              <span>{t('fieldsPanel.headerFieldsTitle')}</span>
+              <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-normal text-gray-500">
+                {fields.length}
+              </span>
+            </h3>
+            <div className="p-4">
+              {groupedFields.map(({ category, fields: groupFields }) => (
+                <div key={category?.id ?? 'all'} className="mb-6 last:mb-0">
+                  {category && (
+                    <h4 className="mb-3 flex items-center font-medium text-gray-700">
+                      <span>{category.displayName}</span>
+                      <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-normal text-gray-500">
+                        {groupFields.length}
+                      </span>
+                    </h4>
+                  )}
+                  <div className="space-y-3">
+                    {groupFields.map((field) => (
+                      <FieldCard
+                        key={field.id}
+                        field={field}
+                        isSelected={field.id === selectedFieldId}
+                        onSelect={onFieldSelect}
+                        onEdit={onFieldEdit}
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
-            </div>
-          </div>
-        ))}
 
-        {/* 空狀態 */}
-        {filteredFields.length === 0 && (
-          <div className="flex h-32 flex-col items-center justify-center text-gray-500">
-            <p>{t('fieldsPanel.empty.noFields')}</p>
-            {filters.search && (
-              <button
-                className="mt-2 text-sm text-blue-600 hover:underline"
-                onClick={() => setFilters({ ...filters, search: '' })}
-              >
-                {t('fieldsPanel.empty.clearSearch')}
-              </button>
-            )}
-          </div>
+              {/* 空狀態（搜尋/過濾後無匹配） */}
+              {filteredFields.length === 0 && (
+                <div className="flex h-32 flex-col items-center justify-center text-gray-500">
+                  <p>{t('fieldsPanel.empty.noFields')}</p>
+                  {filters.search && (
+                    <button
+                      className="mt-2 text-sm text-blue-600 hover:underline"
+                      onClick={() => setFilters({ ...filters, search: '' })}
+                    >
+                      {t('fieldsPanel.empty.clearSearch')}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* CHANGE-051 / FIX-086 BUG-2: 行項目分區（表格佈局） */}
+        {lineItems && lineItems.length > 0 && (
+          <section className="overflow-hidden rounded-lg border">
+            <h3 className="flex items-center border-b bg-gray-50 px-4 py-2.5 font-semibold text-gray-900">
+              <span>{t('lineItems.title')}</span>
+              <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-normal text-gray-500">
+                {lineItems.length}
+              </span>
+            </h3>
+            <div className="p-4">
+              <LineItemsTable lineItems={lineItems} />
+            </div>
+          </section>
         )}
       </div>
-
-      {/* CHANGE-051: Line Items 區（表格佈局） */}
-      {lineItems && lineItems.length > 0 && (
-        <div className="border-t p-4">
-          <h3 className="mb-3 flex items-center font-semibold text-gray-900">
-            <span>{t('lineItems.title')}</span>
-            <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-normal text-gray-500">
-              {lineItems.length}
-            </span>
-          </h3>
-          <LineItemsTable lineItems={lineItems} />
-        </div>
-      )}
     </div>
   )
 }

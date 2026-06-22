@@ -70,6 +70,7 @@
   "upload": {
     "title": "Upload Documents",
     "description": "Upload documents for AI processing and data extraction. Supports PDF, JPG, PNG formats.",
+    "uploadLimits": "Up to {count} files per upload · each ≤ {size} · {formats}",
     "selectCity": "Select City",
     "selectCityPlaceholder": "Please select a city",
     "selectCityHint": "Please select a city before uploading files.",

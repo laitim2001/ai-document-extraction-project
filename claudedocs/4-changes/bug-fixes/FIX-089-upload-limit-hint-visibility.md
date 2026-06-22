@@ -4,7 +4,7 @@
 > **發現方式**: 用戶回報（Phase 1 交付前頁面檢視）
 > **影響頁面/功能**: `/en/documents/upload`（文件上傳頁面）
 > **優先級**: 中
-> **狀態**: 🚧 待修復
+> **狀態**: ✅ 已修復（2026-06-20）— `upload/page.tsx` `CardDescription` 新增上限說明（`UPLOAD_CONFIG` 插值，不硬編碼）+ 三語言 `documents.json` 新增 `upload.uploadLimits`。type-check/i18n:check 通過
 
 ---
 

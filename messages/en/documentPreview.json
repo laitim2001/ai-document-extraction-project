@@ -71,6 +71,7 @@
     }
   },
   "fieldsPanel": {
+    "headerFieldsTitle": "Header Fields",
     "stats": {
       "showing": "Showing {filtered} / {total} fields",
       "editedOnly": "(showing edited only)",

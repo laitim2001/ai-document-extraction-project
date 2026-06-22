@@ -4,7 +4,7 @@
 > **發現方式**: 用戶回報（Phase 1 交付前頁面檢視）
 > **影響頁面/功能**: `/en/companies/[id]/edit`（及所有共用 `ForwarderForm` 的頁面）
 > **優先級**: 高
-> **狀態**: 🚧 待修復
+> **狀態**: ✅ 已修復（2026-06-20）— 實際僅改 `ForwarderForm.tsx`（12 處 `FORWARDER_FORM_LABELS.*` → `t('form.*')` + 移除 import），三語言 key 已存在故**零新增**；`FORWARDER_FORM_LABELS` 定義保留（`company.ts` 仍引用，orphan 清理併入 FIX-088）。type-check/lint 0
 
 ---
 
