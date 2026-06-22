@@ -22,10 +22,10 @@
 import { formatDistanceToNow } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import { History, RotateCcw, Edit2, Lock, Shield, AlertTriangle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { ConfigValue, ConfigEffectType } from '@/types/config'
-import { EFFECT_TYPE_INFO } from '@/types/config'
 
 // ============================================================
 // Types
@@ -100,7 +100,7 @@ export function ConfigItem({
   onViewHistory,
   onResetToDefault,
 }: ConfigItemProps) {
-  const effectInfo = EFFECT_TYPE_INFO[config.effectType]
+  const t = useTranslations('systemSettings')
 
   return (
     <div className="px-6 py-4 hover:bg-muted/50 transition-colors">
@@ -127,13 +127,13 @@ export function ConfigItem({
 
             {config.isModified && (
               <Badge variant="default" className="text-xs">
-                已修改
+                {t('config.modified')}
               </Badge>
             )}
 
             {config.effectType !== 'IMMEDIATE' && (
               <Badge variant={getEffectBadgeVariant(config.effectType)} className="text-xs">
-                {effectInfo.label}
+                {t(`config.effectType.${config.effectType}`)}
               </Badge>
             )}
           </div>

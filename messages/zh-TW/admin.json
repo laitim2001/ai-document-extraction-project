@@ -302,6 +302,128 @@
       "selectedCount": "{selected} / {total}"
     }
   },
+  "permissions": {
+    "categories": {
+      "invoice": {
+        "label": "發票操作",
+        "description": "發票的查看、建立、審核和批准權限"
+      },
+      "report": {
+        "label": "報表操作",
+        "description": "統計報表的查看和匯出權限"
+      },
+      "rule": {
+        "label": "規則管理",
+        "description": "映射規則的查看、管理和批准權限"
+      },
+      "forwarder": {
+        "label": "Forwarder 管理",
+        "description": "Forwarder 的查看和管理權限"
+      },
+      "user": {
+        "label": "用戶管理",
+        "description": "用戶帳號的查看和管理權限"
+      },
+      "system": {
+        "label": "系統管理",
+        "description": "系統設定和監控權限"
+      },
+      "audit": {
+        "label": "審計操作",
+        "description": "審計記錄的查看和匯出權限"
+      },
+      "admin": {
+        "label": "管理員操作",
+        "description": "管理員專用功能的查看和操作權限"
+      }
+    },
+    "items": {
+      "invoice_view": {
+        "name": "查看發票",
+        "description": "檢視發票列表及詳細內容"
+      },
+      "invoice_create": {
+        "name": "建立發票",
+        "description": "上傳和建立新的發票記錄"
+      },
+      "invoice_review": {
+        "name": "審核發票",
+        "description": "對發票進行分類審核和修正"
+      },
+      "invoice_approve": {
+        "name": "批准發票",
+        "description": "最終批准發票分類結果"
+      },
+      "report_view": {
+        "name": "查看報表",
+        "description": "檢視統計報表和儀表板"
+      },
+      "report_export": {
+        "name": "匯出報表",
+        "description": "將報表資料匯出為 Excel/CSV 格式"
+      },
+      "rule_view": {
+        "name": "查看規則",
+        "description": "檢視映射規則和分類設定"
+      },
+      "rule_manage": {
+        "name": "管理規則",
+        "description": "新增、編輯和刪除映射規則"
+      },
+      "rule_approve": {
+        "name": "批准規則",
+        "description": "批准規則變更申請"
+      },
+      "forwarder_view": {
+        "name": "查看 Forwarder",
+        "description": "檢視 Forwarder 列表和詳細資訊"
+      },
+      "forwarder_manage": {
+        "name": "管理 Forwarder",
+        "description": "新增、編輯和停用 Forwarder"
+      },
+      "user_view": {
+        "name": "查看用戶",
+        "description": "檢視用戶列表和基本資訊"
+      },
+      "user_manage": {
+        "name": "管理用戶（全域）",
+        "description": "管理系統內所有用戶的角色和狀態"
+      },
+      "user_manage_city": {
+        "name": "管理用戶（城市）",
+        "description": "管理所在城市的用戶"
+      },
+      "user_manage_region": {
+        "name": "管理用戶（區域）",
+        "description": "管理管轄區域內的用戶"
+      },
+      "system_config": {
+        "name": "系統設定",
+        "description": "修改系統配置和全域參數"
+      },
+      "system_monitor": {
+        "name": "系統監控",
+        "description": "檢視系統運行狀態和效能指標"
+      },
+      "audit_view": {
+        "name": "查看審計",
+        "description": "檢視系統操作審計記錄"
+      },
+      "audit_export": {
+        "name": "匯出審計",
+        "description": "匯出審計記錄用於稽核"
+      },
+      "admin_view": {
+        "name": "查看管理員資源",
+        "description": "檢視歷史數據批次和管理功能"
+      },
+      "admin_manage": {
+        "name": "管理管理員資源",
+        "description": "執行批次控制和管理操作"
+      }
+    }
+  },
   "city": {
     "selector": {
       "empty": "不指定城市",

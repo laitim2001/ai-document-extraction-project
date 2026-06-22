@@ -47,6 +47,35 @@ const MAPPING_RULES: MappingRule[] = [
 
 const SUPPORTED_LOCALES = ['en', 'zh-TW', 'zh-CN'];
 
+/**
+ * 三語言同步檢查配置（CHANGE-088 新增）
+ *
+ * 對指定 namespace 的 key 子樹，驗證 en / zh-TW / zh-CN 的 leaf key 集合完全一致。
+ *
+ * 為何用「三語言同步」而非「常量 key ↔ i18n」逐一解析：
+ *   本批由顯示常量（PERMISSION_INFO_MAP、REJECTION_REASONS、SYSTEM_VARIABLES 等）
+ *   改 i18n 而來，這些常量結構異構（computed property key `[PERMISSIONS.X]`、陣列、
+ *   不同欄位來源），逐一解析 TS 成本高且易碎。改以三語言同步作為治理 gate：
+ *   next-intl 缺某語言 key 會 fallback（不報錯），故「三語言不同步」才是真實洩漏風險。
+ */
+interface LocaleSyncCheck {
+  /** i18n 文件（不含 locale） */
+  i18nFile: string;
+  /** 要檢查的 key 子樹前綴 */
+  keyPrefix: string;
+  /** 用途說明 */
+  description: string;
+}
+
+const LOCALE_SYNC_CHECKS: LocaleSyncCheck[] = [
+  { i18nFile: 'documentPreview.json', keyPrefix: 'fieldsPanel.categories', description: 'CHANGE-088 DEFAULT_CATEGORIES（提取欄位類別）' },
+  { i18nFile: 'systemSettings.json', keyPrefix: 'config', description: 'CHANGE-088 EFFECT_TYPE_INFO / CONFIG_CATEGORY_INFO' },
+  { i18nFile: 'review.json', keyPrefix: 'rejection', description: 'CHANGE-088 REJECTION_REASONS（規則建議拒絕原因）' },
+  { i18nFile: 'reports.json', keyPrefix: 'auditReport', description: 'CHANGE-088 AUDIT_REPORT_TYPES / REPORT_JOB_STATUSES' },
+  { i18nFile: 'promptConfig.json', keyPrefix: 'variables', description: 'CHANGE-088 SYSTEM_VARIABLES（Prompt 系統變數）' },
+  { i18nFile: 'admin.json', keyPrefix: 'permissions', description: 'CHANGE-088 PERMISSION_INFO_MAP / PERMISSION_CATEGORIES' },
+];
+
 // ============================================================
 // 工具函數
 // ============================================================
@@ -175,6 +204,78 @@ function checkMappingRule(rule: MappingRule): {
   return { rule, missingByLocale, extraByLocale };
 }
 
+/**
+ * 遞迴提取 JSON 物件子樹的所有 leaf key 路徑（點分隔）
+ */
+function flattenLeafKeys(obj: unknown, prefix = ''): string[] {
+  if (obj === null || typeof obj !== 'object') {
+    return prefix ? [prefix] : [];
+  }
+  const result: string[] = [];
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+    const keyPath = prefix ? `${prefix}.${key}` : key;
+    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      result.push(...flattenLeafKeys(value, keyPath));
+    } else {
+      result.push(keyPath);
+    }
+  }
+  return result;
+}
+
+/**
+ * 導航到 JSON 的指定 keyPrefix 子樹（找不到回傳 undefined）
+ */
+function navigateToPrefix(content: unknown, keyPrefix: string): unknown {
+  const parts = keyPrefix.split('.');
+  let current: unknown = content;
+  for (const part of parts) {
+    if (current && typeof current === 'object' && part in (current as Record<string, unknown>)) {
+      current = (current as Record<string, unknown>)[part];
+    } else {
+      return undefined;
+    }
+  }
+  return current;
+}
+
+/**
+ * 檢查單個三語言同步規則：以各語言 leaf key 聯集為基準，找出每個語言缺少的 key
+ */
+function checkLocaleSync(check: LocaleSyncCheck): {
+  missingByLocale: Record<string, string[]>;
+  total: number;
+  missingFile: string[];
+} {
+  const keysByLocale: Record<string, Set<string>> = {};
+  const union = new Set<string>();
+  const missingFile: string[] = [];
+
+  for (const locale of SUPPORTED_LOCALES) {
+    const i18nPath = path.join(process.cwd(), 'messages', locale, check.i18nFile);
+    if (!fs.existsSync(i18nPath)) {
+      missingFile.push(locale);
+      keysByLocale[locale] = new Set();
+      continue;
+    }
+    const content = JSON.parse(fs.readFileSync(i18nPath, 'utf-8'));
+    const subtree = navigateToPrefix(content, check.keyPrefix);
+    const leaves = flattenLeafKeys(subtree);
+    keysByLocale[locale] = new Set(leaves);
+    leaves.forEach((k) => union.add(k));
+  }
+
+  const missingByLocale: Record<string, string[]> = {};
+  for (const locale of SUPPORTED_LOCALES) {
+    const missing = [...union].filter((k) => !keysByLocale[locale].has(k)).sort();
+    if (missing.length > 0) {
+      missingByLocale[locale] = missing;
+    }
+  }
+
+  return { missingByLocale, total: union.size, missingFile };
+}
+
 // ============================================================
 // 主程序
 // ============================================================
@@ -221,6 +322,37 @@ function main() {
 
     if (!hasMissing && !hasExtra) {
       console.log('\n   ✅ 所有翻譯完整');
+    }
+  }
+
+  // 三語言同步檢查（CHANGE-088）
+  for (const check of LOCALE_SYNC_CHECKS) {
+    console.log(`\n🌐 三語言同步: messages/*/${check.i18nFile} → ${check.keyPrefix}`);
+    console.log(`   ${check.description}`);
+    console.log('   ─────────────────────────────────────────');
+
+    const result = checkLocaleSync(check);
+
+    if (result.missingFile.length > 0) {
+      hasErrors = true;
+      console.log(`   ❌ 缺少語言文件: ${result.missingFile.join(', ')}`);
+    }
+
+    const hasMissing = Object.keys(result.missingByLocale).length > 0;
+    if (hasMissing) {
+      hasErrors = true;
+      console.log(`   ❌ 三語言 key 不同步（聯集共 ${result.total} 個 leaf key）:`);
+      for (const [locale, keys] of Object.entries(result.missingByLocale)) {
+        console.log(`      [${locale}] 缺少 ${keys.length} 個:`);
+        for (const key of keys.slice(0, 10)) {
+          console.log(`        - ${check.keyPrefix}.${key}`);
+        }
+        if (keys.length > 10) {
+          console.log(`        ... 及其他 ${keys.length - 10} 個`);
+        }
+      }
+    } else if (result.missingFile.length === 0) {
+      console.log(`   ✅ 三語言 key 集合一致（${result.total} 個 leaf key）`);
     }
   }
 

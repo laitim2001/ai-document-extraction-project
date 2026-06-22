@@ -302,6 +302,128 @@
       "selectedCount": "{selected} / {total}"
     }
   },
+  "permissions": {
+    "categories": {
+      "invoice": {
+        "label": "发票操作",
+        "description": "发票的查看、创建、审核和批准权限"
+      },
+      "report": {
+        "label": "报表操作",
+        "description": "统计报表的查看和导出权限"
+      },
+      "rule": {
+        "label": "规则管理",
+        "description": "映射规则的查看、管理和批准权限"
+      },
+      "forwarder": {
+        "label": "Forwarder 管理",
+        "description": "Forwarder 的查看和管理权限"
+      },
+      "user": {
+        "label": "用户管理",
+        "description": "用户账号的查看和管理权限"
+      },
+      "system": {
+        "label": "系统管理",
+        "description": "系统设置和监控权限"
+      },
+      "audit": {
+        "label": "审计操作",
+        "description": "审计记录的查看和导出权限"
+      },
+      "admin": {
+        "label": "管理员操作",
+        "description": "管理员专用功能的查看和操作权限"
+      }
+    },
+    "items": {
+      "invoice_view": {
+        "name": "查看发票",
+        "description": "查看发票列表及详细内容"
+      },
+      "invoice_create": {
+        "name": "创建发票",
+        "description": "上传和创建新的发票记录"
+      },
+      "invoice_review": {
+        "name": "审核发票",
+        "description": "对发票进行分类审核和修正"
+      },
+      "invoice_approve": {
+        "name": "批准发票",
+        "description": "最终批准发票分类结果"
+      },
+      "report_view": {
+        "name": "查看报表",
+        "description": "查看统计报表和仪表板"
+      },
+      "report_export": {
+        "name": "导出报表",
+        "description": "将报表数据导出为 Excel/CSV 格式"
+      },
+      "rule_view": {
+        "name": "查看规则",
+        "description": "查看映射规则和分类设置"
+      },
+      "rule_manage": {
+        "name": "管理规则",
+        "description": "新增、编辑和删除映射规则"
+      },
+      "rule_approve": {
+        "name": "批准规则",
+        "description": "批准规则变更申请"
+      },
+      "forwarder_view": {
+        "name": "查看 Forwarder",
+        "description": "查看 Forwarder 列表和详细信息"
+      },
+      "forwarder_manage": {
+        "name": "管理 Forwarder",
+        "description": "新增、编辑和停用 Forwarder"
+      },
+      "user_view": {
+        "name": "查看用户",
+        "description": "查看用户列表和基本信息"
+      },
+      "user_manage": {
+        "name": "管理用户（全局）",
+        "description": "管理系统内所有用户的角色和状态"
+      },
+      "user_manage_city": {
+        "name": "管理用户（城市）",
+        "description": "管理所在城市的用户"
+      },
+      "user_manage_region": {
+        "name": "管理用户（区域）",
+        "description": "管理管辖区域内的用户"
+      },
+      "system_config": {
+        "name": "系统设置",
+        "description": "修改系统配置和全局参数"
+      },
+      "system_monitor": {
+        "name": "系统监控",
+        "description": "查看系统运行状态和性能指标"
+      },
+      "audit_view": {
+        "name": "查看审计",
+        "description": "查看系统操作审计记录"
+      },
+      "audit_export": {
+        "name": "导出审计",
+        "description": "导出审计记录用于稽核"
+      },
+      "admin_view": {
+        "name": "查看管理员资源",
+        "description": "查看历史数据批次和管理功能"
+      },
+      "admin_manage": {
+        "name": "管理管理员资源",
+        "description": "执行批次控制和管理操作"
+      }
+    }
+  },
   "city": {
     "selector": {
       "empty": "不指定城市",

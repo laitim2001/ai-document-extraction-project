@@ -302,6 +302,128 @@
       "selectedCount": "{selected} / {total}"
     }
   },
+  "permissions": {
+    "categories": {
+      "invoice": {
+        "label": "Invoice Operations",
+        "description": "Permissions to view, create, review, and approve invoices"
+      },
+      "report": {
+        "label": "Report Operations",
+        "description": "Permissions to view and export statistical reports"
+      },
+      "rule": {
+        "label": "Rule Management",
+        "description": "Permissions to view, manage, and approve mapping rules"
+      },
+      "forwarder": {
+        "label": "Forwarder Management",
+        "description": "Permissions to view and manage forwarders"
+      },
+      "user": {
+        "label": "User Management",
+        "description": "Permissions to view and manage user accounts"
+      },
+      "system": {
+        "label": "System Administration",
+        "description": "Permissions for system configuration and monitoring"
+      },
+      "audit": {
+        "label": "Audit Operations",
+        "description": "Permissions to view and export audit records"
+      },
+      "admin": {
+        "label": "Admin Operations",
+        "description": "Permissions to view and operate admin-only features"
+      }
+    },
+    "items": {
+      "invoice_view": {
+        "name": "View Invoice",
+        "description": "View invoice list and detailed content"
+      },
+      "invoice_create": {
+        "name": "Create Invoice",
+        "description": "Upload and create new invoice records"
+      },
+      "invoice_review": {
+        "name": "Review Invoice",
+        "description": "Classify, review, and correct invoices"
+      },
+      "invoice_approve": {
+        "name": "Approve Invoice",
+        "description": "Give final approval to invoice classification results"
+      },
+      "report_view": {
+        "name": "View Report",
+        "description": "View statistical reports and dashboards"
+      },
+      "report_export": {
+        "name": "Export Report",
+        "description": "Export report data to Excel/CSV format"
+      },
+      "rule_view": {
+        "name": "View Rule",
+        "description": "View mapping rules and classification settings"
+      },
+      "rule_manage": {
+        "name": "Manage Rule",
+        "description": "Add, edit, and delete mapping rules"
+      },
+      "rule_approve": {
+        "name": "Approve Rule",
+        "description": "Approve rule change requests"
+      },
+      "forwarder_view": {
+        "name": "View Forwarder",
+        "description": "View forwarder list and details"
+      },
+      "forwarder_manage": {
+        "name": "Manage Forwarder",
+        "description": "Add, edit, and deactivate forwarders"
+      },
+      "user_view": {
+        "name": "View User",
+        "description": "View user list and basic information"
+      },
+      "user_manage": {
+        "name": "Manage Users (Global)",
+        "description": "Manage roles and status of all users in the system"
+      },
+      "user_manage_city": {
+        "name": "Manage Users (City)",
+        "description": "Manage users within your city"
+      },
+      "user_manage_region": {
+        "name": "Manage Users (Region)",
+        "description": "Manage users within your region"
+      },
+      "system_config": {
+        "name": "System Configuration",
+        "description": "Modify system configuration and global parameters"
+      },
+      "system_monitor": {
+        "name": "System Monitoring",
+        "description": "View system operational status and performance metrics"
+      },
+      "audit_view": {
+        "name": "View Audit",
+        "description": "View system operation audit records"
+      },
+      "audit_export": {
+        "name": "Export Audit",
+        "description": "Export audit records for compliance purposes"
+      },
+      "admin_view": {
+        "name": "View Admin Resources",
+        "description": "View historical data batches and admin features"
+      },
+      "admin_manage": {
+        "name": "Manage Admin Resources",
+        "description": "Perform batch control and admin operations"
+      }
+    }
+  },
   "city": {
     "selector": {
       "empty": "No city assigned",

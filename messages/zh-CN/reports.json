@@ -151,6 +151,58 @@
     "cityCount": "城市数",
     "generatingText": "生成中..."
   },
+  "auditReport": {
+    "types": {
+      "PROCESSING_RECORDS": {
+        "label": "处理记录报告",
+        "description": "包含所有文件处理操作的详细记录"
+      },
+      "CHANGE_HISTORY": {
+        "label": "变更历史报告",
+        "description": "数据变更追踪，包含版本差异"
+      },
+      "FULL_AUDIT": {
+        "label": "完整审计报告",
+        "description": "包含处理记录、变更历史和原始文件清单"
+      },
+      "COMPLIANCE_SUMMARY": {
+        "label": "合规摘要报告",
+        "description": "合规性统计和摘要信息"
+      }
+    },
+    "statuses": {
+      "PENDING": "等待中",
+      "QUEUED": "排队中",
+      "GENERATING": "生成中",
+      "SIGNING": "签章中",
+      "CANCELLED": "已取消",
+      "EXPIRED": "已过期"
+    },
+    "list": {
+      "columns": {
+        "title": "报告名称",
+        "type": "类型",
+        "format": "格式",
+        "status": "状态",
+        "createdAt": "创建时间",
+        "actions": "操作"
+      },
+      "recordCount": "{count} 条记录",
+      "expiry": {
+        "expired": "已过期",
+        "today": "今日到期",
+        "tomorrow": "明日到期",
+        "inDays": "{count} 天后到期"
+      },
+      "completedAt": "完成时间：{datetime}",
+      "downloadCount": "下载次数：{count}",
+      "download": "下载报告",
+      "verify": "验证完整性",
+      "failedTooltip": "报告生成失败，请重新创建",
+      "emptyTitle": "尚无报告任务",
+      "emptyDescription": "创建新的审计报告以开始"
+    }
+  },
   "costAnomaly": {
     "dialogTitle": "成本异常分析",
     "dialogDescription": "{city} 的成本异常详情",

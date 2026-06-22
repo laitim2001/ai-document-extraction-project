@@ -82,6 +82,14 @@
     "empty": {
       "noFields": "沒有符合條件的欄位",
       "clearSearch": "清除搜尋"
+    },
+    "categories": {
+      "invoice": "發票資訊",
+      "vendor": "供應商資訊",
+      "customer": "客戶資訊",
+      "lineItems": "明細項目",
+      "amounts": "金額資訊",
+      "other": "其他"
     }
   },
   "filters": {

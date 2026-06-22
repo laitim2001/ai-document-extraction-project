@@ -170,7 +170,9 @@ export function PermissionSelector({
                       )}
                     />
                     <div className="flex flex-col items-start text-left">
-                      <span className="font-medium">{category.label}</span>
+                      <span className="font-medium">
+                        {t(`permissions.categories.${category.id}.label`)}
+                      </span>
                       <span className="text-xs text-muted-foreground">
                         {t('roles.permissionSelector.permissionCount', {
                           selected: selectedCount,
@@ -208,12 +210,16 @@ export function PermissionSelector({
                                   disabled && 'cursor-not-allowed opacity-50'
                                 )}
                               >
-                                {permission.name}
+                                {t(
+                                  `permissions.items.${permission.code.replace(/:/g, '_')}.name`
+                                )}
                               </Label>
                             </TooltipTrigger>
                             <TooltipContent side="right">
                               <p className="max-w-xs text-sm">
-                                {permission.description}
+                                {t(
+                                  `permissions.items.${permission.code.replace(/:/g, '_')}.description`
+                                )}
                               </p>
                             </TooltipContent>
                           </Tooltip>

@@ -199,6 +199,44 @@
       }
     }
   },
+  "variables": {
+    "companyName": {
+      "displayName": "公司名称",
+      "description": "文件发行公司的名称"
+    },
+    "documentFormatName": {
+      "displayName": "文件格式名称",
+      "description": "文件格式的名称"
+    },
+    "knownTerms": {
+      "displayName": "已知术语列表",
+      "description": "该公司/格式已识别的术语"
+    },
+    "recentExtractions": {
+      "displayName": "近期提取样本",
+      "description": "最近处理的相似文件提取结果"
+    },
+    "standardTerms": {
+      "displayName": "标准术语列表",
+      "description": "系统定义的标准术语类别"
+    },
+    "currentDate": {
+      "displayName": "当前日期",
+      "description": "处理时的日期"
+    },
+    "pageCount": {
+      "displayName": "页数",
+      "description": "文件总页数"
+    },
+    "documentText": {
+      "displayName": "文件内容",
+      "description": "OCR 提取的文件文字内容"
+    },
+    "fileName": {
+      "displayName": "文件名称",
+      "description": "上传的文件名称"
+    }
+  },
   "templateInserter": {
     "button": "插入模板",
     "dialogTitle": "插入默认模板 - {typeName}",

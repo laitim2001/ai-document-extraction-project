@@ -68,6 +68,48 @@
     "saveSuccess": "Data retention settings saved successfully",
     "saveError": "Failed to save data retention settings"
   },
+  "config": {
+    "modified": "Modified",
+    "effectType": {
+      "IMMEDIATE": "Immediate",
+      "RESTART_REQUIRED": "Restart Required",
+      "SCHEDULED": "Scheduled"
+    },
+    "category": {
+      "PROCESSING": {
+        "label": "Processing Parameters",
+        "description": "Parameters controlling document processing and AI extraction"
+      },
+      "INTEGRATION": {
+        "label": "Integration Settings",
+        "description": "Connection settings for AI services, n8n and external systems"
+      },
+      "SECURITY": {
+        "label": "Security Settings",
+        "description": "Session management, password policies and account security settings"
+      },
+      "NOTIFICATION": {
+        "label": "Notification Settings",
+        "description": "Settings for Email, Teams and other notification channels"
+      },
+      "SYSTEM": {
+        "label": "System Settings",
+        "description": "Logging, maintenance mode and system-level settings"
+      },
+      "DISPLAY": {
+        "label": "Display Settings",
+        "description": "Interface display related settings"
+      },
+      "AI_MODEL": {
+        "label": "AI Model Settings",
+        "description": "AI model related configurations"
+      },
+      "THRESHOLD": {
+        "label": "Threshold Settings",
+        "description": "Various threshold configurations"
+      }
+    }
+  },
   "settingsCard": {
     "configure": "Configure",
     "viewDetails": "View Details",
