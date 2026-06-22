@@ -97,6 +97,61 @@
       "syntheticRef": "Pipeline Ref Number (_ref_*)"
     }
   },
+  "formatAnalysis": {
+    "tree": {
+      "documentTypes": {
+        "INVOICE": "Invoice",
+        "DEBIT_NOTE": "Debit Note",
+        "CREDIT_NOTE": "Credit Note",
+        "STATEMENT": "Statement",
+        "QUOTATION": "Quotation",
+        "BILL_OF_LADING": "B/L",
+        "CUSTOMS_DECLARATION": "Customs",
+        "OTHER": "Other"
+      },
+      "documentSubtypes": {
+        "OCEAN_FREIGHT": "Ocean",
+        "AIR_FREIGHT": "Air",
+        "LAND_TRANSPORT": "Land",
+        "CUSTOMS_CLEARANCE": "Customs",
+        "WAREHOUSING": "Warehouse",
+        "IMPORT": "Import",
+        "EXPORT": "Export",
+        "GENERAL": "General"
+      },
+      "formatsBadge": "{count} formats",
+      "emptyTitle": "No companies found",
+      "emptyDescription": "Process some documents to see format analysis",
+      "summary": {
+        "companies": "{count} Companies",
+        "formats": "{count} Formats",
+        "terms": "{count} Terms"
+      }
+    },
+    "termsPanel": {
+      "confidence": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "tooltip": "{label} confidence: {value}%"
+      },
+      "createRule": "Create Rule",
+      "examplesTitle": "Original text examples:",
+      "moreExamples": "+{count} more",
+      "emptySelectionTitle": "Select a format to view terms",
+      "emptySelectionDescription": "Click on a format in the tree to see associated terms",
+      "filesBadge": "{count} files",
+      "termsBadge": "{count} terms",
+      "noTerms": "No terms found for this format",
+      "table": {
+        "term": "Term",
+        "frequency": "Frequency",
+        "category": "Category",
+        "confidence": "Confidence",
+        "actions": "Actions"
+      }
+    }
+  },
   "detail": {
     "loadError": "Unable to load format data",
     "loadErrorDescription": "An error occurred while loading format details. Please try again later.",

@@ -17,6 +17,7 @@
  *   - lucide-react - 圖標庫
  */
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Calendar, TrendingUp, TrendingDown } from 'lucide-react'
 import type { TimelineItem } from '@/types/impact'
@@ -100,19 +101,21 @@ function TimelineBar({
  * 圖例
  */
 function Legend() {
+  const t = useTranslations('ruleSimulation')
+
   return (
     <div className="flex items-center gap-4 text-xs text-muted-foreground">
       <div className="flex items-center gap-1">
         <div className="w-3 h-3 bg-green-500 rounded-sm" />
-        <span>改善</span>
+        <span>{t('impact.timeline.legend.improved')}</span>
       </div>
       <div className="flex items-center gap-1">
         <div className="w-3 h-3 bg-red-500 rounded-sm" />
-        <span>惡化</span>
+        <span>{t('impact.timeline.legend.regressed')}</span>
       </div>
       <div className="flex items-center gap-1">
         <div className="w-3 h-3 bg-muted rounded-sm" />
-        <span>無變化</span>
+        <span>{t('impact.timeline.legend.unchanged')}</span>
       </div>
     </div>
   )
@@ -122,6 +125,7 @@ function Legend() {
  * 摘要統計
  */
 function TimelineSummary({ timeline }: { timeline: TimelineItem[] }) {
+  const t = useTranslations('ruleSimulation')
   const totals = timeline.reduce(
     (acc, item) => ({
       affected: acc.affected + item.affectedCount,
@@ -135,15 +139,15 @@ function TimelineSummary({ timeline }: { timeline: TimelineItem[] }) {
     <div className="flex items-center gap-6 text-sm">
       <div className="flex items-center gap-2">
         <Calendar className="h-4 w-4 text-muted-foreground" />
-        <span>{timeline.length} 天</span>
+        <span>{t('impact.timeline.summary.days', { count: timeline.length })}</span>
       </div>
       <div className="flex items-center gap-2">
         <TrendingUp className="h-4 w-4 text-green-500" />
-        <span>{totals.improved} 改善</span>
+        <span>{t('impact.timeline.summary.improved', { count: totals.improved })}</span>
       </div>
       <div className="flex items-center gap-2">
         <TrendingDown className="h-4 w-4 text-red-500" />
-        <span>{totals.regressed} 惡化</span>
+        <span>{t('impact.timeline.summary.regressed', { count: totals.regressed })}</span>
       </div>
     </div>
   )
@@ -162,6 +166,7 @@ function TimelineSummary({ timeline }: { timeline: TimelineItem[] }) {
  * ```
  */
 export function ImpactTimeline({ timeline, className }: ImpactTimelineProps) {
+  const t = useTranslations('ruleSimulation')
   const maxValue = getMaxValue(timeline)
 
   if (timeline.length === 0) {
@@ -170,13 +175,13 @@ export function ImpactTimeline({ timeline, className }: ImpactTimelineProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Calendar className="h-5 w-5 text-muted-foreground" />
-            時間趨勢
+            {t('impact.timeline.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
             <Calendar className="h-8 w-8 mb-2" />
-            <p>無時間軸數據</p>
+            <p>{t('impact.timeline.noData')}</p>
           </div>
         </CardContent>
       </Card>
@@ -189,7 +194,7 @@ export function ImpactTimeline({ timeline, className }: ImpactTimelineProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Calendar className="h-5 w-5 text-muted-foreground" />
-            時間趨勢（最近 {timeline.length} 天）
+            {t('impact.timeline.titleWithDays', { count: timeline.length })}
           </CardTitle>
           <Legend />
         </div>

@@ -1,0 +1,125 @@
+{
+  "impact": {
+    "loadFailed": "Failed to load",
+    "noData": "No data",
+    "noDataDescription": "Unable to retrieve impact analysis data",
+    "header": {
+      "field": "Field",
+      "forwarder": "Forwarder",
+      "extractionType": "Extraction type"
+    },
+    "tabs": {
+      "analysis": "Impact analysis",
+      "simulation": "Simulation test"
+    },
+    "statistics": {
+      "totalAffected": "Affected documents",
+      "estimatedImprovement": "Estimated improvement",
+      "estimatedRegression": "Possible regression",
+      "unchanged": "Unchanged",
+      "improvementRate": "Improvement rate",
+      "regressionRate": "Regression rate"
+    },
+    "timeline": {
+      "title": "Time trend",
+      "titleWithDays": "Time trend (last {count} days)",
+      "noData": "No timeline data",
+      "legend": {
+        "improved": "Improved",
+        "regressed": "Regressed",
+        "unchanged": "Unchanged"
+      },
+      "summary": {
+        "days": "{count} days",
+        "improved": "{count} improved",
+        "regressed": "{count} regressed"
+      }
+    }
+  },
+  "risk": {
+    "title": "Risk cases",
+    "count": "{count} cases",
+    "empty": {
+      "title": "No risk cases found",
+      "description": "This rule change is not expected to cause regression"
+    },
+    "levels": {
+      "HIGH": "High risk",
+      "MEDIUM": "Medium risk",
+      "LOW": "Low risk"
+    },
+    "table": {
+      "document": "Document",
+      "riskLevel": "Risk level",
+      "valueComparison": "Value comparison",
+      "reason": "Risk reason"
+    },
+    "comparison": {
+      "current": "Current",
+      "predicted": "Predicted",
+      "empty": "(none)"
+    }
+  },
+  "simulation": {
+    "config": {
+      "title": "Simulation test configuration",
+      "sampleSize": "Sample size",
+      "sampleSizePlaceholder": "Select sample size",
+      "sampleSizeOptions": {
+        "50": "50 cases",
+        "100": "100 cases (recommended)",
+        "200": "200 cases",
+        "500": "500 cases"
+      },
+      "dateRange": "Date range",
+      "dateRangePlaceholder": "Select date range",
+      "dateRangeOptions": {
+        "7": "Last 7 days",
+        "30": "Last 30 days (recommended)",
+        "90": "Last 90 days",
+        "180": "Last 180 days"
+      },
+      "includeUnverified": "Include unverified documents",
+      "yes": "Yes",
+      "no": "No",
+      "run": "Run simulation test",
+      "running": "Running..."
+    },
+    "results": {
+      "title": "Simulation test results",
+      "summary": {
+        "totalTested": "Tested samples",
+        "improved": "Improved",
+        "regressed": "Regressed",
+        "accuracyChange": "Accuracy change"
+      },
+      "accuracy": {
+        "before": "Accuracy before change",
+        "after": "Accuracy after change"
+      },
+      "tabs": {
+        "improved": "Improved ({count})",
+        "regressed": "Regressed ({count})",
+        "unchanged": "Unchanged ({count})"
+      },
+      "empty": {
+        "improved": "No improved cases",
+        "regressed": "No regressed cases",
+        "unchanged": "No unchanged cases"
+      },
+      "table": {
+        "document": "Document",
+        "originalExtracted": "Original extraction",
+        "currentRuleResult": "Current rule",
+        "newRuleResult": "New rule",
+        "actualValue": "Actual value",
+        "current": "Current",
+        "newRule": "New rule"
+      },
+      "accurate": "Correct",
+      "inaccurate": "Incorrect",
+      "emptyValue": "(none)",
+      "showingLimit": "Showing first 20 of {count} cases"
+    }
+  }
+}

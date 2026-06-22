@@ -15,7 +15,7 @@
 
 'use client'
 
-import { useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { DocumentSourceType } from '@prisma/client'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -64,19 +64,17 @@ export function DocumentSourceBadge({
   size = 'md',
   showLabel = true,
 }: DocumentSourceBadgeProps) {
-  const locale = useLocale()
-  const isZh = locale === 'zh-TW' || locale === 'zh-CN'
+  const t = useTranslations('documentSource')
 
   const config = SOURCE_TYPE_CONFIG[sourceType as DocumentSourceType] || {
-    label: '未知',
-    labelEn: 'Unknown',
     icon: 'HelpCircle',
     color: 'text-gray-400',
     bgColor: 'bg-gray-100',
     borderColor: 'border-gray-300',
   }
 
-  const displayLabel = isZh ? config.label : config.labelEn
+  const labelKey = `sourceTypes.${sourceType}`
+  const displayLabel = t.has(labelKey) ? t(labelKey) : t('sourceTypes.unknown')
   const Icon = ICON_MAP[config.icon as keyof typeof ICON_MAP] || HelpCircle
 
   const sizeClasses = {

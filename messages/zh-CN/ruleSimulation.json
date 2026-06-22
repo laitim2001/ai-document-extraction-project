@@ -1,0 +1,125 @@
+{
+  "impact": {
+    "loadFailed": "加载失败",
+    "noData": "无数据",
+    "noDataDescription": "无法获取影响分析数据",
+    "header": {
+      "field": "字段",
+      "forwarder": "Forwarder",
+      "extractionType": "提取类型"
+    },
+    "tabs": {
+      "analysis": "影响分析",
+      "simulation": "模拟测试"
+    },
+    "statistics": {
+      "totalAffected": "受影响文档",
+      "estimatedImprovement": "预计改善",
+      "estimatedRegression": "可能恶化",
+      "unchanged": "无变化",
+      "improvementRate": "改善率",
+      "regressionRate": "恶化率"
+    },
+    "timeline": {
+      "title": "时间趋势",
+      "titleWithDays": "时间趋势（最近 {count} 天）",
+      "noData": "无时间轴数据",
+      "legend": {
+        "improved": "改善",
+        "regressed": "恶化",
+        "unchanged": "无变化"
+      },
+      "summary": {
+        "days": "{count} 天",
+        "improved": "{count} 改善",
+        "regressed": "{count} 恶化"
+      }
+    }
+  },
+  "risk": {
+    "title": "风险案例",
+    "count": "{count} 条",
+    "empty": {
+      "title": "未发现风险案例",
+      "description": "此规则变更预计不会造成恶化"
+    },
+    "levels": {
+      "HIGH": "高风险",
+      "MEDIUM": "中风险",
+      "LOW": "低风险"
+    },
+    "table": {
+      "document": "文档",
+      "riskLevel": "风险等级",
+      "valueComparison": "值对比",
+      "reason": "风险原因"
+    },
+    "comparison": {
+      "current": "现有",
+      "predicted": "预测",
+      "empty": "(无)"
+    }
+  },
+  "simulation": {
+    "config": {
+      "title": "模拟测试配置",
+      "sampleSize": "样本数量",
+      "sampleSizePlaceholder": "选择样本数量",
+      "sampleSizeOptions": {
+        "50": "50 条",
+        "100": "100 条（建议）",
+        "200": "200 条",
+        "500": "500 条"
+      },
+      "dateRange": "日期范围",
+      "dateRangePlaceholder": "选择日期范围",
+      "dateRangeOptions": {
+        "7": "最近 7 天",
+        "30": "最近 30 天（建议）",
+        "90": "最近 90 天",
+        "180": "最近 180 天"
+      },
+      "includeUnverified": "包含未验证文档",
+      "yes": "是",
+      "no": "否",
+      "run": "执行模拟测试",
+      "running": "执行中..."
+    },
+    "results": {
+      "title": "模拟测试结果",
+      "summary": {
+        "totalTested": "测试样本",
+        "improved": "改善",
+        "regressed": "恶化",
+        "accuracyChange": "准确率变化"
+      },
+      "accuracy": {
+        "before": "变更前准确率",
+        "after": "变更后准确率"
+      },
+      "tabs": {
+        "improved": "改善 ({count})",
+        "regressed": "恶化 ({count})",
+        "unchanged": "无变化 ({count})"
+      },
+      "empty": {
+        "improved": "无改善案例",
+        "regressed": "无恶化案例",
+        "unchanged": "无无变化案例"
+      },
+      "table": {
+        "document": "文档",
+        "originalExtracted": "原始提取",
+        "currentRuleResult": "当前规则",
+        "newRuleResult": "新规则",
+        "actualValue": "实际值",
+        "current": "当前",
+        "newRule": "新规则"
+      },
+      "accurate": "正确",
+      "inaccurate": "错误",
+      "emptyValue": "(无)",
+      "showingLimit": "显示前 20 条，共 {count} 条"
+    }
+  }
+}

@@ -65,14 +65,15 @@ function CodeBlock({
  * 正則表達式模式查看器
  */
 function RegexPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
+  const t = useTranslations('rules')
   return (
     <div className="space-y-4">
       {pattern.pattern && (
-        <CodeBlock label="正則表達式">{pattern.pattern}</CodeBlock>
+        <CodeBlock label={t('patternViewer.regexExpression')}>{pattern.pattern}</CodeBlock>
       )}
       {pattern.confidence_boost !== undefined && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">信心度增益：</span>
+          <span className="text-sm text-muted-foreground">{t('patternViewer.confidenceBoost')}</span>
           <Badge variant="outline">+{pattern.confidence_boost * 100}%</Badge>
         </div>
       )}
@@ -84,11 +85,12 @@ function RegexPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
  * 關鍵字模式查看器
  */
 function KeywordPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
+  const t = useTranslations('rules')
   return (
     <div className="space-y-4">
       {pattern.keywords && pattern.keywords.length > 0 && (
         <div className="space-y-2">
-          <span className="text-sm text-muted-foreground">關鍵字列表：</span>
+          <span className="text-sm text-muted-foreground">{t('patternViewer.keywordList')}</span>
           <div className="flex flex-wrap gap-2">
             {pattern.keywords.map((keyword, index) => (
               <Badge key={index} variant="secondary" className="font-mono">
@@ -106,11 +108,12 @@ function KeywordPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
  * 位置模式查看器
  */
 function PositionPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
+  const t = useTranslations('rules')
   const position = pattern.position
 
   if (!position) {
     return (
-      <p className="text-sm text-muted-foreground">未配置位置資訊</p>
+      <p className="text-sm text-muted-foreground">{t('patternViewer.noPosition')}</p>
     )
   }
 
@@ -118,14 +121,14 @@ function PositionPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <span className="text-xs text-muted-foreground">頁碼</span>
-          <p className="font-medium">第 {position.page} 頁</p>
+          <span className="text-xs text-muted-foreground">{t('patternViewer.page')}</span>
+          <p className="font-medium">{t('patternViewer.pageValue', { page: position.page })}</p>
         </div>
       </div>
 
       {position.region && (
         <div className="space-y-2">
-          <span className="text-sm text-muted-foreground">提取區域：</span>
+          <span className="text-sm text-muted-foreground">{t('patternViewer.extractRegion')}</span>
           <div className="grid grid-cols-4 gap-2">
             <div className="p-2 bg-muted rounded text-center">
               <p className="text-xs text-muted-foreground">X</p>
@@ -136,11 +139,11 @@ function PositionPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
               <p className="font-mono text-sm">{position.region.y}</p>
             </div>
             <div className="p-2 bg-muted rounded text-center">
-              <p className="text-xs text-muted-foreground">寬度</p>
+              <p className="text-xs text-muted-foreground">{t('patternViewer.width')}</p>
               <p className="font-mono text-sm">{position.region.width}</p>
             </div>
             <div className="p-2 bg-muted rounded text-center">
-              <p className="text-xs text-muted-foreground">高度</p>
+              <p className="text-xs text-muted-foreground">{t('patternViewer.height')}</p>
               <p className="font-mono text-sm">{position.region.height}</p>
             </div>
           </div>
@@ -154,12 +157,13 @@ function PositionPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
  * Azure 欄位模式查看器
  */
 function AzureFieldPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
+  const t = useTranslations('rules')
   return (
     <div className="space-y-4">
       {pattern.azureFieldName && (
         <div className="space-y-1">
           <span className="text-sm text-muted-foreground">
-            Azure Document Intelligence 欄位：
+            {t('patternViewer.azureFieldLabel')}
           </span>
           <Badge variant="outline" className="font-mono text-base px-3 py-1">
             {pattern.azureFieldName}
@@ -174,10 +178,11 @@ function AzureFieldPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
  * AI 提示詞模式查看器
  */
 function AIPromptPatternViewer({ pattern }: { pattern: ExtractionPattern }) {
+  const t = useTranslations('rules')
   return (
     <div className="space-y-4">
       {pattern.aiPrompt && (
-        <CodeBlock label="AI 提示詞">{pattern.aiPrompt}</CodeBlock>
+        <CodeBlock label={t('patternViewer.aiPrompt')}>{pattern.aiPrompt}</CodeBlock>
       )}
     </div>
   )
@@ -220,7 +225,7 @@ export function RulePatternViewer({
       default:
         return (
           <p className="text-sm text-muted-foreground">
-            未知的提取類型
+            {t('patternViewer.unknownType')}
           </p>
         )
     }

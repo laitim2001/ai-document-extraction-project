@@ -10,6 +10,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -53,6 +54,9 @@ interface AlertRuleManagementProps {
 // ============================================================
 
 export function AlertRuleManagement({ className }: AlertRuleManagementProps) {
+  const t = useTranslations('admin.alerts');
+  const tCommon = useTranslations('common');
+
   // --- State ---
   const [params, setParams] = React.useState<AlertRuleListParams>({
     page: 1,
@@ -125,7 +129,7 @@ export function AlertRuleManagement({ className }: AlertRuleManagementProps) {
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="搜尋規則..."
+              placeholder={t('rules.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -143,14 +147,14 @@ export function AlertRuleManagement({ className }: AlertRuleManagementProps) {
             onValueChange={(v) => handleFilterChange('severity', v)}
           >
             <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="嚴重程度" />
+              <SelectValue placeholder={t('rules.severityPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部</SelectItem>
-              <SelectItem value="INFO">資訊</SelectItem>
-              <SelectItem value="WARNING">警告</SelectItem>
-              <SelectItem value="CRITICAL">嚴重</SelectItem>
-              <SelectItem value="EMERGENCY">緊急</SelectItem>
+              <SelectItem value="all">{t('rules.filterAll')}</SelectItem>
+              <SelectItem value="INFO">{t('severity.INFO')}</SelectItem>
+              <SelectItem value="WARNING">{t('severity.WARNING')}</SelectItem>
+              <SelectItem value="CRITICAL">{t('severity.CRITICAL')}</SelectItem>
+              <SelectItem value="EMERGENCY">{t('severity.EMERGENCY')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -161,12 +165,12 @@ export function AlertRuleManagement({ className }: AlertRuleManagementProps) {
             }
           >
             <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="狀態" />
+              <SelectValue placeholder={t('rules.statusPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部</SelectItem>
-              <SelectItem value="true">啟用</SelectItem>
-              <SelectItem value="false">停用</SelectItem>
+              <SelectItem value="all">{t('rules.filterAll')}</SelectItem>
+              <SelectItem value="true">{t('rules.statusEnabled')}</SelectItem>
+              <SelectItem value="false">{t('rules.statusDisabled')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -176,7 +180,7 @@ export function AlertRuleManagement({ className }: AlertRuleManagementProps) {
 
           <Button onClick={() => setCreateDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            新增規則
+            {t('rules.create')}
           </Button>
         </div>
       </div>
@@ -194,7 +198,7 @@ export function AlertRuleManagement({ className }: AlertRuleManagementProps) {
       {data?.meta?.pagination && data.meta.pagination.totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <p className="text-sm text-muted-foreground">
-            共 {data.meta.pagination.total} 條規則
+            {t('rules.paginationTotal', { total: data.meta.pagination.total })}
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -203,10 +207,10 @@ export function AlertRuleManagement({ className }: AlertRuleManagementProps) {
               disabled={params.page === 1}
               onClick={() => setParams((prev) => ({ ...prev, page: (prev.page || 1) - 1 }))}
             >
-              上一頁
+              {tCommon('pagination.previous')}
             </Button>
             <span className="text-sm">
-              第 {params.page} / {data.meta.pagination.totalPages} 頁
+              {tCommon('pagination.pageOf', { page: params.page ?? 1, total: data.meta.pagination.totalPages })}
             </span>
             <Button
               variant="outline"
@@ -214,7 +218,7 @@ export function AlertRuleManagement({ className }: AlertRuleManagementProps) {
               disabled={params.page === data.meta.pagination.totalPages}
               onClick={() => setParams((prev) => ({ ...prev, page: (prev.page || 1) + 1 }))}
             >
-              下一頁
+              {tCommon('pagination.next')}
             </Button>
           </div>
         </div>
@@ -231,18 +235,18 @@ export function AlertRuleManagement({ className }: AlertRuleManagementProps) {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除</AlertDialogTitle>
+            <AlertDialogTitle>{t('rules.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              確定要刪除此警報規則嗎？此操作無法復原。
+              {t('rules.deleteDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{tCommon('actions.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? '刪除中...' : '刪除'}
+              {deleteMutation.isPending ? tCommon('actions.deleting') : tCommon('actions.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,0 +1,335 @@
+{
+  "outlook": {
+    "form": {
+      "basicInfo": {
+        "title": "基本資訊",
+        "description": "設定配置名稱和說明"
+      },
+      "name": {
+        "label": "配置名稱 *",
+        "placeholder": "例：香港辦公室 Outlook"
+      },
+      "description": {
+        "label": "說明",
+        "placeholder": "配置的用途說明"
+      },
+      "azureAd": {
+        "title": "Azure AD 設定",
+        "description": "Microsoft Entra ID 應用程式認證資訊"
+      },
+      "tenantId": {
+        "label": "Tenant ID *",
+        "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      },
+      "clientId": {
+        "label": "Client ID *",
+        "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      },
+      "clientSecret": {
+        "label": "Client Secret *",
+        "editHint": "(留空則不更新)",
+        "placeholderEdit": "留空則保持原密鑰",
+        "placeholderCreate": "請輸入 Client Secret"
+      },
+      "mailbox": {
+        "title": "Outlook 信箱設定",
+        "description": "設定要監控的信箱和資料夾"
+      },
+      "mailboxAddress": {
+        "label": "信箱電子郵件地址 *",
+        "placeholder": "invoices@company.com"
+      },
+      "mailFolders": {
+        "label": "監控資料夾",
+        "placeholder": "inbox, invoices",
+        "hint": "以逗號分隔多個資料夾名稱，留空則使用收件匣（inbox）"
+      },
+      "test": {
+        "button": "測試連線",
+        "testing": "測試中...",
+        "success": "連線成功！",
+        "mailbox": "信箱: {name}",
+        "recentMailCount": "近期郵件數: {count}",
+        "failed": "連線測試失敗",
+        "missingFields": "請填寫所有必要的連線資訊",
+        "missingSecret": "請填寫 Client Secret"
+      },
+      "processing": {
+        "title": "處理設定",
+        "description": "設定附件限制"
+      },
+      "maxAttachmentSizeMb": {
+        "label": "最大附件大小 (MB)"
+      },
+      "allowedExtensions": {
+        "label": "允許的檔案類型",
+        "placeholder": "pdf, jpg, jpeg, png, tiff",
+        "hint": "以逗號分隔多個副檔名（不需要加點）"
+      },
+      "city": {
+        "title": "城市關聯",
+        "description": "設定此配置適用的城市或設為全域配置",
+        "isGlobalLabel": "設為全域預設配置",
+        "selectCityLabel": "選擇城市",
+        "selectCityPlaceholder": "選擇城市..."
+      },
+      "submit": {
+        "saving": "儲存中...",
+        "update": "更新配置",
+        "create": "建立配置"
+      }
+    },
+    "list": {
+      "cardTitle": "Outlook 配置",
+      "cardDescription": "管理系統的 Outlook 信箱連線設定",
+      "columns": {
+        "name": "名稱",
+        "mailbox": "信箱",
+        "cityType": "城市/類型",
+        "filterRules": "過濾規則",
+        "connectionStatus": "連線狀態",
+        "active": "啟用",
+        "actions": "操作"
+      },
+      "mailboxTooltip": "信箱: {address}",
+      "foldersTooltip": "資料夾: {folders}",
+      "global": "全域",
+      "actionsMenu": "操作選單",
+      "testConnection": "測試連線",
+      "manageRules": "管理過濾規則",
+      "edit": "編輯",
+      "delete": "刪除",
+      "empty": {
+        "title": "尚未設定任何 Outlook 配置",
+        "hint": "點擊「新增配置」來建立您的第一個 Outlook 連線"
+      },
+      "deleteDialog": {
+        "title": "確定要刪除此配置？",
+        "description": "此操作無法復原。刪除後，系統將無法使用此 Outlook 配置獲取郵件。相關的過濾規則也會一併刪除。",
+        "cancel": "取消",
+        "confirm": "刪除"
+      },
+      "connectionStatus": {
+        "testing": "測試中...",
+        "untested": "未測試",
+        "normal": "正常",
+        "failed": "失敗",
+        "lastTestedAt": "最後測試時間: {time}",
+        "unknown": "未知"
+      },
+      "rulesCount": {
+        "none": "無規則",
+        "count": "{count} 條規則"
+      }
+    },
+    "filterRules": {
+      "title": "過濾規則管理",
+      "description": "配置「{name}」的郵件過濾規則。規則按優先級順序執行，第一個匹配的規則將生效。",
+      "addRule": "新增規則",
+      "empty": {
+        "title": "尚未設定任何過濾規則",
+        "hint": "所有郵件都會被處理。點擊「新增規則」來設定過濾條件。"
+      },
+      "columns": {
+        "priority": "優先級",
+        "ruleName": "規則名稱",
+        "type": "類型",
+        "matchValue": "匹配值",
+        "action": "動作",
+        "status": "狀態",
+        "actions": "操作"
+      },
+      "whitelist": "白名單",
+      "blacklist": "黑名單",
+      "active": "啟用",
+      "inactive": "停用",
+      "info": {
+        "title": "規則說明",
+        "whitelist": "符合此規則的郵件會被處理",
+        "blacklist": "符合此規則的郵件會被跳過",
+        "priority": "規則按優先級順序執行，第一個匹配的規則決定郵件的處理方式",
+        "default": "如果沒有任何規則匹配，郵件預設會被處理"
+      },
+      "close": "關閉",
+      "deleteDialog": {
+        "title": "確定要刪除此規則？",
+        "description": "此操作無法復原。刪除後，此規則將不再影響郵件過濾。",
+        "cancel": "取消",
+        "confirm": "刪除"
+      },
+      "ruleForm": {
+        "editTitle": "編輯過濾規則",
+        "createTitle": "新增過濾規則",
+        "description": "設定郵件過濾條件和處理方式",
+        "name": {
+          "label": "規則名稱 *",
+          "placeholder": "例：排除垃圾郵件"
+        },
+        "ruleType": {
+          "label": "規則類型 *",
+          "placeholder": "選擇規則類型"
+        },
+        "operator": {
+          "label": "匹配方式 *",
+          "placeholder": "選擇匹配方式"
+        },
+        "ruleValue": {
+          "label": "匹配值 *",
+          "placeholder": "例：spam.com 或 Invoice",
+          "regexHint": "輸入正則表達式，例如：^Invoice\\s\\d+$",
+          "defaultHint": "輸入要匹配的值"
+        },
+        "ruleAction": {
+          "label": "規則類型 *",
+          "placeholder": "選擇規則類型",
+          "whitelist": "白名單（通過）",
+          "blacklist": "黑名單（排除）"
+        },
+        "isActiveLabel": "啟用此規則",
+        "cancel": "取消",
+        "saving": "儲存中...",
+        "update": "更新規則",
+        "create": "建立規則"
+      },
+      "ruleTypes": {
+        "SENDER_EMAIL": "寄件者 Email",
+        "SENDER_DOMAIN": "寄件者網域",
+        "SUBJECT_KEYWORD": "主旨關鍵字",
+        "SUBJECT_REGEX": "主旨正則表達式",
+        "ATTACHMENT_TYPE": "附件類型",
+        "ATTACHMENT_NAME": "附件名稱模式"
+      },
+      "operators": {
+        "EQUALS": "完全匹配",
+        "CONTAINS": "包含",
+        "STARTS_WITH": "開頭",
+        "ENDS_WITH": "結尾",
+        "REGEX": "正則表達式"
+      }
+    }
+  },
+  "sharepoint": {
+    "form": {
+      "basicInfo": {
+        "title": "基本資訊",
+        "description": "設定配置名稱和說明"
+      },
+      "name": {
+        "label": "配置名稱 *",
+        "placeholder": "例：香港辦公室 SharePoint"
+      },
+      "description": {
+        "label": "說明",
+        "placeholder": "配置的用途說明"
+      },
+      "azureAd": {
+        "title": "Azure AD 設定",
+        "description": "Microsoft Entra ID 應用程式認證資訊"
+      },
+      "tenantId": {
+        "label": "Tenant ID *",
+        "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      },
+      "clientId": {
+        "label": "Client ID *",
+        "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      },
+      "clientSecret": {
+        "label": "Client Secret *",
+        "editHint": "(留空則不更新)",
+        "placeholderEdit": "留空則保持原密鑰",
+        "placeholderCreate": "請輸入 Client Secret"
+      },
+      "sharepoint": {
+        "title": "SharePoint 設定",
+        "description": "SharePoint 站點和文件庫設定"
+      },
+      "siteUrl": {
+        "label": "站點 URL *",
+        "placeholder": "https://your-tenant.sharepoint.com/sites/your-site"
+      },
+      "libraryPath": {
+        "label": "文件庫路徑 *",
+        "placeholder": "Shared Documents"
+      },
+      "rootFolderPath": {
+        "label": "根目錄路徑",
+        "placeholder": "例：Invoices/2025（可選）"
+      },
+      "test": {
+        "button": "測試連線",
+        "testing": "測試中...",
+        "success": "連線成功！",
+        "site": "站點: {name}",
+        "library": "文件庫: {name}",
+        "failed": "連線測試失敗",
+        "missingFields": "請填寫所有必要的連線資訊"
+      },
+      "fileFilter": {
+        "title": "檔案過濾設定",
+        "description": "設定允許的檔案類型和大小限制"
+      },
+      "fileExtensions": {
+        "label": "允許的檔案類型",
+        "placeholder": ".pdf, .jpg, .jpeg, .png, .tiff",
+        "hint": "以逗號分隔多個副檔名"
+      },
+      "maxFileSizeMb": {
+        "label": "最大檔案大小 (MB)"
+      },
+      "excludeFolders": {
+        "label": "排除資料夾",
+        "placeholder": "Archive, Backup, Temp",
+        "hint": "以逗號分隔多個資料夾名稱"
+      },
+      "city": {
+        "title": "城市關聯",
+        "description": "設定此配置適用的城市或設為全域配置",
+        "isGlobalLabel": "設為全域預設配置",
+        "selectCityLabel": "選擇城市",
+        "selectCityPlaceholder": "選擇城市..."
+      },
+      "submit": {
+        "saving": "儲存中...",
+        "update": "更新配置",
+        "create": "建立配置"
+      }
+    },
+    "list": {
+      "cardTitle": "SharePoint 配置",
+      "cardDescription": "管理系統的 SharePoint 連線設定",
+      "columns": {
+        "name": "名稱",
+        "siteUrl": "站點 URL",
+        "cityType": "城市/類型",
+        "connectionStatus": "連線狀態",
+        "active": "啟用",
+        "actions": "操作"
+      },
+      "libraryTooltip": "文件庫: {path}",
+      "global": "全域",
+      "actionsMenu": "操作選單",
+      "testConnection": "測試連線",
+      "edit": "編輯",
+      "delete": "刪除",
+      "empty": {
+        "title": "尚未設定任何 SharePoint 配置",
+        "hint": "點擊「新增配置」來建立您的第一個 SharePoint 連線"
+      },
+      "deleteDialog": {
+        "title": "確定要刪除此配置？",
+        "description": "此操作無法復原。刪除後，系統將無法使用此 SharePoint 配置獲取文件。",
+        "cancel": "取消",
+        "confirm": "刪除"
+      },
+      "connectionStatus": {
+        "testing": "測試中...",
+        "untested": "未測試",
+        "normal": "正常",
+        "failed": "失敗",
+        "lastTestedAt": "最後測試時間: {time}",
+        "unknown": "未知"
+      }
+    }
+  }
+}

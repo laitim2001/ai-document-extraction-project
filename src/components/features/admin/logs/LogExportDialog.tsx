@@ -16,6 +16,7 @@
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -53,24 +54,24 @@ interface LogExportDialogProps {
 // Constants
 // ============================================================
 
-const FORMAT_OPTIONS: { value: LogExportFormat; label: string; icon: React.ReactNode; description: string }[] = [
+const FORMAT_OPTIONS: { value: LogExportFormat; labelKey: string; icon: React.ReactNode; descriptionKey: string }[] = [
   {
     value: 'CSV',
-    label: 'CSV',
+    labelKey: 'formats.csv',
     icon: <FileText className="h-5 w-5" />,
-    description: '適合 Excel 或試算表應用程式',
+    descriptionKey: 'formats.csvDescription',
   },
   {
     value: 'JSON',
-    label: 'JSON',
+    labelKey: 'formats.json',
     icon: <FileJson className="h-5 w-5" />,
-    description: '適合程式處理和資料分析',
+    descriptionKey: 'formats.jsonDescription',
   },
   {
     value: 'TXT',
-    label: '純文字',
+    labelKey: 'formats.txt',
     icon: <File className="h-5 w-5" />,
-    description: '易於閱讀的純文字格式',
+    descriptionKey: 'formats.txtDescription',
   },
 ];
 
@@ -83,6 +84,7 @@ const FORMAT_OPTIONS: { value: LogExportFormat; label: string; icon: React.React
  * @description 日誌匯出對話框
  */
 export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps) {
+  const t = useTranslations('admin.logsViewer.export');
   const { toast } = useToast();
 
   // --- State ---
@@ -150,13 +152,13 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
 
       setExportId(result.id);
       toast({
-        title: '匯出任務已建立',
-        description: '正在處理匯出請求...',
+        title: t('toast.created'),
+        description: t('toast.createdDescription'),
       });
     } catch (error) {
       toast({
-        title: '匯出失敗',
-        description: error instanceof Error ? error.message : '無法建立匯出任務',
+        title: t('toast.failed'),
+        description: error instanceof Error ? error.message : t('toast.failedDescription'),
         variant: 'destructive',
       });
     }
@@ -179,9 +181,9 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>匯出日誌</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            選擇匯出格式和時間範圍，系統將產生可下載的檔案
+            {t('description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -189,7 +191,7 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
           <div className="space-y-6 py-4">
             {/* 格式選擇 */}
             <div className="space-y-3">
-              <Label>匯出格式</Label>
+              <Label>{t('formatLabel')}</Label>
               <RadioGroup
                 value={format}
                 onValueChange={(v) => setFormat(v as LogExportFormat)}
@@ -207,8 +209,8 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
                     <RadioGroupItem value={option.value} />
                     <div className="text-muted-foreground">{option.icon}</div>
                     <div className="flex-1">
-                      <p className="font-medium">{option.label}</p>
-                      <p className="text-sm text-muted-foreground">{option.description}</p>
+                      <p className="font-medium">{t(option.labelKey)}</p>
+                      <p className="text-sm text-muted-foreground">{t(option.descriptionKey)}</p>
                     </div>
                   </label>
                 ))}
@@ -217,11 +219,11 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
 
             {/* 時間範圍 */}
             <div className="space-y-3">
-              <Label>時間範圍</Label>
+              <Label>{t('timeRange')}</Label>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="startDate" className="text-xs text-muted-foreground">
-                    開始時間
+                    {t('startTime')}
                   </Label>
                   <Input
                     id="startDate"
@@ -232,7 +234,7 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="endDate" className="text-xs text-muted-foreground">
-                    結束時間
+                    {t('endTime')}
                   </Label>
                   <Input
                     id="endDate"
@@ -247,11 +249,11 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
             {/* 篩選條件提示 */}
             {filters && (filters.levels?.length || filters.sources?.length || filters.keyword) && (
               <Alert>
-                <AlertTitle>已套用篩選條件</AlertTitle>
+                <AlertTitle>{t('appliedFilters')}</AlertTitle>
                 <AlertDescription className="text-sm">
-                  {filters.levels?.length && `級別: ${filters.levels.join(', ')} `}
-                  {filters.sources?.length && `來源: ${filters.sources.join(', ')} `}
-                  {filters.keyword && `關鍵字: ${filters.keyword}`}
+                  {filters.levels?.length ? `${t('filterLevel')}: ${filters.levels.join(', ')} ` : ''}
+                  {filters.sources?.length ? `${t('filterSource')}: ${filters.sources.join(', ')} ` : ''}
+                  {filters.keyword ? `${t('filterKeyword')}: ${filters.keyword}` : ''}
                 </AlertDescription>
               </Alert>
             )}
@@ -263,12 +265,15 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
               <div className="space-y-4 text-center">
                 <Loader2 className="h-12 w-12 mx-auto animate-spin text-primary" />
                 <div>
-                  <p className="font-medium">正在匯出...</p>
+                  <p className="font-medium">{t('exporting')}</p>
                   <p className="text-sm text-muted-foreground">
                     {exportStatus?.processedRecords !== undefined &&
                     exportStatus?.totalRecords !== undefined
-                      ? `已處理 ${exportStatus.processedRecords} / ${exportStatus.totalRecords} 筆`
-                      : '準備中...'}
+                      ? t('processedRecords', {
+                          processed: exportStatus.processedRecords,
+                          total: exportStatus.totalRecords,
+                        })
+                      : t('preparing')}
                   </p>
                 </div>
                 <Progress value={progress} className="max-w-xs mx-auto" />
@@ -280,9 +285,9 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
               <div className="text-center space-y-4">
                 <CheckCircle className="h-12 w-12 mx-auto text-green-500" />
                 <div>
-                  <p className="font-medium">匯出完成</p>
+                  <p className="font-medium">{t('completed')}</p>
                   <p className="text-sm text-muted-foreground">
-                    {exportStatus.totalRecords?.toLocaleString()} 筆日誌
+                    {t('completedRecords', { count: exportStatus.totalRecords?.toLocaleString() ?? '0' })}
                     {exportStatus.fileSize && ` (${(exportStatus.fileSize / 1024).toFixed(1)} KB)`}
                   </p>
                 </div>
@@ -294,9 +299,9 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
               <div className="text-center space-y-4">
                 <AlertCircle className="h-12 w-12 mx-auto text-red-500" />
                 <div>
-                  <p className="font-medium">匯出失敗</p>
+                  <p className="font-medium">{t('failed')}</p>
                   <p className="text-sm text-muted-foreground">
-                    {exportStatus.error || '發生未知錯誤'}
+                    {exportStatus.error || t('unknownError')}
                   </p>
                 </div>
               </div>
@@ -306,29 +311,29 @@ export function LogExportDialog({ open, onClose, filters }: LogExportDialogProps
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            {isExporting && isCompleted ? '關閉' : '取消'}
+            {isExporting && isCompleted ? t('close') : t('cancel')}
           </Button>
           {!isExporting ? (
             <Button onClick={handleExport} disabled={createExport.isPending}>
               {createExport.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  建立中...
+                  {t('creating')}
                 </>
               ) : (
                 <>
                   <Download className="mr-2 h-4 w-4" />
-                  開始匯出
+                  {t('start')}
                 </>
               )}
             </Button>
           ) : isCompleted && exportStatus?.downloadUrl ? (
             <Button onClick={handleDownload}>
               <Download className="mr-2 h-4 w-4" />
-              下載檔案
+              {t('download')}
             </Button>
           ) : isFailed ? (
-            <Button onClick={() => setExportId(null)}>重試</Button>
+            <Button onClick={() => setExportId(null)}>{t('retry')}</Button>
           ) : null}
         </DialogFooter>
       </DialogContent>

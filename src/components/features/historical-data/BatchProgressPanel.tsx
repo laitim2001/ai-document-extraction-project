@@ -28,6 +28,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   useBatchProgress,
   formatRemainingTime,
@@ -86,24 +87,30 @@ interface BatchProgressPanelProps {
 // Status Badge Component
 // ============================================================
 
-function StatusBadge({ status }: { status: HistoricalBatchStatus }) {
+function StatusBadge({
+  status,
+  t,
+}: {
+  status: HistoricalBatchStatus
+  t: ReturnType<typeof useTranslations<'historicalData.batchProgress'>>
+}) {
   const config = {
-    PENDING: { label: '待處理', variant: 'secondary' as const, icon: Clock },
-    PROCESSING: { label: '處理中', variant: 'default' as const, icon: Loader2 },
-    PAUSED: { label: '已暫停', variant: 'outline' as const, icon: Pause },
-    AGGREGATING: { label: '聚合中', variant: 'default' as const, icon: Loader2 },
-    AGGREGATED: { label: '已聚合', variant: 'default' as const, icon: CheckCircle2 },
-    COMPLETED: { label: '已完成', variant: 'default' as const, icon: CheckCircle2 },
-    FAILED: { label: '失敗', variant: 'destructive' as const, icon: AlertCircle },
-    CANCELLED: { label: '已取消', variant: 'secondary' as const, icon: XCircle },
+    PENDING: { labelKey: 'pending', variant: 'secondary' as const, icon: Clock },
+    PROCESSING: { labelKey: 'processing', variant: 'default' as const, icon: Loader2 },
+    PAUSED: { labelKey: 'paused', variant: 'outline' as const, icon: Pause },
+    AGGREGATING: { labelKey: 'aggregating', variant: 'default' as const, icon: Loader2 },
+    AGGREGATED: { labelKey: 'aggregated', variant: 'default' as const, icon: CheckCircle2 },
+    COMPLETED: { labelKey: 'completed', variant: 'default' as const, icon: CheckCircle2 },
+    FAILED: { labelKey: 'failed', variant: 'destructive' as const, icon: AlertCircle },
+    CANCELLED: { labelKey: 'cancelled', variant: 'secondary' as const, icon: XCircle },
   }
 
-  const { label, variant, icon: Icon } = config[status] || config.PENDING
+  const { labelKey, variant, icon: Icon } = config[status] || config.PENDING
 
   return (
     <Badge variant={variant} className="gap-1">
       <Icon className={cn('h-3 w-3', status === 'PROCESSING' && 'animate-spin')} />
-      {label}
+      {t(`status.${labelKey}`)}
     </Badge>
   )
 }
@@ -112,15 +119,22 @@ function StatusBadge({ status }: { status: HistoricalBatchStatus }) {
 // Connection Status Indicator
 // ============================================================
 
-function ConnectionIndicator({ status }: { status: 'connecting' | 'connected' | 'disconnected' | 'error' }) {
+function ConnectionIndicator({
+  status,
+  t,
+}: {
+  status: 'connecting' | 'connected' | 'disconnected' | 'error'
+  t: ReturnType<typeof useTranslations<'historicalData.batchProgress'>>
+}) {
   const config = {
-    connecting: { color: 'bg-yellow-500', label: '連線中...' },
-    connected: { color: 'bg-green-500', label: '已連線' },
-    disconnected: { color: 'bg-gray-400', label: '已斷線' },
-    error: { color: 'bg-red-500', label: '連線錯誤' },
+    connecting: { color: 'bg-yellow-500' },
+    connected: { color: 'bg-green-500' },
+    disconnected: { color: 'bg-gray-400' },
+    error: { color: 'bg-red-500' },
   }
 
-  const { color, label } = config[status]
+  const { color } = config[status]
+  const label = t(`connection.${status}`)
 
   return (
     <Tooltip>
@@ -130,7 +144,7 @@ function ConnectionIndicator({ status }: { status: 'connecting' | 'connected' | 
           <span className="text-xs text-muted-foreground">{label}</span>
         </div>
       </TooltipTrigger>
-      <TooltipContent>SSE 連線狀態: {label}</TooltipContent>
+      <TooltipContent>{t('connection.tooltip', { status: label })}</TooltipContent>
     </Tooltip>
   )
 }
@@ -191,29 +205,35 @@ function CircularProgress({
 // Stats Grid Component
 // ============================================================
 
-function StatsGrid({ progress }: { progress: BatchProgress }) {
+function StatsGrid({
+  progress,
+  t,
+}: {
+  progress: BatchProgress
+  t: ReturnType<typeof useTranslations<'historicalData.batchProgress'>>
+}) {
   const stats = [
     {
-      label: '已完成',
+      label: t('stats.completed'),
       value: progress.filesByStatus.completed,
       icon: CheckCircle2,
       color: 'text-green-500',
     },
     {
-      label: '處理中',
+      label: t('stats.processing'),
       value: progress.filesByStatus.processing,
       icon: Loader2,
       color: 'text-blue-500',
       animate: true,
     },
     {
-      label: '待處理',
+      label: t('stats.pending'),
       value: progress.filesByStatus.pending + progress.filesByStatus.detected,
       icon: Clock,
       color: 'text-gray-500',
     },
     {
-      label: '失敗',
+      label: t('stats.failed'),
       value: progress.failedFiles,
       icon: AlertCircle,
       color: 'text-red-500',
@@ -254,6 +274,7 @@ export function BatchProgressPanel({
   className,
 }: BatchProgressPanelProps) {
   // --- Hooks ---
+  const t = useTranslations('historicalData.batchProgress')
   const {
     progress,
     connectionStatus,
@@ -271,7 +292,7 @@ export function BatchProgressPanel({
       <Card className={className}>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">載入進度...</span>
+          <span className="ml-2 text-muted-foreground">{t('loading')}</span>
         </CardContent>
       </Card>
     )
@@ -283,10 +304,10 @@ export function BatchProgressPanel({
       <Card className={className}>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <WifiOff className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-muted-foreground mb-4">無法連線到進度服務</p>
+          <p className="text-muted-foreground mb-4">{t('connectionError')}</p>
           <Button variant="outline" onClick={reconnect}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            重新連線
+            {t('reconnect')}
           </Button>
         </CardContent>
       </Card>
@@ -298,7 +319,7 @@ export function BatchProgressPanel({
     return (
       <Card className={className}>
         <CardContent className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">無進度資訊</p>
+          <p className="text-muted-foreground">{t('noProgress')}</p>
         </CardContent>
       </Card>
     )
@@ -324,8 +345,8 @@ export function BatchProgressPanel({
               {progress.batchName}
             </CardTitle>
             <div className="flex items-center gap-3">
-              <ConnectionIndicator status={connectionStatus} />
-              <StatusBadge status={progress.status} />
+              <ConnectionIndicator status={connectionStatus} t={t} />
+              <StatusBadge status={progress.status} t={t} />
             </div>
           </div>
         </CardHeader>
@@ -339,7 +360,7 @@ export function BatchProgressPanel({
               {/* Processing Rate */}
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm text-muted-foreground">處理速率</span>
+                <span className="text-sm text-muted-foreground">{t('rate')}</span>
                 <span className="font-medium">
                   {formatProcessingRate(progress.processingRate)}
                 </span>
@@ -348,7 +369,7 @@ export function BatchProgressPanel({
               {/* Remaining Time */}
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-blue-500" />
-                <span className="text-sm text-muted-foreground">預估剩餘</span>
+                <span className="text-sm text-muted-foreground">{t('estimatedRemaining')}</span>
                 <span className="font-medium">
                   {formatRemainingTime(progress.estimatedRemainingTime)}
                 </span>
@@ -358,7 +379,7 @@ export function BatchProgressPanel({
               {progress.currentFileName && (
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">正在處理</span>
+                  <span className="text-sm text-muted-foreground">{t('currentFile')}</span>
                   <span className="font-medium truncate max-w-[200px]">
                     {progress.currentFileName}
                   </span>
@@ -369,7 +390,7 @@ export function BatchProgressPanel({
               <Progress value={progress.percentage} className="h-2" />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>
-                  {progress.processedFiles} / {progress.totalFiles} 文件
+                  {t('fileCount', { processed: progress.processedFiles, total: progress.totalFiles })}
                 </span>
                 <span>{progress.percentage}%</span>
               </div>
@@ -377,7 +398,7 @@ export function BatchProgressPanel({
           </div>
 
           {/* Stats Grid */}
-          <StatsGrid progress={progress} />
+          <StatsGrid progress={progress} t={t} />
 
           {/* Control Buttons */}
           {showControls && (
@@ -386,19 +407,19 @@ export function BatchProgressPanel({
                 {canPause && (
                   <Button variant="outline" size="sm" onClick={onPause}>
                     <Pause className="mr-1 h-4 w-4" />
-                    暫停
+                    {t('controls.pause')}
                   </Button>
                 )}
                 {canResume && (
                   <Button variant="outline" size="sm" onClick={onResume}>
                     <Play className="mr-1 h-4 w-4" />
-                    繼續
+                    {t('controls.resume')}
                   </Button>
                 )}
                 {canCancel && (
                   <Button variant="destructive" size="sm" onClick={onCancel}>
                     <XCircle className="mr-1 h-4 w-4" />
-                    取消
+                    {t('controls.cancel')}
                   </Button>
                 )}
               </div>
@@ -406,7 +427,7 @@ export function BatchProgressPanel({
               {progress.failedFiles > 0 && onViewErrors && (
                 <Button variant="ghost" size="sm" onClick={onViewErrors}>
                   <AlertCircle className="mr-1 h-4 w-4 text-red-500" />
-                  查看 {progress.failedFiles} 個錯誤
+                  {t('viewErrors', { count: progress.failedFiles })}
                 </Button>
               )}
             </div>
@@ -420,19 +441,19 @@ export function BatchProgressPanel({
                   <div className="text-lg font-semibold text-green-600">
                     ${progress.totalCost.toFixed(4)}
                   </div>
-                  <div className="text-xs text-muted-foreground">總成本</div>
+                  <div className="text-xs text-muted-foreground">{t('summary.totalCost')}</div>
                 </div>
                 <div>
                   <div className="text-lg font-semibold text-blue-600">
                     {progress.newCompaniesCount}
                   </div>
-                  <div className="text-xs text-muted-foreground">新公司</div>
+                  <div className="text-xs text-muted-foreground">{t('summary.newCompanies')}</div>
                 </div>
                 <div>
                   <div className="text-lg font-semibold text-purple-600">
                     {progress.extractedTermsCount}
                   </div>
-                  <div className="text-xs text-muted-foreground">費用項</div>
+                  <div className="text-xs text-muted-foreground">{t('summary.extractedTerms')}</div>
                 </div>
               </div>
             </div>

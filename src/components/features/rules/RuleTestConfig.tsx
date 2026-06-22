@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Card,
   CardContent,
@@ -75,6 +76,8 @@ export function RuleTestConfig({
   isLoading = false,
   disabled = false,
 }: RuleTestConfigProps) {
+  const t = useTranslations('rules')
+
   // --- Handlers ---
 
   const handleScopeChange = (scope: TestScope) => {
@@ -139,13 +142,13 @@ export function RuleTestConfig({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>測試配置</CardTitle>
-        <CardDescription>選擇要測試的文件範圍和相關參數</CardDescription>
+        <CardTitle>{t('testConfig.title')}</CardTitle>
+        <CardDescription>{t('testConfig.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* 測試範圍選擇 */}
         <div className="space-y-3">
-          <Label className="text-base">測試範圍</Label>
+          <Label className="text-base">{t('testConfig.scopeLabel')}</Label>
           <RadioGroup
             value={config.scope}
             onValueChange={(v) => handleScopeChange(v as TestScope)}
@@ -160,10 +163,10 @@ export function RuleTestConfig({
                 />
                 <div className="grid gap-1">
                   <Label htmlFor={scope.value} className="font-medium">
-                    {scope.label}
+                    {t(`testConfig.scopes.${scope.value}`)}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {scope.description}
+                    {t(`testConfig.scopes.${scope.value}Desc`)}
                   </p>
                 </div>
               </div>
@@ -174,7 +177,7 @@ export function RuleTestConfig({
         {/* 最近 N 筆配置 */}
         {config.scope === 'recent' && (
           <div className="space-y-2">
-            <Label htmlFor="recentCount">文件數量</Label>
+            <Label htmlFor="recentCount">{t('testConfig.documentCount')}</Label>
             <Input
               id="recentCount"
               type="number"
@@ -186,7 +189,7 @@ export function RuleTestConfig({
               className="w-32"
             />
             <p className="text-sm text-muted-foreground">
-              測試最近處理的 N 筆文件（最多 1000）
+              {t('testConfig.recentHint')}
             </p>
           </div>
         )}
@@ -195,7 +198,7 @@ export function RuleTestConfig({
         {config.scope === 'date_range' && (
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="startDate">開始日期</Label>
+              <Label htmlFor="startDate">{t('testConfig.startDate')}</Label>
               <Input
                 id="startDate"
                 type="date"
@@ -205,7 +208,7 @@ export function RuleTestConfig({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="endDate">結束日期</Label>
+              <Label htmlFor="endDate">{t('testConfig.endDate')}</Label>
               <Input
                 id="endDate"
                 type="date"
@@ -220,7 +223,7 @@ export function RuleTestConfig({
         {/* 最大文件數限制 */}
         {(config.scope === 'all' || config.scope === 'date_range') && (
           <div className="space-y-2">
-            <Label htmlFor="maxDocuments">最大測試數（選填）</Label>
+            <Label htmlFor="maxDocuments">{t('testConfig.maxDocuments')}</Label>
             <Input
               id="maxDocuments"
               type="number"
@@ -228,12 +231,12 @@ export function RuleTestConfig({
               max={10000}
               value={config.maxDocuments || ''}
               onChange={(e) => handleMaxDocumentsChange(e.target.value)}
-              placeholder="不限制"
+              placeholder={t('testConfig.noLimit')}
               disabled={disabled}
               className="w-32"
             />
             <p className="text-sm text-muted-foreground">
-              限制測試文件的最大數量，留空表示不限制
+              {t('testConfig.maxDocumentsHint')}
             </p>
           </div>
         )}
@@ -248,12 +251,12 @@ export function RuleTestConfig({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                啟動測試中...
+                {t('testConfig.starting')}
               </>
             ) : (
               <>
                 <Play className="mr-2 h-4 w-4" />
-                啟動測試
+                {t('testConfig.startTest')}
               </>
             )}
           </Button>

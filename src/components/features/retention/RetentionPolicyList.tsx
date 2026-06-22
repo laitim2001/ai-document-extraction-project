@@ -18,6 +18,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useRetentionPolicies, useDeleteRetentionPolicy } from '@/hooks/useRetention'
 import {
   Table,
@@ -59,7 +60,6 @@ import {
   Shield,
   CheckCircle2,
 } from 'lucide-react'
-import { DATA_TYPE_LABELS } from '@/types/retention'
 import type { RetentionPolicyWithRelations } from '@/types/retention'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
@@ -86,6 +86,7 @@ export function RetentionPolicyList({
   onCreateClick,
   onEditClick,
 }: RetentionPolicyListProps) {
+  const t = useTranslations('dataRetention')
   const { toast } = useToast()
   const [page, setPage] = React.useState(1)
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
@@ -95,14 +96,14 @@ export function RetentionPolicyList({
   const deletePolicy = useDeleteRetentionPolicy({
     onSuccess: () => {
       toast({
-        title: '刪除成功',
-        description: '保留策略已刪除',
+        title: t('policy.deleteToast.successTitle'),
+        description: t('policy.deleteToast.successDescription'),
       })
       setDeleteDialogOpen(false)
     },
     onError: (error) => {
       toast({
-        title: '刪除失敗',
+        title: t('policy.deleteToast.errorTitle'),
         description: error.message,
         variant: 'destructive',
       })
@@ -125,7 +126,7 @@ export function RetentionPolicyList({
     () => [
       {
         id: 'policyName',
-        header: '策略名稱',
+        header: t('policy.columns.policyName'),
         cell: (policy) => (
           <div>
             <p className="font-medium">{policy.policyName}</p>
@@ -139,37 +140,37 @@ export function RetentionPolicyList({
       },
       {
         id: 'dataType',
-        header: '資料類型',
+        header: t('policy.columns.dataType'),
         cell: (policy) => (
-          <Badge variant="outline">{DATA_TYPE_LABELS[policy.dataType]}</Badge>
+          <Badge variant="outline">{t(`dataType.${policy.dataType}`)}</Badge>
         ),
       },
       {
         id: 'retentionDays',
-        header: '保留天數',
+        header: t('policy.columns.retentionDays'),
         cell: (policy) => (
           <div className="text-sm space-y-0.5">
-            <p>熱: {policy.hotStorageDays} 天</p>
-            <p>溫: {policy.warmStorageDays} 天</p>
-            <p>冷: {policy.coldStorageDays} 天</p>
+            <p>{t('policy.hotDays', { days: policy.hotStorageDays })}</p>
+            <p>{t('policy.warmDays', { days: policy.warmStorageDays })}</p>
+            <p>{t('policy.coldDays', { days: policy.coldStorageDays })}</p>
           </div>
         ),
       },
       {
         id: 'protection',
-        header: '保護設定',
+        header: t('policy.columns.protection'),
         cell: (policy) => (
           <div className="flex flex-col gap-1">
             {policy.deletionProtection && (
               <Badge variant="secondary" className="w-fit">
                 <Shield className="h-3 w-3 mr-1" />
-                刪除保護
+                {t('policy.deletionProtection')}
               </Badge>
             )}
             {policy.requireApproval && (
               <Badge variant="secondary" className="w-fit">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
-                需審批
+                {t('policy.requireApproval')}
               </Badge>
             )}
           </div>
@@ -177,10 +178,10 @@ export function RetentionPolicyList({
       },
       {
         id: 'status',
-        header: '狀態',
+        header: t('policy.columns.status'),
         cell: (policy) => (
           <Badge variant={policy.isActive ? 'default' : 'secondary'}>
-            {policy.isActive ? '啟用' : '停用'}
+            {policy.isActive ? t('policy.active') : t('policy.inactive')}
           </Badge>
         ),
       },
@@ -199,7 +200,7 @@ export function RetentionPolicyList({
               {onEditClick && (
                 <DropdownMenuItem onClick={() => onEditClick(policy.id)}>
                   <Edit className="h-4 w-4 mr-2" />
-                  編輯
+                  {t('policy.edit')}
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem
@@ -207,14 +208,14 @@ export function RetentionPolicyList({
                 className="text-destructive"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                刪除
+                {t('policy.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ),
       },
     ],
-    [onEditClick]
+    [onEditClick, t]
   )
 
   if (isLoading) {
@@ -225,7 +226,7 @@ export function RetentionPolicyList({
     return (
       <div className="flex flex-col items-center justify-center py-10">
         <AlertCircle className="h-8 w-8 text-destructive mb-2" />
-        <p className="text-muted-foreground">無法載入保留策略</p>
+        <p className="text-muted-foreground">{t('policy.loadError')}</p>
       </div>
     )
   }
@@ -236,11 +237,11 @@ export function RetentionPolicyList({
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">保留策略</h3>
+        <h3 className="text-lg font-medium">{t('policy.listTitle')}</h3>
         {onCreateClick && (
           <Button onClick={onCreateClick} size="sm">
             <Plus className="h-4 w-4 mr-2" />
-            新增策略
+            {t('policy.create')}
           </Button>
         )}
       </div>
@@ -253,7 +254,7 @@ export function RetentionPolicyList({
           page={page}
           pageSize={pagination?.limit ?? 10}
           emptyState={
-            <p className="text-muted-foreground">尚無保留策略</p>
+            <p className="text-muted-foreground">{t('policy.empty')}</p>
           }
         />
       </div>
@@ -267,7 +268,7 @@ export function RetentionPolicyList({
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
-            上一頁
+            {t('common.previousPage')}
           </Button>
           <span className="flex items-center px-3 text-sm">
             {page} / {pagination.totalPages}
@@ -278,7 +279,7 @@ export function RetentionPolicyList({
             onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
             disabled={page === pagination.totalPages}
           >
-            下一頁
+            {t('common.nextPage')}
           </Button>
         </div>
       )}
@@ -287,18 +288,20 @@ export function RetentionPolicyList({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除策略？</AlertDialogTitle>
+            <AlertDialogTitle>{t('policy.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              此操作無法復原。刪除策略後，相關的歸檔配置將無法使用。
+              {t('policy.deleteDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deletePolicy.isPending ? '刪除中...' : '確認刪除'}
+              {deletePolicy.isPending
+                ? t('policy.deleteDialog.submitting')
+                : t('policy.deleteDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -24,6 +24,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { formatDistanceToNow } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
 import {
@@ -89,16 +90,16 @@ function formatUsageCount(count: bigint): string {
 /**
  * 格式化操作列表
  */
-function formatOperations(operations: string[]): string {
-  if (operations.includes('*')) return '全部';
+function formatOperations(operations: string[], allLabel: string): string {
+  if (operations.includes('*')) return allLabel;
   return operations.join(', ');
 }
 
 /**
  * 格式化城市列表
  */
-function formatCities(cities: string[]): string {
-  if (cities.includes('*')) return '全部城市';
+function formatCities(cities: string[], allLabel: string): string {
+  if (cities.includes('*')) return allLabel;
   if (cities.length > 3) {
     return `${cities.slice(0, 3).join(', ')} +${cities.length - 3}`;
   }
@@ -123,13 +124,15 @@ export function ApiKeyTable({
   onViewStats,
   isLoading = false,
 }: ApiKeyTableProps) {
+  const t = useTranslations('admin.apiKeys.table');
+
   // --- Column 定義 ---
   const columns = React.useMemo<DataTableColumn<ApiKeyResponse>[]>(() => {
     return [
       // 名稱
       {
         id: 'name',
-        header: '名稱',
+        header: t('name'),
         headerClassName: 'w-[200px]',
         cell: (apiKey) => (
           <div className="flex flex-col">
@@ -145,7 +148,7 @@ export function ApiKeyTable({
       // Key 前綴
       {
         id: 'keyPrefix',
-        header: 'Key 前綴',
+        header: t('keyPrefix'),
         headerClassName: 'w-[120px]',
         cell: (apiKey) => (
           <code className="bg-muted px-2 py-1 rounded text-xs">
@@ -156,14 +159,14 @@ export function ApiKeyTable({
       // 權限
       {
         id: 'permissions',
-        header: '權限',
+        header: t('permissions'),
         cell: (apiKey) => (
           <div className="flex flex-col gap-1">
             <span className="text-xs">
-              城市: {formatCities(apiKey.allowedCities)}
+              {t('cities')}: {formatCities(apiKey.allowedCities, t('allCities'))}
             </span>
             <span className="text-xs text-muted-foreground">
-              操作: {formatOperations(apiKey.allowedOperations)}
+              {t('operations')}: {formatOperations(apiKey.allowedOperations, t('allOperations'))}
             </span>
           </div>
         ),
@@ -171,7 +174,7 @@ export function ApiKeyTable({
       // 速率限制
       {
         id: 'rateLimit',
-        header: '速率限制',
+        header: t('rateLimit'),
         headerClassName: 'w-[100px]',
         cell: (apiKey) => (
           <span className="text-sm">{apiKey.rateLimit}/min</span>
@@ -180,7 +183,7 @@ export function ApiKeyTable({
       // 使用量
       {
         id: 'usage',
-        header: '使用量',
+        header: t('usage'),
         headerClassName: 'w-[100px]',
         cell: (apiKey) => (
           <span className="text-sm font-mono">
@@ -191,7 +194,7 @@ export function ApiKeyTable({
       // 最後使用
       {
         id: 'lastUsed',
-        header: '最後使用',
+        header: t('lastUsed'),
         headerClassName: 'w-[120px]',
         cell: (apiKey) =>
           apiKey.lastUsedAt ? (
@@ -202,17 +205,17 @@ export function ApiKeyTable({
               })}
             </span>
           ) : (
-            <span className="text-xs text-muted-foreground">從未使用</span>
+            <span className="text-xs text-muted-foreground">{t('neverUsed')}</span>
           ),
       },
       // 狀態
       {
         id: 'status',
-        header: '狀態',
+        header: t('status'),
         headerClassName: 'w-[80px]',
         cell: (apiKey) => (
           <Badge variant={getStatusVariant(apiKey.isActive)}>
-            {apiKey.isActive ? '啟用' : '停用'}
+            {apiKey.isActive ? t('active') : t('inactive')}
           </Badge>
         ),
       },
@@ -226,22 +229,22 @@ export function ApiKeyTable({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
                 <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">操作選單</span>
+                <span className="sr-only">{t('actionsMenu')}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit?.(apiKey.id)}>
                 <Settings className="mr-2 h-4 w-4" />
-                編輯設定
+                {t('editSettings')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onViewStats?.(apiKey.id)}>
                 <BarChart2 className="mr-2 h-4 w-4" />
-                查看統計
+                {t('viewStats')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onRotate?.(apiKey.id)}>
                 <RefreshCw className="mr-2 h-4 w-4" />
-                輪替 Key
+                {t('rotateKey')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -249,14 +252,14 @@ export function ApiKeyTable({
                 onClick={() => onDelete?.(apiKey.id)}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                刪除
+                {t('delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ),
       },
     ];
-  }, [onEdit, onViewStats, onRotate, onDelete]);
+  }, [onEdit, onViewStats, onRotate, onDelete, t]);
 
   if (isLoading) {
     return (
@@ -270,9 +273,9 @@ export function ApiKeyTable({
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
         <Key className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium">尚無 API Key</h3>
+        <h3 className="text-lg font-medium">{t('emptyTitle')}</h3>
         <p className="text-sm text-muted-foreground mt-1">
-          建立第一個 API Key 以開始使用外部 API
+          {t('emptyHint')}
         </p>
       </div>
     );

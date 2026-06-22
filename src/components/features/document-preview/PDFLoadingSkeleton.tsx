@@ -12,6 +12,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FileText, Loader2 } from 'lucide-react'
@@ -39,9 +40,11 @@ interface PDFLoadingSkeletonProps {
  */
 export function PDFLoadingSkeleton({
   className,
-  loadingText = '載入文件中...',
+  loadingText,
   showIcon = true,
 }: PDFLoadingSkeletonProps) {
+  const t = useTranslations('documentPreview')
+  const resolvedLoadingText = loadingText ?? t('loading.document')
   return (
     <div
       className={cn(
@@ -60,7 +63,7 @@ export function PDFLoadingSkeleton({
       )}
 
       {/* 載入文字 */}
-      <p className="text-sm text-muted-foreground mb-4">{loadingText}</p>
+      <p className="text-sm text-muted-foreground mb-4">{resolvedLoadingText}</p>
 
       {/* 骨架屏模擬文件內容 */}
       <div className="w-full max-w-md space-y-3 px-8">

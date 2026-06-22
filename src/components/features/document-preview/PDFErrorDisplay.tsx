@@ -12,6 +12,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, RefreshCw, FileX } from 'lucide-react'
@@ -45,31 +46,32 @@ export function PDFErrorDisplay({
   className,
   showDetails = false,
 }: PDFErrorDisplayProps) {
+  const t = useTranslations('documentPreview')
   const errorMessage = error instanceof Error ? error.message : error
 
   // 解析常見錯誤類型
   const getErrorInfo = (msg: string): { title: string; description: string } => {
     if (msg.includes('network') || msg.includes('fetch')) {
       return {
-        title: '網路錯誤',
-        description: '無法載入文件，請檢查網路連線後重試。',
+        title: t('error.types.network.title'),
+        description: t('error.types.network.description'),
       }
     }
     if (msg.includes('Invalid PDF') || msg.includes('corrupted')) {
       return {
-        title: '文件損壞',
-        description: '此 PDF 文件可能已損壞或格式不正確。',
+        title: t('error.types.corrupted.title'),
+        description: t('error.types.corrupted.description'),
       }
     }
     if (msg.includes('password') || msg.includes('encrypted')) {
       return {
-        title: '文件已加密',
-        description: '此 PDF 文件已加密，無法直接開啟。',
+        title: t('error.types.encrypted.title'),
+        description: t('error.types.encrypted.description'),
       }
     }
     return {
-      title: '載入失敗',
-      description: '無法載入 PDF 文件，請稍後重試。',
+      title: t('error.types.generic.title'),
+      description: t('error.types.generic.description'),
     }
   }
 
@@ -114,7 +116,7 @@ export function PDFErrorDisplay({
           className="gap-2"
         >
           <RefreshCw className="h-4 w-4" />
-          重試
+          {t('error.retry')}
         </Button>
       )}
     </div>

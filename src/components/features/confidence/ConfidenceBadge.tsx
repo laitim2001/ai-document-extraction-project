@@ -12,13 +12,10 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import {
-  getConfidenceLevel,
-  CONFIDENCE_THRESHOLDS,
-  formatScore,
-} from '@/lib/confidence'
+import { getConfidenceLevel, formatScore } from '@/lib/confidence'
 import type { ConfidenceLevel } from '@/types/confidence'
 
 // ============================================================
@@ -30,7 +27,10 @@ export interface ConfidenceBadgeProps {
   score: number
   /** 是否顯示分數數值 */
   showScore?: boolean
-  /** 顯示語言 */
+  /**
+   * 顯示語言
+   * @deprecated 組件已改用 next-intl，依當前 locale 自動顯示，無需傳入。
+   */
   locale?: 'en' | 'zh'
   /** 自定義 className */
   className?: string
@@ -72,15 +72,14 @@ const levelToVariant: Record<ConfidenceLevel, 'confidence-high' | 'confidence-me
 export function ConfidenceBadge({
   score,
   showScore = false,
-  locale = 'en',
   className,
   size = 'md',
 }: ConfidenceBadgeProps) {
+  const t = useTranslations('confidence')
   const level = getConfidenceLevel(score)
-  const config = CONFIDENCE_THRESHOLDS[level]
   const variant = levelToVariant[level]
 
-  const label = locale === 'zh' ? config.labelZh : config.label
+  const label = t(`badge.${level}`)
   const displayText = showScore ? `${label} ${formatScore(score)}` : label
 
   return (

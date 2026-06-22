@@ -120,6 +120,11 @@
         "productCode": "产品代码",
         "taxRate": "税率"
       }
+    },
+    "raw": {
+      "title": "原始 JSON",
+      "copy": "复制",
+      "copied": "已复制"
     }
   },
   "batchList": {
@@ -393,6 +398,198 @@
       "failed": "导出失败",
       "failedDesc": "无法导出术语报告",
       "authExpired": "认证已过期，请重新登录后再试"
+    }
+  },
+  "batchError": {
+    "title": "处理失败的文件",
+    "description": "共 {total} 个文件处理失败，显示 {shown} 个",
+    "empty": {
+      "title": "没有失败的文件",
+      "description": "所有文件处理正常"
+    },
+    "selectedCount": "{count} 个已选择",
+    "retryCount": "重试 {count} 次",
+    "errorMessage": "错误信息",
+    "unknownError": "未知错误",
+    "fileId": "文件 ID:",
+    "failedAt": "失败时间:",
+    "table": {
+      "selectAll": "全选",
+      "selectFile": "选择 {name}",
+      "file": "文件",
+      "retryCount": "重试次数",
+      "failedAt": "失败时间",
+      "actions": "操作"
+    },
+    "actions": {
+      "retry": "重试",
+      "skip": "跳过",
+      "batchRetry": "批量重试",
+      "batchSkip": "批量跳过"
+    },
+    "loading": "加载中...",
+    "loadMore": "加载更多"
+  },
+  "batchProgress": {
+    "status": {
+      "pending": "待处理",
+      "processing": "处理中",
+      "paused": "已暂停",
+      "aggregating": "聚合中",
+      "aggregated": "已聚合",
+      "completed": "已完成",
+      "failed": "失败",
+      "cancelled": "已取消"
+    },
+    "connection": {
+      "connecting": "连接中...",
+      "connected": "已连接",
+      "disconnected": "已断开",
+      "error": "连接错误",
+      "tooltip": "SSE 连接状态: {status}"
+    },
+    "stats": {
+      "completed": "已完成",
+      "processing": "处理中",
+      "pending": "待处理",
+      "failed": "失败"
+    },
+    "loading": "加载进度...",
+    "connectionError": "无法连接到进度服务",
+    "reconnect": "重新连接",
+    "noProgress": "无进度信息",
+    "rate": "处理速率",
+    "estimatedRemaining": "预估剩余",
+    "currentFile": "正在处理",
+    "fileCount": "{processed} / {total} 文件",
+    "controls": {
+      "pause": "暂停",
+      "resume": "继续",
+      "cancel": "取消"
+    },
+    "viewErrors": "查看 {count} 个错误",
+    "summary": {
+      "totalCost": "总成本",
+      "newCompanies": "新公司",
+      "extractedTerms": "费用项"
+    }
+  },
+  "batchSummary": {
+    "status": {
+      "pending": "待处理",
+      "processing": "处理中",
+      "paused": "已暂停",
+      "aggregating": "聚合中",
+      "aggregated": "已聚合",
+      "completed": "已完成",
+      "failed": "失败",
+      "cancelled": "已取消"
+    },
+    "results": {
+      "title": "处理结果",
+      "successRate": "成功率",
+      "successLegend": "成功 {count}",
+      "skippedLegend": "跳过 {count}",
+      "failedLegend": "失败 {count}",
+      "success": "成功",
+      "skipped": "跳过",
+      "failed": "失败"
+    },
+    "stats": {
+      "totalCost": "总成本",
+      "averageCost": "平均 {cost}/文件",
+      "totalCostTooltip": "Azure OpenAI API 使用成本",
+      "newCompanies": "新发现公司",
+      "newCompaniesTooltip": "处理过程中识别的新公司",
+      "extractedTerms": "提取费用项",
+      "extractedTermsTooltip": "提取的费用术语总数",
+      "processingTime": "处理时间",
+      "processingRate": "{rate} files/min",
+      "processingTimeTooltip": "总处理时间和处理速率"
+    },
+    "duration": {
+      "hoursMinutes": "{hours} 小时 {minutes} 分钟",
+      "minutesSeconds": "{minutes} 分 {seconds} 秒",
+      "seconds": "{seconds} 秒"
+    },
+    "time": {
+      "startedAt": "开始时间",
+      "completedAt": "完成时间"
+    }
+  },
+  "termAggregation": {
+    "title": "术语聚合",
+    "analysisTitle": "术语聚合分析",
+    "status": {
+      "pending": "待聚合",
+      "aggregating": "聚合中",
+      "completed": "已完成",
+      "failed": "失败"
+    },
+    "loading": "加载术语聚合数据...",
+    "unknownError": "未知错误",
+    "uncategorized": "未分类",
+    "completedAt": "聚合完成时间：{time}",
+    "companyTermCount": "{count} 术语",
+    "noDistribution": "详细分布数据不可用。请尝试重新执行聚合分析。",
+    "pending": {
+      "description": "术语聚合尚未执行。批量处理完成后可执行术语聚合分析。",
+      "hint": "尚未进行术语聚合分析"
+    },
+    "aggregating": {
+      "hint": "正在进行术语聚合分析...",
+      "timeNote": "这可能需要几分钟时间"
+    },
+    "failed": {
+      "hint": "术语聚合失败"
+    },
+    "actions": {
+      "retry": "重试",
+      "retrying": "重试中...",
+      "rerun": "重新执行",
+      "trigger": "执行术语聚合",
+      "aggregating": "聚合中..."
+    },
+    "stats": {
+      "uniqueTerms": {
+        "label": "唯一术语",
+        "subValue": "共 {count} 次出现",
+        "tooltip": "识别到的不重复术语总数"
+      },
+      "universalTerms": {
+        "label": "通用术语",
+        "subValue": "跨 2+ 公司通用",
+        "tooltip": "出现在多个公司中的通用术语"
+      },
+      "companySpecific": {
+        "label": "公司特定",
+        "subValue": "{count} 个公司",
+        "tooltip": "只出现在特定公司的术语"
+      },
+      "classified": {
+        "label": "已分类",
+        "subValue": "{percent}% 覆盖率",
+        "tooltip": "已自动分类的术语数量"
+      },
+      "unclassified": {
+        "label": "待分类",
+        "subValue": "{percent}% 待处理",
+        "tooltip": "需要人工分类或映射的术语"
+      },
+      "coveredCompanies": {
+        "label": "涵盖公司",
+        "tooltip": "有术语提取结果的公司数量"
+      }
+    },
+    "sections": {
+      "topTerms": "最常见术语",
+      "categoryBreakdown": "类别分布",
+      "companyBreakdown": "公司术语分布"
+    },
+    "empty": {
+      "terms": "暂无术语数据",
+      "categories": "暂无类别数据",
+      "companies": "暂无公司数据"
     }
   }
 }

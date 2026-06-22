@@ -19,6 +19,7 @@
  *   - src/app/(dashboard)/admin/retention/page.tsx - 資料保留管理頁面
  */
 
+import { useTranslations } from 'next-intl'
 import { useStorageMetrics } from '@/hooks/useRetention'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -33,8 +34,8 @@ import {
   CheckCircle2,
   Clock,
 } from 'lucide-react'
-import { STORAGE_TIER_CONFIG, DATA_TYPE_LABELS } from '@/types/retention'
-import type { StorageTier, DataType } from '@prisma/client'
+import { STORAGE_TIER_CONFIG } from '@/types/retention'
+import type { StorageTier } from '@prisma/client'
 import { cn } from '@/lib/utils'
 
 // ============================================================
@@ -72,6 +73,7 @@ function formatCost(cost: number): string {
  *   顯示存儲使用狀況、壓縮效率和成本統計。
  */
 export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
+  const t = useTranslations('dataRetention')
   const { data: metrics, isLoading, error } = useStorageMetrics()
 
   if (isLoading) {
@@ -84,7 +86,7 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
         <CardContent className="flex items-center justify-center py-10">
           <div className="text-center text-muted-foreground">
             <AlertCircle className="mx-auto h-8 w-8 mb-2" />
-            <p>無法載入存儲指標</p>
+            <p>{t('storage.loadError')}</p>
           </div>
         </CardContent>
       </Card>
@@ -105,13 +107,13 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
       {/* 總存儲量 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">總存儲量</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('storage.totalStorage')}</CardTitle>
           <Database className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{formatBytes(metrics.totalSizeBytes)}</div>
           <p className="text-xs text-muted-foreground">
-            預估月成本：{formatCost(totalCost)}
+            {t('storage.estimatedMonthlyCost', { cost: formatCost(totalCost) })}
           </p>
         </CardContent>
       </Card>
@@ -119,7 +121,7 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
       {/* 壓縮節省 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">壓縮節省</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('storage.compressionSaved')}</CardTitle>
           <TrendingDown className="h-4 w-4 text-green-500" />
         </CardHeader>
         <CardContent>
@@ -127,7 +129,7 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
             {metrics.compressionStats.savedPercentage.toFixed(1)}%
           </div>
           <p className="text-xs text-muted-foreground">
-            節省 {formatBytes(metrics.compressionStats.savedBytes)}
+            {t('storage.savedAmount', { size: formatBytes(metrics.compressionStats.savedBytes) })}
           </p>
         </CardContent>
       </Card>
@@ -135,7 +137,7 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
       {/* 歸檔統計 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">歸檔狀態</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('storage.archiveStatus')}</CardTitle>
           <Archive className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -144,13 +146,13 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
             {metrics.archiveStats.pendingArchive > 0 && (
               <Badge variant="outline" className="text-xs">
                 <Clock className="h-3 w-3 mr-1" />
-                {metrics.archiveStats.pendingArchive} 待處理
+                {t('storage.pendingCount', { count: metrics.archiveStats.pendingArchive })}
               </Badge>
             )}
             {metrics.archiveStats.failedArchive > 0 && (
               <Badge variant="destructive" className="text-xs">
                 <AlertCircle className="h-3 w-3 mr-1" />
-                {metrics.archiveStats.failedArchive} 失敗
+                {t('storage.failedCount', { count: metrics.archiveStats.failedArchive })}
               </Badge>
             )}
           </div>
@@ -160,7 +162,7 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
       {/* 還原統計 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">還原狀態</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('storage.restoreStatus')}</CardTitle>
           <HardDrive className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -169,11 +171,11 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
             {metrics.restoreStats.pendingRestores > 0 && (
               <Badge variant="outline" className="text-xs">
                 <Clock className="h-3 w-3 mr-1" />
-                {metrics.restoreStats.pendingRestores} 處理中
+                {t('storage.processingCount', { count: metrics.restoreStats.pendingRestores })}
               </Badge>
             )}
             <span className="text-xs text-muted-foreground">
-              平均 {Math.round(metrics.restoreStats.averageRestoreTime / 60)} 分鐘
+              {t('storage.averageMinutes', { minutes: Math.round(metrics.restoreStats.averageRestoreTime / 60) })}
             </span>
           </div>
         </CardContent>
@@ -182,13 +184,12 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
       {/* 存儲層級分佈 */}
       <Card className="md:col-span-2">
         <CardHeader>
-          <CardTitle className="text-sm font-medium">存儲層級分佈</CardTitle>
-          <CardDescription>各層級存儲使用量和成本</CardDescription>
+          <CardTitle className="text-sm font-medium">{t('storage.tierDistribution')}</CardTitle>
+          <CardDescription>{t('storage.tierDistributionDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {(Object.keys(STORAGE_TIER_CONFIG) as StorageTier[]).map((tier) => {
             const tierData = metrics.byTier[tier]
-            const config = STORAGE_TIER_CONFIG[tier]
             const percentage =
               metrics.totalSizeBytes > 0
                 ? (tierData.sizeBytes / metrics.totalSizeBytes) * 100
@@ -207,16 +208,16 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
                         tier === 'ARCHIVE' && 'bg-gray-500'
                       )}
                     />
-                    <span className="text-sm font-medium">{config.label}</span>
+                    <span className="text-sm font-medium">{t(`tier.${tier}`)}</span>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {formatBytes(tierData.sizeBytes)} ({tierData.recordCount} 筆)
+                    {formatBytes(tierData.sizeBytes)} ({t('storage.recordCount', { count: tierData.recordCount })})
                   </div>
                 </div>
                 <Progress value={percentage} className="h-2" />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>成本：{formatCost(tierData.estimatedCost)}/月</span>
-                  <span>{config.description}</span>
+                  <span>{t('storage.costPerMonth', { cost: formatCost(tierData.estimatedCost) })}</span>
+                  <span>{t(`tierConfig.${tier}`)}</span>
                 </div>
               </div>
             )
@@ -227,8 +228,8 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
       {/* 資料類型分佈 */}
       <Card className="md:col-span-2">
         <CardHeader>
-          <CardTitle className="text-sm font-medium">資料類型分佈</CardTitle>
-          <CardDescription>各類型資料存儲使用量</CardDescription>
+          <CardTitle className="text-sm font-medium">{t('storage.dataTypeDistribution')}</CardTitle>
+          <CardDescription>{t('storage.dataTypeDistributionDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -243,7 +244,7 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
                 <div key={dataType} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-sm">
-                      {DATA_TYPE_LABELS[dataType as DataType] || dataType}
+                      {t.has(`dataType.${dataType}`) ? t(`dataType.${dataType}`) : dataType}
                     </span>
                   </div>
                   <div className="flex items-center gap-4">
@@ -262,28 +263,28 @@ export function StorageMetricsCard({ className }: StorageMetricsCardProps) {
       {/* 刪除統計 */}
       <Card className="md:col-span-2 lg:col-span-4">
         <CardHeader>
-          <CardTitle className="text-sm font-medium">刪除活動</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('storage.deletionActivity')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-8">
             <div className="flex items-center gap-2">
               <Clock className="h-5 w-5 text-yellow-500" />
               <div>
-                <p className="text-sm font-medium">待審批</p>
+                <p className="text-sm font-medium">{t('storage.pendingApproval')}</p>
                 <p className="text-2xl font-bold">{metrics.deletionStats.pendingDeletions}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-green-500" />
               <div>
-                <p className="text-sm font-medium">已完成</p>
+                <p className="text-sm font-medium">{t('storage.completed')}</p>
                 <p className="text-2xl font-bold">{metrics.deletionStats.completedDeletions}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Database className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">總刪除記錄</p>
+                <p className="text-sm font-medium">{t('storage.totalDeletedRecords')}</p>
                 <p className="text-2xl font-bold">
                   {metrics.deletionStats.totalDeletedRecords.toLocaleString()}
                 </p>

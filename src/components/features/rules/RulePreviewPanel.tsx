@@ -18,6 +18,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -105,6 +106,7 @@ Payment Terms: Net 30 Days
  * 預覽結果顯示組件
  */
 function PreviewResultDisplay({ result }: { result: RulePreviewResult }) {
+  const t = useTranslations('rules')
   const [showDebug, setShowDebug] = React.useState(false)
 
   return (
@@ -114,27 +116,27 @@ function PreviewResultDisplay({ result }: { result: RulePreviewResult }) {
         {result.matched ? (
           <Badge variant="default" className="bg-green-600">
             <CheckCircle2 className="h-3 w-3 mr-1" />
-            匹配成功
+            {t('rulePreview.matched')}
           </Badge>
         ) : (
           <Badge variant="destructive">
             <XCircle className="h-3 w-3 mr-1" />
-            未匹配
+            {t('rulePreview.notMatched')}
           </Badge>
         )}
         <Badge variant="outline">
-          信心度: {(result.confidence * 100).toFixed(0)}%
+          {t('rulePreview.confidence', { value: (result.confidence * 100).toFixed(0) })}
         </Badge>
         <Badge variant="secondary">
           <Clock className="h-3 w-3 mr-1" />
-          {result.processingTime}ms
+          {t('rulePreview.processingTime', { time: result.processingTime })}
         </Badge>
       </div>
 
       {/* 提取值 */}
       {result.matched && result.extractedValue && (
         <div className="rounded-md border p-4 bg-muted/50">
-          <Label className="text-sm text-muted-foreground">提取的值</Label>
+          <Label className="text-sm text-muted-foreground">{t('rulePreview.extractedValue')}</Label>
           <p className="mt-1 font-mono text-lg break-all">{result.extractedValue}</p>
         </div>
       )}
@@ -143,7 +145,7 @@ function PreviewResultDisplay({ result }: { result: RulePreviewResult }) {
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <FileText className="h-4 w-4" />
         <span>
-          規則: {result.rule.fieldLabel} ({result.rule.fieldName})
+          {t('rulePreview.ruleInfo', { fieldLabel: result.rule.fieldLabel, fieldName: result.rule.fieldName })}
         </span>
       </div>
 
@@ -153,8 +155,8 @@ function PreviewResultDisplay({ result }: { result: RulePreviewResult }) {
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            {result.previewConfig.usedCustomPattern && '使用了自定義 Pattern。'}
-            {result.previewConfig.usedCustomType && '使用了自定義提取類型。'}
+            {result.previewConfig.usedCustomPattern && t('rulePreview.usedCustomPattern')}
+            {result.previewConfig.usedCustomType && t('rulePreview.usedCustomType')}
           </AlertDescription>
         </Alert>
       )}
@@ -169,24 +171,24 @@ function PreviewResultDisplay({ result }: { result: RulePreviewResult }) {
               ) : (
                 <ChevronDown className="h-4 w-4" />
               )}
-              調試資訊
+              {t('rulePreview.debugInfo')}
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-2">
             <div className="rounded border p-3 bg-muted/30 space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">模式匹配:</span>
-                <span>{result.debugInfo.patternMatched ? '是' : '否'}</span>
+                <span className="text-muted-foreground">{t('rulePreview.patternMatched')}</span>
+                <span>{result.debugInfo.patternMatched ? t('rulePreview.yes') : t('rulePreview.no')}</span>
               </div>
               {result.debugInfo.matchDetails && (
                 <div>
-                  <span className="text-muted-foreground">匹配詳情:</span>
+                  <span className="text-muted-foreground">{t('rulePreview.matchDetails')}</span>
                   <p className="mt-1 text-xs">{result.debugInfo.matchDetails}</p>
                 </div>
               )}
               {result.debugInfo.errorMessage && (
                 <div>
-                  <Label className="text-xs text-destructive">錯誤訊息:</Label>
+                  <Label className="text-xs text-destructive">{t('rulePreview.errorMessage')}</Label>
                   <p className="text-xs text-destructive mt-1">
                     {result.debugInfo.errorMessage}
                   </p>
@@ -224,6 +226,7 @@ export function RulePreviewPanel({
   fieldName,
   fieldLabel,
 }: RulePreviewPanelProps) {
+  const t = useTranslations('rules')
   const [testContent, setTestContent] = React.useState('')
 
   // --- Hooks ---
@@ -261,9 +264,9 @@ export function RulePreviewPanel({
       {/* 標題 */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-medium">規則預覽</h3>
+          <h3 className="font-medium">{t('rulePreview.title')}</h3>
           <p className="text-sm text-muted-foreground">
-            測試 {fieldLabel} ({fieldName}) 規則的提取效果
+            {t('rulePreview.testHint', { fieldLabel, fieldName })}
           </p>
         </div>
       </div>
@@ -271,7 +274,7 @@ export function RulePreviewPanel({
       {/* 測試內容輸入 */}
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <Label>測試文本</Label>
+          <Label>{t('rulePreview.testText')}</Label>
           <div className="flex gap-2">
             <Button
               type="button"
@@ -279,7 +282,7 @@ export function RulePreviewPanel({
               size="sm"
               onClick={handleUseSample}
             >
-              使用範例
+              {t('rulePreview.useSample')}
             </Button>
             <Button
               type="button"
@@ -287,12 +290,12 @@ export function RulePreviewPanel({
               size="sm"
               onClick={handleClear}
             >
-              清除
+              {t('rulePreview.clear')}
             </Button>
           </div>
         </div>
         <Textarea
-          placeholder="貼上發票文本內容進行測試..."
+          placeholder={t('rulePreview.placeholder')}
           className="min-h-[200px] font-mono text-sm"
           value={testContent}
           onChange={(e) => {
@@ -312,12 +315,12 @@ export function RulePreviewPanel({
         {isPending ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            預覽中...
+            {t('rulePreview.previewing')}
           </>
         ) : (
           <>
             <Play className="h-4 w-4 mr-2" />
-            執行預覽
+            {t('rulePreview.runPreview')}
           </>
         )}
       </Button>
@@ -334,7 +337,7 @@ export function RulePreviewPanel({
         <>
           <Separator />
           <div>
-            <Label className="text-sm font-medium mb-2 block">預覽結果</Label>
+            <Label className="text-sm font-medium mb-2 block">{t('rulePreview.previewResult')}</Label>
             <PreviewResultDisplay result={previewResult} />
           </div>
         </>

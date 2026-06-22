@@ -74,6 +74,23 @@ const LOCALE_SYNC_CHECKS: LocaleSyncCheck[] = [
   { i18nFile: 'reports.json', keyPrefix: 'auditReport', description: 'CHANGE-088 AUDIT_REPORT_TYPES / REPORT_JOB_STATUSES' },
   { i18nFile: 'promptConfig.json', keyPrefix: 'variables', description: 'CHANGE-088 SYSTEM_VARIABLES（Prompt 系統變數）' },
   { i18nFile: 'admin.json', keyPrefix: 'permissions', description: 'CHANGE-088 PERMISSION_INFO_MAP / PERMISSION_CATEGORIES' },
+  // CHANGE-089 Batch A：新增 namespace（整檔三語言同步，keyPrefix='' 檢查整個檔案）
+  { i18nFile: 'documentSource.json', keyPrefix: '', description: 'CHANGE-089 文件來源模組（整檔）' },
+  { i18nFile: 'dataRetention.json', keyPrefix: '', description: 'CHANGE-089 資料保留模組（整檔）' },
+  { i18nFile: 'integrations.json', keyPrefix: '', description: 'CHANGE-089 Outlook/SharePoint 整合模組（整檔）' },
+  { i18nFile: 'changeHistory.json', keyPrefix: '', description: 'CHANGE-089 變更歷史模組（整檔）' },
+  { i18nFile: 'ruleSimulation.json', keyPrefix: '', description: 'CHANGE-089 規則模擬模組（整檔）' },
+  // CHANGE-089 Batch A：既有 namespace 新增子樹
+  { i18nFile: 'confidence.json', keyPrefix: 'badge', description: 'CHANGE-089 confidence 等級徽章' },
+  { i18nFile: 'formats.json', keyPrefix: 'formatAnalysis', description: 'CHANGE-089 格式分析模組' },
+  { i18nFile: 'rules.json', keyPrefix: 'ruleReview', description: 'CHANGE-089 規則建議審核' },
+  { i18nFile: 'rules.json', keyPrefix: 'ruleVersion', description: 'CHANGE-089 規則版本' },
+  // CHANGE-089 Batch B–D（波 1）：既有 namespace 大量新增分散子樹，改以整檔三語言同步治理
+  { i18nFile: 'admin.json', keyPrefix: '', description: 'CHANGE-089 Batch B admin 模組（整檔）' },
+  { i18nFile: 'review.json', keyPrefix: '', description: 'CHANGE-089 Batch C review 模組（整檔）' },
+  { i18nFile: 'rules.json', keyPrefix: '', description: 'CHANGE-089 Batch C rules 模組（整檔）' },
+  { i18nFile: 'historicalData.json', keyPrefix: '', description: 'CHANGE-089 Batch D historicalData 模組（整檔）' },
+  { i18nFile: 'documentPreview.json', keyPrefix: '', description: 'CHANGE-089 Batch D documentPreview 模組（整檔）' },
 ];
 
 // ============================================================
@@ -227,6 +244,8 @@ function flattenLeafKeys(obj: unknown, prefix = ''): string[] {
  * 導航到 JSON 的指定 keyPrefix 子樹（找不到回傳 undefined）
  */
 function navigateToPrefix(content: unknown, keyPrefix: string): unknown {
+  // 空 prefix 代表檢查整個檔案（整個 namespace 三語言同步）
+  if (keyPrefix === '') return content;
   const parts = keyPrefix.split('.');
   let current: unknown = content;
   for (const part of parts) {

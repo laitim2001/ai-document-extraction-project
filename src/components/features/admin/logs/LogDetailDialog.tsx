@@ -16,6 +16,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -65,14 +66,15 @@ function DetailRow({
   copyable?: boolean;
 }) {
   const { toast } = useToast();
+  const t = useTranslations('admin.logsViewer.detail');
 
   if (!value) return null;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(value);
     toast({
-      title: '已複製',
-      description: `${label} 已複製到剪貼簿`,
+      title: t('copied'),
+      description: t('copiedDescription', { label }),
     });
   };
 
@@ -112,6 +114,7 @@ function LoadingSkeleton() {
  * @description 日誌詳情對話框
  */
 export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) {
+  const t = useTranslations('admin.logsViewer.detail');
   const { data: log, isLoading } = useLogDetail(logId);
   const { data: relatedLogsData, isLoading: relatedLoading } = useRelatedLogs(logId);
 
@@ -120,7 +123,7 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            日誌詳情
+            {t('title')}
             {log && (
               <Badge variant={getLogLevelColor(log.level)}>
                 {getLogLevelLabel(log.level)}
@@ -128,7 +131,7 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
             )}
           </DialogTitle>
           <DialogDescription>
-            {log ? formatLogTimestamp(log.timestamp) : '載入中...'}
+            {log ? formatLogTimestamp(log.timestamp) : t('loading')}
           </DialogDescription>
         </DialogHeader>
 
@@ -137,12 +140,12 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
         ) : log ? (
           <Tabs defaultValue="details" className="flex-1 min-h-0">
             <TabsList>
-              <TabsTrigger value="details">基本資訊</TabsTrigger>
-              <TabsTrigger value="message">完整訊息</TabsTrigger>
-              {log.errorStack && <TabsTrigger value="stack">錯誤堆疊</TabsTrigger>}
-              {log.details && <TabsTrigger value="data">附加資料</TabsTrigger>}
+              <TabsTrigger value="details">{t('tabs.details')}</TabsTrigger>
+              <TabsTrigger value="message">{t('tabs.message')}</TabsTrigger>
+              {log.errorStack && <TabsTrigger value="stack">{t('tabs.stack')}</TabsTrigger>}
+              {log.details && <TabsTrigger value="data">{t('tabs.data')}</TabsTrigger>}
               <TabsTrigger value="related">
-                關聯日誌
+                {t('tabs.related')}
                 {relatedLogsData && relatedLogsData.total > 0 && (
                   <Badge variant="secondary" className="ml-2">
                     {relatedLogsData.total}
@@ -157,18 +160,18 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-1">
                     <DetailRow
-                      label="日誌 ID"
+                      label={t('fields.logId')}
                       value={log.id}
                       icon={<Code className="h-4 w-4" />}
                       copyable
                     />
                     <DetailRow
-                      label="時間戳記"
+                      label={t('fields.timestamp')}
                       value={formatLogTimestamp(log.timestamp)}
                       icon={<Clock className="h-4 w-4" />}
                     />
                     <DetailRow
-                      label="來源"
+                      label={t('fields.source')}
                       value={getLogSourceLabel(log.source)}
                       icon={<Globe className="h-4 w-4" />}
                     />
@@ -176,7 +179,7 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
                   <div className="space-y-1">
                     {log.correlationId && (
                       <DetailRow
-                        label="關聯 ID"
+                        label={t('fields.correlationId')}
                         value={log.correlationId}
                         icon={<Link2 className="h-4 w-4" />}
                         copyable
@@ -184,7 +187,7 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
                     )}
                     {log.requestId && (
                       <DetailRow
-                        label="請求 ID"
+                        label={t('fields.requestId')}
                         value={log.requestId}
                         icon={<ExternalLink className="h-4 w-4" />}
                         copyable
@@ -192,7 +195,7 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
                     )}
                     {log.userId && (
                       <DetailRow
-                        label="使用者"
+                        label={t('fields.user')}
                         value={log.userName || log.userId}
                         icon={<User className="h-4 w-4" />}
                       />
@@ -204,19 +207,19 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
 
                 <div className="space-y-1">
                   {log.className && (
-                    <DetailRow label="類別名稱" value={log.className} />
+                    <DetailRow label={t('fields.className')} value={log.className} />
                   )}
                   {log.methodName && (
-                    <DetailRow label="方法名稱" value={log.methodName} />
+                    <DetailRow label={t('fields.methodName')} value={log.methodName} />
                   )}
                   {log.endpoint && (
-                    <DetailRow label="API 端點" value={log.endpoint} />
+                    <DetailRow label={t('fields.endpoint')} value={log.endpoint} />
                   )}
                   {log.duration !== undefined && (
-                    <DetailRow label="執行時間" value={`${log.duration} ms`} />
+                    <DetailRow label={t('fields.duration')} value={`${log.duration} ms`} />
                   )}
                   {log.memoryUsage !== undefined && (
-                    <DetailRow label="記憶體使用" value={`${log.memoryUsage.toFixed(2)} MB`} />
+                    <DetailRow label={t('fields.memoryUsage')} value={`${log.memoryUsage.toFixed(2)} MB`} />
                   )}
                 </div>
 
@@ -225,10 +228,10 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
                     <Separator />
                     <div className="space-y-1">
                       {log.ipAddress && (
-                        <DetailRow label="IP 位址" value={log.ipAddress} />
+                        <DetailRow label={t('fields.ipAddress')} value={log.ipAddress} />
                       )}
                       {log.userAgent && (
-                        <DetailRow label="User Agent" value={log.userAgent} />
+                        <DetailRow label={t('fields.userAgent')} value={log.userAgent} />
                       )}
                     </div>
                   </>
@@ -277,13 +280,13 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
                   <LoadingSkeleton />
                 ) : !relatedLogsData || relatedLogsData.total === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    沒有找到關聯日誌
+                    {t('noRelated')}
                   </div>
                 ) : (
                   <div className="space-y-2">
                     {relatedLogsData.correlationId && (
                       <p className="text-sm text-muted-foreground mb-4">
-                        關聯 ID: <code className="bg-muted px-1 rounded">{relatedLogsData.correlationId}</code>
+                        {t('relatedCorrelationId')}: <code className="bg-muted px-1 rounded">{relatedLogsData.correlationId}</code>
                       </p>
                     )}
                     {relatedLogsData.relatedLogs.map((relatedLog) => (
@@ -307,7 +310,7 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
                           </span>
                           {relatedLog.id === logId && (
                             <Badge variant="secondary" className="text-xs">
-                              目前
+                              {t('current')}
                             </Badge>
                           )}
                         </div>
@@ -321,7 +324,7 @@ export function LogDetailDialog({ logId, open, onClose }: LogDetailDialogProps) 
           </Tabs>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            找不到日誌記錄
+            {t('notFound')}
           </div>
         )}
       </DialogContent>

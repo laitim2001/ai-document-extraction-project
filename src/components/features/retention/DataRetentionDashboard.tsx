@@ -28,6 +28,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -59,7 +60,7 @@ import {
   useUpdateRetentionPolicy,
   useRetentionPolicy,
 } from '@/hooks/useRetention'
-import { DATA_TYPE_LABELS, STORAGE_TIER_CONFIG } from '@/types/retention'
+import { DATA_TYPE_LABELS } from '@/types/retention'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import type { DataType } from '@prisma/client'
@@ -103,6 +104,7 @@ const defaultFormData: PolicyFormData = {
 // ============================================================
 
 export function DataRetentionDashboard({ className }: DataRetentionDashboardProps) {
+  const t = useTranslations('dataRetention')
   const { toast } = useToast()
   const [activeTab, setActiveTab] = React.useState('overview')
   const [policyDialogOpen, setPolicyDialogOpen] = React.useState(false)
@@ -113,14 +115,14 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
   const createPolicy = useCreateRetentionPolicy({
     onSuccess: () => {
       toast({
-        title: '策略建立成功',
-        description: '新的保留策略已建立',
+        title: t('dashboard.toast.createSuccessTitle'),
+        description: t('dashboard.toast.createSuccessDescription'),
       })
       handleCloseDialog()
     },
     onError: (error) => {
       toast({
-        title: '建立失敗',
+        title: t('dashboard.toast.createErrorTitle'),
         description: error.message,
         variant: 'destructive',
       })
@@ -130,14 +132,14 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
   const updatePolicy = useUpdateRetentionPolicy({
     onSuccess: () => {
       toast({
-        title: '策略更新成功',
-        description: '保留策略已更新',
+        title: t('dashboard.toast.updateSuccessTitle'),
+        description: t('dashboard.toast.updateSuccessDescription'),
       })
       handleCloseDialog()
     },
     onError: (error) => {
       toast({
-        title: '更新失敗',
+        title: t('dashboard.toast.updateErrorTitle'),
         description: error.message,
         variant: 'destructive',
       })
@@ -189,8 +191,8 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
 
     if (!formData.policyName || !formData.dataType) {
       toast({
-        title: '表單驗證失敗',
-        description: '請填寫必填欄位',
+        title: t('dashboard.toast.validationErrorTitle'),
+        description: t('dashboard.toast.validationErrorDescription'),
         variant: 'destructive',
       })
       return
@@ -223,9 +225,9 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">資料保留管理</h2>
+          <h2 className="text-2xl font-bold">{t('dashboard.title')}</h2>
           <p className="text-muted-foreground">
-            管理資料存儲策略、歸檔記錄和刪除請求
+            {t('dashboard.subtitle')}
           </p>
         </div>
       </div>
@@ -235,19 +237,19 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Database className="h-4 w-4" />
-            存儲總覽
+            {t('dashboard.tabs.overview')}
           </TabsTrigger>
           <TabsTrigger value="policies" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
-            保留策略
+            {t('dashboard.tabs.policies')}
           </TabsTrigger>
           <TabsTrigger value="archives" className="flex items-center gap-2">
             <FileArchive className="h-4 w-4" />
-            歸檔記錄
+            {t('dashboard.tabs.archives')}
           </TabsTrigger>
           <TabsTrigger value="deletions" className="flex items-center gap-2">
             <Trash2 className="h-4 w-4" />
-            刪除請求
+            {t('dashboard.tabs.deletions')}
           </TabsTrigger>
         </TabsList>
 
@@ -260,9 +262,9 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
         <TabsContent value="policies" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>保留策略管理</CardTitle>
+              <CardTitle>{t('dashboard.policies.cardTitle')}</CardTitle>
               <CardDescription>
-                配置不同資料類型的保留時間和存儲層級規則
+                {t('dashboard.policies.cardDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -278,9 +280,9 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
         <TabsContent value="archives" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>歸檔記錄</CardTitle>
+              <CardTitle>{t('dashboard.archives.cardTitle')}</CardTitle>
               <CardDescription>
-                查看已歸檔的資料，支援從冷存儲還原
+                {t('dashboard.archives.cardDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -293,9 +295,9 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
         <TabsContent value="deletions" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>刪除請求審批</CardTitle>
+              <CardTitle>{t('dashboard.deletions.cardTitle')}</CardTitle>
               <CardDescription>
-                審核待處理的資料刪除請求，確保合規性
+                {t('dashboard.deletions.cardDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -310,44 +312,46 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingPolicyId ? '編輯保留策略' : '新增保留策略'}
+              {editingPolicyId
+                ? t('dashboard.policyForm.editTitle')
+                : t('dashboard.policyForm.createTitle')}
             </DialogTitle>
             <DialogDescription>
-              設定資料類型的保留時間和存儲層級規則
+              {t('dashboard.policyForm.description')}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-6 mt-4">
             {/* Policy Name */}
             <div className="space-y-2">
-              <Label htmlFor="policyName">策略名稱 *</Label>
+              <Label htmlFor="policyName">{t('dashboard.policyForm.policyName')} *</Label>
               <Input
                 id="policyName"
                 value={formData.policyName}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, policyName: e.target.value }))
                 }
-                placeholder="輸入策略名稱"
+                placeholder={t('dashboard.policyForm.policyNamePlaceholder')}
               />
             </div>
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">描述</Label>
+              <Label htmlFor="description">{t('dashboard.policyForm.descriptionLabel')}</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, description: e.target.value }))
                 }
-                placeholder="輸入策略描述"
+                placeholder={t('dashboard.policyForm.descriptionPlaceholder')}
                 rows={2}
               />
             </div>
 
             {/* Data Type */}
             <div className="space-y-2">
-              <Label htmlFor="dataType">資料類型 *</Label>
+              <Label htmlFor="dataType">{t('dashboard.policyForm.dataType')} *</Label>
               <Select
                 value={formData.dataType}
                 onValueChange={(value) =>
@@ -355,12 +359,12 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="選擇資料類型" />
+                  <SelectValue placeholder={t('dashboard.policyForm.dataTypePlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(DATA_TYPE_LABELS).map(([value, label]) => (
+                  {Object.keys(DATA_TYPE_LABELS).map((value) => (
                     <SelectItem key={value} value={value}>
-                      {label}
+                      {t(`dataType.${value}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -369,11 +373,11 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
 
             {/* Storage Days */}
             <div className="space-y-4">
-              <Label>存儲層級天數</Label>
+              <Label>{t('dashboard.policyForm.storageDays')}</Label>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="hotDays" className="text-xs text-red-600">
-                    熱存儲 (HOT)
+                    {t('dashboard.policyForm.hotStorage')}
                   </Label>
                   <Input
                     id="hotDays"
@@ -389,12 +393,12 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
                     }
                   />
                   <p className="text-xs text-muted-foreground">
-                    {STORAGE_TIER_CONFIG.HOT.description}
+                    {t('tierConfig.HOT')}
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="warmDays" className="text-xs text-blue-600">
-                    溫存儲 (COOL)
+                    {t('dashboard.policyForm.warmStorage')}
                   </Label>
                   <Input
                     id="warmDays"
@@ -410,12 +414,12 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
                     }
                   />
                   <p className="text-xs text-muted-foreground">
-                    {STORAGE_TIER_CONFIG.COOL.description}
+                    {t('tierConfig.COOL')}
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="coldDays" className="text-xs text-cyan-600">
-                    冷存儲 (COLD)
+                    {t('dashboard.policyForm.coldStorage')}
                   </Label>
                   <Input
                     id="coldDays"
@@ -431,28 +435,33 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
                     }
                   />
                   <p className="text-xs text-muted-foreground">
-                    {STORAGE_TIER_CONFIG.COLD.description}
+                    {t('tierConfig.COLD')}
                   </p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
-                總保留時間：{formData.hotStorageDays + formData.warmStorageDays + formData.coldStorageDays} 天
+                {t('dashboard.policyForm.totalRetention', {
+                  days:
+                    formData.hotStorageDays +
+                    formData.warmStorageDays +
+                    formData.coldStorageDays,
+                })}
                 {formData.hotStorageDays + formData.warmStorageDays + formData.coldStorageDays >= 2555 && (
-                  <span className="text-green-600 ml-2">✓ 符合 7 年合規要求</span>
+                  <span className="text-green-600 ml-2">{t('dashboard.policyForm.complianceMet')}</span>
                 )}
               </p>
             </div>
 
             {/* Protection Settings */}
             <div className="space-y-4">
-              <Label>保護設定</Label>
+              <Label>{t('dashboard.policyForm.protectionSettings')}</Label>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="deletionProtection" className="text-sm">
-                    刪除保護
+                    {t('dashboard.policyForm.deletionProtection')}
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    啟用後，資料無法被意外刪除
+                    {t('dashboard.policyForm.deletionProtectionHint')}
                   </p>
                 </div>
                 <Switch
@@ -466,10 +475,10 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="requireApproval" className="text-sm">
-                    需要審批
+                    {t('dashboard.policyForm.requireApproval')}
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    刪除請求需要管理員審批
+                    {t('dashboard.policyForm.requireApprovalHint')}
                   </p>
                 </div>
                 <Switch
@@ -483,10 +492,10 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="isActive" className="text-sm">
-                    啟用策略
+                    {t('dashboard.policyForm.enablePolicy')}
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    停用策略後將不再執行自動歸檔
+                    {t('dashboard.policyForm.enablePolicyHint')}
                   </p>
                 </div>
                 <Switch
@@ -502,14 +511,14 @@ export function DataRetentionDashboard({ className }: DataRetentionDashboardProp
             {/* Actions */}
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={handleCloseDialog}>
-                取消
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting
-                  ? '處理中...'
+                  ? t('dashboard.policyForm.submitting')
                   : editingPolicyId
-                    ? '更新策略'
-                    : '建立策略'}
+                    ? t('dashboard.policyForm.update')
+                    : t('dashboard.policyForm.create')}
               </Button>
             </div>
           </form>

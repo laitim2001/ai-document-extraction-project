@@ -6,11 +6,12 @@
  *
  * @module src/components/features/review/validation/ValidationMessage
  * @since Epic 3 - Story 3.5 (修正提取結果)
- * @lastModified 2025-12-18
+ * @lastModified 2026-06-22 (CHANGE-089 Batch C: 成功訊息 i18n 化)
  */
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 
@@ -49,6 +50,8 @@ interface ValidationMessageProps {
  * ```
  */
 export function ValidationMessage({ error, success, className }: ValidationMessageProps) {
+  const t = useTranslations('review')
+
   if (!error && !success) return null
 
   return (
@@ -68,7 +71,7 @@ export function ValidationMessage({ error, success, className }: ValidationMessa
       ) : success ? (
         <>
           <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
-          <span>格式正確</span>
+          <span>{t('fieldEditor.formatCorrect')}</span>
         </>
       ) : null}
     </div>

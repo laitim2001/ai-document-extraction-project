@@ -15,6 +15,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Loader2,
   MoreHorizontal,
@@ -101,6 +102,7 @@ export function OutlookConfigList({
   onManageRules,
   testingConfigId,
 }: OutlookConfigListProps) {
+  const t = useTranslations('integrations');
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
   const [togglingId, setTogglingId] = React.useState<string | null>(null);
 
@@ -132,7 +134,7 @@ export function OutlookConfigList({
       // 名稱
       {
         id: 'name',
-        header: '名稱',
+        header: t('outlook.list.columns.name'),
         cell: (config) => (
           <>
             <div className="font-medium">{config.name}</div>
@@ -147,7 +149,7 @@ export function OutlookConfigList({
       // 信箱
       {
         id: 'mailbox',
-        header: '信箱',
+        header: t('outlook.list.columns.mailbox'),
         cell: (config) => (
           <div className="max-w-[200px]">
             <Tooltip>
@@ -157,9 +159,11 @@ export function OutlookConfigList({
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                <p>信箱: {config.mailboxAddress}</p>
+                <p>{t('outlook.list.mailboxTooltip', { address: config.mailboxAddress })}</p>
                 <p className="text-muted-foreground">
-                  資料夾: {config.mailFolders?.join(', ') || 'inbox'}
+                  {t('outlook.list.foldersTooltip', {
+                    folders: config.mailFolders?.join(', ') || 'inbox',
+                  })}
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -169,12 +173,12 @@ export function OutlookConfigList({
       // 城市/類型
       {
         id: 'cityType',
-        header: '城市/類型',
+        header: t('outlook.list.columns.cityType'),
         cell: (config) =>
           config.isGlobal ? (
             <Badge variant="secondary">
               <Globe className="mr-1 h-3 w-3" />
-              全域
+              {t('outlook.list.global')}
             </Badge>
           ) : config.city ? (
             <Badge variant="outline">
@@ -188,13 +192,13 @@ export function OutlookConfigList({
       // 過濾規則
       {
         id: 'filterRules',
-        header: '過濾規則',
+        header: t('outlook.list.columns.filterRules'),
         cell: (config) => <RulesCount count={config.filterRules?.length ?? 0} />,
       },
       // 連線狀態
       {
         id: 'connectionStatus',
-        header: '連線狀態',
+        header: t('outlook.list.columns.connectionStatus'),
         cell: (config) => (
           <ConnectionStatus
             lastTestedAt={config.lastTestedAt}
@@ -206,7 +210,7 @@ export function OutlookConfigList({
       // 啟用
       {
         id: 'active',
-        header: '啟用',
+        header: t('outlook.list.columns.active'),
         cell: (config) => (
           <Switch
             checked={config.isActive}
@@ -221,13 +225,13 @@ export function OutlookConfigList({
       {
         id: 'actions',
         headerClassName: 'w-[100px]',
-        header: '操作',
+        header: t('outlook.list.columns.actions'),
         cell: (config) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
                 <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">操作選單</span>
+                <span className="sr-only">{t('outlook.list.actionsMenu')}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -240,23 +244,23 @@ export function OutlookConfigList({
                 ) : (
                   <TestTube className="mr-2 h-4 w-4" />
                 )}
-                測試連線
+                {t('outlook.list.testConnection')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onManageRules(config)}>
                 <Filter className="mr-2 h-4 w-4" />
-                管理過濾規則
+                {t('outlook.list.manageRules')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onEdit(config)}>
                 <Pencil className="mr-2 h-4 w-4" />
-                編輯
+                {t('outlook.list.edit')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setDeletingId(config.id)}
                 className="text-red-600"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                刪除
+                {t('outlook.list.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -264,6 +268,7 @@ export function OutlookConfigList({
       },
     ],
     [
+      t,
       testingConfigId,
       togglingId,
       handleToggleActive,
@@ -288,9 +293,9 @@ export function OutlookConfigList({
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12 text-center">
           <Mail className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">尚未設定任何 Outlook 配置</p>
+          <p className="text-muted-foreground">{t('outlook.list.empty.title')}</p>
           <p className="text-sm text-muted-foreground">
-            點擊「新增配置」來建立您的第一個 Outlook 連線
+            {t('outlook.list.empty.hint')}
           </p>
         </CardContent>
       </Card>
@@ -301,9 +306,9 @@ export function OutlookConfigList({
     <TooltipProvider>
       <Card>
         <CardHeader>
-          <CardTitle>Outlook 配置</CardTitle>
+          <CardTitle>{t('outlook.list.cardTitle')}</CardTitle>
           <CardDescription>
-            管理系統的 Outlook 信箱連線設定
+            {t('outlook.list.cardDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -319,19 +324,18 @@ export function OutlookConfigList({
       <AlertDialog open={!!deletingId} onOpenChange={() => setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確定要刪除此配置？</AlertDialogTitle>
+            <AlertDialogTitle>{t('outlook.list.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              此操作無法復原。刪除後，系統將無法使用此 Outlook 配置獲取郵件。
-              相關的過濾規則也會一併刪除。
+              {t('outlook.list.deleteDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{t('outlook.list.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
             >
-              刪除
+              {t('outlook.list.deleteDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -355,17 +359,19 @@ function ConnectionStatus({
   lastTestResult,
   isTesting,
 }: ConnectionStatusProps) {
+  const t = useTranslations('integrations');
+
   if (isTesting) {
     return (
       <div className="flex items-center text-muted-foreground">
         <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-        測試中...
+        {t('outlook.list.connectionStatus.testing')}
       </div>
     );
   }
 
   if (lastTestResult === null) {
-    return <span className="text-muted-foreground">未測試</span>;
+    return <span className="text-muted-foreground">{t('outlook.list.connectionStatus.untested')}</span>;
   }
 
   return (
@@ -375,22 +381,23 @@ function ConnectionStatus({
           {lastTestResult ? (
             <>
               <CheckCircle2 className="mr-1 h-4 w-4 text-green-600" />
-              <span className="text-green-600">正常</span>
+              <span className="text-green-600">{t('outlook.list.connectionStatus.normal')}</span>
             </>
           ) : (
             <>
               <XCircle className="mr-1 h-4 w-4 text-red-600" />
-              <span className="text-red-600">失敗</span>
+              <span className="text-red-600">{t('outlook.list.connectionStatus.failed')}</span>
             </>
           )}
         </div>
       </TooltipTrigger>
       <TooltipContent>
         <p>
-          最後測試時間:{' '}
-          {lastTestedAt
-            ? new Date(lastTestedAt).toLocaleString('zh-TW')
-            : '未知'}
+          {t('outlook.list.connectionStatus.lastTestedAt', {
+            time: lastTestedAt
+              ? new Date(lastTestedAt).toLocaleString('zh-TW')
+              : t('outlook.list.connectionStatus.unknown'),
+          })}
         </p>
       </TooltipContent>
     </Tooltip>
@@ -402,14 +409,16 @@ interface RulesCountProps {
 }
 
 function RulesCount({ count }: RulesCountProps) {
+  const t = useTranslations('integrations');
+
   if (count === 0) {
-    return <span className="text-muted-foreground">無規則</span>;
+    return <span className="text-muted-foreground">{t('outlook.list.rulesCount.none')}</span>;
   }
 
   return (
     <Badge variant="outline">
       <Filter className="mr-1 h-3 w-3" />
-      {count} 條規則
+      {t('outlook.list.rulesCount.count', { count })}
     </Badge>
   );
 }

@@ -15,6 +15,7 @@
 
 import * as React from 'react';
 import { Copy, Check, ChevronDown, ChevronRight, Code } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -144,6 +145,7 @@ function JsonNode({ data, name, level = 0, defaultExpanded = true }: JsonNodePro
  * @description 顯示原始 JSON 資料的查看器組件
  */
 export function RawJsonViewer({ data }: RawJsonViewerProps) {
+  const t = useTranslations('historicalData.fileDetail.raw');
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = async () => {
@@ -162,7 +164,7 @@ export function RawJsonViewer({ data }: RawJsonViewerProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <Code className="h-4 w-4" />
-            原始 JSON
+            {t('title')}
           </CardTitle>
           <Button
             variant="outline"
@@ -173,12 +175,12 @@ export function RawJsonViewer({ data }: RawJsonViewerProps) {
             {copied ? (
               <>
                 <Check className="mr-2 h-3 w-3" />
-                已複製
+                {t('copied')}
               </>
             ) : (
               <>
                 <Copy className="mr-2 h-3 w-3" />
-                複製
+                {t('copy')}
               </>
             )}
           </Button>

@@ -18,6 +18,7 @@
 
 'use client';
 
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -95,20 +96,6 @@ function getDiffTypeIcon(type: FieldDiff['type']) {
 }
 
 /**
- * 獲取差異類型標籤
- */
-function getDiffTypeLabel(type: FieldDiff['type']) {
-  switch (type) {
-    case 'added':
-      return '新增';
-    case 'removed':
-      return '刪除';
-    case 'modified':
-      return '修改';
-  }
-}
-
-/**
  * 獲取差異類型顏色
  */
 function getDiffTypeBadgeVariant(type: FieldDiff['type']) {
@@ -122,18 +109,21 @@ function getDiffTypeBadgeVariant(type: FieldDiff['type']) {
   }
 }
 
+/** 翻譯函數類型（changeHistory 命名空間） */
+type TranslateFn = ReturnType<typeof useTranslations>;
+
 /**
  * 格式化值用於顯示
  */
-function formatValue(value: unknown): string {
+function formatValue(value: unknown, t: TranslateFn): string {
   if (value === undefined || value === null) {
-    return '(空)';
+    return t('compare.empty');
   }
   if (typeof value === 'object') {
     return JSON.stringify(value, null, 2);
   }
   if (typeof value === 'boolean') {
-    return value ? '是' : '否';
+    return value ? t('compare.yes') : t('compare.no');
   }
   return String(value);
 }
@@ -158,12 +148,16 @@ function VersionInfoCard({
   timestamp: Date;
   changeReason: string | null;
 }) {
+  const t = useTranslations('changeHistory');
+
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           {title}
-          <Badge variant="outline">版本 {version}</Badge>
+          <Badge variant="outline">
+            {t('compare.versionLabel', { version })}
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
@@ -189,9 +183,10 @@ function VersionInfoCard({
  * 差異表格行
  */
 function DiffTableRow({ diff }: { diff: FieldDiff }) {
+  const t = useTranslations('changeHistory');
   const isLongValue =
-    formatValue(diff.oldValue).length > 50 ||
-    formatValue(diff.newValue).length > 50;
+    formatValue(diff.oldValue, t).length > 50 ||
+    formatValue(diff.newValue, t).length > 50;
 
   return (
     <TableRow>
@@ -203,14 +198,14 @@ function DiffTableRow({ diff }: { diff: FieldDiff }) {
       </TableCell>
       <TableCell>
         <Badge variant="secondary" className={getDiffTypeBadgeVariant(diff.type)}>
-          {getDiffTypeLabel(diff.type)}
+          {t(`diffType.${diff.type}`)}
         </Badge>
       </TableCell>
       <TableCell className={diff.type === 'added' ? 'text-muted-foreground' : ''}>
         {diff.type !== 'added' && (
           <div className={`${isLongValue ? 'max-h-20 overflow-auto' : ''}`}>
             <pre className="text-xs whitespace-pre-wrap break-all bg-muted p-2 rounded">
-              {formatValue(diff.oldValue)}
+              {formatValue(diff.oldValue, t)}
             </pre>
           </div>
         )}
@@ -223,7 +218,7 @@ function DiffTableRow({ diff }: { diff: FieldDiff }) {
         {diff.type !== 'removed' && (
           <div className={`${isLongValue ? 'max-h-20 overflow-auto' : ''}`}>
             <pre className="text-xs whitespace-pre-wrap break-all bg-muted p-2 rounded">
-              {formatValue(diff.newValue)}
+              {formatValue(diff.newValue, t)}
             </pre>
           </div>
         )}
@@ -282,6 +277,8 @@ export function HistoryVersionCompareDialog({
   isLoading = false,
   error = null,
 }: HistoryVersionCompareDialogProps) {
+  const t = useTranslations('changeHistory');
+
   /**
    * 渲染載入狀態
    */
@@ -293,9 +290,9 @@ export function HistoryVersionCompareDialog({
   const renderError = () => (
     <Alert variant="destructive">
       <AlertCircle className="h-4 w-4" />
-      <AlertTitle>載入失敗</AlertTitle>
+      <AlertTitle>{t('compare.loadFailed')}</AlertTitle>
       <AlertDescription>
-        {error?.message || '無法載入版本比較數據'}
+        {error?.message || t('compare.loadError')}
       </AlertDescription>
     </Alert>
   );
@@ -305,7 +302,7 @@ export function HistoryVersionCompareDialog({
    */
   const renderNoDiffs = () => (
     <div className="py-12 text-center">
-      <p className="text-muted-foreground">兩個版本之間沒有差異</p>
+      <p className="text-muted-foreground">{t('compare.noDiffs')}</p>
     </div>
   );
 
@@ -324,14 +321,14 @@ export function HistoryVersionCompareDialog({
         {/* 版本資訊卡片 */}
         <div className="grid grid-cols-2 gap-4">
           <VersionInfoCard
-            title="舊版本"
+            title={t('compare.oldVersion')}
             version={fromVersion}
             changedByName={fromSnapshot.changedByName}
             timestamp={fromSnapshot.timestamp}
             changeReason={fromSnapshot.changeReason}
           />
           <VersionInfoCard
-            title="新版本"
+            title={t('compare.newVersion')}
             version={toVersion}
             changedByName={toSnapshot.changedByName}
             timestamp={toSnapshot.timestamp}
@@ -341,16 +338,22 @@ export function HistoryVersionCompareDialog({
 
         {/* 差異摘要 */}
         <div className="flex items-center gap-4">
-          <h4 className="font-medium">欄位差異</h4>
+          <h4 className="font-medium">{t('compare.fieldDiffs')}</h4>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="bg-green-100 text-green-700">
-              新增: {diffs.filter((d) => d.type === 'added').length}
+              {t('compare.addedCount', {
+                count: diffs.filter((d) => d.type === 'added').length,
+              })}
             </Badge>
             <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-              修改: {diffs.filter((d) => d.type === 'modified').length}
+              {t('compare.modifiedCount', {
+                count: diffs.filter((d) => d.type === 'modified').length,
+              })}
             </Badge>
             <Badge variant="secondary" className="bg-red-100 text-red-700">
-              刪除: {diffs.filter((d) => d.type === 'removed').length}
+              {t('compare.removedCount', {
+                count: diffs.filter((d) => d.type === 'removed').length,
+              })}
             </Badge>
           </div>
         </div>
@@ -363,11 +366,15 @@ export function HistoryVersionCompareDialog({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[180px]">欄位名稱</TableHead>
-                  <TableHead className="w-[80px]">類型</TableHead>
-                  <TableHead>舊值</TableHead>
+                  <TableHead className="w-[180px]">
+                    {t('compare.columns.fieldName')}
+                  </TableHead>
+                  <TableHead className="w-[80px]">
+                    {t('compare.columns.type')}
+                  </TableHead>
+                  <TableHead>{t('compare.columns.oldValue')}</TableHead>
                   <TableHead className="w-[40px]"></TableHead>
-                  <TableHead>新值</TableHead>
+                  <TableHead>{t('compare.columns.newValue')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -386,9 +393,9 @@ export function HistoryVersionCompareDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>版本比較</DialogTitle>
+          <DialogTitle>{t('compare.title')}</DialogTitle>
           <DialogDescription>
-            比較 {resourceType}/{resourceId} 的兩個版本之間的差異
+            {t('compare.description', { resourceType, resourceId })}
           </DialogDescription>
         </DialogHeader>
         {renderContent()}

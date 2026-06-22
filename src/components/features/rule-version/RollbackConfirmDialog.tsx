@@ -18,6 +18,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,6 +78,8 @@ export function RollbackConfirmDialog({
   isLoading,
   targetVersion,
 }: RollbackConfirmDialogProps) {
+  const t = useTranslations('rules')
+  const tc = useTranslations('common')
   const [reason, setReason] = useState('')
 
   /**
@@ -103,26 +106,31 @@ export function RollbackConfirmDialog({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-yellow-500" />
-            確認回滾
+            {t('ruleVersion.rollbackDialog.title')}
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-2">
               <p>
-                您確定要將規則回滾到版本 {targetVersion} 嗎？
+                {t('ruleVersion.rollbackDialog.confirmQuestion', {
+                  version: targetVersion ?? '',
+                })}
               </p>
               <p className="text-sm">
-                此操作會創建一個新版本，內容與版本 {targetVersion} 相同。
-                原有的版本記錄將保留，不會被刪除。
+                {t('ruleVersion.rollbackDialog.description', {
+                  version: targetVersion ?? '',
+                })}
               </p>
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <div className="space-y-2 py-2">
-          <Label htmlFor="rollback-reason">回滾原因（選填）</Label>
+          <Label htmlFor="rollback-reason">
+            {t('ruleVersion.rollbackDialog.reasonLabel')}
+          </Label>
           <Textarea
             id="rollback-reason"
-            placeholder="請輸入回滾原因，例如：恢復到穩定版本..."
+            placeholder={t('ruleVersion.rollbackDialog.reasonPlaceholder')}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
@@ -135,7 +143,9 @@ export function RollbackConfirmDialog({
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>取消</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>
+            {tc('actions.cancel')}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isLoading}
@@ -144,10 +154,10 @@ export function RollbackConfirmDialog({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                處理中...
+                {t('ruleVersion.rollbackDialog.processing')}
               </>
             ) : (
-              '確認回滾'
+              t('ruleVersion.rollbackDialog.confirm')
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

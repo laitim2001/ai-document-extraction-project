@@ -21,6 +21,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -70,6 +71,7 @@ export function SimulationConfigForm({
   isRunning = false,
   className,
 }: SimulationConfigFormProps) {
+  const t = useTranslations('ruleSimulation')
   const [sampleSize, setSampleSize] = useState<number>(100)
   const [dateRangeDays, setDateRangeDays] = useState<number>(30)
   const [includeUnverified, setIncludeUnverified] = useState<boolean>(false)
@@ -87,26 +89,26 @@ export function SimulationConfigForm({
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Settings className="h-5 w-5 text-muted-foreground" />
-          模擬測試配置
+          {t('simulation.config.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid gap-6 md:grid-cols-3">
           {/* 樣本數量 */}
           <div className="space-y-2">
-            <Label htmlFor="sampleSize">樣本數量</Label>
+            <Label htmlFor="sampleSize">{t('simulation.config.sampleSize')}</Label>
             <Select
               value={sampleSize.toString()}
               onValueChange={(value) => setSampleSize(Number(value))}
               disabled={isRunning}
             >
               <SelectTrigger id="sampleSize">
-                <SelectValue placeholder="選擇樣本數量" />
+                <SelectValue placeholder={t('simulation.config.sampleSizePlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 {SAMPLE_SIZE_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value.toString()}>
-                    {option.label}
+                    {t(`simulation.config.sampleSizeOptions.${option.value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -115,19 +117,19 @@ export function SimulationConfigForm({
 
           {/* 日期範圍 */}
           <div className="space-y-2">
-            <Label htmlFor="dateRange">日期範圍</Label>
+            <Label htmlFor="dateRange">{t('simulation.config.dateRange')}</Label>
             <Select
               value={dateRangeDays.toString()}
               onValueChange={(value) => setDateRangeDays(Number(value))}
               disabled={isRunning}
             >
               <SelectTrigger id="dateRange">
-                <SelectValue placeholder="選擇日期範圍" />
+                <SelectValue placeholder={t('simulation.config.dateRangePlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 {DATE_RANGE_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value.toString()}>
-                    {option.label}
+                    {t(`simulation.config.dateRangeOptions.${option.value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -136,7 +138,7 @@ export function SimulationConfigForm({
 
           {/* 包含未驗證文件 */}
           <div className="space-y-2">
-            <Label htmlFor="includeUnverified">包含未驗證文件</Label>
+            <Label htmlFor="includeUnverified">{t('simulation.config.includeUnverified')}</Label>
             <div className="flex items-center space-x-2 pt-2">
               <Switch
                 id="includeUnverified"
@@ -151,7 +153,7 @@ export function SimulationConfigForm({
                   isRunning && 'cursor-not-allowed opacity-50'
                 )}
               >
-                {includeUnverified ? '是' : '否'}
+                {includeUnverified ? t('simulation.config.yes') : t('simulation.config.no')}
               </Label>
             </div>
           </div>
@@ -161,7 +163,7 @@ export function SimulationConfigForm({
         <div className="mt-6 flex justify-end">
           <Button onClick={handleSubmit} disabled={isRunning}>
             <PlayCircle className="h-4 w-4 mr-2" />
-            {isRunning ? '執行中...' : '執行模擬測試'}
+            {isRunning ? t('simulation.config.running') : t('simulation.config.run')}
           </Button>
         </div>
       </CardContent>

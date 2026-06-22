@@ -15,6 +15,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -61,6 +62,7 @@ export function DocumentSourceDetails({
   documentId,
   asCard = true,
 }: DocumentSourceDetailsProps) {
+  const t = useTranslations('documentSource')
   const {
     data: sourceInfo,
     isLoading,
@@ -102,12 +104,12 @@ export function DocumentSourceDetails({
       <div className="space-y-2">
         <DetailRow
           icon={<FileText className="h-4 w-4" />}
-          label="原始檔名"
+          label={t('details.originalFileName')}
           value={details.originalFileName}
         />
         <DetailRow
           icon={<Calendar className="h-4 w-4" />}
-          label="獲取時間"
+          label={t('details.acquiredAt')}
           value={formatDateTime(details.acquiredAt)}
         />
       </div>
@@ -117,27 +119,27 @@ export function DocumentSourceDetails({
         <div className="border-t pt-4">
           <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
             <FileSpreadsheet className="h-4 w-4 text-blue-600" />
-            SharePoint 詳情
+            {t('details.sharepoint.title')}
           </h4>
           <div className="space-y-2 pl-6">
             {details.sharepoint.siteName && (
               <DetailRow
                 icon={<Folder className="h-4 w-4" />}
-                label="站點"
+                label={t('details.sharepoint.site')}
                 value={details.sharepoint.siteName}
               />
             )}
             {details.sharepoint.libraryPath && (
               <DetailRow
                 icon={<Folder className="h-4 w-4" />}
-                label="路徑"
+                label={t('details.sharepoint.path')}
                 value={details.sharepoint.libraryPath}
               />
             )}
             {details.sharepoint.lastModifiedDateTime && (
               <DetailRow
                 icon={<Clock className="h-4 w-4" />}
-                label="最後修改"
+                label={t('details.sharepoint.lastModified')}
                 value={formatDateTime(details.sharepoint.lastModifiedDateTime)}
               />
             )}
@@ -150,7 +152,7 @@ export function DocumentSourceDetails({
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline flex items-center gap-1"
                 >
-                  在 SharePoint 中查看
+                  {t('details.sharepoint.viewInSharePoint')}
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
@@ -164,12 +166,12 @@ export function DocumentSourceDetails({
         <div className="border-t pt-4">
           <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
             <Mail className="h-4 w-4 text-cyan-600" />
-            郵件詳情
+            {t('details.outlook.title')}
           </h4>
           <div className="space-y-2 pl-6">
             <DetailRow
               icon={<User className="h-4 w-4" />}
-              label="寄件者"
+              label={t('details.outlook.sender')}
               value={
                 details.outlook.senderName
                   ? `${details.outlook.senderName} <${details.outlook.senderEmail}>`
@@ -178,19 +180,22 @@ export function DocumentSourceDetails({
             />
             <DetailRow
               icon={<Mail className="h-4 w-4" />}
-              label="主旨"
+              label={t('details.outlook.subject')}
               value={details.outlook.subject}
             />
             <DetailRow
               icon={<Clock className="h-4 w-4" />}
-              label="收件時間"
+              label={t('details.outlook.receivedAt')}
               value={formatDateTime(details.outlook.receivedAt)}
             />
             {details.outlook.totalAttachments > 1 && (
               <DetailRow
                 icon={<Paperclip className="h-4 w-4" />}
-                label="附件"
-                value={`第 ${details.outlook.attachmentIndex + 1} 個，共 ${details.outlook.totalAttachments} 個`}
+                label={t('details.outlook.attachment')}
+                value={t('details.outlook.attachmentInfo', {
+                  index: details.outlook.attachmentIndex + 1,
+                  total: details.outlook.totalAttachments,
+                })}
               />
             )}
           </div>
@@ -202,17 +207,17 @@ export function DocumentSourceDetails({
         <div className="border-t pt-4">
           <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
             <Upload className="h-4 w-4 text-gray-600" />
-            上傳詳情
+            {t('details.manual.title')}
           </h4>
           <div className="space-y-2 pl-6">
             <DetailRow
               icon={<User className="h-4 w-4" />}
-              label="上傳者"
-              value={details.manual.uploadedByName || '未知'}
+              label={t('details.manual.uploadedBy')}
+              value={details.manual.uploadedByName || t('details.unknown')}
             />
             <DetailRow
               icon={<Upload className="h-4 w-4" />}
-              label="上傳方式"
+              label={t('details.manual.uploadMethod')}
               value={details.manual.uploadMethod}
             />
           </div>
@@ -224,20 +229,20 @@ export function DocumentSourceDetails({
         <div className="border-t pt-4">
           <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
             <Globe className="h-4 w-4 text-purple-600" />
-            API 詳情
+            {t('details.api.title')}
           </h4>
           <div className="space-y-2 pl-6">
             {details.api.systemName && (
               <DetailRow
                 icon={<Globe className="h-4 w-4" />}
-                label="系統"
+                label={t('details.api.system')}
                 value={details.api.systemName}
               />
             )}
             {details.api.requestId && (
               <DetailRow
                 icon={<FileText className="h-4 w-4" />}
-                label="請求 ID"
+                label={t('details.api.requestId')}
                 value={details.api.requestId}
                 mono
               />
@@ -256,7 +261,7 @@ export function DocumentSourceDetails({
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">來源資訊</CardTitle>
+          <CardTitle className="text-base">{t('details.sourceInfo')}</CardTitle>
           <DocumentSourceBadge sourceType={data.type} />
         </div>
       </CardHeader>

@@ -1,0 +1,55 @@
+{
+  "details": {
+    "sourceInfo": "Source Info",
+    "originalFileName": "Original File Name",
+    "acquiredAt": "Acquired At",
+    "sharepoint": {
+      "title": "SharePoint Details",
+      "site": "Site",
+      "path": "Path",
+      "lastModified": "Last Modified",
+      "viewInSharePoint": "View in SharePoint"
+    },
+    "outlook": {
+      "title": "Email Details",
+      "sender": "Sender",
+      "subject": "Subject",
+      "receivedAt": "Received At",
+      "attachment": "Attachment",
+      "attachmentInfo": "{index} of {total}"
+    },
+    "manual": {
+      "title": "Upload Details",
+      "uploadedBy": "Uploaded By",
+      "uploadMethod": "Upload Method"
+    },
+    "api": {
+      "title": "API Details",
+      "system": "System",
+      "requestId": "Request ID"
+    },
+    "unknown": "Unknown"
+  },
+  "sourceTypes": {
+    "all": "All Sources",
+    "MANUAL_UPLOAD": "Manual Upload",
+    "SHAREPOINT": "SharePoint",
+    "OUTLOOK": "Outlook",
+    "API": "External API",
+    "N8N_WORKFLOW": "n8n Workflow",
+    "unknown": "Unknown"
+  },
+  "filter": {
+    "placeholder": "Filter Source"
+  },
+  "stats": {
+    "title": "Document Source Distribution",
+    "noData": "No data available",
+    "documentCount": "{count} documents",
+    "total": "Total"
+  },
+  "trend": {
+    "title": "Source Type Trend",
+    "noData": "No data available"
+  }
+}

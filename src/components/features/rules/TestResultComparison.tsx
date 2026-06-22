@@ -20,6 +20,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Card,
   CardContent,
@@ -52,7 +53,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { TestDetailItem, TestChangeType } from '@/types/rule-test'
-import { TEST_CHANGE_TYPES, getChangeTypeConfig } from '@/types/rule-test'
+import { TEST_CHANGE_TYPES } from '@/types/rule-test'
 
 // ============================================================
 // Types
@@ -126,13 +127,15 @@ export function TestResultComparison({
   isLoading = false,
   className,
 }: TestResultComparisonProps) {
+  const t = useTranslations('rules')
+
   // --- Column 定義 ---
   const columns = React.useMemo<DataTableColumn<TestDetailItem>[]>(
     () => [
       {
         id: 'fileName',
         headerClassName: 'w-[200px]',
-        header: '文件名稱',
+        header: t('testComparison.fileName'),
         cellClassName: 'font-medium',
         cell: (detail) => (
           <span className="line-clamp-1" title={detail.document.fileName}>
@@ -142,7 +145,7 @@ export function TestResultComparison({
       },
       {
         id: 'originalResult',
-        header: '原規則結果',
+        header: t('testComparison.originalResult'),
         cell: (detail) => (
           <div className="flex flex-col gap-1">
             <span
@@ -150,7 +153,7 @@ export function TestResultComparison({
                 detail.originalAccurate ? 'text-green-600' : 'text-red-600'
               )}
             >
-              {detail.originalResult ?? '(無)'}
+              {detail.originalResult ?? t('testComparison.noValue')}
             </span>
             {detail.originalConfidence !== null && (
               <span className="text-xs text-muted-foreground">
@@ -162,7 +165,7 @@ export function TestResultComparison({
       },
       {
         id: 'testResult',
-        header: '新規則結果',
+        header: t('testComparison.newResult'),
         cell: (detail) => (
           <div className="flex flex-col gap-1">
             <span
@@ -170,7 +173,7 @@ export function TestResultComparison({
                 detail.testAccurate ? 'text-green-600' : 'text-red-600'
               )}
             >
-              {detail.testResult ?? '(無)'}
+              {detail.testResult ?? t('testComparison.noValue')}
             </span>
             {detail.testConfidence !== null && (
               <span className="text-xs text-muted-foreground">
@@ -182,35 +185,32 @@ export function TestResultComparison({
       },
       {
         id: 'actualValue',
-        header: '實際值',
+        header: t('testComparison.actualValue'),
         cell: (detail) => (
           <span className="text-muted-foreground">
-            {detail.actualValue ?? '(無)'}
+            {detail.actualValue ?? t('testComparison.noValue')}
           </span>
         ),
       },
       {
         id: 'changeType',
         headerClassName: 'w-[100px]',
-        header: '變化',
-        cell: (detail) => {
-          const config = getChangeTypeConfig(detail.changeType)
-          return (
-            <Badge
-              variant="outline"
-              className={cn(
-                'gap-1 border-0',
-                CHANGE_TYPE_COLORS[detail.changeType]
-              )}
-            >
-              {CHANGE_TYPE_ICONS[detail.changeType]}
-              {config.label}
-            </Badge>
-          )
-        },
+        header: t('testComparison.change'),
+        cell: (detail) => (
+          <Badge
+            variant="outline"
+            className={cn(
+              'gap-1 border-0',
+              CHANGE_TYPE_COLORS[detail.changeType]
+            )}
+          >
+            {CHANGE_TYPE_ICONS[detail.changeType]}
+            {t(`testComparison.changeTypes.${detail.changeType}`)}
+          </Badge>
+        ),
       },
     ],
-    []
+    [t]
   )
 
   // --- Render Loading ---
@@ -219,8 +219,8 @@ export function TestResultComparison({
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle className="text-base">測試詳情</CardTitle>
-          <CardDescription>載入中...</CardDescription>
+          <CardTitle className="text-base">{t('testComparison.testDetails')}</CardTitle>
+          <CardDescription>{t('testComparison.loading')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -239,14 +239,14 @@ export function TestResultComparison({
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle className="text-base">測試詳情</CardTitle>
+          <CardTitle className="text-base">{t('testComparison.testDetails')}</CardTitle>
           <CardDescription>
-            共 {pagination.total} 筆測試結果
+            {t('testComparison.totalResults', { total: pagination.total })}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <p className="text-muted-foreground">沒有找到符合條件的測試結果</p>
+            <p className="text-muted-foreground">{t('testComparison.noResults')}</p>
           </div>
         </CardContent>
       </Card>
@@ -260,13 +260,13 @@ export function TestResultComparison({
       <CardHeader>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle className="text-base">測試詳情</CardTitle>
+            <CardTitle className="text-base">{t('testComparison.testDetails')}</CardTitle>
             <CardDescription>
-              共 {pagination.total} 筆測試結果
+              {t('testComparison.totalResults', { total: pagination.total })}
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">篩選：</span>
+            <span className="text-sm text-muted-foreground">{t('testComparison.filterLabel')}</span>
             <Select
               value={changeTypeFilter ?? 'all'}
               onValueChange={(v) =>
@@ -274,13 +274,13 @@ export function TestResultComparison({
               }
             >
               <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="全部" />
+                <SelectValue placeholder={t('testComparison.all')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部</SelectItem>
+                <SelectItem value="all">{t('testComparison.all')}</SelectItem>
                 {TEST_CHANGE_TYPES.map((type) => (
                   <SelectItem key={type.value} value={type.value}>
-                    {type.label}
+                    {t(`testComparison.changeTypes.${type.value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -304,7 +304,7 @@ export function TestResultComparison({
         {pagination.totalPages > 1 && (
           <div className="flex items-center justify-between pt-4">
             <p className="text-sm text-muted-foreground">
-              第 {pagination.page} / {pagination.totalPages} 頁
+              {t('testComparison.pageInfo', { page: pagination.page, totalPages: pagination.totalPages })}
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -314,7 +314,7 @@ export function TestResultComparison({
                 disabled={pagination.page <= 1}
               >
                 <ChevronLeft className="h-4 w-4" />
-                上一頁
+                {t('testComparison.prevPage')}
               </Button>
               <Button
                 variant="outline"
@@ -322,7 +322,7 @@ export function TestResultComparison({
                 onClick={() => onPageChange?.(pagination.page + 1)}
                 disabled={pagination.page >= pagination.totalPages}
               >
-                下一頁
+                {t('testComparison.nextPage')}
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

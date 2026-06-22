@@ -32,6 +32,7 @@
 
 import * as React from 'react';
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -60,7 +61,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { HealthStatus, ServiceType } from '@prisma/client';
-import { STATUS_COLORS, STATUS_LABELS } from '@/types/monitoring';
+import { STATUS_COLORS } from '@/types/monitoring';
 
 // ============================================================
 // Types
@@ -188,6 +189,8 @@ const STATUS_BADGE_CONFIG: Record<
  *   支援手動觸發健康檢查和查看服務歷史記錄。
  */
 export function HealthDashboard() {
+  const t = useTranslations('admin.monitoring');
+
   // --- State ---
   const [health, setHealth] = useState<OverallHealthStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -211,18 +214,18 @@ export function HealthDashboard() {
       if (data.success && data.data) {
         setHealth(data.data);
       } else {
-        throw new Error(data.detail || '載入失敗');
+        throw new Error(data.detail || 'Failed to load health status');
       }
     } catch {
       toast({
-        title: '錯誤',
-        description: '載入健康狀態失敗',
+        title: t('dashboard.toast.errorTitle'),
+        description: t('dashboard.toast.loadHealthError'),
         variant: 'destructive',
       });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, t]);
 
   /**
    * 手動刷新健康狀態
@@ -233,13 +236,13 @@ export function HealthDashboard() {
       await fetch('/api/admin/health', { method: 'POST' });
       await loadHealth();
       toast({
-        title: '成功',
-        description: '健康檢查完成',
+        title: t('dashboard.toast.successTitle'),
+        description: t('dashboard.toast.checkComplete'),
       });
     } catch {
       toast({
-        title: '錯誤',
-        description: '健康檢查失敗',
+        title: t('dashboard.toast.errorTitle'),
+        description: t('dashboard.toast.checkError'),
         variant: 'destructive',
       });
     } finally {
@@ -261,19 +264,19 @@ export function HealthDashboard() {
         if (data.success && data.data) {
           setServiceDetails(data.data);
         } else {
-          throw new Error(data.detail || '載入失敗');
+          throw new Error(data.detail || 'Failed to load service details');
         }
       } catch {
         toast({
-          title: '錯誤',
-          description: '載入服務詳情失敗',
+          title: t('dashboard.toast.errorTitle'),
+          description: t('dashboard.toast.loadDetailsError'),
           variant: 'destructive',
         });
       } finally {
         setDetailsLoading(false);
       }
     },
-    [toast]
+    [toast, t]
   );
 
   // --- Effects ---
@@ -318,17 +321,17 @@ export function HealthDashboard() {
             }`}
           />
           <h2 className="text-2xl font-bold">
-            系統健康狀態: {STATUS_LABELS[health?.status || 'UNKNOWN']}
+            {t('dashboard.overallStatus', { status: t(`healthStatus.${health?.status || 'UNKNOWN'}`) })}
           </h2>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Users size={20} />
-            <span>{health?.activeUsers || 0} 活躍用戶</span>
+            <span>{t('dashboard.activeUsers', { count: health?.activeUsers || 0 })}</span>
           </div>
           <Badge variant="outline" className="flex items-center gap-1">
             <Activity className="w-4 h-4" />
-            {health?.availability24h?.toFixed(2)}% 可用性 (24h)
+            {t('dashboard.availability', { value: health?.availability24h?.toFixed(2) ?? '0' })}
           </Badge>
           <Button
             onClick={handleRefresh}
@@ -340,7 +343,7 @@ export function HealthDashboard() {
               size={16}
               className={`mr-2 ${refreshing ? 'animate-spin' : ''}`}
             />
-            刷新
+            {t('dashboard.refresh')}
           </Button>
         </div>
       </div>
@@ -374,10 +377,11 @@ export function HealthDashboard() {
 
       {/* 最後更新時間 */}
       <div className="text-sm text-muted-foreground text-center">
-        最後更新:{' '}
-        {health?.lastUpdated
-          ? new Date(health.lastUpdated).toLocaleString('zh-TW')
-          : 'N/A'}
+        {t('dashboard.lastUpdated', {
+          value: health?.lastUpdated
+            ? new Date(health.lastUpdated).toLocaleString('zh-TW')
+            : 'N/A',
+        })}
       </div>
     </div>
   );
@@ -397,6 +401,7 @@ interface ServiceCardProps {
 }
 
 function ServiceCard({ service, isSelected, onClick }: ServiceCardProps) {
+  const t = useTranslations('admin.monitoring.dashboard');
   const badgeConfig = STATUS_BADGE_CONFIG[service.status];
 
   return (
@@ -422,7 +427,7 @@ function ServiceCard({ service, isSelected, onClick }: ServiceCardProps) {
         <div className="space-y-2">
           {service.responseTime !== null && (
             <div className="text-sm text-muted-foreground">
-              回應時間: {service.responseTime}ms
+              {t('responseTime', { value: service.responseTime })}
             </div>
           )}
           {service.errorMessage && (
@@ -431,7 +436,7 @@ function ServiceCard({ service, isSelected, onClick }: ServiceCardProps) {
             </div>
           )}
           <div className="text-xs text-muted-foreground">
-            最後檢查: {new Date(service.checkedAt).toLocaleTimeString('zh-TW')}
+            {t('lastChecked', { value: new Date(service.checkedAt).toLocaleTimeString('zh-TW') })}
           </div>
         </div>
       </CardContent>
@@ -453,6 +458,8 @@ function ServiceDetailsPanel({
   details,
   loading,
 }: ServiceDetailsPanelProps) {
+  const t = useTranslations('admin.monitoring.dashboard');
+
   if (loading) {
     return (
       <Card>
@@ -481,13 +488,13 @@ function ServiceDetailsPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="capitalize">{serviceName} 服務詳情</CardTitle>
+        <CardTitle className="capitalize">{t('serviceDetailsTitle', { service: serviceName })}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 回應時間圖表 */}
           <div>
-            <h4 className="font-medium mb-4">回應時間 (24h)</h4>
+            <h4 className="font-medium mb-4">{t('responseTimeChart')}</h4>
             {details.history.length > 0 ? (
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={details.history}>
@@ -508,7 +515,7 @@ function ServiceDetailsPanel({
                     }
                     formatter={(value) => [
                       `${value ?? 0}ms`,
-                      '回應時間',
+                      t('responseTimeTooltip'),
                     ]}
                   />
                   <Line
@@ -522,29 +529,29 @@ function ServiceDetailsPanel({
               </ResponsiveContainer>
             ) : (
               <div className="flex items-center justify-center h-[200px] text-muted-foreground">
-                暫無歷史資料
+                {t('noHistory')}
               </div>
             )}
           </div>
 
           {/* 統計指標 */}
           <div>
-            <h4 className="font-medium mb-4">效能指標</h4>
+            <h4 className="font-medium mb-4">{t('metricsTitle')}</h4>
             <div className="grid grid-cols-2 gap-4">
               <MetricCard
-                label="平均回應"
+                label={t('avgResponse')}
                 value={`${details.metrics.avgResponseTime.toFixed(0)}ms`}
               />
               <MetricCard
-                label="最大回應"
+                label={t('maxResponse')}
                 value={`${details.metrics.maxResponseTime}ms`}
               />
               <MetricCard
-                label="最小回應"
+                label={t('minResponse')}
                 value={`${details.metrics.minResponseTime}ms`}
               />
               <MetricCard
-                label="錯誤率"
+                label={t('errorRate')}
                 value={`${details.metrics.errorRate.toFixed(2)}%`}
                 isError={details.metrics.errorRate > 5}
               />
@@ -555,7 +562,7 @@ function ServiceDetailsPanel({
         {/* 錯誤日誌 */}
         {details.errorLogs.length > 0 && (
           <div className="mt-6">
-            <h4 className="font-medium mb-4">最近錯誤</h4>
+            <h4 className="font-medium mb-4">{t('recentErrors')}</h4>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {details.errorLogs.map((log, index) => (
                 <div
@@ -571,7 +578,7 @@ function ServiceDetailsPanel({
                     </span>
                   </div>
                   <div className="text-foreground mt-1">
-                    {log.errorMessage || '未知錯誤'}
+                    {log.errorMessage || t('unknownError')}
                   </div>
                 </div>
               ))}

@@ -97,6 +97,61 @@
       "syntheticRef": "Pipeline 參考編號 (_ref_*)"
     }
   },
+  "formatAnalysis": {
+    "tree": {
+      "documentTypes": {
+        "INVOICE": "發票",
+        "DEBIT_NOTE": "借項通知單",
+        "CREDIT_NOTE": "貸項通知單",
+        "STATEMENT": "對帳單",
+        "QUOTATION": "報價單",
+        "BILL_OF_LADING": "提單",
+        "CUSTOMS_DECLARATION": "報關",
+        "OTHER": "其他"
+      },
+      "documentSubtypes": {
+        "OCEAN_FREIGHT": "海運",
+        "AIR_FREIGHT": "空運",
+        "LAND_TRANSPORT": "陸運",
+        "CUSTOMS_CLEARANCE": "報關",
+        "WAREHOUSING": "倉儲",
+        "IMPORT": "進口",
+        "EXPORT": "出口",
+        "GENERAL": "一般"
+      },
+      "formatsBadge": "{count} 個格式",
+      "emptyTitle": "找不到公司",
+      "emptyDescription": "處理一些文件後即可查看格式分析",
+      "summary": {
+        "companies": "{count} 間公司",
+        "formats": "{count} 個格式",
+        "terms": "{count} 個術語"
+      }
+    },
+    "termsPanel": {
+      "confidence": {
+        "high": "高",
+        "medium": "中",
+        "low": "低",
+        "tooltip": "{label}信心度：{value}%"
+      },
+      "createRule": "建立規則",
+      "examplesTitle": "原始文字範例：",
+      "moreExamples": "還有 {count} 項",
+      "emptySelectionTitle": "選擇格式以查看術語",
+      "emptySelectionDescription": "點擊樹狀結構中的格式以查看關聯術語",
+      "filesBadge": "{count} 個文件",
+      "termsBadge": "{count} 個術語",
+      "noTerms": "此格式尚無術語",
+      "table": {
+        "term": "術語",
+        "frequency": "頻率",
+        "category": "類別",
+        "confidence": "信心度",
+        "actions": "操作"
+      }
+    }
+  },
   "detail": {
     "loadError": "無法載入格式資料",
     "loadErrorDescription": "載入格式詳情時發生錯誤，請稍後再試。",

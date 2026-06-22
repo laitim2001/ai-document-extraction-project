@@ -5,13 +5,17 @@
  *
  * @module src/components/features/review/ReviewQueueSkeleton
  * @since Epic 3 - Story 3.1
- * @lastModified 2025-12-18
+ * @lastModified 2026-06-22 (CHANGE-089 Batch C: 表頭 i18n 化)
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/components/ui/skeleton - shadcn Skeleton 組件
  *   - @/components/ui/table - shadcn Table 組件
  */
 
+'use client'
+
+import { useTranslations } from 'next-intl'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
@@ -36,6 +40,8 @@ import {
  * ```
  */
 export function ReviewQueueSkeleton() {
+  const t = useTranslations('review')
+
   return (
     <div className="space-y-4">
       {/* 頂部資訊列 */}
@@ -49,11 +55,11 @@ export function ReviewQueueSkeleton() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[300px]">文件名</TableHead>
-              <TableHead>Forwarder</TableHead>
-              <TableHead>上傳時間</TableHead>
-              <TableHead className="text-center">信心度</TableHead>
-              <TableHead>處理路徑</TableHead>
+              <TableHead className="w-[300px]">{t('table.fileName')}</TableHead>
+              <TableHead>{t('panel.forwarder')}</TableHead>
+              <TableHead>{t('table.uploadTime')}</TableHead>
+              <TableHead className="text-center">{t('table.confidence')}</TableHead>
+              <TableHead>{t('table.processingPath')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

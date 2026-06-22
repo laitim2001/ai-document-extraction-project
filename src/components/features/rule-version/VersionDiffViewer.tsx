@@ -19,6 +19,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { diffLines, Change } from 'diff'
 import { cn } from '@/lib/utils'
 import type {
@@ -49,8 +50,11 @@ function formatDate(dateString: string): string {
 /**
  * 將 ExtractionPattern 序列化為字符串用於顯示
  */
-function serializePattern(pattern: ExtractionPattern | null): string {
-  if (!pattern) return '(無 Pattern)'
+function serializePattern(
+  pattern: ExtractionPattern | null,
+  noPatternLabel: string
+): string {
+  if (!pattern) return noPatternLabel
   return JSON.stringify(pattern, null, 2)
 }
 
@@ -96,28 +100,37 @@ export function VersionDiffViewer({
   differences,
   patternDiff,
 }: VersionDiffViewerProps) {
+  const t = useTranslations('rules')
+
   // 計算 Pattern 的行級差異用於高亮顯示
-  const pattern1Str = serializePattern(version1.extractionPattern)
-  const pattern2Str = serializePattern(version2.extractionPattern)
+  const noPatternLabel = t('ruleVersion.diffViewer.noPattern')
+  const pattern1Str = serializePattern(version1.extractionPattern, noPatternLabel)
+  const pattern2Str = serializePattern(version2.extractionPattern, noPatternLabel)
   const patternChanges = diffLines(pattern1Str, pattern2Str)
 
   return (
     <div className="space-y-6">
       {/* 欄位差異表格 */}
       <div>
-        <h4 className="font-medium mb-3">欄位差異</h4>
+        <h4 className="font-medium mb-3">
+          {t('ruleVersion.diffViewer.fieldDifferences')}
+        </h4>
         <div className="border rounded-lg overflow-hidden">
           <table className="w-full">
             <thead className="bg-muted">
               <tr>
                 <th className="px-4 py-2 text-left text-sm font-medium">
-                  欄位
+                  {t('ruleVersion.diffViewer.columnField')}
                 </th>
                 <th className="px-4 py-2 text-left text-sm font-medium">
-                  版本 {version1.version}
+                  {t('ruleVersion.diffViewer.version', {
+                    version: version1.version,
+                  })}
                 </th>
                 <th className="px-4 py-2 text-left text-sm font-medium">
-                  版本 {version2.version}
+                  {t('ruleVersion.diffViewer.version', {
+                    version: version2.version,
+                  })}
                 </th>
               </tr>
             </thead>
@@ -134,7 +147,7 @@ export function VersionDiffViewer({
                     {diff.label}
                     {diff.changed && (
                       <span className="ml-2 text-xs text-yellow-600">
-                        已變更
+                        {t('ruleVersion.diffViewer.changed')}
                       </span>
                     )}
                   </td>
@@ -163,13 +176,17 @@ export function VersionDiffViewer({
 
       {/* Pattern 差異 */}
       <div>
-        <h4 className="font-medium mb-3">Pattern 差異</h4>
+        <h4 className="font-medium mb-3">
+          {t('ruleVersion.diffViewer.patternDifferences')}
+        </h4>
         <div className="grid grid-cols-2 gap-4">
           {/* 版本 1 Pattern */}
           <div className="border rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <h5 className="text-sm font-medium text-muted-foreground">
-                版本 {version1.version}
+                {t('ruleVersion.diffViewer.version', {
+                  version: version1.version,
+                })}
               </h5>
               <span className="text-xs text-muted-foreground">
                 {formatDate(version1.createdAt)}
@@ -184,7 +201,9 @@ export function VersionDiffViewer({
           <div className="border rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <h5 className="text-sm font-medium text-muted-foreground">
-                版本 {version2.version}
+                {t('ruleVersion.diffViewer.version', {
+                  version: version2.version,
+                })}
               </h5>
               <span className="text-xs text-muted-foreground">
                 {formatDate(version2.createdAt)}
@@ -199,7 +218,7 @@ export function VersionDiffViewer({
         {/* 統一差異視圖 */}
         <div className="mt-4 border rounded-lg p-4">
           <h5 className="text-sm font-medium text-muted-foreground mb-2">
-            差異高亮
+            {t('ruleVersion.diffViewer.diffHighlight')}
           </h5>
           <pre className="bg-muted p-3 rounded text-sm overflow-x-auto max-h-64">
             {patternChanges.map((part: Change, index: number) => (
@@ -224,7 +243,7 @@ export function VersionDiffViewer({
             {patternDiff.removed.length > 0 && (
               <div className="p-3 bg-red-50 dark:bg-red-900/10 rounded-lg">
                 <h6 className="text-sm font-medium text-red-700 dark:text-red-300 mb-2">
-                  移除的內容
+                  {t('ruleVersion.diffViewer.removedContent')}
                 </h6>
                 <ul className="text-sm text-red-600 dark:text-red-400 space-y-1">
                   {patternDiff.removed.slice(0, 5).map((line, i) => (
@@ -234,7 +253,9 @@ export function VersionDiffViewer({
                   ))}
                   {patternDiff.removed.length > 5 && (
                     <li className="text-xs">
-                      ...還有 {patternDiff.removed.length - 5} 項
+                      {t('ruleVersion.diffViewer.moreItems', {
+                        count: patternDiff.removed.length - 5,
+                      })}
                     </li>
                   )}
                 </ul>
@@ -243,7 +264,7 @@ export function VersionDiffViewer({
             {patternDiff.added.length > 0 && (
               <div className="p-3 bg-green-50 dark:bg-green-900/10 rounded-lg">
                 <h6 className="text-sm font-medium text-green-700 dark:text-green-300 mb-2">
-                  新增的內容
+                  {t('ruleVersion.diffViewer.addedContent')}
                 </h6>
                 <ul className="text-sm text-green-600 dark:text-green-400 space-y-1">
                   {patternDiff.added.slice(0, 5).map((line, i) => (
@@ -253,7 +274,9 @@ export function VersionDiffViewer({
                   ))}
                   {patternDiff.added.length > 5 && (
                     <li className="text-xs">
-                      ...還有 {patternDiff.added.length - 5} 項
+                      {t('ruleVersion.diffViewer.moreItems', {
+                        count: patternDiff.added.length - 5,
+                      })}
                     </li>
                   )}
                 </ul>
@@ -266,18 +289,28 @@ export function VersionDiffViewer({
       {/* 版本元數據 */}
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div className="p-3 bg-muted rounded-lg">
-          <h5 className="font-medium mb-2">版本 {version1.version} 資訊</h5>
+          <h5 className="font-medium mb-2">
+            {t('ruleVersion.diffViewer.versionInfo', {
+              version: version1.version,
+            })}
+          </h5>
           <dl className="space-y-1">
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">建立者</dt>
+              <dt className="text-muted-foreground">
+                {t('ruleVersion.diffViewer.createdBy')}
+              </dt>
               <dd>{version1.createdBy.name || version1.createdBy.email}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">建立時間</dt>
+              <dt className="text-muted-foreground">
+                {t('ruleVersion.diffViewer.createdAt')}
+              </dt>
               <dd>{formatDate(version1.createdAt)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">變更原因</dt>
+              <dt className="text-muted-foreground">
+                {t('ruleVersion.diffViewer.changeReason')}
+              </dt>
               <dd className="text-right max-w-[200px] truncate">
                 {version1.changeReason || '-'}
               </dd>
@@ -285,18 +318,28 @@ export function VersionDiffViewer({
           </dl>
         </div>
         <div className="p-3 bg-muted rounded-lg">
-          <h5 className="font-medium mb-2">版本 {version2.version} 資訊</h5>
+          <h5 className="font-medium mb-2">
+            {t('ruleVersion.diffViewer.versionInfo', {
+              version: version2.version,
+            })}
+          </h5>
           <dl className="space-y-1">
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">建立者</dt>
+              <dt className="text-muted-foreground">
+                {t('ruleVersion.diffViewer.createdBy')}
+              </dt>
               <dd>{version2.createdBy.name || version2.createdBy.email}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">建立時間</dt>
+              <dt className="text-muted-foreground">
+                {t('ruleVersion.diffViewer.createdAt')}
+              </dt>
               <dd>{formatDate(version2.createdAt)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">變更原因</dt>
+              <dt className="text-muted-foreground">
+                {t('ruleVersion.diffViewer.changeReason')}
+              </dt>
               <dd className="text-right max-w-[200px] truncate">
                 {version2.changeReason || '-'}
               </dd>

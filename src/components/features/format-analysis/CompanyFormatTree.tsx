@@ -21,6 +21,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   ChevronRight,
   ChevronDown,
@@ -41,7 +42,6 @@ import type {
   CompanyTermNode,
   FormatTermNode,
   DocumentType,
-  DocumentSubtype,
 } from '@/types/document-format';
 
 // ============================================================================
@@ -76,28 +76,6 @@ const DOCUMENT_TYPE_COLORS: Record<DocumentType, string> = {
   OTHER: 'bg-gray-100 text-gray-800',
 };
 
-const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
-  INVOICE: 'Invoice',
-  DEBIT_NOTE: 'Debit Note',
-  CREDIT_NOTE: 'Credit Note',
-  STATEMENT: 'Statement',
-  QUOTATION: 'Quotation',
-  BILL_OF_LADING: 'B/L',
-  CUSTOMS_DECLARATION: 'Customs',
-  OTHER: 'Other',
-};
-
-const DOCUMENT_SUBTYPE_LABELS: Record<DocumentSubtype, string> = {
-  OCEAN_FREIGHT: 'Ocean',
-  AIR_FREIGHT: 'Air',
-  LAND_TRANSPORT: 'Land',
-  CUSTOMS_CLEARANCE: 'Customs',
-  WAREHOUSING: 'Warehouse',
-  IMPORT: 'Import',
-  EXPORT: 'Export',
-  GENERAL: 'General',
-};
-
 // ============================================================================
 // Helper Components
 // ============================================================================
@@ -116,6 +94,8 @@ function FormatNode({
   onSelect: () => void;
   compact?: boolean;
 }) {
+  const t = useTranslations('formats');
+
   return (
     <button
       onClick={onSelect}
@@ -137,10 +117,10 @@ function FormatNode({
               DOCUMENT_TYPE_COLORS[format.documentType]
             )}
           >
-            {DOCUMENT_TYPE_LABELS[format.documentType]}
+            {t(`formatAnalysis.tree.documentTypes.${format.documentType}`)}
           </Badge>
           <span className="text-[10px] text-muted-foreground">
-            {DOCUMENT_SUBTYPE_LABELS[format.documentSubtype]}
+            {t(`formatAnalysis.tree.documentSubtypes.${format.documentSubtype}`)}
           </span>
         </div>
 
@@ -181,6 +161,7 @@ function CompanyNode({
   defaultOpen?: boolean;
   compact?: boolean;
 }) {
+  const t = useTranslations('formats');
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
   const hasSelectedFormat = company.formats.some(f => f.formatId === selectedFormatId);
 
@@ -215,7 +196,7 @@ function CompanyNode({
           </div>
 
           <Badge variant="secondary" className="text-[10px] px-1.5 py-0 shrink-0">
-            {company.formats.length} formats
+            {t('formatAnalysis.tree.formatsBadge', { count: company.formats.length })}
           </Badge>
         </button>
       </CollapsibleTrigger>
@@ -252,6 +233,8 @@ export function CompanyFormatTree({
   isLoading = false,
   compact = false,
 }: CompanyFormatTreeProps) {
+  const t = useTranslations('formats');
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -264,9 +247,11 @@ export function CompanyFormatTree({
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <Building2 className="h-12 w-12 text-muted-foreground/30 mb-4" />
-        <p className="text-sm text-muted-foreground">No companies found</p>
+        <p className="text-sm text-muted-foreground">
+          {t('formatAnalysis.tree.emptyTitle')}
+        </p>
         <p className="text-xs text-muted-foreground/60 mt-1">
-          Process some documents to see format analysis
+          {t('formatAnalysis.tree.emptyDescription')}
         </p>
       </div>
     );
@@ -284,9 +269,9 @@ export function CompanyFormatTree({
       {/* Summary Header */}
       <div className="px-3 py-2 border-b bg-muted/30">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{companies.length} Companies</span>
-          <span>{totalFormats} Formats</span>
-          <span>{totalTerms} Terms</span>
+          <span>{t('formatAnalysis.tree.summary.companies', { count: companies.length })}</span>
+          <span>{t('formatAnalysis.tree.summary.formats', { count: totalFormats })}</span>
+          <span>{t('formatAnalysis.tree.summary.terms', { count: totalTerms })}</span>
         </div>
       </div>
 

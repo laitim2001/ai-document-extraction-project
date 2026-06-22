@@ -20,6 +20,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -104,6 +105,8 @@ export function OutlookConfigForm({
   onCancel,
   onTestConnection,
 }: OutlookConfigFormProps) {
+  const t = useTranslations('integrations');
+  const tc = useTranslations('common');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isTesting, setIsTesting] = React.useState(false);
   const [testResult, setTestResult] = React.useState<OutlookConnectionTestResult | null>(null);
@@ -153,7 +156,7 @@ export function OutlookConfigForm({
     if (!values.tenantId || !values.clientId || !values.mailboxAddress) {
       setTestResult({
         success: false,
-        error: '請填寫所有必要的連線資訊',
+        error: t('outlook.form.test.missingFields'),
       });
       return;
     }
@@ -162,7 +165,7 @@ export function OutlookConfigForm({
     if (!isEditing && !values.clientSecret) {
       setTestResult({
         success: false,
-        error: '請填寫 Client Secret',
+        error: t('outlook.form.test.missingSecret'),
       });
       return;
     }
@@ -181,7 +184,7 @@ export function OutlookConfigForm({
     } catch {
       setTestResult({
         success: false,
-        error: '連線測試失敗',
+        error: t('outlook.form.test.failed'),
       });
     } finally {
       setIsTesting(false);
@@ -193,16 +196,16 @@ export function OutlookConfigForm({
       {/* 基本資訊 */}
       <Card>
         <CardHeader>
-          <CardTitle>基本資訊</CardTitle>
-          <CardDescription>設定配置名稱和說明</CardDescription>
+          <CardTitle>{t('outlook.form.basicInfo.title')}</CardTitle>
+          <CardDescription>{t('outlook.form.basicInfo.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">配置名稱 *</Label>
+            <Label htmlFor="name">{t('outlook.form.name.label')}</Label>
             <Input
               id="name"
               {...register('name')}
-              placeholder="例：香港辦公室 Outlook"
+              placeholder={t('outlook.form.name.placeholder')}
             />
             {errors.name && (
               <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -210,11 +213,11 @@ export function OutlookConfigForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">說明</Label>
+            <Label htmlFor="description">{t('outlook.form.description.label')}</Label>
             <Textarea
               id="description"
               {...register('description')}
-              placeholder="配置的用途說明"
+              placeholder={t('outlook.form.description.placeholder')}
               rows={3}
             />
             {errors.description && (
@@ -227,16 +230,16 @@ export function OutlookConfigForm({
       {/* Azure AD 設定 */}
       <Card>
         <CardHeader>
-          <CardTitle>Azure AD 設定</CardTitle>
-          <CardDescription>Microsoft Entra ID 應用程式認證資訊</CardDescription>
+          <CardTitle>{t('outlook.form.azureAd.title')}</CardTitle>
+          <CardDescription>{t('outlook.form.azureAd.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="tenantId">Tenant ID *</Label>
+            <Label htmlFor="tenantId">{t('outlook.form.tenantId.label')}</Label>
             <Input
               id="tenantId"
               {...register('tenantId')}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+              placeholder={t('outlook.form.tenantId.placeholder')}
             />
             {errors.tenantId && (
               <p className="text-sm text-red-500">{errors.tenantId.message}</p>
@@ -244,11 +247,11 @@ export function OutlookConfigForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="clientId">Client ID *</Label>
+            <Label htmlFor="clientId">{t('outlook.form.clientId.label')}</Label>
             <Input
               id="clientId"
               {...register('clientId')}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+              placeholder={t('outlook.form.clientId.placeholder')}
             />
             {errors.clientId && (
               <p className="text-sm text-red-500">{errors.clientId.message}</p>
@@ -257,10 +260,10 @@ export function OutlookConfigForm({
 
           <div className="space-y-2">
             <Label htmlFor="clientSecret">
-              Client Secret *
+              {t('outlook.form.clientSecret.label')}
               {isEditing && (
                 <span className="text-muted-foreground ml-2">
-                  (留空則不更新)
+                  {t('outlook.form.clientSecret.editHint')}
                 </span>
               )}
             </Label>
@@ -268,7 +271,11 @@ export function OutlookConfigForm({
               id="clientSecret"
               type="password"
               {...register('clientSecret')}
-              placeholder={isEditing ? '留空則保持原密鑰' : '請輸入 Client Secret'}
+              placeholder={
+                isEditing
+                  ? t('outlook.form.clientSecret.placeholderEdit')
+                  : t('outlook.form.clientSecret.placeholderCreate')
+              }
             />
             {errors.clientSecret && (
               <p className="text-sm text-red-500">{errors.clientSecret.message}</p>
@@ -282,18 +289,18 @@ export function OutlookConfigForm({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Outlook 信箱設定
+            {t('outlook.form.mailbox.title')}
           </CardTitle>
-          <CardDescription>設定要監控的信箱和資料夾</CardDescription>
+          <CardDescription>{t('outlook.form.mailbox.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="mailboxAddress">信箱電子郵件地址 *</Label>
+            <Label htmlFor="mailboxAddress">{t('outlook.form.mailboxAddress.label')}</Label>
             <Input
               id="mailboxAddress"
               type="email"
               {...register('mailboxAddress')}
-              placeholder="invoices@company.com"
+              placeholder={t('outlook.form.mailboxAddress.placeholder')}
             />
             {errors.mailboxAddress && (
               <p className="text-sm text-red-500">{errors.mailboxAddress.message}</p>
@@ -303,15 +310,15 @@ export function OutlookConfigForm({
           <div className="space-y-2">
             <Label htmlFor="mailFolders" className="flex items-center gap-2">
               <Folder className="h-4 w-4" />
-              監控資料夾
+              {t('outlook.form.mailFolders.label')}
             </Label>
             <Input
               id="mailFolders"
               {...register('mailFolders')}
-              placeholder="inbox, invoices"
+              placeholder={t('outlook.form.mailFolders.placeholder')}
             />
             <p className="text-sm text-muted-foreground">
-              以逗號分隔多個資料夾名稱，留空則使用收件匣（inbox）
+              {t('outlook.form.mailFolders.hint')}
             </p>
           </div>
 
@@ -327,12 +334,12 @@ export function OutlookConfigForm({
                 {isTesting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    測試中...
+                    {t('outlook.form.test.testing')}
                   </>
                 ) : (
                   <>
                     <TestTube className="mr-2 h-4 w-4" />
-                    測試連線
+                    {t('outlook.form.test.button')}
                   </>
                 )}
               </Button>
@@ -350,15 +357,19 @@ export function OutlookConfigForm({
                   <AlertDescription>
                     {testResult.success ? (
                       <div className="space-y-1">
-                        <p>連線成功！</p>
+                        <p>{t('outlook.form.test.success')}</p>
                         {testResult.details?.mailboxInfo && (
                           <p className="text-sm text-muted-foreground">
-                            信箱: {testResult.details.mailboxInfo.displayName}
+                            {t('outlook.form.test.mailbox', {
+                              name: testResult.details.mailboxInfo.displayName,
+                            })}
                           </p>
                         )}
                         {testResult.details?.recentMailCount !== undefined && (
                           <p className="text-sm text-muted-foreground">
-                            近期郵件數: {testResult.details.recentMailCount}
+                            {t('outlook.form.test.recentMailCount', {
+                              count: testResult.details.recentMailCount,
+                            })}
                           </p>
                         )}
                       </div>
@@ -376,12 +387,12 @@ export function OutlookConfigForm({
       {/* 處理設定 */}
       <Card>
         <CardHeader>
-          <CardTitle>處理設定</CardTitle>
-          <CardDescription>設定附件限制</CardDescription>
+          <CardTitle>{t('outlook.form.processing.title')}</CardTitle>
+          <CardDescription>{t('outlook.form.processing.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="maxAttachmentSizeMb">最大附件大小 (MB)</Label>
+            <Label htmlFor="maxAttachmentSizeMb">{t('outlook.form.maxAttachmentSizeMb.label')}</Label>
             <Input
               id="maxAttachmentSizeMb"
               type="number"
@@ -392,13 +403,13 @@ export function OutlookConfigForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="allowedExtensions">允許的檔案類型</Label>
+            <Label htmlFor="allowedExtensions">{t('outlook.form.allowedExtensions.label')}</Label>
             <Input
               id="allowedExtensions"
               {...register('allowedExtensions')}
-              placeholder="pdf, jpg, jpeg, png, tiff"
+              placeholder={t('outlook.form.allowedExtensions.placeholder')}
             />
-            <p className="text-sm text-muted-foreground">以逗號分隔多個副檔名（不需要加點）</p>
+            <p className="text-sm text-muted-foreground">{t('outlook.form.allowedExtensions.hint')}</p>
           </div>
         </CardContent>
       </Card>
@@ -406,8 +417,8 @@ export function OutlookConfigForm({
       {/* 城市關聯 */}
       <Card>
         <CardHeader>
-          <CardTitle>城市關聯</CardTitle>
-          <CardDescription>設定此配置適用的城市或設為全域配置</CardDescription>
+          <CardTitle>{t('outlook.form.city.title')}</CardTitle>
+          <CardDescription>{t('outlook.form.city.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-2">
@@ -422,19 +433,19 @@ export function OutlookConfigForm({
               }}
               disabled={isEditing}
             />
-            <Label htmlFor="isGlobal">設為全域預設配置</Label>
+            <Label htmlFor="isGlobal">{t('outlook.form.city.isGlobalLabel')}</Label>
           </div>
 
           {!isGlobal && (
             <div className="space-y-2">
-              <Label htmlFor="cityId">選擇城市</Label>
+              <Label htmlFor="cityId">{t('outlook.form.city.selectCityLabel')}</Label>
               <Select
                 value={watch('cityId') ?? undefined}
                 onValueChange={(value) => setValue('cityId', value)}
                 disabled={isEditing}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="選擇城市..." />
+                  <SelectValue placeholder={t('outlook.form.city.selectCityPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   {cities.map((city) => (
@@ -452,18 +463,18 @@ export function OutlookConfigForm({
       {/* 操作按鈕 */}
       <div className="flex justify-end space-x-4">
         <Button type="button" variant="outline" onClick={onCancel}>
-          取消
+          {tc('actions.cancel')}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              儲存中...
+              {t('outlook.form.submit.saving')}
             </>
           ) : isEditing ? (
-            '更新配置'
+            t('outlook.form.submit.update')
           ) : (
-            '建立配置'
+            t('outlook.form.submit.create')
           )}
         </Button>
       </div>

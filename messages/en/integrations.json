@@ -1,0 +1,335 @@
+{
+  "outlook": {
+    "form": {
+      "basicInfo": {
+        "title": "Basic Information",
+        "description": "Set the configuration name and description"
+      },
+      "name": {
+        "label": "Configuration Name *",
+        "placeholder": "e.g. Hong Kong Office Outlook"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Description of the configuration's purpose"
+      },
+      "azureAd": {
+        "title": "Azure AD Settings",
+        "description": "Microsoft Entra ID application credentials"
+      },
+      "tenantId": {
+        "label": "Tenant ID *",
+        "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      },
+      "clientId": {
+        "label": "Client ID *",
+        "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      },
+      "clientSecret": {
+        "label": "Client Secret *",
+        "editHint": "(Leave blank to keep unchanged)",
+        "placeholderEdit": "Leave blank to keep the existing secret",
+        "placeholderCreate": "Enter Client Secret"
+      },
+      "mailbox": {
+        "title": "Outlook Mailbox Settings",
+        "description": "Set the mailbox and folders to monitor"
+      },
+      "mailboxAddress": {
+        "label": "Mailbox Email Address *",
+        "placeholder": "invoices@company.com"
+      },
+      "mailFolders": {
+        "label": "Monitored Folders",
+        "placeholder": "inbox, invoices",
+        "hint": "Separate multiple folder names with commas; leave blank to use the inbox"
+      },
+      "test": {
+        "button": "Test Connection",
+        "testing": "Testing...",
+        "success": "Connection successful!",
+        "mailbox": "Mailbox: {name}",
+        "recentMailCount": "Recent mail count: {count}",
+        "failed": "Connection test failed",
+        "missingFields": "Please fill in all required connection details",
+        "missingSecret": "Please enter the Client Secret"
+      },
+      "processing": {
+        "title": "Processing Settings",
+        "description": "Set attachment limits"
+      },
+      "maxAttachmentSizeMb": {
+        "label": "Max Attachment Size (MB)"
+      },
+      "allowedExtensions": {
+        "label": "Allowed File Types",
+        "placeholder": "pdf, jpg, jpeg, png, tiff",
+        "hint": "Separate multiple extensions with commas (no dot needed)"
+      },
+      "city": {
+        "title": "City Association",
+        "description": "Set the city this configuration applies to, or make it a global configuration",
+        "isGlobalLabel": "Set as global default configuration",
+        "selectCityLabel": "Select City",
+        "selectCityPlaceholder": "Select a city..."
+      },
+      "submit": {
+        "saving": "Saving...",
+        "update": "Update Configuration",
+        "create": "Create Configuration"
+      }
+    },
+    "list": {
+      "cardTitle": "Outlook Configurations",
+      "cardDescription": "Manage the system's Outlook mailbox connections",
+      "columns": {
+        "name": "Name",
+        "mailbox": "Mailbox",
+        "cityType": "City / Type",
+        "filterRules": "Filter Rules",
+        "connectionStatus": "Connection Status",
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "mailboxTooltip": "Mailbox: {address}",
+      "foldersTooltip": "Folders: {folders}",
+      "global": "Global",
+      "actionsMenu": "Actions menu",
+      "testConnection": "Test Connection",
+      "manageRules": "Manage Filter Rules",
+      "edit": "Edit",
+      "delete": "Delete",
+      "empty": {
+        "title": "No Outlook configurations have been set up yet",
+        "hint": "Click \"Add Configuration\" to create your first Outlook connection"
+      },
+      "deleteDialog": {
+        "title": "Delete this configuration?",
+        "description": "This action cannot be undone. Once deleted, the system can no longer retrieve mail using this Outlook configuration. The associated filter rules will also be deleted.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      },
+      "connectionStatus": {
+        "testing": "Testing...",
+        "untested": "Not tested",
+        "normal": "Normal",
+        "failed": "Failed",
+        "lastTestedAt": "Last tested at: {time}",
+        "unknown": "Unknown"
+      },
+      "rulesCount": {
+        "none": "No rules",
+        "count": "{count} rules"
+      }
+    },
+    "filterRules": {
+      "title": "Filter Rules Management",
+      "description": "Configure mail filter rules for \"{name}\". Rules are executed in priority order, and the first matching rule takes effect.",
+      "addRule": "Add Rule",
+      "empty": {
+        "title": "No filter rules have been set up yet",
+        "hint": "All mail will be processed. Click \"Add Rule\" to set up filter conditions."
+      },
+      "columns": {
+        "priority": "Priority",
+        "ruleName": "Rule Name",
+        "type": "Type",
+        "matchValue": "Match Value",
+        "action": "Action",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "whitelist": "Whitelist",
+      "blacklist": "Blacklist",
+      "active": "Active",
+      "inactive": "Inactive",
+      "info": {
+        "title": "Rule Notes",
+        "whitelist": "Mail matching this rule will be processed",
+        "blacklist": "Mail matching this rule will be skipped",
+        "priority": "Rules are executed in priority order; the first matching rule determines how the mail is processed",
+        "default": "If no rule matches, mail is processed by default"
+      },
+      "close": "Close",
+      "deleteDialog": {
+        "title": "Delete this rule?",
+        "description": "This action cannot be undone. Once deleted, this rule will no longer affect mail filtering.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      },
+      "ruleForm": {
+        "editTitle": "Edit Filter Rule",
+        "createTitle": "Add Filter Rule",
+        "description": "Set mail filter conditions and handling",
+        "name": {
+          "label": "Rule Name *",
+          "placeholder": "e.g. Exclude spam"
+        },
+        "ruleType": {
+          "label": "Rule Type *",
+          "placeholder": "Select a rule type"
+        },
+        "operator": {
+          "label": "Match Method *",
+          "placeholder": "Select a match method"
+        },
+        "ruleValue": {
+          "label": "Match Value *",
+          "placeholder": "e.g. spam.com or Invoice",
+          "regexHint": "Enter a regular expression, e.g. ^Invoice\\s\\d+$",
+          "defaultHint": "Enter the value to match"
+        },
+        "ruleAction": {
+          "label": "Rule Type *",
+          "placeholder": "Select a rule type",
+          "whitelist": "Whitelist (allow)",
+          "blacklist": "Blacklist (exclude)"
+        },
+        "isActiveLabel": "Enable this rule",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "update": "Update Rule",
+        "create": "Create Rule"
+      },
+      "ruleTypes": {
+        "SENDER_EMAIL": "Sender Email",
+        "SENDER_DOMAIN": "Sender Domain",
+        "SUBJECT_KEYWORD": "Subject Keyword",
+        "SUBJECT_REGEX": "Subject Regex",
+        "ATTACHMENT_TYPE": "Attachment Type",
+        "ATTACHMENT_NAME": "Attachment Name Pattern"
+      },
+      "operators": {
+        "EQUALS": "Equals",
+        "CONTAINS": "Contains",
+        "STARTS_WITH": "Starts With",
+        "ENDS_WITH": "Ends With",
+        "REGEX": "Regex"
+      }
+    }
+  },
+  "sharepoint": {
+    "form": {
+      "basicInfo": {
+        "title": "Basic Information",
+        "description": "Set the configuration name and description"
+      },
+      "name": {
+        "label": "Configuration Name *",
+        "placeholder": "e.g. Hong Kong Office SharePoint"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Description of the configuration's purpose"
+      },
+      "azureAd": {
+        "title": "Azure AD Settings",
+        "description": "Microsoft Entra ID application credentials"
+      },
+      "tenantId": {
+        "label": "Tenant ID *",
+        "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      },
+      "clientId": {
+        "label": "Client ID *",
+        "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      },
+      "clientSecret": {
+        "label": "Client Secret *",
+        "editHint": "(Leave blank to keep unchanged)",
+        "placeholderEdit": "Leave blank to keep the existing secret",
+        "placeholderCreate": "Enter Client Secret"
+      },
+      "sharepoint": {
+        "title": "SharePoint Settings",
+        "description": "SharePoint site and document library settings"
+      },
+      "siteUrl": {
+        "label": "Site URL *",
+        "placeholder": "https://your-tenant.sharepoint.com/sites/your-site"
+      },
+      "libraryPath": {
+        "label": "Document Library Path *",
+        "placeholder": "Shared Documents"
+      },
+      "rootFolderPath": {
+        "label": "Root Folder Path",
+        "placeholder": "e.g. Invoices/2025 (optional)"
+      },
+      "test": {
+        "button": "Test Connection",
+        "testing": "Testing...",
+        "success": "Connection successful!",
+        "site": "Site: {name}",
+        "library": "Library: {name}",
+        "failed": "Connection test failed",
+        "missingFields": "Please fill in all required connection details"
+      },
+      "fileFilter": {
+        "title": "File Filter Settings",
+        "description": "Set the allowed file types and size limit"
+      },
+      "fileExtensions": {
+        "label": "Allowed File Types",
+        "placeholder": ".pdf, .jpg, .jpeg, .png, .tiff",
+        "hint": "Separate multiple extensions with commas"
+      },
+      "maxFileSizeMb": {
+        "label": "Max File Size (MB)"
+      },
+      "excludeFolders": {
+        "label": "Excluded Folders",
+        "placeholder": "Archive, Backup, Temp",
+        "hint": "Separate multiple folder names with commas"
+      },
+      "city": {
+        "title": "City Association",
+        "description": "Set the city this configuration applies to, or make it a global configuration",
+        "isGlobalLabel": "Set as global default configuration",
+        "selectCityLabel": "Select City",
+        "selectCityPlaceholder": "Select a city..."
+      },
+      "submit": {
+        "saving": "Saving...",
+        "update": "Update Configuration",
+        "create": "Create Configuration"
+      }
+    },
+    "list": {
+      "cardTitle": "SharePoint Configurations",
+      "cardDescription": "Manage the system's SharePoint connections",
+      "columns": {
+        "name": "Name",
+        "siteUrl": "Site URL",
+        "cityType": "City / Type",
+        "connectionStatus": "Connection Status",
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "libraryTooltip": "Library: {path}",
+      "global": "Global",
+      "actionsMenu": "Actions menu",
+      "testConnection": "Test Connection",
+      "edit": "Edit",
+      "delete": "Delete",
+      "empty": {
+        "title": "No SharePoint configurations have been set up yet",
+        "hint": "Click \"Add Configuration\" to create your first SharePoint connection"
+      },
+      "deleteDialog": {
+        "title": "Delete this configuration?",
+        "description": "This action cannot be undone. Once deleted, the system can no longer retrieve files using this SharePoint configuration.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      },
+      "connectionStatus": {
+        "testing": "Testing...",
+        "untested": "Not tested",
+        "normal": "Normal",
+        "failed": "Failed",
+        "lastTestedAt": "Last tested at: {time}",
+        "unknown": "Unknown"
+      }
+    }
+  }
+}

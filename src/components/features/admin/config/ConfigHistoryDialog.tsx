@@ -21,6 +21,7 @@
 
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
+import { useTranslations } from 'next-intl'
 import { RotateCcw, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   Dialog,
@@ -112,11 +113,13 @@ export function ConfigHistoryDialog({
   pagination,
   onPageChange,
 }: ConfigHistoryDialogProps) {
+  const t = useTranslations('admin.configManagement.history')
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>配置變更歷史</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
             {configName} ({configKey})
           </DialogDescription>
@@ -126,11 +129,11 @@ export function ConfigHistoryDialog({
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              <span className="ml-2 text-muted-foreground">載入歷史記錄...</span>
+              <span className="ml-2 text-muted-foreground">{t('loading')}</span>
             </div>
           ) : history.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              暫無變更記錄
+              {t('empty')}
             </div>
           ) : (
             <ScrollArea className="h-[50vh]">
@@ -155,25 +158,25 @@ export function ConfigHistoryDialog({
                           </span>
                           {index === 0 && pagination?.page === 1 && (
                             <Badge variant="default" className="text-xs">
-                              目前版本
+                              {t('currentVersion')}
                             </Badge>
                           )}
                           {item.isRollback && (
                             <Badge variant="secondary" className="text-xs">
-                              回滾
+                              {t('rollbackBadge')}
                             </Badge>
                           )}
                         </div>
 
                         {/* 變更者 */}
                         <p className="text-sm text-muted-foreground">
-                          變更者: {item.changedBy}
+                          {t('changedBy', { value: item.changedBy })}
                         </p>
 
                         {/* 變更原因 */}
                         {item.changeReason && (
                           <p className="text-sm text-foreground/80">
-                            原因: {item.changeReason}
+                            {t('reason', { value: item.changeReason })}
                           </p>
                         )}
                       </div>
@@ -192,7 +195,7 @@ export function ConfigHistoryDialog({
                           ) : (
                             <RotateCcw className="w-4 h-4 mr-1" />
                           )}
-                          回滾到此版本
+                          {t('rollbackToVersion')}
                         </Button>
                       )}
                     </div>
@@ -201,7 +204,7 @@ export function ConfigHistoryDialog({
                     <div className="mt-3 grid grid-cols-2 gap-4">
                       <div>
                         <span className="text-xs text-muted-foreground block mb-1">
-                          變更前
+                          {t('before')}
                         </span>
                         <code className="block p-2 bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300 rounded text-sm font-mono break-all whitespace-pre-wrap max-h-24 overflow-auto">
                           {formatDisplayValue(item.previousValue)}
@@ -209,7 +212,7 @@ export function ConfigHistoryDialog({
                       </div>
                       <div>
                         <span className="text-xs text-muted-foreground block mb-1">
-                          變更後
+                          {t('after')}
                         </span>
                         <code className="block p-2 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300 rounded text-sm font-mono break-all whitespace-pre-wrap max-h-24 overflow-auto">
                           {formatDisplayValue(item.newValue)}
@@ -227,7 +230,7 @@ export function ConfigHistoryDialog({
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between pt-4 border-t">
             <span className="text-sm text-muted-foreground">
-              第 {pagination.page} / {pagination.totalPages} 頁，共 {pagination.total} 筆
+              {t('pagination', { page: pagination.page, totalPages: pagination.totalPages, total: pagination.total })}
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -237,7 +240,7 @@ export function ConfigHistoryDialog({
                 disabled={pagination.page <= 1 || isLoading}
               >
                 <ChevronLeft className="h-4 w-4" />
-                上一頁
+                {t('previous')}
               </Button>
               <Button
                 variant="outline"
@@ -245,7 +248,7 @@ export function ConfigHistoryDialog({
                 onClick={() => onPageChange?.(pagination.page + 1)}
                 disabled={pagination.page >= pagination.totalPages || isLoading}
               >
-                下一頁
+                {t('next')}
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -256,7 +259,7 @@ export function ConfigHistoryDialog({
         {!pagination || pagination.totalPages <= 1 ? (
           <div className="flex justify-end pt-4 border-t">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              關閉
+              {t('close')}
             </Button>
           </div>
         ) : null}

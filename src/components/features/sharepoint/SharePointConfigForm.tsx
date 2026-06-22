@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -109,6 +110,8 @@ export function SharePointConfigForm({
   onCancel,
   onTestConnection,
 }: SharePointConfigFormProps) {
+  const t = useTranslations('integrations');
+  const tc = useTranslations('common');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isTesting, setIsTesting] = React.useState(false);
   const [testResult, setTestResult] = React.useState<ConnectionTestResult | null>(null);
@@ -160,7 +163,7 @@ export function SharePointConfigForm({
     if (!values.tenantId || !values.clientId || !values.clientSecret || !values.siteUrl || !values.libraryPath) {
       setTestResult({
         success: false,
-        error: '請填寫所有必要的連線資訊',
+        error: t('sharepoint.form.test.missingFields'),
       });
       return;
     }
@@ -180,7 +183,7 @@ export function SharePointConfigForm({
     } catch {
       setTestResult({
         success: false,
-        error: '連線測試失敗',
+        error: t('sharepoint.form.test.failed'),
       });
     } finally {
       setIsTesting(false);
@@ -192,16 +195,16 @@ export function SharePointConfigForm({
       {/* 基本資訊 */}
       <Card>
         <CardHeader>
-          <CardTitle>基本資訊</CardTitle>
-          <CardDescription>設定配置名稱和說明</CardDescription>
+          <CardTitle>{t('sharepoint.form.basicInfo.title')}</CardTitle>
+          <CardDescription>{t('sharepoint.form.basicInfo.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">配置名稱 *</Label>
+            <Label htmlFor="name">{t('sharepoint.form.name.label')}</Label>
             <Input
               id="name"
               {...register('name')}
-              placeholder="例：香港辦公室 SharePoint"
+              placeholder={t('sharepoint.form.name.placeholder')}
             />
             {errors.name && (
               <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -209,11 +212,11 @@ export function SharePointConfigForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">說明</Label>
+            <Label htmlFor="description">{t('sharepoint.form.description.label')}</Label>
             <Textarea
               id="description"
               {...register('description')}
-              placeholder="配置的用途說明"
+              placeholder={t('sharepoint.form.description.placeholder')}
               rows={3}
             />
             {errors.description && (
@@ -226,16 +229,16 @@ export function SharePointConfigForm({
       {/* Azure AD 設定 */}
       <Card>
         <CardHeader>
-          <CardTitle>Azure AD 設定</CardTitle>
-          <CardDescription>Microsoft Entra ID 應用程式認證資訊</CardDescription>
+          <CardTitle>{t('sharepoint.form.azureAd.title')}</CardTitle>
+          <CardDescription>{t('sharepoint.form.azureAd.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="tenantId">Tenant ID *</Label>
+            <Label htmlFor="tenantId">{t('sharepoint.form.tenantId.label')}</Label>
             <Input
               id="tenantId"
               {...register('tenantId')}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+              placeholder={t('sharepoint.form.tenantId.placeholder')}
             />
             {errors.tenantId && (
               <p className="text-sm text-red-500">{errors.tenantId.message}</p>
@@ -243,11 +246,11 @@ export function SharePointConfigForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="clientId">Client ID *</Label>
+            <Label htmlFor="clientId">{t('sharepoint.form.clientId.label')}</Label>
             <Input
               id="clientId"
               {...register('clientId')}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+              placeholder={t('sharepoint.form.clientId.placeholder')}
             />
             {errors.clientId && (
               <p className="text-sm text-red-500">{errors.clientId.message}</p>
@@ -256,10 +259,10 @@ export function SharePointConfigForm({
 
           <div className="space-y-2">
             <Label htmlFor="clientSecret">
-              Client Secret *
+              {t('sharepoint.form.clientSecret.label')}
               {isEditing && (
                 <span className="text-muted-foreground ml-2">
-                  (留空則不更新)
+                  {t('sharepoint.form.clientSecret.editHint')}
                 </span>
               )}
             </Label>
@@ -267,7 +270,11 @@ export function SharePointConfigForm({
               id="clientSecret"
               type="password"
               {...register('clientSecret')}
-              placeholder={isEditing ? '留空則保持原密鑰' : '請輸入 Client Secret'}
+              placeholder={
+                isEditing
+                  ? t('sharepoint.form.clientSecret.placeholderEdit')
+                  : t('sharepoint.form.clientSecret.placeholderCreate')
+              }
             />
             {errors.clientSecret && (
               <p className="text-sm text-red-500">{errors.clientSecret.message}</p>
@@ -279,16 +286,16 @@ export function SharePointConfigForm({
       {/* SharePoint 設定 */}
       <Card>
         <CardHeader>
-          <CardTitle>SharePoint 設定</CardTitle>
-          <CardDescription>SharePoint 站點和文件庫設定</CardDescription>
+          <CardTitle>{t('sharepoint.form.sharepoint.title')}</CardTitle>
+          <CardDescription>{t('sharepoint.form.sharepoint.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="siteUrl">站點 URL *</Label>
+            <Label htmlFor="siteUrl">{t('sharepoint.form.siteUrl.label')}</Label>
             <Input
               id="siteUrl"
               {...register('siteUrl')}
-              placeholder="https://your-tenant.sharepoint.com/sites/your-site"
+              placeholder={t('sharepoint.form.siteUrl.placeholder')}
             />
             {errors.siteUrl && (
               <p className="text-sm text-red-500">{errors.siteUrl.message}</p>
@@ -296,11 +303,11 @@ export function SharePointConfigForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="libraryPath">文件庫路徑 *</Label>
+            <Label htmlFor="libraryPath">{t('sharepoint.form.libraryPath.label')}</Label>
             <Input
               id="libraryPath"
               {...register('libraryPath')}
-              placeholder="Shared Documents"
+              placeholder={t('sharepoint.form.libraryPath.placeholder')}
             />
             {errors.libraryPath && (
               <p className="text-sm text-red-500">{errors.libraryPath.message}</p>
@@ -308,11 +315,11 @@ export function SharePointConfigForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="rootFolderPath">根目錄路徑</Label>
+            <Label htmlFor="rootFolderPath">{t('sharepoint.form.rootFolderPath.label')}</Label>
             <Input
               id="rootFolderPath"
               {...register('rootFolderPath')}
-              placeholder="例：Invoices/2025（可選）"
+              placeholder={t('sharepoint.form.rootFolderPath.placeholder')}
             />
           </div>
 
@@ -328,12 +335,12 @@ export function SharePointConfigForm({
                 {isTesting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    測試中...
+                    {t('sharepoint.form.test.testing')}
                   </>
                 ) : (
                   <>
                     <TestTube className="mr-2 h-4 w-4" />
-                    測試連線
+                    {t('sharepoint.form.test.button')}
                   </>
                 )}
               </Button>
@@ -351,15 +358,19 @@ export function SharePointConfigForm({
                   <AlertDescription>
                     {testResult.success ? (
                       <div className="space-y-1">
-                        <p>連線成功！</p>
+                        <p>{t('sharepoint.form.test.success')}</p>
                         {testResult.details?.siteInfo && (
                           <p className="text-sm text-muted-foreground">
-                            站點: {testResult.details.siteInfo.name}
+                            {t('sharepoint.form.test.site', {
+                              name: testResult.details.siteInfo.name,
+                            })}
                           </p>
                         )}
                         {testResult.details?.driveInfo && (
                           <p className="text-sm text-muted-foreground">
-                            文件庫: {testResult.details.driveInfo.name}
+                            {t('sharepoint.form.test.library', {
+                              name: testResult.details.driveInfo.name,
+                            })}
                           </p>
                         )}
                       </div>
@@ -377,22 +388,22 @@ export function SharePointConfigForm({
       {/* 檔案過濾設定 */}
       <Card>
         <CardHeader>
-          <CardTitle>檔案過濾設定</CardTitle>
-          <CardDescription>設定允許的檔案類型和大小限制</CardDescription>
+          <CardTitle>{t('sharepoint.form.fileFilter.title')}</CardTitle>
+          <CardDescription>{t('sharepoint.form.fileFilter.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fileExtensions">允許的檔案類型</Label>
+            <Label htmlFor="fileExtensions">{t('sharepoint.form.fileExtensions.label')}</Label>
             <Input
               id="fileExtensions"
               {...register('fileExtensions')}
-              placeholder=".pdf, .jpg, .jpeg, .png, .tiff"
+              placeholder={t('sharepoint.form.fileExtensions.placeholder')}
             />
-            <p className="text-sm text-muted-foreground">以逗號分隔多個副檔名</p>
+            <p className="text-sm text-muted-foreground">{t('sharepoint.form.fileExtensions.hint')}</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="maxFileSizeMb">最大檔案大小 (MB)</Label>
+            <Label htmlFor="maxFileSizeMb">{t('sharepoint.form.maxFileSizeMb.label')}</Label>
             <Input
               id="maxFileSizeMb"
               type="number"
@@ -403,13 +414,13 @@ export function SharePointConfigForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="excludeFolders">排除資料夾</Label>
+            <Label htmlFor="excludeFolders">{t('sharepoint.form.excludeFolders.label')}</Label>
             <Input
               id="excludeFolders"
               {...register('excludeFolders')}
-              placeholder="Archive, Backup, Temp"
+              placeholder={t('sharepoint.form.excludeFolders.placeholder')}
             />
-            <p className="text-sm text-muted-foreground">以逗號分隔多個資料夾名稱</p>
+            <p className="text-sm text-muted-foreground">{t('sharepoint.form.excludeFolders.hint')}</p>
           </div>
         </CardContent>
       </Card>
@@ -417,8 +428,8 @@ export function SharePointConfigForm({
       {/* 城市關聯 */}
       <Card>
         <CardHeader>
-          <CardTitle>城市關聯</CardTitle>
-          <CardDescription>設定此配置適用的城市或設為全域配置</CardDescription>
+          <CardTitle>{t('sharepoint.form.city.title')}</CardTitle>
+          <CardDescription>{t('sharepoint.form.city.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-2">
@@ -433,19 +444,19 @@ export function SharePointConfigForm({
               }}
               disabled={isEditing}
             />
-            <Label htmlFor="isGlobal">設為全域預設配置</Label>
+            <Label htmlFor="isGlobal">{t('sharepoint.form.city.isGlobalLabel')}</Label>
           </div>
 
           {!isGlobal && (
             <div className="space-y-2">
-              <Label htmlFor="cityId">選擇城市</Label>
+              <Label htmlFor="cityId">{t('sharepoint.form.city.selectCityLabel')}</Label>
               <Select
                 value={watch('cityId') ?? undefined}
                 onValueChange={(value) => setValue('cityId', value)}
                 disabled={isEditing}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="選擇城市..." />
+                  <SelectValue placeholder={t('sharepoint.form.city.selectCityPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   {cities.map((city) => (
@@ -463,18 +474,18 @@ export function SharePointConfigForm({
       {/* 操作按鈕 */}
       <div className="flex justify-end space-x-4">
         <Button type="button" variant="outline" onClick={onCancel}>
-          取消
+          {tc('actions.cancel')}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              儲存中...
+              {t('sharepoint.form.submit.saving')}
             </>
           ) : isEditing ? (
-            '更新配置'
+            t('sharepoint.form.submit.update')
           ) : (
-            '建立配置'
+            t('sharepoint.form.submit.create')
           )}
         </Button>
       </div>

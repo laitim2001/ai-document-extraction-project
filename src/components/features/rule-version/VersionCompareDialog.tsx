@@ -19,6 +19,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -85,6 +86,7 @@ export function VersionCompareDialog({
   onOpenChange,
   onRollbackSuccess,
 }: VersionCompareDialogProps) {
+  const t = useTranslations('rules')
   const [rollbackDialogOpen, setRollbackDialogOpen] = useState(false)
   const [rollbackTargetVersion, setRollbackTargetVersion] = useState<{
     id: string
@@ -128,14 +130,22 @@ export function VersionCompareDialog({
       },
       {
         onSuccess: (result) => {
-          toast.success(`成功回滾到版本 ${result.toVersion}`)
+          toast.success(
+            t('ruleVersion.compareDialog.rollbackSuccess', {
+              version: result.toVersion,
+            })
+          )
           setRollbackDialogOpen(false)
           setRollbackTargetVersion(null)
           onOpenChange(false)
           onRollbackSuccess?.()
         },
         onError: (err) => {
-          toast.error(`回滾失敗: ${err.message}`)
+          toast.error(
+            t('ruleVersion.compareDialog.rollbackError', {
+              message: err.message,
+            })
+          )
         },
       }
     )
@@ -163,9 +173,9 @@ export function VersionCompareDialog({
   const renderError = () => (
     <Alert variant="destructive">
       <AlertCircle className="h-4 w-4" />
-      <AlertTitle>載入失敗</AlertTitle>
+      <AlertTitle>{t('ruleVersion.compareDialog.loadFailed')}</AlertTitle>
       <AlertDescription>
-        {error?.message || '無法載入版本對比數據'}
+        {error?.message || t('ruleVersion.compareDialog.loadFailedDesc')}
       </AlertDescription>
     </Alert>
   )
@@ -185,7 +195,9 @@ export function VersionCompareDialog({
       <div className="space-y-6">
         {/* 差異摘要 */}
         <div className="p-4 bg-muted rounded-lg">
-          <h4 className="font-medium mb-2">變更摘要</h4>
+          <h4 className="font-medium mb-2">
+            {t('ruleVersion.compareDialog.changeSummary')}
+          </h4>
           <p className="text-sm text-muted-foreground">{summaryText}</p>
         </div>
 
@@ -200,7 +212,7 @@ export function VersionCompareDialog({
         {/* 回滾操作區 */}
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="text-sm text-muted-foreground">
-            選擇要回滾的目標版本
+            {t('ruleVersion.compareDialog.selectRollbackTarget')}
           </div>
           <div className="flex gap-2">
             {!version1.isActive && (
@@ -211,7 +223,9 @@ export function VersionCompareDialog({
                 disabled={isRollingBack}
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
-                回滾到版本 {version1.version}
+                {t('ruleVersion.compareDialog.rollbackToVersion', {
+                  version: version1.version,
+                })}
               </Button>
             )}
             {!version2.isActive && (
@@ -222,7 +236,9 @@ export function VersionCompareDialog({
                 disabled={isRollingBack}
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
-                回滾到版本 {version2.version}
+                {t('ruleVersion.compareDialog.rollbackToVersion', {
+                  version: version2.version,
+                })}
               </Button>
             )}
           </div>
@@ -236,9 +252,9 @@ export function VersionCompareDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>版本對比</DialogTitle>
+            <DialogTitle>{t('ruleVersion.compareDialog.title')}</DialogTitle>
             <DialogDescription>
-              比較兩個版本之間的差異，查看變更內容
+              {t('ruleVersion.compareDialog.description')}
             </DialogDescription>
           </DialogHeader>
           {renderContent()}

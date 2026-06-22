@@ -18,6 +18,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   useDeletionRequests,
   useApproveDeletionRequest,
@@ -55,7 +56,6 @@ import {
   Clock,
   AlertTriangle,
 } from 'lucide-react'
-import { DATA_TYPE_LABELS } from '@/types/retention'
 import type { DeletionRequestWithRelations } from '@/types/retention'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
@@ -117,20 +117,12 @@ function getStatusIcon(status: DeletionRequestStatus) {
   }
 }
 
-const STATUS_LABELS: Record<DeletionRequestStatus, string> = {
-  PENDING: '待審批',
-  APPROVED: '已批准',
-  REJECTED: '已拒絕',
-  EXECUTING: '執行中',
-  COMPLETED: '已完成',
-  FAILED: '失敗',
-}
-
 // ============================================================
 // Component
 // ============================================================
 
 export function DeletionRequestList({ className }: DeletionRequestListProps) {
+  const t = useTranslations('dataRetention')
   const { toast } = useToast()
   const [page, setPage] = React.useState(1)
   const [approveDialogOpen, setApproveDialogOpen] = React.useState(false)
@@ -143,14 +135,14 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
   const approveRequest = useApproveDeletionRequest({
     onSuccess: () => {
       toast({
-        title: '刪除請求已批准',
-        description: '系統將開始執行刪除作業',
+        title: t('deletion.approveToast.successTitle'),
+        description: t('deletion.approveToast.successDescription'),
       })
       setApproveDialogOpen(false)
     },
     onError: (error) => {
       toast({
-        title: '批准失敗',
+        title: t('deletion.approveToast.errorTitle'),
         description: error.message,
         variant: 'destructive',
       })
@@ -160,15 +152,15 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
   const rejectRequest = useApproveDeletionRequest({
     onSuccess: () => {
       toast({
-        title: '刪除請求已拒絕',
-        description: '已記錄拒絕原因',
+        title: t('deletion.rejectToast.successTitle'),
+        description: t('deletion.rejectToast.successDescription'),
       })
       setRejectDialogOpen(false)
       setRejectionReason('')
     },
     onError: (error) => {
       toast({
-        title: '拒絕失敗',
+        title: t('deletion.rejectToast.errorTitle'),
         description: error.message,
         variant: 'destructive',
       })
@@ -209,52 +201,52 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
     () => [
       {
         id: 'dataType',
-        header: '資料類型',
+        header: t('deletion.columns.dataType'),
         cell: (request) => (
-          <Badge variant="outline">{DATA_TYPE_LABELS[request.dataType]}</Badge>
+          <Badge variant="outline">{t(`dataType.${request.dataType}`)}</Badge>
         ),
       },
       {
         id: 'dateRange',
-        header: '資料範圍',
+        header: t('deletion.columns.dateRange'),
         cellClassName: 'text-sm',
         cell: (request) => (
           <div>
             <p>{formatDate(request.dateRangeStart)}</p>
-            <p className="text-muted-foreground">至</p>
+            <p className="text-muted-foreground">{t('deletion.dateRangeTo')}</p>
             <p>{formatDate(request.dateRangeEnd)}</p>
           </div>
         ),
       },
       {
         id: 'reason',
-        header: '請求原因',
+        header: t('deletion.columns.reason'),
         cell: (request) => (
           <p className="text-sm max-w-[200px] truncate">{request.reason}</p>
         ),
       },
       {
         id: 'requestedBy',
-        header: '請求者',
+        header: t('deletion.columns.requestedBy'),
         cellClassName: 'text-sm',
-        cell: (request) => request.requestedBy?.name || '未知',
+        cell: (request) => request.requestedBy?.name || t('common.unknown'),
       },
       {
         id: 'status',
-        header: '狀態',
+        header: t('deletion.columns.status'),
         cell: (request) => {
           const StatusIcon = getStatusIcon(request.status)
           return (
             <Badge variant={getStatusVariant(request.status)}>
               <StatusIcon className="h-3 w-3 mr-1" />
-              {STATUS_LABELS[request.status]}
+              {t(`deletionStatus.${request.status}`)}
             </Badge>
           )
         },
       },
       {
         id: 'createdAt',
-        header: '請求時間',
+        header: t('deletion.columns.createdAt'),
         cellClassName: 'text-sm',
         cell: (request) => formatDate(request.createdAt),
       },
@@ -272,7 +264,7 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
                   onClick={() => handleApproveClick(request.id)}
                 >
                   <CheckCircle2 className="h-4 w-4 mr-1" />
-                  批准
+                  {t('deletion.approve')}
                 </Button>
                 <Button
                   variant="outline"
@@ -281,7 +273,7 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
                   className="text-destructive hover:text-destructive"
                 >
                   <XCircle className="h-4 w-4 mr-1" />
-                  拒絕
+                  {t('deletion.reject')}
                 </Button>
               </div>
             )}
@@ -294,7 +286,7 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
         ),
       },
     ],
-    [handleApproveClick, handleRejectClick]
+    [handleApproveClick, handleRejectClick, t]
   )
 
   if (isLoading) {
@@ -305,7 +297,7 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
     return (
       <div className="flex flex-col items-center justify-center py-10">
         <AlertCircle className="h-8 w-8 text-destructive mb-2" />
-        <p className="text-muted-foreground">無法載入刪除請求</p>
+        <p className="text-muted-foreground">{t('deletion.loadError')}</p>
       </div>
     )
   }
@@ -316,7 +308,7 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">刪除請求</h3>
+        <h3 className="text-lg font-medium">{t('deletion.listTitle')}</h3>
       </div>
 
       <div className="rounded-md border">
@@ -329,7 +321,7 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
           emptyState={
             <>
               <Trash2 className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-muted-foreground">尚無刪除請求</p>
+              <p className="text-muted-foreground">{t('deletion.empty')}</p>
             </>
           }
         />
@@ -344,7 +336,7 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
-            上一頁
+            {t('common.previousPage')}
           </Button>
           <span className="flex items-center px-3 text-sm">
             {page} / {pagination.totalPages}
@@ -355,7 +347,7 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
             onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
             disabled={page === pagination.totalPages}
           >
-            下一頁
+            {t('common.nextPage')}
           </Button>
         </div>
       )}
@@ -364,15 +356,14 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
       <Dialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>確認批准刪除請求</DialogTitle>
+            <DialogTitle>{t('deletion.approveDialog.title')}</DialogTitle>
             <DialogDescription>
               <div className="flex items-start gap-2 mt-2 p-3 bg-destructive/10 rounded-md">
                 <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-destructive">此操作無法復原</p>
+                  <p className="font-medium text-destructive">{t('deletion.approveDialog.irreversible')}</p>
                   <p className="text-sm mt-1">
-                    批准後，系統將開始刪除指定範圍內的資料。
-                    如資料已歸檔，將從冷存儲中永久刪除。
+                    {t('deletion.approveDialog.warning')}
                   </p>
                 </div>
               </div>
@@ -380,14 +371,16 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setApproveDialogOpen(false)}>
-              取消
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirmApprove}
               disabled={approveRequest.isPending}
             >
-              {approveRequest.isPending ? '處理中...' : '確認批准'}
+              {approveRequest.isPending
+                ? t('deletion.approveDialog.submitting')
+                : t('deletion.approveDialog.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -397,17 +390,17 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
       <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>拒絕刪除請求</DialogTitle>
+            <DialogTitle>{t('deletion.rejectDialog.title')}</DialogTitle>
             <DialogDescription>
-              請說明拒絕此刪除請求的原因。
+              {t('deletion.rejectDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="rejection-reason">拒絕原因</Label>
+              <Label htmlFor="rejection-reason">{t('deletion.rejectDialog.reasonLabel')}</Label>
               <Textarea
                 id="rejection-reason"
-                placeholder="請輸入拒絕原因..."
+                placeholder={t('deletion.rejectDialog.reasonPlaceholder')}
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
                 rows={3}
@@ -416,13 +409,15 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
-              取消
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleConfirmReject}
               disabled={!rejectionReason.trim() || rejectRequest.isPending}
             >
-              {rejectRequest.isPending ? '處理中...' : '確認拒絕'}
+              {rejectRequest.isPending
+                ? t('deletion.rejectDialog.submitting')
+                : t('deletion.rejectDialog.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

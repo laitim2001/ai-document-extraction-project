@@ -11,6 +11,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -21,10 +22,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts'
-import {
-  SOURCE_TYPE_CONFIG,
-  SOURCE_TYPE_CHART_COLORS,
-} from '@/lib/constants/source-types'
+import { SOURCE_TYPE_CHART_COLORS } from '@/lib/constants/source-types'
 import { DocumentSourceType } from '@prisma/client'
 import type { SourceTypeStats as StatsType } from '@/types/document-source.types'
 
@@ -55,8 +53,9 @@ export function SourceTypeStats({
   cityId,
   dateFrom,
   dateTo,
-  title = '文件來源分佈',
+  title,
 }: SourceTypeStatsProps) {
+  const t = useTranslations('documentSource')
   const { data, isLoading } = useQuery<{ data: StatsType[] }>({
     queryKey: [
       'source-type-stats',
@@ -91,11 +90,12 @@ export function SourceTypeStats({
 
   const stats = data?.data || []
   const total = stats.reduce((sum, s) => sum + s.count, 0)
+  const resolvedTitle = title ?? t('stats.title')
 
   const chartData = stats.map((s) => ({
-    name:
-      SOURCE_TYPE_CONFIG[s.sourceType as DocumentSourceType]?.label ||
-      s.sourceType,
+    name: t.has(`sourceTypes.${s.sourceType}`)
+      ? t(`sourceTypes.${s.sourceType}`)
+      : s.sourceType,
     value: s.count,
     percentage: s.percentage,
     fill:
@@ -105,12 +105,12 @@ export function SourceTypeStats({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle className="text-base">{resolvedTitle}</CardTitle>
       </CardHeader>
       <CardContent>
         {total === 0 ? (
           <div className="flex items-center justify-center h-[200px] text-muted-foreground">
-            暫無資料
+            {t('stats.noData')}
           </div>
         ) : (
           <div className="flex items-center gap-6">
@@ -133,7 +133,7 @@ export function SourceTypeStats({
                   </Pie>
                   <Tooltip
                     formatter={(value, name) => [
-                      `${value} 個文件`,
+                      t('stats.documentCount', { count: Number(value) }),
                       name as string,
                     ]}
                   />
@@ -166,8 +166,8 @@ export function SourceTypeStats({
 
               <div className="border-t pt-3 mt-3">
                 <div className="flex items-center justify-between font-medium">
-                  <span>總計</span>
-                  <span>{total} 個文件</span>
+                  <span>{t('stats.total')}</span>
+                  <span>{t('stats.documentCount', { count: total })}</span>
                 </div>
               </div>
             </div>

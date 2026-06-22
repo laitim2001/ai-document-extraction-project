@@ -248,7 +248,7 @@ export function FieldCard({
         ) : (
           <p className="text-gray-700">
             {field.value ?? (
-              <span className="italic text-gray-400">未提取</span>
+              <span className="italic text-gray-400">{t('fieldCard.notExtracted')}</span>
             )}
           </p>
         )}
@@ -259,9 +259,9 @@ export function FieldCard({
         <div className="mt-2 flex items-center gap-1 text-xs text-orange-600">
           <Pencil className="h-3 w-3" />
           <span>
-            已修改
+            {t('fieldCard.edited')}
             {field.originalValue !== undefined && (
-              <>（原值：{String(field.originalValue)}）</>
+              <>{t('fieldCard.originalValue', { value: String(field.originalValue) })}</>
             )}
           </span>
         </div>

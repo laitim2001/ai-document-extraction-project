@@ -19,6 +19,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -113,24 +114,6 @@ function getChangeTypeColor(changeType: HistoryChangeType) {
 }
 
 /**
- * 獲取變更類型中文名稱
- */
-function getChangeTypeLabel(changeType: HistoryChangeType) {
-  switch (changeType) {
-    case 'CREATE':
-      return '建立';
-    case 'UPDATE':
-      return '更新';
-    case 'DELETE':
-      return '刪除';
-    case 'RESTORE':
-      return '還原';
-    default:
-      return changeType;
-  }
-}
-
-/**
  * 獲取時間線連接線顏色
  */
 function getTimelineLineColor(changeType: HistoryChangeType) {
@@ -187,8 +170,14 @@ function TimelineItemComponent({
   onSelect: (checked: boolean) => void;
   onClick: () => void;
 }) {
+  const t = useTranslations('changeHistory');
   const iconColor = getChangeTypeColor(item.changeType);
   const lineColor = getTimelineLineColor(item.changeType);
+
+  const changeTypeKey = `changeType.${item.changeType}`;
+  const changeTypeLabel = t.has(changeTypeKey)
+    ? t(changeTypeKey)
+    : t('changeType.unknown');
 
   return (
     <div className="flex gap-4 group">
@@ -214,14 +203,14 @@ function TimelineItemComponent({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Badge variant={item.isCurrent ? 'default' : 'outline'}>
-                版本 {item.version}
+                {t('timeline.versionLabel', { version: item.version })}
               </Badge>
               <Badge variant="secondary" className={iconColor}>
-                {getChangeTypeLabel(item.changeType)}
+                {changeTypeLabel}
               </Badge>
               {item.isCurrent && (
                 <Badge variant="default" className="bg-primary">
-                  目前版本
+                  {t('timeline.currentVersion')}
                 </Badge>
               )}
             </div>
@@ -229,7 +218,9 @@ function TimelineItemComponent({
               checked={isSelected}
               onCheckedChange={onSelect}
               onClick={(e) => e.stopPropagation()}
-              aria-label={`選擇版本 ${item.version} 進行比較`}
+              aria-label={t('timeline.selectForCompare', {
+                version: item.version,
+              })}
             />
           </div>
 
@@ -271,7 +262,9 @@ function TimelineItemComponent({
           {/* 變更欄位數 */}
           {item.changedFieldCount > 0 && (
             <p className="text-xs text-muted-foreground mt-2">
-              變更了 {item.changedFieldCount} 個欄位
+              {t('timeline.changedFieldCount', {
+                count: item.changedFieldCount,
+              })}
             </p>
           )}
         </div>
@@ -318,6 +311,7 @@ export function ChangeHistoryTimeline({
   // deep-linking or analytics tracking
   void _resourceType;
   void _resourceId;
+  const t = useTranslations('changeHistory');
   const [selectedVersions, setSelectedVersions] = useState<number[]>([]);
 
   /**
@@ -359,7 +353,7 @@ export function ChangeHistoryTimeline({
       <Card>
         <CardContent className="py-12 text-center">
           <Clock className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">暫無變更歷史記錄</p>
+          <p className="text-muted-foreground">{t('timeline.empty')}</p>
         </CardContent>
       </Card>
     );
@@ -369,18 +363,20 @@ export function ChangeHistoryTimeline({
     <Card>
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">變更歷史</CardTitle>
+          <CardTitle className="text-lg">{t('timeline.title')}</CardTitle>
           {selectedVersions.length > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
-                已選擇 {selectedVersions.length} 個版本
+                {t('timeline.selectedCount', {
+                  count: selectedVersions.length,
+                })}
               </span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleClearSelection}
               >
-                清除
+                {t('actions.clear')}
               </Button>
               <Button
                 size="sm"
@@ -388,7 +384,7 @@ export function ChangeHistoryTimeline({
                 onClick={handleCompare}
               >
                 <GitCompare className="mr-2 h-4 w-4" />
-                比較版本
+                {t('timeline.compareVersions')}
               </Button>
             </div>
           )}
@@ -423,7 +419,7 @@ export function ChangeHistoryTimeline({
             <div className="flex justify-center pt-4">
               <Button variant="outline" onClick={onLoadMore}>
                 <ChevronDown className="mr-2 h-4 w-4" />
-                載入更多
+                {t('timeline.loadMore')}
               </Button>
             </div>
           )}

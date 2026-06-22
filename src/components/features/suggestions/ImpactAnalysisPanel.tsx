@@ -20,6 +20,7 @@
  *   - @/components/ui/alert - shadcn Alert 組件
  */
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -96,10 +97,12 @@ function LoadingSkeleton() {
  * 錯誤提示
  */
 function ErrorAlert({ message }: { message: string }) {
+  const t = useTranslations('ruleSimulation')
+
   return (
     <Alert variant="destructive">
       <AlertTriangle className="h-4 w-4" />
-      <AlertTitle>載入失敗</AlertTitle>
+      <AlertTitle>{t('impact.loadFailed')}</AlertTitle>
       <AlertDescription>{message}</AlertDescription>
     </Alert>
   )
@@ -117,19 +120,21 @@ function SuggestionHeader({
     extractionType: string
   }
 }) {
+  const t = useTranslations('ruleSimulation')
+
   return (
     <div className="mb-6 p-4 bg-muted/30 rounded-lg">
       <div className="flex items-center gap-6 text-sm">
         <div>
-          <span className="text-muted-foreground">欄位：</span>
+          <span className="text-muted-foreground">{t('impact.header.field')}：</span>
           <span className="font-medium ml-1">{suggestion.fieldName}</span>
         </div>
         <div>
-          <span className="text-muted-foreground">Forwarder：</span>
+          <span className="text-muted-foreground">{t('impact.header.forwarder')}：</span>
           <span className="font-medium ml-1">{suggestion.forwarderName}</span>
         </div>
         <div>
-          <span className="text-muted-foreground">提取類型：</span>
+          <span className="text-muted-foreground">{t('impact.header.extractionType')}：</span>
           <span className="font-medium ml-1">{suggestion.extractionType}</span>
         </div>
       </div>
@@ -163,6 +168,8 @@ export function ImpactAnalysisPanel({
   className,
   onDocumentClick,
 }: ImpactAnalysisPanelProps) {
+  const t = useTranslations('ruleSimulation')
+
   // 獲取影響分析數據
   const {
     data: impactData,
@@ -210,8 +217,8 @@ export function ImpactAnalysisPanel({
       <div className={className}>
         <Alert>
           <FileSearch className="h-4 w-4" />
-          <AlertTitle>無數據</AlertTitle>
-          <AlertDescription>無法獲取影響分析數據</AlertDescription>
+          <AlertTitle>{t('impact.noData')}</AlertTitle>
+          <AlertDescription>{t('impact.noDataDescription')}</AlertDescription>
         </Alert>
       </div>
     )
@@ -227,11 +234,11 @@ export function ImpactAnalysisPanel({
         <TabsList>
           <TabsTrigger value="analysis" className="gap-2">
             <BarChart3 className="h-4 w-4" />
-            影響分析
+            {t('impact.tabs.analysis')}
           </TabsTrigger>
           <TabsTrigger value="simulation" className="gap-2">
             <FlaskConical className="h-4 w-4" />
-            模擬測試
+            {t('impact.tabs.simulation')}
           </TabsTrigger>
         </TabsList>
 

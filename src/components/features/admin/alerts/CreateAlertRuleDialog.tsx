@@ -10,6 +10,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -88,33 +89,27 @@ interface CreateAlertRuleDialogProps {
   onSuccess?: () => void;
 }
 
-const CONDITION_TYPES = [
-  { value: 'SERVICE_DOWN', label: '服務停機' },
-  { value: 'ERROR_RATE', label: '錯誤率' },
-  { value: 'RESPONSE_TIME', label: '回應時間' },
-  { value: 'QUEUE_BACKLOG', label: '佇列積壓' },
-  { value: 'STORAGE_LOW', label: '儲存空間不足' },
-  { value: 'CPU_HIGH', label: 'CPU 使用率過高' },
-  { value: 'MEMORY_HIGH', label: '記憶體使用率過高' },
-  { value: 'CUSTOM_METRIC', label: '自定義指標' },
-];
+const CONDITION_TYPE_VALUES = [
+  'SERVICE_DOWN',
+  'ERROR_RATE',
+  'RESPONSE_TIME',
+  'QUEUE_BACKLOG',
+  'STORAGE_LOW',
+  'CPU_HIGH',
+  'MEMORY_HIGH',
+  'CUSTOM_METRIC',
+] as const;
 
-const OPERATORS = [
-  { value: 'GREATER_THAN', label: '大於 (>)' },
-  { value: 'GREATER_THAN_EQ', label: '大於等於 (>=)' },
-  { value: 'LESS_THAN', label: '小於 (<)' },
-  { value: 'LESS_THAN_EQ', label: '小於等於 (<=)' },
-  { value: 'EQUALS', label: '等於 (=)' },
-  { value: 'NOT_EQUALS', label: '不等於 (!=)' },
-];
+const OPERATOR_VALUES = [
+  'GREATER_THAN',
+  'GREATER_THAN_EQ',
+  'LESS_THAN',
+  'LESS_THAN_EQ',
+  'EQUALS',
+  'NOT_EQUALS',
+] as const;
 
-const SEVERITIES = [
-  { value: 'INFO', label: '資訊' },
-  { value: 'WARNING', label: '警告' },
-  { value: 'ERROR', label: '錯誤' },
-  { value: 'CRITICAL', label: '嚴重' },
-  { value: 'EMERGENCY', label: '緊急' },
-];
+const SEVERITY_VALUES = ['INFO', 'WARNING', 'ERROR', 'CRITICAL', 'EMERGENCY'] as const;
 
 const CHANNELS = [
   { value: 'EMAIL', label: 'Email' },
@@ -131,6 +126,8 @@ export function CreateAlertRuleDialog({
   onOpenChange,
   onSuccess,
 }: CreateAlertRuleDialogProps) {
+  const t = useTranslations('admin.alerts');
+  const tCommon = useTranslations('common');
   const createMutation = useCreateAlertRule();
 
   const form = useForm<FormValues>({
@@ -172,9 +169,9 @@ export function CreateAlertRuleDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>創建警報規則</DialogTitle>
+          <DialogTitle>{t('createDialog.title')}</DialogTitle>
           <DialogDescription>
-            設定新的警報規則以監控系統指標。
+            {t('createDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -187,9 +184,9 @@ export function CreateAlertRuleDialog({
                 name="name"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>規則名稱 *</FormLabel>
+                    <FormLabel>{t('createDialog.name')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="例如：API 錯誤率過高" {...field} />
+                      <Input placeholder={t('createDialog.namePlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -201,9 +198,9 @@ export function CreateAlertRuleDialog({
                 name="description"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>描述</FormLabel>
+                    <FormLabel>{t('createDialog.descriptionLabel')}</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="選填：描述此規則的用途" {...field} />
+                      <Textarea placeholder={t('createDialog.descriptionPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -213,24 +210,24 @@ export function CreateAlertRuleDialog({
 
             {/* 條件設定 */}
             <div className="space-y-4 border-t pt-4">
-              <h4 className="font-medium">條件設定</h4>
+              <h4 className="font-medium">{t('createDialog.sectionCondition')}</h4>
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="conditionType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>條件類型 *</FormLabel>
+                      <FormLabel>{t('createDialog.conditionType')}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="選擇條件類型" />
+                            <SelectValue placeholder={t('createDialog.conditionTypePlaceholder')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {CONDITION_TYPES.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
+                          {CONDITION_TYPE_VALUES.map((value) => (
+                            <SelectItem key={value} value={value}>
+                              {t(`createDialog.conditionOptions.${value}`)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -245,9 +242,9 @@ export function CreateAlertRuleDialog({
                   name="metric"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>指標名稱 *</FormLabel>
+                      <FormLabel>{t('createDialog.metric')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="例如：error_rate" {...field} />
+                        <Input placeholder={t('createDialog.metricPlaceholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -259,17 +256,17 @@ export function CreateAlertRuleDialog({
                   name="operator"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>運算符 *</FormLabel>
+                      <FormLabel>{t('createDialog.operator')}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="選擇運算符" />
+                            <SelectValue placeholder={t('createDialog.operatorPlaceholder')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {OPERATORS.map((op) => (
-                            <SelectItem key={op.value} value={op.value}>
-                              {op.label}
+                          {OPERATOR_VALUES.map((value) => (
+                            <SelectItem key={value} value={value}>
+                              {t(`createDialog.operatorOptions.${value}`)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -284,7 +281,7 @@ export function CreateAlertRuleDialog({
                   name="threshold"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>閾值 *</FormLabel>
+                      <FormLabel>{t('createDialog.threshold')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -303,7 +300,7 @@ export function CreateAlertRuleDialog({
                   name="duration"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>持續時間（秒）*</FormLabel>
+                      <FormLabel>{t('createDialog.duration')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -312,7 +309,7 @@ export function CreateAlertRuleDialog({
                           onChange={(e) => field.onChange(e.target.valueAsNumber || 1)}
                         />
                       </FormControl>
-                      <FormDescription>條件需持續多久才觸發警報</FormDescription>
+                      <FormDescription>{t('createDialog.durationDescription')}</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -323,9 +320,9 @@ export function CreateAlertRuleDialog({
                   name="serviceName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>服務名稱</FormLabel>
+                      <FormLabel>{t('createDialog.serviceName')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="選填：特定服務" {...field} />
+                        <Input placeholder={t('createDialog.serviceNamePlaceholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -336,24 +333,24 @@ export function CreateAlertRuleDialog({
 
             {/* 通知設定 */}
             <div className="space-y-4 border-t pt-4">
-              <h4 className="font-medium">通知設定</h4>
+              <h4 className="font-medium">{t('createDialog.sectionNotification')}</h4>
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="severity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>嚴重程度 *</FormLabel>
+                      <FormLabel>{t('createDialog.severity')}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="選擇嚴重程度" />
+                            <SelectValue placeholder={t('createDialog.severityPlaceholder')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {SEVERITIES.map((sev) => (
-                            <SelectItem key={sev.value} value={sev.value}>
-                              {sev.label}
+                          {SEVERITY_VALUES.map((value) => (
+                            <SelectItem key={value} value={value}>
+                              {t(`severity.${value}`)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -368,7 +365,7 @@ export function CreateAlertRuleDialog({
                   name="cooldownMinutes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>冷卻時間（分鐘）</FormLabel>
+                      <FormLabel>{t('createDialog.cooldown')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -378,7 +375,7 @@ export function CreateAlertRuleDialog({
                           onChange={(e) => field.onChange(e.target.valueAsNumber || 30)}
                         />
                       </FormControl>
-                      <FormDescription>重複警報的最小間隔</FormDescription>
+                      <FormDescription>{t('createDialog.cooldownDescription')}</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -389,7 +386,7 @@ export function CreateAlertRuleDialog({
                   name="channels"
                   render={() => (
                     <FormItem>
-                      <FormLabel>通知頻道 *</FormLabel>
+                      <FormLabel>{t('createDialog.channels')}</FormLabel>
                       <div className="flex flex-wrap gap-4">
                         {CHANNELS.map((channel) => (
                           <div key={channel.value} className="flex items-center space-x-2">
@@ -424,14 +421,14 @@ export function CreateAlertRuleDialog({
                   name="recipients"
                   render={({ field }) => (
                     <FormItem className="col-span-2">
-                      <FormLabel>收件人 *</FormLabel>
+                      <FormLabel>{t('createDialog.recipients')}</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="email@example.com, webhook-url, teams-webhook"
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription>以逗號分隔多個收件人</FormDescription>
+                      <FormDescription>{t('createDialog.recipientsDescription')}</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -445,10 +442,10 @@ export function CreateAlertRuleDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                取消
+                {tCommon('actions.cancel')}
               </Button>
               <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? '創建中...' : '創建規則'}
+                {createMutation.isPending ? t('createDialog.submitting') : t('createDialog.submit')}
               </Button>
             </DialogFooter>
           </form>

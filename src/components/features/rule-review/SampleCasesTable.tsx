@@ -17,6 +17,7 @@
  *   - @/components/ui/badge - shadcn Badge 組件
  */
 
+import { useTranslations } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -63,11 +64,13 @@ interface SampleCasesTableProps {
  * 匹配狀態標籤
  */
 function MatchBadge({ isMatch }: { isMatch: boolean }) {
+  const t = useTranslations('rules')
+
   if (isMatch) {
     return (
       <Badge variant="default" className="gap-1 bg-green-100 text-green-700 hover:bg-green-100">
         <Check className="h-3 w-3" />
-        匹配
+        {t('ruleReview.sampleTable.matched')}
       </Badge>
     )
   }
@@ -75,7 +78,7 @@ function MatchBadge({ isMatch }: { isMatch: boolean }) {
   return (
     <Badge variant="destructive" className="gap-1">
       <X className="h-3 w-3" />
-      不匹配
+      {t('ruleReview.sampleTable.notMatched')}
     </Badge>
   )
 }
@@ -84,12 +87,16 @@ function MatchBadge({ isMatch }: { isMatch: boolean }) {
  * 空狀態
  */
 function EmptyState() {
+  const t = useTranslations('rules')
+
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <FileText className="h-12 w-12 text-muted-foreground/50 mb-4" />
-      <p className="text-muted-foreground">無樣本案例</p>
+      <p className="text-muted-foreground">
+        {t('ruleReview.sampleTable.emptyTitle')}
+      </p>
       <p className="text-sm text-muted-foreground/75 mt-1">
-        此規則建議尚無樣本案例資料
+        {t('ruleReview.sampleTable.emptyDesc')}
       </p>
     </div>
   )
@@ -118,6 +125,8 @@ export function SampleCasesTable({
   className,
   onCaseClick,
 }: SampleCasesTableProps) {
+  const t = useTranslations('rules')
+
   if (!cases || cases.length === 0) {
     return <EmptyState />
   }
@@ -130,10 +139,12 @@ export function SampleCasesTable({
       {/* 統計摘要 */}
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">
-          共 {cases.length} 個樣本案例
+          {t('ruleReview.sampleTable.summary', { count: cases.length })}
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">匹配率：</span>
+          <span className="text-muted-foreground">
+            {t('ruleReview.sampleTable.matchRate')}
+          </span>
           <span
             className={cn(
               'font-medium',
@@ -144,7 +155,11 @@ export function SampleCasesTable({
                   : 'text-red-600'
             )}
           >
-            {matchRate}% ({matchCount}/{cases.length})
+            {t('ruleReview.sampleTable.matchRateValue', {
+              rate: matchRate,
+              matched: matchCount,
+              total: cases.length,
+            })}
           </span>
         </div>
       </div>
@@ -154,10 +169,18 @@ export function SampleCasesTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px]">文件</TableHead>
-              <TableHead>原始值</TableHead>
-              <TableHead>提取值</TableHead>
-              <TableHead className="w-[100px] text-center">匹配</TableHead>
+              <TableHead className="w-[200px]">
+                {t('ruleReview.sampleTable.columnDocument')}
+              </TableHead>
+              <TableHead>
+                {t('ruleReview.sampleTable.columnOriginalValue')}
+              </TableHead>
+              <TableHead>
+                {t('ruleReview.sampleTable.columnExtractedValue')}
+              </TableHead>
+              <TableHead className="w-[100px] text-center">
+                {t('ruleReview.sampleTable.columnMatch')}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -185,7 +208,7 @@ export function SampleCasesTable({
                   ) : (
                     <span className="text-muted-foreground flex items-center gap-1">
                       <Minus className="h-3 w-3" />
-                      無值
+                      {t('ruleReview.sampleTable.noValue')}
                     </span>
                   )}
                 </TableCell>
@@ -197,7 +220,7 @@ export function SampleCasesTable({
                   ) : (
                     <span className="text-muted-foreground flex items-center gap-1">
                       <Minus className="h-3 w-3" />
-                      無值
+                      {t('ruleReview.sampleTable.noValue')}
                     </span>
                   )}
                 </TableCell>

@@ -1,0 +1,51 @@
+{
+  "timeline": {
+    "title": "变更历史",
+    "empty": "暂无变更历史记录",
+    "versionLabel": "版本 {version}",
+    "currentVersion": "当前版本",
+    "selectForCompare": "选择版本 {version} 进行比较",
+    "changedFieldCount": "变更了 {count} 个字段",
+    "selectedCount": "已选择 {count} 个版本",
+    "compareVersions": "比较版本",
+    "loadMore": "加载更多"
+  },
+  "compare": {
+    "title": "版本比较",
+    "description": "比较 {resourceType}/{resourceId} 的两个版本之间的差异",
+    "oldVersion": "旧版本",
+    "newVersion": "新版本",
+    "versionLabel": "版本 {version}",
+    "loadFailed": "加载失败",
+    "loadError": "无法加载版本比较数据",
+    "noDiffs": "两个版本之间没有差异",
+    "fieldDiffs": "字段差异",
+    "addedCount": "新增: {count}",
+    "modifiedCount": "修改: {count}",
+    "removedCount": "删除: {count}",
+    "empty": "(空)",
+    "yes": "是",
+    "no": "否",
+    "columns": {
+      "fieldName": "字段名称",
+      "type": "类型",
+      "oldValue": "旧值",
+      "newValue": "新值"
+    }
+  },
+  "changeType": {
+    "CREATE": "创建",
+    "UPDATE": "更新",
+    "DELETE": "删除",
+    "RESTORE": "还原",
+    "unknown": "未知"
+  },
+  "diffType": {
+    "added": "新增",
+    "removed": "删除",
+    "modified": "修改"
+  },
+  "actions": {
+    "clear": "清除"
+  }
+}

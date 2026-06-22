@@ -215,7 +215,7 @@ export function RuleFilters({
               <SelectItem value="all">{t('ruleFilters.allCategories')}</SelectItem>
               {FIELD_CATEGORIES.map((cat) => (
                 <SelectItem key={cat.value} value={cat.value}>
-                  {cat.label}
+                  {t(`fieldCategories.${cat.value}`)}
                 </SelectItem>
               ))}
             </SelectContent>

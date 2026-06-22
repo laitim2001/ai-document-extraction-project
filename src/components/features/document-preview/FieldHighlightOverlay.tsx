@@ -22,6 +22,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   type BoundingBox,
@@ -85,6 +86,7 @@ function HighlightBox({
   onMouseLeave,
   disabled = false,
 }: HighlightBoxProps) {
+  const t = useTranslations('documentPreview')
   const { backgroundColor, borderColor } = getConfidenceColors(box.confidence)
   const confidenceLevel = getConfidenceLevel(box.confidence)
 
@@ -125,7 +127,7 @@ function HighlightBox({
           onClick()
         }
       }}
-      aria-label={`${box.fieldName} - 信心度 ${box.confidence}%`}
+      aria-label={`${box.fieldName} - ${t('controls.overlay.confidenceLabel', { confidence: box.confidence })}`}
       data-field-id={box.fieldId}
       data-confidence={confidenceLevel}
     >

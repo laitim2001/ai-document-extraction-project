@@ -20,6 +20,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -145,6 +146,7 @@ export function RuleCreationPanel({
   onSuccess,
   onCancel,
 }: RuleCreationPanelProps) {
+  const t = useTranslations('rules');
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -190,22 +192,25 @@ export function RuleCreationPanel({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.detail || '建立規則失敗');
+        throw new Error(error.detail || t('ruleCreation.toast.createFailedTitle'));
       }
 
       const result = await response.json();
 
       toast({
-        title: '規則已建立',
-        description: `成功建立${values.scope === 'universal' ? '通用' : '公司專屬'}規則`,
+        title: t('ruleCreation.toast.createdTitle'),
+        description:
+          values.scope === 'universal'
+            ? t('ruleCreation.toast.createdDescUniversal')
+            : t('ruleCreation.toast.createdDescCompany'),
       });
 
       onSuccess?.(result.data.id);
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: '建立失敗',
-        description: error instanceof Error ? error.message : '未知錯誤',
+        title: t('ruleCreation.toast.createFailedTitle'),
+        description: error instanceof Error ? error.message : t('ruleCreation.toast.unknownError'),
       });
     } finally {
       setIsSubmitting(false);
@@ -218,7 +223,7 @@ export function RuleCreationPanel({
     <Card className="w-full max-w-2xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          建立映射規則
+          {t('ruleCreation.title')}
           {term && (
             <Badge variant="secondary" className="font-mono">
               {term}
@@ -226,10 +231,10 @@ export function RuleCreationPanel({
           )}
         </CardTitle>
         <CardDescription>
-          將收費術語映射到標準費用類別
+          {t('ruleCreation.subtitle')}
           {frequency !== undefined && (
             <span className="ml-2 text-muted-foreground">
-              (出現 {frequency.toLocaleString()} 次)
+              {t('ruleCreation.frequencyHint', { count: frequency })}
             </span>
           )}
         </CardDescription>
@@ -244,7 +249,7 @@ export function RuleCreationPanel({
               name="scope"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>規則範圍</FormLabel>
+                  <FormLabel>{t('ruleCreation.scopeLabel')}</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -262,9 +267,9 @@ export function RuleCreationPanel({
                           className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
                         >
                           <Globe className="mb-3 h-6 w-6" />
-                          <span className="font-medium">通用規則 (Tier 1)</span>
+                          <span className="font-medium">{t('ruleCreation.universalTier')}</span>
                           <span className="text-xs text-muted-foreground mt-1">
-                            適用所有公司
+                            {t('ruleCreation.universalTierDesc')}
                           </span>
                         </Label>
                       </div>
@@ -279,9 +284,9 @@ export function RuleCreationPanel({
                           className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
                         >
                           <Building2 className="mb-3 h-6 w-6" />
-                          <span className="font-medium">公司專屬 (Tier 2)</span>
+                          <span className="font-medium">{t('ruleCreation.companyTier')}</span>
                           <span className="text-xs text-muted-foreground mt-1">
-                            覆蓋通用規則
+                            {t('ruleCreation.companyTierDesc')}
                           </span>
                         </Label>
                       </div>
@@ -299,7 +304,7 @@ export function RuleCreationPanel({
                 name="companyId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>選擇公司</FormLabel>
+                    <FormLabel>{t('ruleCreation.selectCompany')}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -307,7 +312,7 @@ export function RuleCreationPanel({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="選擇公司..." />
+                          <SelectValue placeholder={t('ruleCreation.selectCompanyPlaceholder')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -319,7 +324,7 @@ export function RuleCreationPanel({
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      此規則僅對選擇的公司生效，會覆蓋通用規則
+                      {t('ruleCreation.companyScopeDesc')}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -335,15 +340,15 @@ export function RuleCreationPanel({
               name="sourcePattern"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>來源術語</FormLabel>
+                  <FormLabel>{t('ruleCreation.sourceTerm')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="例如: OCEAN FREIGHT, OFR, 海運費"
+                      placeholder={t('ruleCreation.sourceTermPlaceholder')}
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    輸入發票上出現的收費項目名稱
+                    {t('ruleCreation.sourceTermDesc')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -356,20 +361,20 @@ export function RuleCreationPanel({
               name="targetCategory"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>目標類別</FormLabel>
+                  <FormLabel>{t('ruleCreation.targetCategory')}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="選擇標準費用類別..." />
+                        <SelectValue placeholder={t('ruleCreation.targetCategoryPlaceholder')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {CATEGORY_OPTIONS.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
-                          {option.label}
+                          {t(`chargeCategories.${option.value}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -378,7 +383,7 @@ export function RuleCreationPanel({
                     <Alert className="mt-2">
                       <Info className="h-4 w-4" />
                       <AlertDescription>
-                        此分類由 AI 建議（信心度 {suggestedConfidence}%）
+                        {t('ruleCreation.aiSuggested', { confidence: suggestedConfidence })}
                       </AlertDescription>
                     </Alert>
                   )}
@@ -394,7 +399,7 @@ export function RuleCreationPanel({
                 name="confidence"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>信心度 (%)</FormLabel>
+                    <FormLabel>{t('ruleCreation.confidence')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -407,7 +412,7 @@ export function RuleCreationPanel({
                       />
                     </FormControl>
                     <FormDescription>
-                      ≥90% 自動通過，70-89% 快速審核
+                      {t('ruleCreation.confidenceDesc')}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -419,7 +424,7 @@ export function RuleCreationPanel({
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>優先級</FormLabel>
+                    <FormLabel>{t('ruleCreation.priority')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -432,7 +437,7 @@ export function RuleCreationPanel({
                       />
                     </FormControl>
                     <FormDescription>
-                      數字越大優先級越高
+                      {t('ruleCreation.priorityDesc')}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -446,10 +451,10 @@ export function RuleCreationPanel({
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>備註（選填）</FormLabel>
+                  <FormLabel>{t('ruleCreation.notes')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="關於此規則的補充說明..."
+                      placeholder={t('ruleCreation.notesPlaceholder')}
                       className="resize-none"
                       rows={2}
                       {...field}
@@ -469,19 +474,19 @@ export function RuleCreationPanel({
                   onClick={onCancel}
                   disabled={isSubmitting}
                 >
-                  取消
+                  {t('ruleCreation.cancel')}
                 </Button>
               )}
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    建立中...
+                    {t('ruleCreation.creating')}
                   </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    建立規則
+                    {t('ruleCreation.create')}
                   </>
                 )}
               </Button>

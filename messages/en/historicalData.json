@@ -120,6 +120,11 @@
         "productCode": "Product Code",
         "taxRate": "Tax Rate"
       }
+    },
+    "raw": {
+      "title": "Raw JSON",
+      "copy": "Copy",
+      "copied": "Copied"
     }
   },
   "batchList": {
@@ -393,6 +398,198 @@
       "failed": "Export failed",
       "failedDesc": "Unable to export terms report",
       "authExpired": "Authentication expired, please login again"
+    }
+  },
+  "batchError": {
+    "title": "Failed Files",
+    "description": "{total} files failed to process, showing {shown}",
+    "empty": {
+      "title": "No failed files",
+      "description": "All files processed normally"
+    },
+    "selectedCount": "{count} selected",
+    "retryCount": "Retried {count} times",
+    "errorMessage": "Error Message",
+    "unknownError": "Unknown error",
+    "fileId": "File ID:",
+    "failedAt": "Failed At:",
+    "table": {
+      "selectAll": "Select all",
+      "selectFile": "Select {name}",
+      "file": "File",
+      "retryCount": "Retry Count",
+      "failedAt": "Failed At",
+      "actions": "Actions"
+    },
+    "actions": {
+      "retry": "Retry",
+      "skip": "Skip",
+      "batchRetry": "Batch Retry",
+      "batchSkip": "Batch Skip"
+    },
+    "loading": "Loading...",
+    "loadMore": "Load More"
+  },
+  "batchProgress": {
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paused": "Paused",
+      "aggregating": "Aggregating",
+      "aggregated": "Aggregated",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "connection": {
+      "connecting": "Connecting...",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "error": "Connection error",
+      "tooltip": "SSE connection status: {status}"
+    },
+    "stats": {
+      "completed": "Completed",
+      "processing": "Processing",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "loading": "Loading progress...",
+    "connectionError": "Unable to connect to progress service",
+    "reconnect": "Reconnect",
+    "noProgress": "No progress information",
+    "rate": "Processing Rate",
+    "estimatedRemaining": "Est. Remaining",
+    "currentFile": "Processing",
+    "fileCount": "{processed} / {total} files",
+    "controls": {
+      "pause": "Pause",
+      "resume": "Resume",
+      "cancel": "Cancel"
+    },
+    "viewErrors": "View {count} errors",
+    "summary": {
+      "totalCost": "Total Cost",
+      "newCompanies": "New Companies",
+      "extractedTerms": "Charge Items"
+    }
+  },
+  "batchSummary": {
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paused": "Paused",
+      "aggregating": "Aggregating",
+      "aggregated": "Aggregated",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "results": {
+      "title": "Processing Results",
+      "successRate": "Success Rate",
+      "successLegend": "Success {count}",
+      "skippedLegend": "Skipped {count}",
+      "failedLegend": "Failed {count}",
+      "success": "Success",
+      "skipped": "Skipped",
+      "failed": "Failed"
+    },
+    "stats": {
+      "totalCost": "Total Cost",
+      "averageCost": "Avg {cost}/file",
+      "totalCostTooltip": "Azure OpenAI API usage cost",
+      "newCompanies": "New Companies Found",
+      "newCompaniesTooltip": "New companies identified during processing",
+      "extractedTerms": "Extracted Charge Items",
+      "extractedTermsTooltip": "Total number of extracted charge terms",
+      "processingTime": "Processing Time",
+      "processingRate": "{rate} files/min",
+      "processingTimeTooltip": "Total processing time and processing rate"
+    },
+    "duration": {
+      "hoursMinutes": "{hours} h {minutes} min",
+      "minutesSeconds": "{minutes} min {seconds} sec",
+      "seconds": "{seconds} sec"
+    },
+    "time": {
+      "startedAt": "Started At",
+      "completedAt": "Completed At"
+    }
+  },
+  "termAggregation": {
+    "title": "Term Aggregation",
+    "analysisTitle": "Term Aggregation Analysis",
+    "status": {
+      "pending": "Pending Aggregation",
+      "aggregating": "Aggregating",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "loading": "Loading term aggregation data...",
+    "unknownError": "Unknown error",
+    "uncategorized": "Uncategorized",
+    "completedAt": "Aggregation completed at: {time}",
+    "companyTermCount": "{count} terms",
+    "noDistribution": "Detailed distribution data is unavailable. Please try re-running the aggregation analysis.",
+    "pending": {
+      "description": "Term aggregation has not been executed. Term aggregation analysis can be performed after batch processing completes.",
+      "hint": "Term aggregation analysis not yet performed"
+    },
+    "aggregating": {
+      "hint": "Term aggregation analysis in progress...",
+      "timeNote": "This may take a few minutes"
+    },
+    "failed": {
+      "hint": "Term aggregation failed"
+    },
+    "actions": {
+      "retry": "Retry",
+      "retrying": "Retrying...",
+      "rerun": "Re-run",
+      "trigger": "Run Term Aggregation",
+      "aggregating": "Aggregating..."
+    },
+    "stats": {
+      "uniqueTerms": {
+        "label": "Unique Terms",
+        "subValue": "{count} occurrences total",
+        "tooltip": "Total number of distinct terms identified"
+      },
+      "universalTerms": {
+        "label": "Universal Terms",
+        "subValue": "Shared across 2+ companies",
+        "tooltip": "Universal terms appearing across multiple companies"
+      },
+      "companySpecific": {
+        "label": "Company-Specific",
+        "subValue": "{count} companies",
+        "tooltip": "Terms appearing only in specific companies"
+      },
+      "classified": {
+        "label": "Classified",
+        "subValue": "{percent}% coverage",
+        "tooltip": "Number of automatically classified terms"
+      },
+      "unclassified": {
+        "label": "Unclassified",
+        "subValue": "{percent}% pending",
+        "tooltip": "Terms requiring manual classification or mapping"
+      },
+      "coveredCompanies": {
+        "label": "Covered Companies",
+        "tooltip": "Number of companies with term extraction results"
+      }
+    },
+    "sections": {
+      "topTerms": "Most Common Terms",
+      "categoryBreakdown": "Category Breakdown",
+      "companyBreakdown": "Company Term Distribution"
+    },
+    "empty": {
+      "terms": "No term data available",
+      "categories": "No category data available",
+      "companies": "No company data available"
     }
   }
 }
