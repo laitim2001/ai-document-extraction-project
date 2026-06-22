@@ -11,11 +11,11 @@
  *
  * @module src/components/features/reference-number/ReferenceNumberList
  * @since Epic 20 - Story 20.5 (Management Page - List & Filter)
- * @lastModified 2026-02-05
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @dependencies
  *   - next-intl - 國際化
- *   - @/components/ui/table - 表格基礎組件
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/components/ui/button - 按鈕
  *   - @/components/ui/dropdown-menu - 下拉選單
  *   - @/hooks/use-toast - Toast 通知
@@ -26,13 +26,9 @@
 import * as React from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -47,6 +43,7 @@ import { formatShortDate } from '@/lib/i18n-date'
 import { useToast } from '@/hooks/use-toast'
 import type { Locale } from '@/i18n/config'
 import { ReferenceNumberTypeBadge } from './ReferenceNumberTypeBadge'
+import { ReferenceNumberSubTypeBadge } from './ReferenceNumberSubTypeBadge'
 import { ReferenceNumberStatusBadge } from './ReferenceNumberStatusBadge'
 import { ReferenceNumberDeleteDialog } from './ReferenceNumberDeleteDialog'
 import type { ReferenceNumber } from '@/hooks/use-reference-numbers'
@@ -131,6 +128,170 @@ export function ReferenceNumberList({
     [toast, t]
   )
 
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<ReferenceNumber>[]>(
+    () => [
+      // 號碼 - 可排序
+      {
+        id: 'number',
+        headerClassName: 'w-48',
+        header: (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-3 h-8"
+            onClick={() => handleSort('number')}
+          >
+            {t('columns.number')}
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        ),
+        cellClassName: 'font-mono text-sm',
+        cell: (item) => item.number,
+      },
+      // 類型
+      {
+        id: 'type',
+        headerClassName: 'w-32',
+        header: t('columns.type'),
+        cell: (item) => <ReferenceNumberTypeBadge type={item.type} />,
+      },
+      // 文件子類型
+      {
+        id: 'documentSubType',
+        headerClassName: 'w-28',
+        header: t('columns.documentSubType'),
+        cell: (item) =>
+          item.documentSubType ? (
+            <ReferenceNumberSubTypeBadge subType={item.documentSubType} />
+          ) : (
+            <span className="text-muted-foreground">--</span>
+          ),
+      },
+      // 年份 - 可排序
+      {
+        id: 'year',
+        headerClassName: 'w-24',
+        header: (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-3 h-8"
+            onClick={() => handleSort('year')}
+          >
+            {t('columns.year')}
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        ),
+        cell: (item) => item.year,
+      },
+      // 地區
+      {
+        id: 'region',
+        headerClassName: 'w-32',
+        header: t('columns.region'),
+        cellClassName: 'text-sm',
+        cell: (item) => item.regionCode,
+      },
+      // 狀態
+      {
+        id: 'status',
+        headerClassName: 'w-28',
+        header: t('columns.status'),
+        cell: (item) => <ReferenceNumberStatusBadge status={item.status} />,
+      },
+      // 匹配次數 - 可排序
+      {
+        id: 'matchCount',
+        headerClassName: 'w-28',
+        header: (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-3 h-8"
+            onClick={() => handleSort('matchCount')}
+          >
+            {t('columns.matchCount')}
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        ),
+        cellClassName: 'tabular-nums',
+        cell: (item) => item.matchCount,
+      },
+      // 建立時間 - 可排序
+      {
+        id: 'createdAt',
+        headerClassName: 'w-36',
+        header: (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-3 h-8"
+            onClick={() => handleSort('createdAt')}
+          >
+            {t('columns.createdAt')}
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        ),
+        cellClassName: 'text-sm text-muted-foreground',
+        cell: (item) => formatShortDate(item.createdAt, locale as Locale),
+      },
+      // 更新時間 - 可排序
+      {
+        id: 'updatedAt',
+        headerClassName: 'w-36',
+        header: (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-3 h-8"
+            onClick={() => handleSort('updatedAt')}
+          >
+            {t('columns.updatedAt')}
+            <ArrowUpDown className="ml-2 h-3 w-3" />
+          </Button>
+        ),
+        cellClassName: 'text-sm text-muted-foreground',
+        cell: (item) => formatShortDate(item.updatedAt, locale as Locale),
+      },
+      // 操作
+      {
+        id: 'actions',
+        headerClassName: 'w-20',
+        header: t('columns.actions'),
+        cell: (item) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/admin/reference-numbers/${item.id}`}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  {t('actions.edit')}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => copyToClipboard(item.number)}>
+                <Copy className="h-4 w-4 mr-2" />
+                {t('actions.copy')}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => setDeleteId(item.id)}
+              >
+                <Trash className="h-4 w-4 mr-2" />
+                {t('actions.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    ],
+    [t, locale, handleSort, copyToClipboard]
+  )
+
   // --- Loading State ---
 
   if (isLoading) {
@@ -148,146 +309,14 @@ export function ReferenceNumberList({
   return (
     <>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {/* 號碼 - 可排序 */}
-              <TableHead className="w-48">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-8"
-                  onClick={() => handleSort('number')}
-                >
-                  {t('columns.number')}
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
-              {/* 類型 */}
-              <TableHead className="w-32">{t('columns.type')}</TableHead>
-              {/* 年份 - 可排序 */}
-              <TableHead className="w-24">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-8"
-                  onClick={() => handleSort('year')}
-                >
-                  {t('columns.year')}
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
-              {/* 地區 */}
-              <TableHead className="w-32">{t('columns.region')}</TableHead>
-              {/* 狀態 */}
-              <TableHead className="w-28">{t('columns.status')}</TableHead>
-              {/* 匹配次數 - 可排序 */}
-              <TableHead className="w-28">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-8"
-                  onClick={() => handleSort('matchCount')}
-                >
-                  {t('columns.matchCount')}
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
-              {/* 建立時間 - 可排序 */}
-              <TableHead className="w-36">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-8"
-                  onClick={() => handleSort('createdAt')}
-                >
-                  {t('columns.createdAt')}
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
-              {/* 更新時間 - 可排序 */}
-              <TableHead className="w-36">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-8"
-                  onClick={() => handleSort('updatedAt')}
-                >
-                  {t('columns.updatedAt')}
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
-              {/* 操作 */}
-              <TableHead className="w-20">{t('columns.actions')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={9} className="text-center py-8">
-                  {t('noData')}
-                </TableCell>
-              </TableRow>
-            ) : (
-              data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-mono text-sm">
-                    {item.number}
-                  </TableCell>
-                  <TableCell>
-                    <ReferenceNumberTypeBadge type={item.type} />
-                  </TableCell>
-                  <TableCell>{item.year}</TableCell>
-                  <TableCell className="text-sm">
-                    {item.regionCode}
-                  </TableCell>
-                  <TableCell>
-                    <ReferenceNumberStatusBadge status={item.status} />
-                  </TableCell>
-                  <TableCell className="tabular-nums">
-                    {item.matchCount}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {formatShortDate(item.createdAt, locale as Locale)}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {formatShortDate(item.updatedAt, locale as Locale)}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/reference-numbers/${item.id}`}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            {t('actions.edit')}
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => copyToClipboard(item.number)}
-                        >
-                          <Copy className="h-4 w-4 mr-2" />
-                          {t('actions.copy')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => setDeleteId(item.id)}
-                        >
-                          <Trash className="h-4 w-4 mr-2" />
-                          {t('actions.delete')}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+        <DataTable
+          data={data}
+          columns={columns}
+          getRowId={(item) => item.id}
+          page={pagination?.page}
+          pageSize={pagination?.limit}
+          emptyState={t('noData')}
+        />
       </div>
 
       {/* 分頁 */}

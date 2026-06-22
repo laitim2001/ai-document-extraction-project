@@ -7,6 +7,7 @@
   "columns": {
     "number": "Number",
     "type": "Type",
+    "documentSubType": "Document Sub-Type",
     "year": "Year",
     "region": "Region",
     "status": "Status",
@@ -26,6 +27,12 @@
     "CUSTOMS": "Customs",
     "OTHER": "Other"
   },
+  "subTypes": {
+    "IMPORT": "Import",
+    "EXPORT": "Export",
+    "BOTH": "Both",
+    "UNKNOWN": "Unknown"
+  },
   "statuses": {
     "ACTIVE": "Active",
     "EXPIRED": "Expired",
@@ -38,6 +45,7 @@
     "year": "Year",
     "region": "Region",
     "type": "Type",
+    "documentSubType": "Document Sub-Type",
     "status": "Status",
     "clear": "Clear"
   },
@@ -78,6 +86,8 @@
     "number": "Number",
     "numberPlaceholder": "Enter number...",
     "type": "Type",
+    "documentSubType": "Document Sub-Type",
+    "none": "None",
     "year": "Year",
     "region": "Region",
     "regionPlaceholder": "Select region...",
@@ -128,6 +138,7 @@
     "columns": {
       "number": "Number",
       "type": "Type",
+      "documentSubType": "Document Sub-Type",
       "year": "Year",
       "regionCode": "Region Code",
       "code": "Code",

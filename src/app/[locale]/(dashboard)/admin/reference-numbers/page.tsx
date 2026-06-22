@@ -47,6 +47,7 @@ function parseFiltersFromParams(
     regionId: searchParams.get('regionId') || undefined,
     type: searchParams.get('type') || undefined,
     status: searchParams.get('status') || undefined,
+    documentSubType: searchParams.get('documentSubType') || undefined,
     search: searchParams.get('search') || undefined,
     sortBy: (searchParams.get('sortBy') as ReferenceNumberQueryParams['sortBy']) || 'createdAt',
     sortOrder: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc',
@@ -84,8 +85,9 @@ export default function ReferenceNumbersPage() {
       regionId: filters.regionId,
       type: filters.type,
       status: filters.status,
+      documentSubType: filters.documentSubType,
     }),
-    [filters.year, filters.regionId, filters.type, filters.status]
+    [filters.year, filters.regionId, filters.type, filters.status, filters.documentSubType]
   )
 
   // --- 更新 URL 參數 ---

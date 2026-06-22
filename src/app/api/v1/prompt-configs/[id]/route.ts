@@ -327,6 +327,20 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // CHANGE-085: 啟用中（isActive）的配置不可刪除 — 後端為真實防線，
+    // 避免使用者直接打 API 繞過前端禁用按鈕。語意對應 409 Conflict。
+    if (existingConfig.isActive) {
+      return NextResponse.json(
+        {
+          type: 'https://api.example.com/errors/conflict',
+          title: 'Conflict',
+          status: 409,
+          detail: `Cannot delete an active prompt config. Please deactivate '${existingConfig.name}' before deleting.`,
+        },
+        { status: 409 }
+      );
+    }
+
     // 刪除配置
     await prisma.promptConfig.delete({
       where: { id },

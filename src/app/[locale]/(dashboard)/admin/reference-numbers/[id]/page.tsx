@@ -55,6 +55,7 @@ export default function EditReferenceNumberPage() {
           type: values.type,
           year: values.year,
           regionId: values.regionId,
+          documentSubType: values.documentSubType ?? null,
           description: values.description || null,
           validFrom: values.validFrom ? values.validFrom.toISOString() : null,
           validUntil: values.validUntil ? values.validUntil.toISOString() : null,
@@ -123,6 +124,7 @@ export default function EditReferenceNumberPage() {
             defaultValues={{
               number: item.number,
               type: item.type as ReferenceNumberFormValues['type'],
+              documentSubType: item.documentSubType as ReferenceNumberFormValues['documentSubType'],
               year: item.year,
               regionId: item.regionId,
               description: item.description || '',

@@ -56,6 +56,7 @@ export interface ReferenceNumberListItem {
   number: string;
   type: string;
   status: string;
+  documentSubType: string | null;
   year: number;
   regionId: string;
   regionCode: string;
@@ -155,6 +156,7 @@ export async function getReferenceNumbers(
     regionId,
     type,
     status,
+    documentSubType,
     isActive,
     search,
     sortBy,
@@ -178,6 +180,10 @@ export async function getReferenceNumbers(
 
   if (status) {
     where.status = status;
+  }
+
+  if (documentSubType) {
+    where.documentSubType = documentSubType;
   }
 
   if (isActive !== undefined) {
@@ -215,6 +221,7 @@ export async function getReferenceNumbers(
     number: item.number,
     type: item.type,
     status: item.status,
+    documentSubType: item.documentSubType,
     year: item.year,
     regionId: item.regionId,
     regionCode: item.region.code,
@@ -272,6 +279,7 @@ export async function getReferenceNumberById(
     number: item.number,
     type: item.type,
     status: item.status,
+    documentSubType: item.documentSubType,
     year: item.year,
     regionId: item.regionId,
     regionCode: item.region.code,
@@ -345,6 +353,7 @@ export async function createReferenceNumber(
       code,
       number: input.number,
       type: input.type,
+      documentSubType: input.documentSubType ?? null,
       year: input.year,
       regionId: input.regionId,
       description: input.description ?? null,
@@ -369,6 +378,7 @@ export async function createReferenceNumber(
     number: item.number,
     type: item.type,
     status: item.status,
+    documentSubType: item.documentSubType,
     year: item.year,
     regionId: item.regionId,
     regionCode: item.region.code,
@@ -458,6 +468,9 @@ export async function updateReferenceNumber(
   if (input.status !== undefined) {
     updateData.status = input.status;
   }
+  if (input.documentSubType !== undefined) {
+    updateData.documentSubType = input.documentSubType;
+  }
   if (input.year !== undefined) {
     updateData.year = input.year;
   }
@@ -498,6 +511,7 @@ export async function updateReferenceNumber(
     number: item.number,
     type: item.type,
     status: item.status,
+    documentSubType: item.documentSubType,
     year: item.year,
     regionId: item.regionId,
     regionCode: item.region.code,
@@ -634,6 +648,7 @@ export async function importReferenceNumbers(
             data: {
               number: item.number,
               type: item.type,
+              documentSubType: item.documentSubType ?? null,
               year: item.year,
               regionId,
               description: item.description ?? null,
@@ -697,6 +712,7 @@ export interface ExportItem {
   number: string;
   type: string;
   status: string;
+  documentSubType: string | null;
   year: number;
   regionCode: string;
   description: string | null;
@@ -743,6 +759,9 @@ export async function exportReferenceNumbers(
   if (query.status) {
     where.status = query.status;
   }
+  if (query.documentSubType) {
+    where.documentSubType = query.documentSubType;
+  }
   if (query.isActive !== undefined) {
     where.isActive = query.isActive;
   }
@@ -767,6 +786,7 @@ export async function exportReferenceNumbers(
       number: item.number,
       type: item.type,
       status: item.status,
+      documentSubType: item.documentSubType,
       year: item.year,
       regionCode: item.region.code,
       description: item.description,

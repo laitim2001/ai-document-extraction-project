@@ -222,6 +222,8 @@ export default function DocumentsPage() {
             isLoading={isLoading}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
+            page={page}
+            pageSize={data?.meta?.pageSize ?? 20}
           />
         </CardContent>
       </Card>

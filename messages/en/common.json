@@ -30,6 +30,11 @@
     "approve": "Approve",
     "reject": "Reject"
   },
+  "table": {
+    "columns": {
+      "no": "No."
+    }
+  },
   "errors": {
     "title": "Error",
     "generic": "Something went wrong. Please try again.",

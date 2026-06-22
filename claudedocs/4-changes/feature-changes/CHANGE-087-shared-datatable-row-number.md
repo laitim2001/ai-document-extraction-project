@@ -1,7 +1,7 @@
 # CHANGE-087: 全站列表建立共用 DataTable 封裝並加入 No. 序號欄
 
 > **日期**: 2026-06-20
-> **狀態**: ⏳ 待實作
+> **狀態**: ✅ Phase 1 + Phase 2/3（主列表）已完成（2026-06-22）。Phase 2 完成全部**主列表頁**（29 列表組件 + `RuleList` 配套，共 30 檔）遷移並一併清理手寫表頭（Phase 3 orphan）。剩餘約 21 個**輔助表格**（dialog/skeleton/明細 LineItems/預覽/編輯器）明確**不納入**（見文末 Phase 2 實作記錄 §範圍與排除）
 > **優先級**: Medium
 > **類型**: Refactor（架構）
 > **影響範圍**: 全站 35+ 列表組件
@@ -117,9 +117,9 @@
 
 | 階段 | 範圍 | 驗證 | 狀態 |
 |------|------|------|------|
-| Phase 1 | 建 DataTable 封裝 + 試點 1–2 個列表（建議 documents 列表，與 CHANGE-084 協作）；同步新增 `common.json` `table.columns.no` ×3 語言 | type-check / lint 通過；試點頁 No. 欄正確、跨頁序號連續、原欄位與行為無回歸；`i18n:check` 通過 | ⏳ 待實作 |
-| Phase 2 | 分批遷移其餘 ~33 個列表組件（按模組分批：documents → companies/rules → review/escalations → admin → reference/exchange/pipeline/prompt 等），每批獨立驗證 | 每批 type-check / lint / 視覺核對該批列表 No. 欄與原行為一致 | ⏳ 待實作 |
-| Phase 3 | 清理各組件遷移後遺留的手寫表頭 / 臨時序號邏輯（orphan 清理） | grep 確認已遷移組件無殘留手寫 `<TableHead>` 重複邏輯；type-check / lint 通過 | ⏳ 待實作 |
+| Phase 1 | 建 DataTable 封裝 + 試點 1–2 個列表（建議 documents 列表，與 CHANGE-084 協作）；同步新增 `common.json` `table.columns.no` ×3 語言 | type-check / lint 通過；試點頁 No. 欄正確、跨頁序號連續、原欄位與行為無回歸；`i18n:check` 通過 | ✅ 已完成（2026-06-21） |
+| Phase 2 | 遷移全部**主列表頁**組件（admin/users、rules、review、escalation、exchange-rate、reference-number、pipeline-config、formats、forwarders、audit、backup、restore、retention、sharepoint、outlook、term-analysis、field-definition-set、template-field-mapping、reports 等共 29 組件 + `RuleList` 配套） | type-check / lint / i18n:check 通過；視覺抽查 users（No. 1–4）、rules（第 2 頁 No. 21–26 跨頁連續）；剩餘輔助表格不納入 | ✅ 已完成（2026-06-22） |
+| Phase 3 | 清理各組件遷移後遺留的手寫表頭 / 臨時序號邏輯（orphan 清理） | grep 確認已遷移組件僅餘 loading skeleton 的 `<Table>`（條件渲染，非 orphan）；type-check / lint 通過 | ✅ 已完成（隨 Phase 2 一併處理） |
 
 > **執行方式**：Phase 2 各組件彼此獨立、無檔案衝突，可並行多 Agent 分批處理（依 `.claude/rules/agent-orchestration.md`）。`common.json` 的 i18n 修改須**集中由單一 Agent 或主 Session 處理**，避免多 Agent 同改一 JSON 造成衝突。
 >
@@ -187,3 +187,88 @@
 | H1（架構 / 三層映射 / 信心度 / Prisma） | 否 | 純前端組件層重構，不涉及 |
 | H3（task scope / 新抽象層） | **是** | 引入全站共用 DataTable 抽象層 — **用戶已於 2026-06-20 批准**（見 §設計決策 D6） |
 | H5（i18n / 硬編碼） | **是** | 「No.」表頭 3 語言同步於 `common.json` `table.columns.no`，完成前跑 `npm run i18n:check` |
+
+---
+
+## 實作記錄 — Phase 1（2026-06-21）
+
+於分支 `feature/change-084-087-phase1` 實作完成。
+
+### D1 路徑決策（實作時定奪）
+
+採 **(a) `src/components/features/common/DataTable.tsx`**（PascalCase），**非**規劃預設傾向的 (b) `ui/data-table.tsx`。理由：本專案 `src/components/ui/` 明確標記「shadcn CLI 生成、不可修改/不放自訂組件」，放非 shadcn 的自訂封裝進去違反該目錄語義；`features/common/` 為 features 領域共用、語義正確，命名符合 features 組件 PascalCase 慣例。DataTable 內部組合 shadcn `Table` primitive，不修改 `ui/table.tsx`。
+
+### 實際修改/新增檔案
+
+| 檔案 | 類型 | 內容 |
+|------|------|------|
+| `src/components/features/common/DataTable.tsx` | 🆕 新增 | 泛型共用封裝：No. 序號欄（跨頁連續 `(page-1)*pageSize + index + 1`，無分頁退化 `index+1`）+ `columns` 定義驅動表頭/儲存格 + 可選空狀態 + `rowProps`。D5：未擴增篩選/欄位顯隱/虛擬捲動 |
+| `src/components/features/document/DocumentListTable.tsx` | 🔧 遷移 | 由手寫 `<Table>` 改為 `columns` 定義 + `<DataTable>`；保留全部 9 欄（含 CHANGE-084 新欄）、checkbox 選擇、isLoading/empty 提前 return；新增 `page`/`pageSize` props；選中列視覺改用 `className="bg-muted"`（與 shadcn `data-[state=selected]` 等價，避免 `data-state` 與 `HTMLAttributes` 型別衝突） |
+| `src/app/[locale]/(dashboard)/documents/page.tsx` | 🔧 修改 | 傳 `page={page}` + `pageSize={data?.meta?.pageSize ?? 20}` 供序號跨頁連續 |
+| `messages/{en,zh-TW,zh-CN}/common.json` | 🔧 修改 | 新增 `table.columns.no`（en `No.` / zh-TW `序號` / zh-CN `序号`） |
+
+### 驗證結果
+
+- `npm run type-check`：通過（exit 0）
+- `npm run lint`：通過（DataTable / DocumentListTable / documents page 皆無 warning）
+- `npm run i18n:check`：通過；三語言 `common.json` JSON 解析有效
+- D2 跨頁序號：documents 列表 `page`/`pageSize` 已接入；序號公式於 DataTable 統一計算
+
+### 範圍說明
+
+- **Phase 1 僅含 documents 試點**（用戶 2026-06-21 確認）。Phase 2（其餘 ~33 個列表組件分批遷移）與 Phase 3（orphan 清理）**未做**，另排跨 session。
+- 未遷移的列表頁維持原手寫表格、正常運作（新舊寫法可共存）。
+
+---
+
+## 實作記錄 — Phase 2 + Phase 3（2026-06-22）
+
+於分支 `feature/change-084-087-phase1` 完成全部**主列表頁**遷移，並隨遷移一併清理手寫表頭（Phase 3 orphan）。
+
+### 遷移組件（29 列表組件 + `RuleList` 配套 = 30 檔）
+
+| 模組 | 組件 |
+|------|------|
+| admin | `UserTable`、`alerts/AlertHistory`、`alerts/AlertRuleTable`、`api-keys/ApiKeyTable`、`backup/BackupList`、`backup/BackupScheduleList`、`logs/LogViewer`、`restore/RestoreList` |
+| audit | `AuditReportJobList` |
+| escalation | `EscalationListTable` |
+| exchange-rate | `ExchangeRateList` |
+| field-definition-set | `FieldDefinitionSetList` |
+| formats | `FormatFilesTable` |
+| forwarders | `ForwarderRulesTable`、`ForwarderTable` |
+| historical-data | `HistoricalFileList` |
+| outlook | `OutlookConfigList` |
+| pipeline-config | `PipelineConfigList` |
+| reference-number | `ReferenceNumberList` |
+| reports | `CityCostTable` |
+| retention | `ArchiveRecordList`、`DeletionRequestList`、`RetentionPolicyList` |
+| review | `ReviewQueueTable` |
+| rules | `RuleTable`、`RuleList`（配套傳 `page`/`pageSize`）、`TestResultComparison` |
+| sharepoint | `SharePointConfigList` |
+| template-field-mapping | `TemplateFieldMappingList` |
+| term-analysis | `TermTable` |
+
+### 驗證結果
+
+- `npm run type-check`：通過（exit 0）
+- `npm run eslint`（30 檔 + DataTable）：通過，無 warning
+- `npm run i18n:check`：通過（No. 表頭 `table.columns.no` 於 Phase 1 已加，Phase 2 不新增 i18n key）
+- 視覺抽查（dev server `:3200`）：
+  - User Management（`UserTable`）— No. 欄 1–4，欄位/篩選/行為正常
+  - Mapping Rules（`RuleTable` + `RuleList`）— 第 1 頁 No. 1–20、**第 2 頁 No. 21–26 跨頁連續**（驗收 #3 通過），分頁/篩選正常
+- D2 跨頁序號公式於 DataTable 統一計算，各組件正確傳入 `page`/`pageSize`
+
+### Phase 3（orphan 清理）
+
+各遷移組件原手寫的資料 `<TableHeader>`/`<TableHead>` 已移除，改 `columns` 定義。部分組件殘留的 `<Table>` 為 **isLoading 時的 skeleton**（條件渲染，例如 `BackupList`），屬合理 loading 狀態，**非 orphan**，保留。
+
+### 範圍與排除（驗收 #6 誠實說明）
+
+本次完成**全部主列表頁**，但全站尚有約 21 個 shadcn 表格**未納入**，皆非用戶在列表頁見到的主列表，依 D5（不擴增）/ H3（不擅自擴大 scope）明確排除：
+
+- **發票明細**：`document-preview/LineItemsTable`、`historical-data/file-detail/LineItemsTable`（行號為發票固有欄位，§現狀調查已排除）
+- **Dialog/預覽**：`ExchangeRateImportDialog`、`ReferenceNumberImportDialog`、`TemplatePreviewDialog`、`HistoryVersionCompareDialog` 等
+- **Skeleton**：`ForwarderTableSkeleton`、`ReviewQueueSkeleton`
+- **自帶序號/輔助表**：`global/CityRankings`、`global/RegionView`、`forwarders/RecentDocumentsTable`、`rules/RecentApplicationsTable`、`rule-review/SampleCasesTable`、`suggestions/RiskCasesTable`/`SimulationResultsPanel`、`mapping-config/MappingPreview`、`template-field-mapping/LookupTableEditor`、`template-instance/InstanceRowsTable`、`format-analysis/FormatTermsPanel`、`historical-data/BatchErrorList`、`outlook/OutlookFilterRulesEditor` 等
+
+> 若日後要求「全站 100% 含輔助表格」，可另開 Phase 4 評估逐一是否該加序號。

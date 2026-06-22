@@ -7,17 +7,14 @@
  *
  * @module src/components/features/admin/alerts/AlertHistory
  * @since Epic 12 - Story 12-3 (錯誤警報設定)
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  */
 
 import * as React from 'react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -131,19 +128,22 @@ export function AlertHistory({ className }: AlertHistoryProps) {
     }));
   };
 
-  const handleAcknowledge = async (id: string) => {
-    try {
-      await acknowledgeMutation.mutateAsync(id);
-    } catch (error) {
-      console.error('Acknowledge error:', error);
-    }
-  };
+  const handleAcknowledge = React.useCallback(
+    async (id: string) => {
+      try {
+        await acknowledgeMutation.mutateAsync(id);
+      } catch (error) {
+        console.error('Acknowledge error:', error);
+      }
+    },
+    [acknowledgeMutation]
+  );
 
-  const handleResolveClick = (id: string) => {
+  const handleResolveClick = React.useCallback((id: string) => {
     setAlertToResolve(id);
     setResolution('');
     setResolveDialogOpen(true);
-  };
+  }, []);
 
   const handleResolveConfirm = async () => {
     if (alertToResolve && resolution.trim()) {
@@ -161,9 +161,99 @@ export function AlertHistory({ className }: AlertHistoryProps) {
     }
   };
 
-  const handleViewDetails = (alert: AlertResponse) => {
+  const handleViewDetails = React.useCallback((alert: AlertResponse) => {
     setSelectedAlert(alert);
-  };
+  }, []);
+
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<AlertResponse>[]>(
+    () => [
+      {
+        id: 'rule',
+        header: '規則',
+        cell: (alert) => (
+          <p className="font-medium">{alert.rule?.name || '未知規則'}</p>
+        ),
+      },
+      {
+        id: 'severity',
+        header: '嚴重程度',
+        cell: (alert) => (
+          <Badge className={getSeverityColor(alert.rule?.severity || 'INFO')}>
+            {getSeverityText(alert.rule?.severity || 'INFO')}
+          </Badge>
+        ),
+      },
+      {
+        id: 'triggeredValue',
+        header: '觸發值',
+        cell: (alert) => (
+          <code className="text-sm bg-muted px-1 py-0.5 rounded">
+            {alert.triggeredValue}
+          </code>
+        ),
+      },
+      {
+        id: 'status',
+        header: '狀態',
+        cell: (alert) => (
+          <Badge className={getAlertStatusColor(alert.status)}>
+            {getAlertStatusText(alert.status)}
+          </Badge>
+        ),
+      },
+      {
+        id: 'triggeredAt',
+        header: '觸發時間',
+        cell: (alert) => (
+          <span className="text-sm text-muted-foreground">
+            {new Date(alert.triggeredAt).toLocaleString('zh-TW')}
+          </span>
+        ),
+      },
+      {
+        id: 'actions',
+        header: '操作',
+        headerClassName: 'w-[150px]',
+        cell: (alert) => (
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleViewDetails(alert)}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            {(alert.status === 'FIRING' || alert.status === 'ACTIVE') && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleAcknowledge(alert.id)}
+                disabled={acknowledgeMutation.isPending}
+              >
+                <CheckCircle className="h-4 w-4 text-yellow-500" />
+              </Button>
+            )}
+            {alert.status !== 'RESOLVED' && alert.status !== 'RECOVERED' && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleResolveClick(alert.id)}
+              >
+                <XCircle className="h-4 w-4 text-green-500" />
+              </Button>
+            )}
+          </div>
+        ),
+      },
+    ],
+    [
+      acknowledgeMutation.isPending,
+      handleAcknowledge,
+      handleResolveClick,
+      handleViewDetails,
+    ]
+  );
 
   // --- Render ---
   return (
@@ -220,77 +310,13 @@ export function AlertHistory({ className }: AlertHistoryProps) {
         </div>
       ) : (
         <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>規則</TableHead>
-                <TableHead>嚴重程度</TableHead>
-                <TableHead>觸發值</TableHead>
-                <TableHead>狀態</TableHead>
-                <TableHead>觸發時間</TableHead>
-                <TableHead className="w-[150px]">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.data.map((alert) => (
-                <TableRow key={alert.id}>
-                  <TableCell>
-                    <p className="font-medium">{alert.rule?.name || '未知規則'}</p>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getSeverityColor(alert.rule?.severity || 'INFO')}>
-                      {getSeverityText(alert.rule?.severity || 'INFO')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <code className="text-sm bg-muted px-1 py-0.5 rounded">
-                      {alert.triggeredValue}
-                    </code>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getAlertStatusColor(alert.status)}>
-                      {getAlertStatusText(alert.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-muted-foreground">
-                      {new Date(alert.triggeredAt).toLocaleString('zh-TW')}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleViewDetails(alert)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {(alert.status === 'FIRING' || alert.status === 'ACTIVE') && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleAcknowledge(alert.id)}
-                          disabled={acknowledgeMutation.isPending}
-                        >
-                          <CheckCircle className="h-4 w-4 text-yellow-500" />
-                        </Button>
-                      )}
-                      {alert.status !== 'RESOLVED' && alert.status !== 'RECOVERED' && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleResolveClick(alert.id)}
-                        >
-                          <XCircle className="h-4 w-4 text-green-500" />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable
+            data={data.data}
+            columns={columns}
+            getRowId={(alert) => alert.id}
+            page={params.page}
+            pageSize={params.limit}
+          />
         </div>
       )}
 

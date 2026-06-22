@@ -12,26 +12,24 @@
  * @module src/components/features/admin/api-keys/ApiKeyTable
  * @author Development Team
  * @since Epic 11 - Story 11.5 (API 存取控制與認證)
- * @lastModified 2025-12-21
+ * @lastModified 2026-06-21 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @dependencies
  *   - date-fns - 日期格式化
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/components/ui/* - UI 組件
  *
  * @related
  *   - src/app/api/admin/api-keys/route.ts - API 路由
  */
 
+import * as React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -125,6 +123,141 @@ export function ApiKeyTable({
   onViewStats,
   isLoading = false,
 }: ApiKeyTableProps) {
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<ApiKeyResponse>[]>(() => {
+    return [
+      // 名稱
+      {
+        id: 'name',
+        header: '名稱',
+        headerClassName: 'w-[200px]',
+        cell: (apiKey) => (
+          <div className="flex flex-col">
+            <span className="font-medium">{apiKey.name}</span>
+            {apiKey.description && (
+              <span className="text-xs text-muted-foreground truncate max-w-[180px]">
+                {apiKey.description}
+              </span>
+            )}
+          </div>
+        ),
+      },
+      // Key 前綴
+      {
+        id: 'keyPrefix',
+        header: 'Key 前綴',
+        headerClassName: 'w-[120px]',
+        cell: (apiKey) => (
+          <code className="bg-muted px-2 py-1 rounded text-xs">
+            {apiKey.keyPrefix}...
+          </code>
+        ),
+      },
+      // 權限
+      {
+        id: 'permissions',
+        header: '權限',
+        cell: (apiKey) => (
+          <div className="flex flex-col gap-1">
+            <span className="text-xs">
+              城市: {formatCities(apiKey.allowedCities)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              操作: {formatOperations(apiKey.allowedOperations)}
+            </span>
+          </div>
+        ),
+      },
+      // 速率限制
+      {
+        id: 'rateLimit',
+        header: '速率限制',
+        headerClassName: 'w-[100px]',
+        cell: (apiKey) => (
+          <span className="text-sm">{apiKey.rateLimit}/min</span>
+        ),
+      },
+      // 使用量
+      {
+        id: 'usage',
+        header: '使用量',
+        headerClassName: 'w-[100px]',
+        cell: (apiKey) => (
+          <span className="text-sm font-mono">
+            {formatUsageCount(apiKey.usageCount)}
+          </span>
+        ),
+      },
+      // 最後使用
+      {
+        id: 'lastUsed',
+        header: '最後使用',
+        headerClassName: 'w-[120px]',
+        cell: (apiKey) =>
+          apiKey.lastUsedAt ? (
+            <span className="text-xs text-muted-foreground">
+              {formatDistanceToNow(new Date(apiKey.lastUsedAt), {
+                addSuffix: true,
+                locale: zhTW,
+              })}
+            </span>
+          ) : (
+            <span className="text-xs text-muted-foreground">從未使用</span>
+          ),
+      },
+      // 狀態
+      {
+        id: 'status',
+        header: '狀態',
+        headerClassName: 'w-[80px]',
+        cell: (apiKey) => (
+          <Badge variant={getStatusVariant(apiKey.isActive)}>
+            {apiKey.isActive ? '啟用' : '停用'}
+          </Badge>
+        ),
+      },
+      // 操作
+      {
+        id: 'actions',
+        header: null,
+        headerClassName: 'w-[60px]',
+        cell: (apiKey) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">操作選單</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit?.(apiKey.id)}>
+                <Settings className="mr-2 h-4 w-4" />
+                編輯設定
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onViewStats?.(apiKey.id)}>
+                <BarChart2 className="mr-2 h-4 w-4" />
+                查看統計
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onRotate?.(apiKey.id)}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                輪替 Key
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => onDelete?.(apiKey.id)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                刪除
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    ];
+  }, [onEdit, onViewStats, onRotate, onDelete]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -147,124 +280,11 @@ export function ApiKeyTable({
 
   return (
     <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[200px]">名稱</TableHead>
-            <TableHead className="w-[120px]">Key 前綴</TableHead>
-            <TableHead>權限</TableHead>
-            <TableHead className="w-[100px]">速率限制</TableHead>
-            <TableHead className="w-[100px]">使用量</TableHead>
-            <TableHead className="w-[120px]">最後使用</TableHead>
-            <TableHead className="w-[80px]">狀態</TableHead>
-            <TableHead className="w-[60px]"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {apiKeys.map((apiKey) => (
-            <TableRow key={apiKey.id}>
-              {/* 名稱 */}
-              <TableCell>
-                <div className="flex flex-col">
-                  <span className="font-medium">{apiKey.name}</span>
-                  {apiKey.description && (
-                    <span className="text-xs text-muted-foreground truncate max-w-[180px]">
-                      {apiKey.description}
-                    </span>
-                  )}
-                </div>
-              </TableCell>
-
-              {/* Key 前綴 */}
-              <TableCell>
-                <code className="bg-muted px-2 py-1 rounded text-xs">
-                  {apiKey.keyPrefix}...
-                </code>
-              </TableCell>
-
-              {/* 權限 */}
-              <TableCell>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs">
-                    城市: {formatCities(apiKey.allowedCities)}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    操作: {formatOperations(apiKey.allowedOperations)}
-                  </span>
-                </div>
-              </TableCell>
-
-              {/* 速率限制 */}
-              <TableCell>
-                <span className="text-sm">{apiKey.rateLimit}/min</span>
-              </TableCell>
-
-              {/* 使用量 */}
-              <TableCell>
-                <span className="text-sm font-mono">
-                  {formatUsageCount(apiKey.usageCount)}
-                </span>
-              </TableCell>
-
-              {/* 最後使用 */}
-              <TableCell>
-                {apiKey.lastUsedAt ? (
-                  <span className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(apiKey.lastUsedAt), {
-                      addSuffix: true,
-                      locale: zhTW,
-                    })}
-                  </span>
-                ) : (
-                  <span className="text-xs text-muted-foreground">從未使用</span>
-                )}
-              </TableCell>
-
-              {/* 狀態 */}
-              <TableCell>
-                <Badge variant={getStatusVariant(apiKey.isActive)}>
-                  {apiKey.isActive ? '啟用' : '停用'}
-                </Badge>
-              </TableCell>
-
-              {/* 操作 */}
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">操作選單</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEdit?.(apiKey.id)}>
-                      <Settings className="mr-2 h-4 w-4" />
-                      編輯設定
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onViewStats?.(apiKey.id)}>
-                      <BarChart2 className="mr-2 h-4 w-4" />
-                      查看統計
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => onRotate?.(apiKey.id)}>
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      輪替 Key
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={() => onDelete?.(apiKey.id)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      刪除
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <DataTable
+        data={apiKeys}
+        columns={columns}
+        getRowId={(apiKey) => apiKey.id}
+      />
     </div>
   );
 }

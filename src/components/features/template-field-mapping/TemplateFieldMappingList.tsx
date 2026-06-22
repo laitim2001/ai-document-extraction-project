@@ -5,7 +5,7 @@
  *
  * @module src/components/features/template-field-mapping
  * @since Epic 19 - Story 19.4
- * @lastModified 2026-01-22
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  */
 
 'use client';
@@ -27,13 +27,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -219,6 +215,97 @@ export function TemplateFieldMappingList({ className }: TemplateFieldMappingList
     [router]
   );
 
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<TemplateFieldMappingSummary>[]>(
+    () => [
+      {
+        id: 'name',
+        header: t('table.name'),
+        cell: (mapping) => (
+          <Link
+            href={`/admin/template-field-mappings/${mapping.id}`}
+            className="font-medium hover:underline"
+          >
+            {mapping.name}
+          </Link>
+        ),
+      },
+      {
+        id: 'template',
+        header: t('table.template'),
+        cellClassName: 'text-muted-foreground',
+        cell: (mapping) => mapping.dataTemplateName,
+      },
+      {
+        id: 'scope',
+        header: t('table.scope'),
+        cell: (mapping) => <ScopeBadge scope={mapping.scope} />,
+      },
+      {
+        id: 'target',
+        header: t('table.target'),
+        cellClassName: 'text-muted-foreground',
+        cell: (mapping) => {
+          if (mapping.scope === 'COMPANY' && mapping.companyName) {
+            return mapping.companyName;
+          }
+          if (mapping.scope === 'FORMAT' && mapping.documentFormatName) {
+            return mapping.documentFormatName;
+          }
+          return '-';
+        },
+      },
+      {
+        id: 'ruleCount',
+        header: t('table.ruleCount'),
+        headerClassName: 'text-center',
+        cellClassName: 'text-center',
+        cell: (mapping) => mapping.ruleCount,
+      },
+      {
+        id: 'priority',
+        header: t('table.priority'),
+        headerClassName: 'text-center',
+        cellClassName: 'text-center',
+        cell: (mapping) => mapping.priority,
+      },
+      {
+        id: 'status',
+        header: t('table.status'),
+        headerClassName: 'text-center',
+        cellClassName: 'text-center',
+        cell: (mapping) => <StatusBadge isActive={mapping.isActive} />,
+      },
+      {
+        id: 'actions',
+        header: t('table.actions'),
+        headerClassName: 'text-right',
+        cellClassName: 'text-right',
+        cell: (mapping) => (
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleEditClick(mapping.id)}
+            >
+              <Edit className="h-4 w-4" />
+              <span className="sr-only">{t('actions.edit')}</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setDeleteId(mapping.id)}
+            >
+              <Trash2 className="h-4 w-4 text-destructive" />
+              <span className="sr-only">{t('actions.delete')}</span>
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [t, handleEditClick]
+  );
+
   // Render
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -296,30 +383,13 @@ export function TemplateFieldMappingList({ className }: TemplateFieldMappingList
         ) : (
           <>
             <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('table.name')}</TableHead>
-                    <TableHead>{t('table.template')}</TableHead>
-                    <TableHead>{t('table.scope')}</TableHead>
-                    <TableHead>{t('table.target')}</TableHead>
-                    <TableHead className="text-center">{t('table.ruleCount')}</TableHead>
-                    <TableHead className="text-center">{t('table.priority')}</TableHead>
-                    <TableHead className="text-center">{t('table.status')}</TableHead>
-                    <TableHead className="text-right">{t('table.actions')}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mappings.map((mapping) => (
-                    <MappingRow
-                      key={mapping.id}
-                      mapping={mapping}
-                      onEdit={() => handleEditClick(mapping.id)}
-                      onDelete={() => setDeleteId(mapping.id)}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                data={mappings}
+                columns={columns}
+                getRowId={(mapping) => mapping.id}
+                page={filters.page}
+                pageSize={filters.limit}
+              />
             </div>
 
             {/* Pagination */}
@@ -378,66 +448,5 @@ export function TemplateFieldMappingList({ className }: TemplateFieldMappingList
         </AlertDialogContent>
       </AlertDialog>
     </Card>
-  );
-}
-
-// ============================================================================
-// Row Component
-// ============================================================================
-
-interface MappingRowProps {
-  mapping: TemplateFieldMappingSummary;
-  onEdit: () => void;
-  onDelete: () => void;
-}
-
-function MappingRow({ mapping, onEdit, onDelete }: MappingRowProps) {
-  const t = useTranslations('templateFieldMapping');
-
-  const targetName = React.useMemo(() => {
-    if (mapping.scope === 'COMPANY' && mapping.companyName) {
-      return mapping.companyName;
-    }
-    if (mapping.scope === 'FORMAT' && mapping.documentFormatName) {
-      return mapping.documentFormatName;
-    }
-    return '-';
-  }, [mapping]);
-
-  return (
-    <TableRow>
-      <TableCell>
-        <Link
-          href={`/admin/template-field-mappings/${mapping.id}`}
-          className="font-medium hover:underline"
-        >
-          {mapping.name}
-        </Link>
-      </TableCell>
-      <TableCell className="text-muted-foreground">
-        {mapping.dataTemplateName}
-      </TableCell>
-      <TableCell>
-        <ScopeBadge scope={mapping.scope} />
-      </TableCell>
-      <TableCell className="text-muted-foreground">{targetName}</TableCell>
-      <TableCell className="text-center">{mapping.ruleCount}</TableCell>
-      <TableCell className="text-center">{mapping.priority}</TableCell>
-      <TableCell className="text-center">
-        <StatusBadge isActive={mapping.isActive} />
-      </TableCell>
-      <TableCell className="text-right">
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" size="icon" onClick={onEdit}>
-            <Edit className="h-4 w-4" />
-            <span className="sr-only">{t('actions.edit')}</span>
-          </Button>
-          <Button variant="ghost" size="icon" onClick={onDelete}>
-            <Trash2 className="h-4 w-4 text-destructive" />
-            <span className="sr-only">{t('actions.delete')}</span>
-          </Button>
-        </div>
-      </TableCell>
-    </TableRow>
   );
 }

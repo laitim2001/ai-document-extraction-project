@@ -11,11 +11,11 @@
  *
  * @module src/components/features/field-definition-set/FieldDefinitionSetList
  * @since CHANGE-042 Phase 3
- * @lastModified 2026-02-23
+ * @lastModified 2026-06-21 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @dependencies
  *   - next-intl - 國際化
- *   - @/components/ui/table - 表格基礎組件
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/hooks/use-field-definition-sets - React Query hooks
  *   - ./ScopeBadge - Scope 徽章
  */
@@ -23,13 +23,9 @@
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -142,6 +138,132 @@ export function FieldDefinitionSetList({
     [toggleMutation, toast, t]
   );
 
+  const SortableHeader = React.useCallback(
+    ({ column, children }: { column: string; children: React.ReactNode }) => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8"
+        onClick={() => handleSort(column)}
+      >
+        {children}
+        <ArrowUpDown className="ml-2 h-3 w-3" />
+      </Button>
+    ),
+    [handleSort]
+  );
+
+  // --- Column 定義 ---
+
+  const columns = React.useMemo<DataTableColumn<FieldDefinitionSetItem>[]>(
+    () => [
+      // Name - 可排序 + 跳轉編輯
+      {
+        id: 'name',
+        headerClassName: 'w-[200px]',
+        header: <SortableHeader column="name">{t('list.name')}</SortableHeader>,
+        cellClassName: 'font-medium',
+        cell: (item) => (
+          <Link
+            href={`/admin/field-definition-sets/${item.id}`}
+            className="hover:underline"
+          >
+            {item.name}
+          </Link>
+        ),
+      },
+      // Scope
+      {
+        id: 'scope',
+        headerClassName: 'w-24',
+        header: t('list.scope'),
+        cell: (item) => <ScopeBadge scope={item.scope} />,
+      },
+      // Company
+      {
+        id: 'company',
+        headerClassName: 'w-[150px]',
+        header: t('list.company'),
+        cellClassName: 'text-sm text-muted-foreground',
+        cell: (item) => item.companyName ?? '-',
+      },
+      // Format
+      {
+        id: 'format',
+        headerClassName: 'w-[150px]',
+        header: t('list.format'),
+        cellClassName: 'text-sm text-muted-foreground',
+        cell: (item) => item.documentFormatName ?? '-',
+      },
+      // Fields Count - 可排序
+      {
+        id: 'fieldsCount',
+        headerClassName: 'w-20 text-center',
+        header: (
+          <SortableHeader column="fieldsCount">
+            {t('list.fieldsCount')}
+          </SortableHeader>
+        ),
+        cellClassName: 'text-center tabular-nums',
+        cell: (item) => item.fieldsCount,
+      },
+      // Version
+      {
+        id: 'version',
+        headerClassName: 'w-20 text-center',
+        header: t('list.version'),
+        cellClassName: 'text-center tabular-nums',
+        cell: (item) => `v${item.version}`,
+      },
+      // Status
+      {
+        id: 'status',
+        headerClassName: 'w-24',
+        header: t('list.status'),
+        cell: (item) => (
+          <Badge variant={item.isActive ? 'default' : 'secondary'}>
+            {item.isActive ? t('filters.active') : t('filters.inactive')}
+          </Badge>
+        ),
+      },
+      // Actions
+      {
+        id: 'actions',
+        headerClassName: 'w-20',
+        header: t('list.actions'),
+        cell: (item) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/admin/field-definition-sets/${item.id}`}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  {t('actions.edit')}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleToggle(item.id)}>
+                <ToggleLeft className="h-4 w-4 mr-2" />
+                {t('actions.toggle')}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => setDeleteId(item.id)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                {t('actions.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    ],
+    [t, SortableHeader, handleToggle]
+  );
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -152,133 +274,17 @@ export function FieldDefinitionSetList({
     );
   }
 
-  const SortableHeader = ({
-    column,
-    children,
-  }: {
-    column: string;
-    children: React.ReactNode;
-  }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="-ml-3 h-8"
-      onClick={() => handleSort(column)}
-    >
-      {children}
-      <ArrowUpDown className="ml-2 h-3 w-3" />
-    </Button>
-  );
-
   return (
     <>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">
-                <SortableHeader column="name">
-                  {t('list.name')}
-                </SortableHeader>
-              </TableHead>
-              <TableHead className="w-24">{t('list.scope')}</TableHead>
-              <TableHead className="w-[150px]">{t('list.company')}</TableHead>
-              <TableHead className="w-[150px]">{t('list.format')}</TableHead>
-              <TableHead className="w-20 text-center">
-                <SortableHeader column="fieldsCount">
-                  {t('list.fieldsCount')}
-                </SortableHeader>
-              </TableHead>
-              <TableHead className="w-20 text-center">
-                {t('list.version')}
-              </TableHead>
-              <TableHead className="w-24">{t('list.status')}</TableHead>
-              <TableHead className="w-20">{t('list.actions')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
-                  {t('list.empty')}
-                </TableCell>
-              </TableRow>
-            ) : (
-              data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/admin/field-definition-sets/${item.id}`}
-                      className="hover:underline"
-                    >
-                      {item.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <ScopeBadge scope={item.scope} />
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {item.companyName ?? '-'}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {item.documentFormatName ?? '-'}
-                  </TableCell>
-                  <TableCell className="text-center tabular-nums">
-                    {item.fieldsCount}
-                  </TableCell>
-                  <TableCell className="text-center tabular-nums">
-                    v{item.version}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={item.isActive ? 'default' : 'secondary'}
-                    >
-                      {item.isActive
-                        ? t('filters.active')
-                        : t('filters.inactive')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link
-                            href={`/admin/field-definition-sets/${item.id}`}
-                          >
-                            <Pencil className="h-4 w-4 mr-2" />
-                            {t('actions.edit')}
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleToggle(item.id)}
-                        >
-                          <ToggleLeft className="h-4 w-4 mr-2" />
-                          {t('actions.toggle')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => setDeleteId(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          {t('actions.delete')}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+        <DataTable
+          data={data}
+          columns={columns}
+          getRowId={(item) => item.id}
+          page={pagination?.page}
+          pageSize={pagination?.limit}
+          emptyState={t('list.empty')}
+        />
       </div>
 
       {/* Pagination */}

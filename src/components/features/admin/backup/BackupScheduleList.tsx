@@ -10,10 +10,10 @@
  *
  * @module src/components/features/admin/backup/BackupScheduleList
  * @since Epic 12 - Story 12-5 (數據備份管理)
- * @lastModified 2025-12-21
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
@@ -58,6 +58,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   useBackupSchedules,
@@ -143,6 +147,116 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
     }
   }, [deleteId, deleteMutation, t])
 
+  // --- Column 定義 ---
+  const columns = useMemo<DataTableColumn<BackupScheduleListItem>[]>(
+    () => [
+      {
+        id: 'scheduleName',
+        header: t('backup.schedule.table.scheduleName'),
+        cell: (schedule) => (
+          <div>
+            <p className="font-medium">{schedule.name}</p>
+            {schedule.description && (
+              <p className="text-xs text-muted-foreground line-clamp-1">
+                {schedule.description}
+              </p>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: 'backupSource',
+        header: t('backup.schedule.table.backupSource'),
+        cell: (schedule) => {
+          const sourceInfo = getSourceInfo(schedule.backupSource as BackupSource)
+          return <Badge variant="outline">{sourceInfo.label}</Badge>
+        },
+      },
+      {
+        id: 'backupType',
+        header: t('backup.schedule.table.backupType'),
+        cell: (schedule) => {
+          const typeInfo = getTypeInfo(schedule.backupType as BackupType)
+          return <Badge variant="secondary">{typeInfo.label}</Badge>
+        },
+      },
+      {
+        id: 'frequency',
+        header: t('backup.schedule.table.frequency'),
+        cell: (schedule) => (
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <code className="text-xs bg-muted px-1 py-0.5 rounded">
+              {schedule.cronExpression}
+            </code>
+          </div>
+        ),
+      },
+      {
+        id: 'nextRun',
+        header: t('backup.schedule.table.nextRun'),
+        cell: (schedule) =>
+          schedule.nextRunAt ? (
+            format(new Date(schedule.nextRunAt), 'MM/dd HH:mm', { locale: zhTW })
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          ),
+      },
+      {
+        id: 'status',
+        header: t('backup.schedule.table.status'),
+        cell: (schedule) => (
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={schedule.isEnabled}
+              onCheckedChange={() => handleToggle(schedule.id)}
+              disabled={toggleMutation.isPending}
+            />
+            <span className="text-sm">
+              {schedule.isEnabled ? t('backup.schedule.status.enabled') : t('backup.schedule.status.disabled')}
+            </span>
+          </div>
+        ),
+      },
+      {
+        id: 'actions',
+        header: '',
+        headerClassName: 'w-[80px]',
+        cell: (schedule) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => setRunId(schedule.id)}
+                disabled={!schedule.isEnabled}
+              >
+                <PlayCircle className="mr-2 h-4 w-4" />
+                {t('backup.schedule.actions.runNow')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit?.(schedule)}>
+                <Edit className="mr-2 h-4 w-4" />
+                {t('backup.schedule.actions.edit')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setDeleteId(schedule.id)}
+                className="text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                {t('backup.schedule.actions.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    ],
+    [t, onEdit, handleToggle, toggleMutation.isPending]
+  )
+
   if (error) {
     return (
       <Card>
@@ -175,121 +289,42 @@ export function BackupScheduleList({ onEdit, onAdd }: BackupScheduleListProps) {
       <CardContent className="space-y-4">
         {/* 表格 */}
         <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('backup.schedule.table.scheduleName')}</TableHead>
-                <TableHead>{t('backup.schedule.table.backupSource')}</TableHead>
-                <TableHead>{t('backup.schedule.table.backupType')}</TableHead>
-                <TableHead>{t('backup.schedule.table.frequency')}</TableHead>
-                <TableHead>{t('backup.schedule.table.nextRun')}</TableHead>
-                <TableHead>{t('backup.schedule.table.status')}</TableHead>
-                <TableHead className="w-[80px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 3 }).map((_, i) => (
+          {isLoading ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[60px]"></TableHead>
+                  <TableHead>{t('backup.schedule.table.scheduleName')}</TableHead>
+                  <TableHead>{t('backup.schedule.table.backupSource')}</TableHead>
+                  <TableHead>{t('backup.schedule.table.backupType')}</TableHead>
+                  <TableHead>{t('backup.schedule.table.frequency')}</TableHead>
+                  <TableHead>{t('backup.schedule.table.nextRun')}</TableHead>
+                  <TableHead>{t('backup.schedule.table.status')}</TableHead>
+                  <TableHead className="w-[80px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Array.from({ length: 3 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-5 w-full" />
                       </TableCell>
                     ))}
                   </TableRow>
-                ))
-              ) : schedules.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                    {t('backup.schedule.emptyState')}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                schedules.map((schedule) => {
-                  const sourceInfo = getSourceInfo(schedule.backupSource as BackupSource)
-                  const typeInfo = getTypeInfo(schedule.backupType as BackupType)
-
-                  return (
-                    <TableRow key={schedule.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{schedule.name}</p>
-                          {schedule.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-1">
-                              {schedule.description}
-                            </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{sourceInfo.label}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{typeInfo.label}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                            {schedule.cronExpression}
-                          </code>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {schedule.nextRunAt ? (
-                          format(new Date(schedule.nextRunAt), 'MM/dd HH:mm', { locale: zhTW })
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            checked={schedule.isEnabled}
-                            onCheckedChange={() => handleToggle(schedule.id)}
-                            disabled={toggleMutation.isPending}
-                          />
-                          <span className="text-sm">
-                            {schedule.isEnabled ? t('backup.schedule.status.enabled') : t('backup.schedule.status.disabled')}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => setRunId(schedule.id)}
-                              disabled={!schedule.isEnabled}
-                            >
-                              <PlayCircle className="mr-2 h-4 w-4" />
-                              {t('backup.schedule.actions.runNow')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onEdit?.(schedule)}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              {t('backup.schedule.actions.edit')}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => setDeleteId(schedule.id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              {t('backup.schedule.actions.delete')}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <DataTable
+              data={schedules}
+              columns={columns}
+              getRowId={(schedule) => schedule.id}
+              page={params.page}
+              pageSize={params.limit}
+              emptyState={t('backup.schedule.emptyState')}
+            />
+          )}
         </div>
 
         {/* 分頁 */}

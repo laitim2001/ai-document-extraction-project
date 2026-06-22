@@ -8,7 +8,7 @@
  *
  * @module src/components/features/formats
  * @since Epic 16 - Story 16.2
- * @lastModified 2026-02-26
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  */
 
 import * as React from 'react';
@@ -18,13 +18,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable';
 import {
   Files,
   ChevronLeft,
@@ -35,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useFormatFiles } from '@/hooks/use-format-files';
+import type { FormatLinkedFile } from '@/types/document-format';
 
 // ============================================================================
 // Types
@@ -151,6 +148,44 @@ export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFile
     [t]
   );
 
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<FormatLinkedFile>[]>(
+    () => [
+      {
+        id: 'fileName',
+        header: t('detail.files.table.fileName'),
+        cellClassName: 'font-medium',
+        cell: (file) => <span className="line-clamp-1">{file.originalName}</span>,
+      },
+      {
+        id: 'status',
+        header: t('detail.files.table.status'),
+        cell: (file) => (
+          <Badge variant={getStatusBadgeVariant(file.status)}>
+            {getStatusLabel(file.status)}
+          </Badge>
+        ),
+      },
+      {
+        id: 'confidence',
+        header: t('detail.files.table.confidence'),
+        cell: (file) => formatConfidence(file.formatConfidence),
+      },
+      {
+        id: 'uploadedAt',
+        header: t('detail.files.table.uploadedAt'),
+        cell: (file) => formatDate(file.uploadedAt),
+      },
+      {
+        id: 'externalLink',
+        header: '',
+        headerClassName: 'w-[50px]',
+        cell: () => <ExternalLink className="h-4 w-4 text-muted-foreground" />,
+      },
+    ],
+    [t, getStatusLabel]
+  );
+
   // --- 載入中 ---
   if (isLoading) {
     return (
@@ -219,40 +254,17 @@ export function FormatFilesTable({ formatId, companyId: _companyId }: FormatFile
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t('detail.files.table.fileName')}</TableHead>
-              <TableHead>{t('detail.files.table.status')}</TableHead>
-              <TableHead>{t('detail.files.table.confidence')}</TableHead>
-              <TableHead>{t('detail.files.table.uploadedAt')}</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {files.map((file) => (
-              <TableRow
-                key={file.id}
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleRowClick(file.id)}
-              >
-                <TableCell className="font-medium">
-                  <span className="line-clamp-1">{file.originalName}</span>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={getStatusBadgeVariant(file.status)}>
-                    {getStatusLabel(file.status)}
-                  </Badge>
-                </TableCell>
-                <TableCell>{formatConfidence(file.formatConfidence)}</TableCell>
-                <TableCell>{formatDate(file.uploadedAt)}</TableCell>
-                <TableCell>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataTable
+          data={files}
+          columns={columns}
+          getRowId={(file) => file.id}
+          page={page}
+          pageSize={pagination.limit}
+          rowProps={(file) => ({
+            className: 'cursor-pointer hover:bg-muted/50',
+            onClick: () => handleRowClick(file.id),
+          })}
+        />
 
         {/* 分頁控制 */}
         {pagination.totalPages > 1 && (

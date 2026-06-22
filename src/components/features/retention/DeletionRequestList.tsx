@@ -9,10 +9,11 @@
  * @module src/components/features/retention/DeletionRequestList
  * @author Development Team
  * @since Epic 8 - Story 8.6 (Long-term Data Retention)
- * @lastModified 2025-12-20
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @dependencies
  *   - @/hooks/useRetention - 刪除請求管理 Hooks
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/components/ui - UI 組件
  */
 
@@ -29,6 +30,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -51,6 +56,7 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import { DATA_TYPE_LABELS } from '@/types/retention'
+import type { DeletionRequestWithRelations } from '@/types/retention'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import type { DeletionRequestStatus } from '@prisma/client'
@@ -169,15 +175,15 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
     },
   })
 
-  const handleApproveClick = (requestId: string) => {
+  const handleApproveClick = React.useCallback((requestId: string) => {
     setSelectedRequestId(requestId)
     setApproveDialogOpen(true)
-  }
+  }, [])
 
-  const handleRejectClick = (requestId: string) => {
+  const handleRejectClick = React.useCallback((requestId: string) => {
     setSelectedRequestId(requestId)
     setRejectDialogOpen(true)
-  }
+  }, [])
 
   const handleConfirmApprove = () => {
     if (selectedRequestId) {
@@ -197,6 +203,99 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
       })
     }
   }
+
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<DeletionRequestWithRelations>[]>(
+    () => [
+      {
+        id: 'dataType',
+        header: '資料類型',
+        cell: (request) => (
+          <Badge variant="outline">{DATA_TYPE_LABELS[request.dataType]}</Badge>
+        ),
+      },
+      {
+        id: 'dateRange',
+        header: '資料範圍',
+        cellClassName: 'text-sm',
+        cell: (request) => (
+          <div>
+            <p>{formatDate(request.dateRangeStart)}</p>
+            <p className="text-muted-foreground">至</p>
+            <p>{formatDate(request.dateRangeEnd)}</p>
+          </div>
+        ),
+      },
+      {
+        id: 'reason',
+        header: '請求原因',
+        cell: (request) => (
+          <p className="text-sm max-w-[200px] truncate">{request.reason}</p>
+        ),
+      },
+      {
+        id: 'requestedBy',
+        header: '請求者',
+        cellClassName: 'text-sm',
+        cell: (request) => request.requestedBy?.name || '未知',
+      },
+      {
+        id: 'status',
+        header: '狀態',
+        cell: (request) => {
+          const StatusIcon = getStatusIcon(request.status)
+          return (
+            <Badge variant={getStatusVariant(request.status)}>
+              <StatusIcon className="h-3 w-3 mr-1" />
+              {STATUS_LABELS[request.status]}
+            </Badge>
+          )
+        },
+      },
+      {
+        id: 'createdAt',
+        header: '請求時間',
+        cellClassName: 'text-sm',
+        cell: (request) => formatDate(request.createdAt),
+      },
+      {
+        id: 'actions',
+        header: '',
+        headerClassName: 'w-[150px]',
+        cell: (request) => (
+          <>
+            {request.status === 'PENDING' && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleApproveClick(request.id)}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-1" />
+                  批准
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleRejectClick(request.id)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <XCircle className="h-4 w-4 mr-1" />
+                  拒絕
+                </Button>
+              </div>
+            )}
+            {request.status === 'REJECTED' && request.rejectionReason && (
+              <p className="text-xs text-muted-foreground max-w-[150px] truncate">
+                {request.rejectionReason}
+              </p>
+            )}
+          </>
+        ),
+      },
+    ],
+    [handleApproveClick, handleRejectClick]
+  )
 
   if (isLoading) {
     return <DeletionListSkeleton />
@@ -221,94 +320,19 @@ export function DeletionRequestList({ className }: DeletionRequestListProps) {
       </div>
 
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>資料類型</TableHead>
-              <TableHead>資料範圍</TableHead>
-              <TableHead>請求原因</TableHead>
-              <TableHead>請求者</TableHead>
-              <TableHead>狀態</TableHead>
-              <TableHead>請求時間</TableHead>
-              <TableHead className="w-[150px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {requests.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-10">
-                  <Trash2 className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-muted-foreground">尚無刪除請求</p>
-                </TableCell>
-              </TableRow>
-            ) : (
-              requests.map((request) => {
-                const StatusIcon = getStatusIcon(request.status)
-                return (
-                  <TableRow key={request.id}>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {DATA_TYPE_LABELS[request.dataType]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      <div>
-                        <p>{formatDate(request.dateRangeStart)}</p>
-                        <p className="text-muted-foreground">至</p>
-                        <p>{formatDate(request.dateRangeEnd)}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm max-w-[200px] truncate">
-                        {request.reason}
-                      </p>
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {request.requestedBy?.name || '未知'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusVariant(request.status)}>
-                        <StatusIcon className="h-3 w-3 mr-1" />
-                        {STATUS_LABELS[request.status]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {formatDate(request.createdAt)}
-                    </TableCell>
-                    <TableCell>
-                      {request.status === 'PENDING' && (
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleApproveClick(request.id)}
-                          >
-                            <CheckCircle2 className="h-4 w-4 mr-1" />
-                            批准
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRejectClick(request.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <XCircle className="h-4 w-4 mr-1" />
-                            拒絕
-                          </Button>
-                        </div>
-                      )}
-                      {request.status === 'REJECTED' && request.rejectionReason && (
-                        <p className="text-xs text-muted-foreground max-w-[150px] truncate">
-                          {request.rejectionReason}
-                        </p>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                )
-              })
-            )}
-          </TableBody>
-        </Table>
+        <DataTable
+          data={requests}
+          columns={columns}
+          getRowId={(request) => request.id}
+          page={page}
+          pageSize={pagination?.limit ?? 10}
+          emptyState={
+            <>
+              <Trash2 className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-muted-foreground">尚無刪除請求</p>
+            </>
+          }
+        />
       </div>
 
       {/* Pagination */}

@@ -12,7 +12,7 @@
  * @module src/components/features/reports/CityCostTable
  * @author Development Team
  * @since Epic 7 - Story 7.9 (城市成本報表)
- * @lastModified 2025-12-19
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @features
  *   - 可排序表格欄位
@@ -22,6 +22,7 @@
  *
  * @dependencies
  *   - @/components/ui - shadcn/ui 組件
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - lucide-react - 圖示
  *
  * @related
@@ -43,13 +44,9 @@ import {
   Info,
 } from 'lucide-react'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -368,6 +365,202 @@ export function CityCostTable({
     })
   }, [reports, sortField, sortOrder])
 
+  // --- Column 定義 ---
+  const columns = useMemo<DataTableColumn<CityCostReport>[]>(
+    () => [
+      {
+        id: 'cityName',
+        headerClassName: 'w-[180px]',
+        header: (
+          <SortableHeader
+            field="cityName"
+            label={t('cityCost.columns.city')}
+            currentSortBy={sortField}
+            currentSortOrder={sortOrder}
+            onSort={handleSort}
+          />
+        ),
+        cell: (report) => (
+          <div className="flex items-center gap-2">
+            <div>
+              <div className="font-medium">{report.cityName}</div>
+              <div className="text-xs text-muted-foreground">
+                {report.cityCode}
+              </div>
+            </div>
+            {showAnomalies && (
+              <AnomalyIndicator
+                report={report}
+                onAnomalyClick={onAnomalyClick}
+                t={t}
+              />
+            )}
+          </div>
+        ),
+      },
+      {
+        id: 'totalDocuments',
+        headerClassName: 'w-[120px] text-right',
+        header: (
+          <SortableHeader
+            field="totalDocuments"
+            label={t('cityCost.columns.volume')}
+            currentSortBy={sortField}
+            currentSortOrder={sortOrder}
+            onSort={handleSort}
+            className="justify-end"
+          />
+        ),
+        cellClassName: 'text-right',
+        cell: (report) => (
+          <div>
+            <div>{formatNumber(report.processing.totalDocuments)}</div>
+            <div className="text-xs text-muted-foreground">
+              {t('cityCost.autoPrefix', { count: formatNumber(report.processing.autoApproved) })}
+            </div>
+          </div>
+        ),
+      },
+      {
+        id: 'automationRate',
+        headerClassName: 'w-[100px] text-right',
+        header: (
+          <SortableHeader
+            field="automationRate"
+            label={t('cityCost.columns.automationRate')}
+            currentSortBy={sortField}
+            currentSortOrder={sortOrder}
+            onSort={handleSort}
+            className="justify-end"
+          />
+        ),
+        cellClassName: 'text-right',
+        cell: (report) => (
+          <Badge
+            variant={
+              report.processing.automationRate >= 90
+                ? 'default'
+                : report.processing.automationRate >= 70
+                  ? 'secondary'
+                  : 'destructive'
+            }
+            className="font-mono"
+          >
+            {formatPercent(report.processing.automationRate)}
+          </Badge>
+        ),
+      },
+      {
+        id: 'apiCost',
+        headerClassName: 'w-[120px] text-right',
+        header: (
+          <SortableHeader
+            field="apiCost"
+            label={t('cityCost.columns.aiCost')}
+            currentSortBy={sortField}
+            currentSortOrder={sortOrder}
+            onSort={handleSort}
+            className="justify-end"
+          />
+        ),
+        cellClassName: 'text-right font-mono',
+        cell: (report) => formatCurrency(report.costs.apiCost),
+      },
+      {
+        id: 'laborCost',
+        headerClassName: 'w-[120px] text-right',
+        header: (
+          <div className="flex items-center justify-end gap-1">
+            <SortableHeader
+              field="laborCost"
+              label={t('cityCost.columns.laborCost')}
+              currentSortBy={sortField}
+              currentSortOrder={sortOrder}
+              onSort={handleSort}
+              className="justify-end"
+            />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-3 w-3 text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t('cityCost.laborCostTooltip')}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t('cityCost.laborCostDesc')}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        ),
+        cellClassName: 'text-right',
+        cell: (report) => (
+          <Tooltip>
+            <TooltipTrigger className="cursor-help">
+              <span className="border-b border-dashed border-muted-foreground/30 font-mono">
+                {formatCurrency(report.costs.laborCost)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="space-y-1">
+                <p>
+                  {t('cityCost.manualReview', { count: formatNumber(report.processing.manualReviewed) })}
+                </p>
+                <p>
+                  {t('cityCost.escalation', { count: formatNumber(report.processing.escalated) })}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t('cityCost.estimateNote')}
+                </p>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        ),
+      },
+      {
+        id: 'totalCost',
+        headerClassName: 'w-[120px] text-right',
+        header: (
+          <SortableHeader
+            field="totalCost"
+            label={t('cityCost.columns.totalCost')}
+            currentSortBy={sortField}
+            currentSortOrder={sortOrder}
+            onSort={handleSort}
+            className="justify-end"
+          />
+        ),
+        cellClassName: 'text-right font-medium font-mono',
+        cell: (report) => formatCurrency(report.costs.totalCost),
+      },
+      {
+        id: 'costPerDocument',
+        headerClassName: 'w-[100px] text-right',
+        header: (
+          <SortableHeader
+            field="costPerDocument"
+            label={t('cityCost.columns.unitCost')}
+            currentSortBy={sortField}
+            currentSortOrder={sortOrder}
+            onSort={handleSort}
+            className="justify-end"
+          />
+        ),
+        cellClassName: 'text-right font-mono',
+        cell: (report) => formatCurrency(report.costs.costPerDocument),
+      },
+      {
+        id: 'trend',
+        headerClassName: 'w-[80px] text-center',
+        header: t('cityCost.columns.trend'),
+        cellClassName: 'text-center',
+        cell: (report) => (
+          <TrendIndicator value={report.costs.changeFromLastPeriod} inverse />
+        ),
+      },
+    ],
+    [sortField, sortOrder, handleSort, showAnomalies, onAnomalyClick, t]
+  )
+
   // --- Empty State ---
   if (reports.length === 0) {
     return (
@@ -386,206 +579,22 @@ export function CityCostTable({
   return (
     <TooltipProvider>
       <div className={cn('rounded-md border', className)}>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[180px]">
-                <SortableHeader
-                  field="cityName"
-                  label={t('cityCost.columns.city')}
-                  currentSortBy={sortField}
-                  currentSortOrder={sortOrder}
-                  onSort={handleSort}
-                />
-              </TableHead>
-              <TableHead className="w-[120px] text-right">
-                <SortableHeader
-                  field="totalDocuments"
-                  label={t('cityCost.columns.volume')}
-                  currentSortBy={sortField}
-                  currentSortOrder={sortOrder}
-                  onSort={handleSort}
-                  className="justify-end"
-                />
-              </TableHead>
-              <TableHead className="w-[100px] text-right">
-                <SortableHeader
-                  field="automationRate"
-                  label={t('cityCost.columns.automationRate')}
-                  currentSortBy={sortField}
-                  currentSortOrder={sortOrder}
-                  onSort={handleSort}
-                  className="justify-end"
-                />
-              </TableHead>
-              <TableHead className="w-[120px] text-right">
-                <SortableHeader
-                  field="apiCost"
-                  label={t('cityCost.columns.aiCost')}
-                  currentSortBy={sortField}
-                  currentSortOrder={sortOrder}
-                  onSort={handleSort}
-                  className="justify-end"
-                />
-              </TableHead>
-              <TableHead className="w-[120px] text-right">
-                <div className="flex items-center justify-end gap-1">
-                  <SortableHeader
-                    field="laborCost"
-                    label={t('cityCost.columns.laborCost')}
-                    currentSortBy={sortField}
-                    currentSortOrder={sortOrder}
-                    onSort={handleSort}
-                    className="justify-end"
-                  />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-3 w-3 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{t('cityCost.laborCostTooltip')}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {t('cityCost.laborCostDesc')}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </TableHead>
-              <TableHead className="w-[120px] text-right">
-                <SortableHeader
-                  field="totalCost"
-                  label={t('cityCost.columns.totalCost')}
-                  currentSortBy={sortField}
-                  currentSortOrder={sortOrder}
-                  onSort={handleSort}
-                  className="justify-end"
-                />
-              </TableHead>
-              <TableHead className="w-[100px] text-right">
-                <SortableHeader
-                  field="costPerDocument"
-                  label={t('cityCost.columns.unitCost')}
-                  currentSortBy={sortField}
-                  currentSortOrder={sortOrder}
-                  onSort={handleSort}
-                  className="justify-end"
-                />
-              </TableHead>
-              <TableHead className="w-[80px] text-center">{t('cityCost.columns.trend')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedReports.map((report) => {
-              const hasReportAnomalies =
-                showAnomalies &&
-                report.anomalies &&
-                report.anomalies.length > 0
-
-              return (
-                <TableRow
-                  key={report.cityCode}
-                  className={cn(
-                    onCityClick && 'cursor-pointer hover:bg-muted/50',
-                    hasReportAnomalies && 'bg-amber-50/50'
-                  )}
-                  onClick={() => handleRowClick(report.cityCode)}
-                >
-                  {/* 城市名稱 */}
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div>
-                        <div className="font-medium">{report.cityName}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {report.cityCode}
-                        </div>
-                      </div>
-                      {showAnomalies && (
-                        <AnomalyIndicator
-                          report={report}
-                          onAnomalyClick={onAnomalyClick}
-                          t={t}
-                        />
-                      )}
-                    </div>
-                  </TableCell>
-
-                  {/* 處理量 */}
-                  <TableCell className="text-right">
-                    <div>
-                      <div>{formatNumber(report.processing.totalDocuments)}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {t('cityCost.autoPrefix', { count: formatNumber(report.processing.autoApproved) })}
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  {/* 自動化率 */}
-                  <TableCell className="text-right">
-                    <Badge
-                      variant={
-                        report.processing.automationRate >= 90
-                          ? 'default'
-                          : report.processing.automationRate >= 70
-                            ? 'secondary'
-                            : 'destructive'
-                      }
-                      className="font-mono"
-                    >
-                      {formatPercent(report.processing.automationRate)}
-                    </Badge>
-                  </TableCell>
-
-                  {/* AI 成本 */}
-                  <TableCell className="text-right font-mono">
-                    {formatCurrency(report.costs.apiCost)}
-                  </TableCell>
-
-                  {/* 人工成本 */}
-                  <TableCell className="text-right">
-                    <Tooltip>
-                      <TooltipTrigger className="cursor-help">
-                        <span className="border-b border-dashed border-muted-foreground/30 font-mono">
-                          {formatCurrency(report.costs.laborCost)}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <div className="space-y-1">
-                          <p>
-                            {t('cityCost.manualReview', { count: formatNumber(report.processing.manualReviewed) })}
-                          </p>
-                          <p>
-                            {t('cityCost.escalation', { count: formatNumber(report.processing.escalated) })}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {t('cityCost.estimateNote')}
-                          </p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TableCell>
-
-                  {/* 總成本 */}
-                  <TableCell className="text-right font-medium font-mono">
-                    {formatCurrency(report.costs.totalCost)}
-                  </TableCell>
-
-                  {/* 單位成本 */}
-                  <TableCell className="text-right font-mono">
-                    {formatCurrency(report.costs.costPerDocument)}
-                  </TableCell>
-
-                  {/* 趨勢 */}
-                  <TableCell className="text-center">
-                    <TrendIndicator
-                      value={report.costs.changeFromLastPeriod}
-                      inverse
-                    />
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
+        <DataTable
+          data={sortedReports}
+          columns={columns}
+          getRowId={(report) => report.cityCode}
+          rowProps={(report) => {
+            const hasReportAnomalies =
+              showAnomalies && report.anomalies && report.anomalies.length > 0
+            return {
+              className: cn(
+                onCityClick && 'cursor-pointer hover:bg-muted/50',
+                hasReportAnomalies && 'bg-amber-50/50'
+              ),
+              onClick: () => handleRowClick(report.cityCode),
+            }
+          }}
+        />
       </div>
     </TooltipProvider>
   )

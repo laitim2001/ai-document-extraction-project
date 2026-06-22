@@ -9,10 +9,11 @@
  * @module src/components/features/retention/RetentionPolicyList
  * @author Development Team
  * @since Epic 8 - Story 8.6 (Long-term Data Retention)
- * @lastModified 2025-12-20
+ * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
  *
  * @dependencies
  *   - @/hooks/useRetention - 策略管理 Hooks
+ *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
  *   - @/components/ui - UI 組件
  */
 
@@ -26,6 +27,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  DataTable,
+  type DataTableColumn,
+} from '@/components/features/common/DataTable'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -55,6 +60,7 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { DATA_TYPE_LABELS } from '@/types/retention'
+import type { RetentionPolicyWithRelations } from '@/types/retention'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 
@@ -114,6 +120,103 @@ export function RetentionPolicyList({
     }
   }
 
+  // --- Column 定義 ---
+  const columns = React.useMemo<DataTableColumn<RetentionPolicyWithRelations>[]>(
+    () => [
+      {
+        id: 'policyName',
+        header: '策略名稱',
+        cell: (policy) => (
+          <div>
+            <p className="font-medium">{policy.policyName}</p>
+            {policy.description && (
+              <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                {policy.description}
+              </p>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: 'dataType',
+        header: '資料類型',
+        cell: (policy) => (
+          <Badge variant="outline">{DATA_TYPE_LABELS[policy.dataType]}</Badge>
+        ),
+      },
+      {
+        id: 'retentionDays',
+        header: '保留天數',
+        cell: (policy) => (
+          <div className="text-sm space-y-0.5">
+            <p>熱: {policy.hotStorageDays} 天</p>
+            <p>溫: {policy.warmStorageDays} 天</p>
+            <p>冷: {policy.coldStorageDays} 天</p>
+          </div>
+        ),
+      },
+      {
+        id: 'protection',
+        header: '保護設定',
+        cell: (policy) => (
+          <div className="flex flex-col gap-1">
+            {policy.deletionProtection && (
+              <Badge variant="secondary" className="w-fit">
+                <Shield className="h-3 w-3 mr-1" />
+                刪除保護
+              </Badge>
+            )}
+            {policy.requireApproval && (
+              <Badge variant="secondary" className="w-fit">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                需審批
+              </Badge>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: 'status',
+        header: '狀態',
+        cell: (policy) => (
+          <Badge variant={policy.isActive ? 'default' : 'secondary'}>
+            {policy.isActive ? '啟用' : '停用'}
+          </Badge>
+        ),
+      },
+      {
+        id: 'actions',
+        header: '',
+        headerClassName: 'w-[70px]',
+        cell: (policy) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {onEditClick && (
+                <DropdownMenuItem onClick={() => onEditClick(policy.id)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  編輯
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                onClick={() => handleDeleteClick(policy.id)}
+                className="text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                刪除
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    ],
+    [onEditClick]
+  )
+
   if (isLoading) {
     return <PolicyListSkeleton />
   }
@@ -143,99 +246,16 @@ export function RetentionPolicyList({
       </div>
 
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>策略名稱</TableHead>
-              <TableHead>資料類型</TableHead>
-              <TableHead>保留天數</TableHead>
-              <TableHead>保護設定</TableHead>
-              <TableHead>狀態</TableHead>
-              <TableHead className="w-[70px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {policies.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-10">
-                  <p className="text-muted-foreground">尚無保留策略</p>
-                </TableCell>
-              </TableRow>
-            ) : (
-              policies.map((policy) => (
-                <TableRow key={policy.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{policy.policyName}</p>
-                      {policy.description && (
-                        <p className="text-sm text-muted-foreground truncate max-w-[200px]">
-                          {policy.description}
-                        </p>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {DATA_TYPE_LABELS[policy.dataType]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm space-y-0.5">
-                      <p>熱: {policy.hotStorageDays} 天</p>
-                      <p>溫: {policy.warmStorageDays} 天</p>
-                      <p>冷: {policy.coldStorageDays} 天</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      {policy.deletionProtection && (
-                        <Badge variant="secondary" className="w-fit">
-                          <Shield className="h-3 w-3 mr-1" />
-                          刪除保護
-                        </Badge>
-                      )}
-                      {policy.requireApproval && (
-                        <Badge variant="secondary" className="w-fit">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          需審批
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={policy.isActive ? 'default' : 'secondary'}>
-                      {policy.isActive ? '啟用' : '停用'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {onEditClick && (
-                          <DropdownMenuItem onClick={() => onEditClick(policy.id)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            編輯
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteClick(policy.id)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          刪除
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+        <DataTable
+          data={policies}
+          columns={columns}
+          getRowId={(policy) => policy.id}
+          page={page}
+          pageSize={pagination?.limit ?? 10}
+          emptyState={
+            <p className="text-muted-foreground">尚無保留策略</p>
+          }
+        />
       </div>
 
       {/* Pagination */}

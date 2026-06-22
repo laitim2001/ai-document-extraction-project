@@ -30,7 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Globe, MoreVertical, Edit } from 'lucide-react';
+import { Globe, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { ShowMoreButton } from './ShowMoreButton';
 
 // ============================================================================
@@ -52,6 +52,8 @@ interface CollapsiblePromptGroupProps {
   onShowMore: () => void;
   /** 編輯配置回調 */
   onEdit: (id: string) => void;
+  /** 刪除配置回調（id, name）；未提供時不顯示刪除入口 */
+  onDelete?: (id: string, name: string) => void;
 }
 
 // ============================================================================
@@ -91,6 +93,7 @@ export function CollapsiblePromptGroup({
   displayCount,
   onShowMore,
   onEdit,
+  onDelete,
 }: CollapsiblePromptGroupProps) {
   const t = useTranslations('promptConfig');
 
@@ -146,6 +149,7 @@ export function CollapsiblePromptGroup({
                   key={config.id}
                   config={config}
                   onEdit={onEdit}
+                  onDelete={onDelete}
                   t={t}
                 />
               ))}
@@ -175,10 +179,11 @@ type TranslationFunction = ReturnType<typeof import('next-intl').useTranslations
 interface PromptConfigCardProps {
   config: PromptConfigListItem;
   onEdit: (id: string) => void;
+  onDelete?: (id: string, name: string) => void;
   t: TranslationFunction;
 }
 
-function PromptConfigCard({ config, onEdit, t }: PromptConfigCardProps) {
+function PromptConfigCard({ config, onEdit, onDelete, t }: PromptConfigCardProps) {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
@@ -207,6 +212,23 @@ function PromptConfigCard({ config, onEdit, t }: PromptConfigCardProps) {
                 <Edit className="h-4 w-4 mr-2" />
                 {t('list.edit')}
               </DropdownMenuItem>
+              {onDelete && (
+                <DropdownMenuItem
+                  disabled={config.isActive}
+                  onClick={() => onDelete(config.id, config.name)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  <span className="flex flex-col">
+                    <span>{t('list.delete')}</span>
+                    {config.isActive && (
+                      <span className="text-xs text-muted-foreground">
+                        {t('list.deleteDisabledHint')}
+                      </span>
+                    )}
+                  </span>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

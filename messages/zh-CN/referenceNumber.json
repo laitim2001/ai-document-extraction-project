@@ -7,6 +7,7 @@
   "columns": {
     "number": "号码",
     "type": "类型",
+    "documentSubType": "文件子类型",
     "year": "年份",
     "region": "地区",
     "status": "状态",
@@ -26,6 +27,12 @@
     "CUSTOMS": "报关单",
     "OTHER": "其他"
   },
+  "subTypes": {
+    "IMPORT": "进口",
+    "EXPORT": "出口",
+    "BOTH": "两者",
+    "UNKNOWN": "未知"
+  },
   "statuses": {
     "ACTIVE": "有效",
     "EXPIRED": "已过期",
@@ -38,6 +45,7 @@
     "year": "年份",
     "region": "地区",
     "type": "类型",
+    "documentSubType": "文件子类型",
     "status": "状态",
     "clear": "清除筛选"
   },
@@ -78,6 +86,8 @@
     "number": "号码",
     "numberPlaceholder": "输入号码...",
     "type": "类型",
+    "documentSubType": "文件子类型",
+    "none": "无",
     "year": "年份",
     "region": "地区",
     "regionPlaceholder": "选择地区...",
@@ -128,6 +138,7 @@
     "columns": {
       "number": "号码",
       "type": "类型",
+      "documentSubType": "文件子类型",
       "year": "年份",
       "regionCode": "地区代码",
       "code": "识别码",
