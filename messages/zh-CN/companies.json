@@ -103,6 +103,17 @@
     "defaultTemplate": {
       "configured": "已设置默认模板",
       "notConfigured": "尚未设置默认模板，此公司的自动匹配功能将无法使用。"
+    },
+    "logoUploader": {
+      "fileTooLarge": "文件大小超过限制（最大 {max}MB）",
+      "invalidType": "不支持的文件格式，请上传 PNG、JPEG、WebP、GIF 或 SVG 图片",
+      "uploadFailed": "文件上传失败，请重试",
+      "replaceHint": "点击或拖放以更换 Logo",
+      "dropToUpload": "松开以上传",
+      "clickToUpload": "点击上传",
+      "orDragImage": " 或拖放图片",
+      "supportedFormats": "支持 PNG, JPEG, WebP, GIF, SVG（最大 {max}MB）",
+      "selectedFile": "已选择: {fileName} ({fileSize} KB)"
     }
   },
   "dialog": {

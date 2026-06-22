@@ -74,6 +74,24 @@
     "promptConfigDescription": "Automatically create a format-specific AI prompt configuration",
     "submitButton": "Create Format"
   },
+  "editDialog": {
+    "title": "Edit Format",
+    "description": "Modify the display name of the format.",
+    "nameLabel": "Format Name",
+    "namePlaceholder": "Enter format name",
+    "nameDescription": "A name to identify this format, e.g. \"DHL Ocean Freight Invoice\".",
+    "toast": {
+      "updateSuccess": "Update Successful",
+      "updateSuccessDescription": "Format information has been updated",
+      "updateError": "Update Failed",
+      "updateErrorRetry": "Please try again later"
+    }
+  },
+  "keywordTagInput": {
+    "placeholder": "Type a keyword and press Enter",
+    "hint": "Press Enter to add a keyword",
+    "removeTitle": "Remove keyword"
+  },
   "sourceFieldCombobox": {
     "placeholder": "Select source field...",
     "searchPlaceholder": "Search fields...",

@@ -34,6 +34,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useUserCity, useIsCityRestricted } from '@/hooks/useUserCity'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ShieldAlert, Loader2 } from 'lucide-react'
@@ -66,11 +67,12 @@ interface CityRestrictedProps {
  * 預設的無權訪問提示
  */
 function DefaultAccessDenied() {
+  const t = useTranslations('cityAccess')
   return (
     <Alert variant="destructive">
       <ShieldAlert className="h-4 w-4" />
-      <AlertTitle>訪問受限</AlertTitle>
-      <AlertDescription>您沒有權限查看此城市的內容。</AlertDescription>
+      <AlertTitle>{t('restricted.accessDenied')}</AlertTitle>
+      <AlertDescription>{t('restricted.accessDeniedDescription')}</AlertDescription>
     </Alert>
   )
 }

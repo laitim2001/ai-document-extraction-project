@@ -76,6 +76,55 @@
     "exceedsMaxDays": "日期範圍不能超過 {max} 天",
     "exceedsToday": "結束日期不能超過今天"
   },
+  "filters": {
+    "label": "篩選條件",
+    "dateRange": "日期範圍",
+    "forwarder": "貨代商",
+    "allForwarders": "全部貨代商",
+    "comparisonMode": "比較模式",
+    "enableComparison": "開啟比較",
+    "reset": "重置",
+    "selectedCount": "已選擇 {count} 個貨代商",
+    "comparisonModeHint": "（比較模式）"
+  },
+  "forwarderSelect": {
+    "placeholder": "選擇貨代商...",
+    "placeholderShort": "貨代商",
+    "loading": "載入中...",
+    "searchPlaceholder": "搜尋貨代商...",
+    "empty": "找不到符合的貨代商",
+    "selectAll": "全選",
+    "deselectAll": "取消全選",
+    "count": "{count} 個",
+    "noCode": "無代碼",
+    "comparisonHint": "最多選擇 {max} 個貨代商進行比較"
+  },
+  "comparison": {
+    "title": "貨代商比較",
+    "loading": "載入中...",
+    "selectAtLeastTwo": "請選擇至少兩個貨代商進行比較",
+    "tabs": {
+      "volume": "處理量",
+      "automation": "自動化率",
+      "time": "處理時間"
+    },
+    "tooltip": {
+      "totalDocuments": "總文件數：",
+      "autoApproved": "自動通過：",
+      "reviewRequired": "需要審核：",
+      "automationRate": "自動化率：",
+      "averageConfidence": "平均信心度：",
+      "averageProcessingTime": "平均處理時間：",
+      "seconds": "秒"
+    },
+    "legend": {
+      "autoApproved": "自動通過",
+      "reviewRequired": "需要審核",
+      "automationRate": "自動化率 (%)",
+      "averageConfidence": "平均信心度 (%)",
+      "averageProcessingTime": "平均處理時間 (秒)"
+    }
+  },
   "errors": {
     "access_denied": {
       "title": "存取被拒絕",

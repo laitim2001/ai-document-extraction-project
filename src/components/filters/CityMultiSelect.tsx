@@ -37,6 +37,7 @@
 
 import { useState, useMemo, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useUserCity } from '@/hooks/useUserCity'
 import {
   Popover,
@@ -166,13 +167,15 @@ export function CityMultiSelect({
   onChange,
   minSelection = 0,
   maxSelection,
-  placeholder = '選擇城市...',
+  placeholder,
   disabled = false,
   className,
   align = 'start',
 }: CityMultiSelectProps) {
   // --- Hooks ---
+  const t = useTranslations('cityAccess')
   const { isSingleCity, isLoading: userLoading } = useUserCity()
+  const resolvedPlaceholder = placeholder ?? t('multiSelect.placeholder')
 
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -305,14 +308,14 @@ export function CityMultiSelect({
 
   // --- Display Text ---
   const displayText = useMemo(() => {
-    if (value.length === 0) return placeholder
+    if (value.length === 0) return resolvedPlaceholder
     if (value.length === 1) {
       const city = cities.find((c) => c.code === value[0])
       return city?.name || value[0]
     }
-    if (value.length === cities.length) return '所有城市'
-    return `${value.length} 個城市`
-  }, [value, cities, placeholder])
+    if (value.length === cities.length) return t('multiSelect.allCities')
+    return t('multiSelect.cityCount', { count: value.length })
+  }, [value, cities, resolvedPlaceholder, t])
 
   // --- Render ---
 
@@ -334,7 +337,7 @@ export function CityMultiSelect({
           {isLoading ? (
             <span className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
-              載入中...
+              {t('filter.loading')}
             </span>
           ) : (
             <>
@@ -358,7 +361,7 @@ export function CityMultiSelect({
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="搜尋城市..."
+              placeholder={t('multiSelect.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8"
@@ -376,8 +379,8 @@ export function CityMultiSelect({
             disabled={!canSelectMore && value.length !== cities.length}
           >
             <CheckSquare className="h-3 w-3 mr-1" />
-            全選
-            {maxSelection && <span className="ml-1 text-muted-foreground">(最多 {maxSelection})</span>}
+            {t('multiSelect.selectAll')}
+            {maxSelection && <span className="ml-1 text-muted-foreground">{t('multiSelect.selectAllMax', { max: maxSelection })}</span>}
           </Button>
           {value.length > minSelection && (
             <Button
@@ -387,7 +390,7 @@ export function CityMultiSelect({
               className="flex-1 text-xs"
             >
               <Square className="h-3 w-3 mr-1" />
-              清除
+              {t('multiSelect.clear')}
             </Button>
           )}
         </div>
@@ -396,11 +399,11 @@ export function CityMultiSelect({
         <ScrollArea className="h-[300px]">
           {error ? (
             <div className="p-4 text-center text-destructive">
-              載入失敗
+              {t('multiSelect.loadFailed')}
             </div>
           ) : groupedCities.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">
-              {searchQuery ? '找不到城市' : '無可用城市'}
+              {searchQuery ? t('multiSelect.noCitiesFound') : t('multiSelect.noCitiesAvailable')}
             </div>
           ) : (
             <div className="p-2">
@@ -502,12 +505,12 @@ export function CityMultiSelect({
             </div>
             {minSelection > 0 && value.length === minSelection && (
               <p className="text-xs text-muted-foreground mt-1">
-                最少需選擇 {minSelection} 個城市
+                {t('multiSelect.minSelectionHint', { count: minSelection })}
               </p>
             )}
             {maxSelection && value.length === maxSelection && (
               <p className="text-xs text-muted-foreground mt-1">
-                已達最大選擇數量 ({maxSelection})
+                {t('multiSelect.maxSelectionHint', { count: maxSelection })}
               </p>
             )}
           </div>

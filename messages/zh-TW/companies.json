@@ -103,6 +103,17 @@
     "defaultTemplate": {
       "configured": "已設定預設模板",
       "notConfigured": "尚未設定預設模板，此公司的自動匹配功能將無法使用。"
+    },
+    "logoUploader": {
+      "fileTooLarge": "檔案大小超過限制（最大 {max}MB）",
+      "invalidType": "不支援的檔案格式，請上傳 PNG、JPEG、WebP、GIF 或 SVG 圖片",
+      "uploadFailed": "檔案上傳失敗，請重試",
+      "replaceHint": "點擊或拖放以更換 Logo",
+      "dropToUpload": "放開以上傳",
+      "clickToUpload": "點擊上傳",
+      "orDragImage": " 或拖放圖片",
+      "supportedFormats": "支援 PNG, JPEG, WebP, GIF, SVG（最大 {max}MB）",
+      "selectedFile": "已選擇: {fileName} ({fileSize} KB)"
     }
   },
   "dialog": {

@@ -25,6 +25,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -49,6 +50,7 @@ interface DashboardLayoutProps {
  * @description 儀表板佈局容器，整合側邊欄、頂部工具列和主要內容區域
  */
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const t = useTranslations('navigation')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false)
 
@@ -116,7 +118,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   onClick={closeMobileMenu}
                 >
                   <X className="h-6 w-6" />
-                  <span className="sr-only">關閉選單</span>
+                  <span className="sr-only">{t('actions.closeMenu')}</span>
                 </Button>
               </div>
 

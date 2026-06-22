@@ -16,6 +16,7 @@
 
 import * as React from 'react'
 import { useState, useCallback, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -51,13 +52,7 @@ import type { CostAnomalyDetail } from '@/types/city-cost'
 // Constants
 // ============================================================
 
-const DATE_RANGE_OPTIONS = [
-  { value: '7', label: '過去 7 天' },
-  { value: '14', label: '過去 14 天' },
-  { value: '30', label: '過去 30 天' },
-  { value: '60', label: '過去 60 天' },
-  { value: '90', label: '過去 90 天' },
-]
+const DATE_RANGE_OPTIONS = ['7', '14', '30', '60', '90'] as const
 
 // ============================================================
 // Sub-components
@@ -73,6 +68,7 @@ function StatCard({
   icon: Icon,
   format = 'number',
   loading = false,
+  changeLabel,
 }: {
   title: string
   value: number
@@ -80,6 +76,7 @@ function StatCard({
   icon: React.ElementType
   format?: 'number' | 'currency' | 'percent'
   loading?: boolean
+  changeLabel?: string
 }) {
   const formatValue = (v: number) => {
     switch (format) {
@@ -136,7 +133,7 @@ function StatCard({
             ) : change < 0 ? (
               <ArrowDownRight className="h-3 w-3" />
             ) : null}
-            {Math.abs(change).toFixed(1)}% 較上期
+            {Math.abs(change).toFixed(1)}% {changeLabel}
           </p>
         )}
       </CardContent>
@@ -149,6 +146,10 @@ function StatCard({
 // ============================================================
 
 export function CityCostReportContent() {
+  // --- i18n ---
+  const t = useTranslations('reports')
+  const tCommon = useTranslations('common')
+
   // --- State ---
   const [dateRange, setDateRange] = useState('30')
   const [selectedCityCode, setSelectedCityCode] = useState<string | null>(null)
@@ -245,9 +246,9 @@ export function CityCostReportContent() {
     return (
       <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>載入失敗</AlertTitle>
+        <AlertTitle>{t('cityCost.report.loadErrorTitle')}</AlertTitle>
         <AlertDescription>
-          {error instanceof Error ? error.message : '無法載入城市成本報表'}
+          {error instanceof Error ? error.message : t('cityCost.report.loadError')}
         </AlertDescription>
       </Alert>
     )
@@ -261,12 +262,12 @@ export function CityCostReportContent() {
         <div className="flex items-center gap-4">
           <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="選擇時間範圍" />
+              <SelectValue placeholder={t('cityCost.report.selectTimeRange')} />
             </SelectTrigger>
             <SelectContent>
-              {DATE_RANGE_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+              {DATE_RANGE_OPTIONS.map((days) => (
+                <SelectItem key={days} value={days}>
+                  {t('cityCost.report.dateRangeOption', { days })}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -275,34 +276,34 @@ export function CityCostReportContent() {
 
         <Button variant="outline" size="sm" onClick={handleRefresh}>
           <RefreshCw className="h-4 w-4 mr-2" />
-          重新整理
+          {tCommon('actions.refresh')}
         </Button>
       </div>
 
       {/* 統計卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatCard
-          title="總成本"
+          title={t('cityCost.report.totalCost')}
           value={totals?.totalCost || 0}
           icon={DollarSign}
           format="currency"
           loading={isLoading}
         />
         <StatCard
-          title="處理文檔數"
+          title={t('cityCost.report.totalDocuments')}
           value={totals?.totalDocuments || 0}
           icon={FileText}
           loading={isLoading}
         />
         <StatCard
-          title="平均自動化率"
+          title={t('cityCost.report.avgAutomationRate')}
           value={totals?.overallAutomationRate || 0}
           icon={TrendingUp}
           format="percent"
           loading={isLoading}
         />
         <StatCard
-          title="城市數量"
+          title={t('cityCost.report.cityCount')}
           value={reports?.length || 0}
           icon={Users}
           loading={isLoading}
@@ -313,10 +314,12 @@ export function CityCostReportContent() {
       {highSeverityAnomalies > 0 && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>成本異常警示</AlertTitle>
+          <AlertTitle>{t('cityCost.report.anomalyAlertTitle')}</AlertTitle>
           <AlertDescription>
-            在過去 {dateRange} 天內檢測到 {highSeverityAnomalies} 個高風險異常，
-            請點擊城市行查看詳情。
+            {t('cityCost.report.anomalyAlertDescription', {
+              days: dateRange,
+              count: highSeverityAnomalies,
+            })}
           </AlertDescription>
         </Alert>
       )}
@@ -325,15 +328,15 @@ export function CityCostReportContent() {
       {totals && (
         <Card>
           <CardHeader>
-            <CardTitle>成本摘要</CardTitle>
+            <CardTitle>{t('cityCost.report.summaryTitle')}</CardTitle>
             <CardDescription>
-              {startDate} 至 {endDate} 期間的成本統計
+              {t('cityCost.report.summaryDesc', { startDate, endDate })}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <div className="text-muted-foreground">AI 成本</div>
+                <div className="text-muted-foreground">{t('cityCost.columns.aiCost')}</div>
                 <div className="text-lg font-medium">
                   {new Intl.NumberFormat('en-US', {
                     style: 'currency',
@@ -342,7 +345,7 @@ export function CityCostReportContent() {
                 </div>
               </div>
               <div>
-                <div className="text-muted-foreground">人工成本（估算）</div>
+                <div className="text-muted-foreground">{t('cityCost.report.laborCostEstimate')}</div>
                 <div className="text-lg font-medium">
                   {new Intl.NumberFormat('en-US', {
                     style: 'currency',
@@ -351,7 +354,7 @@ export function CityCostReportContent() {
                 </div>
               </div>
               <div>
-                <div className="text-muted-foreground">總成本</div>
+                <div className="text-muted-foreground">{t('cityCost.columns.totalCost')}</div>
                 <div className="text-lg font-medium">
                   {new Intl.NumberFormat('en-US', {
                     style: 'currency',
@@ -360,7 +363,7 @@ export function CityCostReportContent() {
                 </div>
               </div>
               <div>
-                <div className="text-muted-foreground">平均單位成本</div>
+                <div className="text-muted-foreground">{t('cityCost.report.avgUnitCost')}</div>
                 <div className="text-lg font-medium">
                   {new Intl.NumberFormat('en-US', {
                     style: 'currency',
@@ -376,12 +379,12 @@ export function CityCostReportContent() {
       {/* 城市成本表格 */}
       <Card>
         <CardHeader>
-          <CardTitle>城市成本明細</CardTitle>
+          <CardTitle>{t('cityCost.report.detailTitle')}</CardTitle>
           <CardDescription>
-            各城市的成本、處理量與異常狀態
+            {t('cityCost.report.detailDesc')}
             {totalAnomalies > 0 && (
               <span className="ml-2 text-amber-600">
-                （{totalAnomalies} 個異常）
+                {t('cityCost.report.anomalyCountInline', { count: totalAnomalies })}
               </span>
             )}
           </CardDescription>

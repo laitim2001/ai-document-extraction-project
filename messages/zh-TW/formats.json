@@ -74,6 +74,24 @@
     "promptConfigDescription": "自動建立格式專屬的 AI Prompt 配置",
     "submitButton": "建立格式"
   },
+  "editDialog": {
+    "title": "編輯格式",
+    "description": "修改格式的顯示名稱。",
+    "nameLabel": "格式名稱",
+    "namePlaceholder": "輸入格式名稱",
+    "nameDescription": "用於識別此格式的名稱，例如「DHL 海運發票」。",
+    "toast": {
+      "updateSuccess": "更新成功",
+      "updateSuccessDescription": "格式資訊已更新",
+      "updateError": "更新失敗",
+      "updateErrorRetry": "請稍後再試"
+    }
+  },
+  "keywordTagInput": {
+    "placeholder": "輸入關鍵字後按 Enter",
+    "hint": "按 Enter 新增關鍵字",
+    "removeTitle": "刪除關鍵字"
+  },
   "sourceFieldCombobox": {
     "placeholder": "選擇來源欄位...",
     "searchPlaceholder": "搜尋欄位...",

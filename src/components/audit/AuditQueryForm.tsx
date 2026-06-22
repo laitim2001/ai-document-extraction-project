@@ -25,6 +25,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format, subDays } from 'date-fns'
@@ -93,6 +94,9 @@ export function AuditQueryForm({
   loading = false,
   className
 }: AuditQueryFormProps) {
+  // --- i18n ---
+  const t = useTranslations('reports')
+
   // --- State ---
   const [countPreview, setCountPreview] = useState<CountPreview | null>(null)
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
@@ -169,7 +173,7 @@ export function AuditQueryForm({
             name="startDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>開始日期 *</FormLabel>
+                <FormLabel>{t('auditQuery.startDate')} *</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -182,7 +186,7 @@ export function AuditQueryForm({
                       >
                         {field.value
                           ? format(field.value, 'yyyy-MM-dd', { locale: zhTW })
-                          : '選擇日期'}
+                          : t('auditQuery.selectDate')}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
@@ -208,7 +212,7 @@ export function AuditQueryForm({
             name="endDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>結束日期 *</FormLabel>
+                <FormLabel>{t('auditQuery.endDate')} *</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -221,7 +225,7 @@ export function AuditQueryForm({
                       >
                         {field.value
                           ? format(field.value, 'yyyy-MM-dd', { locale: zhTW })
-                          : '選擇日期'}
+                          : t('auditQuery.selectDate')}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
@@ -247,7 +251,7 @@ export function AuditQueryForm({
             name="statuses"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>處理狀態</FormLabel>
+                <FormLabel>{t('auditQuery.status')}</FormLabel>
                 <Select
                   onValueChange={value =>
                     field.onChange(value === 'all' ? [] : [value])
@@ -256,14 +260,18 @@ export function AuditQueryForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="全部狀態" />
+                      <SelectValue placeholder={t('auditQuery.allStatuses')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="all">全部狀態</SelectItem>
+                    <SelectItem value="all">
+                      {t('auditQuery.allStatuses')}
+                    </SelectItem>
                     {STATUS_OPTIONS.map(opt => (
                       <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
+                        {t.has(`auditQuery.statusOptions.${opt.value}`)
+                          ? t(`auditQuery.statusOptions.${opt.value}`)
+                          : opt.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -283,7 +291,7 @@ export function AuditQueryForm({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               <Search className="mr-2 h-4 w-4" />
-              查詢
+              {t('auditQuery.search')}
             </Button>
           </div>
         </div>
@@ -292,11 +300,13 @@ export function AuditQueryForm({
         {countPreview?.exceedsLimit && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>結果過多</AlertTitle>
+            <AlertTitle>{t('auditQuery.tooManyResultsTitle')}</AlertTitle>
             <AlertDescription className="flex items-center justify-between">
               <span>
-                查詢結果共 {countPreview.count.toLocaleString()} 筆，超過上限{' '}
-                {MAX_QUERY_RESULTS.toLocaleString()} 筆。請縮小查詢範圍或使用匯出功能。
+                {t('auditQuery.tooManyResultsDesc', {
+                  count: countPreview.count.toLocaleString(),
+                  limit: MAX_QUERY_RESULTS.toLocaleString()
+                })}
               </span>
               <Button
                 variant="outline"
@@ -304,7 +314,7 @@ export function AuditQueryForm({
                 onClick={handleForceQuery}
                 disabled={loading}
               >
-                仍要查詢（僅顯示部分）
+                {t('auditQuery.forceQuery')}
               </Button>
             </AlertDescription>
           </Alert>
@@ -313,7 +323,9 @@ export function AuditQueryForm({
         {/* 結果計數提示（未超過限制時） */}
         {countPreview && !countPreview.exceedsLimit && countPreview.count > 0 && (
           <div className="text-sm text-muted-foreground">
-            共找到 {countPreview.count.toLocaleString()} 筆符合條件的記錄
+            {t('auditQuery.resultCount', {
+              count: countPreview.count.toLocaleString()
+            })}
           </div>
         )}
       </form>

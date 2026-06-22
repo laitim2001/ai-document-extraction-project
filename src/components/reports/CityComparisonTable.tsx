@@ -22,6 +22,7 @@
  */
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -120,6 +121,7 @@ function RateIndicator({ value }: { value: number }) {
  * ```
  */
 export function CityComparisonTable({ cities, loading }: CityComparisonTableProps) {
+  const t = useTranslations('reports')
   const [sortField, setSortField] = useState<SortField>('processingVolume')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   const [expandedCity, setExpandedCity] = useState<string | null>(null)
@@ -202,7 +204,7 @@ export function CityComparisonTable({ cities, loading }: CityComparisonTableProp
   if (cities.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        無城市數據
+        {t('cityCost.comparison.noCityData')}
       </div>
     )
   }
@@ -212,13 +214,13 @@ export function CityComparisonTable({ cities, loading }: CityComparisonTableProp
       <Table>
         <TableHeader>
           <TableRow>
-            <SortableHeader field="cityName">城市</SortableHeader>
-            <SortableHeader field="processingVolume">處理量</SortableHeader>
-            <SortableHeader field="successRate">成功率</SortableHeader>
-            <SortableHeader field="automationRate">自動化率</SortableHeader>
-            <SortableHeader field="avgProcessingTime">平均時間</SortableHeader>
-            <SortableHeader field="aiCost">AI 成本</SortableHeader>
-            <TableHead className="w-[60px]">待審核</TableHead>
+            <SortableHeader field="cityName">{t('cityCost.columns.city')}</SortableHeader>
+            <SortableHeader field="processingVolume">{t('cityCost.columns.volume')}</SortableHeader>
+            <SortableHeader field="successRate">{t('cityCost.comparison.successRate')}</SortableHeader>
+            <SortableHeader field="automationRate">{t('cityCost.columns.automationRate')}</SortableHeader>
+            <SortableHeader field="avgProcessingTime">{t('cityCost.comparison.avgTime')}</SortableHeader>
+            <SortableHeader field="aiCost">{t('cityCost.columns.aiCost')}</SortableHeader>
+            <TableHead className="w-[60px]">{t('cityCost.comparison.pendingReview')}</TableHead>
             <TableHead className="w-[40px]" />
           </TableRow>
         </TableHeader>

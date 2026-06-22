@@ -26,6 +26,7 @@
 
 import * as React from 'react';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -94,11 +95,12 @@ export function ForwarderMultiSelect({
   mode = 'multiple',
   maxSelections = 5,
   showAllOption = true,
-  placeholder = '選擇貨代商...',
+  placeholder,
   disabled = false,
   isLoading = false,
   className,
 }: ForwarderMultiSelectProps) {
+  const t = useTranslations('dashboard');
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
   const debouncedSearch = useDebounce(searchValue, 300);
@@ -212,7 +214,9 @@ export function ForwarderMultiSelect({
           <div className="flex flex-wrap gap-1 flex-1 text-left">
             {selectedIds.length === 0 ? (
               <span className="text-muted-foreground">
-                {isLoading ? '載入中...' : placeholder}
+                {isLoading
+                  ? t('forwarderSelect.loading')
+                  : (placeholder ?? t('forwarderSelect.placeholder'))}
               </span>
             ) : (
               <>
@@ -251,13 +255,15 @@ export function ForwarderMultiSelect({
       <PopoverContent className="w-[300px] p-0" align="start">
         <Command>
           <CommandInput
-            placeholder="搜尋貨代商..."
+            placeholder={t('forwarderSelect.searchPlaceholder')}
             value={searchValue}
             onValueChange={setSearchValue}
           />
           <CommandList>
             <CommandEmpty>
-              {isLoading ? '載入中...' : '找不到符合的貨代商'}
+              {isLoading
+                ? t('forwarderSelect.loading')
+                : t('forwarderSelect.empty')}
             </CommandEmpty>
             <CommandGroup>
               <ScrollArea className="h-[200px]">
@@ -274,10 +280,12 @@ export function ForwarderMultiSelect({
                       )}
                     />
                     <span className="font-medium">
-                      {isAllSelected ? '取消全選' : '全選'}
+                      {isAllSelected
+                        ? t('forwarderSelect.deselectAll')
+                        : t('forwarderSelect.selectAll')}
                     </span>
                     <span className="ml-auto text-xs text-muted-foreground">
-                      {options.length} 個
+                      {t('forwarderSelect.count', { count: options.length })}
                     </span>
                   </CommandItem>
                 )}
@@ -309,7 +317,7 @@ export function ForwarderMultiSelect({
                         <span>{option.displayName}</span>
                         <span className="text-xs text-muted-foreground">
                           {/* REFACTOR-001: 處理 null 的情況 */}
-                          {option.code ?? '無代碼'}
+                          {option.code ?? t('forwarderSelect.noCode')}
                         </span>
                       </div>
                     </CommandItem>
@@ -323,7 +331,7 @@ export function ForwarderMultiSelect({
         {/* 比較模式提示 */}
         {mode === 'comparison' && (
           <div className="p-2 border-t text-xs text-muted-foreground text-center">
-            最多選擇 {maxSelections} 個貨代商進行比較
+            {t('forwarderSelect.comparisonHint', { max: maxSelections })}
             <span className="ml-1">
               ({selectedIds.length}/{maxSelections})
             </span>

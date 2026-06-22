@@ -1098,7 +1098,8 @@
       "pagination": "第 {page} / {totalPages} 頁，共 {total} 筆",
       "previous": "上一頁",
       "next": "下一頁",
-      "close": "關閉"
+      "close": "關閉",
+      "emptyValue": "(空)"
     }
   },
   "logsViewer": {
@@ -1432,6 +1433,51 @@
         "rollingBack": "回滾中...",
         "confirm": "確認回滾"
       }
+    }
+  },
+  "performance": {
+    "title": "效能監控",
+    "subtitle": "監控系統效能指標和資源使用情況",
+    "selectTimeRange": "選擇時間範圍",
+    "autoRefresh": "自動刷新",
+    "exportCsv": "匯出 CSV",
+    "refresh": "刷新",
+    "timeRange": {
+      "1h": "最近 1 小時",
+      "6h": "最近 6 小時",
+      "24h": "最近 24 小時",
+      "7d": "最近 7 天",
+      "30d": "最近 30 天"
+    },
+    "chart": {
+      "value": "數值",
+      "warning": "警告",
+      "critical": "嚴重"
+    },
+    "cards": {
+      "apiResponseTime": "API 回應時間 (P95)",
+      "apiRequests": "API 請求數",
+      "dbQuery": "數據庫查詢 (P95)",
+      "aiProcessing": "AI 處理時間 (P95)",
+      "cpuUsage": "CPU 使用率",
+      "memoryUsage": "記憶體使用率",
+      "avgSubtitle": "平均: {value}",
+      "errorRateSubtitle": "錯誤率: {value}",
+      "successRateSubtitle": "成功率: {value}"
+    },
+    "charts": {
+      "apiResponseTrend": "API 回應時間趨勢",
+      "cpuTrend": "CPU 使用率趨勢",
+      "memoryTrend": "記憶體使用率趨勢"
+    },
+    "endpoints": {
+      "title": "最慢的 API 端點",
+      "endpoint": "端點",
+      "average": "平均",
+      "requests": "請求數",
+      "errorRate": "錯誤率",
+      "trend": "趨勢",
+      "empty": "暫無數據"
     }
   }
 }

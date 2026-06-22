@@ -15,6 +15,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -78,6 +79,8 @@ type FormValues = z.infer<typeof formSchema>;
  * @param props - 組件屬性
  */
 export function FormatForm({ format, open, onClose, onSuccess }: FormatFormProps) {
+  const t = useTranslations('formats.editDialog');
+  const tCommon = useTranslations('common');
   const { toast } = useToast();
   const { updateFormat, isUpdating } = useFormatDetail(format.id);
 
@@ -99,14 +102,14 @@ export function FormatForm({ format, open, onClose, onSuccess }: FormatFormProps
     try {
       await updateFormat({ name: values.name });
       toast({
-        title: '更新成功',
-        description: '格式資訊已更新',
+        title: t('toast.updateSuccess'),
+        description: t('toast.updateSuccessDescription'),
       });
       onSuccess();
     } catch (error) {
       toast({
-        title: '更新失敗',
-        description: error instanceof Error ? error.message : '請稍後再試',
+        title: t('toast.updateError'),
+        description: error instanceof Error ? error.message : t('toast.updateErrorRetry'),
         variant: 'destructive',
       });
     }
@@ -116,8 +119,8 @@ export function FormatForm({ format, open, onClose, onSuccess }: FormatFormProps
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>編輯格式</DialogTitle>
-          <DialogDescription>修改格式的顯示名稱。</DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -126,16 +129,16 @@ export function FormatForm({ format, open, onClose, onSuccess }: FormatFormProps
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>格式名稱</FormLabel>
+                  <FormLabel>{t('nameLabel')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="輸入格式名稱"
+                      placeholder={t('namePlaceholder')}
                       {...field}
                       disabled={isUpdating}
                     />
                   </FormControl>
                   <FormDescription>
-                    用於識別此格式的名稱，例如「DHL 海運發票」。
+                    {t('nameDescription')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -149,10 +152,10 @@ export function FormatForm({ format, open, onClose, onSuccess }: FormatFormProps
                 onClick={onClose}
                 disabled={isUpdating}
               >
-                取消
+                {tCommon('actions.cancel')}
               </Button>
               <Button type="submit" disabled={isUpdating}>
-                {isUpdating ? '保存中...' : '保存'}
+                {isUpdating ? tCommon('actions.saving') : tCommon('actions.save')}
               </Button>
             </div>
           </form>

@@ -33,6 +33,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { useUserCity } from '@/hooks/useUserCity'
 import { useMutation } from '@tanstack/react-query'
 import {
@@ -81,50 +82,28 @@ interface ExportConfig {
 
 const FORMAT_OPTIONS: Array<{
   value: ExportFormat
-  label: string
-  description: string
   icon: typeof FileSpreadsheet
 }> = [
   {
     value: 'xlsx',
-    label: 'Excel (CSV)',
-    description: '適合進一步分析',
     icon: FileSpreadsheet,
   },
   {
     value: 'pdf',
-    label: 'PDF',
-    description: '適合分享和列印（暫未支援）',
     icon: FileText,
   },
   {
     value: 'json',
-    label: 'JSON',
-    description: '適合程式處理',
     icon: FileJson,
   },
 ]
 
 const REPORT_TYPE_OPTIONS: Array<{
   value: ReportType
-  label: string
-  description: string
 }> = [
-  {
-    value: 'summary',
-    label: '摘要報表',
-    description: '各城市的統計摘要',
-  },
-  {
-    value: 'detailed',
-    label: '詳細報表',
-    description: '包含所有文件列表',
-  },
-  {
-    value: 'comparison',
-    label: '對比報表',
-    description: '城市間的績效比較',
-  },
+  { value: 'summary' },
+  { value: 'detailed' },
+  { value: 'comparison' },
 ]
 
 // ============================================================
@@ -149,6 +128,8 @@ export function MultiCityExportDialog({
   onOpenChange,
 }: MultiCityExportDialogProps) {
   // --- Hooks ---
+  const t = useTranslations('cityAccess')
+  const tCommon = useTranslations('common')
   const { cityCodes: userCityCodes, isSingleCity, isLoading: userLoading } = useUserCity()
 
   const [config, setConfig] = useState<ExportConfig>({
@@ -209,18 +190,18 @@ export function MultiCityExportDialog({
       document.body.removeChild(a)
     },
     onSuccess: () => {
-      toast.success('報表已下載')
+      toast.success(t('export.toast.downloaded'))
       onOpenChange(false)
     },
     onError: (error) => {
-      toast.error(`匯出失敗: ${error.message}`)
+      toast.error(t('export.toast.exportFailed', { message: error.message }))
     },
   })
 
   // --- Handlers ---
   const handleExport = () => {
     if (config.cityCodes.length === 0) {
-      toast.error('請選擇至少一個城市')
+      toast.error(t('export.toast.selectAtLeastOne'))
       return
     }
     exportMutation.mutate(config)
@@ -242,31 +223,31 @@ export function MultiCityExportDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Download className="h-5 w-5" />
-            匯出多城市報表
+            {t('export.title')}
           </DialogTitle>
           <DialogDescription>
-            選擇要匯出的城市和報表配置
+            {t('export.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {/* 城市選擇 */}
           <div className="space-y-2">
-            <Label>選擇城市</Label>
+            <Label>{t('export.selectCities')}</Label>
             <CityMultiSelect
               value={config.cityCodes}
               onChange={handleCityChange}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              已選擇 {config.cityCodes.length} 個城市
+              {t('export.selectedCount', { count: config.cityCodes.length })}
             </p>
           </div>
 
           {/* 日期範圍 */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="dateFrom">開始日期</Label>
+              <Label htmlFor="dateFrom">{t('export.dateFrom')}</Label>
               <Input
                 id="dateFrom"
                 type="date"
@@ -277,7 +258,7 @@ export function MultiCityExportDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dateTo">結束日期</Label>
+              <Label htmlFor="dateTo">{t('export.dateTo')}</Label>
               <Input
                 id="dateTo"
                 type="date"
@@ -291,7 +272,7 @@ export function MultiCityExportDialog({
 
           {/* 報表類型 */}
           <div className="space-y-2">
-            <Label>報表類型</Label>
+            <Label>{t('export.reportType')}</Label>
             <RadioGroup
               value={config.reportType}
               onValueChange={(value) =>
@@ -310,10 +291,10 @@ export function MultiCityExportDialog({
                   <RadioGroupItem value={option.value} id={option.value} />
                   <div className="flex-1">
                     <Label htmlFor={option.value} className="cursor-pointer">
-                      {option.label}
+                      {t(`export.reportTypes.${option.value}.label`)}
                     </Label>
                     <p className="text-xs text-muted-foreground">
-                      {option.description}
+                      {t(`export.reportTypes.${option.value}.description`)}
                     </p>
                   </div>
                 </div>
@@ -323,7 +304,7 @@ export function MultiCityExportDialog({
 
           {/* 報表格式 */}
           <div className="space-y-2">
-            <Label>報表格式</Label>
+            <Label>{t('export.reportFormat')}</Label>
             <div className="grid grid-cols-3 gap-2">
               {FORMAT_OPTIONS.map((option) => {
                 const Icon = option.icon
@@ -348,9 +329,9 @@ export function MultiCityExportDialog({
                     `}
                   >
                     <Icon className="h-6 w-6 mb-1" />
-                    <span className="text-sm font-medium">{option.label}</span>
+                    <span className="text-sm font-medium">{t(`export.formats.${option.value}.label`)}</span>
                     <span className="text-xs text-muted-foreground text-center">
-                      {option.description}
+                      {t(`export.formats.${option.value}.description`)}
                     </span>
                   </button>
                 )
@@ -372,7 +353,7 @@ export function MultiCityExportDialog({
                 }
               />
               <Label htmlFor="includeCityBreakdown" className="cursor-pointer">
-                包含城市分組詳情
+                {t('export.includeCityBreakdown')}
               </Label>
             </div>
           </div>
@@ -384,7 +365,7 @@ export function MultiCityExportDialog({
             onClick={() => onOpenChange(false)}
             disabled={exportMutation.isPending}
           >
-            取消
+            {tCommon('actions.cancel')}
           </Button>
           <Button
             onClick={handleExport}
@@ -397,12 +378,12 @@ export function MultiCityExportDialog({
             {exportMutation.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                匯出中...
+                {t('export.exporting')}
               </>
             ) : (
               <>
                 <Download className="h-4 w-4 mr-2" />
-                匯出報表
+                {t('export.exportReport')}
               </>
             )}
           </Button>

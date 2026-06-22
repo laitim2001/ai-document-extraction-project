@@ -52,6 +52,40 @@
       "exportReport": "Export Report",
       "format": "Format",
       "dateRange": "Date Range"
+    },
+    "exportDialog": {
+      "exportButton": "Export Report",
+      "title": "Export Expense Detail Report",
+      "description": "Select the fields to include, then export the Excel report.",
+      "calculating": "Calculating...",
+      "estimatedCount": "Estimated <strong>{count}</strong> records to export",
+      "largeExportWarning": "Large data volume will be processed in the background. A notification will be sent when complete.",
+      "selectFields": "Select Fields",
+      "resetToDefault": "Reset to Default",
+      "selectAll": "Select All",
+      "fields": {
+        "invoiceNumber": "Invoice Number",
+        "uploadTime": "Upload Time",
+        "processedTime": "Processed Time",
+        "companyCode": "Company Code",
+        "companyName": "Company Name",
+        "aiCost": "AI Cost",
+        "reviewDuration": "Review Duration",
+        "status": "Status",
+        "cityCode": "City Code",
+        "processingType": "Processing Type",
+        "confidenceScore": "Confidence Score"
+      },
+      "selectedCount": "{selected} / {total} fields selected",
+      "generating": "Generating report...",
+      "startBackgroundExport": "Start Background Export",
+      "export": "Export",
+      "toastBackgroundTitle": "Generating Report",
+      "toastBackgroundDesc": "The report is being generated in the background. A notification will be sent when complete.",
+      "toastSuccessTitle": "Export Successful",
+      "toastSuccessDesc": "The report has been downloaded.",
+      "toastErrorTitle": "Export Failed",
+      "tryAgainLater": "Please try again later"
     }
   },
   "audit": {
@@ -107,7 +141,43 @@
     "successRate": "Success Rate",
     "avgCost": "Avg Cost",
     "viewDetails": "View Detailed Analysis",
-    "costLabel": "Cost"
+    "costLabel": "Cost",
+    "report": {
+      "selectTimeRange": "Select Time Range",
+      "dateRangeOption": "Past {days} days",
+      "granularity": "Granularity",
+      "granularityDay": "By Day",
+      "granularityWeek": "By Week",
+      "granularityMonth": "By Month",
+      "totalCost": "Total Cost",
+      "totalCalls": "Total Calls",
+      "successRate": "Success Rate",
+      "avgCostPerCall": "Avg Cost / Call",
+      "anomalyAlertTitle": "Cost Anomaly Alert",
+      "anomalyAlertDescription": "{count} high-risk anomalies detected in the past {days} days",
+      "costTrendTitle": "Cost Trend",
+      "costTrendDesc": "AI API usage cost trend",
+      "dateLabel": "Date: {date}",
+      "providerDistTitle": "Provider Distribution",
+      "providerDistDesc": "Cost share by API provider",
+      "tabAnomalies": "Anomaly Detection",
+      "tabProviders": "Provider Details",
+      "anomalyResultTitle": "Anomaly Detection Results",
+      "anomalyResultDesc": "Cost anomalies over the past {days} days (detected using 2x standard deviation threshold)",
+      "noAnomalies": "No anomalies detected, everything is normal",
+      "providerStatsTitle": "Provider Detailed Statistics",
+      "providerStatsDesc": "Usage statistics by API provider",
+      "colProvider": "Provider",
+      "colTotalCalls": "Total Calls",
+      "colSuccess": "Success",
+      "colFailed": "Failed",
+      "colSuccessRate": "Success Rate",
+      "colTotalCost": "Total Cost",
+      "colAvgCost": "Avg Cost",
+      "currentValue": "Current: {value}",
+      "baselineValue": "Baseline: {value}",
+      "deviation": "Deviation: {value}%"
+    }
   },
   "cityCost": {
     "emptyState": "No city cost reports matching criteria found",
@@ -131,7 +201,54 @@
     "autoPrefix": "Auto: {count}",
     "manualReview": "Manual review: {count}",
     "escalation": "Escalation: {count}",
-    "estimateNote": "This is an estimate"
+    "estimateNote": "This is an estimate",
+    "report": {
+      "loadErrorTitle": "Load Failed",
+      "loadError": "Unable to load city cost report",
+      "selectTimeRange": "Select Time Range",
+      "dateRangeOption": "Past {days} days",
+      "totalCost": "Total Cost",
+      "totalDocuments": "Documents Processed",
+      "avgAutomationRate": "Avg Automation Rate",
+      "cityCount": "City Count",
+      "anomalyAlertTitle": "Cost Anomaly Alert",
+      "anomalyAlertDescription": "{count} high-risk anomalies detected in the past {days} days. Click a city row to view details.",
+      "summaryTitle": "Cost Summary",
+      "summaryDesc": "Cost statistics for the period {startDate} to {endDate}",
+      "laborCostEstimate": "Labor Cost (Estimate)",
+      "avgUnitCost": "Avg Unit Cost",
+      "detailTitle": "City Cost Details",
+      "detailDesc": "Cost, volume, and anomaly status by city",
+      "anomalyCountInline": "({count} anomalies)"
+    },
+    "comparison": {
+      "noCityData": "No city data",
+      "successRate": "Success Rate",
+      "avgTime": "Avg Time",
+      "pendingReview": "Pending Review",
+      "loadErrorRetry": "Load failed, please retry",
+      "tabTrend": "Processing Trend",
+      "chartVolume": "Volume",
+      "chartSuccessRate": "Success Rate %",
+      "noTrendData": "No trend data for this period",
+      "volumeCount": "{count} records",
+      "successRateValue": "Success rate {value}%",
+      "noForwarderData": "No Forwarder data for this period",
+      "regional": {
+        "loadErrorTitle": "Load Failed",
+        "loadError": "Unable to load regional report, please try again later",
+        "totalCities": "Total Cities",
+        "totalCitiesDesc": "Number of managed cities",
+        "totalVolume": "Total Volume",
+        "totalVolumeDesc": "Documents processed in the selected period",
+        "avgSuccessRate": "Avg Success Rate",
+        "avgSuccessRateDesc": "Weighted average",
+        "totalAiCost": "Total AI Cost",
+        "totalAiCostDesc": "Cumulative cost in the selected period",
+        "cityComparisonTitle": "City Processing Comparison",
+        "cityComparisonDesc": "Click a city row to view detailed trends and Top Forwarders"
+      }
+    }
   },
   "monthly": {
     "title": "Monthly Cost Allocation Report",
@@ -149,7 +266,20 @@
     "totalCost": "Total Cost",
     "totalVolume": "Volume",
     "cityCount": "Cities",
-    "generatingText": "Generating..."
+    "generatingText": "Generating...",
+    "dialog": {
+      "triggerButton": "Generate Monthly Report",
+      "title": "Generate Monthly Cost Allocation Report",
+      "description": "Select the month and export format, and the system will generate a detailed cost allocation report.",
+      "selectMonth": "Select Month",
+      "exportFormat": "Export Format",
+      "formatRequired": "Please select at least one format",
+      "generate": "Generate Report",
+      "toastSuccessTitle": "Report Generated Successfully",
+      "toastSuccessDesc": "The monthly cost allocation report has been generated and can be downloaded from the report history.",
+      "toastErrorTitle": "Generation Failed",
+      "tryAgainLater": "Please try again later"
+    }
   },
   "auditReport": {
     "types": {
@@ -201,6 +331,46 @@
       "failedTooltip": "Report generation failed. Please create a new one.",
       "emptyTitle": "No report jobs yet",
       "emptyDescription": "Create a new audit report to get started"
+    },
+    "exportDialog": {
+      "title": "Export Audit Report",
+      "description": "Configure report options and export audit data. Large datasets are processed in the background.",
+      "reportTitle": "Report Title",
+      "titlePlaceholder": "e.g., January 2025 Processing Records Audit Report",
+      "reportType": "Report Type",
+      "dateRange": "Date Range",
+      "startDate": "Start Date",
+      "dateRangeSeparator": "to",
+      "endDate": "End Date",
+      "outputFormat": "Output Format",
+      "hideAdvanced": "Hide Advanced Options",
+      "showAdvanced": "Show Advanced Options",
+      "includeChanges": "Include Change History",
+      "includeChangesDesc": "Include data change records in the report",
+      "includeFiles": "Include File List",
+      "includeFilesDesc": "Include the original document list in the report",
+      "largeReportWarning": "The estimated record count exceeds {threshold}. The report will be processed in the background. You can check progress in the report list.",
+      "creating": "Creating...",
+      "create": "Create Report"
+    },
+    "integrityDialog": {
+      "title": "Report Integrity Verification",
+      "description": "Upload a report file to verify its integrity. The system will compare the SHA-256 checksum and digital signature.",
+      "reportLabel": "Report: ",
+      "dropzone": "Drop the report file here, or click to select a file",
+      "supportedFormats": "Supports Excel, PDF, CSV, JSON formats",
+      "resultValid": "Report verification passed",
+      "resultInvalid": "Report verification failed",
+      "checksumMatch": "Checksum matches",
+      "checksumMismatch": "Checksum mismatch",
+      "signatureValid": "Digital signature valid",
+      "signatureInvalid": "Digital signature invalid",
+      "originalChecksum": "Original Checksum: {checksum}...",
+      "calculatedChecksum": "Calculated Checksum: {checksum}...",
+      "verifiedAt": "Verified at: {datetime}",
+      "verifyFailed": "Verification failed",
+      "verifying": "Verifying...",
+      "verify": "Verify Report"
     }
   },
   "costAnomaly": {
@@ -236,5 +406,95 @@
         "communicateBusiness": "Communicate with business team to understand recent business changes"
       }
     }
+  },
+  "documentTrace": {
+    "loadError": "Unable to load trace data",
+    "notFound": "Document trace data not found",
+    "chainTitle": "Document Trace Chain",
+    "generateReport": "Generate Report",
+    "nodes": {
+      "source": "Original Document",
+      "ocr": "OCR Processing",
+      "ocrConfidence": "Confidence: {confidence}%",
+      "extraction": "Field Extraction",
+      "extractionFields": "{count} fields",
+      "correction": "Manual Correction",
+      "correctionCount": "{count} corrections",
+      "autoApproved": "Auto Approved",
+      "manualApproved": "Manual Approval",
+      "emptyApprover": "—"
+    },
+    "reportSuccess": "Trace report generated successfully. Report ID: {reportId}",
+    "reportError": "Unable to generate report",
+    "tabs": {
+      "corrections": "Corrections ({count})",
+      "history": "Change History ({count})",
+      "extraction": "Extraction Result"
+    },
+    "noCorrections": "No correction records",
+    "noHistory": "No change history",
+    "beforeCorrection": "Before",
+    "afterCorrection": "After",
+    "emptyValue": "(empty)",
+    "reasonLabel": "Reason: {reason}",
+    "fileSize": "Size: {size} KB",
+    "storageLocation": "Storage: {location}",
+    "previewTitle": "Original Document",
+    "openInNewWindow": "New Window",
+    "download": "Download"
+  },
+  "auditQuery": {
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "selectDate": "Select date",
+    "status": "Status",
+    "allStatuses": "All Statuses",
+    "search": "Search",
+    "statusOptions": {
+      "PENDING": "Pending",
+      "PROCESSING": "Processing",
+      "PENDING_REVIEW": "Pending Review",
+      "APPROVED": "Approved",
+      "COMPLETED": "Completed",
+      "FAILED": "Failed",
+      "ESCALATED": "Escalated"
+    },
+    "tooManyResultsTitle": "Too Many Results",
+    "tooManyResultsDesc": "Found {count} records, exceeding the limit of {limit}. Please narrow the query range or use the export feature.",
+    "forceQuery": "Query Anyway (partial results only)",
+    "resultCount": "Found {count} matching records"
+  },
+  "auditResult": {
+    "statusLabels": {
+      "PENDING": "Pending",
+      "PROCESSING": "Processing",
+      "PENDING_REVIEW": "Pending Review",
+      "APPROVED": "Approved",
+      "COMPLETED": "Completed",
+      "FAILED": "Failed",
+      "ESCALATED": "Escalated"
+    },
+    "columns": {
+      "invoiceNumber": "Invoice Number",
+      "forwarder": "Forwarder",
+      "city": "City",
+      "status": "Status",
+      "processingType": "Processing Type",
+      "processedBy": "Processed By",
+      "createdAt": "Created At",
+      "aiCost": "AI Cost",
+      "corrections": "Corrections"
+    },
+    "processingTypeAuto": "Auto",
+    "processingTypeManual": "Manual",
+    "searchPlaceholder": "Search in results...",
+    "recordCount": "{count} records",
+    "queryTime": "({seconds} sec)",
+    "loading": "Loading...",
+    "noResults": "No results",
+    "pageInfo": "Page {page} / {totalPages}",
+    "pageRange": "(showing {start} - {end})",
+    "previousPage": "Previous",
+    "nextPage": "Next"
   }
 }

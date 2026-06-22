@@ -17,6 +17,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   AreaChart,
   Area,
@@ -57,7 +58,6 @@ import type {
   SlowestEndpoint,
 } from '@/types/performance';
 import {
-  TIME_RANGE_LABELS,
   DEFAULT_THRESHOLDS,
   getMetricStatus,
   formatMs,
@@ -100,12 +100,12 @@ interface SlowestEndpointsTableProps {
 // Time Range Options
 // ============================================================
 
-const TIME_RANGE_OPTIONS: { value: TimeRange; label: string }[] = [
-  { value: '1h', label: TIME_RANGE_LABELS['1h'] },
-  { value: '6h', label: TIME_RANGE_LABELS['6h'] },
-  { value: '24h', label: TIME_RANGE_LABELS['24h'] },
-  { value: '7d', label: TIME_RANGE_LABELS['7d'] },
-  { value: '30d', label: TIME_RANGE_LABELS['30d'] },
+const TIME_RANGE_OPTIONS: { value: TimeRange }[] = [
+  { value: '1h' },
+  { value: '6h' },
+  { value: '24h' },
+  { value: '7d' },
+  { value: '30d' },
 ];
 
 // ============================================================
@@ -188,6 +188,8 @@ function PerformanceChart({
   thresholds,
   isLoading,
 }: PerformanceChartProps) {
+  const t = useTranslations('admin');
+
   if (isLoading) {
     return (
       <Card>
@@ -245,7 +247,7 @@ function PerformanceChart({
               labelFormatter={(label) => new Date(label as string).toLocaleString('zh-TW')}
               formatter={(value) => [
                 `${(value as number).toFixed(2)}${unit}`,
-                '數值',
+                t('performance.chart.value'),
               ]}
             />
             {thresholds && (
@@ -255,7 +257,7 @@ function PerformanceChart({
                   stroke="#f59e0b"
                   strokeDasharray="5 5"
                   label={{
-                    value: '警告',
+                    value: t('performance.chart.warning'),
                     fill: '#f59e0b',
                     fontSize: 10,
                   }}
@@ -265,7 +267,7 @@ function PerformanceChart({
                   stroke="#ef4444"
                   strokeDasharray="5 5"
                   label={{
-                    value: '嚴重',
+                    value: t('performance.chart.critical'),
                     fill: '#ef4444',
                     fontSize: 10,
                   }}
@@ -294,11 +296,13 @@ function SlowestEndpointsTable({
   endpoints,
   isLoading,
 }: SlowestEndpointsTableProps) {
+  const t = useTranslations('admin');
+
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">最慢的 API 端點</CardTitle>
+          <CardTitle className="text-base">{t('performance.endpoints.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -339,25 +343,25 @@ function SlowestEndpointsTable({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">最慢的 API 端點</CardTitle>
+        <CardTitle className="text-base">{t('performance.endpoints.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>端點</TableHead>
-              <TableHead className="text-right">平均</TableHead>
+              <TableHead>{t('performance.endpoints.endpoint')}</TableHead>
+              <TableHead className="text-right">{t('performance.endpoints.average')}</TableHead>
               <TableHead className="text-right">P95</TableHead>
-              <TableHead className="text-right">請求數</TableHead>
-              <TableHead className="text-right">錯誤率</TableHead>
-              <TableHead className="text-center">趨勢</TableHead>
+              <TableHead className="text-right">{t('performance.endpoints.requests')}</TableHead>
+              <TableHead className="text-right">{t('performance.endpoints.errorRate')}</TableHead>
+              <TableHead className="text-center">{t('performance.endpoints.trend')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {endpoints.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-gray-500">
-                  暫無數據
+                  {t('performance.endpoints.empty')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -417,6 +421,7 @@ function SlowestEndpointsTable({
 // ============================================================
 
 export function PerformanceDashboard() {
+  const t = useTranslations('admin');
   const [timeRange, setTimeRange] = useState<TimeRange>('24h');
   const [autoRefresh, setAutoRefresh] = useState(true);
 
@@ -464,9 +469,9 @@ export function PerformanceDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold">效能監控</h1>
+          <h1 className="text-2xl font-bold">{t('performance.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            監控系統效能指標和資源使用情況
+            {t('performance.subtitle')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -476,12 +481,12 @@ export function PerformanceDashboard() {
             onValueChange={(value) => setTimeRange(value as TimeRange)}
           >
             <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="選擇時間範圍" />
+              <SelectValue placeholder={t('performance.selectTimeRange')} />
             </SelectTrigger>
             <SelectContent>
               {TIME_RANGE_OPTIONS.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+                  {t(`performance.timeRange.${opt.value}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -498,7 +503,7 @@ export function PerformanceDashboard() {
               htmlFor="autoRefresh"
               className="text-sm text-gray-600 cursor-pointer"
             >
-              自動刷新
+              {t('performance.autoRefresh')}
             </label>
           </div>
 
@@ -510,13 +515,13 @@ export function PerformanceDashboard() {
             disabled={isExporting}
           >
             <Download className="h-4 w-4 mr-1" />
-            匯出 CSV
+            {t('performance.exportCsv')}
           </Button>
 
           {/* 手動刷新 */}
           <Button variant="outline" size="sm" onClick={refetchAll}>
             <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
-            刷新
+            {t('performance.refresh')}
           </Button>
         </div>
       </div>
@@ -524,18 +529,22 @@ export function PerformanceDashboard() {
       {/* Overview Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <MetricCard
-          title="API 回應時間 (P95)"
+          title={t('performance.cards.apiResponseTime')}
           value={overview?.api.p95 || 0}
           unit="ms"
-          subtitle={`平均: ${overview?.api.avg || 0}ms`}
+          subtitle={t('performance.cards.avgSubtitle', {
+            value: `${overview?.api.avg || 0}ms`,
+          })}
           status={getApiStatus()}
           icon={<Activity className="h-4 w-4" />}
           isLoading={isLoading}
         />
         <MetricCard
-          title="API 請求數"
+          title={t('performance.cards.apiRequests')}
           value={(overview?.api.count || 0).toLocaleString()}
-          subtitle={`錯誤率: ${formatPercent(overview?.api.errorRate || 0)}`}
+          subtitle={t('performance.cards.errorRateSubtitle', {
+            value: formatPercent(overview?.api.errorRate || 0),
+          })}
           status={
             overview && overview.api.errorRate > 5 ? 'warning' : 'normal'
           }
@@ -543,35 +552,43 @@ export function PerformanceDashboard() {
           isLoading={isLoading}
         />
         <MetricCard
-          title="數據庫查詢 (P95)"
+          title={t('performance.cards.dbQuery')}
           value={overview?.database.p95 || 0}
           unit="ms"
-          subtitle={`平均: ${overview?.database.avg || 0}ms`}
+          subtitle={t('performance.cards.avgSubtitle', {
+            value: `${overview?.database.avg || 0}ms`,
+          })}
           icon={<Database className="h-4 w-4" />}
           isLoading={isLoading}
         />
         <MetricCard
-          title="AI 處理時間 (P95)"
+          title={t('performance.cards.aiProcessing')}
           value={overview?.ai.p95 || 0}
           unit="ms"
-          subtitle={`成功率: ${formatPercent(overview?.ai.successRate || 100)}`}
+          subtitle={t('performance.cards.successRateSubtitle', {
+            value: formatPercent(overview?.ai.successRate || 100),
+          })}
           icon={<Cpu className="h-4 w-4" />}
           isLoading={isLoading}
         />
         <MetricCard
-          title="CPU 使用率"
+          title={t('performance.cards.cpuUsage')}
           value={overview?.system.cpuCurrent.toFixed(1) || 0}
           unit="%"
-          subtitle={`平均: ${overview?.system.cpuAvg.toFixed(1) || 0}%`}
+          subtitle={t('performance.cards.avgSubtitle', {
+            value: `${overview?.system.cpuAvg.toFixed(1) || 0}%`,
+          })}
           status={getCpuStatus()}
           icon={<Cpu className="h-4 w-4" />}
           isLoading={isLoading}
         />
         <MetricCard
-          title="記憶體使用率"
+          title={t('performance.cards.memoryUsage')}
           value={overview?.system.memoryCurrent.toFixed(1) || 0}
           unit="%"
-          subtitle={`平均: ${overview?.system.memoryAvg.toFixed(1) || 0}%`}
+          subtitle={t('performance.cards.avgSubtitle', {
+            value: `${overview?.system.memoryAvg.toFixed(1) || 0}%`,
+          })}
           status={getMemoryStatus()}
           icon={<HardDrive className="h-4 w-4" />}
           isLoading={isLoading}
@@ -582,7 +599,7 @@ export function PerformanceDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <PerformanceChart
           data={apiTimeSeries?.data || []}
-          title="API 回應時間趨勢"
+          title={t('performance.charts.apiResponseTrend')}
           color="#3b82f6"
           unit="ms"
           thresholds={apiTimeSeries?.thresholds || DEFAULT_THRESHOLDS.api_response_time}
@@ -590,7 +607,7 @@ export function PerformanceDashboard() {
         />
         <PerformanceChart
           data={cpuTimeSeries?.data || []}
-          title="CPU 使用率趨勢"
+          title={t('performance.charts.cpuTrend')}
           color="#10b981"
           unit="%"
           thresholds={cpuTimeSeries?.thresholds || DEFAULT_THRESHOLDS.cpu_usage}
@@ -601,7 +618,7 @@ export function PerformanceDashboard() {
       {/* Memory Chart */}
       <PerformanceChart
         data={memoryTimeSeries?.data || []}
-        title="記憶體使用率趨勢"
+        title={t('performance.charts.memoryTrend')}
         color="#8b5cf6"
         unit="%"
         thresholds={memoryTimeSeries?.thresholds || DEFAULT_THRESHOLDS.memory_usage}

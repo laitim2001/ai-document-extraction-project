@@ -74,8 +74,8 @@ interface ConfigHistoryDialogProps {
 /**
  * 格式化顯示值
  */
-function formatDisplayValue(value: unknown): string {
-  if (value === null || value === undefined) return '(空)'
+function formatDisplayValue(value: unknown, emptyLabel: string): string {
+  if (value === null || value === undefined) return emptyLabel
   if (typeof value === 'object') {
     try {
       return JSON.stringify(value, null, 2)
@@ -207,7 +207,7 @@ export function ConfigHistoryDialog({
                           {t('before')}
                         </span>
                         <code className="block p-2 bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300 rounded text-sm font-mono break-all whitespace-pre-wrap max-h-24 overflow-auto">
-                          {formatDisplayValue(item.previousValue)}
+                          {formatDisplayValue(item.previousValue, t('emptyValue'))}
                         </code>
                       </div>
                       <div>
@@ -215,7 +215,7 @@ export function ConfigHistoryDialog({
                           {t('after')}
                         </span>
                         <code className="block p-2 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300 rounded text-sm font-mono break-all whitespace-pre-wrap max-h-24 overflow-auto">
-                          {formatDisplayValue(item.newValue)}
+                          {formatDisplayValue(item.newValue, t('emptyValue'))}
                         </code>
                       </div>
                     </div>

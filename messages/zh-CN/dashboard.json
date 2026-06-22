@@ -76,6 +76,55 @@
     "exceedsMaxDays": "日期范围不能超过 {max} 天",
     "exceedsToday": "结束日期不能超过今天"
   },
+  "filters": {
+    "label": "筛选条件",
+    "dateRange": "日期范围",
+    "forwarder": "货代商",
+    "allForwarders": "全部货代商",
+    "comparisonMode": "比较模式",
+    "enableComparison": "开启比较",
+    "reset": "重置",
+    "selectedCount": "已选择 {count} 个货代商",
+    "comparisonModeHint": "（比较模式）"
+  },
+  "forwarderSelect": {
+    "placeholder": "选择货代商...",
+    "placeholderShort": "货代商",
+    "loading": "加载中...",
+    "searchPlaceholder": "搜索货代商...",
+    "empty": "找不到符合的货代商",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "count": "{count} 个",
+    "noCode": "无代码",
+    "comparisonHint": "最多选择 {max} 个货代商进行比较"
+  },
+  "comparison": {
+    "title": "货代商比较",
+    "loading": "加载中...",
+    "selectAtLeastTwo": "请选择至少两个货代商进行比较",
+    "tabs": {
+      "volume": "处理量",
+      "automation": "自动化率",
+      "time": "处理时间"
+    },
+    "tooltip": {
+      "totalDocuments": "总文件数：",
+      "autoApproved": "自动通过：",
+      "reviewRequired": "需要审核：",
+      "automationRate": "自动化率：",
+      "averageConfidence": "平均信心度：",
+      "averageProcessingTime": "平均处理时间：",
+      "seconds": "秒"
+    },
+    "legend": {
+      "autoApproved": "自动通过",
+      "reviewRequired": "需要审核",
+      "automationRate": "自动化率 (%)",
+      "averageConfidence": "平均信心度 (%)",
+      "averageProcessingTime": "平均处理时间 (秒)"
+    }
+  },
   "errors": {
     "access_denied": {
       "title": "访问被拒绝",

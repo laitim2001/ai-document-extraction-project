@@ -25,6 +25,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import {
   Card,
   CardContent,
@@ -113,6 +114,7 @@ function StatCard({ title, value, description, icon, loading }: StatCardProps) {
  * ```
  */
 export function RegionalReportContent() {
+  const t = useTranslations('reports')
   const { dateRange } = useDashboardFilter()
 
   const { data, isLoading, error } = useQuery<RegionalSummary>({
@@ -135,9 +137,9 @@ export function RegionalReportContent() {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>載入失敗</AlertTitle>
+        <AlertTitle>{t('cityCost.comparison.regional.loadErrorTitle')}</AlertTitle>
         <AlertDescription>
-          {error instanceof Error ? error.message : '無法載入區域報表，請稍後再試'}
+          {error instanceof Error ? error.message : t('cityCost.comparison.regional.loadError')}
         </AlertDescription>
       </Alert>
     )
@@ -153,30 +155,30 @@ export function RegionalReportContent() {
       {/* 匯總統計卡片 */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="城市總數"
+          title={t('cityCost.comparison.regional.totalCities')}
           value={data?.totalCities ?? '-'}
-          description="管轄城市數量"
+          description={t('cityCost.comparison.regional.totalCitiesDesc')}
           icon={<Building2 className="h-4 w-4" />}
           loading={isLoading}
         />
         <StatCard
-          title="總處理量"
+          title={t('cityCost.comparison.regional.totalVolume')}
           value={data?.totalVolume.toLocaleString() ?? '-'}
-          description="選定期間處理文件數"
+          description={t('cityCost.comparison.regional.totalVolumeDesc')}
           icon={<CheckCircle2 className="h-4 w-4" />}
           loading={isLoading}
         />
         <StatCard
-          title="平均成功率"
+          title={t('cityCost.comparison.regional.avgSuccessRate')}
           value={data ? `${data.avgSuccessRate.toFixed(1)}%` : '-'}
-          description="加權平均"
+          description={t('cityCost.comparison.regional.avgSuccessRateDesc')}
           icon={<Zap className="h-4 w-4" />}
           loading={isLoading}
         />
         <StatCard
-          title="總 AI 成本"
+          title={t('cityCost.comparison.regional.totalAiCost')}
           value={data ? `$${data.totalAiCost.toFixed(2)}` : '-'}
-          description="選定期間累計成本"
+          description={t('cityCost.comparison.regional.totalAiCostDesc')}
           icon={<DollarSign className="h-4 w-4" />}
           loading={isLoading}
         />
@@ -185,9 +187,9 @@ export function RegionalReportContent() {
       {/* 城市對比表格 */}
       <Card>
         <CardHeader>
-          <CardTitle>城市處理對比</CardTitle>
+          <CardTitle>{t('cityCost.comparison.regional.cityComparisonTitle')}</CardTitle>
           <CardDescription>
-            點擊城市列查看詳細趨勢和 Top Forwarders
+            {t('cityCost.comparison.regional.cityComparisonDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>

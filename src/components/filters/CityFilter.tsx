@@ -40,6 +40,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useUserCity } from '@/hooks/useUserCity'
 import { useDebounce } from 'use-debounce'
 import {
@@ -165,6 +166,7 @@ export function CityFilter({
   className,
 }: CityFilterProps) {
   // --- Hooks ---
+  const t = useTranslations('cityAccess')
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -335,13 +337,13 @@ export function CityFilter({
 
   // --- 顯示文字 ---
   const displayText = useMemo(() => {
-    if (isAllSelected) return '所有城市'
+    if (isAllSelected) return t('filter.allCities')
     if (selectedCities.length === 1) {
       const city = cities.find((c) => c.code === selectedCities[0])
       return city?.name || selectedCities[0]
     }
-    return `${selectedCities.length} 個城市`
-  }, [isAllSelected, selectedCities, cities])
+    return t('filter.cityCount', { count: selectedCities.length })
+  }, [isAllSelected, selectedCities, cities, t])
 
   // --- 單一城市用戶不顯示 ---
   if (isSingleCity || userLoading) {
@@ -364,7 +366,7 @@ export function CityFilter({
           {isLoading ? (
             <span className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
-              載入中...
+              {t('filter.loading')}
             </span>
           ) : (
             <>
@@ -388,7 +390,7 @@ export function CityFilter({
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="搜尋城市..."
+              placeholder={t('filter.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8"
@@ -405,7 +407,7 @@ export function CityFilter({
             className="flex-1 text-xs"
           >
             <CheckSquare className="h-3 w-3 mr-1" />
-            全選
+            {t('filter.selectAll')}
           </Button>
           {!isAllSelected && selectedCities.length > 1 && (
             <Button
@@ -415,7 +417,7 @@ export function CityFilter({
               className="flex-1 text-xs"
             >
               <Square className="h-3 w-3 mr-1" />
-              清除
+              {t('filter.clear')}
             </Button>
           )}
         </div>
@@ -424,11 +426,11 @@ export function CityFilter({
         <ScrollArea className="h-[300px]">
           {isLoading ? (
             <div className="p-4 text-center text-muted-foreground">
-              載入中...
+              {t('filter.loading')}
             </div>
           ) : groupedCities.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">
-              找不到城市
+              {t('filter.noCitiesFound')}
             </div>
           ) : (
             <div className="p-2">

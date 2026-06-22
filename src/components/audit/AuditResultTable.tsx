@@ -24,6 +24,7 @@
  */
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   useReactTable,
   getCoreRowModel,
@@ -77,20 +78,6 @@ interface AuditResultTableProps {
 }
 
 // ============================================================
-// Status Labels
-// ============================================================
-
-const STATUS_LABELS: Record<string, string> = {
-  PENDING: '待處理',
-  PROCESSING: '處理中',
-  PENDING_REVIEW: '待審核',
-  APPROVED: '已核准',
-  COMPLETED: '已完成',
-  FAILED: '失敗',
-  ESCALATED: '已升級'
-}
-
-// ============================================================
 // Component
 // ============================================================
 
@@ -109,6 +96,9 @@ export function AuditResultTable({
   queryTime,
   className
 }: AuditResultTableProps) {
+  // --- i18n ---
+  const t = useTranslations('reports')
+
   // --- State ---
   const [globalFilter, setGlobalFilter] = useState('')
   const [sorting, setSorting] = useState<SortingState>([])
@@ -123,7 +113,7 @@ export function AuditResultTable({
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            發票號碼
+            {t('auditResult.columns.invoiceNumber')}
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         ),
@@ -135,7 +125,7 @@ export function AuditResultTable({
       },
       {
         accessorKey: 'forwarderName',
-        header: 'Forwarder',
+        header: t('auditResult.columns.forwarder'),
         cell: ({ row }) => (
           <div>
             <div className="font-medium">{row.original.forwarderName || '-'}</div>
@@ -147,34 +137,38 @@ export function AuditResultTable({
       },
       {
         accessorKey: 'cityName',
-        header: '城市',
+        header: t('auditResult.columns.city'),
         cell: ({ row }) => (
           <Badge variant="outline">{row.original.cityName}</Badge>
         )
       },
       {
         accessorKey: 'status',
-        header: '狀態',
+        header: t('auditResult.columns.status'),
         cell: ({ row }) => (
           <Badge
             variant={STATUS_BADGE_VARIANT[row.original.status] || 'outline'}
           >
-            {STATUS_LABELS[row.original.status] || row.original.status}
+            {t.has(`auditResult.statusLabels.${row.original.status}`)
+              ? t(`auditResult.statusLabels.${row.original.status}`)
+              : row.original.status}
           </Badge>
         )
       },
       {
         accessorKey: 'processingType',
-        header: '處理類型',
+        header: t('auditResult.columns.processingType'),
         cell: ({ row }) => (
           <Badge variant={row.original.processingType === 'AUTO' ? 'default' : 'secondary'}>
-            {row.original.processingType === 'AUTO' ? '自動' : '人工'}
+            {row.original.processingType === 'AUTO'
+              ? t('auditResult.processingTypeAuto')
+              : t('auditResult.processingTypeManual')}
           </Badge>
         )
       },
       {
         accessorKey: 'processedByName',
-        header: '處理人',
+        header: t('auditResult.columns.processedBy'),
         cell: ({ row }) => row.original.processedByName || '-'
       },
       {
@@ -184,7 +178,7 @@ export function AuditResultTable({
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            建立時間
+            {t('auditResult.columns.createdAt')}
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         ),
@@ -195,7 +189,7 @@ export function AuditResultTable({
       },
       {
         accessorKey: 'aiCost',
-        header: 'AI 成本',
+        header: t('auditResult.columns.aiCost'),
         cell: ({ row }) =>
           row.original.aiCost != null
             ? `$${row.original.aiCost.toFixed(4)}`
@@ -203,11 +197,11 @@ export function AuditResultTable({
       },
       {
         accessorKey: 'corrections',
-        header: '修正次數',
+        header: t('auditResult.columns.corrections'),
         cell: ({ row }) => row.original.corrections || 0
       }
     ],
-    []
+    [t]
   )
 
   // --- Table Instance ---
@@ -238,16 +232,20 @@ export function AuditResultTable({
         <div className="flex items-center gap-2">
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="在結果中搜尋..."
+            placeholder={t('auditResult.searchPlaceholder')}
             value={globalFilter}
             onChange={e => setGlobalFilter(e.target.value)}
             className="w-64"
           />
         </div>
         <div className="text-sm text-muted-foreground">
-          共 {total.toLocaleString()} 筆記錄
+          {t('auditResult.recordCount', { count: total.toLocaleString() })}
           {queryTime != null && (
-            <span className="ml-2">({(queryTime / 1000).toFixed(2)} 秒)</span>
+            <span className="ml-2">
+              {t('auditResult.queryTime', {
+                seconds: (queryTime / 1000).toFixed(2)
+              })}
+            </span>
           )}
         </div>
       </div>
@@ -280,7 +278,7 @@ export function AuditResultTable({
                 >
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
-                    <span className="ml-2">載入中...</span>
+                    <span className="ml-2">{t('auditResult.loading')}</span>
                   </div>
                 </TableCell>
               </TableRow>
@@ -303,7 +301,7 @@ export function AuditResultTable({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  沒有結果
+                  {t('auditResult.noResults')}
                 </TableCell>
               </TableRow>
             )}
@@ -314,10 +312,12 @@ export function AuditResultTable({
       {/* 分頁 */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
-          第 {page} / {totalPages} 頁
+          {t('auditResult.pageInfo', { page, totalPages })}
           <span className="ml-2 text-xs">
-            （顯示 {(page - 1) * pageSize + 1} -{' '}
-            {Math.min(page * pageSize, total)} 筆）
+            {t('auditResult.pageRange', {
+              start: (page - 1) * pageSize + 1,
+              end: Math.min(page * pageSize, total)
+            })}
           </span>
         </div>
         <div className="flex gap-2">
@@ -328,7 +328,7 @@ export function AuditResultTable({
             onClick={() => onPageChange(page - 1)}
           >
             <ChevronLeft className="h-4 w-4" />
-            上一頁
+            {t('auditResult.previousPage')}
           </Button>
           <Button
             variant="outline"
@@ -336,7 +336,7 @@ export function AuditResultTable({
             disabled={!canGoNext || loading}
             onClick={() => onPageChange(page + 1)}
           >
-            下一頁
+            {t('auditResult.nextPage')}
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
