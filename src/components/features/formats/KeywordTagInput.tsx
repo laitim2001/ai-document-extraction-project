@@ -12,6 +12,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
@@ -46,8 +47,9 @@ export interface KeywordTagInputProps {
 export function KeywordTagInput({
   keywords,
   onChange,
-  placeholder = '輸入關鍵字後按 Enter',
+  placeholder,
 }: KeywordTagInputProps) {
+  const t = useTranslations('formats.keywordTagInput');
   const [inputValue, setInputValue] = React.useState('');
 
   // --- Handlers ---
@@ -87,7 +89,7 @@ export function KeywordTagInput({
                 type="button"
                 onClick={() => removeKeyword(keyword)}
                 className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5"
-                title="刪除關鍵字"
+                title={t('removeTitle')}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -99,11 +101,11 @@ export function KeywordTagInput({
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('placeholder')}
         disabled={keywords.length >= 50}
       />
       <div className="flex justify-between text-xs text-muted-foreground">
-        <span>按 Enter 新增關鍵字</span>
+        <span>{t('hint')}</span>
         <span>{keywords.length}/50</span>
       </div>
     </div>

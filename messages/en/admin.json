@@ -1098,7 +1098,8 @@
       "pagination": "Page {page} / {totalPages}, {total} records total",
       "previous": "Previous",
       "next": "Next",
-      "close": "Close"
+      "close": "Close",
+      "emptyValue": "(Empty)"
     }
   },
   "logsViewer": {
@@ -1432,6 +1433,51 @@
         "rollingBack": "Rolling back...",
         "confirm": "Confirm Rollback"
       }
+    }
+  },
+  "performance": {
+    "title": "Performance Monitoring",
+    "subtitle": "Monitor system performance metrics and resource usage",
+    "selectTimeRange": "Select time range",
+    "autoRefresh": "Auto refresh",
+    "exportCsv": "Export CSV",
+    "refresh": "Refresh",
+    "timeRange": {
+      "1h": "Last 1 hour",
+      "6h": "Last 6 hours",
+      "24h": "Last 24 hours",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days"
+    },
+    "chart": {
+      "value": "Value",
+      "warning": "Warning",
+      "critical": "Critical"
+    },
+    "cards": {
+      "apiResponseTime": "API Response Time (P95)",
+      "apiRequests": "API Requests",
+      "dbQuery": "Database Query (P95)",
+      "aiProcessing": "AI Processing Time (P95)",
+      "cpuUsage": "CPU Usage",
+      "memoryUsage": "Memory Usage",
+      "avgSubtitle": "Avg: {value}",
+      "errorRateSubtitle": "Error rate: {value}",
+      "successRateSubtitle": "Success rate: {value}"
+    },
+    "charts": {
+      "apiResponseTrend": "API Response Time Trend",
+      "cpuTrend": "CPU Usage Trend",
+      "memoryTrend": "Memory Usage Trend"
+    },
+    "endpoints": {
+      "title": "Slowest API Endpoints",
+      "endpoint": "Endpoint",
+      "average": "Average",
+      "requests": "Requests",
+      "errorRate": "Error Rate",
+      "trend": "Trend",
+      "empty": "No data available"
     }
   }
 }

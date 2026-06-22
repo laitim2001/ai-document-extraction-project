@@ -34,6 +34,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ForwarderComparisonData } from '@/types/forwarder-filter';
@@ -69,11 +70,8 @@ const CHART_COLORS = {
   confidence: '#06b6d4',   // cyan-500
 };
 
-const CHART_TABS: Array<{ value: ChartType; label: string }> = [
-  { value: 'volume', label: '處理量' },
-  { value: 'automation', label: '自動化率' },
-  { value: 'time', label: '處理時間' },
-];
+// 圖表分頁的 value 清單（label 透過 i18n 在 render 取得）
+const CHART_TAB_VALUES: ChartType[] = ['volume', 'automation', 'time'];
 
 // ============================================================
 // Component
@@ -88,6 +86,7 @@ export function ForwarderComparisonChart({
   isLoading = false,
   className,
 }: ForwarderComparisonChartProps) {
+  const t = useTranslations('dashboard');
   const [activeTab, setActiveTab] = React.useState<ChartType>('volume');
 
   // 轉換資料格式
@@ -111,10 +110,10 @@ export function ForwarderComparisonChart({
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle>貨代商比較</CardTitle>
+          <CardTitle>{t('comparison.title')}</CardTitle>
         </CardHeader>
         <CardContent className="h-[400px] flex items-center justify-center">
-          <div className="text-muted-foreground">載入中...</div>
+          <div className="text-muted-foreground">{t('comparison.loading')}</div>
         </CardContent>
       </Card>
     );
@@ -125,11 +124,11 @@ export function ForwarderComparisonChart({
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle>貨代商比較</CardTitle>
+          <CardTitle>{t('comparison.title')}</CardTitle>
         </CardHeader>
         <CardContent className="h-[400px] flex items-center justify-center">
           <div className="text-muted-foreground">
-            請選擇至少兩個貨代商進行比較
+            {t('comparison.selectAtLeastTwo')}
           </div>
         </CardContent>
       </Card>
@@ -139,14 +138,14 @@ export function ForwarderComparisonChart({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>貨代商比較</CardTitle>
+        <CardTitle>{t('comparison.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ChartType)}>
           <TabsList className="mb-4">
-            {CHART_TABS.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
-                {tab.label}
+            {CHART_TAB_VALUES.map((value) => (
+              <TabsTrigger key={value} value={value}>
+                {t(`comparison.tabs.${value}`)}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -171,17 +170,23 @@ export function ForwarderComparisonChart({
                           <p className="font-medium">{data.fullName}</p>
                           <div className="mt-2 space-y-1 text-sm">
                             <p>
-                              <span className="text-muted-foreground">總文件數：</span>
+                              <span className="text-muted-foreground">
+                                {t('comparison.tooltip.totalDocuments')}
+                              </span>
                               <span className="font-medium ml-1">{data.documentCount}</span>
                             </p>
                             <p>
-                              <span className="text-muted-foreground">自動通過：</span>
+                              <span className="text-muted-foreground">
+                                {t('comparison.tooltip.autoApproved')}
+                              </span>
                               <span className="font-medium ml-1 text-green-500">
                                 {data.autoApprovedCount}
                               </span>
                             </p>
                             <p>
-                              <span className="text-muted-foreground">需要審核：</span>
+                              <span className="text-muted-foreground">
+                                {t('comparison.tooltip.reviewRequired')}
+                              </span>
                               <span className="font-medium ml-1 text-yellow-500">
                                 {data.reviewRequiredCount}
                               </span>
@@ -196,14 +201,14 @@ export function ForwarderComparisonChart({
                 <Legend />
                 <Bar
                   dataKey="autoApprovedCount"
-                  name="自動通過"
+                  name={t('comparison.legend.autoApproved')}
                   fill={CHART_COLORS.autoApproved}
                   stackId="a"
                   radius={[0, 0, 0, 0]}
                 />
                 <Bar
                   dataKey="reviewRequiredCount"
-                  name="需要審核"
+                  name={t('comparison.legend.reviewRequired')}
                   fill={CHART_COLORS.reviewRequired}
                   stackId="a"
                   radius={[4, 4, 0, 0]}
@@ -237,11 +242,15 @@ export function ForwarderComparisonChart({
                           <p className="font-medium">{data.fullName}</p>
                           <div className="mt-2 space-y-1 text-sm">
                             <p>
-                              <span className="text-muted-foreground">自動化率：</span>
+                              <span className="text-muted-foreground">
+                                {t('comparison.tooltip.automationRate')}
+                              </span>
                               <span className="font-medium ml-1">{data.automationRate}%</span>
                             </p>
                             <p>
-                              <span className="text-muted-foreground">平均信心度：</span>
+                              <span className="text-muted-foreground">
+                                {t('comparison.tooltip.averageConfidence')}
+                              </span>
                               <span className="font-medium ml-1">{data.averageConfidence}%</span>
                             </p>
                           </div>
@@ -254,13 +263,13 @@ export function ForwarderComparisonChart({
                 <Legend />
                 <Bar
                   dataKey="automationRate"
-                  name="自動化率 (%)"
+                  name={t('comparison.legend.automationRate')}
                   fill={CHART_COLORS.autoApproved}
                   radius={[4, 4, 0, 0]}
                 />
                 <Bar
                   dataKey="averageConfidence"
-                  name="平均信心度 (%)"
+                  name={t('comparison.legend.averageConfidence')}
                   fill={CHART_COLORS.confidence}
                   radius={[4, 4, 0, 0]}
                 />
@@ -292,9 +301,11 @@ export function ForwarderComparisonChart({
                           <p className="font-medium">{data.fullName}</p>
                           <div className="mt-2 space-y-1 text-sm">
                             <p>
-                              <span className="text-muted-foreground">平均處理時間：</span>
+                              <span className="text-muted-foreground">
+                                {t('comparison.tooltip.averageProcessingTime')}
+                              </span>
                               <span className="font-medium ml-1">
-                                {data.averageProcessingTime} 秒
+                                {data.averageProcessingTime} {t('comparison.tooltip.seconds')}
                               </span>
                             </p>
                           </div>
@@ -307,7 +318,7 @@ export function ForwarderComparisonChart({
                 <Legend />
                 <Bar
                   dataKey="averageProcessingTime"
-                  name="平均處理時間 (秒)"
+                  name={t('comparison.legend.averageProcessingTime')}
                   fill={CHART_COLORS.processingTime}
                   radius={[4, 4, 0, 0]}
                 />

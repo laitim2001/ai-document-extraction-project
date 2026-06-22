@@ -103,6 +103,17 @@
     "defaultTemplate": {
       "configured": "Default template configured",
       "notConfigured": "Default template not configured. Auto-matching will not work for this company."
+    },
+    "logoUploader": {
+      "fileTooLarge": "File size exceeds limit (max {max}MB)",
+      "invalidType": "Unsupported file format. Please upload PNG, JPEG, WebP, GIF, or SVG images",
+      "uploadFailed": "File upload failed, please try again",
+      "replaceHint": "Click or drag to replace logo",
+      "dropToUpload": "Drop to upload",
+      "clickToUpload": "Click to upload",
+      "orDragImage": " or drag an image",
+      "supportedFormats": "Supports PNG, JPEG, WebP, GIF, SVG (max {max}MB)",
+      "selectedFile": "Selected: {fileName} ({fileSize} KB)"
     }
   },
   "dialog": {

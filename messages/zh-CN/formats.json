@@ -74,6 +74,24 @@
     "promptConfigDescription": "自动创建格式专属的 AI Prompt 配置",
     "submitButton": "创建格式"
   },
+  "editDialog": {
+    "title": "编辑格式",
+    "description": "修改格式的显示名称。",
+    "nameLabel": "格式名称",
+    "namePlaceholder": "输入格式名称",
+    "nameDescription": "用于识别此格式的名称，例如「DHL 海运发票」。",
+    "toast": {
+      "updateSuccess": "更新成功",
+      "updateSuccessDescription": "格式信息已更新",
+      "updateError": "更新失败",
+      "updateErrorRetry": "请稍后再试"
+    }
+  },
+  "keywordTagInput": {
+    "placeholder": "输入关键字后按 Enter",
+    "hint": "按 Enter 新增关键字",
+    "removeTitle": "删除关键字"
+  },
   "sourceFieldCombobox": {
     "placeholder": "选择来源字段...",
     "searchPlaceholder": "搜索字段...",

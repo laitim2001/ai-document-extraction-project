@@ -1,0 +1,116 @@
+{
+  "filter": {
+    "allCities": "All cities",
+    "cityCount": "{count} cities",
+    "searchPlaceholder": "Search cities...",
+    "selectAll": "Select all",
+    "clear": "Clear",
+    "loading": "Loading...",
+    "noCitiesFound": "No cities found"
+  },
+  "multiSelect": {
+    "placeholder": "Select cities...",
+    "allCities": "All cities",
+    "cityCount": "{count} cities",
+    "searchPlaceholder": "Search cities...",
+    "selectAll": "Select all",
+    "selectAllMax": "(max {max})",
+    "clear": "Clear",
+    "loadFailed": "Failed to load",
+    "noCitiesFound": "No cities found",
+    "noCitiesAvailable": "No cities available",
+    "minSelectionHint": "Select at least {count} cities",
+    "maxSelectionHint": "Maximum selection reached ({count})"
+  },
+  "comparison": {
+    "title": "City Comparison",
+    "description": "Compare key performance metrics across cities",
+    "needMultipleCities": "Multi-city access is required to run a comparison",
+    "loadFailed": "Failed to load, please try again later",
+    "selectAtLeastTwo": "Please select at least 2 cities to compare",
+    "best": "Best",
+    "needsImprovement": "Needs improvement",
+    "average": "Average",
+    "table": {
+      "metric": "Metric"
+    },
+    "period": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days"
+    },
+    "chartType": {
+      "bar": "Bar chart",
+      "radar": "Radar chart",
+      "trend": "Trend chart"
+    },
+    "metrics": {
+      "documentsProcessed": "Documents processed",
+      "successRate": "Success rate",
+      "averageConfidence": "Average confidence",
+      "averageProcessingTime": "Average processing time",
+      "correctionRate": "Correction rate",
+      "escalationRate": "Escalation rate"
+    },
+    "radarMetrics": {
+      "successRate": "Success rate",
+      "averageConfidence": "Confidence",
+      "efficiency": "Efficiency"
+    },
+    "barSeries": {
+      "documentsProcessed": "Documents processed",
+      "successRate": "Success rate (%)",
+      "confidence": "Confidence (%)"
+    }
+  },
+  "restricted": {
+    "accessDenied": "Access restricted",
+    "accessDeniedDescription": "You do not have permission to view this city's content."
+  },
+  "export": {
+    "title": "Export multi-city report",
+    "description": "Choose the cities and report configuration to export",
+    "selectCities": "Select cities",
+    "selectedCount": "{count} cities selected",
+    "dateFrom": "Start date",
+    "dateTo": "End date",
+    "reportType": "Report type",
+    "reportFormat": "Report format",
+    "includeCityBreakdown": "Include per-city breakdown",
+    "exporting": "Exporting...",
+    "exportReport": "Export report",
+    "toast": {
+      "downloaded": "Report downloaded",
+      "exportFailed": "Export failed: {message}",
+      "selectAtLeastOne": "Please select at least one city"
+    },
+    "formats": {
+      "xlsx": {
+        "label": "Excel (CSV)",
+        "description": "Suitable for further analysis"
+      },
+      "pdf": {
+        "label": "PDF",
+        "description": "Suitable for sharing and printing (not yet supported)"
+      },
+      "json": {
+        "label": "JSON",
+        "description": "Suitable for programmatic processing"
+      }
+    },
+    "reportTypes": {
+      "summary": {
+        "label": "Summary report",
+        "description": "Statistical summary for each city"
+      },
+      "detailed": {
+        "label": "Detailed report",
+        "description": "Includes the full document list"
+      },
+      "comparison": {
+        "label": "Comparison report",
+        "description": "Performance comparison across cities"
+      }
+    }
+  }
+}

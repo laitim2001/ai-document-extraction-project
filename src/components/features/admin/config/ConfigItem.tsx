@@ -27,6 +27,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { ConfigValue, ConfigEffectType } from '@/types/config'
 
+type ConfigItemTranslate = ReturnType<typeof useTranslations<'systemSettings'>>
+
 // ============================================================
 // Types
 // ============================================================
@@ -49,11 +51,12 @@ interface ConfigItemProps {
 /**
  * 格式化顯示值
  * @param value - 配置值
+ * @param t - systemSettings 翻譯函數
  * @returns 格式化後的字串
  */
-function formatDisplayValue(value: unknown): string {
-  if (value === null || value === undefined) return '(未設定)'
-  if (typeof value === 'boolean') return value ? '是' : '否'
+function formatDisplayValue(value: unknown, t: ConfigItemTranslate): string {
+  if (value === null || value === undefined) return t('config.item.notSet')
+  if (typeof value === 'boolean') return value ? t('config.item.booleanTrue') : t('config.item.booleanFalse')
   if (typeof value === 'object') return JSON.stringify(value, null, 2)
   return String(value)
 }
@@ -114,14 +117,14 @@ export function ConfigItem({
             {config.isReadOnly && (
               <Badge variant="secondary" className="text-xs">
                 <Lock className="w-3 h-3 mr-1" />
-                唯讀
+                {t('config.item.readOnly')}
               </Badge>
             )}
 
             {config.isEncrypted && (
               <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-300">
                 <Shield className="w-3 h-3 mr-1" />
-                加密
+                {t('config.item.encrypted')}
               </Badge>
             )}
 
@@ -143,13 +146,13 @@ export function ConfigItem({
 
           {/* 當前值 */}
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-sm text-muted-foreground">目前值:</span>
+            <span className="text-sm text-muted-foreground">{t('config.item.currentValue')}</span>
             <code className="text-sm font-mono bg-muted px-2 py-0.5 rounded">
-              {formatDisplayValue(config.value)}
+              {formatDisplayValue(config.value, t)}
             </code>
             {config.isModified && (
               <span className="text-xs text-muted-foreground">
-                (預設: {formatDisplayValue(config.defaultValue)})
+                {t('config.item.defaultValue', { value: formatDisplayValue(config.defaultValue, t) })}
               </span>
             )}
           </div>
@@ -158,10 +161,10 @@ export function ConfigItem({
           {config.validation && (
             <div className="mt-1 text-xs text-muted-foreground">
               {config.validation.min !== undefined && config.validation.max !== undefined && (
-                <span>範圍: {config.validation.min} - {config.validation.max}</span>
+                <span>{t('config.item.range', { min: config.validation.min, max: config.validation.max })}</span>
               )}
               {config.validation.options && (
-                <span>選項: {config.validation.options.join(', ')}</span>
+                <span>{t('config.item.options', { options: config.validation.options.join(', ') })}</span>
               )}
             </div>
           )}
@@ -177,12 +180,13 @@ export function ConfigItem({
           {/* 更新資訊 */}
           {config.updatedBy && (
             <p className="mt-2 text-xs text-muted-foreground">
-              最後更新: {config.updatedBy} (
-              {formatDistanceToNow(new Date(config.updatedAt), {
-                addSuffix: true,
-                locale: zhTW,
+              {t('config.item.lastUpdated', {
+                user: config.updatedBy,
+                time: formatDistanceToNow(new Date(config.updatedAt), {
+                  addSuffix: true,
+                  locale: zhTW,
+                }),
               })}
-              )
             </p>
           )}
         </div>
@@ -193,7 +197,7 @@ export function ConfigItem({
             variant="ghost"
             size="sm"
             onClick={onViewHistory}
-            title="查看變更歷史"
+            title={t('config.item.viewHistoryTooltip')}
           >
             <History className="w-4 h-4" />
           </Button>
@@ -205,7 +209,7 @@ export function ConfigItem({
                 size="sm"
                 onClick={onResetToDefault}
                 disabled={!config.isModified}
-                title="重置為預設值"
+                title={t('config.item.resetTooltip')}
               >
                 <RotateCcw className="w-4 h-4" />
               </Button>
@@ -214,10 +218,10 @@ export function ConfigItem({
                 variant="default"
                 size="sm"
                 onClick={onEdit}
-                title="編輯配置"
+                title={t('config.item.editTooltip')}
               >
                 <Edit2 className="w-4 h-4 mr-1" />
-                編輯
+                {t('config.item.edit')}
               </Button>
             </>
           )}

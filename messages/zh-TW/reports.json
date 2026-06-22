@@ -52,6 +52,40 @@
       "exportReport": "匯出報表",
       "format": "格式",
       "dateRange": "日期範圍"
+    },
+    "exportDialog": {
+      "exportButton": "匯出報表",
+      "title": "匯出費用明細報表",
+      "description": "選擇要包含的欄位，然後匯出 Excel 報表。",
+      "calculating": "計算中...",
+      "estimatedCount": "預計匯出 <strong>{count}</strong> 筆資料",
+      "largeExportWarning": "數據量較大，將在背景處理，完成後發送通知。",
+      "selectFields": "選擇欄位",
+      "resetToDefault": "重設為預設",
+      "selectAll": "全選",
+      "fields": {
+        "invoiceNumber": "發票編號",
+        "uploadTime": "上傳時間",
+        "processedTime": "處理時間",
+        "companyCode": "Company 代碼",
+        "companyName": "Company 名稱",
+        "aiCost": "AI 成本",
+        "reviewDuration": "審核時長",
+        "status": "狀態",
+        "cityCode": "城市代碼",
+        "processingType": "處理類型",
+        "confidenceScore": "信心分數"
+      },
+      "selectedCount": "已選擇 {selected} / {total} 個欄位",
+      "generating": "正在生成報表...",
+      "startBackgroundExport": "開始背景匯出",
+      "export": "匯出",
+      "toastBackgroundTitle": "報表生成中",
+      "toastBackgroundDesc": "報表正在背景生成，完成後將發送通知。",
+      "toastSuccessTitle": "匯出成功",
+      "toastSuccessDesc": "報表已下載。",
+      "toastErrorTitle": "匯出失敗",
+      "tryAgainLater": "請稍後再試"
     }
   },
   "audit": {
@@ -107,7 +141,43 @@
     "successRate": "成功率",
     "avgCost": "均成本",
     "viewDetails": "查看詳細分析",
-    "costLabel": "成本"
+    "costLabel": "成本",
+    "report": {
+      "selectTimeRange": "選擇時間範圍",
+      "dateRangeOption": "過去 {days} 天",
+      "granularity": "時間粒度",
+      "granularityDay": "按日",
+      "granularityWeek": "按週",
+      "granularityMonth": "按月",
+      "totalCost": "總成本",
+      "totalCalls": "總呼叫次數",
+      "successRate": "成功率",
+      "avgCostPerCall": "平均成本/呼叫",
+      "anomalyAlertTitle": "成本異常警示",
+      "anomalyAlertDescription": "在過去 {days} 天內檢測到 {count} 個高風險異常",
+      "costTrendTitle": "成本趨勢",
+      "costTrendDesc": "AI API 使用成本變化趨勢",
+      "dateLabel": "日期: {date}",
+      "providerDistTitle": "Provider 分佈",
+      "providerDistDesc": "各 API 提供者成本佔比",
+      "tabAnomalies": "異常檢測",
+      "tabProviders": "Provider 詳情",
+      "anomalyResultTitle": "異常檢測結果",
+      "anomalyResultDesc": "過去 {days} 天的成本異常（使用標準差 2 倍閾值檢測）",
+      "noAnomalies": "未檢測到異常，一切正常",
+      "providerStatsTitle": "Provider 詳細統計",
+      "providerStatsDesc": "各 API 提供者的使用統計",
+      "colProvider": "Provider",
+      "colTotalCalls": "總呼叫",
+      "colSuccess": "成功",
+      "colFailed": "失敗",
+      "colSuccessRate": "成功率",
+      "colTotalCost": "總成本",
+      "colAvgCost": "均成本",
+      "currentValue": "當前值: {value}",
+      "baselineValue": "基準值: {value}",
+      "deviation": "偏差: {value}%"
+    }
   },
   "cityCost": {
     "emptyState": "找不到符合條件的城市成本報表",
@@ -131,7 +201,54 @@
     "autoPrefix": "自動: {count}",
     "manualReview": "人工審核: {count} 筆",
     "escalation": "升級處理: {count} 筆",
-    "estimateNote": "此為估算值"
+    "estimateNote": "此為估算值",
+    "report": {
+      "loadErrorTitle": "載入失敗",
+      "loadError": "無法載入城市成本報表",
+      "selectTimeRange": "選擇時間範圍",
+      "dateRangeOption": "過去 {days} 天",
+      "totalCost": "總成本",
+      "totalDocuments": "處理文檔數",
+      "avgAutomationRate": "平均自動化率",
+      "cityCount": "城市數量",
+      "anomalyAlertTitle": "成本異常警示",
+      "anomalyAlertDescription": "在過去 {days} 天內檢測到 {count} 個高風險異常，請點擊城市行查看詳情。",
+      "summaryTitle": "成本摘要",
+      "summaryDesc": "{startDate} 至 {endDate} 期間的成本統計",
+      "laborCostEstimate": "人工成本（估算）",
+      "avgUnitCost": "平均單位成本",
+      "detailTitle": "城市成本明細",
+      "detailDesc": "各城市的成本、處理量與異常狀態",
+      "anomalyCountInline": "（{count} 個異常）"
+    },
+    "comparison": {
+      "noCityData": "無城市數據",
+      "successRate": "成功率",
+      "avgTime": "平均時間",
+      "pendingReview": "待審核",
+      "loadErrorRetry": "載入失敗，請重試",
+      "tabTrend": "處理趨勢",
+      "chartVolume": "處理量",
+      "chartSuccessRate": "成功率 %",
+      "noTrendData": "此期間無趨勢數據",
+      "volumeCount": "{count} 筆",
+      "successRateValue": "成功率 {value}%",
+      "noForwarderData": "此期間無 Forwarder 數據",
+      "regional": {
+        "loadErrorTitle": "載入失敗",
+        "loadError": "無法載入區域報表，請稍後再試",
+        "totalCities": "城市總數",
+        "totalCitiesDesc": "管轄城市數量",
+        "totalVolume": "總處理量",
+        "totalVolumeDesc": "選定期間處理文件數",
+        "avgSuccessRate": "平均成功率",
+        "avgSuccessRateDesc": "加權平均",
+        "totalAiCost": "總 AI 成本",
+        "totalAiCostDesc": "選定期間累計成本",
+        "cityComparisonTitle": "城市處理對比",
+        "cityComparisonDesc": "點擊城市列查看詳細趨勢和 Top Forwarders"
+      }
+    }
   },
   "monthly": {
     "title": "月度成本分攤報告",
@@ -149,7 +266,20 @@
     "totalCost": "總成本",
     "totalVolume": "處理量",
     "cityCount": "城市數",
-    "generatingText": "生成中..."
+    "generatingText": "生成中...",
+    "dialog": {
+      "triggerButton": "生成月度報告",
+      "title": "生成月度成本分攤報告",
+      "description": "選擇月份和匯出格式，系統將生成詳細的成本分攤報告。",
+      "selectMonth": "選擇月份",
+      "exportFormat": "匯出格式",
+      "formatRequired": "請至少選擇一種格式",
+      "generate": "生成報告",
+      "toastSuccessTitle": "報告生成成功",
+      "toastSuccessDesc": "月度成本分攤報告已生成，可在報告歷史中下載。",
+      "toastErrorTitle": "生成失敗",
+      "tryAgainLater": "請稍後再試"
+    }
   },
   "auditReport": {
     "types": {
@@ -201,6 +331,46 @@
       "failedTooltip": "報告生成失敗，請重新建立",
       "emptyTitle": "尚無報告任務",
       "emptyDescription": "建立新的審計報告以開始"
+    },
+    "exportDialog": {
+      "title": "匯出審計報告",
+      "description": "配置報告選項並匯出審計數據。大量數據將在背景處理。",
+      "reportTitle": "報告標題",
+      "titlePlaceholder": "例：2025年1月處理記錄審計報告",
+      "reportType": "報告類型",
+      "dateRange": "日期範圍",
+      "startDate": "開始日期",
+      "dateRangeSeparator": "至",
+      "endDate": "結束日期",
+      "outputFormat": "輸出格式",
+      "hideAdvanced": "隱藏進階選項",
+      "showAdvanced": "顯示進階選項",
+      "includeChanges": "包含變更歷史",
+      "includeChangesDesc": "在報告中包含數據變更記錄",
+      "includeFiles": "包含文件清單",
+      "includeFilesDesc": "在報告中包含原始文件列表",
+      "largeReportWarning": "預估記錄數超過 {threshold} 筆，報告將在背景處理。您可以在報告列表中查看進度。",
+      "creating": "建立中...",
+      "create": "建立報告"
+    },
+    "integrityDialog": {
+      "title": "報告完整性驗證",
+      "description": "上傳報告檔案以驗證其完整性。系統會比對 SHA-256 checksum 和數位簽章。",
+      "reportLabel": "報告：",
+      "dropzone": "拖放報告檔案至此處，或點擊選擇檔案",
+      "supportedFormats": "支援 Excel、PDF、CSV、JSON 格式",
+      "resultValid": "報告驗證通過",
+      "resultInvalid": "報告驗證失敗",
+      "checksumMatch": "Checksum 相符",
+      "checksumMismatch": "Checksum 不相符",
+      "signatureValid": "數位簽章 有效",
+      "signatureInvalid": "數位簽章 無效",
+      "originalChecksum": "原始 Checksum: {checksum}...",
+      "calculatedChecksum": "計算 Checksum: {checksum}...",
+      "verifiedAt": "驗證時間：{datetime}",
+      "verifyFailed": "驗證失敗",
+      "verifying": "驗證中...",
+      "verify": "驗證報告"
     }
   },
   "costAnomaly": {
@@ -236,5 +406,95 @@
         "communicateBusiness": "與業務團隊溝通，了解近期業務變動情況"
       }
     }
+  },
+  "documentTrace": {
+    "loadError": "無法載入追溯資料",
+    "notFound": "找不到文件追溯資料",
+    "chainTitle": "文件追溯鏈",
+    "generateReport": "生成報告",
+    "nodes": {
+      "source": "原始文件",
+      "ocr": "OCR 處理",
+      "ocrConfidence": "信心度: {confidence}%",
+      "extraction": "欄位提取",
+      "extractionFields": "{count} 個欄位",
+      "correction": "人工修正",
+      "correctionCount": "{count} 次修正",
+      "autoApproved": "自動核准",
+      "manualApproved": "人工核准",
+      "emptyApprover": "—"
+    },
+    "reportSuccess": "追溯報告已成功生成。報告 ID: {reportId}",
+    "reportError": "無法生成報告",
+    "tabs": {
+      "corrections": "修正記錄 ({count})",
+      "history": "變更歷史 ({count})",
+      "extraction": "提取結果"
+    },
+    "noCorrections": "無修正記錄",
+    "noHistory": "無變更歷史",
+    "beforeCorrection": "修正前",
+    "afterCorrection": "修正後",
+    "emptyValue": "(空)",
+    "reasonLabel": "原因：{reason}",
+    "fileSize": "大小: {size} KB",
+    "storageLocation": "儲存: {location}",
+    "previewTitle": "原始文件",
+    "openInNewWindow": "新視窗",
+    "download": "下載"
+  },
+  "auditQuery": {
+    "startDate": "開始日期",
+    "endDate": "結束日期",
+    "selectDate": "選擇日期",
+    "status": "處理狀態",
+    "allStatuses": "全部狀態",
+    "search": "查詢",
+    "statusOptions": {
+      "PENDING": "待處理",
+      "PROCESSING": "處理中",
+      "PENDING_REVIEW": "待審核",
+      "APPROVED": "已核准",
+      "COMPLETED": "已完成",
+      "FAILED": "失敗",
+      "ESCALATED": "已升級"
+    },
+    "tooManyResultsTitle": "結果過多",
+    "tooManyResultsDesc": "查詢結果共 {count} 筆，超過上限 {limit} 筆。請縮小查詢範圍或使用匯出功能。",
+    "forceQuery": "仍要查詢（僅顯示部分）",
+    "resultCount": "共找到 {count} 筆符合條件的記錄"
+  },
+  "auditResult": {
+    "statusLabels": {
+      "PENDING": "待處理",
+      "PROCESSING": "處理中",
+      "PENDING_REVIEW": "待審核",
+      "APPROVED": "已核准",
+      "COMPLETED": "已完成",
+      "FAILED": "失敗",
+      "ESCALATED": "已升級"
+    },
+    "columns": {
+      "invoiceNumber": "發票號碼",
+      "forwarder": "Forwarder",
+      "city": "城市",
+      "status": "狀態",
+      "processingType": "處理類型",
+      "processedBy": "處理人",
+      "createdAt": "建立時間",
+      "aiCost": "AI 成本",
+      "corrections": "修正次數"
+    },
+    "processingTypeAuto": "自動",
+    "processingTypeManual": "人工",
+    "searchPlaceholder": "在結果中搜尋...",
+    "recordCount": "共 {count} 筆記錄",
+    "queryTime": "({seconds} 秒)",
+    "loading": "載入中...",
+    "noResults": "沒有結果",
+    "pageInfo": "第 {page} / {totalPages} 頁",
+    "pageRange": "（顯示 {start} - {end} 筆）",
+    "previousPage": "上一頁",
+    "nextPage": "下一頁"
   }
 }

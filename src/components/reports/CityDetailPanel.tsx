@@ -24,6 +24,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import {
   LineChart,
   Line,
@@ -70,7 +71,12 @@ interface CityDetailPanelProps {
  * ```
  */
 export function CityDetailPanel({ cityCode }: CityDetailPanelProps) {
+  const t = useTranslations('reports')
   const { dateRange } = useDashboardFilter()
+
+  // 圖表系列名稱（同時用於 Legend 顯示與 Tooltip 判別）
+  const volumeSeriesName = t('cityCost.comparison.chartVolume')
+  const successRateSeriesName = t('cityCost.comparison.chartSuccessRate')
 
   const { data, isLoading, error } = useQuery<CityDetailReport>({
     queryKey: ['city-detail', cityCode, dateRange.startDate, dateRange.endDate],
@@ -108,7 +114,7 @@ export function CityDetailPanel({ cityCode }: CityDetailPanelProps) {
       <div className="p-6 bg-muted/30">
         <div className="flex items-center justify-center gap-2 text-muted-foreground py-8">
           <AlertCircle className="h-5 w-5" />
-          <span>載入失敗，請重試</span>
+          <span>{t('cityCost.comparison.loadErrorRetry')}</span>
         </div>
       </div>
     )
@@ -118,7 +124,7 @@ export function CityDetailPanel({ cityCode }: CityDetailPanelProps) {
     <div className="p-6 bg-muted/30 animate-in slide-in-from-top-2">
       <Tabs defaultValue="trend" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="trend">處理趨勢</TabsTrigger>
+          <TabsTrigger value="trend">{t('cityCost.comparison.tabTrend')}</TabsTrigger>
           <TabsTrigger value="forwarders">Top Forwarders</TabsTrigger>
         </TabsList>
 
@@ -152,7 +158,7 @@ export function CityDetailPanel({ cityCode }: CityDetailPanelProps) {
                         const displayName = name == null ? '' : String(name)
                         if (value == null) return ['-', displayName]
                         const num = typeof value === 'number' ? value : Number(value)
-                        if (displayName === '成功率 %') {
+                        if (displayName === successRateSeriesName) {
                           return [`${num.toFixed(1)}%`, displayName]
                         }
                         return [num.toLocaleString(), displayName]
@@ -163,7 +169,7 @@ export function CityDetailPanel({ cityCode }: CityDetailPanelProps) {
                       yAxisId="left"
                       type="monotone"
                       dataKey="volume"
-                      name="處理量"
+                      name={volumeSeriesName}
                       stroke="#3b82f6"
                       strokeWidth={2}
                       dot={false}
@@ -172,7 +178,7 @@ export function CityDetailPanel({ cityCode }: CityDetailPanelProps) {
                       yAxisId="right"
                       type="monotone"
                       dataKey="successRate"
-                      name="成功率 %"
+                      name={successRateSeriesName}
                       stroke="#10b981"
                       strokeWidth={2}
                       dot={false}
@@ -181,7 +187,7 @@ export function CityDetailPanel({ cityCode }: CityDetailPanelProps) {
                 </ResponsiveContainer>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
-                  此期間無趨勢數據
+                  {t('cityCost.comparison.noTrendData')}
                 </div>
               )}
             </CardContent>
@@ -213,17 +219,21 @@ export function CityDetailPanel({ cityCode }: CityDetailPanelProps) {
                     </div>
                     <div className="text-right">
                       <div className="font-medium">
-                        {forwarder.volume.toLocaleString()} 筆
+                        {t('cityCost.comparison.volumeCount', {
+                          count: forwarder.volume.toLocaleString(),
+                        })}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        成功率 {forwarder.successRate}%
+                        {t('cityCost.comparison.successRateValue', {
+                          value: forwarder.successRate,
+                        })}
                       </div>
                     </div>
                   </div>
                 ))}
                 {data.topForwarders.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
-                    此期間無 Forwarder 數據
+                    {t('cityCost.comparison.noForwarderData')}
                   </div>
                 )}
               </div>

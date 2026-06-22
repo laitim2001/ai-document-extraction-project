@@ -34,6 +34,7 @@
 
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useUserCity } from '@/hooks/useUserCity'
 import {
   Card,
@@ -91,16 +92,6 @@ const CHART_COLORS = [
   '#00C49F',
   '#0088FE',
 ]
-
-/** 指標標籤 */
-const METRIC_LABELS: Record<string, string> = {
-  documentsProcessed: '處理數量',
-  successRate: '成功率',
-  averageConfidence: '平均信心度',
-  averageProcessingTime: '平均處理時間',
-  correctionRate: '修正率',
-  escalationRate: '升級率',
-}
 
 /** 時間週期類型 */
 type Period = '7d' | '30d' | '90d'
@@ -177,17 +168,19 @@ function formatMetricValue(value: number, metric: string): string {
  * 比較卡片
  */
 function ComparisonCard({ comparison }: { comparison: ComparisonResult }) {
+  const t = useTranslations('cityAccess')
+  const metricKey = `comparison.metrics.${comparison.metric}`
   return (
     <Card>
       <CardContent className="pt-4">
         <p className="text-sm text-muted-foreground">
-          {METRIC_LABELS[comparison.metric] || comparison.metric}
+          {t.has(metricKey) ? t(metricKey) : comparison.metric}
         </p>
         <div className="mt-2 space-y-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 text-green-600">
               <Trophy className="h-3 w-3" />
-              <span className="text-xs">最佳</span>
+              <span className="text-xs">{t('comparison.best')}</span>
             </div>
             <span className="text-sm font-medium">
               {comparison.best.cityCode}:{' '}
@@ -197,7 +190,7 @@ function ComparisonCard({ comparison }: { comparison: ComparisonResult }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 text-orange-600">
               <AlertTriangle className="h-3 w-3" />
-              <span className="text-xs">待改善</span>
+              <span className="text-xs">{t('comparison.needsImprovement')}</span>
             </div>
             <span className="text-sm font-medium">
               {comparison.worst.cityCode}:{' '}
@@ -205,7 +198,7 @@ function ComparisonCard({ comparison }: { comparison: ComparisonResult }) {
             </span>
           </div>
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-xs">平均</span>
+            <span className="text-xs">{t('comparison.average')}</span>
             <span className="text-sm">
               {formatMetricValue(comparison.average, comparison.metric)}
             </span>
@@ -220,15 +213,24 @@ function ComparisonCard({ comparison }: { comparison: ComparisonResult }) {
  * 柱狀圖視圖
  */
 function BarChartView({ data }: { data: CityMetrics[] }) {
+  const t = useTranslations('cityAccess')
+
+  // 系列標籤（同時作為資料物件鍵與圖表 dataKey）
+  const seriesLabels = {
+    documentsProcessed: t('comparison.barSeries.documentsProcessed'),
+    successRate: t('comparison.barSeries.successRate'),
+    confidence: t('comparison.barSeries.confidence'),
+  }
+
   const chartData = useMemo(
     () =>
       data?.map((city) => ({
         name: city.cityName,
-        處理數量: city.metrics.documentsProcessed,
-        '成功率 (%)': Number((city.metrics.successRate * 100).toFixed(1)),
-        '信心度 (%)': Number((city.metrics.averageConfidence * 100).toFixed(1)),
+        [seriesLabels.documentsProcessed]: city.metrics.documentsProcessed,
+        [seriesLabels.successRate]: Number((city.metrics.successRate * 100).toFixed(1)),
+        [seriesLabels.confidence]: Number((city.metrics.averageConfidence * 100).toFixed(1)),
       })),
-    [data]
+    [data, seriesLabels.documentsProcessed, seriesLabels.successRate, seriesLabels.confidence]
   )
 
   if (!chartData?.length) return null
@@ -242,9 +244,9 @@ function BarChartView({ data }: { data: CityMetrics[] }) {
         <YAxis yAxisId="right" orientation="right" />
         <Tooltip />
         <Legend />
-        <Bar yAxisId="left" dataKey="處理數量" fill={CHART_COLORS[0]} />
-        <Bar yAxisId="right" dataKey="成功率 (%)" fill={CHART_COLORS[1]} />
-        <Bar yAxisId="right" dataKey="信心度 (%)" fill={CHART_COLORS[2]} />
+        <Bar yAxisId="left" dataKey={seriesLabels.documentsProcessed} fill={CHART_COLORS[0]} />
+        <Bar yAxisId="right" dataKey={seriesLabels.successRate} fill={CHART_COLORS[1]} />
+        <Bar yAxisId="right" dataKey={seriesLabels.confidence} fill={CHART_COLORS[2]} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -254,11 +256,12 @@ function BarChartView({ data }: { data: CityMetrics[] }) {
  * 雷達圖視圖
  */
 function RadarChartView({ data }: { data: CityMetrics[] }) {
+  const t = useTranslations('cityAccess')
   const radarData = useMemo(() => {
     const metrics = [
-      { metric: '成功率', key: 'successRate' },
-      { metric: '信心度', key: 'averageConfidence' },
-      { metric: '效率', key: 'efficiency' },
+      { metric: t('comparison.radarMetrics.successRate'), key: 'successRate' },
+      { metric: t('comparison.radarMetrics.averageConfidence'), key: 'averageConfidence' },
+      { metric: t('comparison.radarMetrics.efficiency'), key: 'efficiency' },
     ]
 
     return metrics.map((m) => {
@@ -279,7 +282,7 @@ function RadarChartView({ data }: { data: CityMetrics[] }) {
       })
       return result
     })
-  }, [data])
+  }, [data, t])
 
   if (!data?.length) return null
 
@@ -373,13 +376,14 @@ function ComparisonTable({
   cities: CityMetrics[]
   comparison: ComparisonResult[]
 }) {
+  const t = useTranslations('cityAccess')
   if (!cities?.length || !comparison?.length) return null
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>指標</TableHead>
+          <TableHead>{t('comparison.table.metric')}</TableHead>
           {cities.map((city) => (
             <TableHead key={city.cityCode} className="text-center">
               {city.cityName}
@@ -391,7 +395,9 @@ function ComparisonTable({
         {comparison.map((comp) => (
           <TableRow key={comp.metric}>
             <TableCell className="font-medium">
-              {METRIC_LABELS[comp.metric] || comp.metric}
+              {t.has(`comparison.metrics.${comp.metric}`)
+                ? t(`comparison.metrics.${comp.metric}`)
+                : comp.metric}
             </TableCell>
             {cities.map((city) => {
               const value = city.metrics[comp.metric as keyof typeof city.metrics] as number
@@ -435,6 +441,7 @@ function ComparisonTable({
  */
 export function CityComparison({ className }: CityComparisonProps) {
   // --- Hooks ---
+  const t = useTranslations('cityAccess')
   const { cityCodes, isGlobalAdmin, isLoading: userLoading } = useUserCity()
 
   const [selectedCities, setSelectedCities] = useState<string[]>([])
@@ -479,7 +486,7 @@ export function CityComparison({ className }: CityComparisonProps) {
       <Card className={className}>
         <CardContent className="pt-6">
           <p className="text-center text-muted-foreground">
-            需要訪問多個城市才能進行對比分析
+            {t('comparison.needMultipleCities')}
           </p>
         </CardContent>
       </Card>
@@ -495,8 +502,8 @@ export function CityComparison({ className }: CityComparisonProps) {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>城市對比分析</CardTitle>
-              <CardDescription>比較不同城市的關鍵績效指標</CardDescription>
+              <CardTitle>{t('comparison.title')}</CardTitle>
+              <CardDescription>{t('comparison.description')}</CardDescription>
             </div>
             <div className="flex flex-wrap gap-2">
               <CityMultiSelect
@@ -513,9 +520,9 @@ export function CityComparison({ className }: CityComparisonProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="7d">7 天</SelectItem>
-                  <SelectItem value="30d">30 天</SelectItem>
-                  <SelectItem value="90d">90 天</SelectItem>
+                  <SelectItem value="7d">{t('comparison.period.7d')}</SelectItem>
+                  <SelectItem value="30d">{t('comparison.period.30d')}</SelectItem>
+                  <SelectItem value="90d">{t('comparison.period.90d')}</SelectItem>
                 </SelectContent>
               </Select>
               <Select
@@ -526,9 +533,9 @@ export function CityComparison({ className }: CityComparisonProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="bar">柱狀圖</SelectItem>
-                  <SelectItem value="radar">雷達圖</SelectItem>
-                  <SelectItem value="trend">趨勢圖</SelectItem>
+                  <SelectItem value="bar">{t('comparison.chartType.bar')}</SelectItem>
+                  <SelectItem value="radar">{t('comparison.chartType.radar')}</SelectItem>
+                  <SelectItem value="trend">{t('comparison.chartType.trend')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -541,11 +548,11 @@ export function CityComparison({ className }: CityComparisonProps) {
             </div>
           ) : error ? (
             <div className="h-[400px] flex items-center justify-center">
-              <p className="text-destructive">載入失敗，請稍後再試</p>
+              <p className="text-destructive">{t('comparison.loadFailed')}</p>
             </div>
           ) : !canCompare ? (
             <div className="h-[400px] flex items-center justify-center">
-              <p className="text-muted-foreground">請選擇至少 2 個城市進行對比</p>
+              <p className="text-muted-foreground">{t('comparison.selectAtLeastTwo')}</p>
             </div>
           ) : (
             <div className="space-y-6">

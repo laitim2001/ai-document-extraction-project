@@ -29,6 +29,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { subMonths } from 'date-fns'
 import { Loader2, FileSpreadsheet, FileText } from 'lucide-react'
 
@@ -84,6 +85,10 @@ export function MonthlyReportDialog({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
 }: MonthlyReportDialogProps) {
+  // --- i18n ---
+  const t = useTranslations('reports')
+  const tCommon = useTranslations('common')
+
   // --- State ---
   const [internalOpen, setInternalOpen] = React.useState(false)
   const [selectedDate, setSelectedDate] = React.useState<Date>(() =>
@@ -129,16 +134,16 @@ export function MonthlyReportDialog({
       {
         onSuccess: () => {
           toast({
-            title: '報告生成成功',
-            description: '月度成本分攤報告已生成，可在報告歷史中下載。',
+            title: t('monthly.dialog.toastSuccessTitle'),
+            description: t('monthly.dialog.toastSuccessDesc'),
           })
           setOpen(false)
         },
         onError: (error) => {
           toast({
-            title: '生成失敗',
+            title: t('monthly.dialog.toastErrorTitle'),
             description:
-              error instanceof Error ? error.message : '請稍後再試',
+              error instanceof Error ? error.message : t('monthly.dialog.tryAgainLater'),
             variant: 'destructive',
           })
         },
@@ -150,20 +155,20 @@ export function MonthlyReportDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        {trigger || <Button>生成月度報告</Button>}
+        {trigger || <Button>{t('monthly.dialog.triggerButton')}</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>生成月度成本分攤報告</DialogTitle>
+          <DialogTitle>{t('monthly.dialog.title')}</DialogTitle>
           <DialogDescription>
-            選擇月份和匯出格式，系統將生成詳細的成本分攤報告。
+            {t('monthly.dialog.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           {/* 月份選擇 */}
           <div className="space-y-2">
-            <Label>選擇月份</Label>
+            <Label>{t('monthly.dialog.selectMonth')}</Label>
             <MonthPicker
               selected={selectedDate}
               onSelect={setSelectedDate}
@@ -174,7 +179,7 @@ export function MonthlyReportDialog({
 
           {/* 格式選擇 */}
           <div className="space-y-2">
-            <Label>匯出格式</Label>
+            <Label>{t('monthly.dialog.exportFormat')}</Label>
             <div className="flex gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -206,14 +211,16 @@ export function MonthlyReportDialog({
               </div>
             </div>
             {formats.length === 0 && (
-              <p className="text-xs text-destructive">請至少選擇一種格式</p>
+              <p className="text-xs text-destructive">
+                {t('monthly.dialog.formatRequired')}
+              </p>
             )}
           </div>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            取消
+            {tCommon('actions.cancel')}
           </Button>
           <Button
             onClick={handleGenerate}
@@ -222,7 +229,7 @@ export function MonthlyReportDialog({
             {generateMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            生成報告
+            {t('monthly.dialog.generate')}
           </Button>
         </DialogFooter>
       </DialogContent>

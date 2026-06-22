@@ -1,0 +1,116 @@
+{
+  "filter": {
+    "allCities": "所有城市",
+    "cityCount": "{count} 個城市",
+    "searchPlaceholder": "搜尋城市...",
+    "selectAll": "全選",
+    "clear": "清除",
+    "loading": "載入中...",
+    "noCitiesFound": "找不到城市"
+  },
+  "multiSelect": {
+    "placeholder": "選擇城市...",
+    "allCities": "所有城市",
+    "cityCount": "{count} 個城市",
+    "searchPlaceholder": "搜尋城市...",
+    "selectAll": "全選",
+    "selectAllMax": "(最多 {max})",
+    "clear": "清除",
+    "loadFailed": "載入失敗",
+    "noCitiesFound": "找不到城市",
+    "noCitiesAvailable": "無可用城市",
+    "minSelectionHint": "最少需選擇 {count} 個城市",
+    "maxSelectionHint": "已達最大選擇數量 ({count})"
+  },
+  "comparison": {
+    "title": "城市對比分析",
+    "description": "比較不同城市的關鍵績效指標",
+    "needMultipleCities": "需要訪問多個城市才能進行對比分析",
+    "loadFailed": "載入失敗，請稍後再試",
+    "selectAtLeastTwo": "請選擇至少 2 個城市進行對比",
+    "best": "最佳",
+    "needsImprovement": "待改善",
+    "average": "平均",
+    "table": {
+      "metric": "指標"
+    },
+    "period": {
+      "7d": "7 天",
+      "30d": "30 天",
+      "90d": "90 天"
+    },
+    "chartType": {
+      "bar": "柱狀圖",
+      "radar": "雷達圖",
+      "trend": "趨勢圖"
+    },
+    "metrics": {
+      "documentsProcessed": "處理數量",
+      "successRate": "成功率",
+      "averageConfidence": "平均信心度",
+      "averageProcessingTime": "平均處理時間",
+      "correctionRate": "修正率",
+      "escalationRate": "升級率"
+    },
+    "radarMetrics": {
+      "successRate": "成功率",
+      "averageConfidence": "信心度",
+      "efficiency": "效率"
+    },
+    "barSeries": {
+      "documentsProcessed": "處理數量",
+      "successRate": "成功率 (%)",
+      "confidence": "信心度 (%)"
+    }
+  },
+  "restricted": {
+    "accessDenied": "訪問受限",
+    "accessDeniedDescription": "您沒有權限查看此城市的內容。"
+  },
+  "export": {
+    "title": "匯出多城市報表",
+    "description": "選擇要匯出的城市和報表配置",
+    "selectCities": "選擇城市",
+    "selectedCount": "已選擇 {count} 個城市",
+    "dateFrom": "開始日期",
+    "dateTo": "結束日期",
+    "reportType": "報表類型",
+    "reportFormat": "報表格式",
+    "includeCityBreakdown": "包含城市分組詳情",
+    "exporting": "匯出中...",
+    "exportReport": "匯出報表",
+    "toast": {
+      "downloaded": "報表已下載",
+      "exportFailed": "匯出失敗: {message}",
+      "selectAtLeastOne": "請選擇至少一個城市"
+    },
+    "formats": {
+      "xlsx": {
+        "label": "Excel (CSV)",
+        "description": "適合進一步分析"
+      },
+      "pdf": {
+        "label": "PDF",
+        "description": "適合分享和列印（暫未支援）"
+      },
+      "json": {
+        "label": "JSON",
+        "description": "適合程式處理"
+      }
+    },
+    "reportTypes": {
+      "summary": {
+        "label": "摘要報表",
+        "description": "各城市的統計摘要"
+      },
+      "detailed": {
+        "label": "詳細報表",
+        "description": "包含所有文件列表"
+      },
+      "comparison": {
+        "label": "對比報表",
+        "description": "城市間的績效比較"
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 # CHANGE-089: 全站組件級 JSX 硬編碼中文系統性 i18n 化（86 組件，分批推進）
 
 > **日期**: 2026-06-22
-> **狀態**: 🚧 進行中（**Batch A pilot ✅ + Batch B/C/D（波 1）✅** 2026-06-22；Batch E/F 待續）
+> **狀態**: ✅ **已完成**（Batch A + 波1(B/C/D) + 波2(E/F) + 補遺(G)，2026-06-22；全站組件級 JSX render 中文清零，剩餘僅 JSDoc/註釋。共 **105 組件**、新增 6 namespace、`LOCALE_SYNC_CHECKS` 22 條治理）
 > **優先級**: 中
 > **類型**: Feature（i18n 修正）
 > **影響範圍**: `src/components/**/*.tsx` 約 86 個組件的 JSX/屬性/toast 硬編碼中文 + 對應 namespace JSON（3 語言）+ 新增 namespace（註冊 `src/i18n/request.ts`）
@@ -101,8 +101,8 @@
 | Batch B（波 1） | `admin` 殘留 | 14 | `admin`（整檔 996） | 單 agent 獨佔 admin.json | ✅ 完成 2026-06-22 |
 | Batch C（波 1） | `review`(3) + `rules`(11) | 14 | review/rules | 不同 JSON 並行 | ✅ 完成 2026-06-22 |
 | Batch D（波 1） | `historical-data`(5) + `document-preview`+`mapping-config`(7) | 12 | historicalData/documentPreview | 並行 | ✅ 完成 2026-06-22 |
-| Batch E | `formats`/`mapping-config`/`forwarders`/`escalation`/`audit` 殘留 | ~8 | 各對應 | 可並行 | ⏳ |
-| Batch F | 非 `features` 目錄（dashboard/layout/filters/...） | ~16 | dashboard/common/navigation | 注意共用 namespace JSON 衝突 | ⏳ |
+| Batch E/F（波 2） | features 殘留(escalation/forwarders/formats/features-audit/admin-config) + 非 features(components-reports/dashboard/layout) + 新 cityAccess(filters/analytics/auth/export) | 25 | escalation/companies/formats/reports/dashboard/navigation/systemSettings + **cityAccess（新）** | 8 agent 各獨佔 JSON 並行 | ✅ 完成 2026-06-22 |
+| Batch G（補遺） | 盤點遺漏目錄：`components/audit/`(3) + `components/admin/performance/`(1) | 4 | reports/admin（既有補子樹） | 2 agent 並行 | ✅ 完成 2026-06-22 |
 
 > **並行紀律**（`.claude/rules/agent-orchestration.md`）：同一 namespace JSON 不可多 agent 並改。Batch A 子批以 namespace 為界切分派發。每批由主 session 統一 commit（agent 內不執行 git）。
 
@@ -254,4 +254,53 @@ Batch A（完全未 i18n 的 10 個小模組，36 組件）已完成。範本 `d
 
 ---
 
-*規劃文件建立：2026-06-22（承接 CHANGE-088 §範圍邊界與後續）；Batch A 實作完成：2026-06-22；Batch B/C/D（波 1）實作完成：2026-06-22*
+---
+
+## 波 2 實作記錄（Batch E/F，2026-06-22）
+
+波 2 以 **8 個並行 `code-implementer` agent**（一 namespace 一 agent，零 JSON 衝突）處理 features 殘留 + 非 features 目錄 + 新增 cityAccess。
+
+### 各 agent 成果
+
+| Agent | namespace | 改組件 | 備註 |
+|------|-----------|--------|------|
+| A-escalation | escalation（105） | ResolveDialog (1) | escalation.json 既有已涵蓋，無增補；EscalationDialog 已 i18n |
+| A-forwarders | companies（214） | LogoUploader (1) | form.logoUploader +9；**標註 RecentDocumentsTable 用不存在的 `invoice` namespace（pre-existing bug）** |
+| A-formats | formats（270） | FormatForm/KeywordTagInput (2) | editDialog + keywordTagInput；zod 訊息保留 |
+| A-reports | reports（314） | features-audit(2) + components-reports(7) | 中途 API Overloaded 中斷 → 主 session SendMessage 喚醒補完 en/zh-CN（+152 key 同步） |
+| A-dashboard | dashboard（94） | DashboardFilters/ForwarderMultiSelect/ForwarderComparisonChart (3) | recharts dataKey i18n |
+| A-layout | navigation（68） | DashboardLayout (1) | 僅 1 處 sr-only，複用既有 key |
+| A-systemsettings | systemSettings（125） | ConfigItem/ConfigEditDialog (2) | config.item/editDialog；admin/settings 4 檔已 i18n |
+| A-cityaccess | **cityAccess（74，新）** | CityFilter/CityMultiSelect/CityComparison/CityRestricted/MultiCityExportDialog (5) | Epic 6 跨城市存取；主 session 註冊 request.ts |
+
+**共 25 組件**（含主 session 補 ConfigHistoryDialog `emptyValue`）。新增 1 namespace `cityAccess`（39→40），註冊 `request.ts`。
+
+## 補遺實作記錄（Batch G，2026-06-22）
+
+波 2 後全站掃描（`>…\p{Han}`）揭示 **CHANGE-089 原盤點遺漏 2 個非 features 目錄**（不在 `features/` 下，故 Batch A–F agent 範圍未覆蓋）：`components/audit/`（≠ `features/audit/`）、`components/admin/performance/`（≠ `features/admin/`）。以 2 個並行 agent 補遺：
+
+| Agent | namespace | 改組件 | 增補 |
+|------|-----------|--------|------|
+| A-audittrace | reports（314→388） | DocumentTraceView/AuditQueryForm/AuditResultTable (3) | +74（documentTrace/auditQuery/auditResult 子樹） |
+| A-perf | admin（997→1030） | PerformanceDashboard (1) | +33（performance 子樹） |
+
+**補遺 4 組件**。reports/admin 整檔 `LOCALE_SYNC_CHECKS` 自動涵蓋。
+
+### 全批次總結（CHANGE-089 完成）
+
+- **105 組件** i18n 化（Batch A 36 + 波1 40 + 波2 25 + 補遺 G 4）。
+- **新增 6 namespace**：documentSource/dataRetention/integrations/changeHistory/ruleSimulation（Batch A）+ cityAccess（波 2），34→40。
+- **`LOCALE_SYNC_CHECKS` 22 條**（Batch A 9 + 波1 5 + 波2 8）整檔/子樹三語言治理。
+- 驗證全綠：type-check exit 0、i18n:check 通過、eslint 0 error（warnings 全 pre-existing）。
+- 全站掃描：組件級 JSX render 中文**清零**（剩餘 9 處全在 JSDoc/註釋）。
+
+### 確認的範圍邊界（非 CHANGE-089，另立後續）
+
+1. **zod schema 驗證訊息中文**（review/rules/formats/outlook/sharepoint/audit-query 等多處）→ 需 `useLocalizedZod` 全站專項。
+2. **page 層（`src/app/**`）render 中文** → 獨立 CHANGE（範圍大於 metadata title）。
+3. **資料層中文**（DB seed）、`src/types/*` 常量 label 中文（定義保留、組件已不讀）。
+4. **`RecentDocumentsTable` 用不存在的 `invoice` namespace** → pre-existing bug，建議獨立 FIX（與 invoice→documents 狀態統一一起做）。
+
+---
+
+*規劃文件建立：2026-06-22（承接 CHANGE-088 §範圍邊界與後續）；Batch A 實作完成：2026-06-22；Batch B/C/D（波 1）：2026-06-22；Batch E/F（波 2）+ 補遺 G：2026-06-22（CHANGE-089 全批次完成）*

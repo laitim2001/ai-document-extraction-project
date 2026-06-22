@@ -18,6 +18,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import {
   Shield,
   CheckCircle,
@@ -94,6 +95,11 @@ export function ReportIntegrityDialog({
   reportTitle,
   onVerify,
 }: ReportIntegrityDialogProps) {
+  // --- i18n ---
+  const t = useTranslations('reports')
+  const tCommon = useTranslations('common')
+  const locale = useLocale()
+
   // --- State ---
   const [file, setFile] = React.useState<File | null>(null)
   const [isVerifying, setIsVerifying] = React.useState(false)
@@ -155,7 +161,11 @@ export function ReportIntegrityDialog({
       const verifyResult = await onVerify(jobId, base64Content)
       setResult(verifyResult)
     } catch (err) {
-      setError(err instanceof Error ? err.message : '驗證失敗')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('auditReport.integrityDialog.verifyFailed')
+      )
     } finally {
       setIsVerifying(false)
     }
@@ -179,10 +189,10 @@ export function ReportIntegrityDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-blue-600" />
-            報告完整性驗證
+            {t('auditReport.integrityDialog.title')}
           </DialogTitle>
           <DialogDescription>
-            上傳報告檔案以驗證其完整性。系統會比對 SHA-256 checksum 和數位簽章。
+            {t('auditReport.integrityDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -190,7 +200,9 @@ export function ReportIntegrityDialog({
           {/* 報告資訊 */}
           <div className="rounded-lg border bg-muted/50 p-3">
             <p className="text-sm">
-              <span className="text-muted-foreground">報告：</span>
+              <span className="text-muted-foreground">
+                {t('auditReport.integrityDialog.reportLabel')}
+              </span>
               <span className="font-medium">{reportTitle}</span>
             </p>
           </div>
@@ -227,10 +239,10 @@ export function ReportIntegrityDialog({
               <div className="flex flex-col items-center gap-2">
                 <Upload className="h-10 w-10 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
-                  拖放報告檔案至此處，或點擊選擇檔案
+                  {t('auditReport.integrityDialog.dropzone')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  支援 Excel、PDF、CSV、JSON 格式
+                  {t('auditReport.integrityDialog.supportedFormats')}
                 </p>
               </div>
             )}
@@ -257,7 +269,9 @@ export function ReportIntegrityDialog({
                     'font-medium',
                     result.isValid ? 'text-green-800' : 'text-red-800'
                   )}>
-                    {result.isValid ? '報告驗證通過' : '報告驗證失敗'}
+                    {result.isValid
+                      ? t('auditReport.integrityDialog.resultValid')
+                      : t('auditReport.integrityDialog.resultInvalid')}
                   </p>
 
                   <div className="mt-2 space-y-1 text-sm">
@@ -268,7 +282,9 @@ export function ReportIntegrityDialog({
                         <XCircle className="h-4 w-4 text-red-500" />
                       )}
                       <span className={result.details.checksumMatch ? 'text-green-700' : 'text-red-700'}>
-                        Checksum {result.details.checksumMatch ? '相符' : '不相符'}
+                        {result.details.checksumMatch
+                          ? t('auditReport.integrityDialog.checksumMatch')
+                          : t('auditReport.integrityDialog.checksumMismatch')}
                       </span>
                     </div>
 
@@ -279,7 +295,9 @@ export function ReportIntegrityDialog({
                         <XCircle className="h-4 w-4 text-red-500" />
                       )}
                       <span className={result.details.signatureValid ? 'text-green-700' : 'text-red-700'}>
-                        數位簽章 {result.details.signatureValid ? '有效' : '無效'}
+                        {result.details.signatureValid
+                          ? t('auditReport.integrityDialog.signatureValid')
+                          : t('auditReport.integrityDialog.signatureInvalid')}
                       </span>
                     </div>
                   </div>
@@ -287,16 +305,22 @@ export function ReportIntegrityDialog({
                   {!result.isValid && (
                     <div className="mt-3 pt-3 border-t border-red-200">
                       <p className="text-xs text-red-600 font-mono">
-                        原始 Checksum: {result.details.originalChecksum.slice(0, 16)}...
+                        {t('auditReport.integrityDialog.originalChecksum', {
+                          checksum: result.details.originalChecksum.slice(0, 16),
+                        })}
                       </p>
                       <p className="text-xs text-red-600 font-mono">
-                        計算 Checksum: {result.details.calculatedChecksum.slice(0, 16)}...
+                        {t('auditReport.integrityDialog.calculatedChecksum', {
+                          checksum: result.details.calculatedChecksum.slice(0, 16),
+                        })}
                       </p>
                     </div>
                   )}
 
                   <p className="text-xs text-muted-foreground mt-2">
-                    驗證時間：{new Date(result.verifiedAt).toLocaleString('zh-TW')}
+                    {t('auditReport.integrityDialog.verifiedAt', {
+                      datetime: new Date(result.verifiedAt).toLocaleString(locale),
+                    })}
                   </p>
                 </div>
               </div>
@@ -318,7 +342,7 @@ export function ReportIntegrityDialog({
             onClick={() => handleOpenChange(false)}
             disabled={isVerifying}
           >
-            關閉
+            {tCommon('actions.close')}
           </Button>
           <Button
             onClick={handleVerify}
@@ -327,12 +351,12 @@ export function ReportIntegrityDialog({
             {isVerifying ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                驗證中...
+                {t('auditReport.integrityDialog.verifying')}
               </>
             ) : (
               <>
                 <Shield className="h-4 w-4 mr-2" />
-                驗證報告
+                {t('auditReport.integrityDialog.verify')}
               </>
             )}
           </Button>

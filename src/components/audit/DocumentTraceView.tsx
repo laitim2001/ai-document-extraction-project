@@ -29,6 +29,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
@@ -155,6 +156,9 @@ function TraceNode({
  *   支援查看原始文件、修正記錄、變更歷史等。
  */
 export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
+  // --- i18n ---
+  const t = useTranslations('reports')
+
   // --- State ---
   const [showSource, setShowSource] = useState(false)
   const queryClient = useQueryClient()
@@ -194,7 +198,7 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          {error instanceof Error ? error.message : '無法載入追溯資料'}
+          {error instanceof Error ? error.message : t('documentTrace.loadError')}
         </AlertDescription>
       </Alert>
     )
@@ -205,7 +209,7 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
     return (
       <Alert>
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>找不到文件追溯資料</AlertDescription>
+        <AlertDescription>{t('documentTrace.notFound')}</AlertDescription>
       </Alert>
     )
   }
@@ -218,7 +222,7 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            文件追溯鏈
+            {t('documentTrace.chainTitle')}
           </CardTitle>
           <Button
             variant="outline"
@@ -231,7 +235,7 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
             ) : (
               <FileCheck className="mr-2 h-4 w-4" />
             )}
-            生成報告
+            {t('documentTrace.generateReport')}
           </Button>
         </CardHeader>
         <CardContent>
@@ -239,7 +243,7 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
             {/* 原始文件 */}
             <TraceNode
               icon={<FileText className="h-4 w-4" />}
-              title="原始文件"
+              title={t('documentTrace.nodes.source')}
               subtitle={traceChain.source.fileName}
               time={traceChain.source.uploadedAt}
               onClick={() => setShowSource(true)}
@@ -250,8 +254,10 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
             {/* OCR 處理 */}
             <TraceNode
               icon={<Eye className="h-4 w-4" />}
-              title="OCR 處理"
-              subtitle={`信心度: ${(traceChain.ocrResult.confidence * 100).toFixed(0)}%`}
+              title={t('documentTrace.nodes.ocr')}
+              subtitle={t('documentTrace.nodes.ocrConfidence', {
+                confidence: (traceChain.ocrResult.confidence * 100).toFixed(0)
+              })}
               time={traceChain.ocrResult.processedAt}
               status="completed"
             />
@@ -260,8 +266,10 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
             {/* 欄位提取 */}
             <TraceNode
               icon={<Edit3 className="h-4 w-4" />}
-              title="欄位提取"
-              subtitle={`${Object.keys(traceChain.extractionResult.fields).length} 個欄位`}
+              title={t('documentTrace.nodes.extraction')}
+              subtitle={t('documentTrace.nodes.extractionFields', {
+                count: Object.keys(traceChain.extractionResult.fields).length
+              })}
               time={traceChain.extractionResult.extractedAt}
               status="completed"
             />
@@ -272,8 +280,10 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
                 <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <TraceNode
                   icon={<Edit3 className="h-4 w-4" />}
-                  title="人工修正"
-                  subtitle={`${traceChain.corrections.length} 次修正`}
+                  title={t('documentTrace.nodes.correction')}
+                  subtitle={t('documentTrace.nodes.correctionCount', {
+                    count: traceChain.corrections.length
+                  })}
                   time={
                     traceChain.corrections[traceChain.corrections.length - 1]
                       .correctedAt
@@ -288,9 +298,14 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
             <TraceNode
               icon={<CheckCircle className="h-4 w-4" />}
               title={
-                traceChain.approvals[0]?.autoApproved ? '自動核准' : '人工核准'
+                traceChain.approvals[0]?.autoApproved
+                  ? t('documentTrace.nodes.autoApproved')
+                  : t('documentTrace.nodes.manualApproved')
               }
-              subtitle={traceChain.approvals[0]?.approvedByName || '—'}
+              subtitle={
+                traceChain.approvals[0]?.approvedByName ||
+                t('documentTrace.nodes.emptyApprover')
+              }
               time={traceChain.approvals[0]?.approvedAt}
               status="completed"
             />
@@ -303,7 +318,9 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-800">
-            追溯報告已成功生成。報告 ID: {reportMutation.data?.reportId}
+            {t('documentTrace.reportSuccess', {
+              reportId: reportMutation.data?.reportId ?? ''
+            })}
           </AlertDescription>
         </Alert>
       )}
@@ -315,7 +332,7 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
           <AlertDescription>
             {reportMutation.error instanceof Error
               ? reportMutation.error.message
-              : '無法生成報告'}
+              : t('documentTrace.reportError')}
           </AlertDescription>
         </Alert>
       )}
@@ -324,12 +341,18 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
       <Tabs defaultValue="corrections">
         <TabsList>
           <TabsTrigger value="corrections">
-            修正記錄 ({traceChain.corrections.length})
+            {t('documentTrace.tabs.corrections', {
+              count: traceChain.corrections.length
+            })}
           </TabsTrigger>
           <TabsTrigger value="history">
-            變更歷史 ({traceChain.changeHistory.length})
+            {t('documentTrace.tabs.history', {
+              count: traceChain.changeHistory.length
+            })}
           </TabsTrigger>
-          <TabsTrigger value="extraction">提取結果</TabsTrigger>
+          <TabsTrigger value="extraction">
+            {t('documentTrace.tabs.extraction')}
+          </TabsTrigger>
         </TabsList>
 
         {/* 修正記錄 */}
@@ -338,7 +361,7 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
             <CardContent className="pt-6">
               {traceChain.corrections.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
-                  無修正記錄
+                  {t('documentTrace.noCorrections')}
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -362,21 +385,27 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
                       </div>
                       <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <div className="text-muted-foreground">修正前</div>
+                          <div className="text-muted-foreground">
+                            {t('documentTrace.beforeCorrection')}
+                          </div>
                           <div className="mt-1 p-2 bg-red-50 rounded border border-red-200">
-                            {String(c.originalValue) || '(空)'}
+                            {String(c.originalValue) ||
+                              t('documentTrace.emptyValue')}
                           </div>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">修正後</div>
+                          <div className="text-muted-foreground">
+                            {t('documentTrace.afterCorrection')}
+                          </div>
                           <div className="mt-1 p-2 bg-green-50 rounded border border-green-200">
-                            {String(c.correctedValue) || '(空)'}
+                            {String(c.correctedValue) ||
+                              t('documentTrace.emptyValue')}
                           </div>
                         </div>
                       </div>
                       {c.reason && (
                         <div className="mt-2 text-sm text-muted-foreground">
-                          原因：{c.reason}
+                          {t('documentTrace.reasonLabel', { reason: c.reason })}
                         </div>
                       )}
                     </div>
@@ -393,7 +422,7 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
             <CardContent className="pt-6">
               {traceChain.changeHistory.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
-                  無變更歷史
+                  {t('documentTrace.noHistory')}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -442,21 +471,27 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
           <div className="flex flex-col gap-4">
             <div className="flex gap-4 text-sm text-muted-foreground">
               <span>
-                大小: {(traceChain.source.fileSize / 1024).toFixed(1)} KB
+                {t('documentTrace.fileSize', {
+                  size: (traceChain.source.fileSize / 1024).toFixed(1)
+                })}
               </span>
-              <span>儲存: {traceChain.source.storageLocation}</span>
+              <span>
+                {t('documentTrace.storageLocation', {
+                  location: traceChain.source.storageLocation
+                })}
+              </span>
             </div>
             <div className="border rounded-lg overflow-hidden h-[60vh]">
               {traceChain.source.fileType.includes('pdf') ? (
                 <iframe
                   src={traceChain.source.url}
                   className="w-full h-full"
-                  title="原始文件"
+                  title={t('documentTrace.previewTitle')}
                 />
               ) : (
                 <img
                   src={traceChain.source.url}
-                  alt="原始文件"
+                  alt={t('documentTrace.previewTitle')}
                   className="max-w-full max-h-full object-contain mx-auto"
                 />
               )}
@@ -469,13 +504,13 @@ export function DocumentTraceView({ documentId }: DocumentTraceViewProps) {
                   rel="noopener noreferrer"
                 >
                   <ExternalLink className="mr-2 h-4 w-4" />
-                  新視窗
+                  {t('documentTrace.openInNewWindow')}
                 </a>
               </Button>
               <Button asChild>
                 <a href={traceChain.source.url} download>
                   <Download className="mr-2 h-4 w-4" />
-                  下載
+                  {t('documentTrace.download')}
                 </a>
               </Button>
             </div>

@@ -91,6 +91,15 @@ const LOCALE_SYNC_CHECKS: LocaleSyncCheck[] = [
   { i18nFile: 'rules.json', keyPrefix: '', description: 'CHANGE-089 Batch C rules 模組（整檔）' },
   { i18nFile: 'historicalData.json', keyPrefix: '', description: 'CHANGE-089 Batch D historicalData 模組（整檔）' },
   { i18nFile: 'documentPreview.json', keyPrefix: '', description: 'CHANGE-089 Batch D documentPreview 模組（整檔）' },
+  // CHANGE-089 Batch E/F（波 2）：既有 namespace 殘留 + 新增 cityAccess，整檔三語言同步
+  { i18nFile: 'escalation.json', keyPrefix: '', description: 'CHANGE-089 Batch E escalation 模組（整檔）' },
+  { i18nFile: 'companies.json', keyPrefix: '', description: 'CHANGE-089 Batch E companies/forwarders 模組（整檔）' },
+  { i18nFile: 'formats.json', keyPrefix: '', description: 'CHANGE-089 Batch E formats 模組（整檔）' },
+  { i18nFile: 'reports.json', keyPrefix: '', description: 'CHANGE-089 Batch E/F reports 模組（整檔）' },
+  { i18nFile: 'dashboard.json', keyPrefix: '', description: 'CHANGE-089 Batch F dashboard 模組（整檔）' },
+  { i18nFile: 'navigation.json', keyPrefix: '', description: 'CHANGE-089 Batch F navigation/layout 模組（整檔）' },
+  { i18nFile: 'systemSettings.json', keyPrefix: '', description: 'CHANGE-089 Batch E systemSettings 模組（整檔）' },
+  { i18nFile: 'cityAccess.json', keyPrefix: '', description: 'CHANGE-089 Batch F 跨城市存取模組（新增，整檔）' },
 ];
 
 // ============================================================

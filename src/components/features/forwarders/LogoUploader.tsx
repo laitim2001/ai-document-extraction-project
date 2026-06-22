@@ -26,6 +26,7 @@
 
 import * as React from 'react'
 import { useCallback, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useDropzone, FileRejection } from 'react-dropzone'
 import Image from 'next/image'
 import { Upload, X, ImageIcon, AlertCircle } from 'lucide-react'
@@ -70,6 +71,8 @@ export function LogoUploader({
   disabled = false,
   className,
 }: LogoUploaderProps) {
+  const t = useTranslations('companies')
+
   // --- State ---
   const [preview, setPreview] = useState<string | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -89,14 +92,16 @@ export function LogoUploader({
         switch (errorCode) {
           case 'file-too-large':
             setUploadError(
-              `檔案大小超過限制（最大 ${LOGO_UPLOAD_CONFIG.maxSize / 1024 / 1024}MB）`
+              t('form.logoUploader.fileTooLarge', {
+                max: LOGO_UPLOAD_CONFIG.maxSize / 1024 / 1024,
+              })
             )
             break
           case 'file-invalid-type':
-            setUploadError('不支援的檔案格式，請上傳 PNG、JPEG、WebP、GIF 或 SVG 圖片')
+            setUploadError(t('form.logoUploader.invalidType'))
             break
           default:
-            setUploadError('檔案上傳失敗，請重試')
+            setUploadError(t('form.logoUploader.uploadFailed'))
         }
         return
       }
@@ -114,7 +119,7 @@ export function LogoUploader({
         onLogoChange(file)
       }
     },
-    [onLogoChange]
+    [onLogoChange, t]
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -207,7 +212,7 @@ export function LogoUploader({
             )}
             {!disabled && (
               <p className="mt-2 text-center text-xs text-muted-foreground">
-                點擊或拖放以更換 Logo
+                {t('form.logoUploader.replaceHint')}
               </p>
             )}
           </div>
@@ -217,18 +222,20 @@ export function LogoUploader({
             {isDragActive ? (
               <>
                 <Upload className="h-10 w-10 text-primary" />
-                <p className="text-sm font-medium text-primary">放開以上傳</p>
+                <p className="text-sm font-medium text-primary">{t('form.logoUploader.dropToUpload')}</p>
               </>
             ) : (
               <>
                 <ImageIcon className="h-10 w-10 text-muted-foreground" />
                 <div className="space-y-1">
                   <p className="text-sm font-medium">
-                    <span className="text-primary">點擊上傳</span> 或拖放圖片
+                    <span className="text-primary">{t('form.logoUploader.clickToUpload')}</span>
+                    {t('form.logoUploader.orDragImage')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    支援 PNG, JPEG, WebP, GIF, SVG（最大{' '}
-                    {LOGO_UPLOAD_CONFIG.maxSize / 1024 / 1024}MB）
+                    {t('form.logoUploader.supportedFormats', {
+                      max: LOGO_UPLOAD_CONFIG.maxSize / 1024 / 1024,
+                    })}
                   </p>
                 </div>
               </>
@@ -248,7 +255,10 @@ export function LogoUploader({
       {/* 已選擇文件資訊 */}
       {selectedFile && !displayError && (
         <p className="text-xs text-muted-foreground">
-          已選擇: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+          {t('form.logoUploader.selectedFile', {
+            fileName: selectedFile.name,
+            fileSize: (selectedFile.size / 1024).toFixed(1),
+          })}
         </p>
       )}
     </div>

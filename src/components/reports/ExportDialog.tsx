@@ -27,6 +27,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { Download, Loader2, FileSpreadsheet, AlertCircle } from 'lucide-react'
 import {
@@ -88,6 +89,8 @@ export function ExportDialog({
   disabled = false,
   hasPermission = true
 }: ExportDialogProps) {
+  const t = useTranslations('reports')
+  const tCommon = useTranslations('common')
   const [open, setOpen] = useState(false)
   const [selectedFields, setSelectedFields] = useState<ExportField[]>(DEFAULT_EXPORT_FIELDS)
   const { dateRange, selectedForwarderIds } = useDashboardFilter()
@@ -154,21 +157,21 @@ export function ExportDialog({
     onSuccess: (result) => {
       if (result.mode === 'background') {
         toast({
-          title: '報表生成中',
-          description: '報表正在背景生成，完成後將發送通知。'
+          title: t('costs.exportDialog.toastBackgroundTitle'),
+          description: t('costs.exportDialog.toastBackgroundDesc')
         })
       } else {
         toast({
-          title: '匯出成功',
-          description: '報表已下載。'
+          title: t('costs.exportDialog.toastSuccessTitle'),
+          description: t('costs.exportDialog.toastSuccessDesc')
         })
       }
       setOpen(false)
     },
     onError: (error) => {
       toast({
-        title: '匯出失敗',
-        description: error instanceof Error ? error.message : '請稍後再試',
+        title: t('costs.exportDialog.toastErrorTitle'),
+        description: error instanceof Error ? error.message : t('costs.exportDialog.tryAgainLater'),
         variant: 'destructive'
       })
     }
@@ -215,7 +218,7 @@ export function ExportDialog({
     return (
       <Button variant="outline" disabled>
         <Download className="mr-2 h-4 w-4" />
-        匯出報表
+        {t('costs.exportDialog.exportButton')}
       </Button>
     )
   }
@@ -225,15 +228,15 @@ export function ExportDialog({
       <DialogTrigger asChild>
         <Button variant="outline" disabled={disabled}>
           <Download className="mr-2 h-4 w-4" />
-          匯出報表
+          {t('costs.exportDialog.exportButton')}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle>匯出費用明細報表</DialogTitle>
+          <DialogTitle>{t('costs.exportDialog.title')}</DialogTitle>
           <DialogDescription>
-            選擇要包含的欄位，然後匯出 Excel 報表。
+            {t('costs.exportDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -244,9 +247,12 @@ export function ExportDialog({
               <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
               <span>
                 {countLoading ? (
-                  '計算中...'
+                  t('costs.exportDialog.calculating')
                 ) : (
-                  <>預計匯出 <strong>{estimatedCount?.toLocaleString() || 0}</strong> 筆資料</>
+                  t.rich('costs.exportDialog.estimatedCount', {
+                    count: estimatedCount?.toLocaleString() || 0,
+                    strong: (chunks) => <strong>{chunks}</strong>,
+                  })
                 )}
               </span>
             </div>
@@ -254,7 +260,7 @@ export function ExportDialog({
               <Alert className="mt-3" variant="default">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  數據量較大，將在背景處理，完成後發送通知。
+                  {t('costs.exportDialog.largeExportWarning')}
                 </AlertDescription>
               </Alert>
             )}
@@ -263,13 +269,15 @@ export function ExportDialog({
           {/* 欄位選擇 */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>選擇欄位</Label>
+              <Label>{t('costs.exportDialog.selectFields')}</Label>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={toggleAllFields}
               >
-                {selectedFields.length === allFields.length ? '重設為預設' : '全選'}
+                {selectedFields.length === allFields.length
+                  ? t('costs.exportDialog.resetToDefault')
+                  : t('costs.exportDialog.selectAll')}
               </Button>
             </div>
 
@@ -288,14 +296,17 @@ export function ExportDialog({
                     htmlFor={field}
                     className="text-sm font-medium leading-none cursor-pointer select-none"
                   >
-                    {EXPORT_FIELD_LABELS[field]}
+                    {t(`costs.exportDialog.fields.${field}`)}
                   </label>
                 </div>
               ))}
             </div>
 
             <p className="text-xs text-muted-foreground">
-              已選擇 {selectedFields.length} / {allFields.length} 個欄位
+              {t('costs.exportDialog.selectedCount', {
+                selected: selectedFields.length,
+                total: allFields.length,
+              })}
             </p>
           </div>
 
@@ -304,7 +315,7 @@ export function ExportDialog({
             <div className="space-y-2">
               <Progress value={50} />
               <p className="text-sm text-center text-muted-foreground">
-                正在生成報表...
+                {t('costs.exportDialog.generating')}
               </p>
             </div>
           )}
@@ -316,7 +327,7 @@ export function ExportDialog({
             onClick={() => setOpen(false)}
             disabled={exportMutation.isPending}
           >
-            取消
+            {tCommon('actions.cancel')}
           </Button>
           <Button
             onClick={handleExport}
@@ -325,7 +336,9 @@ export function ExportDialog({
             {exportMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            {isLargeExport ? '開始背景匯出' : '匯出'}
+            {isLargeExport
+              ? t('costs.exportDialog.startBackgroundExport')
+              : t('costs.exportDialog.export')}
           </Button>
         </DialogFooter>
       </DialogContent>

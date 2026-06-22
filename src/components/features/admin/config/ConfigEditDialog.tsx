@@ -104,13 +104,13 @@ export function ConfigEditDialog({
         case 'NUMBER': {
           const num = parseFloat(value)
           if (isNaN(num)) {
-            return { valid: false, parsed: null, error: '請輸入有效數值' }
+            return { valid: false, parsed: null, error: t('config.editDialog.errors.invalidNumber') }
           }
           if (config.validation?.min !== undefined && num < config.validation.min) {
-            return { valid: false, parsed: null, error: `最小值為 ${config.validation.min}` }
+            return { valid: false, parsed: null, error: t('config.editDialog.errors.minValue', { min: config.validation.min }) }
           }
           if (config.validation?.max !== undefined && num > config.validation.max) {
-            return { valid: false, parsed: null, error: `最大值為 ${config.validation.max}` }
+            return { valid: false, parsed: null, error: t('config.editDialog.errors.maxValue', { max: config.validation.max }) }
           }
           return { valid: true, parsed: num }
         }
@@ -120,18 +120,18 @@ export function ConfigEditDialog({
           try {
             return { valid: true, parsed: JSON.parse(value) }
           } catch {
-            return { valid: false, parsed: null, error: 'JSON 格式不正確' }
+            return { valid: false, parsed: null, error: t('config.editDialog.errors.invalidJson') }
           }
         case 'ENUM':
           if (config.validation?.options && !config.validation.options.includes(value)) {
-            return { valid: false, parsed: null, error: '請選擇有效選項' }
+            return { valid: false, parsed: null, error: t('config.editDialog.errors.invalidOption') }
           }
           return { valid: true, parsed: value }
         default:
           return { valid: true, parsed: value }
       }
     } catch {
-      return { valid: false, parsed: null, error: '值格式錯誤' }
+      return { valid: false, parsed: null, error: t('config.editDialog.errors.invalidValue') }
     }
   }
 
@@ -141,14 +141,14 @@ export function ConfigEditDialog({
   const handleSubmit = async () => {
     // 敏感配置需要確認
     if (config.isEncrypted && !confirmed) {
-      setError('請確認您要更改敏感配置')
+      setError(t('config.editDialog.errors.confirmRequired'))
       return
     }
 
     // 解析值
     const { valid, parsed, error: parseError } = parseValue()
     if (!valid) {
-      setError(parseError || '值格式錯誤')
+      setError(parseError || t('config.editDialog.errors.invalidValue'))
       return
     }
 
@@ -158,7 +158,7 @@ export function ConfigEditDialog({
       await onSave(config.key, parsed, changeReason || undefined)
       onOpenChange(false)
     } catch {
-      setError('儲存失敗')
+      setError(t('config.editDialog.errors.saveFailed'))
     }
   }
 
@@ -171,11 +171,11 @@ export function ConfigEditDialog({
         return (
           <Select value={value} onValueChange={setValue}>
             <SelectTrigger>
-              <SelectValue placeholder="選擇值" />
+              <SelectValue placeholder={t('config.editDialog.selectPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="true">是 (true)</SelectItem>
-              <SelectItem value="false">否 (false)</SelectItem>
+              <SelectItem value="true">{t('config.editDialog.booleanTrue')}</SelectItem>
+              <SelectItem value="false">{t('config.editDialog.booleanFalse')}</SelectItem>
             </SelectContent>
           </Select>
         )
@@ -184,7 +184,7 @@ export function ConfigEditDialog({
         return (
           <Select value={value} onValueChange={setValue}>
             <SelectTrigger>
-              <SelectValue placeholder="選擇值" />
+              <SelectValue placeholder={t('config.editDialog.selectPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
               {config.validation?.options?.map((opt) => (
@@ -203,7 +203,7 @@ export function ConfigEditDialog({
             onChange={(e) => setValue(e.target.value)}
             rows={8}
             className="font-mono text-sm"
-            placeholder="請輸入有效的 JSON..."
+            placeholder={t('config.editDialog.jsonPlaceholder')}
           />
         )
 
@@ -227,7 +227,7 @@ export function ConfigEditDialog({
             type="password"
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder="輸入新的值..."
+            placeholder={t('config.editDialog.secretPlaceholder')}
           />
         )
 
@@ -246,7 +246,7 @@ export function ConfigEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>編輯配置: {config.name}</DialogTitle>
+          <DialogTitle>{t('config.editDialog.title', { name: config.name })}</DialogTitle>
           <DialogDescription>{config.description}</DialogDescription>
         </DialogHeader>
 
@@ -264,25 +264,33 @@ export function ConfigEditDialog({
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                此配置{t(`config.effectType.${config.effectType}`)}
-                {config.effectType === 'RESTART_REQUIRED' && '，需要重新啟動服務'}
+                {t('config.editDialog.effectNote', {
+                  effect: t(`config.effectType.${config.effectType}`),
+                })}
+                {config.effectType === 'RESTART_REQUIRED' &&
+                  t('config.editDialog.restartRequiredSuffix')}
               </AlertDescription>
             </Alert>
           )}
 
           {/* 值輸入 */}
           <div className="space-y-2">
-            <Label htmlFor="config-value">值</Label>
+            <Label htmlFor="config-value">{t('config.editDialog.valueLabel')}</Label>
             {renderInput()}
             {config.validation && (
               <p className="text-xs text-muted-foreground">
                 {config.validation.min !== undefined &&
                   config.validation.max !== undefined && (
                     <>
-                      範圍: {config.validation.min} - {config.validation.max}
+                      {t('config.editDialog.range', {
+                        min: config.validation.min,
+                        max: config.validation.max,
+                      })}
                     </>
                   )}
-                {config.validation.pattern && <>格式: {config.validation.pattern}</>}
+                {config.validation.pattern && (
+                  <>{t('config.editDialog.pattern', { pattern: config.validation.pattern })}</>
+                )}
               </p>
             )}
           </div>
@@ -290,13 +298,14 @@ export function ConfigEditDialog({
           {/* 變更原因 */}
           <div className="space-y-2">
             <Label htmlFor="change-reason">
-              變更原因 <span className="text-muted-foreground">(選填)</span>
+              {t('config.editDialog.changeReasonLabel')}{' '}
+              <span className="text-muted-foreground">{t('config.editDialog.optional')}</span>
             </Label>
             <Input
               id="change-reason"
               value={changeReason}
               onChange={(e) => setChangeReason(e.target.value)}
-              placeholder="說明為何要變更此配置..."
+              placeholder={t('config.editDialog.changeReasonPlaceholder')}
             />
           </div>
 
@@ -312,7 +321,7 @@ export function ConfigEditDialog({
                     onCheckedChange={(checked) => setConfirmed(checked as boolean)}
                   />
                   <label htmlFor="confirm-sensitive" className="text-sm cursor-pointer">
-                    我確認要更改此敏感配置
+                    {t('config.editDialog.confirmSensitive')}
                   </label>
                 </div>
               </AlertDescription>
@@ -329,10 +338,10 @@ export function ConfigEditDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
-            取消
+            {t('actions.cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={isSaving}>
-            {isSaving ? '儲存中...' : '儲存'}
+            {isSaving ? t('config.editDialog.saving') : t('actions.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

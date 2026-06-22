@@ -24,6 +24,7 @@
 
 import * as React from 'react';
 import { RotateCcw, Filter } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -65,6 +66,7 @@ export function DashboardFilters({
   className,
   layout = 'horizontal',
 }: DashboardFiltersProps) {
+  const t = useTranslations('dashboard');
   const {
     selectedForwarderIds,
     setSelectedForwarders,
@@ -113,7 +115,7 @@ export function DashboardFilters({
           {/* 篩選器標籤 */}
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <Filter className="h-4 w-4" />
-            <span>篩選條件</span>
+            <span>{t('filters.label')}</span>
           </div>
 
           {isHorizontal && <Separator orientation="vertical" className="h-6" />}
@@ -121,7 +123,7 @@ export function DashboardFilters({
           {/* 日期範圍篩選器 */}
           <div className={cn('flex-1', !isHorizontal && 'w-full')}>
             <label className="text-xs text-muted-foreground mb-1 block">
-              日期範圍
+              {t('filters.dateRange')}
             </label>
             <ControlledDateRangePicker
               dateRange={dateRange}
@@ -136,7 +138,7 @@ export function DashboardFilters({
           {/* 貨代商篩選器 */}
           <div className={cn('flex-1 min-w-[200px]', !isHorizontal && 'w-full')}>
             <label className="text-xs text-muted-foreground mb-1 block">
-              貨代商
+              {t('filters.forwarder')}
             </label>
             <ForwarderMultiSelect
               options={forwarders}
@@ -144,7 +146,7 @@ export function DashboardFilters({
               onSelectionChange={handleForwarderChange}
               mode={forwarderMode}
               isLoading={isForwardersLoading}
-              placeholder="全部貨代商"
+              placeholder={t('filters.allForwarders')}
             />
           </div>
 
@@ -158,7 +160,9 @@ export function DashboardFilters({
                 onClick={handleComparisonToggle}
                 className="whitespace-nowrap"
               >
-                {forwarderMode === 'comparison' ? '比較模式' : '開啟比較'}
+                {forwarderMode === 'comparison'
+                  ? t('filters.comparisonMode')
+                  : t('filters.enableComparison')}
               </Button>
             </>
           )}
@@ -174,7 +178,7 @@ export function DashboardFilters({
                 className="text-muted-foreground hover:text-foreground"
               >
                 <RotateCcw className="h-4 w-4 mr-1" />
-                重置
+                {t('filters.reset')}
               </Button>
             </>
           )}
@@ -183,9 +187,11 @@ export function DashboardFilters({
         {/* 已選擇提示 */}
         {selectedForwarderIds.length > 0 && (
           <div className="mt-3 pt-3 border-t text-xs text-muted-foreground">
-            已選擇 {selectedForwarderIds.length} 個貨代商
+            {t('filters.selectedCount', { count: selectedForwarderIds.length })}
             {forwarderMode === 'comparison' && (
-              <span className="ml-2 text-primary">（比較模式）</span>
+              <span className="ml-2 text-primary">
+                {t('filters.comparisonModeHint')}
+              </span>
             )}
           </div>
         )}
@@ -216,6 +222,7 @@ export function DashboardFiltersCompact({
   isForwardersLoading = false,
   className,
 }: DashboardFiltersCompactProps) {
+  const t = useTranslations('dashboard');
   const {
     selectedForwarderIds,
     setSelectedForwarders,
@@ -244,7 +251,7 @@ export function DashboardFiltersCompact({
         onSelectionChange={setSelectedForwarders}
         mode={forwarderMode}
         isLoading={isForwardersLoading}
-        placeholder="貨代商"
+        placeholder={t('filters.forwarder')}
         className="w-[180px]"
       />
 

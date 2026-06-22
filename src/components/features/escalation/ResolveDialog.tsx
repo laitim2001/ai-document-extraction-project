@@ -20,6 +20,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   CheckCircle,
   Edit,
@@ -101,6 +102,15 @@ const DECISION_COLORS: Record<ResolveDecision, string> = {
   REJECTED: 'border-red-500 bg-red-50',
 }
 
+/**
+ * 決策對應的翻譯 key（label / description）
+ */
+const DECISION_I18N_KEYS: Record<ResolveDecision, string> = {
+  APPROVED: 'approve',
+  CORRECTED: 'approveWithCorrections',
+  REJECTED: 'reject',
+}
+
 // ============================================================
 // Component
 // ============================================================
@@ -131,6 +141,8 @@ export function ResolveDialog({
   fields = [],
   isSubmitting = false,
 }: ResolveDialogProps) {
+  const t = useTranslations('escalation')
+
   // --- State ---
   const [decision, setDecision] = React.useState<ResolveDecision | null>(null)
   const [notes, setNotes] = React.useState('')
@@ -234,23 +246,23 @@ export function ResolveDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>處理升級案例</DialogTitle>
+          <DialogTitle>{t('resolve.title')}</DialogTitle>
           <DialogDescription>
-            選擇處理決策並完成此升級案例
+            {t('resolve.description')}
           </DialogDescription>
         </DialogHeader>
 
         {/* 文件資訊 */}
         <div className="rounded-lg border bg-muted/50 p-3">
           <p className="text-sm">
-            <span className="text-muted-foreground">文件：</span>
+            <span className="text-muted-foreground">{t('resolve.document')}</span>
             <span className="font-medium">{documentName}</span>
           </p>
         </div>
 
         {/* 決策選擇 */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium">選擇處理決策</Label>
+          <Label className="text-sm font-medium">{t('resolve.selectDecision')}</Label>
           <RadioGroup
             value={decision || ''}
             onValueChange={(value) => setDecision(value as ResolveDecision)}
@@ -287,10 +299,12 @@ export function ResolveDialog({
                           config.color === 'destructive' && 'text-red-600'
                         )}
                       />
-                      <span className="font-medium">{config.label}</span>
+                      <span className="font-medium">
+                        {t(`decisions.${DECISION_I18N_KEYS[config.value]}`)}
+                      </span>
                     </Label>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {config.description}
+                      {t(`decisions.${DECISION_I18N_KEYS[config.value]}Desc`)}
                     </p>
                   </div>
                 </div>
@@ -304,7 +318,7 @@ export function ResolveDialog({
           <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">
-                修正項目
+                {t('resolve.corrections')}
                 <span className="text-destructive ml-1">*</span>
               </Label>
               <Button
@@ -314,14 +328,14 @@ export function ResolveDialog({
                 onClick={handleAddCorrection}
               >
                 <Plus className="h-4 w-4 mr-1" />
-                新增修正
+                {t('resolve.addCorrection')}
               </Button>
             </div>
 
             {corrections.length === 0 ? (
               <div className="rounded-lg border border-dashed p-4 text-center">
                 <p className="text-sm text-muted-foreground">
-                  請新增至少一項修正
+                  {t('resolve.atLeastOneCorrection')}
                 </p>
               </div>
             ) : (
@@ -333,7 +347,7 @@ export function ResolveDialog({
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">
-                        修正項目 #{index + 1}
+                        {t('resolve.correctionItem', { index: index + 1 })}
                       </span>
                       <Button
                         type="button"
@@ -348,7 +362,7 @@ export function ResolveDialog({
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <Label className="text-xs">欄位</Label>
+                        <Label className="text-xs">{t('resolve.field')}</Label>
                         <Select
                           value={correction.fieldName}
                           onValueChange={(value) =>
@@ -356,7 +370,7 @@ export function ResolveDialog({
                           }
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="選擇欄位" />
+                            <SelectValue placeholder={t('resolve.selectField')} />
                           </SelectTrigger>
                           <SelectContent>
                             {fields.map((field) => (
@@ -369,7 +383,7 @@ export function ResolveDialog({
                       </div>
 
                       <div className="space-y-1">
-                        <Label className="text-xs">修正類型</Label>
+                        <Label className="text-xs">{t('resolve.correctionType')}</Label>
                         <Select
                           value={correction.correctionType}
                           onValueChange={(value) =>
@@ -380,8 +394,8 @@ export function ResolveDialog({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="NORMAL">一般修正</SelectItem>
-                            <SelectItem value="EXCEPTION">例外修正</SelectItem>
+                            <SelectItem value="NORMAL">{t('resolve.normalCorrection')}</SelectItem>
+                            <SelectItem value="EXCEPTION">{t('resolve.exceptionCorrection')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -389,7 +403,7 @@ export function ResolveDialog({
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <Label className="text-xs">原始值</Label>
+                        <Label className="text-xs">{t('resolve.originalValue')}</Label>
                         <Input
                           value={correction.originalValue || ''}
                           disabled
@@ -397,7 +411,7 @@ export function ResolveDialog({
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">修正值</Label>
+                        <Label className="text-xs">{t('resolve.correctedValue')}</Label>
                         <Input
                           value={correction.correctedValue}
                           onChange={(e) =>
@@ -407,7 +421,7 @@ export function ResolveDialog({
                               e.target.value
                             )
                           }
-                          placeholder="輸入修正後的值"
+                          placeholder={t('resolve.enterCorrectedValue')}
                         />
                       </div>
                     </div>
@@ -423,13 +437,13 @@ export function ResolveDialog({
         {/* 備註 */}
         <div className="space-y-2">
           <Label htmlFor="notes" className="text-sm">
-            備註（選填）
+            {t('resolve.notes')}
           </Label>
           <Textarea
             id="notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="輸入處理備註..."
+            placeholder={t('resolve.enterNotes')}
             className="min-h-[60px] resize-none"
             maxLength={2000}
             disabled={isSubmitting}
@@ -448,7 +462,7 @@ export function ResolveDialog({
               onCheckedChange={(checked) => setShowRuleForm(checked === true)}
             />
             <Label htmlFor="createRule" className="text-sm cursor-pointer">
-              創建規則建議（連接 Epic 4 規則管理）
+              {t('resolve.createRuleSuggestion')}
             </Label>
           </div>
 
@@ -456,19 +470,19 @@ export function ResolveDialog({
             <div className="space-y-3 pl-6 animate-in slide-in-from-top-2 duration-200">
               <div className="space-y-1">
                 <Label className="text-xs">
-                  欄位名稱 <span className="text-destructive">*</span>
+                  {t('resolve.fieldName')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   value={ruleRequest.fieldName}
                   onChange={(e) =>
                     setRuleRequest({ ...ruleRequest, fieldName: e.target.value })
                   }
-                  placeholder="例如：Freight Charge"
+                  placeholder={t('resolve.fieldNamePlaceholder')}
                 />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">
-                  建議模式 <span className="text-destructive">*</span>
+                  {t('resolve.suggestedPattern')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   value={ruleRequest.suggestedPattern}
@@ -478,11 +492,11 @@ export function ResolveDialog({
                       suggestedPattern: e.target.value,
                     })
                   }
-                  placeholder="例如：/freight|運費/i"
+                  placeholder={t('resolve.patternPlaceholder')}
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">描述說明（選填）</Label>
+                <Label className="text-xs">{t('resolve.ruleDescription')}</Label>
                 <Input
                   value={ruleRequest.description}
                   onChange={(e) =>
@@ -491,7 +505,7 @@ export function ResolveDialog({
                       description: e.target.value,
                     })
                   }
-                  placeholder="說明此規則的用途"
+                  placeholder={t('resolve.ruleDescriptionPlaceholder')}
                 />
               </div>
             </div>
@@ -504,7 +518,7 @@ export function ResolveDialog({
             onClick={() => handleOpenChange(false)}
             disabled={isSubmitting}
           >
-            取消
+            {t('resolve.cancel')}
           </Button>
           <Button
             onClick={handleConfirm}
@@ -518,10 +532,10 @@ export function ResolveDialog({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                處理中...
+                {t('resolve.processing')}
               </>
             ) : (
-              '確認處理'
+              t('resolve.confirm')
             )}
           </Button>
         </DialogFooter>

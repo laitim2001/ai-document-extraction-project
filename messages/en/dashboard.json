@@ -76,6 +76,55 @@
     "exceedsMaxDays": "Date range cannot exceed {max} days",
     "exceedsToday": "End date cannot exceed today"
   },
+  "filters": {
+    "label": "Filters",
+    "dateRange": "Date Range",
+    "forwarder": "Forwarder",
+    "allForwarders": "All Forwarders",
+    "comparisonMode": "Comparison Mode",
+    "enableComparison": "Enable Comparison",
+    "reset": "Reset",
+    "selectedCount": "{count} forwarder(s) selected",
+    "comparisonModeHint": "(Comparison Mode)"
+  },
+  "forwarderSelect": {
+    "placeholder": "Select forwarder...",
+    "placeholderShort": "Forwarder",
+    "loading": "Loading...",
+    "searchPlaceholder": "Search forwarder...",
+    "empty": "No matching forwarder found",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "count": "{count}",
+    "noCode": "No code",
+    "comparisonHint": "Select up to {max} forwarders for comparison"
+  },
+  "comparison": {
+    "title": "Forwarder Comparison",
+    "loading": "Loading...",
+    "selectAtLeastTwo": "Please select at least two forwarders to compare",
+    "tabs": {
+      "volume": "Volume",
+      "automation": "Automation Rate",
+      "time": "Processing Time"
+    },
+    "tooltip": {
+      "totalDocuments": "Total Documents: ",
+      "autoApproved": "Auto Approved: ",
+      "reviewRequired": "Review Required: ",
+      "automationRate": "Automation Rate: ",
+      "averageConfidence": "Average Confidence: ",
+      "averageProcessingTime": "Average Processing Time: ",
+      "seconds": "s"
+    },
+    "legend": {
+      "autoApproved": "Auto Approved",
+      "reviewRequired": "Review Required",
+      "automationRate": "Automation Rate (%)",
+      "averageConfidence": "Average Confidence (%)",
+      "averageProcessingTime": "Average Processing Time (s)"
+    }
+  },
   "errors": {
     "access_denied": {
       "title": "Access Denied",

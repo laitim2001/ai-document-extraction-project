@@ -17,6 +17,7 @@
 
 import * as React from 'react'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -99,12 +100,7 @@ const SEVERITY_STYLES: Record<AnomalySeverity, { bg: string; text: string; icon:
   critical: { bg: 'bg-red-100', text: 'text-red-700', icon: 'text-red-500' },
 }
 
-const DATE_RANGE_OPTIONS = [
-  { value: '7', label: '過去 7 天' },
-  { value: '14', label: '過去 14 天' },
-  { value: '30', label: '過去 30 天' },
-  { value: '90', label: '過去 90 天' },
-]
+const DATE_RANGE_OPTIONS = ['7', '14', '30', '90'] as const
 
 // ============================================================
 // Sub-components
@@ -119,12 +115,14 @@ function StatCard({
   change,
   icon: Icon,
   format = 'number',
+  changeLabel,
 }: {
   title: string
   value: number
   change?: number | null
   icon: React.ElementType
   format?: 'number' | 'currency' | 'percent'
+  changeLabel: string
 }) {
   const formatValue = (v: number) => {
     switch (format) {
@@ -155,7 +153,7 @@ function StatCard({
             ) : change < 0 ? (
               <ArrowDownRight className="h-3 w-3" />
             ) : null}
-            {Math.abs(change).toFixed(1)}% 較上期
+            {Math.abs(change).toFixed(1)}% {changeLabel}
           </p>
         )}
       </CardContent>
@@ -166,7 +164,13 @@ function StatCard({
 /**
  * 異常警示項
  */
-function AnomalyItem({ anomaly }: { anomaly: Anomaly }) {
+function AnomalyItem({
+  anomaly,
+  t,
+}: {
+  anomaly: Anomaly
+  t: ReturnType<typeof useTranslations>
+}) {
   const styles = SEVERITY_STYLES[anomaly.severity]
 
   return (
@@ -182,8 +186,9 @@ function AnomalyItem({ anomaly }: { anomaly: Anomaly }) {
           </div>
           <p className={cn('mt-1 text-sm', styles.text)}>{anomaly.description}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            當前值: {anomaly.currentValue.toFixed(2)} | 基準值: {anomaly.baselineValue.toFixed(2)} |
-            偏差: {anomaly.deviationPercentage.toFixed(1)}%
+            {t('aiCost.report.currentValue', { value: anomaly.currentValue.toFixed(2) })} |{' '}
+            {t('aiCost.report.baselineValue', { value: anomaly.baselineValue.toFixed(2) })} |{' '}
+            {t('aiCost.report.deviation', { value: anomaly.deviationPercentage.toFixed(1) })}
           </p>
         </div>
       </div>
@@ -196,6 +201,10 @@ function AnomalyItem({ anomaly }: { anomaly: Anomaly }) {
 // ============================================================
 
 export function AiCostReportContent() {
+  // i18n
+  const t = useTranslations('reports')
+  const tCommon = useTranslations('common')
+
   // 狀態
   const [dateRange, setDateRange] = useState('30')
   const [granularity, setGranularity] = useState<Granularity>('day')
@@ -275,12 +284,12 @@ export function AiCostReportContent() {
         <div className="flex items-center gap-4">
           <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="選擇時間範圍" />
+              <SelectValue placeholder={t('aiCost.report.selectTimeRange')} />
             </SelectTrigger>
             <SelectContent>
-              {DATE_RANGE_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+              {DATE_RANGE_OPTIONS.map((days) => (
+                <SelectItem key={days} value={days}>
+                  {t('aiCost.report.dateRangeOption', { days })}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -288,19 +297,19 @@ export function AiCostReportContent() {
 
           <Select value={granularity} onValueChange={(v) => setGranularity(v as Granularity)}>
             <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="時間粒度" />
+              <SelectValue placeholder={t('aiCost.report.granularity')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="day">按日</SelectItem>
-              <SelectItem value="week">按週</SelectItem>
-              <SelectItem value="month">按月</SelectItem>
+              <SelectItem value="day">{t('aiCost.report.granularityDay')}</SelectItem>
+              <SelectItem value="week">{t('aiCost.report.granularityWeek')}</SelectItem>
+              <SelectItem value="month">{t('aiCost.report.granularityMonth')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <Button variant="outline" size="sm" onClick={() => refetchSummary()}>
           <RefreshCw className="h-4 w-4 mr-2" />
-          重新整理
+          {tCommon('actions.refresh')}
         </Button>
       </div>
 
@@ -313,29 +322,33 @@ export function AiCostReportContent() {
         ) : summary ? (
           <>
             <StatCard
-              title="總成本"
+              title={t('aiCost.report.totalCost')}
               value={summary.totalCost}
               change={summary.costChangePercentage}
               icon={DollarSign}
               format="currency"
+              changeLabel={t('performance.comparison.vsLastPeriod')}
             />
             <StatCard
-              title="總呼叫次數"
+              title={t('aiCost.report.totalCalls')}
               value={summary.totalCalls}
               change={summary.callsChangePercentage}
               icon={Cpu}
+              changeLabel={t('performance.comparison.vsLastPeriod')}
             />
             <StatCard
-              title="成功率"
+              title={t('aiCost.report.successRate')}
               value={summary.overallSuccessRate}
               icon={CheckCircle}
               format="percent"
+              changeLabel={t('performance.comparison.vsLastPeriod')}
             />
             <StatCard
-              title="平均成本/呼叫"
+              title={t('aiCost.report.avgCostPerCall')}
               value={summary.totalCalls > 0 ? summary.totalCost / summary.totalCalls : 0}
               icon={TrendingUp}
               format="currency"
+              changeLabel={t('performance.comparison.vsLastPeriod')}
             />
           </>
         ) : null}
@@ -345,10 +358,12 @@ export function AiCostReportContent() {
       {anomalies && (anomalies.severityCounts.high > 0 || anomalies.severityCounts.critical > 0) && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>成本異常警示</AlertTitle>
+          <AlertTitle>{t('aiCost.report.anomalyAlertTitle')}</AlertTitle>
           <AlertDescription>
-            在過去 {dateRange} 天內檢測到{' '}
-            {anomalies.severityCounts.high + anomalies.severityCounts.critical} 個高風險異常
+            {t('aiCost.report.anomalyAlertDescription', {
+              days: dateRange,
+              count: anomalies.severityCounts.high + anomalies.severityCounts.critical,
+            })}
           </AlertDescription>
         </Alert>
       )}
@@ -358,8 +373,8 @@ export function AiCostReportContent() {
         {/* 趨勢圖表 */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>成本趨勢</CardTitle>
-            <CardDescription>AI API 使用成本變化趨勢</CardDescription>
+            <CardTitle>{t('aiCost.report.costTrendTitle')}</CardTitle>
+            <CardDescription>{t('aiCost.report.costTrendDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             {trendLoading ? (
@@ -371,8 +386,13 @@ export function AiCostReportContent() {
                   <XAxis dataKey="date" fontSize={12} />
                   <YAxis fontSize={12} tickFormatter={(v) => `$${v.toFixed(2)}`} />
                   <Tooltip
-                    formatter={(value) => [`$${Number(value ?? 0).toFixed(4)}`, '成本']}
-                    labelFormatter={(label) => `日期: ${label}`}
+                    formatter={(value) => [
+                      `$${Number(value ?? 0).toFixed(4)}`,
+                      t('aiCost.costLabel'),
+                    ]}
+                    labelFormatter={(label) =>
+                      t('aiCost.report.dateLabel', { date: String(label) })
+                    }
                   />
                   <Area
                     type="monotone"
@@ -390,8 +410,8 @@ export function AiCostReportContent() {
         {/* Provider 分佈 */}
         <Card>
           <CardHeader>
-            <CardTitle>Provider 分佈</CardTitle>
-            <CardDescription>各 API 提供者成本佔比</CardDescription>
+            <CardTitle>{t('aiCost.report.providerDistTitle')}</CardTitle>
+            <CardDescription>{t('aiCost.report.providerDistDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             {summaryLoading ? (
@@ -415,7 +435,12 @@ export function AiCostReportContent() {
                       <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`$${Number(value ?? 0).toFixed(4)}`, '成本']} />
+                  <Tooltip
+                    formatter={(value) => [
+                      `$${Number(value ?? 0).toFixed(4)}`,
+                      t('aiCost.costLabel'),
+                    ]}
+                  />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -427,16 +452,20 @@ export function AiCostReportContent() {
       {/* Tabs: 異常列表 & Provider 詳情 */}
       <Tabs defaultValue="anomalies">
         <TabsList>
-          <TabsTrigger value="anomalies">異常檢測</TabsTrigger>
-          <TabsTrigger value="providers">Provider 詳情</TabsTrigger>
+          <TabsTrigger value="anomalies">
+            {t('aiCost.report.tabAnomalies')}
+          </TabsTrigger>
+          <TabsTrigger value="providers">
+            {t('aiCost.report.tabProviders')}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="anomalies" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>異常檢測結果</CardTitle>
+              <CardTitle>{t('aiCost.report.anomalyResultTitle')}</CardTitle>
               <CardDescription>
-                過去 {dateRange} 天的成本異常（使用標準差 2 倍閾值檢測）
+                {t('aiCost.report.anomalyResultDesc', { days: dateRange })}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -449,12 +478,12 @@ export function AiCostReportContent() {
               ) : anomalies?.anomalies.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <CheckCircle className="h-12 w-12 mx-auto mb-2 text-green-500" />
-                  <p>未檢測到異常，一切正常</p>
+                  <p>{t('aiCost.report.noAnomalies')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {anomalies?.anomalies.map((anomaly) => (
-                    <AnomalyItem key={anomaly.id} anomaly={anomaly} />
+                    <AnomalyItem key={anomaly.id} anomaly={anomaly} t={t} />
                   ))}
                 </div>
               )}
@@ -465,8 +494,8 @@ export function AiCostReportContent() {
         <TabsContent value="providers" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Provider 詳細統計</CardTitle>
-              <CardDescription>各 API 提供者的使用統計</CardDescription>
+              <CardTitle>{t('aiCost.report.providerStatsTitle')}</CardTitle>
+              <CardDescription>{t('aiCost.report.providerStatsDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
               {summaryLoading ? (
@@ -475,13 +504,13 @@ export function AiCostReportContent() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Provider</TableHead>
-                      <TableHead className="text-right">總呼叫</TableHead>
-                      <TableHead className="text-right">成功</TableHead>
-                      <TableHead className="text-right">失敗</TableHead>
-                      <TableHead className="text-right">成功率</TableHead>
-                      <TableHead className="text-right">總成本</TableHead>
-                      <TableHead className="text-right">均成本</TableHead>
+                      <TableHead>{t('aiCost.report.colProvider')}</TableHead>
+                      <TableHead className="text-right">{t('aiCost.report.colTotalCalls')}</TableHead>
+                      <TableHead className="text-right">{t('aiCost.report.colSuccess')}</TableHead>
+                      <TableHead className="text-right">{t('aiCost.report.colFailed')}</TableHead>
+                      <TableHead className="text-right">{t('aiCost.report.colSuccessRate')}</TableHead>
+                      <TableHead className="text-right">{t('aiCost.report.colTotalCost')}</TableHead>
+                      <TableHead className="text-right">{t('aiCost.report.colAvgCost')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

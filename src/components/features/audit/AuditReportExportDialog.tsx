@@ -20,6 +20,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   FileText,
   FileSpreadsheet,
@@ -147,6 +148,10 @@ export function AuditReportExportDialog({
   isSubmitting = false,
   estimatedRecords,
 }: AuditReportExportDialogProps) {
+  // --- i18n ---
+  const t = useTranslations('reports')
+  const tCommon = useTranslations('common')
+
   // --- State ---
   const defaultDateRange = React.useMemo(() => getDefaultDateRange(), [])
 
@@ -204,10 +209,10 @@ export function AuditReportExportDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileSpreadsheet className="h-5 w-5 text-blue-600" />
-            匯出審計報告
+            {t('auditReport.exportDialog.title')}
           </DialogTitle>
           <DialogDescription>
-            配置報告選項並匯出審計數據。大量數據將在背景處理。
+            {t('auditReport.exportDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -215,13 +220,14 @@ export function AuditReportExportDialog({
           {/* 報告標題 */}
           <div className="space-y-2">
             <Label htmlFor="title">
-              報告標題 <span className="text-destructive">*</span>
+              {t('auditReport.exportDialog.reportTitle')}{' '}
+              <span className="text-destructive">*</span>
             </Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="例：2025年1月處理記錄審計報告"
+              placeholder={t('auditReport.exportDialog.titlePlaceholder')}
               maxLength={200}
               disabled={isSubmitting}
             />
@@ -229,7 +235,9 @@ export function AuditReportExportDialog({
 
           {/* 報告類型 */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">報告類型</Label>
+            <Label className="text-sm font-medium">
+              {t('auditReport.exportDialog.reportType')}
+            </Label>
             <RadioGroup
               value={reportType}
               onValueChange={(v) => setReportType(v as AuditReportType)}
@@ -261,10 +269,12 @@ export function AuditReportExportDialog({
                         className="flex items-center gap-2 cursor-pointer"
                       >
                         <Icon className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium text-sm">{config.label}</span>
+                        <span className="font-medium text-sm">
+                          {t(`auditReport.types.${config.value}.label`)}
+                        </span>
                       </Label>
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                        {config.description}
+                        {t(`auditReport.types.${config.value}.description`)}
                       </p>
                     </div>
                   </div>
@@ -277,12 +287,12 @@ export function AuditReportExportDialog({
           <div className="space-y-3">
             <Label className="flex items-center gap-2 text-sm font-medium">
               <Calendar className="h-4 w-4" />
-              日期範圍
+              {t('auditReport.exportDialog.dateRange')}
             </Label>
             <div className="flex items-center gap-3">
               <div className="flex-1">
                 <Label htmlFor="dateFrom" className="text-xs text-muted-foreground">
-                  開始日期
+                  {t('auditReport.exportDialog.startDate')}
                 </Label>
                 <Input
                   id="dateFrom"
@@ -293,10 +303,12 @@ export function AuditReportExportDialog({
                   disabled={isSubmitting}
                 />
               </div>
-              <span className="text-muted-foreground mt-4">至</span>
+              <span className="text-muted-foreground mt-4">
+                {t('auditReport.exportDialog.dateRangeSeparator')}
+              </span>
               <div className="flex-1">
                 <Label htmlFor="dateTo" className="text-xs text-muted-foreground">
-                  結束日期
+                  {t('auditReport.exportDialog.endDate')}
                 </Label>
                 <Input
                   id="dateTo"
@@ -312,7 +324,9 @@ export function AuditReportExportDialog({
 
           {/* 輸出格式 */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">輸出格式</Label>
+            <Label className="text-sm font-medium">
+              {t('auditReport.exportDialog.outputFormat')}
+            </Label>
             <RadioGroup
               value={outputFormat}
               onValueChange={(v) => setOutputFormat(v as ReportOutputFormat)}
@@ -357,16 +371,20 @@ export function AuditReportExportDialog({
               className="flex items-center gap-2 text-muted-foreground"
             >
               <Filter className="h-4 w-4" />
-              {showAdvanced ? '隱藏進階選項' : '顯示進階選項'}
+              {showAdvanced
+                ? t('auditReport.exportDialog.hideAdvanced')
+                : t('auditReport.exportDialog.showAdvanced')}
             </Button>
 
             {showAdvanced && (
               <div className="space-y-4 rounded-lg border p-4 animate-in slide-in-from-top-2">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="includeChanges">包含變更歷史</Label>
+                    <Label htmlFor="includeChanges">
+                      {t('auditReport.exportDialog.includeChanges')}
+                    </Label>
                     <p className="text-xs text-muted-foreground">
-                      在報告中包含數據變更記錄
+                      {t('auditReport.exportDialog.includeChangesDesc')}
                     </p>
                   </div>
                   <Switch
@@ -379,9 +397,11 @@ export function AuditReportExportDialog({
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="includeFiles">包含文件清單</Label>
+                    <Label htmlFor="includeFiles">
+                      {t('auditReport.exportDialog.includeFiles')}
+                    </Label>
                     <p className="text-xs text-muted-foreground">
-                      在報告中包含原始文件列表
+                      {t('auditReport.exportDialog.includeFilesDesc')}
                     </p>
                   </div>
                   <Switch
@@ -399,8 +419,9 @@ export function AuditReportExportDialog({
           {isLargeReport && (
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
               <p className="text-sm text-amber-800">
-                預估記錄數超過 {LARGE_REPORT_THRESHOLD.toLocaleString()} 筆，
-                報告將在背景處理。您可以在報告列表中查看進度。
+                {t('auditReport.exportDialog.largeReportWarning', {
+                  threshold: LARGE_REPORT_THRESHOLD.toLocaleString(),
+                })}
               </p>
             </div>
           )}
@@ -412,7 +433,7 @@ export function AuditReportExportDialog({
             onClick={() => handleOpenChange(false)}
             disabled={isSubmitting}
           >
-            取消
+            {tCommon('actions.cancel')}
           </Button>
           <Button
             onClick={handleConfirm}
@@ -421,12 +442,12 @@ export function AuditReportExportDialog({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                建立中...
+                {t('auditReport.exportDialog.creating')}
               </>
             ) : (
               <>
                 <FileSpreadsheet className="h-4 w-4 mr-2" />
-                建立報告
+                {t('auditReport.exportDialog.create')}
               </>
             )}
           </Button>
