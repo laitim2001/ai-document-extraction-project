@@ -235,7 +235,11 @@ export function ExtractedFieldsPanel({
                 <div key={category?.id ?? 'all'} className="mb-6 last:mb-0">
                   {category && (
                     <h4 className="mb-3 flex items-center font-medium text-gray-700">
-                      <span>{category.displayName}</span>
+                      <span>
+                        {t.has(`fieldsPanel.categories.${category.name}`)
+                          ? t(`fieldsPanel.categories.${category.name}` as 'fieldsPanel.categories.invoice')
+                          : category.displayName}
+                      </span>
                       <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-normal text-gray-500">
                         {groupFields.length}
                       </span>

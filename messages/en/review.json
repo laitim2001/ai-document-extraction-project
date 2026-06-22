@@ -245,5 +245,42 @@
   "layout": {
     "pdfTab": "PDF View",
     "reviewTab": "Review Fields"
+  },
+  "rejection": {
+    "title": "Reject Rule Suggestion",
+    "description": "Please select a rejection reason and provide details to help improve rule learning.",
+    "reasonLabel": "Rejection Reason *",
+    "detailLabel": "Details *",
+    "detailPlaceholder": "Please provide details for the rejection, e.g.: Sample size is insufficient to validate the rule's effectiveness...",
+    "detailEmpty": "Details cannot be blank",
+    "detailRequired": "Details are required",
+    "cancel": "Cancel",
+    "confirm": "Confirm Rejection",
+    "reasons": {
+      "INSUFFICIENT_DATA": {
+        "label": "Insufficient Data",
+        "description": "Sample size is insufficient to validate the rule's effectiveness"
+      },
+      "POOR_ACCURACY": {
+        "label": "Poor Accuracy",
+        "description": "Simulation testing shows the rule accuracy does not meet the standard"
+      },
+      "HIGH_RISK": {
+        "label": "High Risk",
+        "description": "Impact analysis shows the potential risk is too high"
+      },
+      "DUPLICATE": {
+        "label": "Duplicate Rule",
+        "description": "A rule with the same or similar functionality already exists"
+      },
+      "NOT_APPLICABLE": {
+        "label": "Not Applicable",
+        "description": "The rule does not apply to the target scenario"
+      },
+      "OTHER": {
+        "label": "Other",
+        "description": "Other reason (please specify in the details)"
+      }
+    }
   }
 }

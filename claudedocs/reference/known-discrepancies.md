@@ -25,6 +25,7 @@
 | 7 | **Zod 驗證覆蓋率** | 60-65%（~40 個 POST/PATCH/PUT/DELETE 缺驗證） | 新 API 必須加 |
 | 8 | **治理矩陣 SDLC-04 vs Dependabot 實況** | 矩陣／Story 22-4 AC4 原述「Dependabot 自動 PR 啟用」 | **2026-06-12 版本更新已停用**（CHANGE-081），保留 security updates；矩陣與 Story 已加註；npm audit 53 漏洞改手動追蹤 |
 | 9 | **MappingRule Tier1/2 術語注入（V3.1 半退役）** | Stage 3 原將 `MappingRule.fieldName→fieldLabel` 注入 prompt（`extractionPattern`/`validationPattern` 在 V3.1 完全未用） | **2026-06-20 已停用注入**（CHANGE-083）：DB 實查 31 筆中 30 筆為直譯冗餘、與 FieldDefinitionSet 重複；唯一有效的 Maersk 海運提單號別名已遷至 `invoice-fields.ts tracking_number.aliases`；`MappingRule` 表／`/rules`／`/api/rules/*` 不受影響；整體去留見 OQ-Q4 |
+| 10 | **EN 介面顯示中文（組件級硬編碼）** | 全站 `grep '>…\p{Han}'` 於 `src/components/**.tsx` 約 **88 組件 / 592 處**（粗估上界）JSX 渲染中文；另有資料層中文（角色 description 等 DB seed）與 page metadata title 中文 | **顯示常量洩漏子集（7 組件）已修**（CHANGE-088，2026-06-22，含 `i18n:check` 三語言同步治理）；組件級散落 JSX 中文待 **CHANGE-089**（建議分模組批次）；資料層／metadata 中文另議 |
 
 ---
 

@@ -82,6 +82,14 @@
     "empty": {
       "noFields": "No matching fields",
       "clearSearch": "Clear search"
+    },
+    "categories": {
+      "invoice": "Invoice Information",
+      "vendor": "Vendor Information",
+      "customer": "Customer Information",
+      "lineItems": "Line Items",
+      "amounts": "Amount Information",
+      "other": "Other"
     }
   },
   "filters": {

@@ -10,9 +10,10 @@
  *
  * @module src/components/features/rule-review/RejectDialog
  * @since Epic 4 - Story 4.6 (審核學習規則)
- * @lastModified 2025-12-19
+ * @lastModified 2026-06-22
  *
  * @dependencies
+ *   - next-intl - i18n 翻譯（review 命名空間，CHANGE-088 Phase 3）
  *   - @/components/ui/dialog - shadcn Dialog 組件
  *   - @/components/ui/button - shadcn Button 組件
  *   - @/components/ui/textarea - shadcn Textarea 組件
@@ -21,6 +22,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -79,6 +81,7 @@ export function RejectDialog({
   onConfirm,
   isLoading,
 }: RejectDialogProps) {
+  const t = useTranslations('review')
   const [reason, setReason] = useState<RejectionReason>('OTHER')
   const [reasonDetail, setReasonDetail] = useState('')
 
@@ -107,16 +110,16 @@ export function RejectDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <X className="h-5 w-5 text-destructive" />
-            拒絕規則建議
+            {t('rejection.title')}
           </DialogTitle>
           <DialogDescription>
-            請選擇拒絕原因並提供詳細說明，以便後續改進規則學習。
+            {t('rejection.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="space-y-3">
-            <Label>拒絕原因 *</Label>
+            <Label>{t('rejection.reasonLabel')}</Label>
             <RadioGroup
               value={reason}
               onValueChange={(v) => setReason(v as RejectionReason)}
@@ -133,9 +136,11 @@ export function RejectDialog({
                     htmlFor={r.value}
                     className="cursor-pointer font-normal leading-relaxed"
                   >
-                    <span className="font-medium">{r.label}</span>
+                    <span className="font-medium">
+                      {t(`rejection.reasons.${r.value}.label`)}
+                    </span>
                     <span className="text-sm text-muted-foreground ml-2">
-                      - {r.description}
+                      - {t(`rejection.reasons.${r.value}.description`)}
                     </span>
                   </Label>
                 </div>
@@ -144,21 +149,23 @@ export function RejectDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reasonDetail">詳細說明 *</Label>
+            <Label htmlFor="reasonDetail">{t('rejection.detailLabel')}</Label>
             <Textarea
               id="reasonDetail"
-              placeholder="請提供拒絕的詳細說明，例如：樣本數量不足以驗證規則的有效性..."
+              placeholder={t('rejection.detailPlaceholder')}
               value={reasonDetail}
               onChange={(e) => setReasonDetail(e.target.value)}
               disabled={isLoading}
               rows={4}
             />
             {!isValid && reasonDetail.length > 0 && (
-              <p className="text-xs text-destructive">詳細說明不能為空白</p>
+              <p className="text-xs text-destructive">
+                {t('rejection.detailEmpty')}
+              </p>
             )}
             {reasonDetail.length === 0 && (
               <p className="text-xs text-muted-foreground">
-                詳細說明為必填欄位
+                {t('rejection.detailRequired')}
               </p>
             )}
           </div>
@@ -170,7 +177,7 @@ export function RejectDialog({
             onClick={() => handleOpenChange(false)}
             disabled={isLoading}
           >
-            取消
+            {t('rejection.cancel')}
           </Button>
           <Button
             variant="destructive"
@@ -178,7 +185,7 @@ export function RejectDialog({
             disabled={isLoading || !isValid}
           >
             {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            確認拒絕
+            {t('rejection.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -10,7 +10,7 @@
  *
  * @module src/components/features/audit/AuditReportJobList
  * @since Epic 8 - Story 8.5 (審計報告匯出)
- * @lastModified 2026-06-22 (CHANGE-087 Phase 2: 遷移共用 DataTable)
+ * @lastModified 2026-06-22 (CHANGE-088 Phase 4: 顯示文字改走 next-intl reports namespace)
  *
  * @dependencies
  *   - @/components/features/common/DataTable - 共用表格封裝（序號欄）
@@ -20,6 +20,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import {
   FileSpreadsheet,
   FileText,
@@ -50,7 +51,6 @@ import {
 import { cn } from '@/lib/utils'
 import {
   REPORT_JOB_STATUSES,
-  AUDIT_REPORT_TYPES,
   REPORT_OUTPUT_FORMATS,
   isReportDownloadable,
 } from '@/types/audit-report'
@@ -117,8 +117,8 @@ const STATUS_ICONS: Record<ReportJobStatus2, React.ElementType> = {
 // Helpers
 // ============================================================
 
-function formatDate(date: Date | string): string {
-  return new Date(date).toLocaleString('zh-TW', {
+function formatDate(date: Date | string, locale: string): string {
+  return new Date(date).toLocaleString(locale, {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -127,16 +127,19 @@ function formatDate(date: Date | string): string {
   })
 }
 
-function formatRelativeTime(date: Date | string): string {
+/** 報告列表 i18n 翻譯函數型別（reports namespace） */
+type ReportsTranslate = ReturnType<typeof useTranslations>
+
+function formatRelativeTime(date: Date | string, t: ReportsTranslate): string {
   const now = new Date()
   const target = new Date(date)
   const diffMs = target.getTime() - now.getTime()
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
 
-  if (diffDays < 0) return '已過期'
-  if (diffDays === 0) return '今日到期'
-  if (diffDays === 1) return '明日到期'
-  return `${diffDays} 天後到期`
+  if (diffDays < 0) return t('auditReport.list.expiry.expired')
+  if (diffDays === 0) return t('auditReport.list.expiry.today')
+  if (diffDays === 1) return t('auditReport.list.expiry.tomorrow')
+  return t('auditReport.list.expiry.inDays', { count: diffDays })
 }
 
 // ============================================================
@@ -168,13 +171,38 @@ export function AuditReportJobList({
   onRefresh,
   downloadingJobId,
 }: AuditReportJobListProps) {
+  const t = useTranslations('reports')
+  const tCommon = useTranslations('common')
+  const locale = useLocale()
+
+  /**
+   * 取得報告任務狀態的顯示文字。
+   * PROCESSING/COMPLETED/FAILED 複用 common.status.*，
+   * 其餘狀態使用 reports.auditReport.statuses.*。
+   */
+  const getStatusLabel = React.useCallback(
+    (status: ReportJobStatus2): string => {
+      switch (status) {
+        case 'PROCESSING':
+          return tCommon('status.processing')
+        case 'COMPLETED':
+          return tCommon('status.completed')
+        case 'FAILED':
+          return tCommon('status.failed')
+        default:
+          return t(`auditReport.statuses.${status}`)
+      }
+    },
+    [t, tCommon]
+  )
+
   // --- Column 定義（沿用原 ReportJobRow 各儲存格內容/樣式，逐欄 1:1 保留） ---
   const columns = React.useMemo<DataTableColumn<ReportJobItem>[]>(
     () => [
       // 報告名稱
       {
         id: 'title',
-        header: '報告名稱',
+        header: t('auditReport.list.columns.title'),
         headerClassName: 'w-[300px]',
         cell: (job) => {
           const FormatIcon = FORMAT_ICONS[job.outputFormat]
@@ -185,7 +213,7 @@ export function AuditReportJobList({
                 <p className="font-medium truncate">{job.title}</p>
                 {job.totalRecords !== null && (
                   <p className="text-xs text-muted-foreground">
-                    {job.totalRecords.toLocaleString()} 筆記錄
+                    {t('auditReport.list.recordCount', { count: job.totalRecords })}
                   </p>
                 )}
               </div>
@@ -196,15 +224,15 @@ export function AuditReportJobList({
       // 類型
       {
         id: 'reportType',
-        header: '類型',
+        header: t('auditReport.list.columns.type'),
         cell: (job) => (
-          <span className="text-sm">{AUDIT_REPORT_TYPES[job.reportType].label}</span>
+          <span className="text-sm">{t(`auditReport.types.${job.reportType}.label`)}</span>
         ),
       },
       // 格式
       {
         id: 'outputFormat',
-        header: '格式',
+        header: t('auditReport.list.columns.format'),
         cell: (job) => (
           <Badge variant="outline">{REPORT_OUTPUT_FORMATS[job.outputFormat].label}</Badge>
         ),
@@ -212,7 +240,7 @@ export function AuditReportJobList({
       // 狀態
       {
         id: 'status',
-        header: '狀態',
+        header: t('auditReport.list.columns.status'),
         cell: (job) => {
           const StatusIcon = STATUS_ICONS[job.status]
           const statusConfig = REPORT_JOB_STATUSES[job.status]
@@ -231,12 +259,12 @@ export function AuditReportJobList({
                     job.status === 'EXPIRED' && 'text-orange-500'
                   )}
                 />
-                <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+                <Badge className={statusConfig.color}>{getStatusLabel(job.status)}</Badge>
               </div>
               {isProcessing && <Progress value={job.progress} className="h-1 w-24" />}
               {job.expiresAt && job.status === 'COMPLETED' && (
                 <p className="text-xs text-muted-foreground">
-                  {formatRelativeTime(job.expiresAt)}
+                  {formatRelativeTime(job.expiresAt, t)}
                 </p>
               )}
             </div>
@@ -246,19 +274,25 @@ export function AuditReportJobList({
       // 建立時間
       {
         id: 'createdAt',
-        header: '建立時間',
+        header: t('auditReport.list.columns.createdAt'),
         cell: (job) => (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="text-sm text-muted-foreground cursor-help">
-                  {formatDate(job.createdAt)}
+                  {formatDate(job.createdAt, locale)}
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                {job.completedAt && <p>完成時間：{formatDate(job.completedAt)}</p>}
+                {job.completedAt && (
+                  <p>
+                    {t('auditReport.list.completedAt', {
+                      datetime: formatDate(job.completedAt, locale),
+                    })}
+                  </p>
+                )}
                 {job.downloadCount !== undefined && job.downloadCount > 0 && (
-                  <p>下載次數：{job.downloadCount}</p>
+                  <p>{t('auditReport.list.downloadCount', { count: job.downloadCount })}</p>
                 )}
               </TooltipContent>
             </Tooltip>
@@ -268,7 +302,7 @@ export function AuditReportJobList({
       // 操作
       {
         id: 'actions',
-        header: '操作',
+        header: t('auditReport.list.columns.actions'),
         headerClassName: 'text-right',
         cellClassName: 'text-right',
         cell: (job) => {
@@ -298,7 +332,7 @@ export function AuditReportJobList({
                           )}
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>下載報告</TooltipContent>
+                      <TooltipContent>{t('auditReport.list.download')}</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
 
@@ -309,7 +343,7 @@ export function AuditReportJobList({
                           <Shield className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>驗證完整性</TooltipContent>
+                      <TooltipContent>{t('auditReport.list.verify')}</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </>
@@ -320,10 +354,10 @@ export function AuditReportJobList({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Badge variant="destructive" className="cursor-help">
-                        失敗
+                        {tCommon('status.failed')}
                       </Badge>
                     </TooltipTrigger>
-                    <TooltipContent>報告生成失敗，請重新建立</TooltipContent>
+                    <TooltipContent>{t('auditReport.list.failedTooltip')}</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
@@ -332,7 +366,7 @@ export function AuditReportJobList({
         },
       },
     ],
-    [onDownload, onVerify, downloadingJobId]
+    [onDownload, onVerify, downloadingJobId, t, tCommon, locale, getStatusLabel]
   )
 
   // --- Render ---
@@ -340,8 +374,8 @@ export function AuditReportJobList({
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
         <FileSpreadsheet className="h-12 w-12 mb-4 opacity-50" />
-        <p className="text-lg font-medium">尚無報告任務</p>
-        <p className="text-sm">建立新的審計報告以開始</p>
+        <p className="text-lg font-medium">{t('auditReport.list.emptyTitle')}</p>
+        <p className="text-sm">{t('auditReport.list.emptyDescription')}</p>
       </div>
     )
   }
@@ -357,7 +391,7 @@ export function AuditReportJobList({
           disabled={isLoading}
         >
           <RefreshCw className={cn('h-4 w-4 mr-2', isLoading && 'animate-spin')} />
-          重新整理
+          {tCommon('actions.refresh')}
         </Button>
       </div>
 

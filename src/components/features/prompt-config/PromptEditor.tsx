@@ -353,10 +353,10 @@ function VariableGroup({ category, variables, onInsert, t }: VariableGroupProps)
             <div className="flex items-center justify-between">
               <span className="font-mono text-xs">{`{{${v.name}}}`}</span>
               <Badge variant="outline" className="text-xs">
-                {v.displayName}
+                {t(`variables.${v.name}.displayName`)}
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">{v.description}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t(`variables.${v.name}.description`)}</p>
           </button>
         ))}
       </div>

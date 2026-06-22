@@ -245,5 +245,42 @@
   "layout": {
     "pdfTab": "PDF 檢視",
     "reviewTab": "審核欄位"
+  },
+  "rejection": {
+    "title": "拒絕規則建議",
+    "description": "請選擇拒絕原因並提供詳細說明，以便後續改進規則學習。",
+    "reasonLabel": "拒絕原因 *",
+    "detailLabel": "詳細說明 *",
+    "detailPlaceholder": "請提供拒絕的詳細說明，例如：樣本數量不足以驗證規則的有效性...",
+    "detailEmpty": "詳細說明不能為空白",
+    "detailRequired": "詳細說明為必填欄位",
+    "cancel": "取消",
+    "confirm": "確認拒絕",
+    "reasons": {
+      "INSUFFICIENT_DATA": {
+        "label": "數據不足",
+        "description": "樣本數量不足以驗證規則的有效性"
+      },
+      "POOR_ACCURACY": {
+        "label": "準確率不佳",
+        "description": "模擬測試顯示規則準確率未達標準"
+      },
+      "HIGH_RISK": {
+        "label": "風險過高",
+        "description": "影響分析顯示潛在風險過高"
+      },
+      "DUPLICATE": {
+        "label": "重複規則",
+        "description": "已存在功能相同或類似的規則"
+      },
+      "NOT_APPLICABLE": {
+        "label": "不適用",
+        "description": "規則不適用於目標場景"
+      },
+      "OTHER": {
+        "label": "其他",
+        "description": "其他原因（請在詳細說明中說明）"
+      }
+    }
   }
 }

@@ -19,6 +19,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { AlertTriangle, Shield } from 'lucide-react'
 import {
   Dialog,
@@ -42,7 +43,6 @@ import {
 } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import type { ConfigValue } from '@/types/config'
-import { EFFECT_TYPE_INFO } from '@/types/config'
 
 // ============================================================
 // Types
@@ -93,7 +93,7 @@ export function ConfigEditDialog({
   const [confirmed, setConfirmed] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const effectInfo = EFFECT_TYPE_INFO[config.effectType]
+  const t = useTranslations('systemSettings')
 
   /**
    * 解析並驗證值
@@ -264,7 +264,7 @@ export function ConfigEditDialog({
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                此配置{effectInfo.label}
+                此配置{t(`config.effectType.${config.effectType}`)}
                 {config.effectType === 'RESTART_REQUIRED' && '，需要重新啟動服務'}
               </AlertDescription>
             </Alert>

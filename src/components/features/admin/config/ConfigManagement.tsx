@@ -86,6 +86,7 @@ type GroupedConfigs = Record<ConfigCategory, ConfigValue[]>
  */
 export function ConfigManagement() {
   const t = useTranslations('admin')
+  const tSettings = useTranslations('systemSettings')
 
   // --- State ---
   const [activeCategory, setActiveCategory] = useState<ConfigCategory>('PROCESSING')
@@ -338,7 +339,7 @@ export function ConfigManagement() {
                 className="relative data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 <span className="mr-1">{info.icon}</span>
-                <span>{info.label}</span>
+                <span>{tSettings(`config.category.${category}.label`)}</span>
                 <span className="ml-1 text-xs opacity-70">({count})</span>
                 {modifiedCount > 0 && (
                   <Badge
@@ -360,7 +361,7 @@ export function ConfigManagement() {
               {/* 類別描述 */}
               <div className="px-6 py-4 border-b bg-muted/50">
                 <p className="text-sm text-muted-foreground">
-                  {CATEGORY_INFO[category].description}
+                  {tSettings(`config.category.${category}.description`)}
                 </p>
               </div>
 

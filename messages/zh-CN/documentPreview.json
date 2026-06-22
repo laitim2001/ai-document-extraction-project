@@ -82,6 +82,14 @@
     "empty": {
       "noFields": "没有符合条件的字段",
       "clearSearch": "清除搜索"
+    },
+    "categories": {
+      "invoice": "发票信息",
+      "vendor": "供应商信息",
+      "customer": "客户信息",
+      "lineItems": "明细项目",
+      "amounts": "金额信息",
+      "other": "其他"
     }
   },
   "filters": {

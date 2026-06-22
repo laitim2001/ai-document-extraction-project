@@ -199,6 +199,44 @@
       }
     }
   },
+  "variables": {
+    "companyName": {
+      "displayName": "公司名稱",
+      "description": "文件發行公司的名稱"
+    },
+    "documentFormatName": {
+      "displayName": "文件格式名稱",
+      "description": "文件格式的名稱"
+    },
+    "knownTerms": {
+      "displayName": "已知術語列表",
+      "description": "該公司/格式已識別的術語"
+    },
+    "recentExtractions": {
+      "displayName": "近期提取樣本",
+      "description": "最近處理的相似文件提取結果"
+    },
+    "standardTerms": {
+      "displayName": "標準術語列表",
+      "description": "系統定義的標準術語類別"
+    },
+    "currentDate": {
+      "displayName": "當前日期",
+      "description": "處理時的日期"
+    },
+    "pageCount": {
+      "displayName": "頁數",
+      "description": "文件總頁數"
+    },
+    "documentText": {
+      "displayName": "文件內容",
+      "description": "OCR 提取的文件文字內容"
+    },
+    "fileName": {
+      "displayName": "檔案名稱",
+      "description": "上傳的檔案名稱"
+    }
+  },
   "templateInserter": {
     "button": "插入模板",
     "dialogTitle": "插入預設模板 - {typeName}",

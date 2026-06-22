@@ -245,5 +245,42 @@
   "layout": {
     "pdfTab": "PDF 查看",
     "reviewTab": "审核字段"
+  },
+  "rejection": {
+    "title": "拒绝规则建议",
+    "description": "请选择拒绝原因并提供详细说明，以便后续改进规则学习。",
+    "reasonLabel": "拒绝原因 *",
+    "detailLabel": "详细说明 *",
+    "detailPlaceholder": "请提供拒绝的详细说明，例如：样本数量不足以验证规则的有效性...",
+    "detailEmpty": "详细说明不能为空白",
+    "detailRequired": "详细说明为必填字段",
+    "cancel": "取消",
+    "confirm": "确认拒绝",
+    "reasons": {
+      "INSUFFICIENT_DATA": {
+        "label": "数据不足",
+        "description": "样本数量不足以验证规则的有效性"
+      },
+      "POOR_ACCURACY": {
+        "label": "准确率不佳",
+        "description": "模拟测试显示规则准确率未达标准"
+      },
+      "HIGH_RISK": {
+        "label": "风险过高",
+        "description": "影响分析显示潜在风险过高"
+      },
+      "DUPLICATE": {
+        "label": "重复规则",
+        "description": "已存在功能相同或类似的规则"
+      },
+      "NOT_APPLICABLE": {
+        "label": "不适用",
+        "description": "规则不适用于目标场景"
+      },
+      "OTHER": {
+        "label": "其他",
+        "description": "其他原因（请在详细说明中说明）"
+      }
+    }
   }
 }

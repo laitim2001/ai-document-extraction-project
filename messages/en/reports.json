@@ -151,6 +151,58 @@
     "cityCount": "Cities",
     "generatingText": "Generating..."
   },
+  "auditReport": {
+    "types": {
+      "PROCESSING_RECORDS": {
+        "label": "Processing Records Report",
+        "description": "Detailed records of all document processing operations"
+      },
+      "CHANGE_HISTORY": {
+        "label": "Change History Report",
+        "description": "Data change tracking, including version differences"
+      },
+      "FULL_AUDIT": {
+        "label": "Full Audit Report",
+        "description": "Includes processing records, change history, and original document list"
+      },
+      "COMPLIANCE_SUMMARY": {
+        "label": "Compliance Summary Report",
+        "description": "Compliance statistics and summary information"
+      }
+    },
+    "statuses": {
+      "PENDING": "Pending",
+      "QUEUED": "Queued",
+      "GENERATING": "Generating",
+      "SIGNING": "Signing",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
+    },
+    "list": {
+      "columns": {
+        "title": "Report Name",
+        "type": "Type",
+        "format": "Format",
+        "status": "Status",
+        "createdAt": "Created At",
+        "actions": "Actions"
+      },
+      "recordCount": "{count} records",
+      "expiry": {
+        "expired": "Expired",
+        "today": "Expires today",
+        "tomorrow": "Expires tomorrow",
+        "inDays": "Expires in {count} days"
+      },
+      "completedAt": "Completed at: {datetime}",
+      "downloadCount": "Downloads: {count}",
+      "download": "Download report",
+      "verify": "Verify integrity",
+      "failedTooltip": "Report generation failed. Please create a new one.",
+      "emptyTitle": "No report jobs yet",
+      "emptyDescription": "Create a new audit report to get started"
+    }
+  },
   "costAnomaly": {
     "dialogTitle": "Cost Anomaly Analysis",
     "dialogDescription": "Cost anomaly details for {city}",

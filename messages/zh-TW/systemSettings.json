@@ -68,6 +68,48 @@
     "saveSuccess": "資料保留設定儲存成功",
     "saveError": "儲存資料保留設定失敗"
   },
+  "config": {
+    "modified": "已修改",
+    "effectType": {
+      "IMMEDIATE": "立即生效",
+      "RESTART_REQUIRED": "需重啟",
+      "SCHEDULED": "排程生效"
+    },
+    "category": {
+      "PROCESSING": {
+        "label": "處理參數",
+        "description": "控制文件處理和 AI 提取的相關參數"
+      },
+      "INTEGRATION": {
+        "label": "整合設定",
+        "description": "AI 服務、n8n 和外部系統的連線設定"
+      },
+      "SECURITY": {
+        "label": "安全設定",
+        "description": "Session 管理、密碼策略和帳戶安全設定"
+      },
+      "NOTIFICATION": {
+        "label": "通知設定",
+        "description": "Email、Teams 和其他通知管道的設定"
+      },
+      "SYSTEM": {
+        "label": "系統設定",
+        "description": "日誌、維護模式和系統級別的設定"
+      },
+      "DISPLAY": {
+        "label": "顯示設定",
+        "description": "介面顯示相關設定"
+      },
+      "AI_MODEL": {
+        "label": "AI 模型設定",
+        "description": "AI 模型相關配置"
+      },
+      "THRESHOLD": {
+        "label": "閾值設定",
+        "description": "各種閾值配置"
+      }
+    }
+  },
   "settingsCard": {
     "configure": "設定",
     "viewDetails": "查看詳情",

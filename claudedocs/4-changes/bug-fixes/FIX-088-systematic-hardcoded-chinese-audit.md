@@ -4,9 +4,9 @@
 > **發現方式**: 代碼審查（全站 grep CJK 掃描）
 > **影響頁面/功能**: 全站多頁面（EN 介面）
 > **優先級**: 中
-> **狀態**: 🚧 待修復
+> **狀態**: ⬆️ 已升級為 CHANGE-088（2026-06-20）— 階段一盤點完成並經主 session 逐一複驗，確認真洩漏跨 6 模組 7 組件、需 >150 條 i18n key，達本文件 §升級條件。實作移交 `CHANGE-088`（見文末升級記錄）
 >
-> **性質說明**: 本 FIX 屬「先盤點再修」性質，根本原因與解決方案在盤點階段標為「待驗證盤點」，並列出已知優先清單。實際需修檔案以階段一盤點結果為準。
+> **性質說明**: 本 FIX 屬「先盤點再修」性質。階段一（盤點）已完成；因規模觸發 §升級條件，階段二（修正）+ 治理擴充移交 CHANGE-088 執行。
 
 ---
 
@@ -126,5 +126,28 @@ FIX-087 已處理 P0 的 `ForwarderForm` / `FORWARDER_FORM_LABELS`（label / pla
 
 ---
 
+## 階段一盤點結論與升級記錄（2026-06-20）
+
+### 盤點方法
+4 個並行 Explore agent 盤點 35 個含中文常量檔案（type/constants），**主 session 逐一複驗每個 🔴 的實際 render 點**（agent 曾誤判：Agent A 將 `DEFAULT_CATEGORIES` 誤標 🟡，主 session 親驗為真洩漏）。
+
+### 真洩漏（複驗確認，6 模組 7 組件）
+| 組件 | 來源常量 | 中文量 |
+|------|----------|--------|
+| `PermissionSelector.tsx` | `PERMISSION_INFO_MAP`(49 權限) + `PERMISSION_CATEGORIES` | ~98 + 分類 |
+| `AuditReportJobList.tsx` | `AUDIT_REPORT_TYPES`+`REPORT_JOB_STATUSES`+`REPORT_OUTPUT_FORMATS` | ~13 + JSX「筆記錄」 |
+| `RejectDialog.tsx` | `REJECTION_REASONS`+`REJECT_LABELS` | ~10 |
+| `PromptEditor.tsx` | `SYSTEM_VARIABLES` | 變數 ×2 |
+| `ConfigItem.tsx` | `EFFECT_TYPE_INFO` | ~3 + JSX「已修改」 |
+| `ExtractedFieldsPanel.tsx` | `DEFAULT_CATEGORIES` | 6 |
+
+### 已排除（非洩漏，~30 個）
+驗證了本文件「真洩漏遠少於初掃 30 個」之判斷：FORM_LABELS（FIX-087 後 orphan）、`STEP_*_V3`（無 .tsx render + 已 locale-aware）、`INVOICE_FIELDS`/`STANDARD_FIELDS`（🔵 資料層）、escalation/company/forwarder 的 `*_STATUS_CONFIG`（🟡 只取樣式、label 走 t()）、backup/logging/workflow 多個 orphan 等。
+
+### 升級決策
+規模（>150 key、跨 6 模組）觸發 §升級條件「需新增大量 key → 升級為 CHANGE」。用戶 2026-06-20 approve 升級 → **`CHANGE-088`**（`claudedocs/4-changes/feature-changes/CHANGE-088-hardcoded-chinese-constants-i18n.md`）。完整盤點清單、namespace 對應、分階段規劃、治理擴充均移入 CHANGE-088。
+
+---
+
 *文件建立日期: 2026-06-20*
-*最後更新: 2026-06-20*
+*最後更新: 2026-06-20（階段一盤點完成 + 升級為 CHANGE-088）*

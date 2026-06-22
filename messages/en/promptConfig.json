@@ -199,6 +199,44 @@
       }
     }
   },
+  "variables": {
+    "companyName": {
+      "displayName": "Company Name",
+      "description": "The name of the company that issued the document"
+    },
+    "documentFormatName": {
+      "displayName": "Document Format Name",
+      "description": "The name of the document format"
+    },
+    "knownTerms": {
+      "displayName": "Known Terms List",
+      "description": "Terms already identified for this company/format"
+    },
+    "recentExtractions": {
+      "displayName": "Recent Extraction Samples",
+      "description": "Extraction results from recently processed similar documents"
+    },
+    "standardTerms": {
+      "displayName": "Standard Terms List",
+      "description": "System-defined standard term categories"
+    },
+    "currentDate": {
+      "displayName": "Current Date",
+      "description": "The date when processing occurs"
+    },
+    "pageCount": {
+      "displayName": "Page Count",
+      "description": "Total number of pages in the document"
+    },
+    "documentText": {
+      "displayName": "Document Content",
+      "description": "The document text content extracted by OCR"
+    },
+    "fileName": {
+      "displayName": "File Name",
+      "description": "The name of the uploaded file"
+    }
+  },
   "templateInserter": {
     "button": "Insert Template",
     "dialogTitle": "Insert Default Template - {typeName}",
