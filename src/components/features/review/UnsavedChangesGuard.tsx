@@ -8,9 +8,10 @@
  *
  * @module src/components/features/review/UnsavedChangesGuard
  * @since Epic 3 - Story 3.5 (修正提取結果)
- * @lastModified 2025-12-18
+ * @lastModified 2026-06-22 (CHANGE-089 Batch C: 對話框文字 i18n 化)
  *
  * @dependencies
+ *   - next-intl - 國際化
  *   - @/stores/reviewStore - 狀態管理
  *   - @/components/ui/alert-dialog - 對話框組件
  */
@@ -18,6 +19,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { AlertTriangle, Save, X } from 'lucide-react'
 import {
@@ -81,21 +83,23 @@ export function UnsavedChangesDialog({
   isSaving = false,
   message,
 }: UnsavedChangesDialogProps) {
+  const t = useTranslations('review')
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2 text-amber-600">
             <AlertTriangle className="h-5 w-5" />
-            未儲存的變更
+            {t('dialog.unsavedChanges')}
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-2">
               <p>
-                {message || `您有 ${pendingCount} 個未儲存的欄位修正。`}
+                {message || t('dialog.pendingCorrections', { count: pendingCount })}
               </p>
               <p className="text-xs text-muted-foreground">
-                如果離開此頁面，這些修正將會遺失。
+                {t('dialog.changesWillBeLost')}
               </p>
             </div>
           </AlertDialogDescription>
@@ -103,7 +107,7 @@ export function UnsavedChangesDialog({
 
         <AlertDialogFooter className="flex-col sm:flex-row gap-2">
           <AlertDialogCancel disabled={isSaving}>
-            繼續編輯
+            {t('dialog.continueEditing')}
           </AlertDialogCancel>
 
           {onSaveAndLeave && (
@@ -114,7 +118,7 @@ export function UnsavedChangesDialog({
               className="border-green-600 text-green-600 hover:bg-green-50"
             >
               <Save className="mr-2 h-4 w-4" />
-              {isSaving ? '儲存中...' : '儲存並離開'}
+              {isSaving ? t('dialog.saving') : t('dialog.saveAndLeave')}
             </Button>
           )}
 
@@ -124,7 +128,7 @@ export function UnsavedChangesDialog({
             className="bg-destructive hover:bg-destructive/90"
           >
             <X className="mr-2 h-4 w-4" />
-            放棄變更
+            {t('dialog.discardChanges')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

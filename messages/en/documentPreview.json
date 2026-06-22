@@ -5,7 +5,10 @@
       "gptVision": "GPT Vision",
       "manual": "Manual",
       "mapping": "Mapping Rule"
-    }
+    },
+    "notExtracted": "Not extracted",
+    "edited": "Edited",
+    "originalValue": " (original: {value})"
   },
   "lineItems": {
     "title": "Line Items",
@@ -134,12 +137,39 @@
       "zoomOut": "Zoom out",
       "resetZoom": "Reset zoom (100%)",
       "fitWidth": "Fit width"
+    },
+    "overlay": {
+      "confidenceLabel": "Confidence {confidence}%"
     }
+  },
+  "loading": {
+    "document": "Loading document...",
+    "viewer": "Loading viewer...",
+    "page": "Loading page..."
   },
   "error": {
     "title": "Error",
     "loading": "Failed to load document",
-    "retry": "Retry"
+    "retry": "Retry",
+    "documentLoadFailed": "Failed to load PDF document",
+    "types": {
+      "network": {
+        "title": "Network Error",
+        "description": "Failed to load the document. Please check your network connection and try again."
+      },
+      "corrupted": {
+        "title": "Corrupted Document",
+        "description": "This PDF document may be corrupted or in an incorrect format."
+      },
+      "encrypted": {
+        "title": "Document Encrypted",
+        "description": "This PDF document is encrypted and cannot be opened directly."
+      },
+      "generic": {
+        "title": "Load Failed",
+        "description": "Failed to load the PDF document. Please try again later."
+      }
+    }
   },
   "mappingConfigPanel": {
     "title": "Field Mapping Configuration",
@@ -179,7 +209,12 @@
     "dragHint": "Drag to adjust priority, lower number means higher priority",
     "addRule": "Add Rule",
     "rulesCount": "{count} rules",
-    "disabledCount": "({count} disabled)"
+    "disabledCount": "({count} disabled)",
+    "noSourceFields": "(No source fields)",
+    "enableRule": "Enable Rule",
+    "disableRule": "Disable Rule",
+    "editRule": "Edit Rule",
+    "deleteRule": "Delete Rule"
   },
   "mappingPreview": {
     "title": "Preview Results",

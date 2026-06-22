@@ -25,6 +25,7 @@
 'use client';
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Plus,
   Trash2,
@@ -97,6 +98,7 @@ export function BulkRuleActions({
   onOperationComplete,
   disabled = false,
 }: BulkRuleActionsProps) {
+  const t = useTranslations('rules');
   const { toast } = useToast();
 
   // --- State ---
@@ -157,21 +159,21 @@ export function BulkRuleActions({
       });
 
       toast({
-        title: '批量建立成功',
-        description: `已建立 ${result.data.created} 條規則`,
+        title: t('bulkActions.toast.createdTitle'),
+        description: t('bulkActions.toast.createdDesc', { count: result.data.created }),
       });
 
       onOperationComplete?.();
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: '建立失敗',
-        description: error instanceof Error ? error.message : '未知錯誤',
+        title: t('bulkActions.toast.createFailedTitle'),
+        description: error instanceof Error ? error.message : t('bulkActions.toast.unknownError'),
       });
     } finally {
       setIsCreating(false);
     }
-  }, [selectedTerms, classifications, hasSelection, toast, onOperationComplete]);
+  }, [selectedTerms, classifications, hasSelection, toast, onOperationComplete, t]);
 
   /**
    * Handle bulk delete (soft delete)
@@ -207,21 +209,21 @@ export function BulkRuleActions({
       });
 
       toast({
-        title: '批量刪除成功',
-        description: `已刪除 ${result.data.deleted} 條規則`,
+        title: t('bulkActions.toast.deletedTitle'),
+        description: t('bulkActions.toast.deletedDesc', { count: result.data.deleted }),
       });
 
       onOperationComplete?.();
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: '刪除失敗',
-        description: error instanceof Error ? error.message : '未知錯誤',
+        title: t('bulkActions.toast.deleteFailedTitle'),
+        description: error instanceof Error ? error.message : t('bulkActions.toast.unknownError'),
       });
     } finally {
       setIsDeleting(false);
     }
-  }, [selectedTerms, toast, onOperationComplete]);
+  }, [selectedTerms, toast, onOperationComplete, t]);
 
   /**
    * Handle undo last operation
@@ -246,7 +248,7 @@ export function BulkRuleActions({
       const result = await response.json();
 
       toast({
-        title: '撤銷成功',
+        title: t('bulkActions.toast.undoTitle'),
         description: result.data.message,
       });
 
@@ -255,13 +257,13 @@ export function BulkRuleActions({
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: '撤銷失敗',
-        description: error instanceof Error ? error.message : '未知錯誤',
+        title: t('bulkActions.toast.undoFailedTitle'),
+        description: error instanceof Error ? error.message : t('bulkActions.toast.unknownError'),
       });
     } finally {
       setIsUndoing(false);
     }
-  }, [lastOperation, toast, onOperationComplete]);
+  }, [lastOperation, toast, onOperationComplete, t]);
 
   /**
    * Handle CSV export
@@ -299,19 +301,19 @@ export function BulkRuleActions({
       URL.revokeObjectURL(url);
 
       toast({
-        title: '匯出成功',
-        description: `已匯出 ${selectedTerms.length} 條術語`,
+        title: t('bulkActions.toast.exportTitle'),
+        description: t('bulkActions.toast.exportDesc', { count: selectedTerms.length }),
       });
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: '匯出失敗',
-        description: error instanceof Error ? error.message : '未知錯誤',
+        title: t('bulkActions.toast.exportFailedTitle'),
+        description: error instanceof Error ? error.message : t('bulkActions.toast.unknownError'),
       });
     } finally {
       setIsExporting(false);
     }
-  }, [selectedTerms, classifications, hasSelection, toast]);
+  }, [selectedTerms, classifications, hasSelection, toast, t]);
 
   // --- Render ---
 
@@ -320,7 +322,7 @@ export function BulkRuleActions({
       {/* Selection indicator */}
       {hasSelection && (
         <Badge variant="secondary" className="mr-2">
-          已選 {selectionCount} 項
+          {t('bulkActions.selectedCount', { count: selectionCount })}
         </Badge>
       )}
 
@@ -335,7 +337,7 @@ export function BulkRuleActions({
         ) : (
           <Plus className="h-4 w-4 mr-2" />
         )}
-        批量建立規則
+        {t('bulkActions.bulkCreate')}
       </Button>
 
       {/* Export CSV Button */}
@@ -350,7 +352,7 @@ export function BulkRuleActions({
         ) : (
           <Download className="h-4 w-4 mr-2" />
         )}
-        匯出 CSV
+        {t('bulkActions.exportCsv')}
       </Button>
 
       {/* Undo Button */}
@@ -366,7 +368,7 @@ export function BulkRuleActions({
           ) : (
             <Undo2 className="h-4 w-4 mr-2" />
           )}
-          撤銷
+          {t('bulkActions.undo')}
         </Button>
       )}
 
@@ -386,24 +388,24 @@ export function BulkRuleActions({
             onClick={() => {
               // Mark all selected as high confidence
               toast({
-                title: '功能開發中',
-                description: '批量設定高信心度功能即將推出',
+                title: t('bulkActions.toast.comingSoonTitle'),
+                description: t('bulkActions.toast.highConfidenceComingSoon'),
               });
             }}
           >
             <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-            設為高信心度
+            {t('bulkActions.setHighConfidence')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               toast({
-                title: '功能開發中',
-                description: '批量設定低信心度功能即將推出',
+                title: t('bulkActions.toast.comingSoonTitle'),
+                description: t('bulkActions.toast.lowConfidenceComingSoon'),
               });
             }}
           >
             <XCircle className="h-4 w-4 mr-2 text-red-500" />
-            設為低信心度
+            {t('bulkActions.setLowConfidence')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -411,7 +413,7 @@ export function BulkRuleActions({
             onClick={() => setShowDeleteConfirm(true)}
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            批量刪除
+            {t('bulkActions.bulkDelete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -420,14 +422,13 @@ export function BulkRuleActions({
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認刪除</AlertDialogTitle>
+            <AlertDialogTitle>{t('bulkActions.confirmDeleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              您確定要刪除選取的 {selectionCount} 條規則嗎？
-              此操作可以撤銷。
+              {t('bulkActions.confirmDeleteDesc', { count: selectionCount })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{t('bulkActions.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleBulkDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -437,7 +438,7 @@ export function BulkRuleActions({
               ) : (
                 <Trash2 className="h-4 w-4 mr-2" />
               )}
-              刪除
+              {t('bulkActions.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

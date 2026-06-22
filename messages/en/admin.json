@@ -482,6 +482,41 @@
       "healthy": "Healthy",
       "warning": "Warning",
       "critical": "Critical"
+    },
+    "healthStatus": {
+      "HEALTHY": "Healthy",
+      "DEGRADED": "Degraded",
+      "UNHEALTHY": "Unhealthy",
+      "UNKNOWN": "Unknown",
+      "UNCONFIGURED": "Unconfigured"
+    },
+    "dashboard": {
+      "overallStatus": "System Health: {status}",
+      "activeUsers": "{count} active users",
+      "availability": "{value}% availability (24h)",
+      "refresh": "Refresh",
+      "responseTime": "Response time: {value}ms",
+      "lastChecked": "Last checked: {value}",
+      "lastUpdated": "Last updated: {value}",
+      "serviceDetailsTitle": "{service} Service Details",
+      "responseTimeChart": "Response Time (24h)",
+      "responseTimeTooltip": "Response Time",
+      "noHistory": "No historical data yet",
+      "metricsTitle": "Performance Metrics",
+      "avgResponse": "Avg Response",
+      "maxResponse": "Max Response",
+      "minResponse": "Min Response",
+      "errorRate": "Error Rate",
+      "recentErrors": "Recent Errors",
+      "unknownError": "Unknown error",
+      "toast": {
+        "errorTitle": "Error",
+        "successTitle": "Success",
+        "loadHealthError": "Failed to load health status",
+        "checkComplete": "Health check complete",
+        "checkError": "Health check failed",
+        "loadDetailsError": "Failed to load service details"
+      }
     }
   },
   "logs": {
@@ -796,6 +831,134 @@
     "historyCard": {
       "title": "Alert History",
       "description": "View all alert records, acknowledge or resolve alerts"
+    },
+    "severity": {
+      "INFO": "Info",
+      "WARNING": "Warning",
+      "ERROR": "Error",
+      "CRITICAL": "Critical",
+      "EMERGENCY": "Emergency"
+    },
+    "conditionType": {
+      "SERVICE_DOWN": "Service Down",
+      "ERROR_RATE": "Error Rate",
+      "RESPONSE_TIME": "Response Time",
+      "QUEUE_BACKLOG": "Queue Backlog",
+      "STORAGE_LOW": "Low Storage",
+      "CPU_HIGH": "High CPU",
+      "MEMORY_HIGH": "High Memory",
+      "CUSTOM_METRIC": "Custom Metric"
+    },
+    "alertStatus": {
+      "FIRING": "Firing",
+      "ACTIVE": "Active",
+      "ACKNOWLEDGED": "Acknowledged",
+      "RESOLVED": "Resolved",
+      "RECOVERED": "Recovered",
+      "SUPPRESSED": "Suppressed"
+    },
+    "rules": {
+      "searchPlaceholder": "Search rules...",
+      "severityPlaceholder": "Severity",
+      "statusPlaceholder": "Status",
+      "filterAll": "All",
+      "statusEnabled": "Enabled",
+      "statusDisabled": "Disabled",
+      "create": "New Rule",
+      "paginationTotal": "{total} rules total",
+      "deleteTitle": "Confirm Deletion",
+      "deleteDescription": "Are you sure you want to delete this alert rule? This action cannot be undone.",
+      "table": {
+        "name": "Rule Name",
+        "conditionType": "Condition Type",
+        "threshold": "Threshold",
+        "severity": "Severity",
+        "channels": "Notification Channels",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "emptyTitle": "No alert rules configured yet",
+      "emptyHint": "Click the button above to create a new rule"
+    },
+    "history": {
+      "statusPlaceholder": "Status",
+      "severityPlaceholder": "Severity",
+      "filterAll": "All",
+      "empty": "No alert records yet",
+      "paginationTotal": "{total} records total",
+      "unknownRule": "Unknown Rule",
+      "table": {
+        "rule": "Rule",
+        "severity": "Severity",
+        "triggeredValue": "Triggered Value",
+        "status": "Status",
+        "triggeredAt": "Triggered At",
+        "actions": "Actions"
+      },
+      "detailTitle": "Alert Details",
+      "fields": {
+        "status": "Status",
+        "severity": "Severity",
+        "triggeredValue": "Triggered Value",
+        "threshold": "Threshold",
+        "triggeredAt": "Triggered At",
+        "recoveredAt": "Recovered At",
+        "details": "Details",
+        "resolution": "Resolution"
+      },
+      "resolveTitle": "Resolve Alert",
+      "resolveDescription": "Please enter a resolution note",
+      "resolvePlaceholder": "Describe how this alert was resolved...",
+      "resolveConfirm": "Confirm Resolution",
+      "processing": "Processing..."
+    },
+    "createDialog": {
+      "title": "Create Alert Rule",
+      "description": "Configure a new alert rule to monitor system metrics.",
+      "sectionCondition": "Condition Settings",
+      "sectionNotification": "Notification Settings",
+      "name": "Rule Name *",
+      "namePlaceholder": "e.g. API error rate too high",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional: describe the purpose of this rule",
+      "conditionType": "Condition Type *",
+      "conditionTypePlaceholder": "Select condition type",
+      "metric": "Metric Name *",
+      "metricPlaceholder": "e.g. error_rate",
+      "operator": "Operator *",
+      "operatorPlaceholder": "Select operator",
+      "threshold": "Threshold *",
+      "duration": "Duration (seconds) *",
+      "durationDescription": "How long the condition must persist before triggering an alert",
+      "serviceName": "Service Name",
+      "serviceNamePlaceholder": "Optional: specific service",
+      "severity": "Severity *",
+      "severityPlaceholder": "Select severity",
+      "cooldown": "Cooldown (minutes)",
+      "cooldownDescription": "Minimum interval between repeated alerts",
+      "channels": "Notification Channels *",
+      "recipients": "Recipients *",
+      "recipientsDescription": "Separate multiple recipients with commas",
+      "submitting": "Creating...",
+      "submit": "Create Rule",
+      "conditionOptions": {
+        "SERVICE_DOWN": "Service Down",
+        "ERROR_RATE": "Error Rate",
+        "RESPONSE_TIME": "Response Time",
+        "QUEUE_BACKLOG": "Queue Backlog",
+        "STORAGE_LOW": "Low Storage",
+        "CPU_HIGH": "High CPU Usage",
+        "MEMORY_HIGH": "High Memory Usage",
+        "CUSTOM_METRIC": "Custom Metric"
+      },
+      "operatorOptions": {
+        "GREATER_THAN": "Greater Than (>)",
+        "GREATER_THAN_EQ": "Greater Than or Equal (>=)",
+        "LESS_THAN": "Less Than (<)",
+        "LESS_THAN_EQ": "Less Than or Equal (<=)",
+        "EQUALS": "Equals (=)",
+        "NOT_EQUALS": "Not Equals (!=)"
+      }
     }
   },
   "apiKeys": {
@@ -838,6 +1001,58 @@
       "confirm": "Confirm Rotate",
       "rotating": "Rotating...",
       "saved": "I've saved it, close"
+    },
+    "table": {
+      "name": "Name",
+      "keyPrefix": "Key Prefix",
+      "permissions": "Permissions",
+      "rateLimit": "Rate Limit",
+      "usage": "Usage",
+      "lastUsed": "Last Used",
+      "status": "Status",
+      "cities": "Cities",
+      "operations": "Operations",
+      "allCities": "All Cities",
+      "allOperations": "All",
+      "neverUsed": "Never used",
+      "active": "Active",
+      "inactive": "Inactive",
+      "actionsMenu": "Actions menu",
+      "editSettings": "Edit Settings",
+      "viewStats": "View Statistics",
+      "rotateKey": "Rotate Key",
+      "delete": "Delete",
+      "emptyTitle": "No API Keys yet",
+      "emptyHint": "Create your first API Key to start using external APIs"
+    },
+    "createDialog": {
+      "successTitle": "API Key Created Successfully",
+      "successDescription": "Please copy and securely save this key immediately. It cannot be viewed again after closing.",
+      "importantTitle": "Important Reminder",
+      "importantDescription": "This is the only time you will see the complete API Key. Please make sure it is securely saved.",
+      "savedButton": "I've saved it, close",
+      "title": "Create API Key",
+      "description": "Create a new API Key for external systems to access the API.",
+      "name": "Name *",
+      "namePlaceholder": "e.g. External System API Key",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional: describe the purpose of this key",
+      "allowedCities": "Allowed Cities *",
+      "allCities": "All Cities",
+      "allowedOperations": "Allowed Operations *",
+      "rateLimit": "Rate Limit (requests per minute)",
+      "rateLimitDescription": "Defaults to 60 requests/minute",
+      "allowedIps": "IP Allowlist",
+      "allowedIpsPlaceholder": "Optional: separate multiple IPs with commas",
+      "allowedIpsDescription": "Leave blank to allow all IPs. e.g. 192.168.1.1, 10.0.0.1",
+      "submitting": "Creating...",
+      "submit": "Create API Key",
+      "operations": {
+        "submit": "Submit Invoice",
+        "query": "Query Status",
+        "result": "Get Result",
+        "webhook": "Webhook Management"
+      }
     }
   },
   "configManagement": {
@@ -868,6 +1083,22 @@
       "cancel": "Cancel",
       "confirm": "Confirm Reset",
       "resetting": "Resetting..."
+    },
+    "history": {
+      "title": "Configuration Change History",
+      "loading": "Loading history...",
+      "empty": "No change records yet",
+      "currentVersion": "Current Version",
+      "rollbackBadge": "Rollback",
+      "changedBy": "Changed by: {value}",
+      "reason": "Reason: {value}",
+      "rollbackToVersion": "Roll back to this version",
+      "before": "Before",
+      "after": "After",
+      "pagination": "Page {page} / {totalPages}, {total} records total",
+      "previous": "Previous",
+      "next": "Next",
+      "close": "Close"
     }
   },
   "logsViewer": {
@@ -914,6 +1145,93 @@
       "pageInfo": "Page {page}, Total {totalPages} pages",
       "previous": "Previous",
       "next": "Next"
+    },
+    "stream": {
+      "title": "Live Logs",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "filter": "Filter",
+      "levelLabel": "Log Level",
+      "sourceLabel": "Log Source",
+      "resume": "Resume",
+      "pause": "Pause",
+      "clear": "Clear",
+      "close": "Close",
+      "showingRecent": "Showing the latest {count} logs",
+      "autoScroll": "Auto-scroll",
+      "paused": "Stream paused",
+      "waiting": "Waiting for new logs..."
+    },
+    "detail": {
+      "title": "Log Details",
+      "loading": "Loading...",
+      "tabs": {
+        "details": "Basic Info",
+        "message": "Full Message",
+        "stack": "Error Stack",
+        "data": "Additional Data",
+        "related": "Related Logs"
+      },
+      "fields": {
+        "logId": "Log ID",
+        "timestamp": "Timestamp",
+        "source": "Source",
+        "correlationId": "Correlation ID",
+        "requestId": "Request ID",
+        "user": "User",
+        "className": "Class Name",
+        "methodName": "Method Name",
+        "endpoint": "API Endpoint",
+        "duration": "Execution Time",
+        "memoryUsage": "Memory Usage",
+        "ipAddress": "IP Address",
+        "userAgent": "User Agent"
+      },
+      "copied": "Copied",
+      "copiedDescription": "{label} copied to clipboard",
+      "noRelated": "No related logs found",
+      "relatedCorrelationId": "Correlation ID",
+      "current": "Current",
+      "notFound": "Log record not found"
+    },
+    "export": {
+      "title": "Export Logs",
+      "description": "Select an export format and time range, and the system will generate a downloadable file",
+      "formatLabel": "Export Format",
+      "formats": {
+        "csv": "CSV",
+        "csvDescription": "Suitable for Excel or spreadsheet applications",
+        "json": "JSON",
+        "jsonDescription": "Suitable for programmatic processing and data analysis",
+        "txt": "Plain Text",
+        "txtDescription": "Easy-to-read plain text format"
+      },
+      "timeRange": "Time Range",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "appliedFilters": "Filters Applied",
+      "filterLevel": "Level",
+      "filterSource": "Source",
+      "filterKeyword": "Keyword",
+      "exporting": "Exporting...",
+      "preparing": "Preparing...",
+      "processedRecords": "Processed {processed} / {total}",
+      "completed": "Export Complete",
+      "completedRecords": "{count} logs",
+      "failed": "Export Failed",
+      "unknownError": "An unknown error occurred",
+      "close": "Close",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "start": "Start Export",
+      "download": "Download File",
+      "retry": "Retry",
+      "toast": {
+        "created": "Export task created",
+        "createdDescription": "Processing the export request...",
+        "failed": "Export failed",
+        "failedDescription": "Unable to create export task"
+      }
     }
   },
   "restore": {
@@ -939,6 +1257,181 @@
     "list": {
       "title": "Restore Records",
       "description": "View all restore operation records"
+    },
+    "statuses": {
+      "PENDING": "Pending",
+      "VALIDATING": "Validating",
+      "PRE_BACKUP": "Backing Up",
+      "IN_PROGRESS": "In Progress",
+      "VERIFYING": "Verifying",
+      "COMPLETED": "Completed",
+      "FAILED": "Failed",
+      "CANCELLED": "Cancelled",
+      "ROLLED_BACK": "Rolled Back"
+    },
+    "statusDescriptions": {
+      "PENDING": "Restore job created, waiting to run",
+      "VALIDATING": "Verifying the integrity of the backup file",
+      "PRE_BACKUP": "Creating a safety backup before restoring",
+      "IN_PROGRESS": "Restore job is running",
+      "VERIFYING": "Verifying the restore results",
+      "COMPLETED": "Restore job completed successfully",
+      "FAILED": "Restore job failed",
+      "CANCELLED": "Restore job was cancelled",
+      "ROLLED_BACK": "Rolled back to the original state after restore failure"
+    },
+    "types": {
+      "FULL": "Full Restore",
+      "PARTIAL": "Partial Restore",
+      "DRILL": "Restore Drill",
+      "POINT_IN_TIME": "Point-in-Time Restore"
+    },
+    "typeDescriptions": {
+      "FULL": "Completely replace all existing data, restoring to the full state at backup time",
+      "PARTIAL": "Restore only selected tables or files, preserving other existing data",
+      "DRILL": "Test the restore process in an isolated environment without affecting production data",
+      "POINT_IN_TIME": "Restore to a specified point-in-time state"
+    },
+    "scopes": {
+      "DATABASE": "Database",
+      "FILES": "Files",
+      "CONFIG": "System Settings",
+      "ALL": "All"
+    },
+    "scopeDescriptions": {
+      "DATABASE": "Restore all tables and records in the database",
+      "FILES": "Restore uploaded files and attachments",
+      "CONFIG": "Restore system configuration and settings",
+      "ALL": "Restore all data, including database, files, and settings"
+    },
+    "listView": {
+      "statusFilter": "Filter by Status",
+      "typeFilter": "Filter by Type",
+      "allStatuses": "All Statuses",
+      "allTypes": "All Types",
+      "refresh": "Refresh",
+      "columns": {
+        "status": "Status",
+        "type": "Type",
+        "backupSource": "Backup Source",
+        "startedAt": "Started At",
+        "completedAt": "Completed At",
+        "progress": "Progress",
+        "actions": "Actions"
+      },
+      "loading": "Loading...",
+      "empty": "No restore records yet",
+      "viewDetails": "View Details",
+      "cancelRestore": "Cancel Restore",
+      "cancelDialog": {
+        "title": "Confirm cancel restore operation?",
+        "description": "This will cancel the restore task that is waiting to run. Completed steps will not be affected.",
+        "back": "Back",
+        "cancelling": "Cancelling...",
+        "confirm": "Confirm Cancel"
+      }
+    },
+    "dialog": {
+      "title": "Start Data Restore",
+      "steps": {
+        "backup": "Select Backup",
+        "backupDescription": "Choose the backup to restore",
+        "config": "Configure Options",
+        "configDescription": "Set the restore type and scope",
+        "preview": "Preview & Confirm",
+        "previewDescription": "Confirm the restore content",
+        "confirm": "Final Confirmation",
+        "confirmDescription": "Enter the confirmation text"
+      },
+      "step0": {
+        "intro": "Select the backup to restore from. Only completed backups are available.",
+        "loading": "Loading backup list...",
+        "emptyTitle": "No backups available",
+        "emptyDescription": "There are no completed backups available for restore. Please create a backup first.",
+        "backupFallback": "Backup {id}"
+      },
+      "step1": {
+        "typeLabel": "Restore Type",
+        "scopeLabel": "Restore Scope",
+        "drillName": "Drill Name",
+        "drillNamePlaceholder": "e.g. Q4 disaster recovery drill",
+        "drillNameHint": "Name this drill for easier identification later"
+      },
+      "step2": {
+        "loading": "Loading backup content...",
+        "backupType": "Backup Type",
+        "backupTime": "Backup Time",
+        "contentLabel": "Backup Content",
+        "databaseTables": "Database Tables",
+        "countUnit": "{count}",
+        "moreTables": "+{count} more",
+        "files": "Files",
+        "moreFiles": "+{count} more files",
+        "configLabel": "Restore Configuration",
+        "configType": "Restore type: {value}",
+        "configScope": "Restore scope: {value}",
+        "configDrillName": "Drill name: {value}",
+        "errorTitle": "Unable to load backup content",
+        "errorDescription": "Please confirm the backup status is normal and try again."
+      },
+      "step3": {
+        "warningTitle": "⚠️ Warning: This is a destructive operation",
+        "drillWarning": "The restore drill runs in an isolated environment and will not affect production data.",
+        "fullWarning": "This operation will overwrite existing data. The system automatically creates a pre-restore backup, but you should still confirm you understand the impact.",
+        "summaryBackup": "Backup source: {value}",
+        "summaryType": "Restore type: {value}",
+        "summaryScope": "Restore scope: {value}",
+        "confirmPrompt": "Enter <code>{text}</code> to confirm",
+        "confirmError": "Please enter \"{text}\""
+      },
+      "back": "Previous",
+      "next": "Next",
+      "starting": "Starting...",
+      "confirmStart": "Confirm Start Restore"
+    },
+    "detailDialog": {
+      "title": "Restore Operation Details",
+      "description": "View the details and progress of the restore operation",
+      "loading": "Loading...",
+      "notFound": "Restore record not found",
+      "tabs": {
+        "details": "Details",
+        "logs": "Logs"
+      },
+      "statusTitle": "Restore Status",
+      "refresh": "Refresh",
+      "progress": "Restore Progress",
+      "failedTitle": "Restore Failed",
+      "restoreType": "Restore Type",
+      "restoreScope": "Restore Scope",
+      "backupSource": "Backup Source",
+      "operator": "Operator",
+      "startedAt": "Started At",
+      "completedAt": "Completed At",
+      "preBackupCreated": "Pre-restore backup created",
+      "logsTitle": "Restore Logs",
+      "liveUpdating": "Live updating",
+      "logCount": "{count} records",
+      "logsLoading": "Loading logs...",
+      "logsEmpty": "No log records yet",
+      "cancelRestore": "Cancel Restore",
+      "rollbackRestore": "Rollback Restore",
+      "close": "Close",
+      "cancelDialog": {
+        "title": "Confirm cancel restore operation?",
+        "description": "This will cancel the restore task that is waiting to run. If the restore has already started, it may not be fully cancelled.",
+        "back": "Back",
+        "cancelling": "Cancelling...",
+        "confirm": "Confirm Cancel"
+      },
+      "rollbackDialog": {
+        "title": "Confirm rollback restore operation?",
+        "description": "This will use the pre-restore backup to roll the system back to the state before the restore operation. This is a destructive operation, please confirm carefully.",
+        "confirmPrompt": "Enter <code>ROLLBACK-CONFIRM</code> to confirm",
+        "back": "Back",
+        "rollingBack": "Rolling back...",
+        "confirm": "Confirm Rollback"
+      }
     }
   }
 }

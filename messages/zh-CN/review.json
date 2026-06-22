@@ -49,7 +49,11 @@
     "unsavedChanges": "未保存的变更",
     "unsavedChangesDesc": "您有尚未保存的变更。离开此页面将会丢失这些变更。确定要离开吗？",
     "continueEditing": "继续编辑",
-    "discardChanges": "放弃变更"
+    "discardChanges": "放弃变更",
+    "pendingCorrections": "您有 {count} 个未保存的字段修正。",
+    "changesWillBeLost": "如果离开此页面，这些修正将会丢失。",
+    "saving": "保存中...",
+    "saveAndLeave": "保存并离开"
   },
   "empty": {
     "title": "没有待审核的文件",
@@ -187,7 +191,8 @@
     "saveWithKey": "保存 (Enter)",
     "cancel": "取消",
     "cancelWithKey": "取消 (Escape)",
-    "emptyValue": "（空）"
+    "emptyValue": "（空）",
+    "formatCorrect": "格式正确"
   },
   "correctionType": {
     "dialogTitle": "保存修正 - 选择修正类型",

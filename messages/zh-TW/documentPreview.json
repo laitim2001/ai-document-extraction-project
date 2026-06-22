@@ -5,7 +5,10 @@
       "gptVision": "GPT Vision",
       "manual": "手動輸入",
       "mapping": "映射規則"
-    }
+    },
+    "notExtracted": "未提取",
+    "edited": "已修改",
+    "originalValue": "（原值：{value}）"
   },
   "lineItems": {
     "title": "行項目",
@@ -134,12 +137,39 @@
       "zoomOut": "縮小",
       "resetZoom": "重置縮放 (100%)",
       "fitWidth": "適合寬度"
+    },
+    "overlay": {
+      "confidenceLabel": "信心度 {confidence}%"
     }
+  },
+  "loading": {
+    "document": "載入文件中...",
+    "viewer": "載入預覽器中...",
+    "page": "載入頁面中..."
   },
   "error": {
     "title": "錯誤",
     "loading": "載入文件失敗",
-    "retry": "重試"
+    "retry": "重試",
+    "documentLoadFailed": "無法載入 PDF 文件",
+    "types": {
+      "network": {
+        "title": "網路錯誤",
+        "description": "無法載入文件，請檢查網路連線後重試。"
+      },
+      "corrupted": {
+        "title": "文件損壞",
+        "description": "此 PDF 文件可能已損壞或格式不正確。"
+      },
+      "encrypted": {
+        "title": "文件已加密",
+        "description": "此 PDF 文件已加密，無法直接開啟。"
+      },
+      "generic": {
+        "title": "載入失敗",
+        "description": "無法載入 PDF 文件，請稍後重試。"
+      }
+    }
   },
   "mappingConfigPanel": {
     "title": "欄位映射配置",
@@ -179,7 +209,12 @@
     "dragHint": "拖動調整優先級，數字越小優先級越高",
     "addRule": "新增規則",
     "rulesCount": "共 {count} 條規則",
-    "disabledCount": "（{count} 條已停用）"
+    "disabledCount": "（{count} 條已停用）",
+    "noSourceFields": "(無來源欄位)",
+    "enableRule": "啟用規則",
+    "disableRule": "停用規則",
+    "editRule": "編輯規則",
+    "deleteRule": "刪除規則"
   },
   "mappingPreview": {
     "title": "預覽結果",

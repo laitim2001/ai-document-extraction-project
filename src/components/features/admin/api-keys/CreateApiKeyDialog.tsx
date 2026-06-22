@@ -21,6 +21,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -74,12 +75,7 @@ interface CreateApiKeyDialogProps {
   availableCities?: { code: string; name: string }[];
 }
 
-const DEFAULT_OPERATIONS = [
-  { value: 'submit', label: '提交發票' },
-  { value: 'query', label: '查詢狀態' },
-  { value: 'result', label: '獲取結果' },
-  { value: 'webhook', label: 'Webhook 管理' },
-];
+const DEFAULT_OPERATION_VALUES = ['submit', 'query', 'result', 'webhook'] as const;
 
 // ============================================================
 // Component
@@ -97,6 +93,8 @@ export function CreateApiKeyDialog({
   onSuccess,
   availableCities = [],
 }: CreateApiKeyDialogProps) {
+  const t = useTranslations('admin.apiKeys.createDialog');
+  const tCommon = useTranslations('common');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [createdKey, setCreatedKey] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
@@ -167,17 +165,17 @@ export function CreateApiKeyDialog({
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>API Key 創建成功</DialogTitle>
+            <DialogTitle>{t('successTitle')}</DialogTitle>
             <DialogDescription>
-              請立即複製並安全保存此 Key，關閉後將無法再次查看。
+              {t('successDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>重要提醒</AlertTitle>
+            <AlertTitle>{t('importantTitle')}</AlertTitle>
             <AlertDescription>
-              這是您唯一一次看到完整 API Key 的機會。請確保已安全保存。
+              {t('importantDescription')}
             </AlertDescription>
           </Alert>
 
@@ -193,7 +191,7 @@ export function CreateApiKeyDialog({
           </div>
 
           <DialogFooter>
-            <Button onClick={handleClose}>我已保存，關閉</Button>
+            <Button onClick={handleClose}>{t('savedButton')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -204,9 +202,9 @@ export function CreateApiKeyDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>創建 API Key</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            創建新的 API Key 以供外部系統存取 API。
+            {t('description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -218,9 +216,9 @@ export function CreateApiKeyDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>名稱 *</FormLabel>
+                  <FormLabel>{t('name')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="例如：外部系統 API Key" {...field} />
+                    <Input placeholder={t('namePlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -233,10 +231,10 @@ export function CreateApiKeyDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>描述</FormLabel>
+                  <FormLabel>{t('descriptionLabel')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="選填：描述此 Key 的用途"
+                      placeholder={t('descriptionPlaceholder')}
                       {...field}
                     />
                   </FormControl>
@@ -251,7 +249,7 @@ export function CreateApiKeyDialog({
               name="allowedCities"
               render={() => (
                 <FormItem>
-                  <FormLabel>允許的城市 *</FormLabel>
+                  <FormLabel>{t('allowedCities')}</FormLabel>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="flex items-center space-x-2">
                       <Checkbox
@@ -266,7 +264,7 @@ export function CreateApiKeyDialog({
                         }}
                       />
                       <label htmlFor="city-all" className="text-sm">
-                        全部城市
+                        {t('allCities')}
                       </label>
                     </div>
                     {availableCities.map((city) => (
@@ -304,27 +302,27 @@ export function CreateApiKeyDialog({
               name="allowedOperations"
               render={() => (
                 <FormItem>
-                  <FormLabel>允許的操作 *</FormLabel>
+                  <FormLabel>{t('allowedOperations')}</FormLabel>
                   <div className="grid grid-cols-2 gap-2">
-                    {DEFAULT_OPERATIONS.map((op) => (
-                      <div key={op.value} className="flex items-center space-x-2">
+                    {DEFAULT_OPERATION_VALUES.map((value) => (
+                      <div key={value} className="flex items-center space-x-2">
                         <Checkbox
-                          id={`op-${op.value}`}
-                          checked={form.watch('allowedOperations').includes(op.value)}
+                          id={`op-${value}`}
+                          checked={form.watch('allowedOperations').includes(value)}
                           onCheckedChange={(checked) => {
                             const current = form.getValues('allowedOperations');
                             if (checked) {
-                              form.setValue('allowedOperations', [...current, op.value]);
+                              form.setValue('allowedOperations', [...current, value]);
                             } else {
                               form.setValue(
                                 'allowedOperations',
-                                current.filter((o) => o !== op.value)
+                                current.filter((o) => o !== value)
                               );
                             }
                           }}
                         />
-                        <label htmlFor={`op-${op.value}`} className="text-sm">
-                          {op.label}
+                        <label htmlFor={`op-${value}`} className="text-sm">
+                          {t(`operations.${value}`)}
                         </label>
                       </div>
                     ))}
@@ -340,7 +338,7 @@ export function CreateApiKeyDialog({
               name="rateLimit"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>速率限制（每分鐘請求數）</FormLabel>
+                  <FormLabel>{t('rateLimit')}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -350,7 +348,7 @@ export function CreateApiKeyDialog({
                       onChange={(e) => field.onChange(e.target.valueAsNumber || 60)}
                     />
                   </FormControl>
-                  <FormDescription>預設為 60 次/分鐘</FormDescription>
+                  <FormDescription>{t('rateLimitDescription')}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -362,15 +360,15 @@ export function CreateApiKeyDialog({
               name="allowedIps"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>IP 白名單</FormLabel>
+                  <FormLabel>{t('allowedIps')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="選填：以逗號分隔多個 IP"
+                      placeholder={t('allowedIpsPlaceholder')}
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    留空表示不限制 IP。例如：192.168.1.1, 10.0.0.1
+                    {t('allowedIpsDescription')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -383,10 +381,10 @@ export function CreateApiKeyDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                取消
+                {tCommon('actions.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? '創建中...' : '創建 API Key'}
+                {isSubmitting ? t('submitting') : t('submit')}
               </Button>
             </DialogFooter>
           </form>

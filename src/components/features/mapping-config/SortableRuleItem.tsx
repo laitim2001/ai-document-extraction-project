@@ -25,6 +25,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Pencil, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
@@ -40,7 +41,6 @@ import {
 import {
   type VisualMappingRule,
   type TransformType,
-  TRANSFORM_TYPE_OPTIONS,
 } from '@/types/field-mapping';
 import { cn } from '@/lib/utils';
 
@@ -69,14 +69,6 @@ export interface SortableRuleItemProps {
 // ============================================================
 
 /**
- * 獲取轉換類型的顯示標籤
- */
-function getTransformTypeLabel(type: TransformType): string {
-  const option = TRANSFORM_TYPE_OPTIONS.find((opt) => opt.value === type);
-  return option?.label ?? type;
-}
-
-/**
  * 獲取轉換類型的徽章顏色
  */
 function getTransformTypeBadgeVariant(
@@ -100,9 +92,10 @@ function getTransformTypeBadgeVariant(
 
 /**
  * 格式化來源欄位顯示
+ * @param emptyLabel - 無來源欄位時的顯示文字（i18n）
  */
-function formatSourceFields(fields: string[]): string {
-  if (fields.length === 0) return '(無來源欄位)';
+function formatSourceFields(fields: string[], emptyLabel: string): string {
+  if (fields.length === 0) return emptyLabel;
   if (fields.length === 1) return fields[0];
   if (fields.length <= 3) return fields.join(' + ');
   return `${fields.slice(0, 2).join(' + ')} +${fields.length - 2}`;
@@ -137,6 +130,9 @@ export function SortableRuleItem({
   onToggleActive,
   disabled = false,
 }: SortableRuleItemProps) {
+  // --- i18n ---
+  const t = useTranslations('documentPreview');
+
   // --- Sortable Setup ---
   const {
     attributes,
@@ -200,7 +196,10 @@ export function SortableRuleItem({
           {/* 主要映射資訊 */}
           <div className="flex items-center gap-2 text-sm">
             <span className="font-medium">
-              {formatSourceFields(rule.sourceFields)}
+              {formatSourceFields(
+                rule.sourceFields,
+                t('mappingRuleList.noSourceFields')
+              )}
             </span>
             <span className="text-muted-foreground">→</span>
             <span className="font-medium">{rule.targetField}</span>
@@ -209,7 +208,9 @@ export function SortableRuleItem({
           {/* 轉換類型和描述 */}
           <div className="flex items-center gap-2">
             <Badge variant={getTransformTypeBadgeVariant(rule.transformType)}>
-              {getTransformTypeLabel(rule.transformType)}
+              {t.has(`ruleEditor.transformTypes.${rule.transformType}.label`)
+                ? t(`ruleEditor.transformTypes.${rule.transformType}.label` as 'ruleEditor.transformTypes.DIRECT.label')
+                : rule.transformType}
             </Badge>
             {rule.description && (
               <span className="text-xs text-muted-foreground">
@@ -240,7 +241,9 @@ export function SortableRuleItem({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                {rule.isActive ? '停用規則' : '啟用規則'}
+                {rule.isActive
+                  ? t('mappingRuleList.disableRule')
+                  : t('mappingRuleList.enableRule')}
               </TooltipContent>
             </Tooltip>
 
@@ -257,7 +260,7 @@ export function SortableRuleItem({
                   <Pencil className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>編輯規則</TooltipContent>
+              <TooltipContent>{t('mappingRuleList.editRule')}</TooltipContent>
             </Tooltip>
 
             {/* 刪除 */}
@@ -273,7 +276,7 @@ export function SortableRuleItem({
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>刪除規則</TooltipContent>
+              <TooltipContent>{t('mappingRuleList.deleteRule')}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>

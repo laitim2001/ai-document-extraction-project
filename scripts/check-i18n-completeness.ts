@@ -85,6 +85,12 @@ const LOCALE_SYNC_CHECKS: LocaleSyncCheck[] = [
   { i18nFile: 'formats.json', keyPrefix: 'formatAnalysis', description: 'CHANGE-089 格式分析模組' },
   { i18nFile: 'rules.json', keyPrefix: 'ruleReview', description: 'CHANGE-089 規則建議審核' },
   { i18nFile: 'rules.json', keyPrefix: 'ruleVersion', description: 'CHANGE-089 規則版本' },
+  // CHANGE-089 Batch B–D（波 1）：既有 namespace 大量新增分散子樹，改以整檔三語言同步治理
+  { i18nFile: 'admin.json', keyPrefix: '', description: 'CHANGE-089 Batch B admin 模組（整檔）' },
+  { i18nFile: 'review.json', keyPrefix: '', description: 'CHANGE-089 Batch C review 模組（整檔）' },
+  { i18nFile: 'rules.json', keyPrefix: '', description: 'CHANGE-089 Batch C rules 模組（整檔）' },
+  { i18nFile: 'historicalData.json', keyPrefix: '', description: 'CHANGE-089 Batch D historicalData 模組（整檔）' },
+  { i18nFile: 'documentPreview.json', keyPrefix: '', description: 'CHANGE-089 Batch D documentPreview 模組（整檔）' },
 ];
 
 // ============================================================

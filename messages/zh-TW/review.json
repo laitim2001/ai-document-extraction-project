@@ -49,7 +49,11 @@
     "unsavedChanges": "未儲存的變更",
     "unsavedChangesDesc": "您有尚未儲存的變更。離開此頁面將會遺失這些變更。確定要離開嗎？",
     "continueEditing": "繼續編輯",
-    "discardChanges": "捨棄變更"
+    "discardChanges": "捨棄變更",
+    "pendingCorrections": "您有 {count} 個未儲存的欄位修正。",
+    "changesWillBeLost": "如果離開此頁面，這些修正將會遺失。",
+    "saving": "儲存中...",
+    "saveAndLeave": "儲存並離開"
   },
   "empty": {
     "title": "沒有待審核的文件",
@@ -187,7 +191,8 @@
     "saveWithKey": "儲存 (Enter)",
     "cancel": "取消",
     "cancelWithKey": "取消 (Escape)",
-    "emptyValue": "（空）"
+    "emptyValue": "（空）",
+    "formatCorrect": "格式正確"
   },
   "correctionType": {
     "dialogTitle": "儲存修正 - 選擇修正類型",

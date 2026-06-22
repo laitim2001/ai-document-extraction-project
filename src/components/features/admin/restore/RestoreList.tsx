@@ -14,6 +14,7 @@
  */
 
 import { useState, useCallback, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { formatDistanceToNow } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import { Eye, XCircle, RotateCcw, Loader2 } from 'lucide-react'
@@ -69,6 +70,8 @@ interface RestoreListProps {
  * 恢復記錄列表組件
  */
 export function RestoreList({ onViewDetails }: RestoreListProps) {
+  const t = useTranslations('admin.restore')
+
   // --- State ---
   const [page, setPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState<RestoreStatus | 'all'>('all')
@@ -125,7 +128,7 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
 
     return (
       <Badge variant={variantMap[info.variant] || 'outline'}>
-        {info.label}
+        {t.has(`statuses.${status}`) ? t(`statuses.${status}`) : info.label}
       </Badge>
     )
   }
@@ -135,7 +138,7 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
     return (
       <Badge variant="outline">
         <span className="mr-1">{info.icon}</span>
-        {info.label}
+        {t.has(`types.${type}`) ? t(`types.${type}`) : info.label}
       </Badge>
     )
   }
@@ -155,33 +158,33 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
     () => [
       {
         id: 'status',
-        header: '狀態',
+        header: t('listView.columns.status'),
         cell: (record) => renderStatusBadge(record.status),
       },
       {
         id: 'type',
-        header: '類型',
+        header: t('listView.columns.type'),
         cell: (record) => renderTypeBadge(record.type),
       },
       {
         id: 'backupSource',
-        header: '備份來源',
+        header: t('listView.columns.backupSource'),
         cellClassName: 'max-w-[200px] truncate',
         cell: (record) => record.backupName || record.backupId,
       },
       {
         id: 'startedAt',
-        header: '開始時間',
+        header: t('listView.columns.startedAt'),
         cell: (record) => formatDate(record.startedAt),
       },
       {
         id: 'completedAt',
-        header: '完成時間',
+        header: t('listView.columns.completedAt'),
         cell: (record) => formatDate(record.completedAt),
       },
       {
         id: 'progress',
-        header: '進度',
+        header: t('listView.columns.progress'),
         cell: (record) =>
           record.progress !== null && record.progress !== undefined ? (
             <div className="flex items-center gap-2">
@@ -201,7 +204,7 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
       },
       {
         id: 'actions',
-        header: '操作',
+        header: t('listView.columns.actions'),
         headerClassName: 'text-right',
         cellClassName: 'text-right',
         cell: (record) => (
@@ -210,7 +213,7 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
               variant="ghost"
               size="icon"
               onClick={() => onViewDetails?.(record)}
-              title="查看詳情"
+              title={t('listView.viewDetails')}
             >
               <Eye className="h-4 w-4" />
             </Button>
@@ -219,7 +222,7 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
                 variant="ghost"
                 size="icon"
                 onClick={() => handleCancelClick(record.id)}
-                title="取消恢復"
+                title={t('listView.cancelRestore')}
                 disabled={cancelMutation.isPending}
               >
                 <XCircle className="h-4 w-4 text-destructive" />
@@ -230,7 +233,7 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [onViewDetails, handleCancelClick, cancelMutation.isPending]
+    [onViewDetails, handleCancelClick, cancelMutation.isPending, t]
   )
 
   return (
@@ -245,19 +248,19 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
           }}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="狀態篩選" />
+            <SelectValue placeholder={t('listView.statusFilter')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">所有狀態</SelectItem>
-            <SelectItem value="PENDING">等待執行</SelectItem>
-            <SelectItem value="VALIDATING">驗證中</SelectItem>
-            <SelectItem value="PRE_BACKUP">預備份中</SelectItem>
-            <SelectItem value="IN_PROGRESS">執行中</SelectItem>
-            <SelectItem value="VERIFYING">驗證結果中</SelectItem>
-            <SelectItem value="COMPLETED">已完成</SelectItem>
-            <SelectItem value="FAILED">失敗</SelectItem>
-            <SelectItem value="CANCELLED">已取消</SelectItem>
-            <SelectItem value="ROLLED_BACK">已回滾</SelectItem>
+            <SelectItem value="all">{t('listView.allStatuses')}</SelectItem>
+            <SelectItem value="PENDING">{t('statuses.PENDING')}</SelectItem>
+            <SelectItem value="VALIDATING">{t('statuses.VALIDATING')}</SelectItem>
+            <SelectItem value="PRE_BACKUP">{t('statuses.PRE_BACKUP')}</SelectItem>
+            <SelectItem value="IN_PROGRESS">{t('statuses.IN_PROGRESS')}</SelectItem>
+            <SelectItem value="VERIFYING">{t('statuses.VERIFYING')}</SelectItem>
+            <SelectItem value="COMPLETED">{t('statuses.COMPLETED')}</SelectItem>
+            <SelectItem value="FAILED">{t('statuses.FAILED')}</SelectItem>
+            <SelectItem value="CANCELLED">{t('statuses.CANCELLED')}</SelectItem>
+            <SelectItem value="ROLLED_BACK">{t('statuses.ROLLED_BACK')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -269,20 +272,20 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
           }}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="類型篩選" />
+            <SelectValue placeholder={t('listView.typeFilter')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">所有類型</SelectItem>
-            <SelectItem value="FULL">完整恢復</SelectItem>
-            <SelectItem value="PARTIAL">部分恢復</SelectItem>
-            <SelectItem value="DRILL">恢復演練</SelectItem>
-            <SelectItem value="POINT_IN_TIME">時間點恢復</SelectItem>
+            <SelectItem value="all">{t('listView.allTypes')}</SelectItem>
+            <SelectItem value="FULL">{t('types.FULL')}</SelectItem>
+            <SelectItem value="PARTIAL">{t('types.PARTIAL')}</SelectItem>
+            <SelectItem value="DRILL">{t('types.DRILL')}</SelectItem>
+            <SelectItem value="POINT_IN_TIME">{t('types.POINT_IN_TIME')}</SelectItem>
           </SelectContent>
         </Select>
 
         <Button variant="outline" size="sm" onClick={() => refetch()}>
           <RotateCcw className="h-4 w-4 mr-2" />
-          重新整理
+          {t('listView.refresh')}
         </Button>
       </div>
 
@@ -293,20 +296,20 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[60px]"></TableHead>
-                <TableHead>狀態</TableHead>
-                <TableHead>類型</TableHead>
-                <TableHead>備份來源</TableHead>
-                <TableHead>開始時間</TableHead>
-                <TableHead>完成時間</TableHead>
-                <TableHead>進度</TableHead>
-                <TableHead className="text-right">操作</TableHead>
+                <TableHead>{t('listView.columns.status')}</TableHead>
+                <TableHead>{t('listView.columns.type')}</TableHead>
+                <TableHead>{t('listView.columns.backupSource')}</TableHead>
+                <TableHead>{t('listView.columns.startedAt')}</TableHead>
+                <TableHead>{t('listView.columns.completedAt')}</TableHead>
+                <TableHead>{t('listView.columns.progress')}</TableHead>
+                <TableHead className="text-right">{t('listView.columns.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
                 <TableCell colSpan={8} className="h-24 text-center">
                   <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                  <p className="mt-2 text-sm text-muted-foreground">載入中...</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{t('listView.loading')}</p>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -318,7 +321,7 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
             getRowId={(record) => record.id}
             page={page}
             pageSize={limit}
-            emptyState="暫無恢復記錄"
+            emptyState={t('listView.empty')}
           />
         )}
       </div>
@@ -336,13 +339,13 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
       <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認取消恢復操作？</AlertDialogTitle>
+            <AlertDialogTitle>{t('listView.cancelDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              此操作將取消正在等待執行的恢復任務，已完成的步驟不會受到影響。
+              {t('listView.cancelDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>返回</AlertDialogCancel>
+            <AlertDialogCancel>{t('listView.cancelDialog.back')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancelConfirm}
               disabled={cancelMutation.isPending}
@@ -351,10 +354,10 @@ export function RestoreList({ onViewDetails }: RestoreListProps) {
               {cancelMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  取消中...
+                  {t('listView.cancelDialog.cancelling')}
                 </>
               ) : (
-                '確認取消'
+                t('listView.cancelDialog.confirm')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -13,6 +13,7 @@
 
 import * as React from 'react';
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -126,6 +127,8 @@ function StreamLogItem({
  * @description 即時日誌串流面板
  */
 export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
+  const t = useTranslations('admin.logsViewer.stream');
+
   // --- State ---
   const [isPaused, setIsPaused] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -173,7 +176,7 @@ export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <CardTitle className="text-lg">即時日誌</CardTitle>
+            <CardTitle className="text-lg">{t('title')}</CardTitle>
             <div className="flex items-center gap-1.5">
               <Circle
                 className={cn(
@@ -182,7 +185,7 @@ export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
                 )}
               />
               <span className="text-xs text-muted-foreground">
-                {isConnected ? '已連線' : '未連線'}
+                {isConnected ? t('connected') : t('disconnected')}
               </span>
             </div>
             {error && (
@@ -197,7 +200,7 @@ export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1">
                   <Filter className="h-3 w-3" />
-                  篩選
+                  {t('filter')}
                   {(selectedLevels.length > 0 || selectedSources.length > 0) && (
                     <Badge variant="secondary" className="ml-1 h-4 text-[10px]">
                       {selectedLevels.length + selectedSources.length}
@@ -206,7 +209,7 @@ export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel>日誌級別</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('levelLabel')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {LOG_LEVELS.map((level) => (
                   <DropdownMenuCheckboxItem
@@ -218,7 +221,7 @@ export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
                   </DropdownMenuCheckboxItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel>日誌來源</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('sourceLabel')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {LOG_SOURCES.map((source) => (
                   <DropdownMenuCheckboxItem
@@ -237,7 +240,7 @@ export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
               variant="outline"
               size="sm"
               onClick={() => setIsPaused(!isPaused)}
-              title={isPaused ? '繼續' : '暫停'}
+              title={isPaused ? t('resume') : t('pause')}
             >
               {isPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
             </Button>
@@ -245,7 +248,7 @@ export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
               variant="outline"
               size="sm"
               onClick={clearLogs}
-              title="清除"
+              title={t('clear')}
             >
               <Trash2 className="h-3 w-3" />
             </Button>
@@ -253,14 +256,14 @@ export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
               variant="ghost"
               size="sm"
               onClick={onClose}
-              title="關閉"
+              title={t('close')}
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
         <CardDescription className="flex items-center justify-between">
-          <span>顯示最近 {logs.length} 筆日誌</span>
+          <span>{t('showingRecent', { count: logs.length })}</span>
           <div className="flex items-center gap-2">
             <Switch
               id="auto-scroll"
@@ -268,7 +271,7 @@ export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
               onCheckedChange={setAutoScroll}
             />
             <Label htmlFor="auto-scroll" className="text-xs cursor-pointer">
-              自動捲動
+              {t('autoScroll')}
             </Label>
           </div>
         </CardDescription>
@@ -278,7 +281,7 @@ export function LogStreamPanel({ onClose, onSelectLog }: LogStreamPanelProps) {
           <div className="p-2 space-y-0.5">
             {logs.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground text-sm">
-                {isPaused ? '串流已暫停' : '等待新的日誌...'}
+                {isPaused ? t('paused') : t('waiting')}
               </div>
             ) : (
               logs.map((log) => (

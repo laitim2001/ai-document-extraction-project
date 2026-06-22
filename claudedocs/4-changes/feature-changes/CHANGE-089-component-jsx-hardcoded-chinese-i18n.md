@@ -1,7 +1,7 @@
 # CHANGE-089: 全站組件級 JSX 硬編碼中文系統性 i18n 化（86 組件，分批推進）
 
 > **日期**: 2026-06-22
-> **狀態**: 🚧 進行中（**Batch A pilot 已完成 ✅** 2026-06-22；Batch B–F 待續）
+> **狀態**: 🚧 進行中（**Batch A pilot ✅ + Batch B/C/D（波 1）✅** 2026-06-22；Batch E/F 待續）
 > **優先級**: 中
 > **類型**: Feature（i18n 修正）
 > **影響範圍**: `src/components/**/*.tsx` 約 86 個組件的 JSX/屬性/toast 硬編碼中文 + 對應 namespace JSON（3 語言）+ 新增 namespace（註冊 `src/i18n/request.ts`）
@@ -98,9 +98,9 @@
 | 批次 | 範圍 | 組件數 | namespace | 並行性 | 狀態 |
 |------|------|--------|-----------|--------|------|
 | **Batch A（pilot）** | 完全未 i18n 的 10 個小模組 | 36 | confidence/formats/rules（既有補 key）+ 新增 documentSource/dataRetention/integrations/changeHistory/ruleSimulation | 子批按 namespace 切，不同 namespace 可並行 | ✅ 完成（2026-06-22，677 leaf key×3，見實作記錄） |
-| Batch B | `admin` 未 i18n（15 檔，按功能分子批） | 15 | `admin` | 同 namespace JSON → 子批序列或拆 key 區段 | ⏳ |
-| Batch C | `review`(5) + `rules`(8, D6 再評估) | 13 | review/rules | review 與 rules 不同 JSON 可並行 | ⏳ |
-| Batch D | `historical-data`(5) + `document-preview`(5) 殘留 | 10 | historicalData/documentPreview | 可並行 | ⏳ |
+| Batch B（波 1） | `admin` 殘留 | 14 | `admin`（整檔 996） | 單 agent 獨佔 admin.json | ✅ 完成 2026-06-22 |
+| Batch C（波 1） | `review`(3) + `rules`(11) | 14 | review/rules | 不同 JSON 並行 | ✅ 完成 2026-06-22 |
+| Batch D（波 1） | `historical-data`(5) + `document-preview`+`mapping-config`(7) | 12 | historicalData/documentPreview | 並行 | ✅ 完成 2026-06-22 |
 | Batch E | `formats`/`mapping-config`/`forwarders`/`escalation`/`audit` 殘留 | ~8 | 各對應 | 可並行 | ⏳ |
 | Batch F | 非 `features` 目錄（dashboard/layout/filters/...） | ~16 | dashboard/common/navigation | 注意共用 namespace JSON 衝突 | ⏳ |
 
@@ -215,4 +215,43 @@ Batch A（完全未 i18n 的 10 個小模組，36 組件）已完成。範本 `d
 
 ---
 
-*規劃文件建立：2026-06-22（承接 CHANGE-088 §範圍邊界與後續）；Batch A 實作完成：2026-06-22*
+## 波 1 實作記錄（Batch B/C/D，2026-06-22）
+
+波 1 處理「部分未 i18n」的既有 namespace 殘留，以 **5 個並行 `code-implementer` agent**（一 namespace 一 agent，零 JSON 衝突）實作。主 session 統一驗證 + 治理 + commit（agent 內不執行 git）。
+
+### 各 agent 成果
+
+| Agent | 模組 | 改組件 | namespace（整檔 leaf key） | 增補 | 備註 |
+|------|------|--------|-----------|------|------|
+| A-admin | `features/admin/` | 14 | admin（996） | alerts/apiKeys/logsViewer/restore/monitoring/configManagement 子樹 | alerts/api-keys/logs/restore/monitoring/config 子目錄；複用 common.actions/pagination |
+| A-review | `features/review/` | 3 | review（221） | dialog +4、fieldEditor +1 | 多數組件先前已 i18n；排除 EscalationDialog（→波 2 escalation） |
+| A-rules | `features/rules/` | 11 | rules（606） | +12 子鍵 | **D6 嚴守**：僅顯示文字，業務邏輯/zod 訊息/CSV header/SAMPLE_INVOICE 保留 |
+| A-histdata | `features/historical-data/` | 5 | historicalData（387） | +191（4 新頂鍵 batchError/batchProgress/batchSummary/termAggregation + fileDetail.raw） | ICU 參數化 + sub-component 傳 t |
+| A-docprev | `features/document-preview/` + `features/mapping-config/` | 7 | documentPreview（275） | +18（loading/error.types 等） | mapping-config 複用 documentPreview namespace |
+
+**共 40 組件**，全部複用既有 namespace（無新增 namespace、未動 `request.ts`）。
+
+### 治理擴充（D4）
+
+`scripts/check-i18n-completeness.ts` `LOCALE_SYNC_CHECKS` 新增 **5 條整檔** `keyPrefix=''`（admin/review/rules/historicalData/documentPreview），涵蓋波 1 所有新增子樹 + 未來增補。整檔驗證證實 5 namespace 既有部分無三語言漂移。`.claude/rules/i18n.md` 同步補波 1 註記。
+
+### 驗證結果
+
+- `npm run type-check`：exit 0（A-admin 中間狀態的 admin/alerts 型別錯誤已自行修復）
+- `npm run i18n:check`：exit 0，含新 5 條整檔規則三語言一致（admin 996 / review 221 / rules 606 / historicalData 387 / documentPreview 275）
+- `npx eslint`（38 檔）：0 error，7 warning 全 pre-existing
+- 視覺抽查機制：波 1 全複用既有 namespace（無新 namespace 註冊風險），pattern 同 Batch A 已驗證
+
+### 波 1 揭示的歸屬發現（修正波 2 計畫）
+
+- `features/mapping-config/` 複用 `documentPreview` namespace（已併入 A-docprev）。
+- `features/admin/config/` + `features/admin/settings/` 組件綁定 **`systemSettings`** namespace，殘餘中文 → 波 2 systemSettings agent 處理（含 config/ConfigItem/ConfigEditDialog）。
+- `features/forwarders/` → `companies`；`features/audit/` → `reports`；`features/review/EscalationDialog` → `escalation`。
+
+### 波 2 待處理（Batch E/F）
+
+`escalation`（+ review/EscalationDialog）、`companies`（forwarders）、`formats`、`reports`（audit + components/reports）、`dashboard`、`navigation`（layout）、`systemSettings`（admin/config+settings 殘留）、及完全未 i18n 的 `filters`/`analytics`/`export`/`auth`。
+
+---
+
+*規劃文件建立：2026-06-22（承接 CHANGE-088 §範圍邊界與後續）；Batch A 實作完成：2026-06-22；Batch B/C/D（波 1）實作完成：2026-06-22*

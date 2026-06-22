@@ -29,6 +29,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -91,7 +92,10 @@ interface BatchSummaryCardProps {
 /**
  * 格式化持續時間
  */
-function formatDuration(ms: number | null): string {
+function formatDuration(
+  ms: number | null,
+  t: ReturnType<typeof useTranslations<'historicalData.batchSummary'>>
+): string {
   if (!ms || ms <= 0) return '-'
 
   const seconds = Math.floor(ms / 1000)
@@ -100,15 +104,15 @@ function formatDuration(ms: number | null): string {
 
   if (hours > 0) {
     const remainingMinutes = minutes % 60
-    return `${hours} 小時 ${remainingMinutes} 分鐘`
+    return t('duration.hoursMinutes', { hours, minutes: remainingMinutes })
   }
 
   if (minutes > 0) {
     const remainingSeconds = seconds % 60
-    return `${minutes} 分 ${remainingSeconds} 秒`
+    return t('duration.minutesSeconds', { minutes, seconds: remainingSeconds })
   }
 
-  return `${seconds} 秒`
+  return t('duration.seconds', { seconds })
 }
 
 /**
@@ -140,64 +144,70 @@ function calculateSuccessRate(
 /**
  * 狀態徽章
  */
-function StatusBadge({ status }: { status: HistoricalBatchStatus }) {
+function StatusBadge({
+  status,
+  t,
+}: {
+  status: HistoricalBatchStatus
+  t: ReturnType<typeof useTranslations<'historicalData.batchSummary'>>
+}) {
   const config = {
     COMPLETED: {
-      label: '已完成',
+      labelKey: 'completed',
       variant: 'default' as const,
       icon: CheckCircle2,
       className: 'bg-green-100 text-green-800 border-green-200',
     },
     FAILED: {
-      label: '失敗',
+      labelKey: 'failed',
       variant: 'destructive' as const,
       icon: XCircle,
       className: '',
     },
     CANCELLED: {
-      label: '已取消',
+      labelKey: 'cancelled',
       variant: 'secondary' as const,
       icon: AlertTriangle,
       className: '',
     },
     PENDING: {
-      label: '待處理',
+      labelKey: 'pending',
       variant: 'outline' as const,
       icon: Clock,
       className: '',
     },
     PROCESSING: {
-      label: '處理中',
+      labelKey: 'processing',
       variant: 'default' as const,
       icon: Zap,
       className: '',
     },
     PAUSED: {
-      label: '已暫停',
+      labelKey: 'paused',
       variant: 'outline' as const,
       icon: Clock,
       className: '',
     },
     AGGREGATING: {
-      label: '聚合中',
+      labelKey: 'aggregating',
       variant: 'outline' as const,
       icon: Clock,
       className: 'bg-blue-100 text-blue-800 border-blue-200',
     },
     AGGREGATED: {
-      label: '已聚合',
+      labelKey: 'aggregated',
       variant: 'default' as const,
       icon: CheckCircle2,
       className: 'bg-indigo-100 text-indigo-800 border-indigo-200',
     },
   }
 
-  const { label, variant, icon: Icon, className } = config[status] || config.PENDING
+  const { labelKey, variant, icon: Icon, className } = config[status] || config.PENDING
 
   return (
     <Badge variant={variant} className={cn('gap-1', className)}>
       <Icon className="h-3 w-3" />
-      {label}
+      {t(`status.${labelKey}`)}
     </Badge>
   )
 }
@@ -252,6 +262,7 @@ function StatItem({
 // ============================================================
 
 export function BatchSummaryCard({ summary, className }: BatchSummaryCardProps) {
+  const t = useTranslations('historicalData.batchSummary')
   const successRate = calculateSuccessRate(
     summary.successCount,
     summary.failedCount,
@@ -267,19 +278,19 @@ export function BatchSummaryCard({ summary, className }: BatchSummaryCardProps) 
               <FileText className="h-5 w-5" />
               {summary.batchName}
             </CardTitle>
-            <StatusBadge status={summary.status} />
+            <StatusBadge status={summary.status} t={t} />
           </div>
         </CardHeader>
 
         <CardContent className="space-y-6">
           {/* 處理結果統計 */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground">處理結果</h4>
+            <h4 className="text-sm font-medium text-muted-foreground">{t('results.title')}</h4>
 
             {/* 進度條 */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>成功率</span>
+                <span>{t('results.successRate')}</span>
                 <span className="font-medium">{successRate}%</span>
               </div>
               <div className="relative h-3 rounded-full overflow-hidden bg-muted">
@@ -310,15 +321,15 @@ export function BatchSummaryCard({ summary, className }: BatchSummaryCardProps) 
               <div className="flex justify-between text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 rounded-full bg-green-500" />
-                  成功 {summary.successCount}
+                  {t('results.successLegend', { count: summary.successCount })}
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                  跳過 {summary.skippedCount}
+                  {t('results.skippedLegend', { count: summary.skippedCount })}
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 rounded-full bg-red-500" />
-                  失敗 {summary.failedCount}
+                  {t('results.failedLegend', { count: summary.failedCount })}
                 </div>
               </div>
             </div>
@@ -330,21 +341,21 @@ export function BatchSummaryCard({ summary, className }: BatchSummaryCardProps) 
                 <div className="text-xl font-bold text-green-600">
                   {summary.successCount}
                 </div>
-                <div className="text-xs text-green-600/80">成功</div>
+                <div className="text-xs text-green-600/80">{t('results.success')}</div>
               </div>
               <div className="text-center p-2 rounded-lg bg-yellow-50 dark:bg-yellow-950">
                 <SkipForward className="h-5 w-5 mx-auto text-yellow-600 mb-1" />
                 <div className="text-xl font-bold text-yellow-600">
                   {summary.skippedCount}
                 </div>
-                <div className="text-xs text-yellow-600/80">跳過</div>
+                <div className="text-xs text-yellow-600/80">{t('results.skipped')}</div>
               </div>
               <div className="text-center p-2 rounded-lg bg-red-50 dark:bg-red-950">
                 <XCircle className="h-5 w-5 mx-auto text-red-600 mb-1" />
                 <div className="text-xl font-bold text-red-600">
                   {summary.failedCount}
                 </div>
-                <div className="text-xs text-red-600/80">失敗</div>
+                <div className="text-xs text-red-600/80">{t('results.failed')}</div>
               </div>
             </div>
           </div>
@@ -353,40 +364,40 @@ export function BatchSummaryCard({ summary, className }: BatchSummaryCardProps) 
           <div className="grid grid-cols-2 gap-3">
             <StatItem
               icon={DollarSign}
-              label="總成本"
+              label={t('stats.totalCost')}
               value={formatCost(summary.totalCost)}
-              subValue={`平均 ${formatCost(summary.averageCostPerFile)}/文件`}
+              subValue={t('stats.averageCost', { cost: formatCost(summary.averageCostPerFile) })}
               iconColor="text-green-600"
-              tooltip="Azure OpenAI API 使用成本"
+              tooltip={t('stats.totalCostTooltip')}
             />
             <StatItem
               icon={Building2}
-              label="新發現公司"
+              label={t('stats.newCompanies')}
               value={summary.newCompaniesCount}
               iconColor="text-blue-600"
-              tooltip="處理過程中識別的新公司"
+              tooltip={t('stats.newCompaniesTooltip')}
             />
             <StatItem
               icon={TrendingUp}
-              label="提取費用項"
+              label={t('stats.extractedTerms')}
               value={summary.extractedTermsCount}
               iconColor="text-purple-600"
-              tooltip="提取的費用術語總數"
+              tooltip={t('stats.extractedTermsTooltip')}
             />
             <StatItem
               icon={Clock}
-              label="處理時間"
-              value={formatDuration(summary.durationMs)}
-              subValue={`${summary.processingRate.toFixed(1)} files/min`}
+              label={t('stats.processingTime')}
+              value={formatDuration(summary.durationMs, t)}
+              subValue={t('stats.processingRate', { rate: summary.processingRate.toFixed(1) })}
               iconColor="text-orange-600"
-              tooltip="總處理時間和處理速率"
+              tooltip={t('stats.processingTimeTooltip')}
             />
           </div>
 
           {/* 時間資訊 */}
           <div className="pt-3 border-t text-xs text-muted-foreground">
             <div className="flex justify-between">
-              <span>開始時間</span>
+              <span>{t('time.startedAt')}</span>
               <span>
                 {summary.startedAt
                   ? new Date(summary.startedAt).toLocaleString('zh-TW')
@@ -394,7 +405,7 @@ export function BatchSummaryCard({ summary, className }: BatchSummaryCardProps) 
               </span>
             </div>
             <div className="flex justify-between mt-1">
-              <span>完成時間</span>
+              <span>{t('time.completedAt')}</span>
               <span>
                 {summary.completedAt
                   ? new Date(summary.completedAt).toLocaleString('zh-TW')

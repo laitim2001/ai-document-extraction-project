@@ -15,6 +15,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -94,12 +95,7 @@ type RestoreFormValues = z.infer<typeof restoreFormSchema>
 // Constants
 // ============================================================
 
-const STEPS = [
-  { id: 'backup', title: '選擇備份', description: '選擇要恢復的備份' },
-  { id: 'config', title: '配置選項', description: '設定恢復類型與範圍' },
-  { id: 'preview', title: '預覽確認', description: '確認恢復內容' },
-  { id: 'confirm', title: '最終確認', description: '輸入確認文字' },
-] as const
+const STEP_IDS = ['backup', 'config', 'preview', 'confirm'] as const
 
 // ============================================================
 // Component
@@ -113,6 +109,8 @@ export function RestoreDialog({
   onOpenChange,
   preselectedBackupId,
 }: RestoreDialogProps) {
+  const t = useTranslations('admin.restore')
+
   // --- State ---
   const [step, setStep] = useState(0)
 
@@ -176,7 +174,7 @@ export function RestoreDialog({
 
   // --- Handlers ---
   const handleNext = useCallback(() => {
-    if (step < STEPS.length - 1) {
+    if (step < STEP_IDS.length - 1) {
       setStep((s) => s + 1)
     }
   }, [step])
@@ -191,7 +189,7 @@ export function RestoreDialog({
     const values = form.getValues()
 
     if (!isConfirmationValid) {
-      form.setError('confirmationText', { message: `請輸入 "${requiredConfirmText}"` })
+      form.setError('confirmationText', { message: t('dialog.step3.confirmError', { text: requiredConfirmText }) })
       return
     }
 
@@ -209,7 +207,7 @@ export function RestoreDialog({
     } catch {
       // Error handled by mutation
     }
-  }, [form, isConfirmationValid, requiredConfirmText, startRestoreMutation, onOpenChange])
+  }, [form, isConfirmationValid, requiredConfirmText, startRestoreMutation, onOpenChange, t])
 
   const canProceed = useCallback(() => {
     switch (step) {
@@ -229,8 +227,8 @@ export function RestoreDialog({
   // --- Render Helpers ---
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center gap-2 mb-6">
-      {STEPS.map((s, index) => (
-        <div key={s.id} className="flex items-center">
+      {STEP_IDS.map((id, index) => (
+        <div key={id} className="flex items-center">
           <div
             className={`
               w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
@@ -239,7 +237,7 @@ export function RestoreDialog({
           >
             {index + 1}
           </div>
-          {index < STEPS.length - 1 && (
+          {index < STEP_IDS.length - 1 && (
             <div
               className={`w-12 h-0.5 mx-1 ${index < step ? 'bg-primary' : 'bg-muted'}`}
             />
@@ -252,20 +250,20 @@ export function RestoreDialog({
   const renderStep0 = () => (
     <div className="space-y-4">
       <div className="text-sm text-muted-foreground mb-4">
-        選擇要用於恢復的備份。只有已完成的備份可供選擇。
+        {t('dialog.step0.intro')}
       </div>
 
       {backupsLoading ? (
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span className="ml-2">載入備份列表...</span>
+          <span className="ml-2">{t('dialog.step0.loading')}</span>
         </div>
       ) : backups.length === 0 ? (
         <Alert>
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>沒有可用的備份</AlertTitle>
+          <AlertTitle>{t('dialog.step0.emptyTitle')}</AlertTitle>
           <AlertDescription>
-            系統中沒有已完成的備份可供恢復。請先建立備份。
+            {t('dialog.step0.emptyDescription')}
           </AlertDescription>
         </Alert>
       ) : (
@@ -287,7 +285,7 @@ export function RestoreDialog({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <Label htmlFor={backup.id} className="font-medium cursor-pointer">
-                      {backup.name || `備份 ${backup.id.slice(0, 8)}`}
+                      {backup.name || t('dialog.step0.backupFallback', { id: backup.id.slice(0, 8) })}
                     </Label>
                     <Badge variant="outline">{backup.type}</Badge>
                   </div>
@@ -310,7 +308,7 @@ export function RestoreDialog({
     <div className="space-y-6">
       {/* 恢復類型 */}
       <div className="space-y-3">
-        <Label className="text-base font-medium">恢復類型</Label>
+        <Label className="text-base font-medium">{t('dialog.step1.typeLabel')}</Label>
         <RadioGroup
           value={watchType}
           onValueChange={(value) => form.setValue('type', value as RestoreType)}
@@ -331,9 +329,11 @@ export function RestoreDialog({
                 <div>
                   <Label htmlFor={`type-${type}`} className="font-medium cursor-pointer flex items-center gap-2">
                     <span>{info.icon}</span>
-                    {info.label}
+                    {t.has(`types.${type}`) ? t(`types.${type}`) : info.label}
                   </Label>
-                  <p className="text-xs text-muted-foreground mt-1">{info.description}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t.has(`typeDescriptions.${type}`) ? t(`typeDescriptions.${type}`) : info.description}
+                  </p>
                 </div>
               </div>
             )
@@ -345,7 +345,7 @@ export function RestoreDialog({
 
       {/* 恢復範圍 */}
       <div className="space-y-3">
-        <Label className="text-base font-medium">恢復範圍</Label>
+        <Label className="text-base font-medium">{t('dialog.step1.scopeLabel')}</Label>
         <Select
           value={watchScope}
           onValueChange={(value) => form.setValue('scope', value as RestoreScope)}
@@ -363,7 +363,7 @@ export function RestoreDialog({
                     {scope === 'FILES' && <FileText className="h-4 w-4" />}
                     {scope === 'CONFIG' && <Settings className="h-4 w-4" />}
                     {scope === 'ALL' && <Layers className="h-4 w-4" />}
-                    <span>{info.label}</span>
+                    <span>{t.has(`scopes.${scope}`) ? t(`scopes.${scope}`) : info.label}</span>
                   </div>
                 </SelectItem>
               )
@@ -371,7 +371,9 @@ export function RestoreDialog({
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          {getRestoreScopeInfo(watchScope).description}
+          {t.has(`scopeDescriptions.${watchScope}`)
+            ? t(`scopeDescriptions.${watchScope}`)
+            : getRestoreScopeInfo(watchScope).description}
         </p>
       </div>
 
@@ -380,14 +382,14 @@ export function RestoreDialog({
         <>
           <Separator />
           <div className="space-y-2">
-            <Label htmlFor="drillName">演練名稱</Label>
+            <Label htmlFor="drillName">{t('dialog.step1.drillName')}</Label>
             <Input
               id="drillName"
-              placeholder="例如：Q4 災難恢復演練"
+              placeholder={t('dialog.step1.drillNamePlaceholder')}
               {...form.register('drillName')}
             />
             <p className="text-xs text-muted-foreground">
-              為這次演練命名，方便日後識別
+              {t('dialog.step1.drillNameHint')}
             </p>
           </div>
         </>
@@ -400,18 +402,18 @@ export function RestoreDialog({
       {previewLoading ? (
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span className="ml-2">載入備份內容...</span>
+          <span className="ml-2">{t('dialog.step2.loading')}</span>
         </div>
       ) : preview ? (
         <>
           {/* 備份摘要 */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-3 bg-muted rounded-md">
-              <div className="text-sm text-muted-foreground">備份類型</div>
+              <div className="text-sm text-muted-foreground">{t('dialog.step2.backupType')}</div>
               <div className="font-medium">{selectedBackup?.type}</div>
             </div>
             <div className="p-3 bg-muted rounded-md">
-              <div className="text-sm text-muted-foreground">備份時間</div>
+              <div className="text-sm text-muted-foreground">{t('dialog.step2.backupTime')}</div>
               <div className="font-medium">
                 {selectedBackup?.createdAt
                   ? format(new Date(selectedBackup.createdAt), 'yyyy/MM/dd HH:mm')
@@ -422,15 +424,15 @@ export function RestoreDialog({
 
           {/* 內容預覽 */}
           <div className="space-y-3">
-            <Label className="text-base font-medium">備份內容</Label>
+            <Label className="text-base font-medium">{t('dialog.step2.contentLabel')}</Label>
 
             {/* 資料庫表格 */}
             {preview.tables && preview.tables.length > 0 && (
               <div className="border rounded-md p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <Database className="h-4 w-4" />
-                  <span className="font-medium">資料庫表格</span>
-                  <Badge variant="secondary">{preview.tables.length} 個</Badge>
+                  <span className="font-medium">{t('dialog.step2.databaseTables')}</span>
+                  <Badge variant="secondary">{t('dialog.step2.countUnit', { count: preview.tables.length })}</Badge>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {preview.tables.slice(0, 10).map((table) => (
@@ -440,7 +442,7 @@ export function RestoreDialog({
                     </Badge>
                   ))}
                   {preview.tables.length > 10 && (
-                    <Badge variant="outline">+{preview.tables.length - 10} 更多</Badge>
+                    <Badge variant="outline">{t('dialog.step2.moreTables', { count: preview.tables.length - 10 })}</Badge>
                   )}
                 </div>
               </div>
@@ -451,8 +453,8 @@ export function RestoreDialog({
               <div className="border rounded-md p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <FileText className="h-4 w-4" />
-                  <span className="font-medium">文件</span>
-                  <Badge variant="secondary">{preview.files.length} 個</Badge>
+                  <span className="font-medium">{t('dialog.step2.files')}</span>
+                  <Badge variant="secondary">{t('dialog.step2.countUnit', { count: preview.files.length })}</Badge>
                 </div>
                 <div className="space-y-1 max-h-32 overflow-y-auto">
                   {preview.files.slice(0, 5).map((file) => (
@@ -462,7 +464,7 @@ export function RestoreDialog({
                   ))}
                   {preview.files.length > 5 && (
                     <div className="text-sm text-muted-foreground">
-                      +{preview.files.length - 5} 更多文件
+                      {t('dialog.step2.moreFiles', { count: preview.files.length - 5 })}
                     </div>
                   )}
                 </div>
@@ -473,13 +475,13 @@ export function RestoreDialog({
           {/* 恢復配置摘要 */}
           <Alert>
             <Info className="h-4 w-4" />
-            <AlertTitle>恢復配置</AlertTitle>
+            <AlertTitle>{t('dialog.step2.configLabel')}</AlertTitle>
             <AlertDescription>
               <ul className="mt-2 space-y-1 text-sm">
-                <li>• 恢復類型：{getRestoreTypeInfo(watchType).label}</li>
-                <li>• 恢復範圍：{getRestoreScopeInfo(watchScope).label}</li>
+                <li>• {t('dialog.step2.configType', { value: t.has(`types.${watchType}`) ? t(`types.${watchType}`) : getRestoreTypeInfo(watchType).label })}</li>
+                <li>• {t('dialog.step2.configScope', { value: t.has(`scopes.${watchScope}`) ? t(`scopes.${watchScope}`) : getRestoreScopeInfo(watchScope).label })}</li>
                 {watchType === 'DRILL' && form.getValues('drillName') && (
-                  <li>• 演練名稱：{form.getValues('drillName')}</li>
+                  <li>• {t('dialog.step2.configDrillName', { value: form.getValues('drillName') ?? '' })}</li>
                 )}
               </ul>
             </AlertDescription>
@@ -488,9 +490,9 @@ export function RestoreDialog({
       ) : (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>無法載入備份內容</AlertTitle>
+          <AlertTitle>{t('dialog.step2.errorTitle')}</AlertTitle>
           <AlertDescription>
-            請確認備份狀態正常後重試。
+            {t('dialog.step2.errorDescription')}
           </AlertDescription>
         </Alert>
       )}
@@ -501,14 +503,13 @@ export function RestoreDialog({
     <div className="space-y-4">
       <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>⚠️ 警告：這是一個破壞性操作</AlertTitle>
+        <AlertTitle>{t('dialog.step3.warningTitle')}</AlertTitle>
         <AlertDescription>
           {watchType === 'DRILL' ? (
-            <p>恢復演練將在隔離環境中執行，不會影響生產數據。</p>
+            <p>{t('dialog.step3.drillWarning')}</p>
           ) : (
             <p>
-              此操作將覆蓋現有數據。系統會在恢復前自動建立預恢復備份，
-              但仍建議您確認已了解影響範圍。
+              {t('dialog.step3.fullWarning')}
             </p>
           )}
         </AlertDescription>
@@ -518,15 +519,15 @@ export function RestoreDialog({
         <div className="p-4 bg-muted rounded-md space-y-2">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-primary" />
-            <span className="text-sm">備份來源：{selectedBackup?.name || watchBackupId}</span>
+            <span className="text-sm">{t('dialog.step3.summaryBackup', { value: selectedBackup?.name || watchBackupId })}</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-primary" />
-            <span className="text-sm">恢復類型：{getRestoreTypeInfo(watchType).label}</span>
+            <span className="text-sm">{t('dialog.step3.summaryType', { value: t.has(`types.${watchType}`) ? t(`types.${watchType}`) : getRestoreTypeInfo(watchType).label })}</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-primary" />
-            <span className="text-sm">恢復範圍：{getRestoreScopeInfo(watchScope).label}</span>
+            <span className="text-sm">{t('dialog.step3.summaryScope', { value: t.has(`scopes.${watchScope}`) ? t(`scopes.${watchScope}`) : getRestoreScopeInfo(watchScope).label })}</span>
           </div>
         </div>
 
@@ -534,7 +535,10 @@ export function RestoreDialog({
 
         <div className="space-y-2">
           <Label htmlFor="confirmationText">
-            請輸入 <code className="px-1 py-0.5 bg-muted rounded font-mono">{requiredConfirmText}</code> 以確認
+            {t.rich('dialog.step3.confirmPrompt', {
+              text: requiredConfirmText,
+              code: (chunks) => <code className="px-1 py-0.5 bg-muted rounded font-mono">{chunks}</code>,
+            })}
           </Label>
           <Input
             id="confirmationText"
@@ -577,9 +581,9 @@ export function RestoreDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>啟動數據恢復</DialogTitle>
+          <DialogTitle>{t('dialog.title')}</DialogTitle>
           <DialogDescription>
-            {STEPS[step].description}
+            {t(`dialog.steps.${STEP_IDS[step]}Description`)}
           </DialogDescription>
         </DialogHeader>
 
@@ -596,12 +600,12 @@ export function RestoreDialog({
             disabled={step === 0}
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
-            上一步
+            {t('dialog.back')}
           </Button>
 
-          {step < STEPS.length - 1 ? (
+          {step < STEP_IDS.length - 1 ? (
             <Button onClick={handleNext} disabled={!canProceed()}>
-              下一步
+              {t('dialog.next')}
               <ChevronRight className="h-4 w-4 ml-2" />
             </Button>
           ) : (
@@ -613,10 +617,10 @@ export function RestoreDialog({
               {startRestoreMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  啟動中...
+                  {t('dialog.starting')}
                 </>
               ) : (
-                '確認啟動恢復'
+                t('dialog.confirmStart')
               )}
             </Button>
           )}

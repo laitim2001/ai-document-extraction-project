@@ -17,6 +17,7 @@
 
 import type { ComponentType } from 'react'
 import dynamic from 'next/dynamic'
+import { useTranslations } from 'next-intl'
 import { PDFLoadingSkeleton } from './PDFLoadingSkeleton'
 
 // ============================================================
@@ -24,6 +25,21 @@ import { PDFLoadingSkeleton } from './PDFLoadingSkeleton'
 // ============================================================
 
 import type { BoundingBox } from '@/lib/pdf'
+
+// ============================================================
+// Loading Fallback
+// ============================================================
+
+/**
+ * 動態載入時的載入骨架（讀取 i18n 預覽器載入文字）
+ *
+ * @description
+ *   獨立元件以便在 next/dynamic 的 loading callback 中使用 useTranslations。
+ */
+function ViewerLoadingFallback() {
+  const t = useTranslations('documentPreview')
+  return <PDFLoadingSkeleton loadingText={t('loading.viewer')} />
+}
 
 interface PDFViewerProps {
   file: string | ArrayBuffer
@@ -77,7 +93,7 @@ export const DynamicPDFViewer: ComponentType<PDFViewerProps> = dynamic(
   () => import('./PDFViewer').then((mod) => ({ default: mod.PDFViewer })),
   {
     ssr: false,
-    loading: () => <PDFLoadingSkeleton loadingText="載入預覽器中..." />,
+    loading: () => <ViewerLoadingFallback />,
   }
 )
 

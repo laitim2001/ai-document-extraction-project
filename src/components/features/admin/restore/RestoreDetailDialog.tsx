@@ -15,6 +15,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import {
@@ -99,6 +100,8 @@ export function RestoreDetailDialog({
   onOpenChange,
   restoreId,
 }: RestoreDetailDialogProps) {
+  const t = useTranslations('admin.restore')
+
   // --- State ---
   const [activeTab, setActiveTab] = useState<'details' | 'logs'>('details')
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
@@ -207,7 +210,7 @@ export function RestoreDetailDialog({
 
     return (
       <Badge variant={variantMap[info.variant] || 'outline'} className="ml-2">
-        {info.label}
+        {t.has(`statuses.${status}`) ? t(`statuses.${status}`) : info.label}
       </Badge>
     )
   }
@@ -285,18 +288,20 @@ export function RestoreDetailDialog({
             {renderStatusIcon(record.status)}
             <div>
               <div className="flex items-center">
-                <span className="font-medium">恢復狀態</span>
+                <span className="font-medium">{t('detailDialog.statusTitle')}</span>
                 {renderStatusBadge(record.status)}
               </div>
               <p className="text-sm text-muted-foreground mt-1">
-                {statusConfig.description}
+                {t.has(`statusDescriptions.${record.status}`)
+                  ? t(`statusDescriptions.${record.status}`)
+                  : statusConfig.description}
               </p>
             </div>
           </div>
           {isActive && (
             <Button variant="outline" size="sm" onClick={() => refetch()}>
               <RefreshCw className="h-4 w-4 mr-2" />
-              重新整理
+              {t('detailDialog.refresh')}
             </Button>
           )}
         </div>
@@ -305,7 +310,7 @@ export function RestoreDetailDialog({
         {record.progress !== null && record.progress !== undefined && isActive && (
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>恢復進度</span>
+              <span>{t('detailDialog.progress')}</span>
               <span>{record.progress}%</span>
             </div>
             <Progress value={record.progress} className="h-2" />
@@ -316,7 +321,7 @@ export function RestoreDetailDialog({
         {record.status === 'FAILED' && record.errorMessage && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>恢復失敗</AlertTitle>
+            <AlertTitle>{t('detailDialog.failedTitle')}</AlertTitle>
             <AlertDescription>{record.errorMessage}</AlertDescription>
           </Alert>
         )}
@@ -326,39 +331,43 @@ export function RestoreDetailDialog({
         {/* 恢復配置 */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">恢復類型</div>
+            <div className="text-sm text-muted-foreground">{t('detailDialog.restoreType')}</div>
             <div className="flex items-center gap-2">
               <span>{getRestoreTypeInfo(record.type).icon}</span>
-              <span className="font-medium">{getRestoreTypeInfo(record.type).label}</span>
+              <span className="font-medium">
+                {t.has(`types.${record.type}`) ? t(`types.${record.type}`) : getRestoreTypeInfo(record.type).label}
+              </span>
             </div>
           </div>
 
           <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">恢復範圍</div>
+            <div className="text-sm text-muted-foreground">{t('detailDialog.restoreScope')}</div>
             <div className="flex items-center gap-2 flex-wrap">
               {scopeArray.map((scope) => (
                 <div key={scope} className="flex items-center gap-1">
                   {renderScopeIcon(scope)}
-                  <span className="font-medium text-sm">{getRestoreScopeInfo(scope).label}</span>
+                  <span className="font-medium text-sm">
+                    {t.has(`scopes.${scope}`) ? t(`scopes.${scope}`) : getRestoreScopeInfo(scope).label}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">備份來源</div>
+            <div className="text-sm text-muted-foreground">{t('detailDialog.backupSource')}</div>
             <div className="font-medium truncate">
               {record.backup?.name || record.backupId}
             </div>
           </div>
 
           <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">操作者</div>
+            <div className="text-sm text-muted-foreground">{t('detailDialog.operator')}</div>
             <div className="font-medium">{record.createdByUser?.name || '-'}</div>
           </div>
 
           <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">開始時間</div>
+            <div className="text-sm text-muted-foreground">{t('detailDialog.startedAt')}</div>
             <div className="font-medium">
               {record.startedAt
                 ? format(new Date(record.startedAt), 'yyyy/MM/dd HH:mm:ss', { locale: zhTW })
@@ -367,7 +376,7 @@ export function RestoreDetailDialog({
           </div>
 
           <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">完成時間</div>
+            <div className="text-sm text-muted-foreground">{t('detailDialog.completedAt')}</div>
             <div className="font-medium">
               {record.completedAt
                 ? format(new Date(record.completedAt), 'yyyy/MM/dd HH:mm:ss', { locale: zhTW })
@@ -383,7 +392,7 @@ export function RestoreDetailDialog({
             <div className="p-3 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2 text-sm">
                 <Database className="h-4 w-4" />
-                <span className="font-medium">預恢復備份已建立</span>
+                <span className="font-medium">{t('detailDialog.preBackupCreated')}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 ID: {record.preRestoreBackupId}
@@ -400,21 +409,21 @@ export function RestoreDetailDialog({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Terminal className="h-4 w-4" />
-          恢復日誌
-          {isActive && <Badge variant="outline" className="ml-2">即時更新中</Badge>}
+          {t('detailDialog.logsTitle')}
+          {isActive && <Badge variant="outline" className="ml-2">{t('detailDialog.liveUpdating')}</Badge>}
         </div>
-        <span className="text-xs text-muted-foreground">{logs.length} 條記錄</span>
+        <span className="text-xs text-muted-foreground">{t('detailDialog.logCount', { count: logs.length })}</span>
       </div>
 
       <div className="border rounded-md bg-muted/30">
         {logsLoading && logs.length === 0 ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-5 w-5 animate-spin" />
-            <span className="ml-2 text-sm">載入日誌...</span>
+            <span className="ml-2 text-sm">{t('detailDialog.logsLoading')}</span>
           </div>
         ) : logs.length === 0 ? (
           <div className="py-8 text-center text-sm text-muted-foreground">
-            暫無日誌記錄
+            {t('detailDialog.logsEmpty')}
           </div>
         ) : (
           <ScrollArea className="h-[300px] p-3">
@@ -431,22 +440,22 @@ export function RestoreDetailDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
-            <DialogTitle>恢復操作詳情</DialogTitle>
+            <DialogTitle>{t('detailDialog.title')}</DialogTitle>
             <DialogDescription>
-              查看恢復操作的詳細資訊與進度
+              {t('detailDialog.description')}
             </DialogDescription>
           </DialogHeader>
 
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="ml-3">載入中...</span>
+              <span className="ml-3">{t('detailDialog.loading')}</span>
             </div>
           ) : record ? (
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'details' | 'logs')}>
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="details">詳情</TabsTrigger>
-                <TabsTrigger value="logs">日誌</TabsTrigger>
+                <TabsTrigger value="details">{t('detailDialog.tabs.details')}</TabsTrigger>
+                <TabsTrigger value="logs">{t('detailDialog.tabs.logs')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="details" className="mt-4">
@@ -459,7 +468,7 @@ export function RestoreDetailDialog({
             </Tabs>
           ) : (
             <div className="py-12 text-center text-muted-foreground">
-              找不到恢復記錄
+              {t('detailDialog.notFound')}
             </div>
           )}
 
@@ -473,7 +482,7 @@ export function RestoreDetailDialog({
                   disabled={cancelMutation.isPending}
                 >
                   <XCircle className="h-4 w-4 mr-2" />
-                  取消恢復
+                  {t('detailDialog.cancelRestore')}
                 </Button>
               )}
               {canRollback && (
@@ -484,12 +493,12 @@ export function RestoreDetailDialog({
                   disabled={rollbackMutation.isPending}
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
-                  回滾恢復
+                  {t('detailDialog.rollbackRestore')}
                 </Button>
               )}
             </div>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              關閉
+              {t('detailDialog.close')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -499,13 +508,13 @@ export function RestoreDetailDialog({
       <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認取消恢復操作？</AlertDialogTitle>
+            <AlertDialogTitle>{t('detailDialog.cancelDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              此操作將取消正在等待執行的恢復任務。如果恢復已經開始執行，可能無法完全取消。
+              {t('detailDialog.cancelDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>返回</AlertDialogCancel>
+            <AlertDialogCancel>{t('detailDialog.cancelDialog.back')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancel}
               disabled={cancelMutation.isPending}
@@ -514,10 +523,10 @@ export function RestoreDetailDialog({
               {cancelMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  取消中...
+                  {t('detailDialog.cancelDialog.cancelling')}
                 </>
               ) : (
-                '確認取消'
+                t('detailDialog.cancelDialog.confirm')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -528,15 +537,17 @@ export function RestoreDetailDialog({
       <AlertDialog open={rollbackDialogOpen} onOpenChange={setRollbackDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確認回滾恢復操作？</AlertDialogTitle>
+            <AlertDialogTitle>{t('detailDialog.rollbackDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              此操作將使用預恢復備份將系統回滾到恢復操作之前的狀態。這是一個破壞性操作，請謹慎確認。
+              {t('detailDialog.rollbackDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <div className="py-4">
             <Label htmlFor="rollbackConfirm">
-              請輸入 <code className="px-1 py-0.5 bg-muted rounded font-mono">ROLLBACK-CONFIRM</code> 以確認
+              {t.rich('detailDialog.rollbackDialog.confirmPrompt', {
+                code: (chunks) => <code className="px-1 py-0.5 bg-muted rounded font-mono">{chunks}</code>,
+              })}
             </Label>
             <Input
               id="rollbackConfirm"
@@ -555,7 +566,7 @@ export function RestoreDetailDialog({
 
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setRollbackConfirmText('')}>
-              返回
+              {t('detailDialog.rollbackDialog.back')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRollback}
@@ -565,10 +576,10 @@ export function RestoreDetailDialog({
               {rollbackMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  回滾中...
+                  {t('detailDialog.rollbackDialog.rollingBack')}
                 </>
               ) : (
-                '確認回滾'
+                t('detailDialog.rollbackDialog.confirm')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

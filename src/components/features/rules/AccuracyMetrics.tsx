@@ -18,6 +18,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useRuleAccuracy, calculateTrend, formatAccuracy } from '@/hooks/use-accuracy'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -75,25 +76,29 @@ const ACCURACY_THRESHOLDS = {
  * 趨勢指示器
  */
 function TrendIndicator({ trend }: { trend: 'up' | 'down' | 'stable' }) {
+  const t = useTranslations('rules')
   const config = {
     up: {
       icon: TrendingUp,
-      label: '上升',
+      label: t('accuracyMetrics.trend.up'),
+      tooltip: t('accuracyMetrics.trend.upTooltip'),
       className: 'text-green-600',
     },
     down: {
       icon: TrendingDown,
-      label: '下降',
+      label: t('accuracyMetrics.trend.down'),
+      tooltip: t('accuracyMetrics.trend.downTooltip'),
       className: 'text-red-600',
     },
     stable: {
       icon: Minus,
-      label: '穩定',
+      label: t('accuracyMetrics.trend.stable'),
+      tooltip: t('accuracyMetrics.trend.stableTooltip'),
       className: 'text-muted-foreground',
     },
   }
 
-  const { icon: Icon, label, className } = config[trend]
+  const { icon: Icon, label, tooltip, className } = config[trend]
 
   return (
     <TooltipProvider>
@@ -105,7 +110,7 @@ function TrendIndicator({ trend }: { trend: 'up' | 'down' | 'stable' }) {
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>相比前一週期，準確率{label === '上升' ? '提升' : label === '下降' ? '下降' : '保持穩定'}</p>
+          <p>{tooltip}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -116,10 +121,12 @@ function TrendIndicator({ trend }: { trend: 'up' | 'down' | 'stable' }) {
  * 準確率等級徽章
  */
 function AccuracyLevelBadge({ accuracy }: { accuracy: number | null }) {
+  const t = useTranslations('rules')
+
   if (accuracy === null) {
     return (
       <Badge variant="outline" className="text-muted-foreground">
-        數據不足
+        {t('accuracyMetrics.insufficientData')}
       </Badge>
     )
   }
@@ -127,7 +134,7 @@ function AccuracyLevelBadge({ accuracy }: { accuracy: number | null }) {
   if (accuracy >= ACCURACY_THRESHOLDS.HIGH) {
     return (
       <Badge variant="default" className="bg-green-600">
-        優良
+        {t('accuracyMetrics.level.good')}
       </Badge>
     )
   }
@@ -135,14 +142,14 @@ function AccuracyLevelBadge({ accuracy }: { accuracy: number | null }) {
   if (accuracy >= ACCURACY_THRESHOLDS.MEDIUM) {
     return (
       <Badge variant="secondary" className="bg-yellow-500 text-white">
-        正常
+        {t('accuracyMetrics.level.normal')}
       </Badge>
     )
   }
 
   return (
     <Badge variant="destructive">
-      需關注
+      {t('accuracyMetrics.level.needsAttention')}
     </Badge>
   )
 }
@@ -155,12 +162,13 @@ function SimpleTrendChart({
 }: {
   data: Array<{ accuracy: number | null; period: string }>
 }) {
+  const t = useTranslations('rules')
   const validData = data.filter((d) => d.accuracy !== null)
 
   if (validData.length === 0) {
     return (
       <div className="h-12 flex items-center justify-center text-xs text-muted-foreground">
-        暫無歷史數據
+        {t('accuracyMetrics.noHistory')}
       </div>
     )
   }
@@ -179,7 +187,7 @@ function SimpleTrendChart({
             <div
               key={i}
               className="flex-1 h-full flex items-end"
-              title={`${d.period}: 數據不足`}
+              title={`${d.period}: ${t('accuracyMetrics.insufficientData')}`}
             >
               <div className="w-full h-1 bg-muted rounded" />
             </div>
@@ -269,6 +277,7 @@ export function AccuracyMetrics({
   showDetails = true,
   compact = false,
 }: AccuracyMetricsProps) {
+  const t = useTranslations('rules')
   const { data, isLoading, error } = useRuleAccuracy(ruleId)
 
   // 載入狀態
@@ -280,14 +289,14 @@ export function AccuracyMetrics({
   if (error) {
     if (compact) {
       return (
-        <span className="text-xs text-muted-foreground">載入失敗</span>
+        <span className="text-xs text-muted-foreground">{t('accuracyMetrics.loadFailed')}</span>
       )
     }
     return (
       <Alert variant="destructive" className={className}>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          無法載入準確率數據：{error.message}
+          {t('accuracyMetrics.loadError', { message: error.message })}
         </AlertDescription>
       </Alert>
     )
@@ -297,13 +306,13 @@ export function AccuracyMetrics({
   if (!data) {
     if (compact) {
       return (
-        <span className="text-xs text-muted-foreground">數據不足</span>
+        <span className="text-xs text-muted-foreground">{t('accuracyMetrics.insufficientData')}</span>
       )
     }
     return (
       <Card className={className}>
         <CardContent className="py-6 text-center text-muted-foreground">
-          暫無準確率數據
+          {t('accuracyMetrics.noData')}
         </CardContent>
       </Card>
     )
@@ -344,10 +353,10 @@ export function AccuracyMetrics({
           <div>
             <CardTitle className="flex items-center gap-2 text-base">
               <Activity className="h-4 w-4" />
-              準確率指標
+              {t('accuracyMetrics.title')}
             </CardTitle>
             <CardDescription>
-              版本 {data.currentVersion} 的準確率統計
+              {t('accuracyMetrics.versionStats', { version: data.currentVersion })}
             </CardDescription>
           </div>
           <AccuracyLevelBadge accuracy={current.accuracy} />
@@ -364,7 +373,7 @@ export function AccuracyMetrics({
               <TrendIndicator trend={trend} />
             </div>
             <p className="text-xs text-muted-foreground">
-              當前版本準確率
+              {t('accuracyMetrics.currentVersionAccuracy')}
             </p>
           </div>
         </div>
@@ -385,7 +394,7 @@ export function AccuracyMetrics({
             />
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>0%</span>
-              <span>閾值 90%</span>
+              <span>{t('accuracyMetrics.threshold')}</span>
               <span>100%</span>
             </div>
           </div>
@@ -401,7 +410,7 @@ export function AccuracyMetrics({
                   {current.accurate} / {current.total}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  正確 / 總數
+                  {t('accuracyMetrics.correctOverTotal')}
                 </div>
               </div>
             </div>
@@ -412,7 +421,7 @@ export function AccuracyMetrics({
                   {current.sampleSize}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  樣本數量
+                  {t('accuracyMetrics.sampleSize')}
                 </div>
               </div>
             </div>
@@ -423,7 +432,7 @@ export function AccuracyMetrics({
         {showDetails && historical.length > 0 && (
           <div className="pt-2 border-t">
             <div className="text-xs text-muted-foreground mb-2">
-              近 7 天趨勢
+              {t('accuracyMetrics.last7DaysTrend')}
             </div>
             <SimpleTrendChart data={historical} />
           </div>

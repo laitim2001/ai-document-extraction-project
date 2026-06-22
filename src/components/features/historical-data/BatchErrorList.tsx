@@ -29,6 +29,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Card,
   CardContent,
@@ -124,12 +125,14 @@ function ErrorDetailPanel({
   onSkip,
   isRetrying,
   isSkipping,
+  t,
 }: {
   file: FailedFileInfo
   onRetry?: () => void
   onSkip?: () => void
   isRetrying: boolean
   isSkipping: boolean
+  t: ReturnType<typeof useTranslations<'historicalData.batchError'>>
 }) {
   const [isOpen, setIsOpen] = React.useState(false)
 
@@ -150,7 +153,7 @@ function ErrorDetailPanel({
           {file.originalName}
         </span>
         <Badge variant="outline" className="text-xs">
-          重試 {file.retryCount} 次
+          {t('retryCount', { count: file.retryCount })}
         </Badge>
       </div>
 
@@ -159,21 +162,21 @@ function ErrorDetailPanel({
           {/* 錯誤訊息 */}
           <div>
             <div className="text-xs font-medium text-muted-foreground mb-1">
-              錯誤訊息
+              {t('errorMessage')}
             </div>
             <div className="text-sm bg-destructive/10 text-destructive rounded p-2 font-mono break-all">
-              {file.errorMessage || '未知錯誤'}
+              {file.errorMessage || t('unknownError')}
             </div>
           </div>
 
           {/* 文件資訊 */}
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div>
-              <span className="text-muted-foreground">文件 ID:</span>
+              <span className="text-muted-foreground">{t('fileId')}</span>
               <span className="ml-1 font-mono">{file.id.slice(0, 8)}...</span>
             </div>
             <div>
-              <span className="text-muted-foreground">失敗時間:</span>
+              <span className="text-muted-foreground">{t('failedAt')}</span>
               <span className="ml-1">
                 {file.failedAt
                   ? new Date(file.failedAt).toLocaleString('zh-TW')
@@ -196,7 +199,7 @@ function ErrorDetailPanel({
                 ) : (
                   <RefreshCw className="mr-1 h-3 w-3" />
                 )}
-                重試
+                {t('actions.retry')}
               </Button>
             )}
             {onSkip && (
@@ -211,7 +214,7 @@ function ErrorDetailPanel({
                 ) : (
                   <SkipForward className="mr-1 h-3 w-3" />
                 )}
-                跳過
+                {t('actions.skip')}
               </Button>
             )}
           </div>
@@ -238,6 +241,7 @@ export function BatchErrorList({
   hasMore = false,
   className,
 }: BatchErrorListProps) {
+  const t = useTranslations('historicalData.batchError')
   // --- State ---
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
   const [retryingIds, setRetryingIds] = React.useState<Set<string>>(new Set())
@@ -337,8 +341,8 @@ export function BatchErrorList({
       <Card className={className}>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" />
-          <p className="text-lg font-medium">沒有失敗的文件</p>
-          <p className="text-sm text-muted-foreground">所有文件處理正常</p>
+          <p className="text-lg font-medium">{t('empty.title')}</p>
+          <p className="text-sm text-muted-foreground">{t('empty.description')}</p>
         </CardContent>
       </Card>
     )
@@ -353,17 +357,17 @@ export function BatchErrorList({
             <div>
               <CardTitle className="flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-red-500" />
-                處理失敗的文件
+                {t('title')}
               </CardTitle>
               <CardDescription>
-                共 {total} 個文件處理失敗，顯示 {files.length} 個
+                {t('description', { total, shown: files.length })}
               </CardDescription>
             </div>
 
             {/* 批量操作按鈕 */}
             {hasSelection && (
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">{selectedIds.size} 個已選擇</Badge>
+                <Badge variant="secondary">{t('selectedCount', { count: selectedIds.size })}</Badge>
                 {onBatchRetry && (
                   <Button
                     variant="outline"
@@ -376,7 +380,7 @@ export function BatchErrorList({
                     ) : (
                       <RefreshCw className="mr-1 h-3 w-3" />
                     )}
-                    批量重試
+                    {t('actions.batchRetry')}
                   </Button>
                 )}
                 {onBatchSkip && (
@@ -391,7 +395,7 @@ export function BatchErrorList({
                     ) : (
                       <SkipForward className="mr-1 h-3 w-3" />
                     )}
-                    批量跳過
+                    {t('actions.batchSkip')}
                   </Button>
                 )}
               </div>
@@ -413,13 +417,13 @@ export function BatchErrorList({
                         }
                       }}
                       onCheckedChange={handleSelectAll}
-                      aria-label="全選"
+                      aria-label={t('table.selectAll')}
                     />
                   </TableHead>
-                  <TableHead>文件</TableHead>
-                  <TableHead className="w-[100px] text-center">重試次數</TableHead>
-                  <TableHead className="w-[150px]">失敗時間</TableHead>
-                  <TableHead className="w-[120px] text-right">操作</TableHead>
+                  <TableHead>{t('table.file')}</TableHead>
+                  <TableHead className="w-[100px] text-center">{t('table.retryCount')}</TableHead>
+                  <TableHead className="w-[150px]">{t('table.failedAt')}</TableHead>
+                  <TableHead className="w-[120px] text-right">{t('table.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -434,7 +438,7 @@ export function BatchErrorList({
                         onCheckedChange={(checked) =>
                           handleSelectOne(file.id, checked === true)
                         }
-                        aria-label={`選擇 ${file.originalName}`}
+                        aria-label={t('table.selectFile', { name: file.originalName })}
                       />
                     </TableCell>
                     <TableCell>
@@ -455,11 +459,11 @@ export function BatchErrorList({
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="text-xs text-destructive truncate max-w-[300px]">
-                              {file.errorMessage || '未知錯誤'}
+                              {file.errorMessage || t('unknownError')}
                             </div>
                           </TooltipTrigger>
                           <TooltipContent side="bottom" className="max-w-[400px]">
-                            <p className="break-all">{file.errorMessage || '未知錯誤'}</p>
+                            <p className="break-all">{file.errorMessage || t('unknownError')}</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -498,7 +502,7 @@ export function BatchErrorList({
                                 )}
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>重試</TooltipContent>
+                            <TooltipContent>{t('actions.retry')}</TooltipContent>
                           </Tooltip>
                         )}
                         {onSkip && (
@@ -521,7 +525,7 @@ export function BatchErrorList({
                                 )}
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>跳過</TooltipContent>
+                            <TooltipContent>{t('actions.skip')}</TooltipContent>
                           </Tooltip>
                         )}
                       </div>
@@ -543,7 +547,7 @@ export function BatchErrorList({
                 {isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                {isLoading ? '載入中...' : '載入更多'}
+                {isLoading ? t('loading') : t('loadMore')}
               </Button>
             </div>
           )}

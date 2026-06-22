@@ -32,6 +32,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
@@ -162,6 +163,7 @@ export function PDFViewer({
   showControls = true,
   showHighlights = true,
 }: PDFViewerProps) {
+  const t = useTranslations('documentPreview')
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   // 判斷是否為受控模式
@@ -317,7 +319,7 @@ export function PDFViewer({
           onLoadSuccess={handleDocumentLoadSuccess}
           onLoadError={handleDocumentLoadError}
           loading={<PDFLoadingSkeleton />}
-          error={<PDFErrorDisplay error="無法載入 PDF 文件" />}
+          error={<PDFErrorDisplay error={t('error.documentLoadFailed')} />}
           className="relative"
         >
           {/* PDF 頁面容器 */}
@@ -326,7 +328,7 @@ export function PDFViewer({
               pageNumber={state.currentPage}
               scale={state.scale}
               onLoadSuccess={handlePageLoadSuccess}
-              loading={<PDFLoadingSkeleton showIcon={false} loadingText="載入頁面中..." />}
+              loading={<PDFLoadingSkeleton showIcon={false} loadingText={t('loading.page')} />}
               renderTextLayer
               renderAnnotationLayer
               className="bg-white"

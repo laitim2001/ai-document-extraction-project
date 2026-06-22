@@ -49,7 +49,11 @@
     "unsavedChanges": "Unsaved Changes",
     "unsavedChangesDesc": "You have unsaved changes. Leaving this page will lose these changes. Are you sure you want to leave?",
     "continueEditing": "Continue Editing",
-    "discardChanges": "Discard Changes"
+    "discardChanges": "Discard Changes",
+    "pendingCorrections": "You have {count} unsaved field corrections.",
+    "changesWillBeLost": "If you leave this page, these corrections will be lost.",
+    "saving": "Saving...",
+    "saveAndLeave": "Save and Leave"
   },
   "empty": {
     "title": "No documents pending review",
@@ -187,7 +191,8 @@
     "saveWithKey": "Save (Enter)",
     "cancel": "Cancel",
     "cancelWithKey": "Cancel (Escape)",
-    "emptyValue": "(empty)"
+    "emptyValue": "(empty)",
+    "formatCorrect": "Format is correct"
   },
   "correctionType": {
     "dialogTitle": "Save Corrections - Select Correction Type",

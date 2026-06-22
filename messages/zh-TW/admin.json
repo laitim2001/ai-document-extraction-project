@@ -482,6 +482,41 @@
       "healthy": "健康",
       "warning": "警告",
       "critical": "嚴重"
+    },
+    "healthStatus": {
+      "HEALTHY": "正常",
+      "DEGRADED": "降級",
+      "UNHEALTHY": "異常",
+      "UNKNOWN": "未知",
+      "UNCONFIGURED": "未配置"
+    },
+    "dashboard": {
+      "overallStatus": "系統健康狀態: {status}",
+      "activeUsers": "{count} 活躍用戶",
+      "availability": "{value}% 可用性 (24h)",
+      "refresh": "刷新",
+      "responseTime": "回應時間: {value}ms",
+      "lastChecked": "最後檢查: {value}",
+      "lastUpdated": "最後更新: {value}",
+      "serviceDetailsTitle": "{service} 服務詳情",
+      "responseTimeChart": "回應時間 (24h)",
+      "responseTimeTooltip": "回應時間",
+      "noHistory": "暫無歷史資料",
+      "metricsTitle": "效能指標",
+      "avgResponse": "平均回應",
+      "maxResponse": "最大回應",
+      "minResponse": "最小回應",
+      "errorRate": "錯誤率",
+      "recentErrors": "最近錯誤",
+      "unknownError": "未知錯誤",
+      "toast": {
+        "errorTitle": "錯誤",
+        "successTitle": "成功",
+        "loadHealthError": "載入健康狀態失敗",
+        "checkComplete": "健康檢查完成",
+        "checkError": "健康檢查失敗",
+        "loadDetailsError": "載入服務詳情失敗"
+      }
     }
   },
   "logs": {
@@ -796,6 +831,134 @@
     "historyCard": {
       "title": "警報歷史",
       "description": "查看所有警報記錄，進行確認或解決操作"
+    },
+    "severity": {
+      "INFO": "資訊",
+      "WARNING": "警告",
+      "ERROR": "錯誤",
+      "CRITICAL": "嚴重",
+      "EMERGENCY": "緊急"
+    },
+    "conditionType": {
+      "SERVICE_DOWN": "服務中斷",
+      "ERROR_RATE": "錯誤率",
+      "RESPONSE_TIME": "響應時間",
+      "QUEUE_BACKLOG": "佇列積壓",
+      "STORAGE_LOW": "儲存空間不足",
+      "CPU_HIGH": "CPU 過高",
+      "MEMORY_HIGH": "記憶體過高",
+      "CUSTOM_METRIC": "自訂指標"
+    },
+    "alertStatus": {
+      "FIRING": "觸發中",
+      "ACTIVE": "活躍",
+      "ACKNOWLEDGED": "已確認",
+      "RESOLVED": "已解決",
+      "RECOVERED": "已恢復",
+      "SUPPRESSED": "已抑制"
+    },
+    "rules": {
+      "searchPlaceholder": "搜尋規則...",
+      "severityPlaceholder": "嚴重程度",
+      "statusPlaceholder": "狀態",
+      "filterAll": "全部",
+      "statusEnabled": "啟用",
+      "statusDisabled": "停用",
+      "create": "新增規則",
+      "paginationTotal": "共 {total} 條規則",
+      "deleteTitle": "確認刪除",
+      "deleteDescription": "確定要刪除此警報規則嗎？此操作無法復原。",
+      "table": {
+        "name": "規則名稱",
+        "conditionType": "條件類型",
+        "threshold": "閾值",
+        "severity": "嚴重程度",
+        "channels": "通知頻道",
+        "status": "狀態",
+        "actions": "操作"
+      },
+      "emptyTitle": "尚未設定任何警報規則",
+      "emptyHint": "點擊上方按鈕創建新規則"
+    },
+    "history": {
+      "statusPlaceholder": "狀態",
+      "severityPlaceholder": "嚴重程度",
+      "filterAll": "全部",
+      "empty": "目前沒有警報記錄",
+      "paginationTotal": "共 {total} 條記錄",
+      "unknownRule": "未知規則",
+      "table": {
+        "rule": "規則",
+        "severity": "嚴重程度",
+        "triggeredValue": "觸發值",
+        "status": "狀態",
+        "triggeredAt": "觸發時間",
+        "actions": "操作"
+      },
+      "detailTitle": "警報詳情",
+      "fields": {
+        "status": "狀態",
+        "severity": "嚴重程度",
+        "triggeredValue": "觸發值",
+        "threshold": "閾值",
+        "triggeredAt": "觸發時間",
+        "recoveredAt": "恢復時間",
+        "details": "詳細資訊",
+        "resolution": "解決說明"
+      },
+      "resolveTitle": "解決警報",
+      "resolveDescription": "請輸入解決說明",
+      "resolvePlaceholder": "描述如何解決此警報...",
+      "resolveConfirm": "確認解決",
+      "processing": "處理中..."
+    },
+    "createDialog": {
+      "title": "創建警報規則",
+      "description": "設定新的警報規則以監控系統指標。",
+      "sectionCondition": "條件設定",
+      "sectionNotification": "通知設定",
+      "name": "規則名稱 *",
+      "namePlaceholder": "例如：API 錯誤率過高",
+      "descriptionLabel": "描述",
+      "descriptionPlaceholder": "選填：描述此規則的用途",
+      "conditionType": "條件類型 *",
+      "conditionTypePlaceholder": "選擇條件類型",
+      "metric": "指標名稱 *",
+      "metricPlaceholder": "例如：error_rate",
+      "operator": "運算符 *",
+      "operatorPlaceholder": "選擇運算符",
+      "threshold": "閾值 *",
+      "duration": "持續時間（秒）*",
+      "durationDescription": "條件需持續多久才觸發警報",
+      "serviceName": "服務名稱",
+      "serviceNamePlaceholder": "選填：特定服務",
+      "severity": "嚴重程度 *",
+      "severityPlaceholder": "選擇嚴重程度",
+      "cooldown": "冷卻時間（分鐘）",
+      "cooldownDescription": "重複警報的最小間隔",
+      "channels": "通知頻道 *",
+      "recipients": "收件人 *",
+      "recipientsDescription": "以逗號分隔多個收件人",
+      "submitting": "創建中...",
+      "submit": "創建規則",
+      "conditionOptions": {
+        "SERVICE_DOWN": "服務停機",
+        "ERROR_RATE": "錯誤率",
+        "RESPONSE_TIME": "回應時間",
+        "QUEUE_BACKLOG": "佇列積壓",
+        "STORAGE_LOW": "儲存空間不足",
+        "CPU_HIGH": "CPU 使用率過高",
+        "MEMORY_HIGH": "記憶體使用率過高",
+        "CUSTOM_METRIC": "自定義指標"
+      },
+      "operatorOptions": {
+        "GREATER_THAN": "大於 (>)",
+        "GREATER_THAN_EQ": "大於等於 (>=)",
+        "LESS_THAN": "小於 (<)",
+        "LESS_THAN_EQ": "小於等於 (<=)",
+        "EQUALS": "等於 (=)",
+        "NOT_EQUALS": "不等於 (!=)"
+      }
     }
   },
   "apiKeys": {
@@ -838,6 +1001,58 @@
       "confirm": "確定輪替",
       "rotating": "輪替中...",
       "saved": "我已保存，關閉"
+    },
+    "table": {
+      "name": "名稱",
+      "keyPrefix": "Key 前綴",
+      "permissions": "權限",
+      "rateLimit": "速率限制",
+      "usage": "使用量",
+      "lastUsed": "最後使用",
+      "status": "狀態",
+      "cities": "城市",
+      "operations": "操作",
+      "allCities": "全部城市",
+      "allOperations": "全部",
+      "neverUsed": "從未使用",
+      "active": "啟用",
+      "inactive": "停用",
+      "actionsMenu": "操作選單",
+      "editSettings": "編輯設定",
+      "viewStats": "查看統計",
+      "rotateKey": "輪替 Key",
+      "delete": "刪除",
+      "emptyTitle": "尚無 API Key",
+      "emptyHint": "建立第一個 API Key 以開始使用外部 API"
+    },
+    "createDialog": {
+      "successTitle": "API Key 創建成功",
+      "successDescription": "請立即複製並安全保存此 Key，關閉後將無法再次查看。",
+      "importantTitle": "重要提醒",
+      "importantDescription": "這是您唯一一次看到完整 API Key 的機會。請確保已安全保存。",
+      "savedButton": "我已保存，關閉",
+      "title": "創建 API Key",
+      "description": "創建新的 API Key 以供外部系統存取 API。",
+      "name": "名稱 *",
+      "namePlaceholder": "例如：外部系統 API Key",
+      "descriptionLabel": "描述",
+      "descriptionPlaceholder": "選填：描述此 Key 的用途",
+      "allowedCities": "允許的城市 *",
+      "allCities": "全部城市",
+      "allowedOperations": "允許的操作 *",
+      "rateLimit": "速率限制（每分鐘請求數）",
+      "rateLimitDescription": "預設為 60 次/分鐘",
+      "allowedIps": "IP 白名單",
+      "allowedIpsPlaceholder": "選填：以逗號分隔多個 IP",
+      "allowedIpsDescription": "留空表示不限制 IP。例如：192.168.1.1, 10.0.0.1",
+      "submitting": "創建中...",
+      "submit": "創建 API Key",
+      "operations": {
+        "submit": "提交發票",
+        "query": "查詢狀態",
+        "result": "獲取結果",
+        "webhook": "Webhook 管理"
+      }
     }
   },
   "configManagement": {
@@ -868,6 +1083,22 @@
       "cancel": "取消",
       "confirm": "確認重置",
       "resetting": "重置中..."
+    },
+    "history": {
+      "title": "配置變更歷史",
+      "loading": "載入歷史記錄...",
+      "empty": "暫無變更記錄",
+      "currentVersion": "目前版本",
+      "rollbackBadge": "回滾",
+      "changedBy": "變更者: {value}",
+      "reason": "原因: {value}",
+      "rollbackToVersion": "回滾到此版本",
+      "before": "變更前",
+      "after": "變更後",
+      "pagination": "第 {page} / {totalPages} 頁，共 {total} 筆",
+      "previous": "上一頁",
+      "next": "下一頁",
+      "close": "關閉"
     }
   },
   "logsViewer": {
@@ -914,6 +1145,93 @@
       "pageInfo": "第 {page} 頁，共 {totalPages} 頁",
       "previous": "上一頁",
       "next": "下一頁"
+    },
+    "stream": {
+      "title": "即時日誌",
+      "connected": "已連線",
+      "disconnected": "未連線",
+      "filter": "篩選",
+      "levelLabel": "日誌級別",
+      "sourceLabel": "日誌來源",
+      "resume": "繼續",
+      "pause": "暫停",
+      "clear": "清除",
+      "close": "關閉",
+      "showingRecent": "顯示最近 {count} 筆日誌",
+      "autoScroll": "自動捲動",
+      "paused": "串流已暫停",
+      "waiting": "等待新的日誌..."
+    },
+    "detail": {
+      "title": "日誌詳情",
+      "loading": "載入中...",
+      "tabs": {
+        "details": "基本資訊",
+        "message": "完整訊息",
+        "stack": "錯誤堆疊",
+        "data": "附加資料",
+        "related": "關聯日誌"
+      },
+      "fields": {
+        "logId": "日誌 ID",
+        "timestamp": "時間戳記",
+        "source": "來源",
+        "correlationId": "關聯 ID",
+        "requestId": "請求 ID",
+        "user": "使用者",
+        "className": "類別名稱",
+        "methodName": "方法名稱",
+        "endpoint": "API 端點",
+        "duration": "執行時間",
+        "memoryUsage": "記憶體使用",
+        "ipAddress": "IP 位址",
+        "userAgent": "User Agent"
+      },
+      "copied": "已複製",
+      "copiedDescription": "{label} 已複製到剪貼簿",
+      "noRelated": "沒有找到關聯日誌",
+      "relatedCorrelationId": "關聯 ID",
+      "current": "目前",
+      "notFound": "找不到日誌記錄"
+    },
+    "export": {
+      "title": "匯出日誌",
+      "description": "選擇匯出格式和時間範圍，系統將產生可下載的檔案",
+      "formatLabel": "匯出格式",
+      "formats": {
+        "csv": "CSV",
+        "csvDescription": "適合 Excel 或試算表應用程式",
+        "json": "JSON",
+        "jsonDescription": "適合程式處理和資料分析",
+        "txt": "純文字",
+        "txtDescription": "易於閱讀的純文字格式"
+      },
+      "timeRange": "時間範圍",
+      "startTime": "開始時間",
+      "endTime": "結束時間",
+      "appliedFilters": "已套用篩選條件",
+      "filterLevel": "級別",
+      "filterSource": "來源",
+      "filterKeyword": "關鍵字",
+      "exporting": "正在匯出...",
+      "preparing": "準備中...",
+      "processedRecords": "已處理 {processed} / {total} 筆",
+      "completed": "匯出完成",
+      "completedRecords": "{count} 筆日誌",
+      "failed": "匯出失敗",
+      "unknownError": "發生未知錯誤",
+      "close": "關閉",
+      "cancel": "取消",
+      "creating": "建立中...",
+      "start": "開始匯出",
+      "download": "下載檔案",
+      "retry": "重試",
+      "toast": {
+        "created": "匯出任務已建立",
+        "createdDescription": "正在處理匯出請求...",
+        "failed": "匯出失敗",
+        "failedDescription": "無法建立匯出任務"
+      }
     }
   },
   "restore": {
@@ -939,6 +1257,181 @@
     "list": {
       "title": "恢復記錄",
       "description": "查看所有恢復操作記錄"
+    },
+    "statuses": {
+      "PENDING": "等待中",
+      "VALIDATING": "驗證中",
+      "PRE_BACKUP": "備份中",
+      "IN_PROGRESS": "執行中",
+      "VERIFYING": "驗證中",
+      "COMPLETED": "已完成",
+      "FAILED": "失敗",
+      "CANCELLED": "已取消",
+      "ROLLED_BACK": "已回滾"
+    },
+    "statusDescriptions": {
+      "PENDING": "恢復作業已建立，等待執行",
+      "VALIDATING": "正在驗證備份檔案的完整性",
+      "PRE_BACKUP": "正在建立恢復前的安全備份",
+      "IN_PROGRESS": "正在執行恢復作業",
+      "VERIFYING": "正在驗證恢復結果",
+      "COMPLETED": "恢復作業已成功完成",
+      "FAILED": "恢復作業失敗",
+      "CANCELLED": "恢復作業已被取消",
+      "ROLLED_BACK": "恢復失敗後已回滾至原始狀態"
+    },
+    "types": {
+      "FULL": "完整恢復",
+      "PARTIAL": "部分恢復",
+      "DRILL": "恢復演練",
+      "POINT_IN_TIME": "時間點恢復"
+    },
+    "typeDescriptions": {
+      "FULL": "完全替換所有現有數據，恢復至備份時的完整狀態",
+      "PARTIAL": "只恢復選定的資料表或檔案，保留其他現有數據",
+      "DRILL": "在隔離環境中測試恢復流程，不影響正式數據",
+      "POINT_IN_TIME": "恢復至指定的時間點狀態"
+    },
+    "scopes": {
+      "DATABASE": "資料庫",
+      "FILES": "檔案",
+      "CONFIG": "系統設定",
+      "ALL": "全部"
+    },
+    "scopeDescriptions": {
+      "DATABASE": "恢復資料庫中的所有表和記錄",
+      "FILES": "恢復上傳的文件和附件",
+      "CONFIG": "恢復系統配置和設定值",
+      "ALL": "恢復所有數據，包括資料庫、檔案和設定"
+    },
+    "listView": {
+      "statusFilter": "狀態篩選",
+      "typeFilter": "類型篩選",
+      "allStatuses": "所有狀態",
+      "allTypes": "所有類型",
+      "refresh": "重新整理",
+      "columns": {
+        "status": "狀態",
+        "type": "類型",
+        "backupSource": "備份來源",
+        "startedAt": "開始時間",
+        "completedAt": "完成時間",
+        "progress": "進度",
+        "actions": "操作"
+      },
+      "loading": "載入中...",
+      "empty": "暫無恢復記錄",
+      "viewDetails": "查看詳情",
+      "cancelRestore": "取消恢復",
+      "cancelDialog": {
+        "title": "確認取消恢復操作？",
+        "description": "此操作將取消正在等待執行的恢復任務，已完成的步驟不會受到影響。",
+        "back": "返回",
+        "cancelling": "取消中...",
+        "confirm": "確認取消"
+      }
+    },
+    "dialog": {
+      "title": "啟動數據恢復",
+      "steps": {
+        "backup": "選擇備份",
+        "backupDescription": "選擇要恢復的備份",
+        "config": "配置選項",
+        "configDescription": "設定恢復類型與範圍",
+        "preview": "預覽確認",
+        "previewDescription": "確認恢復內容",
+        "confirm": "最終確認",
+        "confirmDescription": "輸入確認文字"
+      },
+      "step0": {
+        "intro": "選擇要用於恢復的備份。只有已完成的備份可供選擇。",
+        "loading": "載入備份列表...",
+        "emptyTitle": "沒有可用的備份",
+        "emptyDescription": "系統中沒有已完成的備份可供恢復。請先建立備份。",
+        "backupFallback": "備份 {id}"
+      },
+      "step1": {
+        "typeLabel": "恢復類型",
+        "scopeLabel": "恢復範圍",
+        "drillName": "演練名稱",
+        "drillNamePlaceholder": "例如：Q4 災難恢復演練",
+        "drillNameHint": "為這次演練命名，方便日後識別"
+      },
+      "step2": {
+        "loading": "載入備份內容...",
+        "backupType": "備份類型",
+        "backupTime": "備份時間",
+        "contentLabel": "備份內容",
+        "databaseTables": "資料庫表格",
+        "countUnit": "{count} 個",
+        "moreTables": "+{count} 更多",
+        "files": "文件",
+        "moreFiles": "+{count} 更多文件",
+        "configLabel": "恢復配置",
+        "configType": "恢復類型：{value}",
+        "configScope": "恢復範圍：{value}",
+        "configDrillName": "演練名稱：{value}",
+        "errorTitle": "無法載入備份內容",
+        "errorDescription": "請確認備份狀態正常後重試。"
+      },
+      "step3": {
+        "warningTitle": "⚠️ 警告：這是一個破壞性操作",
+        "drillWarning": "恢復演練將在隔離環境中執行，不會影響生產數據。",
+        "fullWarning": "此操作將覆蓋現有數據。系統會在恢復前自動建立預恢復備份，但仍建議您確認已了解影響範圍。",
+        "summaryBackup": "備份來源：{value}",
+        "summaryType": "恢復類型：{value}",
+        "summaryScope": "恢復範圍：{value}",
+        "confirmPrompt": "請輸入 <code>{text}</code> 以確認",
+        "confirmError": "請輸入 \"{text}\""
+      },
+      "back": "上一步",
+      "next": "下一步",
+      "starting": "啟動中...",
+      "confirmStart": "確認啟動恢復"
+    },
+    "detailDialog": {
+      "title": "恢復操作詳情",
+      "description": "查看恢復操作的詳細資訊與進度",
+      "loading": "載入中...",
+      "notFound": "找不到恢復記錄",
+      "tabs": {
+        "details": "詳情",
+        "logs": "日誌"
+      },
+      "statusTitle": "恢復狀態",
+      "refresh": "重新整理",
+      "progress": "恢復進度",
+      "failedTitle": "恢復失敗",
+      "restoreType": "恢復類型",
+      "restoreScope": "恢復範圍",
+      "backupSource": "備份來源",
+      "operator": "操作者",
+      "startedAt": "開始時間",
+      "completedAt": "完成時間",
+      "preBackupCreated": "預恢復備份已建立",
+      "logsTitle": "恢復日誌",
+      "liveUpdating": "即時更新中",
+      "logCount": "{count} 條記錄",
+      "logsLoading": "載入日誌...",
+      "logsEmpty": "暫無日誌記錄",
+      "cancelRestore": "取消恢復",
+      "rollbackRestore": "回滾恢復",
+      "close": "關閉",
+      "cancelDialog": {
+        "title": "確認取消恢復操作？",
+        "description": "此操作將取消正在等待執行的恢復任務。如果恢復已經開始執行，可能無法完全取消。",
+        "back": "返回",
+        "cancelling": "取消中...",
+        "confirm": "確認取消"
+      },
+      "rollbackDialog": {
+        "title": "確認回滾恢復操作？",
+        "description": "此操作將使用預恢復備份將系統回滾到恢復操作之前的狀態。這是一個破壞性操作，請謹慎確認。",
+        "confirmPrompt": "請輸入 <code>ROLLBACK-CONFIRM</code> 以確認",
+        "back": "返回",
+        "rollingBack": "回滾中...",
+        "confirm": "確認回滾"
+      }
     }
   }
 }

@@ -31,6 +31,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -123,37 +124,40 @@ function calculatePercentage(value: number, total: number): number {
  */
 function AggregationStatusBadge({
   status,
+  t,
 }: {
   status: TermAggregationResponse['status']
+  t: ReturnType<typeof useTranslations<'historicalData.termAggregation'>>
 }) {
   const config = {
     pending: {
-      label: '待聚合',
+      labelKey: 'pending',
       variant: 'secondary' as const,
       icon: Clock,
       className: 'bg-gray-100 text-gray-700 border-gray-200',
     },
     aggregating: {
-      label: '聚合中',
+      labelKey: 'aggregating',
       variant: 'default' as const,
       icon: Loader2,
       className: 'bg-blue-100 text-blue-700 border-blue-200',
     },
     completed: {
-      label: '已完成',
+      labelKey: 'completed',
       variant: 'default' as const,
       icon: CheckCircle2,
       className: 'bg-green-100 text-green-700 border-green-200',
     },
     failed: {
-      label: '失敗',
+      labelKey: 'failed',
       variant: 'destructive' as const,
       icon: XCircle,
       className: '',
     },
   }
 
-  const { label, variant, icon: Icon, className } = config[status] || config.pending
+  const { labelKey, variant, icon: Icon, className } = config[status] || config.pending
+  const label = t(`status.${labelKey}`)
 
   return (
     <Badge variant={variant} className={cn('gap-1', className)}>
@@ -213,7 +217,13 @@ function StatItem({
 /**
  * 統計概覽網格
  */
-function StatsGrid({ stats }: { stats: BatchTermAggregationStats }) {
+function StatsGrid({
+  stats,
+  t,
+}: {
+  stats: BatchTermAggregationStats
+  t: ReturnType<typeof useTranslations<'historicalData.termAggregation'>>
+}) {
   const classifiedPercentage = calculatePercentage(
     stats.classifiedTermsCount,
     stats.totalUniqueTerms
@@ -223,50 +233,50 @@ function StatsGrid({ stats }: { stats: BatchTermAggregationStats }) {
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
       <StatItem
         icon={Hash}
-        label="唯一術語"
+        label={t('stats.uniqueTerms.label')}
         value={formatNumber(stats.totalUniqueTerms)}
-        subValue={`共 ${formatNumber(stats.totalOccurrences)} 次出現`}
+        subValue={t('stats.uniqueTerms.subValue', { count: formatNumber(stats.totalOccurrences) })}
         iconColor="text-purple-600"
-        tooltip="識別到的不重複術語總數"
+        tooltip={t('stats.uniqueTerms.tooltip')}
       />
       <StatItem
         icon={Globe}
-        label="通用術語"
+        label={t('stats.universalTerms.label')}
         value={formatNumber(stats.universalTermsCount)}
-        subValue={`跨 2+ 公司通用`}
+        subValue={t('stats.universalTerms.subValue')}
         iconColor="text-blue-600"
-        tooltip="出現在多個公司中的通用術語"
+        tooltip={t('stats.universalTerms.tooltip')}
       />
       <StatItem
         icon={Building2}
-        label="公司特定"
+        label={t('stats.companySpecific.label')}
         value={formatNumber(stats.companySpecificCount)}
-        subValue={`${stats.companiesWithTerms} 個公司`}
+        subValue={t('stats.companySpecific.subValue', { count: stats.companiesWithTerms })}
         iconColor="text-orange-600"
-        tooltip="只出現在特定公司的術語"
+        tooltip={t('stats.companySpecific.tooltip')}
       />
       <StatItem
         icon={Tag}
-        label="已分類"
+        label={t('stats.classified.label')}
         value={formatNumber(stats.classifiedTermsCount)}
-        subValue={`${classifiedPercentage}% 覆蓋率`}
+        subValue={t('stats.classified.subValue', { percent: classifiedPercentage })}
         iconColor="text-green-600"
-        tooltip="已自動分類的術語數量"
+        tooltip={t('stats.classified.tooltip')}
       />
       <StatItem
         icon={FolderOpen}
-        label="待分類"
+        label={t('stats.unclassified.label')}
         value={formatNumber(stats.totalUniqueTerms - stats.classifiedTermsCount)}
-        subValue={`${100 - classifiedPercentage}% 待處理`}
+        subValue={t('stats.unclassified.subValue', { percent: 100 - classifiedPercentage })}
         iconColor="text-yellow-600"
-        tooltip="需要人工分類或映射的術語"
+        tooltip={t('stats.unclassified.tooltip')}
       />
       <StatItem
         icon={BarChart3}
-        label="涵蓋公司"
+        label={t('stats.coveredCompanies.label')}
         value={stats.companiesWithTerms}
         iconColor="text-teal-600"
-        tooltip="有術語提取結果的公司數量"
+        tooltip={t('stats.coveredCompanies.tooltip')}
       />
     </div>
   )
@@ -277,13 +287,15 @@ function StatsGrid({ stats }: { stats: BatchTermAggregationStats }) {
  */
 function TopTermsList({
   terms,
+  t,
 }: {
   terms: { term: string; frequency: number }[]
+  t: ReturnType<typeof useTranslations<'historicalData.termAggregation'>>
 }) {
   if (!terms || terms.length === 0) {
     return (
       <div className="text-sm text-muted-foreground text-center py-4">
-        暫無術語資料
+        {t('empty.terms')}
       </div>
     )
   }
@@ -320,13 +332,15 @@ function TopTermsList({
  */
 function CategoryBreakdown({
   categories,
+  t,
 }: {
   categories: { category: string; count: number }[]
+  t: ReturnType<typeof useTranslations<'historicalData.termAggregation'>>
 }) {
   if (!categories || categories.length === 0) {
     return (
       <div className="text-sm text-muted-foreground text-center py-4">
-        暫無類別資料
+        {t('empty.categories')}
       </div>
     )
   }
@@ -342,7 +356,7 @@ function CategoryBreakdown({
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium truncate">
-                  {item.category || '未分類'}
+                  {item.category || t('uncategorized')}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {formatNumber(item.count)} ({percentage}%)
@@ -362,13 +376,15 @@ function CategoryBreakdown({
  */
 function CompanyBreakdown({
   companies,
+  t,
 }: {
   companies: { companyName: string; termCount: number }[]
+  t: ReturnType<typeof useTranslations<'historicalData.termAggregation'>>
 }) {
   if (!companies || companies.length === 0) {
     return (
       <div className="text-sm text-muted-foreground text-center py-4">
-        暫無公司資料
+        {t('empty.companies')}
       </div>
     )
   }
@@ -385,7 +401,7 @@ function CompanyBreakdown({
                 {item.companyName}
               </span>
               <span className="text-xs text-muted-foreground">
-                {formatNumber(item.termCount)} 術語
+                {t('companyTermCount', { count: formatNumber(item.termCount) })}
               </span>
             </div>
             <Progress
@@ -447,13 +463,15 @@ export function TermAggregationSummary({
   isTriggering = false,
   className,
 }: TermAggregationSummaryProps) {
+  const t = useTranslations('historicalData.termAggregation')
+
   // --- Render: Loading State ---
   if (isLoading) {
     return (
       <Card className={className}>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">載入術語聚合資料...</span>
+          <span className="ml-2 text-muted-foreground">{t('loading')}</span>
         </CardContent>
       </Card>
     )
@@ -469,7 +487,7 @@ export function TermAggregationSummary({
           {onTriggerAggregation && (
             <Button variant="outline" onClick={onTriggerAggregation}>
               <RefreshCw className="mr-2 h-4 w-4" />
-              重試
+              {t('actions.retry')}
             </Button>
           )}
         </CardContent>
@@ -485,18 +503,18 @@ export function TermAggregationSummary({
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Hash className="h-5 w-5" />
-              術語聚合
+              {t('title')}
             </CardTitle>
-            <AggregationStatusBadge status="pending" />
+            <AggregationStatusBadge status="pending" t={t} />
           </div>
           <CardDescription>
-            術語聚合尚未執行。批量處理完成後可執行術語聚合分析。
+            {t('pending.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8">
             <Clock className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground mb-4">尚未進行術語聚合分析</p>
+            <p className="text-muted-foreground mb-4">{t('pending.hint')}</p>
             {onTriggerAggregation && (
               <Button
                 onClick={onTriggerAggregation}
@@ -506,12 +524,12 @@ export function TermAggregationSummary({
                 {isTriggering ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    聚合中...
+                    {t('actions.aggregating')}
                   </>
                 ) : (
                   <>
                     <TrendingUp className="h-4 w-4" />
-                    執行術語聚合
+                    {t('actions.trigger')}
                   </>
                 )}
               </Button>
@@ -530,17 +548,17 @@ export function TermAggregationSummary({
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Hash className="h-5 w-5" />
-              術語聚合
+              {t('title')}
             </CardTitle>
-            <AggregationStatusBadge status="aggregating" />
+            <AggregationStatusBadge status="aggregating" t={t} />
           </div>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8">
             <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">正在進行術語聚合分析...</p>
+            <p className="text-muted-foreground">{t('aggregating.hint')}</p>
             <p className="text-xs text-muted-foreground mt-2">
-              這可能需要幾分鐘時間
+              {t('aggregating.timeNote')}
             </p>
           </div>
         </CardContent>
@@ -556,17 +574,17 @@ export function TermAggregationSummary({
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Hash className="h-5 w-5" />
-              術語聚合
+              {t('title')}
             </CardTitle>
-            <AggregationStatusBadge status="failed" />
+            <AggregationStatusBadge status="failed" t={t} />
           </div>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8">
             <XCircle className="h-12 w-12 text-red-500 mb-4" />
-            <p className="text-muted-foreground mb-2">術語聚合失敗</p>
+            <p className="text-muted-foreground mb-2">{t('failed.hint')}</p>
             <p className="text-sm text-red-500 mb-4">
-              {data.error || '未知錯誤'}
+              {data.error || t('unknownError')}
             </p>
             {onTriggerAggregation && (
               <Button
@@ -577,12 +595,12 @@ export function TermAggregationSummary({
                 {isTriggering ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    重試中...
+                    {t('actions.retrying')}
                   </>
                 ) : (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4" />
-                    重新執行
+                    {t('actions.rerun')}
                   </>
                 )}
               </Button>
@@ -603,10 +621,10 @@ export function TermAggregationSummary({
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Hash className="h-5 w-5" />
-              術語聚合分析
+              {t('analysisTitle')}
             </CardTitle>
             <div className="flex items-center gap-2">
-              <AggregationStatusBadge status="completed" />
+              <AggregationStatusBadge status="completed" t={t} />
               {onTriggerAggregation && (
                 <Button
                   variant="ghost"
@@ -625,14 +643,14 @@ export function TermAggregationSummary({
           </div>
           {aggregatedAt && (
             <CardDescription>
-              聚合完成時間：{new Date(aggregatedAt).toLocaleString('zh-TW')}
+              {t('completedAt', { time: new Date(aggregatedAt).toLocaleString('zh-TW') })}
             </CardDescription>
           )}
         </CardHeader>
 
         <CardContent className="space-y-6">
           {/* 統計概覽 */}
-          {stats && <StatsGrid stats={stats} />}
+          {stats && <StatsGrid stats={stats} t={t} />}
 
           {/* 分佈詳情 */}
           {summary && (
@@ -640,27 +658,27 @@ export function TermAggregationSummary({
               {/* Top 術語 */}
               {summary.topTerms && summary.topTerms.length > 0 && (
                 <DistributionSection
-                  title="最常見術語"
+                  title={t('sections.topTerms')}
                   icon={TrendingUp}
                   defaultOpen={true}
                 >
-                  <TopTermsList terms={summary.topTerms} />
+                  <TopTermsList terms={summary.topTerms} t={t} />
                 </DistributionSection>
               )}
 
               {/* 類別分佈 */}
               {summary.categoryBreakdown &&
                 summary.categoryBreakdown.length > 0 && (
-                  <DistributionSection title="類別分佈" icon={Tag}>
-                    <CategoryBreakdown categories={summary.categoryBreakdown} />
+                  <DistributionSection title={t('sections.categoryBreakdown')} icon={Tag}>
+                    <CategoryBreakdown categories={summary.categoryBreakdown} t={t} />
                   </DistributionSection>
                 )}
 
               {/* 公司分佈 */}
               {summary.companyBreakdown &&
                 summary.companyBreakdown.length > 0 && (
-                  <DistributionSection title="公司術語分佈" icon={Building2}>
-                    <CompanyBreakdown companies={summary.companyBreakdown} />
+                  <DistributionSection title={t('sections.companyBreakdown')} icon={Building2}>
+                    <CompanyBreakdown companies={summary.companyBreakdown} t={t} />
                   </DistributionSection>
                 )}
             </div>
@@ -669,7 +687,7 @@ export function TermAggregationSummary({
           {/* 無分佈資料時的提示 */}
           {!summary && stats && (
             <div className="text-center py-4 text-sm text-muted-foreground border-t">
-              詳細分佈資料不可用。請嘗試重新執行聚合分析。
+              {t('noDistribution')}
             </div>
           )}
         </CardContent>

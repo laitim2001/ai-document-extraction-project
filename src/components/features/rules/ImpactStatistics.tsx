@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Card,
   CardContent,
@@ -112,6 +113,8 @@ export function ImpactStatistics({
   totalDocuments,
   className,
 }: ImpactStatisticsProps) {
+  const t = useTranslations('rules')
+
   // --- Calculations ---
 
   const netImprovement = results.improved - results.regressed
@@ -125,8 +128,11 @@ export function ImpactStatistics({
       return {
         type: 'warning' as const,
         icon: <AlertCircle className="h-4 w-4" />,
-        title: '不建議採用',
-        description: `惡化案例達 ${results.regressed} 筆 (${(results.regressionRate * 100).toFixed(1)}%)，超過 5% 閾值。建議重新檢視規則 Pattern。`,
+        title: t('impactStats.recommendation.notRecommendedTitle'),
+        description: t('impactStats.recommendation.notRecommendedDesc', {
+          count: results.regressed,
+          rate: (results.regressionRate * 100).toFixed(1),
+        }),
       }
     }
 
@@ -134,8 +140,11 @@ export function ImpactStatistics({
       return {
         type: 'success' as const,
         icon: <CheckCircle className="h-4 w-4" />,
-        title: '建議採用',
-        description: `淨改善 ${netImprovement} 筆，惡化率 ${(results.regressionRate * 100).toFixed(1)}% 在可接受範圍內。`,
+        title: t('impactStats.recommendation.recommendedTitle'),
+        description: t('impactStats.recommendation.recommendedDesc', {
+          net: netImprovement,
+          rate: (results.regressionRate * 100).toFixed(1),
+        }),
       }
     }
 
@@ -143,16 +152,21 @@ export function ImpactStatistics({
       return {
         type: 'info' as const,
         icon: <Info className="h-4 w-4" />,
-        title: '效果不明顯',
-        description: `此變更無明顯改善效果 (淨改善: ${netImprovement})。建議重新評估變更的必要性。`,
+        title: t('impactStats.recommendation.ineffectiveTitle'),
+        description: t('impactStats.recommendation.ineffectiveDesc', {
+          net: netImprovement,
+        }),
       }
     }
 
     return {
       type: 'info' as const,
       icon: <Info className="h-4 w-4" />,
-      title: '需審慎評估',
-      description: `改善率 ${(results.improvementRate * 100).toFixed(1)}%，惡化率 ${(results.regressionRate * 100).toFixed(1)}%。建議根據實際業務需求決定是否採用。`,
+      title: t('impactStats.recommendation.cautiousTitle'),
+      description: t('impactStats.recommendation.cautiousDesc', {
+        improvementRate: (results.improvementRate * 100).toFixed(1),
+        regressionRate: (results.regressionRate * 100).toFixed(1),
+      }),
     }
   }
 
@@ -165,7 +179,7 @@ export function ImpactStatistics({
       {/* 統計卡片 */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
-          title="改善"
+          title={t('impactStats.improved')}
           value={results.improved}
           percentage={results.improvementRate}
           icon={<TrendingUp className="h-4 w-4 text-green-600" />}
@@ -173,7 +187,7 @@ export function ImpactStatistics({
           bgClass="bg-green-50 dark:bg-green-900/20"
         />
         <StatCard
-          title="惡化"
+          title={t('impactStats.regressed')}
           value={results.regressed}
           percentage={results.regressionRate}
           icon={<TrendingDown className="h-4 w-4 text-red-600" />}
@@ -181,7 +195,7 @@ export function ImpactStatistics({
           bgClass="bg-red-50 dark:bg-red-900/20"
         />
         <StatCard
-          title="都對"
+          title={t('impactStats.bothRight')}
           value={results.bothRight}
           percentage={totalDocuments > 0 ? results.bothRight / totalDocuments : 0}
           icon={<CheckCircle2 className="h-4 w-4 text-blue-600" />}
@@ -189,7 +203,7 @@ export function ImpactStatistics({
           bgClass="bg-blue-50 dark:bg-blue-900/20"
         />
         <StatCard
-          title="都錯"
+          title={t('impactStats.bothWrong')}
           value={results.bothWrong}
           percentage={totalDocuments > 0 ? results.bothWrong / totalDocuments : 0}
           icon={<XCircle className="h-4 w-4 text-yellow-600" />}
@@ -197,7 +211,7 @@ export function ImpactStatistics({
           bgClass="bg-yellow-50 dark:bg-yellow-900/20"
         />
         <StatCard
-          title="無變化"
+          title={t('impactStats.unchanged')}
           value={results.unchanged}
           percentage={totalDocuments > 0 ? results.unchanged / totalDocuments : 0}
           icon={<Minus className="h-4 w-4 text-slate-600" />}
@@ -209,13 +223,13 @@ export function ImpactStatistics({
       {/* 準確率比較 */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">準確率比較</CardTitle>
-          <CardDescription>原規則與新規則的準確率對比</CardDescription>
+          <CardTitle className="text-base">{t('impactStats.accuracyComparison')}</CardTitle>
+          <CardDescription>{t('impactStats.accuracyComparisonDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span>原規則準確率</span>
+              <span>{t('impactStats.originalAccuracy')}</span>
               <span className="font-medium">
                 {(results.originalAccuracyRate * 100).toFixed(1)}%
               </span>
@@ -224,7 +238,7 @@ export function ImpactStatistics({
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span>新規則準確率</span>
+              <span>{t('impactStats.newAccuracy')}</span>
               <span className="font-medium">
                 {(results.testAccuracyRate * 100).toFixed(1)}%
               </span>
@@ -242,7 +256,7 @@ export function ImpactStatistics({
             />
           </div>
           <div className="flex items-center justify-between pt-2 border-t">
-            <span className="text-sm font-medium">淨改善</span>
+            <span className="text-sm font-medium">{t('impactStats.netImprovement')}</span>
             <Badge
               variant={netImprovement > 0 ? 'default' : netImprovement < 0 ? 'destructive' : 'secondary'}
               className={cn(
@@ -250,8 +264,12 @@ export function ImpactStatistics({
                 netImprovement < 0 && 'bg-red-100 text-red-700 hover:bg-red-200'
               )}
             >
-              {netImprovement > 0 ? '+' : ''}{netImprovement} 筆
-              ({netImprovementRate > 0 ? '+' : ''}{(netImprovementRate * 100).toFixed(1)}%)
+              {t('impactStats.netImprovementValue', {
+                prefix: netImprovement > 0 ? '+' : '',
+                count: netImprovement,
+                ratePrefix: netImprovementRate > 0 ? '+' : '',
+                rate: (netImprovementRate * 100).toFixed(1),
+              })}
             </Badge>
           </div>
         </CardContent>

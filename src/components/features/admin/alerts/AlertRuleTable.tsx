@@ -11,6 +11,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   DataTable,
   type DataTableColumn,
@@ -30,31 +31,6 @@ import type { AlertRuleResponse } from '@/types/alerts';
 // ============================================================
 // Helper Functions
 // ============================================================
-
-function getConditionTypeText(type: string): string {
-  const texts: Record<string, string> = {
-    SERVICE_DOWN: '服務中斷',
-    ERROR_RATE: '錯誤率',
-    RESPONSE_TIME: '響應時間',
-    QUEUE_BACKLOG: '佇列積壓',
-    STORAGE_LOW: '儲存空間不足',
-    CPU_HIGH: 'CPU 過高',
-    MEMORY_HIGH: '記憶體過高',
-    CUSTOM_METRIC: '自訂指標',
-  };
-  return texts[type] || type;
-}
-
-function getSeverityText(severity: string): string {
-  const texts: Record<string, string> = {
-    INFO: '資訊',
-    WARNING: '警告',
-    ERROR: '錯誤',
-    CRITICAL: '嚴重',
-    EMERGENCY: '緊急',
-  };
-  return texts[severity] || severity;
-}
 
 function getSeverityColor(severity: string): string {
   const colors: Record<string, string> = {
@@ -110,13 +86,16 @@ export function AlertRuleTable({
   onEdit,
   onDelete,
 }: AlertRuleTableProps) {
+  const t = useTranslations('admin.alerts');
+  const tCommon = useTranslations('common');
+
   // --- Column 定義 ---
   const columns = React.useMemo<DataTableColumn<AlertRuleResponse>[]>(() => {
     return [
       // 規則名稱
       {
         id: 'name',
-        header: '規則名稱',
+        header: t('rules.table.name'),
         cell: (rule) => (
           <div>
             <p className="font-medium">{rule.name}</p>
@@ -131,17 +110,19 @@ export function AlertRuleTable({
       // 條件類型
       {
         id: 'conditionType',
-        header: '條件類型',
+        header: t('rules.table.conditionType'),
         cell: (rule) => (
           <span className="text-sm">
-            {getConditionTypeText(rule.conditionType)}
+            {t.has(`conditionType.${rule.conditionType}`)
+              ? t(`conditionType.${rule.conditionType}`)
+              : rule.conditionType}
           </span>
         ),
       },
       // 閾值
       {
         id: 'threshold',
-        header: '閾值',
+        header: t('rules.table.threshold'),
         cell: (rule) => (
           <code className="text-sm bg-muted px-1 py-0.5 rounded">
             {rule.metric} {getOperatorSymbol(rule.operator)} {rule.threshold}
@@ -151,17 +132,19 @@ export function AlertRuleTable({
       // 嚴重程度
       {
         id: 'severity',
-        header: '嚴重程度',
+        header: t('rules.table.severity'),
         cell: (rule) => (
           <Badge className={getSeverityColor(rule.severity)}>
-            {getSeverityText(rule.severity)}
+            {t.has(`severity.${rule.severity}`)
+              ? t(`severity.${rule.severity}`)
+              : rule.severity}
           </Badge>
         ),
       },
       // 通知頻道
       {
         id: 'channels',
-        header: '通知頻道',
+        header: t('rules.table.channels'),
         cell: (rule) => (
           <div className="flex gap-1">
             {Array.isArray(rule.channels) &&
@@ -176,7 +159,7 @@ export function AlertRuleTable({
       // 狀態
       {
         id: 'status',
-        header: '狀態',
+        header: t('rules.table.status'),
         cell: (rule) => (
           <Switch
             checked={rule.isActive}
@@ -187,7 +170,7 @@ export function AlertRuleTable({
       // 操作
       {
         id: 'actions',
-        header: '操作',
+        header: t('rules.table.actions'),
         headerClassName: 'w-[70px]',
         cell: (rule) => (
           <DropdownMenu>
@@ -199,21 +182,21 @@ export function AlertRuleTable({
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(rule)}>
                 <Pencil className="mr-2 h-4 w-4" />
-                編輯
+                {tCommon('actions.edit')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => onDelete(rule.id)}
                 className="text-destructive"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                刪除
+                {tCommon('actions.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ),
       },
     ];
-  }, [onToggle, onEdit, onDelete]);
+  }, [onToggle, onEdit, onDelete, t, tCommon]);
 
   if (isLoading) {
     return (
@@ -226,8 +209,8 @@ export function AlertRuleTable({
   if (rules.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-        <p>尚未設定任何警報規則</p>
-        <p className="text-sm">點擊上方按鈕創建新規則</p>
+        <p>{t('rules.emptyTitle')}</p>
+        <p className="text-sm">{t('rules.emptyHint')}</p>
       </div>
     );
   }

@@ -5,7 +5,10 @@
       "gptVision": "GPT Vision",
       "manual": "手动输入",
       "mapping": "映射规则"
-    }
+    },
+    "notExtracted": "未提取",
+    "edited": "已修改",
+    "originalValue": "（原值：{value}）"
   },
   "lineItems": {
     "title": "行项目",
@@ -134,12 +137,39 @@
       "zoomOut": "缩小",
       "resetZoom": "重置缩放 (100%)",
       "fitWidth": "适合宽度"
+    },
+    "overlay": {
+      "confidenceLabel": "置信度 {confidence}%"
     }
+  },
+  "loading": {
+    "document": "加载文件中...",
+    "viewer": "加载预览器中...",
+    "page": "加载页面中..."
   },
   "error": {
     "title": "错误",
     "loading": "加载文件失败",
-    "retry": "重试"
+    "retry": "重试",
+    "documentLoadFailed": "无法加载 PDF 文件",
+    "types": {
+      "network": {
+        "title": "网络错误",
+        "description": "无法加载文件，请检查网络连接后重试。"
+      },
+      "corrupted": {
+        "title": "文件损坏",
+        "description": "此 PDF 文件可能已损坏或格式不正确。"
+      },
+      "encrypted": {
+        "title": "文件已加密",
+        "description": "此 PDF 文件已加密，无法直接打开。"
+      },
+      "generic": {
+        "title": "加载失败",
+        "description": "无法加载 PDF 文件，请稍后重试。"
+      }
+    }
   },
   "mappingConfigPanel": {
     "title": "字段映射配置",
@@ -179,7 +209,12 @@
     "dragHint": "拖动调整优先级，数字越小优先级越高",
     "addRule": "新增规则",
     "rulesCount": "共 {count} 条规则",
-    "disabledCount": "（{count} 条已停用）"
+    "disabledCount": "（{count} 条已停用）",
+    "noSourceFields": "(无来源字段)",
+    "enableRule": "启用规则",
+    "disableRule": "停用规则",
+    "editRule": "编辑规则",
+    "deleteRule": "删除规则"
   },
   "mappingPreview": {
     "title": "预览结果",

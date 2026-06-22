@@ -11,6 +11,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   DataTable,
   type DataTableColumn,
@@ -45,17 +46,6 @@ import type { AlertListParams, AlertResponse } from '@/types/alerts';
 // Helper Functions
 // ============================================================
 
-function getSeverityText(severity: string): string {
-  const texts: Record<string, string> = {
-    INFO: '資訊',
-    WARNING: '警告',
-    ERROR: '錯誤',
-    CRITICAL: '嚴重',
-    EMERGENCY: '緊急',
-  };
-  return texts[severity] || severity;
-}
-
 function getSeverityColor(severity: string): string {
   const colors: Record<string, string> = {
     INFO: 'bg-blue-100 text-blue-800',
@@ -65,18 +55,6 @@ function getSeverityColor(severity: string): string {
     EMERGENCY: 'bg-purple-100 text-purple-800',
   };
   return colors[severity] || 'bg-gray-100 text-gray-800';
-}
-
-function getAlertStatusText(status: string): string {
-  const texts: Record<string, string> = {
-    FIRING: '觸發中',
-    ACTIVE: '活躍',
-    ACKNOWLEDGED: '已確認',
-    RESOLVED: '已解決',
-    RECOVERED: '已恢復',
-    SUPPRESSED: '已抑制',
-  };
-  return texts[status] || status;
 }
 
 function getAlertStatusColor(status: string): string {
@@ -104,6 +82,21 @@ interface AlertHistoryProps {
 // ============================================================
 
 export function AlertHistory({ className }: AlertHistoryProps) {
+  const t = useTranslations('admin.alerts');
+  const tCommon = useTranslations('common');
+
+  // --- helpers ---
+  const severityText = React.useCallback(
+    (severity: string) =>
+      t.has(`severity.${severity}`) ? t(`severity.${severity}`) : severity,
+    [t]
+  );
+  const alertStatusText = React.useCallback(
+    (status: string) =>
+      t.has(`alertStatus.${status}`) ? t(`alertStatus.${status}`) : status,
+    [t]
+  );
+
   // --- State ---
   const [params, setParams] = React.useState<AlertListParams>({
     page: 1,
@@ -170,23 +163,23 @@ export function AlertHistory({ className }: AlertHistoryProps) {
     () => [
       {
         id: 'rule',
-        header: '規則',
+        header: t('history.table.rule'),
         cell: (alert) => (
-          <p className="font-medium">{alert.rule?.name || '未知規則'}</p>
+          <p className="font-medium">{alert.rule?.name || t('history.unknownRule')}</p>
         ),
       },
       {
         id: 'severity',
-        header: '嚴重程度',
+        header: t('history.table.severity'),
         cell: (alert) => (
           <Badge className={getSeverityColor(alert.rule?.severity || 'INFO')}>
-            {getSeverityText(alert.rule?.severity || 'INFO')}
+            {severityText(alert.rule?.severity || 'INFO')}
           </Badge>
         ),
       },
       {
         id: 'triggeredValue',
-        header: '觸發值',
+        header: t('history.table.triggeredValue'),
         cell: (alert) => (
           <code className="text-sm bg-muted px-1 py-0.5 rounded">
             {alert.triggeredValue}
@@ -195,16 +188,16 @@ export function AlertHistory({ className }: AlertHistoryProps) {
       },
       {
         id: 'status',
-        header: '狀態',
+        header: t('history.table.status'),
         cell: (alert) => (
           <Badge className={getAlertStatusColor(alert.status)}>
-            {getAlertStatusText(alert.status)}
+            {alertStatusText(alert.status)}
           </Badge>
         ),
       },
       {
         id: 'triggeredAt',
-        header: '觸發時間',
+        header: t('history.table.triggeredAt'),
         cell: (alert) => (
           <span className="text-sm text-muted-foreground">
             {new Date(alert.triggeredAt).toLocaleString('zh-TW')}
@@ -213,7 +206,7 @@ export function AlertHistory({ className }: AlertHistoryProps) {
       },
       {
         id: 'actions',
-        header: '操作',
+        header: t('history.table.actions'),
         headerClassName: 'w-[150px]',
         cell: (alert) => (
           <div className="flex items-center gap-1">
@@ -252,6 +245,9 @@ export function AlertHistory({ className }: AlertHistoryProps) {
       handleAcknowledge,
       handleResolveClick,
       handleViewDetails,
+      t,
+      severityText,
+      alertStatusText,
     ]
   );
 
@@ -266,14 +262,14 @@ export function AlertHistory({ className }: AlertHistoryProps) {
             onValueChange={(v) => handleFilterChange('status', v)}
           >
             <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="狀態" />
+              <SelectValue placeholder={t('history.statusPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部</SelectItem>
-              <SelectItem value="FIRING">觸發中</SelectItem>
-              <SelectItem value="ACKNOWLEDGED">已確認</SelectItem>
-              <SelectItem value="RESOLVED">已解決</SelectItem>
-              <SelectItem value="RECOVERED">已恢復</SelectItem>
+              <SelectItem value="all">{t('history.filterAll')}</SelectItem>
+              <SelectItem value="FIRING">{t('alertStatus.FIRING')}</SelectItem>
+              <SelectItem value="ACKNOWLEDGED">{t('alertStatus.ACKNOWLEDGED')}</SelectItem>
+              <SelectItem value="RESOLVED">{t('alertStatus.RESOLVED')}</SelectItem>
+              <SelectItem value="RECOVERED">{t('alertStatus.RECOVERED')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -282,14 +278,14 @@ export function AlertHistory({ className }: AlertHistoryProps) {
             onValueChange={(v) => handleFilterChange('severity', v)}
           >
             <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="嚴重程度" />
+              <SelectValue placeholder={t('history.severityPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部</SelectItem>
-              <SelectItem value="INFO">資訊</SelectItem>
-              <SelectItem value="WARNING">警告</SelectItem>
-              <SelectItem value="CRITICAL">嚴重</SelectItem>
-              <SelectItem value="EMERGENCY">緊急</SelectItem>
+              <SelectItem value="all">{t('history.filterAll')}</SelectItem>
+              <SelectItem value="INFO">{t('severity.INFO')}</SelectItem>
+              <SelectItem value="WARNING">{t('severity.WARNING')}</SelectItem>
+              <SelectItem value="CRITICAL">{t('severity.CRITICAL')}</SelectItem>
+              <SelectItem value="EMERGENCY">{t('severity.EMERGENCY')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -306,7 +302,7 @@ export function AlertHistory({ className }: AlertHistoryProps) {
         </div>
       ) : !data?.data || data.data.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-          <p>目前沒有警報記錄</p>
+          <p>{t('history.empty')}</p>
         </div>
       ) : (
         <div className="rounded-md border">
@@ -324,7 +320,7 @@ export function AlertHistory({ className }: AlertHistoryProps) {
       {data?.meta?.pagination && data.meta.pagination.totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <p className="text-sm text-muted-foreground">
-            共 {data.meta.pagination.total} 條記錄
+            {t('history.paginationTotal', { total: data.meta.pagination.total })}
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -333,10 +329,10 @@ export function AlertHistory({ className }: AlertHistoryProps) {
               disabled={params.page === 1}
               onClick={() => setParams((prev) => ({ ...prev, page: (prev.page || 1) - 1 }))}
             >
-              上一頁
+              {tCommon('pagination.previous')}
             </Button>
             <span className="text-sm">
-              第 {params.page} / {data.meta.pagination.totalPages} 頁
+              {tCommon('pagination.pageOf', { page: params.page ?? 1, total: data.meta.pagination.totalPages })}
             </span>
             <Button
               variant="outline"
@@ -344,7 +340,7 @@ export function AlertHistory({ className }: AlertHistoryProps) {
               disabled={params.page === data.meta.pagination.totalPages}
               onClick={() => setParams((prev) => ({ ...prev, page: (prev.page || 1) + 1 }))}
             >
-              下一頁
+              {tCommon('pagination.next')}
             </Button>
           </div>
         </div>
@@ -354,9 +350,9 @@ export function AlertHistory({ className }: AlertHistoryProps) {
       <Dialog open={!!selectedAlert} onOpenChange={() => setSelectedAlert(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>警報詳情</DialogTitle>
+            <DialogTitle>{t('history.detailTitle')}</DialogTitle>
             <DialogDescription>
-              {selectedAlert?.rule?.name || '未知規則'}
+              {selectedAlert?.rule?.name || t('history.unknownRule')}
             </DialogDescription>
           </DialogHeader>
 
@@ -364,32 +360,32 @@ export function AlertHistory({ className }: AlertHistoryProps) {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">狀態</p>
+                  <p className="text-sm text-muted-foreground">{t('history.fields.status')}</p>
                   <Badge className={getAlertStatusColor(selectedAlert.status)}>
-                    {getAlertStatusText(selectedAlert.status)}
+                    {alertStatusText(selectedAlert.status)}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">嚴重程度</p>
+                  <p className="text-sm text-muted-foreground">{t('history.fields.severity')}</p>
                   <Badge className={getSeverityColor(selectedAlert.rule?.severity || 'INFO')}>
-                    {getSeverityText(selectedAlert.rule?.severity || 'INFO')}
+                    {severityText(selectedAlert.rule?.severity || 'INFO')}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">觸發值</p>
+                  <p className="text-sm text-muted-foreground">{t('history.fields.triggeredValue')}</p>
                   <p className="font-mono">{selectedAlert.triggeredValue}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">閾值</p>
+                  <p className="text-sm text-muted-foreground">{t('history.fields.threshold')}</p>
                   <p className="font-mono">{selectedAlert.rule?.threshold || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">觸發時間</p>
+                  <p className="text-sm text-muted-foreground">{t('history.fields.triggeredAt')}</p>
                   <p>{new Date(selectedAlert.triggeredAt).toLocaleString('zh-TW')}</p>
                 </div>
                 {selectedAlert.recoveredAt && (
                   <div>
-                    <p className="text-sm text-muted-foreground">恢復時間</p>
+                    <p className="text-sm text-muted-foreground">{t('history.fields.recoveredAt')}</p>
                     <p>{new Date(selectedAlert.recoveredAt).toLocaleString('zh-TW')}</p>
                   </div>
                 )}
@@ -397,7 +393,7 @@ export function AlertHistory({ className }: AlertHistoryProps) {
 
               {selectedAlert.details && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">詳細資訊</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('history.fields.details')}</p>
                   <pre className="text-sm bg-muted p-2 rounded overflow-auto max-h-[200px]">
                     {JSON.stringify(selectedAlert.details, null, 2)}
                   </pre>
@@ -406,7 +402,7 @@ export function AlertHistory({ className }: AlertHistoryProps) {
 
               {selectedAlert.resolution && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">解決說明</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('history.fields.resolution')}</p>
                   <p className="text-sm">{selectedAlert.resolution}</p>
                 </div>
               )}
@@ -415,7 +411,7 @@ export function AlertHistory({ className }: AlertHistoryProps) {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setSelectedAlert(null)}>
-              關閉
+              {tCommon('actions.close')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -425,14 +421,14 @@ export function AlertHistory({ className }: AlertHistoryProps) {
       <Dialog open={resolveDialogOpen} onOpenChange={setResolveDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>解決警報</DialogTitle>
+            <DialogTitle>{t('history.resolveTitle')}</DialogTitle>
             <DialogDescription>
-              請輸入解決說明
+              {t('history.resolveDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <Textarea
-            placeholder="描述如何解決此警報..."
+            placeholder={t('history.resolvePlaceholder')}
             value={resolution}
             onChange={(e) => setResolution(e.target.value)}
             rows={4}
@@ -440,13 +436,13 @@ export function AlertHistory({ className }: AlertHistoryProps) {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setResolveDialogOpen(false)}>
-              取消
+              {tCommon('actions.cancel')}
             </Button>
             <Button
               onClick={handleResolveConfirm}
               disabled={!resolution.trim() || resolveMutation.isPending}
             >
-              {resolveMutation.isPending ? '處理中...' : '確認解決'}
+              {resolveMutation.isPending ? t('history.processing') : t('history.resolveConfirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
