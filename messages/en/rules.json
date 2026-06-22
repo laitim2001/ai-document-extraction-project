@@ -448,5 +448,127 @@
     "validation": {
       "reasonRequired": "Please explain the reason for this change"
     }
+  },
+  "ruleReview": {
+    "approveDialog": {
+      "title": "Confirm Rule Approval",
+      "description": "After approving this rule suggestion, the corresponding mapping rule will be created or updated and take effect immediately.",
+      "warning": "This operation will create a new version of the mapping rule and may affect subsequent document processing results.",
+      "notesLabel": "Review Notes (Optional)",
+      "notesPlaceholder": "Enter approval notes, e.g.: Accuracy verified through testing...",
+      "effectiveDateLabel": "Effective Date (Optional)",
+      "effectiveDateHint": "Leave blank to take effect immediately, or select a date to take effect at midnight of that day",
+      "confirm": "Confirm Approval"
+    },
+    "impact": {
+      "totalAffected": "Affected Documents",
+      "estimatedImprovement": "Estimated Improvement",
+      "estimatedRegression": "Possible Regression",
+      "unchanged": "Unchanged",
+      "improvementRate": "Improvement Rate",
+      "regressionRate": "Regression Rate"
+    },
+    "detail": {
+      "loadFailed": "Failed to load",
+      "retry": "Retry",
+      "backToList": "Back to list",
+      "notFound": "Suggestion not found",
+      "notFoundDesc": "The specified rule suggestion does not exist or has been deleted",
+      "reviewTitle": "Review Rule Suggestion",
+      "notReviewable": "This suggestion is in \"{status}\" status and cannot be reviewed.",
+      "reviewNotesLabel": "Review Notes: {notes}",
+      "rejectionReasonLabel": "Rejection Reason: {reason}",
+      "ruleDetails": "Rule Details",
+      "impactAnalysis": "Impact Analysis",
+      "detailedAnalysis": "Detailed Analysis",
+      "impactLoadFailed": "Unable to load impact analysis",
+      "sampleCases": "Sample Cases",
+      "reject": "Reject",
+      "approve": "Approve",
+      "approveSuccess": "Rule approved and now in effect",
+      "approveError": "Approval failed: {message}",
+      "rejectSuccess": "Suggestion rejected",
+      "rejectError": "Rejection failed: {message}"
+    },
+    "status": {
+      "PENDING": "Pending Review",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "IMPLEMENTED": "Implemented",
+      "unknown": "Unknown"
+    },
+    "sampleTable": {
+      "summary": "{count} sample cases in total",
+      "matchRate": "Match Rate:",
+      "matchRateValue": "{rate}% ({matched}/{total})",
+      "columnDocument": "Document",
+      "columnOriginalValue": "Original Value",
+      "columnExtractedValue": "Extracted Value",
+      "columnMatch": "Match",
+      "matched": "Match",
+      "notMatched": "No Match",
+      "noValue": "No Value",
+      "emptyTitle": "No Sample Cases",
+      "emptyDesc": "This rule suggestion has no sample case data yet"
+    },
+    "suggestionInfo": {
+      "forwarder": "Forwarder",
+      "fieldName": "Field Name",
+      "extractionType": "Extraction Type",
+      "extractionPattern": "Extraction Pattern",
+      "confidence": "Confidence",
+      "source": "Source",
+      "sampleCount": "Sample Count",
+      "sampleCountValue": "{count} documents",
+      "createdAt": "Created At",
+      "createdBy": "Created By",
+      "extractionTypes": {
+        "REGEX": "Regular Expression",
+        "POSITION": "Position Extraction",
+        "KEYWORD": "Keyword Matching"
+      },
+      "sources": {
+        "AUTO": "Auto-Learned",
+        "MANUAL": "Manually Created"
+      }
+    }
+  },
+  "ruleVersion": {
+    "rollbackDialog": {
+      "title": "Confirm Rollback",
+      "confirmQuestion": "Are you sure you want to roll back the rule to version {version}?",
+      "description": "This operation will create a new version with the same content as version {version}. Existing version records will be retained and not deleted.",
+      "reasonLabel": "Rollback Reason (Optional)",
+      "reasonPlaceholder": "Enter rollback reason, e.g.: Restore to stable version...",
+      "processing": "Processing...",
+      "confirm": "Confirm Rollback"
+    },
+    "compareDialog": {
+      "title": "Version Comparison",
+      "description": "Compare the differences between two versions and view the changes",
+      "loadFailed": "Failed to load",
+      "loadFailedDesc": "Unable to load version comparison data",
+      "changeSummary": "Change Summary",
+      "selectRollbackTarget": "Select the target version to roll back to",
+      "rollbackToVersion": "Roll back to version {version}",
+      "rollbackSuccess": "Successfully rolled back to version {version}",
+      "rollbackError": "Rollback failed: {message}"
+    },
+    "diffViewer": {
+      "noPattern": "(No Pattern)",
+      "fieldDifferences": "Field Differences",
+      "columnField": "Field",
+      "version": "Version {version}",
+      "changed": "Changed",
+      "patternDifferences": "Pattern Differences",
+      "diffHighlight": "Diff Highlight",
+      "removedContent": "Removed Content",
+      "addedContent": "Added Content",
+      "moreItems": "...and {count} more items",
+      "versionInfo": "Version {version} Info",
+      "createdBy": "Created By",
+      "createdAt": "Created At",
+      "changeReason": "Change Reason"
+    }
   }
 }

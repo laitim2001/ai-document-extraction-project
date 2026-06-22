@@ -12,6 +12,7 @@
  */
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { useArchiveRecords, useRestoreFromArchive } from '@/hooks/useRetention'
 import {
   Table,
@@ -39,12 +40,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { AlertCircle, RotateCcw, Archive, Clock } from 'lucide-react'
-import {
-  DATA_TYPE_LABELS,
-  STORAGE_TIER_LABELS,
-  ARCHIVE_STATUS_LABELS,
-  STORAGE_TIER_CONFIG,
-} from '@/types/retention'
+import { STORAGE_TIER_CONFIG } from '@/types/retention'
 import type { ArchiveRecordWithRelations } from '@/types/retention'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
@@ -105,13 +101,16 @@ function getTierColor(tier: StorageTier): string {
   return colors[tier]
 }
 
-function formatRestoreTime(tier: StorageTier): string {
+function formatRestoreTime(
+  tier: StorageTier,
+  t: ReturnType<typeof useTranslations>
+): string {
   const config = STORAGE_TIER_CONFIG[tier as keyof typeof STORAGE_TIER_CONFIG]
   const ms = config.accessLatency
-  if (ms === 0) return '即時'
-  if (ms < 60000) return `約 ${Math.round(ms / 1000)} 秒`
-  if (ms < 3600000) return `約 ${Math.round(ms / 60000)} 分鐘`
-  return `約 ${Math.round(ms / 3600000)} 小時`
+  if (ms === 0) return t('archive.restoreTime.instant')
+  if (ms < 60000) return t('archive.restoreTime.seconds', { seconds: Math.round(ms / 1000) })
+  if (ms < 3600000) return t('archive.restoreTime.minutes', { minutes: Math.round(ms / 60000) })
+  return t('archive.restoreTime.hours', { hours: Math.round(ms / 3600000) })
 }
 
 // ============================================================
@@ -119,6 +118,7 @@ function formatRestoreTime(tier: StorageTier): string {
 // ============================================================
 
 export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
+  const t = useTranslations('dataRetention')
   const { toast } = useToast()
   const [page, setPage] = React.useState(1)
   const [restoreDialogOpen, setRestoreDialogOpen] = React.useState(false)
@@ -129,15 +129,17 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
   const restoreFromArchive = useRestoreFromArchive({
     onSuccess: (result) => {
       toast({
-        title: '還原請求已提交',
-        description: `預計等待時間：${formatRestoreTime(result.status as unknown as StorageTier)}`,
+        title: t('archive.restoreToast.successTitle'),
+        description: t('archive.restoreToast.successDescription', {
+          waitTime: formatRestoreTime(result.status as unknown as StorageTier, t),
+        }),
       })
       setRestoreDialogOpen(false)
       setRestoreReason('')
     },
     onError: (error) => {
       toast({
-        title: '還原請求失敗',
+        title: t('archive.restoreToast.errorTitle'),
         description: error.message,
         variant: 'destructive',
       })
@@ -163,49 +165,49 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
     () => [
       {
         id: 'dataType',
-        header: '資料類型',
+        header: t('archive.columns.dataType'),
         cell: (record) => (
-          <Badge variant="outline">{DATA_TYPE_LABELS[record.dataType]}</Badge>
+          <Badge variant="outline">{t(`dataType.${record.dataType}`)}</Badge>
         ),
       },
       {
         id: 'storageTier',
-        header: '存儲層級',
+        header: t('archive.columns.storageTier'),
         cell: (record) => (
           <Badge className={cn('border', getTierColor(record.storageTier))}>
-            {STORAGE_TIER_LABELS[record.storageTier]}
+            {t(`tier.${record.storageTier}`)}
           </Badge>
         ),
       },
       {
         id: 'recordCount',
-        header: '記錄數',
+        header: t('archive.columns.recordCount'),
         cell: (record) => record.recordCount.toLocaleString(),
       },
       {
         id: 'size',
-        header: '大小',
+        header: t('archive.columns.size'),
         cell: (record) => (
           <div className="text-sm">
             <p>{formatBytes(Number(record.compressedSizeBytes))}</p>
             <p className="text-muted-foreground text-xs">
-              原始: {formatBytes(Number(record.originalSizeBytes))}
+              {t('archive.originalSize', { size: formatBytes(Number(record.originalSizeBytes)) })}
             </p>
           </div>
         ),
       },
       {
         id: 'status',
-        header: '狀態',
+        header: t('archive.columns.status'),
         cell: (record) => (
           <Badge variant={getStatusVariant(record.status)}>
-            {ARCHIVE_STATUS_LABELS[record.status]}
+            {t(`archiveStatus.${record.status}`)}
           </Badge>
         ),
       },
       {
         id: 'archivedAt',
-        header: '歸檔時間',
+        header: t('archive.columns.archivedAt'),
         cellClassName: 'text-sm',
         cell: (record) =>
           record.archivedAt ? formatDate(record.archivedAt) : '-',
@@ -223,20 +225,20 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
                 onClick={() => handleRestoreClick(record.id)}
               >
                 <RotateCcw className="h-4 w-4 mr-1" />
-                還原
+                {t('archive.restore')}
               </Button>
             )}
             {record.status === 'RESTORING' && (
               <div className="flex items-center text-sm text-muted-foreground">
                 <Clock className="h-4 w-4 mr-1 animate-pulse" />
-                還原中
+                {t('archive.restoring')}
               </div>
             )}
           </>
         ),
       },
     ],
-    [handleRestoreClick]
+    [handleRestoreClick, t]
   )
 
   if (isLoading) {
@@ -247,7 +249,7 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
     return (
       <div className="flex flex-col items-center justify-center py-10">
         <AlertCircle className="h-8 w-8 text-destructive mb-2" />
-        <p className="text-muted-foreground">無法載入歸檔記錄</p>
+        <p className="text-muted-foreground">{t('archive.loadError')}</p>
       </div>
     )
   }
@@ -258,7 +260,7 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">歸檔記錄</h3>
+        <h3 className="text-lg font-medium">{t('archive.listTitle')}</h3>
       </div>
 
       <div className="rounded-md border">
@@ -271,7 +273,7 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
           emptyState={
             <>
               <Archive className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-muted-foreground">尚無歸檔記錄</p>
+              <p className="text-muted-foreground">{t('archive.empty')}</p>
             </>
           }
         />
@@ -286,7 +288,7 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
-            上一頁
+            {t('common.previousPage')}
           </Button>
           <span className="flex items-center px-3 text-sm">
             {page} / {pagination.totalPages}
@@ -297,7 +299,7 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
             onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
             disabled={page === pagination.totalPages}
           >
-            下一頁
+            {t('common.nextPage')}
           </Button>
         </div>
       )}
@@ -306,17 +308,17 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
       <Dialog open={restoreDialogOpen} onOpenChange={setRestoreDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>還原歸檔資料</DialogTitle>
+            <DialogTitle>{t('archive.restoreDialog.title')}</DialogTitle>
             <DialogDescription>
-              請說明還原此歸檔資料的原因。還原時間取決於存儲層級。
+              {t('archive.restoreDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="reason">還原原因</Label>
+              <Label htmlFor="reason">{t('archive.restoreDialog.reasonLabel')}</Label>
               <Textarea
                 id="reason"
-                placeholder="請輸入還原原因..."
+                placeholder={t('archive.restoreDialog.reasonPlaceholder')}
                 value={restoreReason}
                 onChange={(e) => setRestoreReason(e.target.value)}
                 rows={3}
@@ -325,13 +327,15 @@ export function ArchiveRecordList({ className }: ArchiveRecordListProps) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRestoreDialogOpen(false)}>
-              取消
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleConfirmRestore}
               disabled={!restoreReason.trim() || restoreFromArchive.isPending}
             >
-              {restoreFromArchive.isPending ? '提交中...' : '確認還原'}
+              {restoreFromArchive.isPending
+                ? t('archive.restoreDialog.submitting')
+                : t('archive.restoreDialog.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -97,6 +97,61 @@
       "syntheticRef": "Pipeline 参考编号 (_ref_*)"
     }
   },
+  "formatAnalysis": {
+    "tree": {
+      "documentTypes": {
+        "INVOICE": "发票",
+        "DEBIT_NOTE": "借项通知单",
+        "CREDIT_NOTE": "贷项通知单",
+        "STATEMENT": "对账单",
+        "QUOTATION": "报价单",
+        "BILL_OF_LADING": "提单",
+        "CUSTOMS_DECLARATION": "报关",
+        "OTHER": "其他"
+      },
+      "documentSubtypes": {
+        "OCEAN_FREIGHT": "海运",
+        "AIR_FREIGHT": "空运",
+        "LAND_TRANSPORT": "陆运",
+        "CUSTOMS_CLEARANCE": "报关",
+        "WAREHOUSING": "仓储",
+        "IMPORT": "进口",
+        "EXPORT": "出口",
+        "GENERAL": "一般"
+      },
+      "formatsBadge": "{count} 个格式",
+      "emptyTitle": "找不到公司",
+      "emptyDescription": "处理一些文件后即可查看格式分析",
+      "summary": {
+        "companies": "{count} 家公司",
+        "formats": "{count} 个格式",
+        "terms": "{count} 个术语"
+      }
+    },
+    "termsPanel": {
+      "confidence": {
+        "high": "高",
+        "medium": "中",
+        "low": "低",
+        "tooltip": "{label}置信度：{value}%"
+      },
+      "createRule": "创建规则",
+      "examplesTitle": "原始文本示例：",
+      "moreExamples": "还有 {count} 项",
+      "emptySelectionTitle": "选择格式以查看术语",
+      "emptySelectionDescription": "点击树状结构中的格式以查看关联术语",
+      "filesBadge": "{count} 个文件",
+      "termsBadge": "{count} 个术语",
+      "noTerms": "此格式暂无术语",
+      "table": {
+        "term": "术语",
+        "frequency": "频率",
+        "category": "类别",
+        "confidence": "置信度",
+        "actions": "操作"
+      }
+    }
+  },
   "detail": {
     "loadError": "无法加载格式数据",
     "loadErrorDescription": "加载格式详情时发生错误，请稍后再试。",

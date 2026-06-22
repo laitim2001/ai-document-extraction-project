@@ -19,6 +19,7 @@
  *   - lucide-react - 圖標庫
  */
 
+import { useTranslations } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -52,7 +53,8 @@ interface RiskCasesTableProps {
 
 interface RiskLevelConfig {
   level: RiskLevel
-  label: string
+  /** i18n key（位於 ruleSimulation.risk.levels 之下） */
+  labelKey: string
   icon: typeof AlertTriangle
   variant: 'destructive' | 'default' | 'secondary' | 'outline'
   className: string
@@ -62,7 +64,7 @@ interface RiskLevelConfig {
 const RISK_LEVEL_CONFIGS: Record<RiskLevel, RiskLevelConfig> = {
   HIGH: {
     level: 'HIGH',
-    label: '高風險',
+    labelKey: 'risk.levels.HIGH',
     icon: AlertTriangle,
     variant: 'destructive',
     className: '',
@@ -70,7 +72,7 @@ const RISK_LEVEL_CONFIGS: Record<RiskLevel, RiskLevelConfig> = {
   },
   MEDIUM: {
     level: 'MEDIUM',
-    label: '中風險',
+    labelKey: 'risk.levels.MEDIUM',
     icon: AlertCircle,
     variant: 'outline',
     className: 'border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-900/20',
@@ -78,7 +80,7 @@ const RISK_LEVEL_CONFIGS: Record<RiskLevel, RiskLevelConfig> = {
   },
   LOW: {
     level: 'LOW',
-    label: '低風險',
+    labelKey: 'risk.levels.LOW',
     icon: Info,
     variant: 'secondary',
     className: '',
@@ -94,13 +96,14 @@ const RISK_LEVEL_CONFIGS: Record<RiskLevel, RiskLevelConfig> = {
  * 風險等級徽章
  */
 function RiskLevelBadge({ level }: { level: RiskLevel }) {
+  const t = useTranslations('ruleSimulation')
   const config = RISK_LEVEL_CONFIGS[level]
   const Icon = config.icon
 
   return (
     <Badge variant={config.variant} className={cn('gap-1', config.className)}>
       <Icon className="h-3 w-3" />
-      {config.label}
+      {t(config.labelKey)}
     </Badge>
   )
 }
@@ -115,18 +118,20 @@ function ValueComparison({
   currentValue: string | null
   predictedValue: string | null
 }) {
+  const t = useTranslations('ruleSimulation')
+
   return (
     <div className="flex flex-col gap-1 text-sm">
       <div className="flex items-center gap-2">
-        <span className="text-muted-foreground w-12">現有:</span>
+        <span className="text-muted-foreground w-12">{t('risk.comparison.current')}:</span>
         <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
-          {currentValue ?? '(無)'}
+          {currentValue ?? t('risk.comparison.empty')}
         </code>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-muted-foreground w-12">預測:</span>
+        <span className="text-muted-foreground w-12">{t('risk.comparison.predicted')}:</span>
         <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
-          {predictedValue ?? '(無)'}
+          {predictedValue ?? t('risk.comparison.empty')}
         </code>
       </div>
     </div>
@@ -153,20 +158,22 @@ export function RiskCasesTable({
   className,
   onCaseClick,
 }: RiskCasesTableProps) {
+  const t = useTranslations('ruleSimulation')
+
   if (riskCases.length === 0) {
     return (
       <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <AlertTriangle className="h-5 w-5 text-muted-foreground" />
-            風險案例
+            {t('risk.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
             <Info className="h-8 w-8 mb-2" />
-            <p>未發現風險案例</p>
-            <p className="text-sm">此規則變更預計不會造成惡化</p>
+            <p>{t('risk.empty.title')}</p>
+            <p className="text-sm">{t('risk.empty.description')}</p>
           </div>
         </CardContent>
       </Card>
@@ -178,9 +185,9 @@ export function RiskCasesTable({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <AlertTriangle className="h-5 w-5 text-amber-500" />
-          風險案例
+          {t('risk.title')}
           <Badge variant="outline" className="ml-2">
-            {riskCases.length} 筆
+            {t('risk.count', { count: riskCases.length })}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -189,10 +196,10 @@ export function RiskCasesTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[200px]">文件</TableHead>
-                <TableHead className="w-[100px]">風險等級</TableHead>
-                <TableHead className="w-[250px]">值對比</TableHead>
-                <TableHead>風險原因</TableHead>
+                <TableHead className="w-[200px]">{t('risk.table.document')}</TableHead>
+                <TableHead className="w-[100px]">{t('risk.table.riskLevel')}</TableHead>
+                <TableHead className="w-[250px]">{t('risk.table.valueComparison')}</TableHead>
+                <TableHead>{t('risk.table.reason')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

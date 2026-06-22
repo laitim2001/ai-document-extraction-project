@@ -1,0 +1,51 @@
+{
+  "timeline": {
+    "title": "Change History",
+    "empty": "No change history records yet",
+    "versionLabel": "Version {version}",
+    "currentVersion": "Current Version",
+    "selectForCompare": "Select version {version} for comparison",
+    "changedFieldCount": "Changed {count} fields",
+    "selectedCount": "{count} versions selected",
+    "compareVersions": "Compare Versions",
+    "loadMore": "Load More"
+  },
+  "compare": {
+    "title": "Version Comparison",
+    "description": "Comparing differences between two versions of {resourceType}/{resourceId}",
+    "oldVersion": "Old Version",
+    "newVersion": "New Version",
+    "versionLabel": "Version {version}",
+    "loadFailed": "Load Failed",
+    "loadError": "Unable to load version comparison data",
+    "noDiffs": "No differences between the two versions",
+    "fieldDiffs": "Field Differences",
+    "addedCount": "Added: {count}",
+    "modifiedCount": "Modified: {count}",
+    "removedCount": "Removed: {count}",
+    "empty": "(empty)",
+    "yes": "Yes",
+    "no": "No",
+    "columns": {
+      "fieldName": "Field Name",
+      "type": "Type",
+      "oldValue": "Old Value",
+      "newValue": "New Value"
+    }
+  },
+  "changeType": {
+    "CREATE": "Create",
+    "UPDATE": "Update",
+    "DELETE": "Delete",
+    "RESTORE": "Restore",
+    "unknown": "Unknown"
+  },
+  "diffType": {
+    "added": "Added",
+    "removed": "Removed",
+    "modified": "Modified"
+  },
+  "actions": {
+    "clear": "Clear"
+  }
+}

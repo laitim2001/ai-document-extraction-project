@@ -65,6 +65,11 @@ const namespaces = [
   'fieldDefinitionSet',
   'profile',
   'systemSettings',
+  'documentSource',
+  'dataRetention',
+  'integrations',
+  'changeHistory',
+  'ruleSimulation',
 ] as const
 
 export type Namespace = (typeof namespaces)[number]

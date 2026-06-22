@@ -1,4 +1,9 @@
 {
+  "badge": {
+    "high": "高置信",
+    "medium": "中置信",
+    "low": "低置信"
+  },
   "breakdown": {
     "title": "置信度分解",
     "totalScore": "总分",
@@ -7,6 +12,7 @@
     "v3Formula": "分数 = 提取(30%) + 发行方(20%) + 格式(15%) + 完整性(20%) + 历史(15%)",
     "rawScore": "原始分数",
     "contribution": "贡献值",
+    "weightedScore": "加权分数",
     "weight": "权重",
     "version": {
       "v2": "V2（7 维度）",

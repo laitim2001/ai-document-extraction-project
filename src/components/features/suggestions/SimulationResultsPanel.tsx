@@ -20,6 +20,7 @@
  *   - lucide-react - 圖標庫
  */
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -63,6 +64,7 @@ interface SimulationResultsPanelProps {
  * 摘要統計卡片
  */
 function SummaryCards({ summary }: { summary: SimulationSummary }) {
+  const t = useTranslations('ruleSimulation')
   const accuracyChangeColor =
     summary.accuracyChange !== null
       ? summary.accuracyChange > 0
@@ -94,7 +96,7 @@ function SummaryCards({ summary }: { summary: SimulationSummary }) {
             </div>
             <div>
               <p className="text-2xl font-bold">{summary.totalTested}</p>
-              <p className="text-xs text-muted-foreground">測試樣本</p>
+              <p className="text-xs text-muted-foreground">{t('simulation.results.summary.totalTested')}</p>
             </div>
           </div>
         </CardContent>
@@ -109,7 +111,7 @@ function SummaryCards({ summary }: { summary: SimulationSummary }) {
             </div>
             <div>
               <p className="text-2xl font-bold text-green-600">{summary.improvedCount}</p>
-              <p className="text-xs text-muted-foreground">改善</p>
+              <p className="text-xs text-muted-foreground">{t('simulation.results.summary.improved')}</p>
             </div>
           </div>
         </CardContent>
@@ -124,7 +126,7 @@ function SummaryCards({ summary }: { summary: SimulationSummary }) {
             </div>
             <div>
               <p className="text-2xl font-bold text-red-600">{summary.regressedCount}</p>
-              <p className="text-xs text-muted-foreground">惡化</p>
+              <p className="text-xs text-muted-foreground">{t('simulation.results.summary.regressed')}</p>
             </div>
           </div>
         </CardContent>
@@ -143,7 +145,7 @@ function SummaryCards({ summary }: { summary: SimulationSummary }) {
                   ? `${summary.accuracyChange > 0 ? '+' : ''}${summary.accuracyChange}%`
                   : 'N/A'}
               </p>
-              <p className="text-xs text-muted-foreground">準確率變化</p>
+              <p className="text-xs text-muted-foreground">{t('simulation.results.summary.accuracyChange')}</p>
             </div>
           </div>
         </CardContent>
@@ -156,17 +158,19 @@ function SummaryCards({ summary }: { summary: SimulationSummary }) {
  * 準確率對比
  */
 function AccuracyComparison({ summary }: { summary: SimulationSummary }) {
+  const t = useTranslations('ruleSimulation')
+
   return (
     <div className="flex items-center justify-center gap-8 py-4 bg-muted/30 rounded-lg mb-6">
       <div className="text-center">
-        <p className="text-sm text-muted-foreground mb-1">變更前準確率</p>
+        <p className="text-sm text-muted-foreground mb-1">{t('simulation.results.accuracy.before')}</p>
         <p className="text-3xl font-bold">
           {summary.accuracyBefore !== null ? `${summary.accuracyBefore}%` : 'N/A'}
         </p>
       </div>
       <div className="text-4xl text-muted-foreground">→</div>
       <div className="text-center">
-        <p className="text-sm text-muted-foreground mb-1">變更後準確率</p>
+        <p className="text-sm text-muted-foreground mb-1">{t('simulation.results.accuracy.after')}</p>
         <p className="text-3xl font-bold">
           {summary.accuracyAfter !== null ? `${summary.accuracyAfter}%` : 'N/A'}
         </p>
@@ -179,11 +183,13 @@ function AccuracyComparison({ summary }: { summary: SimulationSummary }) {
  * 案例列表表格
  */
 function CaseTable({ cases, type }: { cases: SimulationCase[]; type: 'improved' | 'regressed' | 'unchanged' }) {
+  const t = useTranslations('ruleSimulation')
+
   if (cases.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
         <FileText className="h-8 w-8 mb-2" />
-        <p>無{type === 'improved' ? '改善' : type === 'regressed' ? '惡化' : '無變化'}案例</p>
+        <p>{t(`simulation.results.empty.${type}`)}</p>
       </div>
     )
   }
@@ -193,13 +199,13 @@ function CaseTable({ cases, type }: { cases: SimulationCase[]; type: 'improved' 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[200px]">文件</TableHead>
-            <TableHead className="w-[120px]">原始提取</TableHead>
-            <TableHead className="w-[120px]">當前規則</TableHead>
-            <TableHead className="w-[120px]">新規則</TableHead>
-            <TableHead className="w-[120px]">實際值</TableHead>
-            <TableHead className="w-[100px]">當前</TableHead>
-            <TableHead className="w-[100px]">新規則</TableHead>
+            <TableHead className="w-[200px]">{t('simulation.results.table.document')}</TableHead>
+            <TableHead className="w-[120px]">{t('simulation.results.table.originalExtracted')}</TableHead>
+            <TableHead className="w-[120px]">{t('simulation.results.table.currentRuleResult')}</TableHead>
+            <TableHead className="w-[120px]">{t('simulation.results.table.newRuleResult')}</TableHead>
+            <TableHead className="w-[120px]">{t('simulation.results.table.actualValue')}</TableHead>
+            <TableHead className="w-[100px]">{t('simulation.results.table.current')}</TableHead>
+            <TableHead className="w-[100px]">{t('simulation.results.table.newRule')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -213,34 +219,34 @@ function CaseTable({ cases, type }: { cases: SimulationCase[]; type: 'improved' 
               </TableCell>
               <TableCell>
                 <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                  {caseItem.originalExtracted ?? '(無)'}
+                  {caseItem.originalExtracted ?? t('simulation.results.emptyValue')}
                 </code>
               </TableCell>
               <TableCell>
                 <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                  {caseItem.currentRuleResult ?? '(無)'}
+                  {caseItem.currentRuleResult ?? t('simulation.results.emptyValue')}
                 </code>
               </TableCell>
               <TableCell>
                 <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                  {caseItem.newRuleResult ?? '(無)'}
+                  {caseItem.newRuleResult ?? t('simulation.results.emptyValue')}
                 </code>
               </TableCell>
               <TableCell>
                 <code className="text-xs bg-muted px-1 py-0.5 rounded font-medium">
-                  {caseItem.actualValue ?? '(無)'}
+                  {caseItem.actualValue ?? t('simulation.results.emptyValue')}
                 </code>
               </TableCell>
               <TableCell>
                 {caseItem.currentAccurate ? (
                   <Badge variant="outline" className="gap-1 text-green-600">
                     <CheckCircle2 className="h-3 w-3" />
-                    正確
+                    {t('simulation.results.accurate')}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="gap-1 text-red-600">
                     <XCircle className="h-3 w-3" />
-                    錯誤
+                    {t('simulation.results.inaccurate')}
                   </Badge>
                 )}
               </TableCell>
@@ -248,12 +254,12 @@ function CaseTable({ cases, type }: { cases: SimulationCase[]; type: 'improved' 
                 {caseItem.newAccurate ? (
                   <Badge variant="outline" className="gap-1 text-green-600">
                     <CheckCircle2 className="h-3 w-3" />
-                    正確
+                    {t('simulation.results.accurate')}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="gap-1 text-red-600">
                     <XCircle className="h-3 w-3" />
-                    錯誤
+                    {t('simulation.results.inaccurate')}
                   </Badge>
                 )}
               </TableCell>
@@ -263,7 +269,7 @@ function CaseTable({ cases, type }: { cases: SimulationCase[]; type: 'improved' 
       </Table>
       {cases.length > 20 && (
         <div className="p-2 text-center text-sm text-muted-foreground border-t">
-          顯示前 20 筆，共 {cases.length} 筆
+          {t('simulation.results.showingLimit', { count: cases.length })}
         </div>
       )}
     </div>
@@ -286,13 +292,15 @@ export function SimulationResultsPanel({
   result,
   className,
 }: SimulationResultsPanelProps) {
+  const t = useTranslations('ruleSimulation')
+
   return (
     <Card className={className}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
             <BarChart3 className="h-5 w-5 text-muted-foreground" />
-            模擬測試結果
+            {t('simulation.results.title')}
           </CardTitle>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="h-4 w-4" />
@@ -312,15 +320,15 @@ export function SimulationResultsPanel({
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="improved" className="gap-1">
               <TrendingUp className="h-4 w-4 text-green-600" />
-              改善 ({result.results.improved.length})
+              {t('simulation.results.tabs.improved', { count: result.results.improved.length })}
             </TabsTrigger>
             <TabsTrigger value="regressed" className="gap-1">
               <TrendingDown className="h-4 w-4 text-red-600" />
-              惡化 ({result.results.regressed.length})
+              {t('simulation.results.tabs.regressed', { count: result.results.regressed.length })}
             </TabsTrigger>
             <TabsTrigger value="unchanged" className="gap-1">
               <Minus className="h-4 w-4" />
-              無變化 ({result.results.unchanged.length})
+              {t('simulation.results.tabs.unchanged', { count: result.results.unchanged.length })}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="improved" className="mt-4">

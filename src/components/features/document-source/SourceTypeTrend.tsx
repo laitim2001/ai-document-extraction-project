@@ -11,6 +11,7 @@
 
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -24,10 +25,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
-import {
-  SOURCE_TYPE_CONFIG,
-  SOURCE_TYPE_CHART_COLORS,
-} from '@/lib/constants/source-types'
+import { SOURCE_TYPE_CHART_COLORS } from '@/lib/constants/source-types'
 import type { SourceTypeTrendData } from '@/types/document-source.types'
 
 // ============================================================
@@ -54,8 +52,10 @@ interface SourceTypeTrendProps {
 export function SourceTypeTrend({
   cityId,
   months = 6,
-  title = '來源類型趨勢',
+  title,
 }: SourceTypeTrendProps) {
+  const t = useTranslations('documentSource')
+  const resolvedTitle = title ?? t('trend.title')
   const { data, isLoading } = useQuery<{ data: SourceTypeTrendData[] }>({
     queryKey: ['source-type-trend', cityId, months],
     queryFn: async () => {
@@ -88,11 +88,11 @@ export function SourceTypeTrend({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{title}</CardTitle>
+          <CardTitle className="text-base">{resolvedTitle}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-            暫無資料
+            {t('trend.noData')}
           </div>
         </CardContent>
       </Card>
@@ -126,25 +126,25 @@ export function SourceTypeTrend({
               <Legend />
               <Bar
                 dataKey="MANUAL_UPLOAD"
-                name={SOURCE_TYPE_CONFIG.MANUAL_UPLOAD.label}
+                name={t('sourceTypes.MANUAL_UPLOAD')}
                 fill={SOURCE_TYPE_CHART_COLORS.MANUAL_UPLOAD}
                 stackId="stack"
               />
               <Bar
                 dataKey="SHAREPOINT"
-                name={SOURCE_TYPE_CONFIG.SHAREPOINT.label}
+                name={t('sourceTypes.SHAREPOINT')}
                 fill={SOURCE_TYPE_CHART_COLORS.SHAREPOINT}
                 stackId="stack"
               />
               <Bar
                 dataKey="OUTLOOK"
-                name={SOURCE_TYPE_CONFIG.OUTLOOK.label}
+                name={t('sourceTypes.OUTLOOK')}
                 fill={SOURCE_TYPE_CHART_COLORS.OUTLOOK}
                 stackId="stack"
               />
               <Bar
                 dataKey="API"
-                name={SOURCE_TYPE_CONFIG.API.label}
+                name={t('sourceTypes.API')}
                 fill={SOURCE_TYPE_CHART_COLORS.API}
                 stackId="stack"
               />

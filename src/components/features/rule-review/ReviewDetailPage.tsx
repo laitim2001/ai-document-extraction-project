@@ -23,6 +23,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useSuggestionDetail } from '@/hooks/useSuggestionDetail'
@@ -90,15 +91,19 @@ function ErrorState({
   message: string
   onRetry?: () => void
 }) {
+  const t = useTranslations('rules')
+
   return (
     <div className="flex flex-col items-center justify-center p-12 text-center">
       <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-      <h3 className="text-lg font-medium mb-2">載入失敗</h3>
+      <h3 className="text-lg font-medium mb-2">
+        {t('ruleReview.detail.loadFailed')}
+      </h3>
       <p className="text-muted-foreground mb-4">{message}</p>
       {onRetry && (
         <Button variant="outline" onClick={onRetry}>
           <RefreshCw className="h-4 w-4 mr-2" />
-          重試
+          {t('ruleReview.detail.retry')}
         </Button>
       )}
     </div>
@@ -109,6 +114,8 @@ function ErrorState({
  * 狀態徽章
  */
 function StatusBadge({ status }: { status: string }) {
+  const t = useTranslations('rules')
+
   const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
     PENDING: 'secondary',
     APPROVED: 'default',
@@ -116,16 +123,11 @@ function StatusBadge({ status }: { status: string }) {
     IMPLEMENTED: 'outline',
   }
 
-  const labels: Record<string, string> = {
-    PENDING: '待審核',
-    APPROVED: '已批准',
-    REJECTED: '已拒絕',
-    IMPLEMENTED: '已實施',
-  }
+  const statusKey = `ruleReview.status.${status}`
 
   return (
     <Badge variant={variants[status] ?? 'default'}>
-      {labels[status] ?? status}
+      {t.has(statusKey) ? t(statusKey) : status}
     </Badge>
   )
 }
@@ -149,6 +151,7 @@ function StatusBadge({ status }: { status: string }) {
  * ```
  */
 export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
+  const t = useTranslations('rules')
   const router = useRouter()
   const [showApproveDialog, setShowApproveDialog] = useState(false)
   const [showRejectDialog, setShowRejectDialog] = useState(false)
@@ -175,11 +178,15 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
   const handleApprove = async (data: { notes?: string; effectiveDate?: string }) => {
     try {
       await approve.mutateAsync(data)
-      toast.success('規則已批准並生效')
+      toast.success(t('ruleReview.detail.approveSuccess'))
       setShowApproveDialog(false)
       router.push('/rules/review')
     } catch (error) {
-      toast.error('批准失敗：' + (error as Error).message)
+      toast.error(
+        t('ruleReview.detail.approveError', {
+          message: (error as Error).message,
+        })
+      )
     }
   }
 
@@ -187,11 +194,15 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
   const handleReject = async (data: { reason: RejectionReason; reasonDetail: string }) => {
     try {
       await reject.mutateAsync(data)
-      toast.success('建議已拒絕')
+      toast.success(t('ruleReview.detail.rejectSuccess'))
       setShowRejectDialog(false)
       router.push('/rules/review')
     } catch (error) {
-      toast.error('拒絕失敗：' + (error as Error).message)
+      toast.error(
+        t('ruleReview.detail.rejectError', {
+          message: (error as Error).message,
+        })
+      )
     }
   }
 
@@ -220,16 +231,18 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">
         <FileText className="h-12 w-12 text-muted-foreground/50 mb-4" />
-        <h3 className="text-lg font-medium">找不到建議</h3>
+        <h3 className="text-lg font-medium">
+          {t('ruleReview.detail.notFound')}
+        </h3>
         <p className="text-muted-foreground mt-1">
-          指定的規則建議不存在或已被刪除
+          {t('ruleReview.detail.notFoundDesc')}
         </p>
         <Button
           variant="outline"
           className="mt-4"
           onClick={() => router.push('/rules/review')}
         >
-          返回列表
+          {t('ruleReview.detail.backToList')}
         </Button>
       </div>
     )
@@ -259,10 +272,12 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
             className="mb-2 -ml-2"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
-            返回列表
+            {t('ruleReview.detail.backToList')}
           </Button>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold">審核規則建議</h1>
+            <h1 className="text-2xl font-bold">
+              {t('ruleReview.detail.reviewTitle')}
+            </h1>
             <StatusBadge status={suggestion.status} />
           </div>
           <p className="text-muted-foreground">
@@ -276,15 +291,23 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            此建議狀態為「{suggestion.status === 'APPROVED' ? '已批准' : suggestion.status === 'REJECTED' ? '已拒絕' : '已實施'}」，無法進行審核操作。
+            {t('ruleReview.detail.notReviewable', {
+              status: t.has(`ruleReview.status.${suggestion.status}`)
+                ? t(`ruleReview.status.${suggestion.status}`)
+                : suggestion.status,
+            })}
             {suggestion.reviewNotes && (
               <span className="block mt-1 text-sm">
-                審核備註：{suggestion.reviewNotes}
+                {t('ruleReview.detail.reviewNotesLabel', {
+                  notes: suggestion.reviewNotes,
+                })}
               </span>
             )}
             {suggestion.rejectionReason && (
               <span className="block mt-1 text-sm">
-                拒絕原因：{suggestion.rejectionReason}
+                {t('ruleReview.detail.rejectionReasonLabel', {
+                  reason: suggestion.rejectionReason,
+                })}
               </span>
             )}
           </AlertDescription>
@@ -296,7 +319,7 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
         {/* 規則詳情 */}
         <Card>
           <CardHeader>
-            <CardTitle>規則詳情</CardTitle>
+            <CardTitle>{t('ruleReview.detail.ruleDetails')}</CardTitle>
           </CardHeader>
           <CardContent>
             <SuggestionInfo
@@ -320,11 +343,11 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
         {/* 影響分析 */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>影響分析</CardTitle>
+            <CardTitle>{t('ruleReview.detail.impactAnalysis')}</CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href={`/rules/suggestions/${suggestionId}/impact`}>
                 <ExternalLink className="h-4 w-4 mr-1" />
-                詳細分析
+                {t('ruleReview.detail.detailedAnalysis')}
               </Link>
             </Button>
           </CardHeader>
@@ -343,7 +366,7 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>無法載入影響分析</p>
+                <p>{t('ruleReview.detail.impactLoadFailed')}</p>
               </div>
             )}
           </CardContent>
@@ -353,7 +376,7 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
       {/* 樣本案例 */}
       <Card>
         <CardHeader>
-          <CardTitle>樣本案例</CardTitle>
+          <CardTitle>{t('ruleReview.detail.sampleCases')}</CardTitle>
         </CardHeader>
         <CardContent>
           <SampleCasesTable
@@ -374,7 +397,7 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
                 disabled={reject.isPending}
               >
                 <X className="h-4 w-4 mr-2" />
-                拒絕
+                {t('ruleReview.detail.reject')}
               </Button>
               <Button
                 onClick={() => setShowApproveDialog(true)}
@@ -382,7 +405,7 @@ export function ReviewDetailPage({ suggestionId }: ReviewDetailPageProps) {
                 className="bg-green-600 hover:bg-green-700"
               >
                 <Check className="h-4 w-4 mr-2" />
-                批准
+                {t('ruleReview.detail.approve')}
               </Button>
             </div>
           </CardContent>

@@ -1,0 +1,238 @@
+{
+  "dashboard": {
+    "title": "数据保留管理",
+    "subtitle": "管理数据存储策略、归档记录和删除请求",
+    "tabs": {
+      "overview": "存储总览",
+      "policies": "保留策略",
+      "archives": "归档记录",
+      "deletions": "删除请求"
+    },
+    "policies": {
+      "cardTitle": "保留策略管理",
+      "cardDescription": "配置不同数据类型的保留时间和存储层级规则"
+    },
+    "archives": {
+      "cardTitle": "归档记录",
+      "cardDescription": "查看已归档的数据，支持从冷存储还原"
+    },
+    "deletions": {
+      "cardTitle": "删除请求审批",
+      "cardDescription": "审核待处理的数据删除请求，确保合规性"
+    },
+    "policyForm": {
+      "editTitle": "编辑保留策略",
+      "createTitle": "新增保留策略",
+      "description": "设定数据类型的保留时间和存储层级规则",
+      "policyName": "策略名称",
+      "policyNamePlaceholder": "输入策略名称",
+      "descriptionLabel": "描述",
+      "descriptionPlaceholder": "输入策略描述",
+      "dataType": "数据类型",
+      "dataTypePlaceholder": "选择数据类型",
+      "storageDays": "存储层级天数",
+      "hotStorage": "热存储 (HOT)",
+      "warmStorage": "温存储 (COOL)",
+      "coldStorage": "冷存储 (COLD)",
+      "totalRetention": "总保留时间：{days} 天",
+      "complianceMet": "✓ 符合 7 年合规要求",
+      "protectionSettings": "保护设定",
+      "deletionProtection": "删除保护",
+      "deletionProtectionHint": "启用后，数据无法被意外删除",
+      "requireApproval": "需要审批",
+      "requireApprovalHint": "删除请求需要管理员审批",
+      "enablePolicy": "启用策略",
+      "enablePolicyHint": "停用策略后将不再执行自动归档",
+      "submitting": "处理中...",
+      "update": "更新策略",
+      "create": "创建策略"
+    },
+    "toast": {
+      "createSuccessTitle": "策略创建成功",
+      "createSuccessDescription": "新的保留策略已创建",
+      "createErrorTitle": "创建失败",
+      "updateSuccessTitle": "策略更新成功",
+      "updateSuccessDescription": "保留策略已更新",
+      "updateErrorTitle": "更新失败",
+      "validationErrorTitle": "表单验证失败",
+      "validationErrorDescription": "请填写必填字段"
+    }
+  },
+  "storage": {
+    "loadError": "无法载入存储指标",
+    "totalStorage": "总存储量",
+    "estimatedMonthlyCost": "预估月成本：{cost}",
+    "compressionSaved": "压缩节省",
+    "savedAmount": "节省 {size}",
+    "archiveStatus": "归档状态",
+    "pendingCount": "{count} 待处理",
+    "failedCount": "{count} 失败",
+    "restoreStatus": "还原状态",
+    "processingCount": "{count} 处理中",
+    "averageMinutes": "平均 {minutes} 分钟",
+    "tierDistribution": "存储层级分布",
+    "tierDistributionDescription": "各层级存储使用量和成本",
+    "recordCount": "{count} 笔",
+    "costPerMonth": "成本：{cost}/月",
+    "dataTypeDistribution": "数据类型分布",
+    "dataTypeDistributionDescription": "各类型数据存储使用量",
+    "deletionActivity": "删除活动",
+    "pendingApproval": "待审批",
+    "completed": "已完成",
+    "totalDeletedRecords": "总删除记录"
+  },
+  "archive": {
+    "listTitle": "归档记录",
+    "loadError": "无法载入归档记录",
+    "empty": "尚无归档记录",
+    "columns": {
+      "dataType": "数据类型",
+      "storageTier": "存储层级",
+      "recordCount": "记录数",
+      "size": "大小",
+      "status": "状态",
+      "archivedAt": "归档时间"
+    },
+    "originalSize": "原始: {size}",
+    "restore": "还原",
+    "restoring": "还原中",
+    "restoreDialog": {
+      "title": "还原归档数据",
+      "description": "请说明还原此归档数据的原因。还原时间取决于存储层级。",
+      "reasonLabel": "还原原因",
+      "reasonPlaceholder": "请输入还原原因...",
+      "submitting": "提交中...",
+      "confirm": "确认还原"
+    },
+    "restoreToast": {
+      "successTitle": "还原请求已提交",
+      "successDescription": "预计等待时间：{waitTime}",
+      "errorTitle": "还原请求失败"
+    },
+    "restoreTime": {
+      "instant": "即时",
+      "seconds": "约 {seconds} 秒",
+      "minutes": "约 {minutes} 分钟",
+      "hours": "约 {hours} 小时"
+    }
+  },
+  "deletion": {
+    "listTitle": "删除请求",
+    "loadError": "无法载入删除请求",
+    "empty": "尚无删除请求",
+    "columns": {
+      "dataType": "数据类型",
+      "dateRange": "数据范围",
+      "reason": "请求原因",
+      "requestedBy": "请求者",
+      "status": "状态",
+      "createdAt": "请求时间"
+    },
+    "dateRangeTo": "至",
+    "approve": "批准",
+    "reject": "拒绝",
+    "approveDialog": {
+      "title": "确认批准删除请求",
+      "irreversible": "此操作无法复原",
+      "warning": "批准后，系统将开始删除指定范围内的数据。如数据已归档，将从冷存储中永久删除。",
+      "submitting": "处理中...",
+      "confirm": "确认批准"
+    },
+    "rejectDialog": {
+      "title": "拒绝删除请求",
+      "description": "请说明拒绝此删除请求的原因。",
+      "reasonLabel": "拒绝原因",
+      "reasonPlaceholder": "请输入拒绝原因...",
+      "submitting": "处理中...",
+      "confirm": "确认拒绝"
+    },
+    "approveToast": {
+      "successTitle": "删除请求已批准",
+      "successDescription": "系统将开始执行删除作业",
+      "errorTitle": "批准失败"
+    },
+    "rejectToast": {
+      "successTitle": "删除请求已拒绝",
+      "successDescription": "已记录拒绝原因",
+      "errorTitle": "拒绝失败"
+    }
+  },
+  "policy": {
+    "listTitle": "保留策略",
+    "loadError": "无法载入保留策略",
+    "empty": "尚无保留策略",
+    "create": "新增策略",
+    "columns": {
+      "policyName": "策略名称",
+      "dataType": "数据类型",
+      "retentionDays": "保留天数",
+      "protection": "保护设定",
+      "status": "状态"
+    },
+    "hotDays": "热: {days} 天",
+    "warmDays": "温: {days} 天",
+    "coldDays": "冷: {days} 天",
+    "deletionProtection": "删除保护",
+    "requireApproval": "需审批",
+    "active": "启用",
+    "inactive": "停用",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteDialog": {
+      "title": "确认删除策略？",
+      "description": "此操作无法复原。删除策略后，相关的归档配置将无法使用。",
+      "submitting": "删除中...",
+      "confirm": "确认删除"
+    },
+    "deleteToast": {
+      "successTitle": "删除成功",
+      "successDescription": "保留策略已删除",
+      "errorTitle": "删除失败"
+    }
+  },
+  "common": {
+    "previousPage": "上一页",
+    "nextPage": "下一页",
+    "cancel": "取消",
+    "unknown": "未知"
+  },
+  "dataType": {
+    "AUDIT_LOG": "审计日志",
+    "DATA_CHANGE_HISTORY": "数据变更历史",
+    "DOCUMENT": "文件",
+    "EXTRACTION_RESULT": "提取结果",
+    "PROCESSING_RECORD": "处理记录",
+    "USER_SESSION": "用户会话",
+    "API_USAGE_LOG": "API 使用记录",
+    "SYSTEM_LOG": "系统日志",
+    "unknown": "未知"
+  },
+  "tier": {
+    "HOT": "热存储",
+    "COOL": "冷存储",
+    "COLD": "冷藏存储",
+    "ARCHIVE": "归档存储"
+  },
+  "tierConfig": {
+    "HOT": "频繁访问，即时可用",
+    "COOL": "较少访问，快速可用",
+    "COLD": "很少访问，需要时间还原",
+    "ARCHIVE": "极少访问，需要较长时间还原"
+  },
+  "archiveStatus": {
+    "PENDING": "等待归档",
+    "ARCHIVING": "归档中",
+    "ARCHIVED": "已归档",
+    "FAILED": "归档失败",
+    "RESTORING": "还原中",
+    "RESTORED": "已还原"
+  },
+  "deletionStatus": {
+    "PENDING": "待审批",
+    "APPROVED": "已批准",
+    "REJECTED": "已拒绝",
+    "EXECUTING": "执行中",
+    "COMPLETED": "已完成",
+    "FAILED": "失败"
+  }
+}

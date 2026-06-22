@@ -18,6 +18,7 @@
  *   - lucide-react - 圖標
  */
 
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import {
   Building2,
@@ -94,21 +95,19 @@ function InfoItem({
  * 提取類型標籤
  */
 function ExtractionTypeBadge({ type }: { type: string }) {
+  const t = useTranslations('rules')
+
   const variants: Record<string, 'default' | 'secondary' | 'outline'> = {
     REGEX: 'default',
     POSITION: 'secondary',
     KEYWORD: 'outline',
   }
 
-  const labels: Record<string, string> = {
-    REGEX: '正則表達式',
-    POSITION: '位置提取',
-    KEYWORD: '關鍵字匹配',
-  }
+  const typeKey = `ruleReview.suggestionInfo.extractionTypes.${type}`
 
   return (
     <Badge variant={variants[type] ?? 'default'}>
-      {labels[type] ?? type}
+      {t.has(typeKey) ? t(typeKey) : type}
     </Badge>
   )
 }
@@ -117,9 +116,11 @@ function ExtractionTypeBadge({ type }: { type: string }) {
  * 來源標籤
  */
 function SourceBadge({ source }: { source: 'AUTO' | 'MANUAL' }) {
+  const t = useTranslations('rules')
+
   return (
     <Badge variant={source === 'AUTO' ? 'secondary' : 'outline'}>
-      {source === 'AUTO' ? '自動學習' : '手動建立'}
+      {t(`ruleReview.suggestionInfo.sources.${source}`)}
     </Badge>
   )
 }
@@ -172,11 +173,13 @@ function ConfidenceIndicator({ confidence }: { confidence: number }) {
  * ```
  */
 export function SuggestionInfo({ suggestion, className }: SuggestionInfoProps) {
+  const t = useTranslations('rules')
+
   return (
     <div className={cn('space-y-4', className)}>
       <InfoItem
         icon={Building2}
-        label="Forwarder"
+        label={t('ruleReview.suggestionInfo.forwarder')}
         value={
           <div className="flex items-center gap-2">
             <span>{suggestion.forwarder.name}</span>
@@ -189,19 +192,19 @@ export function SuggestionInfo({ suggestion, className }: SuggestionInfoProps) {
 
       <InfoItem
         icon={FileText}
-        label="欄位名稱"
+        label={t('ruleReview.suggestionInfo.fieldName')}
         value={suggestion.fieldName}
       />
 
       <InfoItem
         icon={Tag}
-        label="提取類型"
+        label={t('ruleReview.suggestionInfo.extractionType')}
         value={<ExtractionTypeBadge type={suggestion.extractionType} />}
       />
 
       <InfoItem
         icon={Regex}
-        label="提取模式"
+        label={t('ruleReview.suggestionInfo.extractionPattern')}
         value={
           <code className="text-sm bg-muted px-2 py-1 rounded font-mono break-all">
             {suggestion.suggestedPattern}
@@ -211,34 +214,36 @@ export function SuggestionInfo({ suggestion, className }: SuggestionInfoProps) {
 
       <InfoItem
         icon={Percent}
-        label="信心度"
+        label={t('ruleReview.suggestionInfo.confidence')}
         value={<ConfidenceIndicator confidence={suggestion.confidence} />}
       />
 
       <InfoItem
         icon={Tag}
-        label="來源"
+        label={t('ruleReview.suggestionInfo.source')}
         value={<SourceBadge source={suggestion.source} />}
       />
 
       {suggestion.sampleCount && (
         <InfoItem
           icon={FileText}
-          label="樣本數量"
-          value={`${suggestion.sampleCount} 個文件`}
+          label={t('ruleReview.suggestionInfo.sampleCount')}
+          value={t('ruleReview.suggestionInfo.sampleCountValue', {
+            count: suggestion.sampleCount,
+          })}
         />
       )}
 
       <InfoItem
         icon={Calendar}
-        label="建立時間"
+        label={t('ruleReview.suggestionInfo.createdAt')}
         value={new Date(suggestion.createdAt).toLocaleString('zh-TW')}
       />
 
       {suggestion.createdBy && (
         <InfoItem
           icon={User}
-          label="建立者"
+          label={t('ruleReview.suggestionInfo.createdBy')}
           value={suggestion.createdBy.name}
         />
       )}

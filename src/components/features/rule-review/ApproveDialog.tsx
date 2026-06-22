@@ -20,6 +20,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -78,6 +79,8 @@ export function ApproveDialog({
   onConfirm,
   isLoading,
 }: ApproveDialogProps) {
+  const t = useTranslations('rules')
+  const tc = useTranslations('common')
   const [notes, setNotes] = useState('')
   const [effectiveDate, setEffectiveDate] = useState('')
 
@@ -103,10 +106,10 @@ export function ApproveDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Check className="h-5 w-5 text-green-600" />
-            確認批准規則
+            {t('ruleReview.approveDialog.title')}
           </DialogTitle>
           <DialogDescription>
-            批准此規則建議後，將創建或更新對應的映射規則並立即生效。
+            {t('ruleReview.approveDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -114,15 +117,17 @@ export function ApproveDialog({
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              此操作將創建新版本的映射規則，並可能影響後續的文件處理結果。
+              {t('ruleReview.approveDialog.warning')}
             </AlertDescription>
           </Alert>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">審核備註 (選填)</Label>
+            <Label htmlFor="notes">
+              {t('ruleReview.approveDialog.notesLabel')}
+            </Label>
             <Textarea
               id="notes"
-              placeholder="輸入批准備註，例如：經測試確認準確率達標..."
+              placeholder={t('ruleReview.approveDialog.notesPlaceholder')}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               disabled={isLoading}
@@ -131,7 +136,9 @@ export function ApproveDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="effectiveDate">生效日期 (選填)</Label>
+            <Label htmlFor="effectiveDate">
+              {t('ruleReview.approveDialog.effectiveDateLabel')}
+            </Label>
             <Input
               id="effectiveDate"
               type="date"
@@ -141,7 +148,7 @@ export function ApproveDialog({
               min={new Date().toISOString().split('T')[0]}
             />
             <p className="text-xs text-muted-foreground">
-              留空則立即生效，選擇日期則於該日期零時生效
+              {t('ruleReview.approveDialog.effectiveDateHint')}
             </p>
           </div>
         </div>
@@ -152,7 +159,7 @@ export function ApproveDialog({
             onClick={() => handleOpenChange(false)}
             disabled={isLoading}
           >
-            取消
+            {tc('actions.cancel')}
           </Button>
           <Button
             onClick={handleConfirm}
@@ -160,7 +167,7 @@ export function ApproveDialog({
             className="bg-green-600 hover:bg-green-700"
           >
             {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            確認批准
+            {t('ruleReview.approveDialog.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

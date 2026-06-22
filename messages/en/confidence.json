@@ -1,4 +1,9 @@
 {
+  "badge": {
+    "high": "High Confidence",
+    "medium": "Medium Confidence",
+    "low": "Low Confidence"
+  },
   "breakdown": {
     "title": "Confidence Breakdown",
     "totalScore": "Total Score",
@@ -7,6 +12,7 @@
     "v3Formula": "score = Extraction(30%) + Issuer(20%) + Format(15%) + Completeness(20%) + History(15%)",
     "rawScore": "Raw Score",
     "contribution": "Contribution",
+    "weightedScore": "Weighted Score",
     "weight": "Weight",
     "version": {
       "v2": "V2 (7 Dimensions)",

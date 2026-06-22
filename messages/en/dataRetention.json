@@ -1,0 +1,238 @@
+{
+  "dashboard": {
+    "title": "Data Retention Management",
+    "subtitle": "Manage data storage policies, archive records, and deletion requests",
+    "tabs": {
+      "overview": "Storage Overview",
+      "policies": "Retention Policies",
+      "archives": "Archive Records",
+      "deletions": "Deletion Requests"
+    },
+    "policies": {
+      "cardTitle": "Retention Policy Management",
+      "cardDescription": "Configure retention periods and storage tier rules for different data types"
+    },
+    "archives": {
+      "cardTitle": "Archive Records",
+      "cardDescription": "View archived data and restore from cold storage"
+    },
+    "deletions": {
+      "cardTitle": "Deletion Request Approval",
+      "cardDescription": "Review pending data deletion requests to ensure compliance"
+    },
+    "policyForm": {
+      "editTitle": "Edit Retention Policy",
+      "createTitle": "Add Retention Policy",
+      "description": "Set retention periods and storage tier rules for a data type",
+      "policyName": "Policy Name",
+      "policyNamePlaceholder": "Enter policy name",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Enter policy description",
+      "dataType": "Data Type",
+      "dataTypePlaceholder": "Select data type",
+      "storageDays": "Storage Tier Days",
+      "hotStorage": "Hot Storage (HOT)",
+      "warmStorage": "Warm Storage (COOL)",
+      "coldStorage": "Cold Storage (COLD)",
+      "totalRetention": "Total retention: {days} days",
+      "complianceMet": "✓ Meets 7-year compliance requirement",
+      "protectionSettings": "Protection Settings",
+      "deletionProtection": "Deletion Protection",
+      "deletionProtectionHint": "When enabled, data cannot be accidentally deleted",
+      "requireApproval": "Require Approval",
+      "requireApprovalHint": "Deletion requests require administrator approval",
+      "enablePolicy": "Enable Policy",
+      "enablePolicyHint": "Disabling the policy stops automatic archiving",
+      "submitting": "Processing...",
+      "update": "Update Policy",
+      "create": "Create Policy"
+    },
+    "toast": {
+      "createSuccessTitle": "Policy Created",
+      "createSuccessDescription": "The new retention policy has been created",
+      "createErrorTitle": "Creation Failed",
+      "updateSuccessTitle": "Policy Updated",
+      "updateSuccessDescription": "The retention policy has been updated",
+      "updateErrorTitle": "Update Failed",
+      "validationErrorTitle": "Form Validation Failed",
+      "validationErrorDescription": "Please fill in the required fields"
+    }
+  },
+  "storage": {
+    "loadError": "Unable to load storage metrics",
+    "totalStorage": "Total Storage",
+    "estimatedMonthlyCost": "Estimated monthly cost: {cost}",
+    "compressionSaved": "Compression Savings",
+    "savedAmount": "Saved {size}",
+    "archiveStatus": "Archive Status",
+    "pendingCount": "{count} pending",
+    "failedCount": "{count} failed",
+    "restoreStatus": "Restore Status",
+    "processingCount": "{count} in progress",
+    "averageMinutes": "Avg. {minutes} min",
+    "tierDistribution": "Storage Tier Distribution",
+    "tierDistributionDescription": "Storage usage and cost by tier",
+    "recordCount": "{count} records",
+    "costPerMonth": "Cost: {cost}/month",
+    "dataTypeDistribution": "Data Type Distribution",
+    "dataTypeDistributionDescription": "Storage usage by data type",
+    "deletionActivity": "Deletion Activity",
+    "pendingApproval": "Pending Approval",
+    "completed": "Completed",
+    "totalDeletedRecords": "Total Deleted Records"
+  },
+  "archive": {
+    "listTitle": "Archive Records",
+    "loadError": "Unable to load archive records",
+    "empty": "No archive records yet",
+    "columns": {
+      "dataType": "Data Type",
+      "storageTier": "Storage Tier",
+      "recordCount": "Records",
+      "size": "Size",
+      "status": "Status",
+      "archivedAt": "Archived At"
+    },
+    "originalSize": "Original: {size}",
+    "restore": "Restore",
+    "restoring": "Restoring",
+    "restoreDialog": {
+      "title": "Restore Archived Data",
+      "description": "Please explain why you are restoring this archived data. Restore time depends on the storage tier.",
+      "reasonLabel": "Restore Reason",
+      "reasonPlaceholder": "Enter restore reason...",
+      "submitting": "Submitting...",
+      "confirm": "Confirm Restore"
+    },
+    "restoreToast": {
+      "successTitle": "Restore Request Submitted",
+      "successDescription": "Estimated wait time: {waitTime}",
+      "errorTitle": "Restore Request Failed"
+    },
+    "restoreTime": {
+      "instant": "Instant",
+      "seconds": "approx. {seconds} sec",
+      "minutes": "approx. {minutes} min",
+      "hours": "approx. {hours} hr"
+    }
+  },
+  "deletion": {
+    "listTitle": "Deletion Requests",
+    "loadError": "Unable to load deletion requests",
+    "empty": "No deletion requests yet",
+    "columns": {
+      "dataType": "Data Type",
+      "dateRange": "Data Range",
+      "reason": "Request Reason",
+      "requestedBy": "Requested By",
+      "status": "Status",
+      "createdAt": "Requested At"
+    },
+    "dateRangeTo": "to",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approveDialog": {
+      "title": "Confirm Deletion Request Approval",
+      "irreversible": "This action cannot be undone",
+      "warning": "After approval, the system will start deleting data within the specified range. Archived data will be permanently deleted from cold storage.",
+      "submitting": "Processing...",
+      "confirm": "Confirm Approval"
+    },
+    "rejectDialog": {
+      "title": "Reject Deletion Request",
+      "description": "Please explain why you are rejecting this deletion request.",
+      "reasonLabel": "Rejection Reason",
+      "reasonPlaceholder": "Enter rejection reason...",
+      "submitting": "Processing...",
+      "confirm": "Confirm Rejection"
+    },
+    "approveToast": {
+      "successTitle": "Deletion Request Approved",
+      "successDescription": "The system will start the deletion process",
+      "errorTitle": "Approval Failed"
+    },
+    "rejectToast": {
+      "successTitle": "Deletion Request Rejected",
+      "successDescription": "The rejection reason has been recorded",
+      "errorTitle": "Rejection Failed"
+    }
+  },
+  "policy": {
+    "listTitle": "Retention Policies",
+    "loadError": "Unable to load retention policies",
+    "empty": "No retention policies yet",
+    "create": "Add Policy",
+    "columns": {
+      "policyName": "Policy Name",
+      "dataType": "Data Type",
+      "retentionDays": "Retention Days",
+      "protection": "Protection Settings",
+      "status": "Status"
+    },
+    "hotDays": "Hot: {days} days",
+    "warmDays": "Warm: {days} days",
+    "coldDays": "Cold: {days} days",
+    "deletionProtection": "Deletion Protection",
+    "requireApproval": "Approval Required",
+    "active": "Active",
+    "inactive": "Inactive",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteDialog": {
+      "title": "Confirm Delete Policy?",
+      "description": "This action cannot be undone. After deleting the policy, related archive configurations will be unavailable.",
+      "submitting": "Deleting...",
+      "confirm": "Confirm Delete"
+    },
+    "deleteToast": {
+      "successTitle": "Deleted Successfully",
+      "successDescription": "The retention policy has been deleted",
+      "errorTitle": "Deletion Failed"
+    }
+  },
+  "common": {
+    "previousPage": "Previous",
+    "nextPage": "Next",
+    "cancel": "Cancel",
+    "unknown": "Unknown"
+  },
+  "dataType": {
+    "AUDIT_LOG": "Audit Log",
+    "DATA_CHANGE_HISTORY": "Data Change History",
+    "DOCUMENT": "Document",
+    "EXTRACTION_RESULT": "Extraction Result",
+    "PROCESSING_RECORD": "Processing Record",
+    "USER_SESSION": "User Session",
+    "API_USAGE_LOG": "API Usage Log",
+    "SYSTEM_LOG": "System Log",
+    "unknown": "Unknown"
+  },
+  "tier": {
+    "HOT": "Hot Storage",
+    "COOL": "Cool Storage",
+    "COLD": "Cold Storage",
+    "ARCHIVE": "Archive Storage"
+  },
+  "tierConfig": {
+    "HOT": "Frequent access, instantly available",
+    "COOL": "Less frequent access, quickly available",
+    "COLD": "Rare access, requires time to restore",
+    "ARCHIVE": "Very rare access, requires longer time to restore"
+  },
+  "archiveStatus": {
+    "PENDING": "Pending Archive",
+    "ARCHIVING": "Archiving",
+    "ARCHIVED": "Archived",
+    "FAILED": "Archive Failed",
+    "RESTORING": "Restoring",
+    "RESTORED": "Restored"
+  },
+  "deletionStatus": {
+    "PENDING": "Pending Approval",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "EXECUTING": "Executing",
+    "COMPLETED": "Completed",
+    "FAILED": "Failed"
+  }
+}

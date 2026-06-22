@@ -1,0 +1,55 @@
+{
+  "details": {
+    "sourceInfo": "来源信息",
+    "originalFileName": "原始文件名",
+    "acquiredAt": "获取时间",
+    "sharepoint": {
+      "title": "SharePoint 详情",
+      "site": "站点",
+      "path": "路径",
+      "lastModified": "最后修改",
+      "viewInSharePoint": "在 SharePoint 中查看"
+    },
+    "outlook": {
+      "title": "邮件详情",
+      "sender": "发件人",
+      "subject": "主题",
+      "receivedAt": "接收时间",
+      "attachment": "附件",
+      "attachmentInfo": "第 {index} 个，共 {total} 个"
+    },
+    "manual": {
+      "title": "上传详情",
+      "uploadedBy": "上传者",
+      "uploadMethod": "上传方式"
+    },
+    "api": {
+      "title": "API 详情",
+      "system": "系统",
+      "requestId": "请求 ID"
+    },
+    "unknown": "未知"
+  },
+  "sourceTypes": {
+    "all": "所有来源",
+    "MANUAL_UPLOAD": "手动上传",
+    "SHAREPOINT": "SharePoint",
+    "OUTLOOK": "Outlook 邮件",
+    "API": "外部 API",
+    "N8N_WORKFLOW": "n8n 工作流",
+    "unknown": "未知"
+  },
+  "filter": {
+    "placeholder": "筛选来源"
+  },
+  "stats": {
+    "title": "文件来源分布",
+    "noData": "暂无数据",
+    "documentCount": "{count} 个文件",
+    "total": "总计"
+  },
+  "trend": {
+    "title": "来源类型趋势",
+    "noData": "暂无数据"
+  }
+}

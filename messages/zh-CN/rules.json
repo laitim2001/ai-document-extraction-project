@@ -448,5 +448,127 @@
     "validation": {
       "reasonRequired": "请说明变更原因"
     }
+  },
+  "ruleReview": {
+    "approveDialog": {
+      "title": "确认批准规则",
+      "description": "批准此规则建议后，将创建或更新对应的映射规则并立即生效。",
+      "warning": "此操作将创建新版本的映射规则，并可能影响后续的文件处理结果。",
+      "notesLabel": "审核备注 (选填)",
+      "notesPlaceholder": "输入批准备注，例如：经测试确认准确率达标...",
+      "effectiveDateLabel": "生效日期 (选填)",
+      "effectiveDateHint": "留空则立即生效，选择日期则于该日期零时生效",
+      "confirm": "确认批准"
+    },
+    "impact": {
+      "totalAffected": "受影响文件",
+      "estimatedImprovement": "预计改善",
+      "estimatedRegression": "可能恶化",
+      "unchanged": "无变化",
+      "improvementRate": "改善率",
+      "regressionRate": "恶化率"
+    },
+    "detail": {
+      "loadFailed": "加载失败",
+      "retry": "重试",
+      "backToList": "返回列表",
+      "notFound": "找不到建议",
+      "notFoundDesc": "指定的规则建议不存在或已被删除",
+      "reviewTitle": "审核规则建议",
+      "notReviewable": "此建议状态为「{status}」，无法进行审核操作。",
+      "reviewNotesLabel": "审核备注：{notes}",
+      "rejectionReasonLabel": "拒绝原因：{reason}",
+      "ruleDetails": "规则详情",
+      "impactAnalysis": "影响分析",
+      "detailedAnalysis": "详细分析",
+      "impactLoadFailed": "无法加载影响分析",
+      "sampleCases": "样本案例",
+      "reject": "拒绝",
+      "approve": "批准",
+      "approveSuccess": "规则已批准并生效",
+      "approveError": "批准失败：{message}",
+      "rejectSuccess": "建议已拒绝",
+      "rejectError": "拒绝失败：{message}"
+    },
+    "status": {
+      "PENDING": "待审核",
+      "APPROVED": "已批准",
+      "REJECTED": "已拒绝",
+      "IMPLEMENTED": "已实施",
+      "unknown": "未知"
+    },
+    "sampleTable": {
+      "summary": "共 {count} 个样本案例",
+      "matchRate": "匹配率：",
+      "matchRateValue": "{rate}% ({matched}/{total})",
+      "columnDocument": "文件",
+      "columnOriginalValue": "原始值",
+      "columnExtractedValue": "提取值",
+      "columnMatch": "匹配",
+      "matched": "匹配",
+      "notMatched": "不匹配",
+      "noValue": "无值",
+      "emptyTitle": "无样本案例",
+      "emptyDesc": "此规则建议尚无样本案例资料"
+    },
+    "suggestionInfo": {
+      "forwarder": "Forwarder",
+      "fieldName": "字段名称",
+      "extractionType": "提取类型",
+      "extractionPattern": "提取模式",
+      "confidence": "信心度",
+      "source": "来源",
+      "sampleCount": "样本数量",
+      "sampleCountValue": "{count} 个文件",
+      "createdAt": "建立时间",
+      "createdBy": "建立者",
+      "extractionTypes": {
+        "REGEX": "正则表达式",
+        "POSITION": "位置提取",
+        "KEYWORD": "关键字匹配"
+      },
+      "sources": {
+        "AUTO": "自动学习",
+        "MANUAL": "手动建立"
+      }
+    }
+  },
+  "ruleVersion": {
+    "rollbackDialog": {
+      "title": "确认回滚",
+      "confirmQuestion": "您确定要将规则回滚到版本 {version} 吗？",
+      "description": "此操作会创建一个新版本，内容与版本 {version} 相同。原有的版本记录将保留，不会被删除。",
+      "reasonLabel": "回滚原因（选填）",
+      "reasonPlaceholder": "请输入回滚原因，例如：恢复到稳定版本...",
+      "processing": "处理中...",
+      "confirm": "确认回滚"
+    },
+    "compareDialog": {
+      "title": "版本对比",
+      "description": "比较两个版本之间的差异，查看变更内容",
+      "loadFailed": "加载失败",
+      "loadFailedDesc": "无法加载版本对比数据",
+      "changeSummary": "变更摘要",
+      "selectRollbackTarget": "选择要回滚的目标版本",
+      "rollbackToVersion": "回滚到版本 {version}",
+      "rollbackSuccess": "成功回滚到版本 {version}",
+      "rollbackError": "回滚失败: {message}"
+    },
+    "diffViewer": {
+      "noPattern": "(无 Pattern)",
+      "fieldDifferences": "字段差异",
+      "columnField": "字段",
+      "version": "版本 {version}",
+      "changed": "已变更",
+      "patternDifferences": "Pattern 差异",
+      "diffHighlight": "差异高亮",
+      "removedContent": "移除的内容",
+      "addedContent": "新增的内容",
+      "moreItems": "...还有 {count} 项",
+      "versionInfo": "版本 {version} 资讯",
+      "createdBy": "建立者",
+      "createdAt": "建立时间",
+      "changeReason": "变更原因"
+    }
   }
 }

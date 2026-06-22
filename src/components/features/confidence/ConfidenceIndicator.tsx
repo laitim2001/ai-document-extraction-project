@@ -12,6 +12,7 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   getConfidenceLevel,
@@ -30,7 +31,10 @@ export interface ConfidenceIndicatorProps {
   showLabel?: boolean
   /** 是否顯示分數值 */
   showScore?: boolean
-  /** 顯示語言 */
+  /**
+   * 顯示語言
+   * @deprecated 組件已改用 next-intl，依當前 locale 自動顯示，無需傳入。
+   */
   locale?: 'en' | 'zh'
   /** 自定義 className */
   className?: string
@@ -79,13 +83,13 @@ export function ConfidenceIndicator({
   score,
   showLabel = false,
   showScore = true,
-  locale = 'en',
   className,
   height = 'md',
 }: ConfidenceIndicatorProps) {
+  const t = useTranslations('confidence')
   const level = getConfidenceLevel(score)
   const config = CONFIDENCE_THRESHOLDS[level]
-  const label = locale === 'zh' ? config.labelZh : config.label
+  const label = t(`badge.${level}`)
 
   return (
     <div className={cn('w-full', className)}>

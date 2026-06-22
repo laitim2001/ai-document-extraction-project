@@ -19,6 +19,7 @@
  *   - lucide-react - 圖標庫
  */
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   FileStack,
@@ -48,7 +49,8 @@ interface ImpactStatisticsCardsProps {
 interface CardConfig {
   key: keyof ImpactStatistics | 'improvementRateDisplay' | 'regressionRateDisplay'
   getValue: (stats: ImpactStatistics) => string | number
-  label: string
+  /** i18n key（位於 ruleSimulation.impact.statistics 之下） */
+  labelKey: string
   icon: typeof FileStack
   color: string
   bgColor: string
@@ -58,7 +60,7 @@ const CARD_CONFIGS: CardConfig[] = [
   {
     key: 'totalAffected',
     getValue: (stats) => stats.totalAffected,
-    label: '受影響文件',
+    labelKey: 'impact.statistics.totalAffected',
     icon: FileStack,
     color: 'text-slate-600 dark:text-slate-400',
     bgColor: 'bg-slate-100 dark:bg-slate-800',
@@ -66,7 +68,7 @@ const CARD_CONFIGS: CardConfig[] = [
   {
     key: 'estimatedImprovement',
     getValue: (stats) => stats.estimatedImprovement,
-    label: '預計改善',
+    labelKey: 'impact.statistics.estimatedImprovement',
     icon: TrendingUp,
     color: 'text-green-600 dark:text-green-400',
     bgColor: 'bg-green-100 dark:bg-green-900/30',
@@ -74,7 +76,7 @@ const CARD_CONFIGS: CardConfig[] = [
   {
     key: 'estimatedRegression',
     getValue: (stats) => stats.estimatedRegression,
-    label: '可能惡化',
+    labelKey: 'impact.statistics.estimatedRegression',
     icon: TrendingDown,
     color: 'text-red-600 dark:text-red-400',
     bgColor: 'bg-red-100 dark:bg-red-900/30',
@@ -82,7 +84,7 @@ const CARD_CONFIGS: CardConfig[] = [
   {
     key: 'unchanged',
     getValue: (stats) => stats.unchanged,
-    label: '無變化',
+    labelKey: 'impact.statistics.unchanged',
     icon: Minus,
     color: 'text-slate-500 dark:text-slate-400',
     bgColor: 'bg-slate-100 dark:bg-slate-800',
@@ -90,7 +92,7 @@ const CARD_CONFIGS: CardConfig[] = [
   {
     key: 'improvementRateDisplay',
     getValue: (stats) => `${stats.improvementRate}%`,
-    label: '改善率',
+    labelKey: 'impact.statistics.improvementRate',
     icon: Percent,
     color: 'text-emerald-600 dark:text-emerald-400',
     bgColor: 'bg-emerald-100 dark:bg-emerald-900/30',
@@ -98,7 +100,7 @@ const CARD_CONFIGS: CardConfig[] = [
   {
     key: 'regressionRateDisplay',
     getValue: (stats) => `${stats.regressionRate}%`,
-    label: '惡化率',
+    labelKey: 'impact.statistics.regressionRate',
     icon: Percent,
     color: 'text-rose-600 dark:text-rose-400',
     bgColor: 'bg-rose-100 dark:bg-rose-900/30',
@@ -121,6 +123,8 @@ export function ImpactStatisticsCards({
   statistics,
   className,
 }: ImpactStatisticsCardsProps) {
+  const t = useTranslations('ruleSimulation')
+
   return (
     <div
       className={cn(
@@ -146,7 +150,7 @@ export function ImpactStatisticsCards({
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{value}</p>
-                  <p className="text-xs text-muted-foreground">{config.label}</p>
+                  <p className="text-xs text-muted-foreground">{t(config.labelKey)}</p>
                 </div>
               </div>
             </CardContent>

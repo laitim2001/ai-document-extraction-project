@@ -1,0 +1,125 @@
+{
+  "impact": {
+    "loadFailed": "載入失敗",
+    "noData": "無數據",
+    "noDataDescription": "無法獲取影響分析數據",
+    "header": {
+      "field": "欄位",
+      "forwarder": "Forwarder",
+      "extractionType": "提取類型"
+    },
+    "tabs": {
+      "analysis": "影響分析",
+      "simulation": "模擬測試"
+    },
+    "statistics": {
+      "totalAffected": "受影響文件",
+      "estimatedImprovement": "預計改善",
+      "estimatedRegression": "可能惡化",
+      "unchanged": "無變化",
+      "improvementRate": "改善率",
+      "regressionRate": "惡化率"
+    },
+    "timeline": {
+      "title": "時間趨勢",
+      "titleWithDays": "時間趨勢（最近 {count} 天）",
+      "noData": "無時間軸數據",
+      "legend": {
+        "improved": "改善",
+        "regressed": "惡化",
+        "unchanged": "無變化"
+      },
+      "summary": {
+        "days": "{count} 天",
+        "improved": "{count} 改善",
+        "regressed": "{count} 惡化"
+      }
+    }
+  },
+  "risk": {
+    "title": "風險案例",
+    "count": "{count} 筆",
+    "empty": {
+      "title": "未發現風險案例",
+      "description": "此規則變更預計不會造成惡化"
+    },
+    "levels": {
+      "HIGH": "高風險",
+      "MEDIUM": "中風險",
+      "LOW": "低風險"
+    },
+    "table": {
+      "document": "文件",
+      "riskLevel": "風險等級",
+      "valueComparison": "值對比",
+      "reason": "風險原因"
+    },
+    "comparison": {
+      "current": "現有",
+      "predicted": "預測",
+      "empty": "(無)"
+    }
+  },
+  "simulation": {
+    "config": {
+      "title": "模擬測試配置",
+      "sampleSize": "樣本數量",
+      "sampleSizePlaceholder": "選擇樣本數量",
+      "sampleSizeOptions": {
+        "50": "50 筆",
+        "100": "100 筆（建議）",
+        "200": "200 筆",
+        "500": "500 筆"
+      },
+      "dateRange": "日期範圍",
+      "dateRangePlaceholder": "選擇日期範圍",
+      "dateRangeOptions": {
+        "7": "最近 7 天",
+        "30": "最近 30 天（建議）",
+        "90": "最近 90 天",
+        "180": "最近 180 天"
+      },
+      "includeUnverified": "包含未驗證文件",
+      "yes": "是",
+      "no": "否",
+      "run": "執行模擬測試",
+      "running": "執行中..."
+    },
+    "results": {
+      "title": "模擬測試結果",
+      "summary": {
+        "totalTested": "測試樣本",
+        "improved": "改善",
+        "regressed": "惡化",
+        "accuracyChange": "準確率變化"
+      },
+      "accuracy": {
+        "before": "變更前準確率",
+        "after": "變更後準確率"
+      },
+      "tabs": {
+        "improved": "改善 ({count})",
+        "regressed": "惡化 ({count})",
+        "unchanged": "無變化 ({count})"
+      },
+      "empty": {
+        "improved": "無改善案例",
+        "regressed": "無惡化案例",
+        "unchanged": "無無變化案例"
+      },
+      "table": {
+        "document": "文件",
+        "originalExtracted": "原始提取",
+        "currentRuleResult": "當前規則",
+        "newRuleResult": "新規則",
+        "actualValue": "實際值",
+        "current": "當前",
+        "newRule": "新規則"
+      },
+      "accurate": "正確",
+      "inaccurate": "錯誤",
+      "emptyValue": "(無)",
+      "showingLimit": "顯示前 20 筆，共 {count} 筆"
+    }
+  }
+}

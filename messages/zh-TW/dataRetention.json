@@ -1,0 +1,238 @@
+{
+  "dashboard": {
+    "title": "資料保留管理",
+    "subtitle": "管理資料存儲策略、歸檔記錄和刪除請求",
+    "tabs": {
+      "overview": "存儲總覽",
+      "policies": "保留策略",
+      "archives": "歸檔記錄",
+      "deletions": "刪除請求"
+    },
+    "policies": {
+      "cardTitle": "保留策略管理",
+      "cardDescription": "配置不同資料類型的保留時間和存儲層級規則"
+    },
+    "archives": {
+      "cardTitle": "歸檔記錄",
+      "cardDescription": "查看已歸檔的資料，支援從冷存儲還原"
+    },
+    "deletions": {
+      "cardTitle": "刪除請求審批",
+      "cardDescription": "審核待處理的資料刪除請求，確保合規性"
+    },
+    "policyForm": {
+      "editTitle": "編輯保留策略",
+      "createTitle": "新增保留策略",
+      "description": "設定資料類型的保留時間和存儲層級規則",
+      "policyName": "策略名稱",
+      "policyNamePlaceholder": "輸入策略名稱",
+      "descriptionLabel": "描述",
+      "descriptionPlaceholder": "輸入策略描述",
+      "dataType": "資料類型",
+      "dataTypePlaceholder": "選擇資料類型",
+      "storageDays": "存儲層級天數",
+      "hotStorage": "熱存儲 (HOT)",
+      "warmStorage": "溫存儲 (COOL)",
+      "coldStorage": "冷存儲 (COLD)",
+      "totalRetention": "總保留時間：{days} 天",
+      "complianceMet": "✓ 符合 7 年合規要求",
+      "protectionSettings": "保護設定",
+      "deletionProtection": "刪除保護",
+      "deletionProtectionHint": "啟用後，資料無法被意外刪除",
+      "requireApproval": "需要審批",
+      "requireApprovalHint": "刪除請求需要管理員審批",
+      "enablePolicy": "啟用策略",
+      "enablePolicyHint": "停用策略後將不再執行自動歸檔",
+      "submitting": "處理中...",
+      "update": "更新策略",
+      "create": "建立策略"
+    },
+    "toast": {
+      "createSuccessTitle": "策略建立成功",
+      "createSuccessDescription": "新的保留策略已建立",
+      "createErrorTitle": "建立失敗",
+      "updateSuccessTitle": "策略更新成功",
+      "updateSuccessDescription": "保留策略已更新",
+      "updateErrorTitle": "更新失敗",
+      "validationErrorTitle": "表單驗證失敗",
+      "validationErrorDescription": "請填寫必填欄位"
+    }
+  },
+  "storage": {
+    "loadError": "無法載入存儲指標",
+    "totalStorage": "總存儲量",
+    "estimatedMonthlyCost": "預估月成本：{cost}",
+    "compressionSaved": "壓縮節省",
+    "savedAmount": "節省 {size}",
+    "archiveStatus": "歸檔狀態",
+    "pendingCount": "{count} 待處理",
+    "failedCount": "{count} 失敗",
+    "restoreStatus": "還原狀態",
+    "processingCount": "{count} 處理中",
+    "averageMinutes": "平均 {minutes} 分鐘",
+    "tierDistribution": "存儲層級分佈",
+    "tierDistributionDescription": "各層級存儲使用量和成本",
+    "recordCount": "{count} 筆",
+    "costPerMonth": "成本：{cost}/月",
+    "dataTypeDistribution": "資料類型分佈",
+    "dataTypeDistributionDescription": "各類型資料存儲使用量",
+    "deletionActivity": "刪除活動",
+    "pendingApproval": "待審批",
+    "completed": "已完成",
+    "totalDeletedRecords": "總刪除記錄"
+  },
+  "archive": {
+    "listTitle": "歸檔記錄",
+    "loadError": "無法載入歸檔記錄",
+    "empty": "尚無歸檔記錄",
+    "columns": {
+      "dataType": "資料類型",
+      "storageTier": "存儲層級",
+      "recordCount": "記錄數",
+      "size": "大小",
+      "status": "狀態",
+      "archivedAt": "歸檔時間"
+    },
+    "originalSize": "原始: {size}",
+    "restore": "還原",
+    "restoring": "還原中",
+    "restoreDialog": {
+      "title": "還原歸檔資料",
+      "description": "請說明還原此歸檔資料的原因。還原時間取決於存儲層級。",
+      "reasonLabel": "還原原因",
+      "reasonPlaceholder": "請輸入還原原因...",
+      "submitting": "提交中...",
+      "confirm": "確認還原"
+    },
+    "restoreToast": {
+      "successTitle": "還原請求已提交",
+      "successDescription": "預計等待時間：{waitTime}",
+      "errorTitle": "還原請求失敗"
+    },
+    "restoreTime": {
+      "instant": "即時",
+      "seconds": "約 {seconds} 秒",
+      "minutes": "約 {minutes} 分鐘",
+      "hours": "約 {hours} 小時"
+    }
+  },
+  "deletion": {
+    "listTitle": "刪除請求",
+    "loadError": "無法載入刪除請求",
+    "empty": "尚無刪除請求",
+    "columns": {
+      "dataType": "資料類型",
+      "dateRange": "資料範圍",
+      "reason": "請求原因",
+      "requestedBy": "請求者",
+      "status": "狀態",
+      "createdAt": "請求時間"
+    },
+    "dateRangeTo": "至",
+    "approve": "批准",
+    "reject": "拒絕",
+    "approveDialog": {
+      "title": "確認批准刪除請求",
+      "irreversible": "此操作無法復原",
+      "warning": "批准後，系統將開始刪除指定範圍內的資料。如資料已歸檔，將從冷存儲中永久刪除。",
+      "submitting": "處理中...",
+      "confirm": "確認批准"
+    },
+    "rejectDialog": {
+      "title": "拒絕刪除請求",
+      "description": "請說明拒絕此刪除請求的原因。",
+      "reasonLabel": "拒絕原因",
+      "reasonPlaceholder": "請輸入拒絕原因...",
+      "submitting": "處理中...",
+      "confirm": "確認拒絕"
+    },
+    "approveToast": {
+      "successTitle": "刪除請求已批准",
+      "successDescription": "系統將開始執行刪除作業",
+      "errorTitle": "批准失敗"
+    },
+    "rejectToast": {
+      "successTitle": "刪除請求已拒絕",
+      "successDescription": "已記錄拒絕原因",
+      "errorTitle": "拒絕失敗"
+    }
+  },
+  "policy": {
+    "listTitle": "保留策略",
+    "loadError": "無法載入保留策略",
+    "empty": "尚無保留策略",
+    "create": "新增策略",
+    "columns": {
+      "policyName": "策略名稱",
+      "dataType": "資料類型",
+      "retentionDays": "保留天數",
+      "protection": "保護設定",
+      "status": "狀態"
+    },
+    "hotDays": "熱: {days} 天",
+    "warmDays": "溫: {days} 天",
+    "coldDays": "冷: {days} 天",
+    "deletionProtection": "刪除保護",
+    "requireApproval": "需審批",
+    "active": "啟用",
+    "inactive": "停用",
+    "edit": "編輯",
+    "delete": "刪除",
+    "deleteDialog": {
+      "title": "確認刪除策略？",
+      "description": "此操作無法復原。刪除策略後，相關的歸檔配置將無法使用。",
+      "submitting": "刪除中...",
+      "confirm": "確認刪除"
+    },
+    "deleteToast": {
+      "successTitle": "刪除成功",
+      "successDescription": "保留策略已刪除",
+      "errorTitle": "刪除失敗"
+    }
+  },
+  "common": {
+    "previousPage": "上一頁",
+    "nextPage": "下一頁",
+    "cancel": "取消",
+    "unknown": "未知"
+  },
+  "dataType": {
+    "AUDIT_LOG": "審計日誌",
+    "DATA_CHANGE_HISTORY": "數據變更歷史",
+    "DOCUMENT": "文件",
+    "EXTRACTION_RESULT": "提取結果",
+    "PROCESSING_RECORD": "處理記錄",
+    "USER_SESSION": "用戶會話",
+    "API_USAGE_LOG": "API 使用記錄",
+    "SYSTEM_LOG": "系統日誌",
+    "unknown": "未知"
+  },
+  "tier": {
+    "HOT": "熱存儲",
+    "COOL": "冷存儲",
+    "COLD": "冷藏存儲",
+    "ARCHIVE": "歸檔存儲"
+  },
+  "tierConfig": {
+    "HOT": "頻繁訪問，即時可用",
+    "COOL": "較少訪問，快速可用",
+    "COLD": "很少訪問，需要時間還原",
+    "ARCHIVE": "極少訪問，需要較長時間還原"
+  },
+  "archiveStatus": {
+    "PENDING": "等待歸檔",
+    "ARCHIVING": "歸檔中",
+    "ARCHIVED": "已歸檔",
+    "FAILED": "歸檔失敗",
+    "RESTORING": "還原中",
+    "RESTORED": "已還原"
+  },
+  "deletionStatus": {
+    "PENDING": "待審批",
+    "APPROVED": "已批准",
+    "REJECTED": "已拒絕",
+    "EXECUTING": "執行中",
+    "COMPLETED": "已完成",
+    "FAILED": "失敗"
+  }
+}

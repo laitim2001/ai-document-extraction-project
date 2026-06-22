@@ -1,4 +1,9 @@
 {
+  "badge": {
+    "high": "高信心",
+    "medium": "中信心",
+    "low": "低信心"
+  },
   "breakdown": {
     "title": "信心度分解",
     "totalScore": "總分",
@@ -7,6 +12,7 @@
     "v3Formula": "分數 = 提取(30%) + 發行方(20%) + 格式(15%) + 完整性(20%) + 歷史(15%)",
     "rawScore": "原始分數",
     "contribution": "貢獻值",
+    "weightedScore": "加權分數",
     "weight": "權重",
     "version": {
       "v2": "V2（7 維度）",

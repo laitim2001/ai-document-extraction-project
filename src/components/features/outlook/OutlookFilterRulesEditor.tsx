@@ -22,6 +22,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -157,6 +158,7 @@ export function OutlookFilterRulesEditor({
   onReorderRules,
   onClose,
 }: OutlookFilterRulesEditorProps) {
+  const t = useTranslations('integrations');
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [editingRule, setEditingRule] = React.useState<OutlookFilterRule | null>(null);
   const [deletingRuleId, setDeletingRuleId] = React.useState<string | null>(null);
@@ -253,10 +255,10 @@ export function OutlookFilterRulesEditor({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
-            過濾規則管理
+            {t('outlook.filterRules.title')}
           </DialogTitle>
           <DialogDescription>
-            配置「{configName}」的郵件過濾規則。規則按優先級順序執行，第一個匹配的規則將生效。
+            {t('outlook.filterRules.description', { name: configName })}
           </DialogDescription>
         </DialogHeader>
 
@@ -265,7 +267,7 @@ export function OutlookFilterRulesEditor({
           <div className="flex justify-end">
             <Button onClick={handleOpenCreate}>
               <Plus className="mr-2 h-4 w-4" />
-              新增規則
+              {t('outlook.filterRules.addRule')}
             </Button>
           </div>
 
@@ -278,9 +280,9 @@ export function OutlookFilterRulesEditor({
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                 <Filter className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">尚未設定任何過濾規則</p>
+                <p className="text-muted-foreground">{t('outlook.filterRules.empty.title')}</p>
                 <p className="text-sm text-muted-foreground">
-                  所有郵件都會被處理。點擊「新增規則」來設定過濾條件。
+                  {t('outlook.filterRules.empty.hint')}
                 </p>
               </CardContent>
             </Card>
@@ -291,13 +293,13 @@ export function OutlookFilterRulesEditor({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[60px]">優先級</TableHead>
-                        <TableHead>規則名稱</TableHead>
-                        <TableHead>類型</TableHead>
-                        <TableHead>匹配值</TableHead>
-                        <TableHead>動作</TableHead>
-                        <TableHead>狀態</TableHead>
-                        <TableHead className="w-[120px]">操作</TableHead>
+                        <TableHead className="w-[60px]">{t('outlook.filterRules.columns.priority')}</TableHead>
+                        <TableHead>{t('outlook.filterRules.columns.ruleName')}</TableHead>
+                        <TableHead>{t('outlook.filterRules.columns.type')}</TableHead>
+                        <TableHead>{t('outlook.filterRules.columns.matchValue')}</TableHead>
+                        <TableHead>{t('outlook.filterRules.columns.action')}</TableHead>
+                        <TableHead>{t('outlook.filterRules.columns.status')}</TableHead>
+                        <TableHead className="w-[120px]">{t('outlook.filterRules.columns.actions')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -332,18 +334,18 @@ export function OutlookFilterRulesEditor({
                           <TableCell>
                             <div className="flex items-center gap-1">
                               {RULE_TYPE_ICONS[rule.ruleType]}
-                              <span>{RULE_TYPE_LABELS[rule.ruleType]}</span>
+                              <span>{t(`outlook.filterRules.ruleTypes.${rule.ruleType}`)}</span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <code className="px-2 py-1 bg-muted rounded text-sm cursor-help max-w-[200px] truncate block">
-                                  {RULE_OPERATOR_LABELS[rule.operator]}: {rule.ruleValue}
+                                  {t(`outlook.filterRules.operators.${rule.operator}`)}: {rule.ruleValue}
                                 </code>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>{RULE_OPERATOR_LABELS[rule.operator]}: {rule.ruleValue}</p>
+                                <p>{t(`outlook.filterRules.operators.${rule.operator}`)}: {rule.ruleValue}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TableCell>
@@ -356,12 +358,16 @@ export function OutlookFilterRulesEditor({
                               ) : (
                                 <XCircle className="mr-1 h-3 w-3" />
                               )}
-                              {rule.isWhitelist ? '白名單' : '黑名單'}
+                              {rule.isWhitelist
+                                ? t('outlook.filterRules.whitelist')
+                                : t('outlook.filterRules.blacklist')}
                             </Badge>
                           </TableCell>
                           <TableCell>
                             <Badge variant={rule.isActive ? 'default' : 'secondary'}>
-                              {rule.isActive ? '啟用' : '停用'}
+                              {rule.isActive
+                                ? t('outlook.filterRules.active')
+                                : t('outlook.filterRules.inactive')}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -395,20 +401,20 @@ export function OutlookFilterRulesEditor({
           {/* Info Card */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">規則說明</CardTitle>
+              <CardTitle className="text-sm">{t('outlook.filterRules.info.title')}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground space-y-2">
-              <p>• <strong>白名單</strong>：符合此規則的郵件會被處理</p>
-              <p>• <strong>黑名單</strong>：符合此規則的郵件會被跳過</p>
-              <p>• 規則按優先級順序執行，第一個匹配的規則決定郵件的處理方式</p>
-              <p>• 如果沒有任何規則匹配，郵件預設會被處理</p>
+              <p>• <strong>{t('outlook.filterRules.whitelist')}</strong>：{t('outlook.filterRules.info.whitelist')}</p>
+              <p>• <strong>{t('outlook.filterRules.blacklist')}</strong>：{t('outlook.filterRules.info.blacklist')}</p>
+              <p>• {t('outlook.filterRules.info.priority')}</p>
+              <p>• {t('outlook.filterRules.info.default')}</p>
             </CardContent>
           </Card>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            關閉
+            {t('outlook.filterRules.close')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -426,18 +432,18 @@ export function OutlookFilterRulesEditor({
       <AlertDialog open={!!deletingRuleId} onOpenChange={() => setDeletingRuleId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>確定要刪除此規則？</AlertDialogTitle>
+            <AlertDialogTitle>{t('outlook.filterRules.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              此操作無法復原。刪除後，此規則將不再影響郵件過濾。
+              {t('outlook.filterRules.deleteDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{t('outlook.filterRules.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteRule}
               className="bg-red-600 hover:bg-red-700"
             >
-              刪除
+              {t('outlook.filterRules.deleteDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -465,6 +471,7 @@ function RuleFormDialog({
   onSubmit,
   onClose,
 }: RuleFormDialogProps) {
+  const t = useTranslations('integrations');
   const isEditing = !!rule;
 
   const form = useForm<RuleFormData>({
@@ -534,20 +541,22 @@ function RuleFormDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? '編輯過濾規則' : '新增過濾規則'}
+            {isEditing
+              ? t('outlook.filterRules.ruleForm.editTitle')
+              : t('outlook.filterRules.ruleForm.createTitle')}
           </DialogTitle>
           <DialogDescription>
-            設定郵件過濾條件和處理方式
+            {t('outlook.filterRules.ruleForm.description')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">規則名稱 *</Label>
+            <Label htmlFor="name">{t('outlook.filterRules.ruleForm.name.label')}</Label>
             <Input
               id="name"
               {...register('name')}
-              placeholder="例：排除垃圾郵件"
+              placeholder={t('outlook.filterRules.ruleForm.name.placeholder')}
             />
             {errors.name && (
               <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -555,20 +564,20 @@ function RuleFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="ruleType">規則類型 *</Label>
+            <Label htmlFor="ruleType">{t('outlook.filterRules.ruleForm.ruleType.label')}</Label>
             <Select
               value={watch('ruleType')}
               onValueChange={(value) => setValue('ruleType', value as OutlookRuleType)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="選擇規則類型" />
+                <SelectValue placeholder={t('outlook.filterRules.ruleForm.ruleType.placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 {(Object.keys(RULE_TYPE_LABELS) as OutlookRuleType[]).map((value) => (
                   <SelectItem key={value} value={value}>
                     <div className="flex items-center gap-2">
                       {RULE_TYPE_ICONS[value]}
-                      <span>{RULE_TYPE_LABELS[value]}</span>
+                      <span>{t(`outlook.filterRules.ruleTypes.${value}`)}</span>
                     </div>
                   </SelectItem>
                 ))}
@@ -577,18 +586,18 @@ function RuleFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="operator">匹配方式 *</Label>
+            <Label htmlFor="operator">{t('outlook.filterRules.ruleForm.operator.label')}</Label>
             <Select
               value={watch('operator')}
               onValueChange={(value) => setValue('operator', value as RuleOperator)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="選擇匹配方式" />
+                <SelectValue placeholder={t('outlook.filterRules.ruleForm.operator.placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 {(Object.keys(RULE_OPERATOR_LABELS) as RuleOperator[]).map((value) => (
                   <SelectItem key={value} value={value}>
-                    {RULE_OPERATOR_LABELS[value]}
+                    {t(`outlook.filterRules.operators.${value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -596,16 +605,16 @@ function RuleFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="ruleValue">匹配值 *</Label>
+            <Label htmlFor="ruleValue">{t('outlook.filterRules.ruleForm.ruleValue.label')}</Label>
             <Input
               id="ruleValue"
               {...register('ruleValue')}
-              placeholder="例：spam.com 或 Invoice"
+              placeholder={t('outlook.filterRules.ruleForm.ruleValue.placeholder')}
             />
             <p className="text-sm text-muted-foreground">
               {currentRuleType === 'SUBJECT_REGEX'
-                ? '輸入正則表達式，例如：^Invoice\\s\\d+$'
-                : '輸入要匹配的值'}
+                ? t('outlook.filterRules.ruleForm.ruleValue.regexHint')
+                : t('outlook.filterRules.ruleForm.ruleValue.defaultHint')}
             </p>
             {errors.ruleValue && (
               <p className="text-sm text-red-500">{errors.ruleValue.message}</p>
@@ -613,25 +622,25 @@ function RuleFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="isWhitelist">規則類型 *</Label>
+            <Label htmlFor="isWhitelist">{t('outlook.filterRules.ruleForm.ruleAction.label')}</Label>
             <Select
               value={watch('isWhitelist') ? 'whitelist' : 'blacklist'}
               onValueChange={(value) => setValue('isWhitelist', value === 'whitelist')}
             >
               <SelectTrigger>
-                <SelectValue placeholder="選擇規則類型" />
+                <SelectValue placeholder={t('outlook.filterRules.ruleForm.ruleAction.placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="whitelist">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span>白名單（通過）</span>
+                    <span>{t('outlook.filterRules.ruleForm.ruleAction.whitelist')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="blacklist">
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-red-600" />
-                    <span>黑名單（排除）</span>
+                    <span>{t('outlook.filterRules.ruleForm.ruleAction.blacklist')}</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -644,23 +653,23 @@ function RuleFormDialog({
               checked={watch('isActive')}
               onCheckedChange={(checked) => setValue('isActive', checked)}
             />
-            <Label htmlFor="isActive">啟用此規則</Label>
+            <Label htmlFor="isActive">{t('outlook.filterRules.ruleForm.isActiveLabel')}</Label>
           </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              取消
+              {t('outlook.filterRules.ruleForm.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  儲存中...
+                  {t('outlook.filterRules.ruleForm.saving')}
                 </>
               ) : isEditing ? (
-                '更新規則'
+                t('outlook.filterRules.ruleForm.update')
               ) : (
-                '建立規則'
+                t('outlook.filterRules.ruleForm.create')
               )}
             </Button>
           </DialogFooter>

@@ -1,5 +1,7 @@
 'use client'
 
+'use client'
+
 /**
  * @fileoverview 影響分析摘要卡片
  * @description
@@ -18,6 +20,7 @@
  *   - @/types/impact - ImpactStatistics 類型
  */
 
+import { useTranslations } from 'next-intl'
 import {
   FileCheck,
   TrendingUp,
@@ -119,6 +122,8 @@ export function ImpactSummaryCard({
   statistics,
   className,
 }: ImpactSummaryCardProps) {
+  const t = useTranslations('rules')
+
   // 改善率和惡化率已經是百分比格式 (0-100)
   const improvementRate = Math.round(statistics.improvementRate)
   const regressionRate = Math.round(statistics.regressionRate)
@@ -128,14 +133,14 @@ export function ImpactSummaryCard({
       <div className="grid grid-cols-2 gap-4">
         <StatItem
           icon={FileCheck}
-          label="受影響文件"
+          label={t('ruleReview.impact.totalAffected')}
           value={statistics.totalAffected.toLocaleString()}
           trendColor="default"
         />
 
         <StatItem
           icon={TrendingUp}
-          label="預計改善"
+          label={t('ruleReview.impact.estimatedImprovement')}
           value={statistics.estimatedImprovement.toLocaleString()}
           trend="up"
           trendColor="green"
@@ -143,7 +148,7 @@ export function ImpactSummaryCard({
 
         <StatItem
           icon={TrendingDown}
-          label="可能惡化"
+          label={t('ruleReview.impact.estimatedRegression')}
           value={statistics.estimatedRegression.toLocaleString()}
           trend="down"
           trendColor={statistics.estimatedRegression > 0 ? 'red' : 'green'}
@@ -151,7 +156,7 @@ export function ImpactSummaryCard({
 
         <StatItem
           icon={AlertTriangle}
-          label="無變化"
+          label={t('ruleReview.impact.unchanged')}
           value={statistics.unchanged.toLocaleString()}
           trendColor="default"
         />
@@ -159,7 +164,9 @@ export function ImpactSummaryCard({
 
       <div className="border-t pt-4 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">改善率</span>
+          <span className="text-sm text-muted-foreground">
+            {t('ruleReview.impact.improvementRate')}
+          </span>
           <div className="flex items-center gap-2">
             <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
               <div
@@ -190,7 +197,9 @@ export function ImpactSummaryCard({
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">惡化率</span>
+          <span className="text-sm text-muted-foreground">
+            {t('ruleReview.impact.regressionRate')}
+          </span>
           <div className="flex items-center gap-2">
             <Percent
               className={cn(

@@ -18,13 +18,11 @@
 'use client'
 
 import * as React from 'react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
-  FACTOR_LABELS,
-  FACTOR_LABELS_V3,
   formatScore,
   CONFIDENCE_THRESHOLDS,
-  detectConfidenceVersion,
   type ConfidenceDimensionV3Key,
 } from '@/lib/confidence'
 import type {
@@ -51,7 +49,10 @@ export interface ConfidenceBreakdownProps {
   result: FieldConfidenceResult | DocumentConfidenceResult
   /** V3 信心度結果（可選，如果提供則使用 V3 版本顯示） */
   resultV3?: ConfidenceResultV3
-  /** 顯示語言 */
+  /**
+   * 顯示語言
+   * @deprecated 組件已改用 next-intl，依當前 locale 自動顯示，無需傳入。
+   */
   locale?: 'en' | 'zh' | 'zh-CN'
   /** 是否顯示權重說明 */
   showWeights?: boolean
@@ -68,8 +69,6 @@ export interface FactorRowProps {
   weight: number
   /** 貢獻值 */
   contribution: number
-  /** 顯示語言 */
-  locale?: 'en' | 'zh' | 'zh-CN'
   /** 是否顯示權重 */
   showWeight?: boolean
 }
@@ -86,11 +85,10 @@ function FactorRow({
   rawScore,
   weight,
   contribution,
-  locale = 'en',
   showWeight = true,
 }: FactorRowProps) {
-  const labels = FACTOR_LABELS[factor]
-  const label = locale === 'zh' || locale === 'zh-CN' ? labels.zh : labels.en
+  const t = useTranslations('confidence')
+  const label = t(`factors.${factor}`)
   const weightPercent = Math.round(weight * 100)
 
   return (
@@ -113,7 +111,7 @@ function FactorRow({
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{locale === 'zh' || locale === 'zh-CN' ? '原始分數' : 'Raw Score'}</p>
+              <p>{t('breakdown.rawScore')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -137,7 +135,7 @@ function FactorRow({
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{locale === 'zh' || locale === 'zh-CN' ? '貢獻值' : 'Contribution'}</p>
+              <p>{t('breakdown.contribution')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -152,24 +150,14 @@ function FactorRow({
  */
 function DimensionRowV3({
   dimension,
-  locale = 'en',
   showWeight = true,
 }: {
   dimension: DimensionScoreV3
-  locale?: 'en' | 'zh' | 'zh-CN'
   showWeight?: boolean
 }) {
+  const t = useTranslations('confidence')
   const dimensionKey = dimension.dimension as ConfidenceDimensionV3Key
-  const labels = FACTOR_LABELS_V3[dimensionKey]
-
-  let label: string
-  if (locale === 'zh-CN' && labels['zh-CN']) {
-    label = labels['zh-CN']
-  } else if (locale === 'zh' || locale === 'zh-CN') {
-    label = labels.zh
-  } else {
-    label = labels.en
-  }
+  const label = t(`dimensions.v3.${dimensionKey}`)
 
   const weightPercent = Math.round(dimension.weight * 100)
 
@@ -193,7 +181,7 @@ function DimensionRowV3({
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{locale === 'zh' || locale === 'zh-CN' ? '原始分數' : 'Raw Score'}</p>
+              <p>{t('breakdown.rawScore')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -217,7 +205,7 @@ function DimensionRowV3({
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{locale === 'zh' || locale === 'zh-CN' ? '加權分數' : 'Weighted Score'}</p>
+              <p>{t('breakdown.weightedScore')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -232,15 +220,15 @@ function DimensionRowV3({
  */
 function ConfidenceBreakdownV3({
   result,
-  locale = 'en',
   showWeights = true,
   className,
 }: {
   result: ConfidenceResultV3
-  locale?: 'en' | 'zh' | 'zh-CN'
   showWeights?: boolean
   className?: string
 }) {
+  const t = useTranslations('confidence')
+
   // 將 ConfidenceLevelEnum 轉換為 ConfidenceLevel
   const levelMap: Record<string, 'high' | 'medium' | 'low'> = {
     VERY_HIGH: 'high',
@@ -251,23 +239,14 @@ function ConfidenceBreakdownV3({
   }
   const level = levelMap[result.level] || 'medium'
   const config = CONFIDENCE_THRESHOLDS[level]
-  const levelLabel = locale === 'zh' || locale === 'zh-CN' ? config.labelZh : config.label
-
-  // V3 公式文字
-  const formulaText = {
-    en: 'score = Extraction(30%) + Issuer(20%) + Format(15%) + Completeness(20%) + History(15%)',
-    zh: '分數 = 提取(30%) + 發行方(20%) + 格式(15%) + 完整性(20%) + 歷史(15%)',
-    'zh-CN': '分数 = 提取(30%) + 发行方(20%) + 格式(15%) + 完整性(20%) + 历史(15%)',
-  }
+  const levelLabel = t(`badge.${level}`)
 
   return (
     <Card className={cn('w-full', className)}>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-base">
-              {locale === 'zh' || locale === 'zh-CN' ? '信心度分解' : 'Confidence Breakdown'}
-            </span>
+            <span className="text-base">{t('breakdown.title')}</span>
             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
               V3
             </span>
@@ -288,7 +267,6 @@ function ConfidenceBreakdownV3({
             <DimensionRowV3
               key={dimension.dimension}
               dimension={dimension}
-              locale={locale}
               showWeight={showWeights}
             />
           ))}
@@ -296,9 +274,7 @@ function ConfidenceBreakdownV3({
 
         {/* Total */}
         <div className="mt-4 pt-3 border-t flex items-center justify-between">
-          <span className="text-sm font-medium">
-            {locale === 'zh' || locale === 'zh-CN' ? '總分' : 'Total Score'}
-          </span>
+          <span className="text-sm font-medium">{t('breakdown.totalScore')}</span>
           <span
             className="text-lg font-bold"
             style={{ color: config.color }}
@@ -310,7 +286,7 @@ function ConfidenceBreakdownV3({
         {/* Formula */}
         {showWeights && (
           <div className="mt-3 p-2 bg-muted rounded text-xs text-muted-foreground">
-            {formulaText[locale] || formulaText.en}
+            {t('breakdown.v3Formula')}
           </div>
         )}
       </CardContent>
@@ -340,16 +316,16 @@ function ConfidenceBreakdownV3({
 export function ConfidenceBreakdown({
   result,
   resultV3,
-  locale = 'en',
   showWeights = true,
   className,
 }: ConfidenceBreakdownProps) {
+  const t = useTranslations('confidence')
+
   // 如果提供了 V3 結果，使用 V3 版本顯示
   if (resultV3) {
     return (
       <ConfidenceBreakdownV3
         result={resultV3}
-        locale={locale}
         showWeights={showWeights}
         className={className}
       />
@@ -364,7 +340,7 @@ export function ConfidenceBreakdown({
   if (!isFieldResult) {
     const docResult = result as DocumentConfidenceResult
     return (
-      <DocumentConfidenceSummary result={docResult} locale={locale} className={className} />
+      <DocumentConfidenceSummary result={docResult} className={className} />
     )
   }
 
@@ -372,16 +348,14 @@ export function ConfidenceBreakdown({
 
   const { breakdown, score, level } = fieldResult
   const config = CONFIDENCE_THRESHOLDS[level]
-  const levelLabel = locale === 'zh' || locale === 'zh-CN' ? config.labelZh : config.label
+  const levelLabel = t(`badge.${level}`)
 
   return (
     <Card className={cn('w-full', className)}>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-base">
-              {locale === 'zh' || locale === 'zh-CN' ? '信心度分解' : 'Confidence Breakdown'}
-            </span>
+            <span className="text-base">{t('breakdown.title')}</span>
             <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
               V2
             </span>
@@ -405,7 +379,6 @@ export function ConfidenceBreakdown({
               rawScore={item.rawScore}
               weight={item.weight}
               contribution={item.contribution}
-              locale={locale}
               showWeight={showWeights}
             />
           ))}
@@ -413,9 +386,7 @@ export function ConfidenceBreakdown({
 
         {/* Total */}
         <div className="mt-4 pt-3 border-t flex items-center justify-between">
-          <span className="text-sm font-medium">
-            {locale === 'zh' || locale === 'zh-CN' ? '總分' : 'Total Score'}
-          </span>
+          <span className="text-sm font-medium">{t('breakdown.totalScore')}</span>
           <span
             className="text-lg font-bold"
             style={{ color: config.color }}
@@ -427,9 +398,7 @@ export function ConfidenceBreakdown({
         {/* Formula */}
         {showWeights && (
           <div className="mt-3 p-2 bg-muted rounded text-xs text-muted-foreground">
-            {locale === 'zh' || locale === 'zh-CN'
-              ? 'score = OCR(30%) + 規則(30%) + 格式(25%) + 歷史(15%)'
-              : 'score = OCR(30%) + Rule(30%) + Format(25%) + History(15%)'}
+            {t('breakdown.v2Formula')}
           </div>
         )}
       </CardContent>
@@ -442,31 +411,27 @@ export function ConfidenceBreakdown({
  */
 function DocumentConfidenceSummary({
   result,
-  locale = 'en',
   className,
 }: {
   result: DocumentConfidenceResult
-  locale?: 'en' | 'zh' | 'zh-CN'
   className?: string
 }) {
+  const t = useTranslations('confidence')
   const { overallScore, level, stats, recommendation } = result
   const config = CONFIDENCE_THRESHOLDS[level]
-  const isZh = locale === 'zh' || locale === 'zh-CN'
-  const levelLabel = isZh ? config.labelZh : config.label
+  const levelLabel = t(`badge.${level}`)
 
-  const recommendationLabels = {
-    auto_approve: isZh ? '自動通過' : 'Auto Approve',
-    quick_review: isZh ? '快速審核' : 'Quick Review',
-    full_review: isZh ? '完整審核' : 'Full Review',
+  const recommendationLabels: Record<typeof recommendation, string> = {
+    auto_approve: t('routing.autoApprove'),
+    quick_review: t('routing.quickReview'),
+    full_review: t('routing.fullReview'),
   }
 
   return (
     <Card className={cn('w-full', className)}>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
-          <span className="text-base">
-            {locale === 'zh' ? '文件信心度' : 'Document Confidence'}
-          </span>
+          <span className="text-base">{t('document.title')}</span>
           <span
             className="text-lg font-bold"
             style={{ color: config.color }}
@@ -480,19 +445,19 @@ function DocumentConfidenceSummary({
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-4">
           <StatItem
-            label={locale === 'zh' ? '高信心' : 'High'}
+            label={t('document.highCount')}
             value={stats.highConfidence}
             total={stats.totalFields}
             color="text-green-600"
           />
           <StatItem
-            label={locale === 'zh' ? '中信心' : 'Medium'}
+            label={t('document.mediumCount')}
             value={stats.mediumConfidence}
             total={stats.totalFields}
             color="text-yellow-600"
           />
           <StatItem
-            label={locale === 'zh' ? '低信心' : 'Low'}
+            label={t('document.lowCount')}
             value={stats.lowConfidence}
             total={stats.totalFields}
             color="text-red-600"
@@ -502,7 +467,7 @@ function DocumentConfidenceSummary({
         {/* Score Range */}
         <div className="flex items-center justify-between py-2 border-t">
           <span className="text-sm text-muted-foreground">
-            {locale === 'zh' ? '分數範圍' : 'Score Range'}
+            {t('document.scoreRange')}
           </span>
           <span className="text-sm">
             {formatScore(stats.minScore)} - {formatScore(stats.maxScore)}
@@ -513,7 +478,7 @@ function DocumentConfidenceSummary({
         <div className="mt-3 p-3 rounded-lg" style={{ backgroundColor: config.bgColor }}>
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">
-              {locale === 'zh' ? '處理建議' : 'Recommendation'}
+              {t('document.recommendation')}
             </span>
             <span
               className="text-sm font-bold"
