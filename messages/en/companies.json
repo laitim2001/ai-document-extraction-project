@@ -238,6 +238,13 @@
       "confidence": "Confidence",
       "processedAt": "Processed At",
       "actions": "Actions"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "PROCESSING": "Processing",
+      "COMPLETED": "Completed",
+      "FAILED": "Failed",
+      "NEEDS_REVIEW": "Needs Review"
     }
   },
   "rulesTable": {

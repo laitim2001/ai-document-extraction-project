@@ -238,6 +238,13 @@
       "confidence": "信心度",
       "processedAt": "处理时间",
       "actions": "操作"
+    },
+    "status": {
+      "PENDING": "待处理",
+      "PROCESSING": "处理中",
+      "COMPLETED": "已完成",
+      "FAILED": "失败",
+      "NEEDS_REVIEW": "待审核"
     }
   },
   "rulesTable": {
