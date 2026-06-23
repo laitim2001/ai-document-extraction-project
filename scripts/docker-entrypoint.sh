@@ -25,6 +25,14 @@ fi
 echo "[entrypoint] Step 2/3: run essential seed (idempotent)"
 node prisma/dist/seed-prod-essential.js
 
+# (選用)一次性 email_verified backfill —— 由 RUN_EMAIL_VERIFIED_BACKFILL=true 觸發,非致命。
+# FIX-092: FIX-090 前建立的本地帳號 email_verified 為 null、又因 Azure 無 SMTP 收不到
+# 驗證信而無法登入;此步驟把有密碼但未驗證的本地帳號補為已驗證(冪等)。補完後設回 false。
+if [ "$RUN_EMAIL_VERIFIED_BACKFILL" = "true" ]; then
+  echo "[entrypoint] (optional) backfilling email_verified for local accounts"
+  node prisma/backfill-email-verified.js || echo "[entrypoint] email_verified backfill failed (non-fatal), continuing"
+fi
+
 # (選用)一次性業務資料匯入 —— 由 RUN_DEV_DATA_IMPORT=true 觸發,非致命(失敗不擋啟動)。
 # 冪等:companies 已有資料則略過。匯入成功後可把 RUN_DEV_DATA_IMPORT 移除/設 false。
 if [ "$RUN_DEV_DATA_IMPORT" = "true" ]; then
