@@ -68,7 +68,6 @@ export function RecentDocumentsTable({
   limit = 10,
 }: RecentDocumentsTableProps) {
   const t = useTranslations('companies')
-  const tInvoice = useTranslations('invoice')
   const locale = useLocale()
   const dateLocale = locale === 'zh-TW' || locale === 'zh-CN' ? zhTW : enUS
 
@@ -170,7 +169,7 @@ export function RecentDocumentsTable({
                   </TableCell>
                   <TableCell>
                     <Badge className={DOCUMENT_PROCESSING_STATUS_CONFIG[doc.status].className}>
-                      {tInvoice(`status.${doc.status.toLowerCase()}`)}
+                      {t(`recentDocs.status.${doc.status}`)}
                     </Badge>
                   </TableCell>
                   <TableCell className={`text-right ${getConfidenceStyle(doc.confidence)}`}>
