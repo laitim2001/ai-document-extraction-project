@@ -33,6 +33,14 @@ if [ "$RUN_EMAIL_VERIFIED_BACKFILL" = "true" ]; then
   node prisma/backfill-email-verified.js || echo "[entrypoint] email_verified backfill failed (non-fatal), continuing"
 fi
 
+# (選用)一次性授予 Global Admin —— 設 GRANT_GLOBAL_ADMIN_EMAIL=<email> 才跑,非致命。
+# isGlobalAdmin 是 User 欄位(auth 用它判全域權限)、admin UI 的 PATCH 改不了;此步驟把指定
+# 帳號 is_global_admin 設為 true(冪等)。完成後清空 GRANT_GLOBAL_ADMIN_EMAIL;被授權者需重新登入。
+if [ -n "$GRANT_GLOBAL_ADMIN_EMAIL" ]; then
+  echo "[entrypoint] (optional) granting global admin"
+  node prisma/grant-global-admin.js || echo "[entrypoint] grant global admin failed (non-fatal), continuing"
+fi
+
 # (選用)一次性業務資料匯入 —— 由 RUN_DEV_DATA_IMPORT=true 觸發,非致命(失敗不擋啟動)。
 # 冪等:companies 已有資料則略過。匯入成功後可把 RUN_DEV_DATA_IMPORT 移除/設 false。
 if [ "$RUN_DEV_DATA_IMPORT" = "true" ]; then
