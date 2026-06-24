@@ -85,6 +85,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { UserAccessManagementSection } from './UserAccessManagementSection'
 
 // ============================================================
 // Types
@@ -436,6 +437,14 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
               </div>
             </form>
           </Form>
+        </div>
+
+        {/* 資料存取權限管理區塊（CHANGE-090；獨立於主 form） */}
+        <div className="border-t pt-4">
+          <UserAccessManagementSection
+            userId={user.id}
+            userIsGlobalAdmin={user.isGlobalAdmin}
+          />
         </div>
       </DialogContent>
     </Dialog>

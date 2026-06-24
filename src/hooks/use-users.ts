@@ -297,6 +297,10 @@ export interface UserDetail {
   updatedAt: string
   /** 最後登入時間 */
   lastLoginAt: string | null
+  /** 是否為全域管理員（資料存取繞過城市/區域過濾，CHANGE-090） */
+  isGlobalAdmin: boolean
+  /** 是否為區域經理（CHANGE-090） */
+  isRegionalManager: boolean
   /** 用戶角色（詳細資訊） */
   roles: {
     id: string

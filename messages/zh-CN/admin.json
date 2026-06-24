@@ -48,12 +48,56 @@
       "rolesDescription": "选择用户的角色权限（至少选择一个）",
       "rolesLoading": "加载角色...",
       "city": "城市",
-      "cityOptional": "城市（选填）",
+      "cityOptional": "City Manager 管理范围（城市）",
       "cityPlaceholder": "选择城市...",
       "cityEmpty": "不指定城市",
-      "cityDescription": "若分配 City Manager 角色，建议指定城市",
+      "cityDescription": "此设置仅决定该用户作为 City Manager 时可管理「哪个城市的其他用户」，并不会授予查看业务数据的权限。数据访问权限请在下方面板设置。",
       "cityLoading": "加载中...",
       "department": "部门"
+    },
+    "cityAccess": {
+      "title": "城市数据访问权限",
+      "description": "控制此用户可查看哪些城市的业务数据（解除 dashboard 的 403）。",
+      "reloginHint": "变更后该用户需重新登录才会生效。",
+      "loading": "加载中...",
+      "empty": "尚未授予任何城市访问权限。",
+      "primary": "主要",
+      "setPrimary": "设为主要",
+      "remove": "移除",
+      "selectCity": "选择要授予的城市...",
+      "grant": "授予",
+      "toast": {
+        "granted": "已授予城市访问权限",
+        "revoked": "已撤销城市访问权限",
+        "primarySet": "已更新主要城市",
+        "error": "操作失败"
+      }
+    },
+    "regionAccess": {
+      "title": "区域数据访问权限",
+      "description": "授予整个区域会连带取得该区域内所有城市的访问权限。",
+      "reloginHint": "变更后该用户需重新登录才会生效。",
+      "loading": "加载中...",
+      "empty": "尚未授予任何区域访问权限。",
+      "cityCount": "{count} 个城市",
+      "remove": "移除",
+      "selectRegion": "选择要授予的区域...",
+      "grant": "授予",
+      "toast": {
+        "granted": "已授予区域访问权限",
+        "revoked": "已撤销区域访问权限",
+        "error": "操作失败"
+      }
+    },
+    "globalAdmin": {
+      "title": "全局管理员",
+      "description": "全局管理员可访问所有城市与区域的数据（绕过所有权限过滤）。请谨慎授予。",
+      "reloginHint": "变更后该用户需重新登录才会生效。",
+      "toast": {
+        "granted": "已设为全局管理员",
+        "revoked": "已取消全局管理员",
+        "error": "操作失败"
+      }
     },
     "dialog": {
       "createTitle": "新增用户",

@@ -48,12 +48,56 @@
       "rolesDescription": "選擇用戶的角色權限（至少選擇一個）",
       "rolesLoading": "載入角色...",
       "city": "城市",
-      "cityOptional": "城市（選填）",
+      "cityOptional": "City Manager 管理範圍（城市）",
       "cityPlaceholder": "選擇城市...",
       "cityEmpty": "不指定城市",
-      "cityDescription": "若分配 City Manager 角色，建議指定城市",
+      "cityDescription": "此設定僅決定該用戶作為 City Manager 時可管理「哪個城市的其他用戶」，並不會給予查看業務資料的權限。資料存取權限請在下方面板設定。",
       "cityLoading": "載入中...",
       "department": "部門"
+    },
+    "cityAccess": {
+      "title": "城市資料存取權限",
+      "description": "控制此用戶可查看哪些城市的業務資料（解除 dashboard 的 403）。",
+      "reloginHint": "變更後該用戶需重新登入才會生效。",
+      "loading": "載入中...",
+      "empty": "尚未授予任何城市存取權限。",
+      "primary": "主要",
+      "setPrimary": "設為主要",
+      "remove": "移除",
+      "selectCity": "選擇要授予的城市...",
+      "grant": "授予",
+      "toast": {
+        "granted": "已授予城市存取權限",
+        "revoked": "已撤銷城市存取權限",
+        "primarySet": "已更新主要城市",
+        "error": "操作失敗"
+      }
+    },
+    "regionAccess": {
+      "title": "區域資料存取權限",
+      "description": "授予整個區域會連帶取得該區域內所有城市的存取權限。",
+      "reloginHint": "變更後該用戶需重新登入才會生效。",
+      "loading": "載入中...",
+      "empty": "尚未授予任何區域存取權限。",
+      "cityCount": "{count} 個城市",
+      "remove": "移除",
+      "selectRegion": "選擇要授予的區域...",
+      "grant": "授予",
+      "toast": {
+        "granted": "已授予區域存取權限",
+        "revoked": "已撤銷區域存取權限",
+        "error": "操作失敗"
+      }
+    },
+    "globalAdmin": {
+      "title": "全域管理員",
+      "description": "全域管理員可存取所有城市與區域的資料（繞過所有權限過濾）。請謹慎授予。",
+      "reloginHint": "變更後該用戶需重新登入才會生效。",
+      "toast": {
+        "granted": "已設為全域管理員",
+        "revoked": "已取消全域管理員",
+        "error": "操作失敗"
+      }
     },
     "dialog": {
       "createTitle": "新增用戶",
