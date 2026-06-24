@@ -48,12 +48,56 @@
       "rolesDescription": "Select user role permissions (at least one required)",
       "rolesLoading": "Loading roles...",
       "city": "City",
-      "cityOptional": "City (optional)",
+      "cityOptional": "City Manager scope (city)",
       "cityPlaceholder": "Select city...",
       "cityEmpty": "No city assigned",
-      "cityDescription": "If assigning City Manager role, specifying a city is recommended",
+      "cityDescription": "Only sets which city's users this person manages as a City Manager — it does NOT grant access to view business data. Set data access in the panels below.",
       "cityLoading": "Loading...",
       "department": "Department"
+    },
+    "cityAccess": {
+      "title": "City data access",
+      "description": "Controls which cities' business data this user can view (resolves the dashboard 403).",
+      "reloginHint": "The user must sign in again for changes to take effect.",
+      "loading": "Loading...",
+      "empty": "No city access granted yet.",
+      "primary": "Primary",
+      "setPrimary": "Set as primary",
+      "remove": "Remove",
+      "selectCity": "Select a city to grant...",
+      "grant": "Grant",
+      "toast": {
+        "granted": "City access granted",
+        "revoked": "City access revoked",
+        "primarySet": "Primary city updated",
+        "error": "Operation failed"
+      }
+    },
+    "regionAccess": {
+      "title": "Region data access",
+      "description": "Granting a region also grants access to all cities within it.",
+      "reloginHint": "The user must sign in again for changes to take effect.",
+      "loading": "Loading...",
+      "empty": "No region access granted yet.",
+      "cityCount": "{count} cities",
+      "remove": "Remove",
+      "selectRegion": "Select a region to grant...",
+      "grant": "Grant",
+      "toast": {
+        "granted": "Region access granted",
+        "revoked": "Region access revoked",
+        "error": "Operation failed"
+      }
+    },
+    "globalAdmin": {
+      "title": "Global administrator",
+      "description": "Global admins can access data across all cities and regions (bypassing every access filter). Grant with caution.",
+      "reloginHint": "The user must sign in again for changes to take effect.",
+      "toast": {
+        "granted": "Granted global admin",
+        "revoked": "Revoked global admin",
+        "error": "Operation failed"
+      }
     },
     "dialog": {
       "createTitle": "Add User",

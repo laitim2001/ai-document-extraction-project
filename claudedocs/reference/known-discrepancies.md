@@ -1,7 +1,7 @@
 # 已知差異與關鍵發現
 
 > **本文件為 CLAUDE.md §當前 Open 差異 的完整展開**。CLAUDE.md 只列 5 條精簡 open items，本文件含完整歷史 + 已修復項目（FIX-XXX 引用）+ 安全審計記錄。
-> **最後更新**：2026-06-23 | **來源**：`docs/06-codebase-analyze/` 驗證報告 R1-R15（44 份）
+> **最後更新**：2026-06-24 | **來源**：`docs/06-codebase-analyze/` 驗證報告 R1-R15（44 份）
 
 ---
 
@@ -26,7 +26,7 @@
 | 8 | **治理矩陣 SDLC-04 vs Dependabot 實況** | 矩陣／Story 22-4 AC4 原述「Dependabot 自動 PR 啟用」 | **2026-06-12 版本更新已停用**（CHANGE-081），保留 security updates；矩陣與 Story 已加註；npm audit 53 漏洞改手動追蹤 |
 | 9 | **MappingRule Tier1/2 術語注入（V3.1 半退役）** | Stage 3 原將 `MappingRule.fieldName→fieldLabel` 注入 prompt（`extractionPattern`/`validationPattern` 在 V3.1 完全未用） | **2026-06-20 已停用注入**（CHANGE-083）：DB 實查 31 筆中 30 筆為直譯冗餘、與 FieldDefinitionSet 重複；唯一有效的 Maersk 海運提單號別名已遷至 `invoice-fields.ts tracking_number.aliases`；`MappingRule` 表／`/rules`／`/api/rules/*` 不受影響；整體去留見 OQ-Q4 |
 | 10 | **EN 介面顯示中文（組件級硬編碼）** | 全站約 **86 組件** JSX render 中文（原估 88）；另有 zod schema 驗證訊息、資料層中文（DB seed）、page metadata title | **CHANGE-088** 修顯示常量洩漏（7 組件，2026-06-22）；**CHANGE-089 Batch A**（2026-06-22）修 10 個完全未 i18n 模組共 **36 組件**（新增 5 namespace `documentSource`/`dataRetention`/`integrations`/`changeHistory`/`ruleSimulation`、677 leaf key×3、`i18n:check` 治理 +9 條，namespace 34→39）；**Batch B/C/D（波 1）**（2026-06-22）再修 5 個既有 namespace 殘留共 **40 組件**（admin 14/review 3/rules 11/historicalData 5/documentPreview 7，全複用既有 namespace、`LOCALE_SYNC_CHECKS` +5 條整檔；累計已修 **83 組件**）；**波 2（Batch E/F）+ 補遺 G**（2026-06-22）修 29 組件（escalation/companies/formats/reports/dashboard/navigation/systemSettings + 新 `cityAccess` + 盤點遺漏的 `components/audit/`+`components/admin/performance/`）。**CHANGE-089 全批次完成：共 105 組件、新增 6 namespace（34→40）、`LOCALE_SYNC_CHECKS` 22 條、組件級 JSX render 中文清零（剩 9 處全 JSDoc/註釋）**；剩 **zod schema 訊息（需 `useLocalizedZod`）+ page 層(`src/app`) + 資料層 + `RecentDocumentsTable` 用不存在的 `invoice` ns（pre-existing bug）** 另立後續 |
-| 11 | **城市權限管理 UI/API 缺失 + `UserRole.cityId` 誤導** | `withCityFilter` / 403 判斷的 `cityCodes` 來自 **`UserCityAccess`** 表（`auth.ts:225` `CityAccessService.getUserCityCodes`），但 admin 用戶管理 UI 的「城市」下拉寫的是 **`UserRole.cityId`**（不同表、**不影響 403**）；`UserCityAccess` 唯一寫入路徑 `CityAccessService.grantAccess/revokeAccess` **無任何對外 API/UI**（僅 `regional-manager.service` 內部呼叫）→ 非 globalAdmin 用戶要城市資料存取權限只能直接改 DB；UI「城市」欄位誤導管理者以為「設城市＝給權限」 | **CHANGE-090** 規劃（補城市權限管理 UI/API、釐清 `UserRole.cityId`〔City Manager 範圍〕vs `UserCityAccess`〔資料存取〕雙軌）；2026-06-23 `corrie.lai` 登入後 dashboard 403 觸發，當前靠 grant globalAdmin 繞過 |
+| 11 | **城市權限管理 UI/API 缺失 + `UserRole.cityId` 誤導** | `withCityFilter` / 403 判斷的 `cityCodes` 來自 **`UserCityAccess`** 表（`auth.ts:225` `CityAccessService.getUserCityCodes`），但 admin 用戶管理 UI 的「城市」下拉寫的是 **`UserRole.cityId`**（不同表、**不影響 403**）；`UserCityAccess` 唯一寫入路徑 `CityAccessService.grantAccess/revokeAccess` **無任何對外 API/UI**（僅 `regional-manager.service` 內部呼叫）→ 非 globalAdmin 用戶要城市資料存取權限只能直接改 DB；UI「城市」欄位誤導管理者以為「設城市＝給權限」 | **CHANGE-090 已實作（2026-06-24，代碼層完成、待 Azure 部署驗證）**：補城市/區域存取權限管理 UI/API + globalAdmin 切換（admin 用戶編輯對話框 `UserAccessManagementSection`）；釐清 `UserRole.cityId`〔City Manager 範圍〕vs `UserCityAccess`/`UserRegionAccess`〔資料存取〕雙軌（城市欄位重新標籤「City Manager 管理範圍」+ 強化說明）。新 API 統一要求 `USER_MANAGE` 全域權限（globalAdmin 切換另要求操作者本身 `isGlobalAdmin`）。2026-06-23 `corrie.lai` 登入 403 案例觸發，原靠 grant globalAdmin script 繞過，現可於 UI 直接授予城市/區域存取權限 |
 
 ---
 
@@ -147,6 +147,7 @@
 
 ## 變更歷史
 
+- **2026-06-24**：Open 差異 #11 更新 → CHANGE-090 已實作（代碼層完成、待 Azure 部署驗證）：補城市/區域存取權限管理 UI/API + globalAdmin 切換，城市欄位重新標籤釐清雙軌語意
 - **2026-06-23**：新增 Open 差異 #11（城市權限管理 UI/API 缺失 + `UserRole.cityId` 誤導 → CHANGE-090 規劃；`corrie.lai` 登入後 dashboard 403 案例觸發，當前靠 grant globalAdmin 繞過）
 - **2026-06-16**：FIX-077 修復（Stage 1 公司識別飄移 / JIT 重複公司 → 已修復，PR #38）
 - **2026-05-26**：初版（從 CLAUDE.md v3.4.1 §已知差異與關鍵發現 完整遷移）
