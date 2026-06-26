@@ -77,6 +77,8 @@ export interface DocumentListItem {
     id: string
     name: string
   } | null
+  // CHANGE-091 1.5: 已匹配的模板實例 ID（未匹配時為 null）
+  templateInstanceId: string | null
   // CHANGE-084: 信心度（來自 1:1 關聯 extraction_results，0–100；無提取結果時為 null）
   extractionResult: {
     averageConfidence: number

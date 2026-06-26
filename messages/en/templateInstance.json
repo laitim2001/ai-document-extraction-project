@@ -74,6 +74,7 @@
     "backToList": "Back to List",
     "instanceName": "Instance: {name}",
     "templateName": "Template: {name}",
+    "draftExportHint": "{count, plural, =1 {1 row needs fixing before this can be exported} other {# rows need fixing before this can be exported}}",
     "stats": {
       "totalRows": "Total Rows",
       "validRows": "Valid Rows",
@@ -100,6 +101,7 @@
     "columns": {
       "index": "#",
       "rowKey": "Row Key",
+      "sourceDocuments": "Source Files",
       "status": "Status",
       "actions": "Actions"
     },
@@ -184,6 +186,7 @@
     "exportSuccess": "Export completed successfully",
     "exportError": "Failed to export data",
     "addFileSuccess": "{count} files matched successfully",
+    "addFileSuccessHint": "Check the instance status to see if it's ready to export.",
     "addFileError": "Failed to add files",
     "addFilePartial": "{success} files matched, {error} failed",
     "addFileAllFailed": "All {count} files failed to match"
@@ -196,7 +199,11 @@
     "selected": "{count} files selected",
     "addButton": "Add {count} Files",
     "adding": "Adding...",
-    "sortInfo": "Sorted by most recently created"
+    "sortInfo": "Sorted by most recently created",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "hideAdded": "Hide added",
+    "alreadyAdded": "Added"
   },
   "match": {
     "title": "Match to Template",

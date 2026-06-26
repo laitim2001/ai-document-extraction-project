@@ -291,6 +291,8 @@ export function InstanceRowsTable({
                   {getFieldLabel(field)}
                 </TableHead>
               ))}
+              {/* CHANGE-091 1.6: 來源文件欄 */}
+              <TableHead className="min-w-[140px]">{t('rows.columns.sourceDocuments')}</TableHead>
               {/* Status column */}
               <TableHead className="w-[100px]">{t('rows.columns.status')}</TableHead>
               {/* Actions column */}
@@ -352,6 +354,27 @@ export function InstanceRowsTable({
                         </TableCell>
                       );
                     })}
+                    {/* CHANGE-091 1.6: 來源文件 */}
+                    <TableCell>
+                      {row.sourceDocuments && row.sourceDocuments.length > 0 ? (
+                        <div className="flex max-w-[200px] flex-col gap-0.5">
+                          {row.sourceDocuments.map((doc) => (
+                            <a
+                              key={doc.id}
+                              href={`/documents/${doc.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="truncate text-xs text-primary hover:underline"
+                              title={doc.fileName}
+                            >
+                              {doc.fileName}
+                            </a>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                     {/* Status */}
                     <TableCell>
                       <Badge variant={statusConfig.badgeVariant}>

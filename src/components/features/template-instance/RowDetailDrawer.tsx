@@ -149,17 +149,21 @@ export function RowDetailDrawer({
 
             <Separator />
 
-            {/* Source Documents */}
+            {/* Source Documents（CHANGE-091 1.6: 顯示檔名，退化時顯示 id） */}
             <div className="space-y-3">
               <h4 className="text-sm font-medium">{t('rowDetail.sourceDocuments')}</h4>
-              {row.sourceDocumentIds.length > 0 ? (
+              {(row.sourceDocuments && row.sourceDocuments.length > 0) ||
+              row.sourceDocumentIds.length > 0 ? (
                 <ul className="space-y-2">
-                  {row.sourceDocumentIds.map((docId) => (
-                    <li key={docId}>
+                  {(
+                    row.sourceDocuments ??
+                    row.sourceDocumentIds.map((id) => ({ id, fileName: id }))
+                  ).map((doc) => (
+                    <li key={doc.id}>
                       <Button variant="link" size="sm" asChild className="h-auto p-0">
-                        <Link href={`/documents/${docId}`}>
+                        <Link href={`/documents/${doc.id}`}>
                           <ExternalLink className="mr-1 h-3 w-3" />
-                          {docId}
+                          {doc.fileName}
                         </Link>
                       </Button>
                     </li>

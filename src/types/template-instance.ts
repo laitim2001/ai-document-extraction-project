@@ -142,6 +142,8 @@ export interface TemplateInstanceRow {
   rowIndex: number;
   /** 來源文件 IDs */
   sourceDocumentIds: string[];
+  /** 來源文件（id + 檔名；CHANGE-091 1.6 列表查詢一併回傳，供 UI 顯示檔名） */
+  sourceDocuments?: { id: string; fileName: string }[];
   /** 欄位值 */
   fieldValues: Record<string, unknown>;
   /** 驗證錯誤 */
