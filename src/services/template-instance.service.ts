@@ -377,8 +377,27 @@ export class TemplateInstanceService {
       prisma.templateInstanceRow.count({ where }),
     ]);
 
+    // CHANGE-091 1.6: 批量解析來源文件檔名（id → fileName），供 UI 顯示來源
+    const sourceIds = Array.from(
+      new Set(rows.flatMap((row) => row.sourceDocumentIds ?? []))
+    );
+    const nameMap = new Map<string, string>();
+    if (sourceIds.length > 0) {
+      const docs = await prisma.document.findMany({
+        where: { id: { in: sourceIds } },
+        select: { id: true, fileName: true },
+      });
+      docs.forEach((doc) => nameMap.set(doc.id, doc.fileName));
+    }
+
     return {
-      rows: rows.map((row) => this.mapRowToDto(row)),
+      rows: rows.map((row) => ({
+        ...this.mapRowToDto(row),
+        sourceDocuments: (row.sourceDocumentIds ?? []).map((id) => ({
+          id,
+          fileName: nameMap.get(id) ?? id,
+        })),
+      })),
       total,
     };
   }

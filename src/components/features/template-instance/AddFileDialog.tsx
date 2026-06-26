@@ -44,6 +44,8 @@ interface DocumentItem {
   cityCode?: string | null;
   createdAt: string;
   updatedAt?: string;
+  // CHANGE-091 1.5: 已匹配的模板實例 ID（用於標示「已加入本實例」）
+  templateInstanceId?: string | null;
 }
 
 interface AddFileDialogProps {
@@ -81,6 +83,8 @@ export function AddFileDialog({
   const [search, setSearch] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  // CHANGE-091 1.5: 是否隱藏「已加入本實例」的文件
+  const [hideAdded, setHideAdded] = React.useState(false);
 
   // --- Load unmatched documents ---
   React.useEffect(() => {
@@ -114,6 +118,27 @@ export function AddFileDialog({
     return () => clearTimeout(debounce);
   }, [open, search]);
 
+  // --- Derived (CHANGE-091 1.4/1.5) ---
+  // 是否已加入「本」實例
+  const isAlreadyAdded = React.useCallback(
+    (doc: DocumentItem) => doc.templateInstanceId === instanceId,
+    [instanceId]
+  );
+
+  // 依「隱藏已加入」過濾後的可見清單
+  const visibleDocuments = React.useMemo(
+    () => (hideAdded ? documents.filter((d) => !isAlreadyAdded(d)) : documents),
+    [documents, hideAdded, isAlreadyAdded]
+  );
+
+  // 目前可見清單中「可選取」（未加入本實例）的文件 ID
+  const selectableIds = React.useMemo(
+    () => visibleDocuments.filter((d) => !isAlreadyAdded(d)).map((d) => d.id),
+    [visibleDocuments, isAlreadyAdded]
+  );
+  const allSelected =
+    selectableIds.length > 0 && selectableIds.every((id) => selectedIds.has(id));
+
   // --- Handlers ---
   const handleToggle = React.useCallback((docId: string) => {
     setSelectedIds(prev => {
@@ -126,6 +151,19 @@ export function AddFileDialog({
       return next;
     });
   }, []);
+
+  // CHANGE-091 1.4: 全選 / 取消全選（僅作用於可選取範圍）
+  const handleSelectAll = React.useCallback(() => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (selectableIds.every((id) => prev.has(id))) {
+        selectableIds.forEach((id) => next.delete(id));
+      } else {
+        selectableIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  }, [selectableIds]);
 
   const handleSubmit = async () => {
     if (selectedIds.size === 0) return;
@@ -168,7 +206,8 @@ export function AddFileDialog({
       } else {
         // All succeeded
         toast.success(
-          t('toast.addFileSuccess', { count: successN || selectedIds.size })
+          t('toast.addFileSuccess', { count: successN || selectedIds.size }),
+          { description: t('toast.addFileSuccessHint') }
         );
       }
 
@@ -220,11 +259,34 @@ export function AddFileDialog({
           />
         </div>
 
-        {/* Sort info */}
-        <p className="text-xs text-muted-foreground flex items-center gap-1">
-          <Clock className="h-3 w-3" />
-          {t('addFileDialog.sortInfo')}
-        </p>
+        {/* Sort info + toolbar（CHANGE-091 1.4 全選 / 1.5 隱藏已加入） */}
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            {t('addFileDialog.sortInfo')}
+          </p>
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
+              <Checkbox
+                checked={hideAdded}
+                onCheckedChange={(c) => setHideAdded(!!c)}
+              />
+              {t('addFileDialog.hideAdded')}
+            </label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              disabled={selectableIds.length === 0}
+              onClick={handleSelectAll}
+            >
+              {allSelected
+                ? t('addFileDialog.deselectAll')
+                : t('addFileDialog.selectAll')}
+            </Button>
+          </div>
+        </div>
 
         {/* Document List */}
         <ScrollArea className="h-[400px] rounded-md border">
@@ -234,37 +296,51 @@ export function AddFileDialog({
                 <Skeleton key={i} className="h-14 w-full" />
               ))}
             </div>
-          ) : documents.length === 0 ? (
+          ) : visibleDocuments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <FileText className="mb-2 h-8 w-8" />
               <p className="text-sm">{t('addFileDialog.noDocuments')}</p>
             </div>
           ) : (
             <div className="divide-y">
-              {documents.map((doc) => (
-                <label
-                  key={doc.id}
-                  className="flex cursor-pointer items-center gap-3 px-4 py-3 hover:bg-accent/50 transition-colors"
-                >
-                  <Checkbox
-                    checked={selectedIds.has(doc.id)}
-                    onCheckedChange={() => handleToggle(doc.id)}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium break-all">{doc.fileName}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                      {doc.cityCode && <span>{doc.cityCode}</span>}
-                      {doc.cityCode && doc.createdAt && <span>·</span>}
-                      {doc.createdAt && (
-                        <span>{formatShortDate(new Date(doc.createdAt), locale as Locale)}</span>
-                      )}
+              {visibleDocuments.map((doc) => {
+                const added = isAlreadyAdded(doc);
+                return (
+                  <label
+                    key={doc.id}
+                    className={`flex items-center gap-3 px-4 py-3 transition-colors ${
+                      added
+                        ? 'opacity-60 cursor-not-allowed'
+                        : 'cursor-pointer hover:bg-accent/50'
+                    }`}
+                  >
+                    <Checkbox
+                      checked={added || selectedIds.has(doc.id)}
+                      disabled={added}
+                      onCheckedChange={() => !added && handleToggle(doc.id)}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium break-all">{doc.fileName}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                        {doc.cityCode && <span>{doc.cityCode}</span>}
+                        {doc.cityCode && doc.createdAt && <span>·</span>}
+                        {doc.createdAt && (
+                          <span>{formatShortDate(new Date(doc.createdAt), locale as Locale)}</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <Badge variant="secondary" className="shrink-0 text-xs">
-                    {doc.status}
-                  </Badge>
-                </label>
-              ))}
+                    {added ? (
+                      <Badge variant="outline" className="shrink-0 text-xs">
+                        {t('addFileDialog.alreadyAdded')}
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="shrink-0 text-xs">
+                        {doc.status}
+                      </Badge>
+                    )}
+                  </label>
+                );
+              })}
             </div>
           )}
         </ScrollArea>

@@ -23,6 +23,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,7 @@ import { InstanceStatsOverview } from './InstanceStatsOverview';
 import { InstanceRowsTable } from './InstanceRowsTable';
 import { ExportDialog } from './ExportDialog';
 import { AddFileDialog } from './AddFileDialog';
+import { getInstanceStatusConfig } from './status-config';
 import { useTemplateInstance } from '@/hooks/use-template-instances';
 
 // ============================================================================
@@ -113,7 +115,11 @@ export function TemplateInstanceDetail({ instanceId, className }: TemplateInstan
   }
 
   const instance = data;
-  const canExport = instance.status === 'COMPLETED';
+  // CHANGE-091 1.1: export 放寬 — 與後端 export API 既有判定一致（COMPLETED 與 EXPORTED 皆可匯出）
+  const canExport = ['COMPLETED', 'EXPORTED'].includes(instance.status);
+  const statusConfig = getInstanceStatusConfig(instance.status);
+  // CHANGE-091 1.2: DRAFT 且有驗證未過列時，提示「為何不能匯出」
+  const showDraftExportHint = instance.status === 'DRAFT' && instance.errorRowCount > 0;
 
   return (
     <div className={`space-y-6 ${className ?? ''}`}>
@@ -129,28 +135,41 @@ export function TemplateInstanceDetail({ instanceId, className }: TemplateInstan
             <h1 className="text-2xl font-bold">
               {t('detail.instanceName', { name: instance.name })}
             </h1>
+            {/* CHANGE-091 1.2: 狀態徽章 */}
+            <Badge variant={statusConfig.badgeVariant}>
+              <span className="mr-1">{statusConfig.icon}</span>
+              {t(`status.${instance.status}`)}
+            </Badge>
           </div>
           <p className="text-muted-foreground pl-10">
             {t('detail.templateName', { name: data.dataTemplate?.name || '-' })}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 pl-10 md:pl-0">
-          {/* Export button */}
-          <Button
-            variant="outline"
-            disabled={!canExport}
-            onClick={() => setShowExportDialog(true)}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            {t('detail.actions.export')}
-          </Button>
+        <div className="flex flex-col items-start gap-1 pl-10 md:items-end md:pl-0">
+          <div className="flex items-center gap-2">
+            {/* Export button */}
+            <Button
+              variant="outline"
+              disabled={!canExport}
+              onClick={() => setShowExportDialog(true)}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              {t('detail.actions.export')}
+            </Button>
 
-          {/* Add file button */}
-          <Button variant="outline" onClick={() => setShowAddFileDialog(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            {t('detail.actions.addFile')}
-          </Button>
+            {/* Add file button */}
+            <Button variant="outline" onClick={() => setShowAddFileDialog(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              {t('detail.actions.addFile')}
+            </Button>
+          </div>
+          {/* CHANGE-091 1.2: 卡 DRAFT 原因提示 */}
+          {showDraftExportHint && (
+            <p className="text-xs text-amber-600">
+              {t('detail.draftExportHint', { count: instance.errorRowCount })}
+            </p>
+          )}
         </div>
       </div>
 

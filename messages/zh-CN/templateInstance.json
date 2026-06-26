@@ -74,6 +74,7 @@
     "backToList": "返回列表",
     "instanceName": "实例：{name}",
     "templateName": "模板：{name}",
+    "draftExportHint": "有 {count} 行验证未通过，需修正后才能导出",
     "stats": {
       "totalRows": "总行数",
       "validRows": "有效行数",
@@ -100,6 +101,7 @@
     "columns": {
       "index": "#",
       "rowKey": "主键",
+      "sourceDocuments": "来源文件",
       "status": "状态",
       "actions": "操作"
     },
@@ -184,6 +186,7 @@
     "exportSuccess": "导出成功",
     "exportError": "导出失败",
     "addFileSuccess": "成功匹配 {count} 个文件",
+    "addFileSuccessHint": "请在详情页查看状态，确认是否可导出。",
     "addFileError": "添加文件失败",
     "addFilePartial": "成功匹配 {success} 个文件，{error} 个失败",
     "addFileAllFailed": "全部 {count} 个文件匹配失败"
@@ -196,7 +199,11 @@
     "selected": "已选择 {count} 个文件",
     "addButton": "添加 {count} 个文件",
     "adding": "添加中...",
-    "sortInfo": "按创建时间排序（最新优先）"
+    "sortInfo": "按创建时间排序（最新优先）",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "hideAdded": "隐藏已加入",
+    "alreadyAdded": "已加入"
   },
   "match": {
     "title": "匹配到模板",
