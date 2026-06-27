@@ -1,7 +1,7 @@
 # CHANGE-094: 費用明細提取穩定性 — line item 費用確定性回填 field definition key
 
-> **日期**: 2026-06-26
-> **狀態**: ⏳ 待實作（方案待決策，見 §設計決策）
+> **日期**: 2026-06-26（實作 2026-06-27）
+> **狀態**: ✅ 已完成（方案 B 為主 + A 為輔，2026-06-27 用戶拍板並實作）
 > **優先級**: High（直接影響費用提取準確率與 template instance 映射可靠性，關乎 90-95% 準確率目標）
 > **類型**: Feature（提取可靠性增強）
 > **影響範圍**: V3.1 Stage 3 欄位提取（`stage-3-extraction.service.ts`）+ Template Instance 費用映射（`template-matching-engine.service.ts`）
@@ -91,14 +91,30 @@ Template Field Mapping 的 sourceField 改用 `li_{classifiedAs}_total`（`extra
 
 ---
 
-## 設計決策（待用戶確認）
+## 設計決策（✅ 已 resolve，2026-06-27）
 
-1. **採哪個方案** — 建議 B 為主 + A 為輔（見上）。**待用戶拍板**。
-2. **對照來源** — `classifiedAs/別名 → field def key` 用既有 `aliases` 還是新增結構化設定？建議先用 `aliases`。
-3. **回填衝突策略** — 若 GPT 已填某 key 且 lineItems 也有對應，以何者為準？建議「GPT 已填值優先，僅補空缺」。
-4. **多筆同類費用** — 同一 field def key 對應多筆 lineItems 時加總或取首筆？建議加總（對齊 `li_*_total` 既有語意）。
+1. **採哪個方案** — ✅ **B 為主 + A 為輔**（用戶 2026-06-27 拍板）。
+2. **對照來源** — ✅ 用既有 `aliases`（不新增結構化設定、不動 schema）。對照 = lineItem `classifiedAs` 對 field def `label` + `aliases`，經 `canonicalizeLabel` 正規化後做「相等 / 詞邊界子字串」比對。
+3. **回填衝突策略** — ✅ **GPT 已填值優先，僅補空缺**（`fields[key]` 已有有效值則不覆蓋）。
+4. **多筆同類費用** — ✅ **加總**（同一 key 對應多筆 lineItem 時金額相加，對齊 `li_*_total` 語意）。
 
-> 屬 Open Question，實作前需 resolve（記入 `docs/open-questions.md`）。
+### ⚠️ 實作中的關鍵發現（影響覆蓋率，需用戶知悉）
+
+調查 CEVA field def set（`f13aaf3b`，15 個欄位）+ 實際提取結果後確認：
+
+1. **CEVA 15 個費用欄位的 `aliases` 全部為空 `[]`**。故方案 B 第一版只能靠 `label` 精確 / 子字串對照，覆蓋有限。
+2. **GPT 本身有強語意對照能力但不穩定**。CEX240464 09:49「成功那次」證據：`Documentation Fee`→`origin_document_processing_fee`、`Handling And Processing`→`origin_thc_terminal_handling_charge`（純字串完全匹配不到，是 GPT 語意對到），但同文件 10:56 / 11:18 GPT 又不填 → 這正是**方案 A（prompt 強制回填）才是覆蓋主力**的原因，B 是確定性安全兜底。
+3. **歧義保護導致部分跳過（刻意，安全優先）**。`classifiedAs` 經 `normalizeClassifiedAs` 後丟失方位資訊（`Terminal Handling Charge at Origin` → `Terminal Handling Charge`），同時是 `Origin THC` 與 `Destination THC` 兩個 label 的子字串 → 視為歧義**跳過不填**（寧可不填、不可填錯）。
+
+實測 CEX250440 三筆 lineItem 經方案 B 程式回填的裁決：
+
+| classifiedAs | 裁決 | 回填 |
+|---|---|---|
+| `Sealing Charge` | 1 exact（`sealing_charge`）| ✅ 回填 |
+| `Terminal Handling Charge` | 2 substring（origin+destination THC）→ 歧義 | ⏭️ 跳過 |
+| `Documentation Fee` | 無匹配（`documentation`≠`document`）| ⏭️ 跳過（需 alias）|
+
+→ **要讓方案 B 達到高覆蓋，需在 CEVA field def 補 `aliases`**（屬資料維護，不在本次 code 改動 scope）。建議補充清單見 §後續建議。
 
 ---
 
@@ -120,6 +136,47 @@ Template Field Mapping 的 sourceField 改用 `li_{classifiedAs}_total`（`extra
 | 1 | 非確定性消除 | CEX250440 重新處理 3 次 | 3 次 `fields` 費用 key 與金額一致、非空 |
 | 2 | Template 映射 | 重處理後加入 Template Instance 執行 | `document_fee`/`thc`/`seal_fee` 等有值 |
 | 3 | 別名對照 | 文件費用名為 `Documentation at Origin` | 正確回填 `origin_document_processing_fee` |
+
+---
+
+## 實作摘要（2026-06-27）
+
+### 修改的檔案
+
+| 檔案 | 類型 | 變更內容 |
+|------|------|----------|
+| `src/services/extraction-v3/utils/classify-normalizer.ts` | 🔧 修改 | 新增對照純函數：`canonicalizeLabel`（小寫去標點正規化）、`matchLabel`（回傳 `'exact' \| 'substring' \| null`，子字串需詞邊界 + ≥8 字元 + ≥2 詞避免短詞誤命中）、type `LabelMatchKind` |
+| `src/services/extraction-v3/stages/stage-3-extraction.service.ts` | 🔧 修改 | **(B)** 新增 `backfillLineItemCharges()` + `hasFieldValue()`，在 `parseExtractionResult` 後（`extract` 主流程 step 4b）就地回填 `parsed.fields`；**(A)** `buildFieldDefinitionsSection()` 加「強制 line item 回填」指示 + 費用 field key 對照清單（`chargeFields`）|
+
+### 核心邏輯（方案 B）
+
+1. 僅針對 `fieldType === 'lineItem'` 的費用欄位。
+2. 對每個 lineItem 的 `classifiedAs`，比對所有費用 def 的 `label` + `aliases`，分類為 exact / substring 命中。
+3. **唯一性裁決**：恰 1 個 exact → 採用；無 exact 且恰 1 個 substring → 採用；多個命中（歧義）→ 跳過。
+4. **GPT 優先**：`fields[key]` 已有有效值則不覆蓋（`null` / `''` / 未填視為空缺）。
+5. **多筆加總**：同一 key 多筆 lineItem 金額相加，寫入 `{ value, confidence: 85, source: 'lineItem-backfill' }`。
+
+### 驗證
+
+- ✅ `npm run type-check` 通過（`tsc --noEmit` 無錯誤）
+- ✅ `npm run lint` 改動 2 檔 0 error（既有 console / unused `index` warning 非本次引入）
+- ✅ 離線對照裁決驗證（真實 CEVA 15 def + CEX250440/CEX240464 lineItems）符合預期：安全、確定性、不誤填
+- ⏳ 待用戶重新處理文件做端到端驗證（見 §測試場景）
+
+---
+
+## 後續建議（補 aliases 以提升方案 B 覆蓋率，屬資料維護）
+
+CEVA field def 的 `aliases` 全空，致方案 B 程式回填覆蓋有限。建議在 CEVA「自訂費用欄位集」（`f13aaf3b`）為 **origin 系列**補充常見 `classifiedAs` 變體（出口文件均為 origin，避免與 destination 歧義）：
+
+| field key | 建議補充 aliases |
+|---|---|
+| `origin_document_processing_fee` | `Documentation Fee`、`Documentation at Origin`、`Document Processing Fee` |
+| `origin_thc_terminal_handling_charge` | `Terminal Handling Charge`、`Handling And Processing`、`Origin Terminal Handling Charge` |
+| `sealing_charge` | （已 exact 命中，可不補）`Seal Fee` |
+
+> ⚠️ **勿**對 `destination_*` 系列補與 origin 重疊的裸 alias（如裸 `Terminal Handling Charge`），否則 origin/destination 會再度歧義跳過。
+> 補 aliases 後，方案 B 即可確定性命中上述費用；在此之前主要依賴方案 A（prompt 強制 GPT 回填）。
 
 ---
 

@@ -68,7 +68,12 @@ import {
   type VariableContext,
 } from '../utils/variable-replacer';
 // CHANGE-046: classifiedAs 正規化
-import { normalizeClassifiedAs } from '../utils/classify-normalizer';
+// CHANGE-094: 費用標籤對照（確定性回填）
+import {
+  normalizeClassifiedAs,
+  matchLabel,
+  type LabelMatchKind,
+} from '../utils/classify-normalizer';
 
 // ============================================================================
 // Types
@@ -201,6 +206,17 @@ export class Stage3ExtractionService {
         gptResult.response,
         config.fieldDefinitions
       );
+
+      // 4b. CHANGE-094: 確定性回填 — 將 lineItem 費用補進對應 field def key
+      //     消除 GPT 對「fields vs lineItems」判斷的非確定性（同文件不同次結果不同）。
+      //     僅補空缺（GPT 已填值優先），歧義時跳過（寧可不填、不可填錯）。
+      if (parsed.fields) {
+        this.backfillLineItemCharges(
+          parsed.fields,
+          parsed.lineItems,
+          config.fieldDefinitions
+        );
+      }
 
       // 計算 overallConfidence（優先使用動態 fields，fallback 到 standardFields）
       const overallConfidence = parsed.overallConfidence > 0
@@ -843,6 +859,11 @@ Respond in valid JSON format matching the provided schema.`;
 
     const fieldKeys = fieldDefinitions.map((f) => f.key);
 
+    // CHANGE-094: 費用明細欄位（fieldType === 'lineItem'）— 供 line item 回填指示
+    const chargeFields = fieldDefinitions.filter(
+      (f) => f.fieldType === 'lineItem'
+    );
+
     const lines: string[] = [
       '\n--- Field Extraction Requirements ---',
       `Total fields to extract: ${fieldDefinitions.length}`,
@@ -928,6 +949,20 @@ Respond in valid JSON format matching the provided schema.`;
     lines.push(
       '- Each field value MUST be an object with "value" and "confidence" properties.'
     );
+
+    // CHANGE-094: 強制 line item 費用回填指示（消除「fields vs lineItems」非確定性）
+    if (chargeFields.length > 0) {
+      lines.push(
+        '- For EACH line item whose charge corresponds to one of the charge field keys below, you MUST ALSO put its amount into that key inside "fields" (and still keep the item in "lineItems"). Match by MEANING, not exact wording — e.g. "Documentation at Origin" → origin_document_processing_fee, "Handling and Processing at Origin" → origin_thc_terminal_handling_charge.'
+      );
+      lines.push(
+        '- If multiple line items map to the same charge key, SUM their amounts into that key. This mapping MUST be consistent across runs of the same document.'
+      );
+      lines.push('\nCharge field keys (fill these from line items when applicable):');
+      for (const f of chargeFields) {
+        lines.push(`  - ${f.key}: ${f.label}`);
+      }
+    }
 
     return lines.join('\n');
   }
@@ -1231,6 +1266,108 @@ Respond in valid JSON format matching the provided schema.`;
         needsClassification: !rawItem.category,
       };
     });
+  }
+
+  /**
+   * CHANGE-094: 確定性回填 lineItem 費用至對應 field definition key
+   *
+   * @description
+   *   解決「費用提取非確定性」問題：GPT 對「該把費用填進 fields 的 field def key，
+   *   還是只放 lineItems」判斷不穩定（同文件不同次提取結果不同），導致 Template
+   *   Instance 費用映射時有時取不到值。
+   *
+   *   本步驟在解析後以**程式化、確定性**方式，將每個 lineItem 的金額補進對應的
+   *   費用 field key（僅針對 `fieldType === 'lineItem'` 的欄位）。對照來源為
+   *   lineItem 的 `classifiedAs` 對 field def 的 `label` + `aliases`：
+   *   - 正規化後相等（exact）或詞邊界子字串（substring），見 {@link matchLabel}
+   *   - **歧義保護**：若同一 classifiedAs 同時命中多個目標（如
+   *     `"Terminal Handling Charge"` 同時是 origin 與 destination THC 的子字串），
+   *     則跳過該筆，避免填錯。
+   *   - **GPT 優先**：僅補空缺，GPT 已填的值不覆蓋（見 §設計決策 OQ#3）。
+   *   - **多筆加總**：同一 key 對應多筆 lineItem 時金額加總（OQ#4）。
+   *
+   *   注意：CEVA 等 field def 的 `aliases` 多為空，第一版僅能命中 `label`
+   *   精確 / 子字串；如 `"Documentation Fee"` → `origin_document_processing_fee`
+   *   這類語意相同但詞不同者，需在 field def 補 `aliases` 才會命中。
+   *
+   * @param fields - 解析後的欄位 Record（會被就地修改）
+   * @param lineItems - 解析後的行項目
+   * @param fieldDefinitions - 當前 FieldDefinitionSet 的欄位定義
+   * @since CHANGE-094
+   */
+  private backfillLineItemCharges(
+    fields: Record<string, FieldValue>,
+    lineItems: LineItemV3[],
+    fieldDefinitions: FieldDefinitionEntry[]
+  ): void {
+    if (!lineItems?.length || !fieldDefinitions?.length) return;
+
+    // 僅針對 lineItem 類費用欄位
+    const chargeDefs = fieldDefinitions.filter((d) => d.fieldType === 'lineItem');
+    if (chargeDefs.length === 0) return;
+
+    // key → 待回填的累加金額（僅在 GPT 未填時生效）
+    const pending = new Map<string, number>();
+
+    for (const li of lineItems) {
+      const candidate = li.classifiedAs;
+      if (!candidate || typeof li.amount !== 'number') continue;
+
+      // 對每個 charge def 判定對照種類（取最強：exact > substring）
+      const exactKeys: string[] = [];
+      const substringKeys: string[] = [];
+      for (const def of chargeDefs) {
+        const targets = [def.label, ...(def.aliases ?? [])];
+        let best: LabelMatchKind = null;
+        for (const target of targets) {
+          const kind = matchLabel(candidate, target);
+          if (kind === 'exact') {
+            best = 'exact';
+            break;
+          }
+          if (kind === 'substring') best = 'substring';
+        }
+        if (best === 'exact') exactKeys.push(def.key);
+        else if (best === 'substring') substringKeys.push(def.key);
+      }
+
+      // 唯一性裁決：精確優先；歧義（多個命中）則跳過，不誤填
+      let targetKey: string | null = null;
+      if (exactKeys.length === 1) {
+        targetKey = exactKeys[0];
+      } else if (exactKeys.length === 0 && substringKeys.length === 1) {
+        targetKey = substringKeys[0];
+      }
+      if (!targetKey) continue;
+
+      // GPT 已填值優先：僅補空缺
+      if (this.hasFieldValue(fields[targetKey])) continue;
+
+      pending.set(targetKey, (pending.get(targetKey) ?? 0) + li.amount);
+    }
+
+    for (const [key, sum] of pending) {
+      if (this.hasFieldValue(fields[key])) continue;
+      fields[key] = {
+        value: sum,
+        confidence: 85,
+        source: 'lineItem-backfill',
+      };
+    }
+  }
+
+  /**
+   * CHANGE-094: 判定 FieldValue 是否已有有效值
+   * @description GPT 填 null / 空字串 / 未填皆視為空缺（可被回填覆蓋）
+   * @since CHANGE-094
+   */
+  private hasFieldValue(fv?: FieldValue): boolean {
+    return (
+      !!fv &&
+      fv.value !== null &&
+      fv.value !== undefined &&
+      fv.value !== ''
+    );
   }
 
   /**
