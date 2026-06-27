@@ -1014,7 +1014,21 @@ Respond in valid JSON format matching the provided schema.`;
     fieldDefinitions?: FieldDefinitionEntry[]
   ): GptExtractionResponse {
     try {
-      const parsed = JSON.parse(response) as Record<string, unknown>;
+      let parsed = JSON.parse(response) as Record<string, unknown>;
+
+      // FIX-093: 處理 GPT 偶發的 { success, confidence, invoiceData: {...} } 包裹格式
+      //   （例見 HEX250526 雙發票 PDF）。此格式不符合下列三個 case 的預期，會導致
+      //   fields 與 lineItems 雙雙解析成空、整份提取丟失。先攤平 invoiceData 為
+      //   raw 格式，再交由 Case 3 動態映射處理（lineItems 無 category 時以
+      //   description 補上，供 classifiedAs 正規化與費用回填對照）。
+      if (
+        parsed.invoiceData &&
+        typeof parsed.invoiceData === 'object' &&
+        !parsed.fields &&
+        !parsed.standardFields
+      ) {
+        parsed = this.unwrapInvoiceDataFormat(parsed);
+      }
 
       // Case 1: 新格式 — 有 "fields" key
       if (parsed.fields && typeof parsed.fields === 'object') {
@@ -1070,6 +1084,54 @@ Respond in valid JSON format matching the provided schema.`;
     } catch {
       throw new Error('Failed to parse GPT extraction response');
     }
+  }
+
+  /**
+   * FIX-093: 攤平 GPT 的 invoiceData 包裹格式為 raw 結構
+   *
+   * @description
+   *   GPT 偶發回傳 `{ success, confidence, invoiceData: { invoiceNumber, currency,
+   *   totalAmount, lineItems: [...] } }`，與 stage-3 預期的頂層 `{ fields, lineItems }`
+   *   不符，導致 {@link parseExtractionResult} 三個 case 全部落空、整份提取丟失。
+   *
+   *   本方法把 `invoiceData` 內的欄位提升到頂層（並補上 snake_case 別名，讓
+   *   {@link convertRawResponseDynamic} 的 aliases 搜尋撈得到標準欄位），同時保留
+   *   `lineItems`；當 lineItem 缺少 `category` 時以 `description` 補上，使後續
+   *   `classifiedAs` 正規化與 CHANGE-094 費用回填有對照依據。
+   *
+   * @param parsed - 含 `invoiceData` 的原始解析結果
+   * @returns 攤平後的 raw 物件（交由 Case 3 動態映射處理）
+   * @since FIX-093
+   */
+  private unwrapInvoiceDataFormat(
+    parsed: Record<string, unknown>
+  ): Record<string, unknown> {
+    const inv = parsed.invoiceData as Record<string, unknown>;
+    const rawLineItems = (inv.lineItems ?? inv.line_items) as
+      | Array<Record<string, unknown>>
+      | undefined;
+    const lineItems = Array.isArray(rawLineItems)
+      ? rawLineItems.map((li) => ({
+          ...li,
+          // 無 category 時用 description 補上（供 classifiedAs 對照與費用回填）
+          category: li.category ?? li.description,
+        }))
+      : [];
+
+    const vendor = inv.vendor as Record<string, unknown> | undefined;
+
+    return {
+      ...inv,
+      // snake_case 別名，讓 convertRawResponseDynamic 的 aliases 搜尋命中標準欄位
+      invoice_number: inv.invoiceNumber ?? inv.invoice_number,
+      invoice_date: inv.invoiceDate ?? inv.invoice_date,
+      due_date: inv.dueDate ?? inv.due_date,
+      total_amount: inv.totalAmount ?? inv.total_amount,
+      subtotal: inv.subtotal,
+      currency: inv.currency,
+      vendor_name: vendor?.name ?? inv.vendorName,
+      lineItems,
+    };
   }
 
   /**
