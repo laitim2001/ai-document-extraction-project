@@ -1,0 +1,109 @@
+# FIX-096: 文件詳情頁「Delete」按鈕回 405（API 無 DELETE handler）
+
+> **建立日期**: 2026-06-29
+> **發現方式**: Playwright E2E（FIX-095 回歸驗證後清理測試文件時發現）
+> **影響頁面/功能**: 文件詳情頁刪除功能 — `DELETE /api/documents/[id]`
+> **優先級**: 中（功能缺失；有「直接 DB 刪除」workaround，但日常文件管理無法用 UI 刪除）
+> **狀態**: 🚧 待修復
+
+---
+
+## 問題描述
+
+在文件詳情頁（`/[locale]/documents/[id]`）點擊「Delete」按鈕並於確認對話框按下刪除後，文件**並未被刪除**，UI 顯示刪除失敗（toast error）。
+
+瀏覽器 console 回報：
+
+```
+Failed to load resource: the server responded with a status of 405 (Method Not Allowed)
+@ http://localhost:3200/api/documents/{id}
+```
+
+根因是該 API 路由**根本沒有 DELETE handler** — 前端送出 `DELETE` 請求，Next.js 因該方法未實作而回 405。亦即**UI 刪除文件功能自始無法運作**（非環境問題、非權限問題）。
+
+---
+
+## 重現步驟
+
+1. 登入後進入任一文件詳情頁（`/en/documents/{id}`）。
+2. 點右上角「Delete」→ 確認對話框按「Delete」。
+3. 觀察現象：
+   - 文件未刪除（列表/DB 中仍存在）。
+   - Console 出現 `405 (Method Not Allowed)` 於 `DELETE /api/documents/{id}`。
+   - UI 顯示刪除失敗 toast（`detail.errors.deleteFailed`）。
+
+---
+
+## 根本原因
+
+### 原因 1：`documents/[id]` 路由只實作 GET，未實作 DELETE
+
+- 前端 `src/components/features/document/detail/DocumentDetailHeader.tsx`（`handleDelete`，第 113–121 行）送出：
+  ```ts
+  const response = await fetch(`/api/documents/${document.id}`, { method: 'DELETE' })
+  ```
+- 但 `src/app/api/documents/[id]/route.ts` **只 `export async function GET`**（第 139 行），沒有 `DELETE` export → Next.js App Router 對未實作的方法回 **405 Method Not Allowed**。
+
+### 原因 2：刪除 service 已存在但未接上任何 API 路由
+
+- `src/services/document.service.ts` 已有 `deleteDocument(id)`（第 336 行）：先刪 Azure Blob（`deleteFile`），再 `prisma.document.delete`（依賴 Prisma `onDelete: Cascade` 級聯清子表）。
+- 但全專案**無任何 API 路由呼叫 `deleteDocument`**（`grep -rn "deleteDocument" src/app/api/` 為空）→ 功能寫好卻沒接通。
+
+### 待決定（授權設計點）
+
+`src/types/permissions.ts` 目前**無 `INVOICE_DELETE` 權限**，只有 `INVOICE_VIEW / INVOICE_CREATE / INVOICE_REVIEW / INVOICE_APPROVE`。刪除屬破壞性操作，DELETE handler 該用哪個權限需在實作時定案（見方案）。
+
+---
+
+## 解決方案
+
+### 修復：在 `documents/[id]/route.ts` 新增 DELETE handler
+
+在 `src/app/api/documents/[id]/route.ts` 新增 `export async function DELETE`，遵循既有 API 規範：
+
+1. **認證**：`const session = await auth()`，無 session 回 401（RFC 7807）。
+2. **授權**：呼叫 `hasPermission(session.user, ...)` + 城市存取檢查（參考 `upload/route.ts` 對 `INVOICE_CREATE` + `hasPermission` 的 pattern）。
+   - 🔴 **授權選項（需用戶/實作定案）**：
+     - 選項 A：沿用 `INVOICE_CREATE`（與上傳對等，最小改動，但「能上傳即能刪除」語意偏寬）。
+     - 選項 B：限制為 admin 級角色（`GLOBAL_ADMIN` / `CITY_ADMIN`）+ 城市存取檢查（較保守，符合破壞性操作）。
+     - 選項 C：新增 `INVOICE_DELETE` 權限（最正規，但需動 `permissions.ts` 與角色分配 → 牽涉較廣，屬 H1 風險，須先確認）。
+     - **建議**：先採選項 B（admin + 城市檢查），避免擴大權限模型；若需細粒度再走選項 C 另開 CHANGE。
+3. **存在性檢查**：查無文件回 404（RFC 7807）。
+4. **執行刪除**：`await deleteDocument(id)`（重用既有 service，含 blob + DB cascade）。
+5. **回應**：成功回 200（或 204 No Content）。
+6. **錯誤處理**：try/catch + RFC 7807 top-level 錯誤格式。
+7. **審計**：可記錄 `DOCUMENT_DELETED`（`src/lib/audit` 已定義此 action）。
+
+> 🔴 **範圍限制**：本 FIX 僅補 DELETE handler + 授權，**不改** `deleteDocument` service 邏輯、**不改**前端 `DocumentDetailHeader`（其 DELETE 呼叫已正確）。文件列表頁若另有刪除入口，確認其亦走同一端點。
+
+---
+
+## 修改的檔案
+
+> 以下為**預估**範圍，實作後更新為實際修改。
+
+| 檔案 | 預估修改內容 |
+|------|------------|
+| `src/app/api/documents/[id]/route.ts` | 新增 `export async function DELETE`：auth + 授權 + 404 檢查 + 呼叫 `deleteDocument(id)` + RFC 7807 + 審計 |
+| `src/types/permissions.ts`（僅選項 C 才需）| 新增 `INVOICE_DELETE` 並分配給對應角色（牽涉 H1，需先確認）|
+| `messages/{en,zh-TW,zh-CN}/documents.json`（若新增/調整刪除相關文案才需）| 確認 `detail.deleteSuccess` / `detail.errors.deleteFailed` 既有 key 一致 |
+
+---
+
+## 測試驗證
+
+修復完成後需驗證：
+
+- [ ] 文件詳情頁點「Delete」→ 確認 → 文件被刪除，列表/DB 不再存在
+- [ ] DELETE `/api/documents/[id]` 回 200/204（非 405）
+- [ ] 級聯刪除正確（`extraction_results` / `processing_queues` / `document_processing_stages` 等子表一併清除）
+- [ ] Azure Blob 一併刪除（Azurite 內對應 blob 消失）
+- [ ] 未登入 → 401；無權限 → 403；查無文件 → 404（皆 RFC 7807）
+- [ ] 審計記錄 `DOCUMENT_DELETED`（如採用）
+- [ ] `npm run type-check` 通過
+- [ ] `npm run lint` 通過
+
+---
+
+*文件建立日期: 2026-06-29*
+*最後更新: 2026-06-29*
