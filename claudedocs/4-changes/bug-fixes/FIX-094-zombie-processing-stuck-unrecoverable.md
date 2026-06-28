@@ -4,7 +4,7 @@
 > **發現方式**: 用戶回報（Azure DEV 文件卡 OCR_PROCESSING 約 12 小時）+ 代碼追蹤
 > **影響頁面/功能**: 文件處理管線 / 文件列表頁 + 詳情頁「重試」/ `retryProcessing`
 > **優先級**: 中
-> **狀態**: 🚧 待修復
+> **狀態**: 🟡 方案 B 已實作（2026-06-28，`type-check` + 改動檔 `lint` 0 error 通過；待部署 Azure 驗證）。方案 A（閾值式手動重試）列為可選、尚未實作
 
 ---
 
@@ -60,16 +60,23 @@
 
 ---
 
-## 修改的檔案（預估，實作時更新）
+## 修改的檔案
+
+> 本次實作**方案 B**（背景偵測回收）。方案 A（閾值式手動重試）尚未實作。
 
 | 檔案 | 修改內容 |
 |------|----------|
-| `src/jobs/`（新增，如 `stuck-processing-sweeper-job.ts`） | 方向 B：掃描殭屍處理 → 標記 `OCR_FAILED` |
-| 註冊背景 job 的排程處（依現有 job 註冊機制） | 啟用定期掃描 |
-| `src/services/document.service.ts` | 方向 A（若採用）：`retryProcessing` 接受逾時的 processing 狀態 + `updatedAt` 守衛 |
-| `src/lib/document-status.ts` | 方向 A（若採用）：時間條件判斷函數 |
-| `src/components/features/document/detail/DocumentDetailHeader.tsx` | 方向 A（若採用）：`isRetryable` 改用時間條件 |
-| `src/components/features/document/DocumentListTable.tsx` | 方向 A（若採用）：重試按鈕顯示條件 |
+| `src/services/document.service.ts` | 新增 `sweepStuckProcessingDocuments()`（將逾時殭屍處理標記為 `OCR_FAILED`，`updateMany` 同時以 `status` 為條件防競態）+ `getStuckProcessingDocuments()`（唯讀狀態查詢）+ 常數 `DEFAULT_STUCK_THRESHOLD_MINUTES=10`、`STUCK_PROCESSING_STATUSES` |
+| `src/jobs/stuck-processing-sweeper-job.ts`（新增） | `triggerStuckProcessingSweep()` + `getStuckProcessingStatus()` + `STUCK_PROCESSING_SWEEPER_CRON_CONFIG`（建議每 5 分鐘）；閾值可由 env `STUCK_PROCESSING_THRESHOLD_MINUTES` 覆蓋 |
+| `src/app/api/jobs/stuck-processing-sweeper/route.ts`（新增） | POST 觸發（`x-cron-secret` 或 `INVOICE_REVIEW` 權限）+ GET 狀態（`INVOICE_VIEW`）；沿用 `pattern-analysis` route 的雙重驗證模式 |
+
+### 實作說明
+
+- **觸發方式**：與既有 job 一致，由外部排程器（n8n / Vercel Cron）或手動 `POST /api/jobs/stuck-processing-sweeper` 觸發；無常駐 worker。建議排程每 5 分鐘、閾值 10 分鐘。
+- **防競態**：先 `findMany` 撈候選，再 `updateMany` 時於 `where` 同時要求 `status ∈ {OCR_PROCESSING, MAPPING_PROCESSING}`，確保不會誤標在掃描期間剛完成的文件。
+- **回到既有路徑**：標記為 `OCR_FAILED` 後，文件即符合既有 UI 重試條件（列表頁 `canRetry` / 詳情頁 `isRetryable`）與 `retryProcessing` 後端條件，使用者可直接重試，**不需更動 UI 三處邏輯**、無競態風險。
+- **logging**：沿用 `jobs/` 目錄既有風格（`console`），與 `pattern-analysis-job` / `webhook-retry-job` 一致；logger 遷移屬全專案漸進清理範圍，不納入本 FIX。
+- **部署**：本項目 Azure 為手動 `az acr build`，需重建映像並部署後此功能才在 Azure 生效；並需在排程器（n8n）設定定期呼叫此端點。
 
 ---
 
@@ -78,7 +85,7 @@
 - [ ] 模擬卡在 `OCR_PROCESSING` 超過閾值的文件 → 背景 job 自動標記為 `OCR_FAILED` + 寫入 `error_message`
 - [ ] 正常處理中（未超過閾值）的文件**不被**標記、**不顯示**重試按鈕（無競態）
 - [ ] 被標記 `OCR_FAILED` 後，列表頁與詳情頁出現重試按鈕，點擊可重跑完整 OCR→映射流程
-- [ ] `type-check` / `lint` 通過
+- [x] `type-check` / 改動檔 `lint` 0 error 通過（2026-06-28）
 - [ ] （方向 A 若採用）三處重試判斷邏輯與閾值一致
 
 ---

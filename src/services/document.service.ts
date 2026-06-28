@@ -672,3 +672,93 @@ export async function getDocumentWithRelations(id: string) {
     },
   })
 }
+
+// ===========================================
+// FIX-094: 殭屍處理回收（Stuck Processing Sweep）
+// ===========================================
+
+/** FIX-094: 視為殭屍處理的預設時間閾值（分鐘） */
+const DEFAULT_STUCK_THRESHOLD_MINUTES = 10
+
+/** FIX-094: 會被視為「卡住」的處理中狀態 */
+const STUCK_PROCESSING_STATUSES: DocumentStatus[] = ['OCR_PROCESSING', 'MAPPING_PROCESSING']
+
+/**
+ * 掃描並回收殭屍處理文件
+ *
+ * @description
+ *   將卡在 OCR_PROCESSING / MAPPING_PROCESSING 且 updatedAt 超過閾值的文件標記為
+ *   OCR_FAILED，使其回到既有的「失敗 → 重試」路徑。用於回收因處理程序被硬中斷
+ *   （程序回收 / 逾時 / 容器重啟）而永久卡住、無法自救的文件。
+ *
+ *   updateMany 同時以 status 為條件，確保不會誤標在掃描期間剛完成的文件（防競態）。
+ *
+ * @param thresholdMinutes - 視為卡住的時間閾值（分鐘），預設 10
+ * @returns 標記結果（實際標記數量、候選文件 ID、使用的閾值）
+ * @see FIX-094
+ */
+export async function sweepStuckProcessingDocuments(
+  thresholdMinutes: number = DEFAULT_STUCK_THRESHOLD_MINUTES
+): Promise<{ sweptCount: number; documentIds: string[]; thresholdMinutes: number }> {
+  const cutoff = new Date(Date.now() - thresholdMinutes * 60 * 1000)
+
+  const stuck = await prisma.document.findMany({
+    where: {
+      status: { in: STUCK_PROCESSING_STATUSES },
+      updatedAt: { lt: cutoff },
+    },
+    select: { id: true },
+  })
+
+  if (stuck.length === 0) {
+    return { sweptCount: 0, documentIds: [], thresholdMinutes }
+  }
+
+  const documentIds = stuck.map((d) => d.id)
+  const errorMessage = `處理程序逾時：文件卡在處理中狀態超過 ${thresholdMinutes} 分鐘無進度，已自動標記為失敗以便重試（FIX-094 殭屍處理回收）`
+
+  const result = await prisma.document.updateMany({
+    where: {
+      id: { in: documentIds },
+      status: { in: STUCK_PROCESSING_STATUSES },
+    },
+    data: {
+      status: 'OCR_FAILED',
+      errorMessage,
+    },
+  })
+
+  return { sweptCount: result.count, documentIds, thresholdMinutes }
+}
+
+/**
+ * 查詢目前的殭屍處理文件（唯讀）
+ *
+ * @description
+ *   不修改任何資料，僅回傳目前卡在處理中狀態且超過閾值的文件清單，供監控 / 狀態查詢。
+ *
+ * @param thresholdMinutes - 視為卡住的時間閾值（分鐘），預設 10
+ * @returns 卡住文件數量、閾值與清單（最多 100 筆）
+ * @see FIX-094
+ */
+export async function getStuckProcessingDocuments(
+  thresholdMinutes: number = DEFAULT_STUCK_THRESHOLD_MINUTES
+): Promise<{
+  count: number
+  thresholdMinutes: number
+  documents: Array<{ id: string; fileName: string; status: DocumentStatus; updatedAt: Date }>
+}> {
+  const cutoff = new Date(Date.now() - thresholdMinutes * 60 * 1000)
+
+  const documents = await prisma.document.findMany({
+    where: {
+      status: { in: STUCK_PROCESSING_STATUSES },
+      updatedAt: { lt: cutoff },
+    },
+    select: { id: true, fileName: true, status: true, updatedAt: true },
+    orderBy: { updatedAt: 'asc' },
+    take: 100,
+  })
+
+  return { count: documents.length, thresholdMinutes, documents }
+}
