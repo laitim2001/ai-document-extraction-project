@@ -1,6 +1,8 @@
 # AI 助手開發指引 - 詳細版
 
 > 本文件為 Claude Code AI 助手的詳細操作指引，包含服務啟動、常見問題排解等。
+>
+> ⚠️ 本檔所有指令範例**只示範要打什麼指令**，不示範輸出。任何「執行結果」一律以系統當下真實回傳為準，不得依本檔編造。
 
 ---
 
@@ -14,7 +16,7 @@ docker-compose up -d
 
 # Step 2: 確認服務運行中
 docker-compose ps
-# 應該看到: postgres, pgadmin, azurite 都在運行
+# 確認 postgres / pgadmin / azurite 三個服務狀態為運行中（以實際輸出為準）。
 
 # Step 3: 檢查端口佔用情況
 netstat -ano | findstr :3000 | findstr LISTENING
@@ -60,14 +62,9 @@ netstat -ano | findstr LISTENING | findstr ":30"
 ### 服務啟動後驗證
 
 ```bash
-# 檢查服務是否就緒（等待 Ready 訊息）
-# 預期輸出:
-#   ▲ Next.js 15.x
-#   - Local: http://localhost:3200
-#   ✓ Ready in X.Xs
-
-# 使用 Playwright 導航驗證
-mcp__plugin_playwright_playwright__browser_navigate → http://localhost:3200
+# 啟動後等待服務就緒（出現 Ready 字樣後再驗證）。
+# 實際輸出一律以系統當下回傳為準——不要依本檔編造任何「應該看到」的畫面。
+# 驗證：用 Playwright 導航到 http://localhost:3200，依真實回傳判斷。
 ```
 
 ---
@@ -104,13 +101,8 @@ npx prisma db pull
 **症狀**: `run_in_background` 命令無輸出
 
 **解決方案**:
-```bash
-# 使用 TaskOutput 讀取背景任務輸出
-TaskOutput(task_id, block=false)
-
-# 或者不使用背景模式，直接執行（設置較長 timeout）
-Bash(command, timeout=120000)
-```
+- 背景任務無輸出時：用 TaskOutput 工具讀取（非阻塞模式）。
+- 或改用前景執行並設較長 timeout，等系統真實回傳後再判斷。
 
 ### 問題 4: Azure Storage 未配置
 
