@@ -4,7 +4,7 @@
 > **發現方式**: 用戶回報（本地與 Azure 處理相同文件，信心度差異巨大）
 > **影響頁面/功能**: V3.1 三階段提取的信心度計算與路由決策（影響所有文件）
 > **優先級**: 高
-> **狀態**: 🚧 本地已修復（A1 + A2 + B 完成，通過 type-check / lint）｜Azure DB (A3) 待部署
+> **狀態**: 🚧 本地已修復並通過 live 回歸驗證（A1 + A2 + B 完成；type-check / lint / 重新處理皆通過）｜Azure DB (A3) 待部署
 
 ---
 
@@ -139,14 +139,27 @@
 
 修復完成後需驗證：
 
-- [ ] 同一份 CEVA 文件在本地重新處理，信心度與 FIELD_COMPLETENESS 維度正確反映實際提取（不再因格式而 0 分）
-- [ ] 強制 GPT 回 `fields` 格式時，5 個標準必填欄位能被正確填充
-- [ ] 強制 GPT 回 `invoiceData` 格式時，行為與修復前一致（無回歸）
-- [ ] 🔴 **line item 提取結果不變**（數量、description、amount、category）
-- [ ] 🔴 **CHANGE-094 費用回填結果不變**（`backfillLineItemCharges` 行為一致）
+- [x] 同一份 CEVA 文件在本地重新處理，信心度與 FIELD_COMPLETENESS 維度正確反映實際提取（不再因格式而 0 分）— 2026-06-28 live 重新處理 `CEVA_HEX250447,0448_45585.pdf`，整體 95.9% AUTO_APPROVE
+- [x] 強制 GPT 回 `fields` 格式時，5 個標準必填欄位能被正確填充 — fresh run 為 fields 格式，5 欄全填（GPT 信心度 98–99）
+- [ ] 強制 GPT 回 `invoiceData` 格式時，行為與修復前一致（無回歸）— fresh run 落在 fields 格式，此分支由 B 容錯 + 既有 invoiceData 格式結果覆蓋，未於本次 live 強制觸發
+- [x] 🔴 **line item 提取結果不變**（數量、description、amount、category）— 與 baseline 同為 4 筆，description／classifiedAs **完全相同**
+- [x] 🔴 **CHANGE-094 費用回填結果不變**（`backfillLineItemCharges` 行為一致）— `fields` 含原 15 個費用 key（範例 `origin_thc_...`=5990.0 conf 98），與標準欄位並存無衝突
 - [x] `npm run type-check` 通過（2026-06-28）
 - [x] `npm run lint` 通過（2026-06-28，無 error）
-- [ ] （方案 A）多份不同格式文件回歸，確認提取與信心度皆穩定
+- [ ] （方案 A）多份不同格式文件回歸，確認提取與信心度皆穩定 — 本次 live 驗 1 份 fields 格式；多份／invoiceData 格式可後續補
+
+### Live 回歸結果（2026-06-28，本地，新 code + 新 prompt）
+
+| 項目 | Baseline（舊狀態）| Fresh（745d02f0, 15:29）|
+|------|------|------|
+| GPT 格式 | fields | fields |
+| 整體信心度 | 95.3% | **95.9%** AUTO_APPROVE |
+| 標準欄位 | ❌ 壞（invoiceNumber/totalAmount 顯示 "USD"）| ✅ 全填正確（GPT conf 98–99）|
+| line item 數 / 描述 / 分類 | 4 筆 | **完全相同** 4 筆 |
+| `fields` key 數 | — | 23（8 標準 + 15 費用並存）|
+| mapped_fields | 4 | 12 |
+
+> 結論：A1（讓 GPT 在 fields 格式下提取標準欄位）為治本主力，FIELD_COMPLETENESS 不再因格式崩盤；line item 與 CHANGE-094 費用回填零變化。**本地驗證通過**；Azure 仍待 A3 部署。
 
 ---
 
