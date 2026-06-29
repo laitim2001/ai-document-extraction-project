@@ -164,7 +164,7 @@ export function TemplateFieldMappingList({ className }: TemplateFieldMappingList
       limit: filters.limit,
     });
 
-  const { deleteMapping, isDeleting } = useDeleteTemplateFieldMapping(deleteId || '');
+  const { deleteMapping, isDeleting } = useDeleteTemplateFieldMapping();
 
   // Handlers
   const handleSearch = React.useCallback(() => {
@@ -194,7 +194,7 @@ export function TemplateFieldMappingList({ className }: TemplateFieldMappingList
     if (!deleteId) return;
 
     try {
-      await deleteMapping();
+      await deleteMapping(deleteId);
       toast.success(t('toast.deleted.title'));
       setDeleteId(null);
     } catch (err) {

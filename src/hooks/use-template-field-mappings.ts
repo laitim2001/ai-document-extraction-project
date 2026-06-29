@@ -493,7 +493,7 @@ export function useUpdateTemplateFieldMapping(
  * 刪除映射配置的返回類型
  */
 export interface UseDeleteTemplateFieldMappingResult {
-  deleteMapping: () => Promise<void>;
+  deleteMapping: (id: string) => Promise<void>;
   isDeleting: boolean;
   error: Error | null;
 }
@@ -501,24 +501,26 @@ export interface UseDeleteTemplateFieldMappingResult {
 /**
  * 刪除映射配置
  *
- * @param id - 配置 ID
  * @returns Mutation 函數和狀態
+ *
+ * @remarks
+ *   配置 ID 於呼叫 `deleteMapping(id)` 時作為 mutation variable 傳入，
+ *   而非以閉包捕獲外部 state，避免外部 state 被重置（如對話框關閉）時
+ *   送出空白 id 的競態（FIX-098）。
  *
  * @example
  * ```tsx
- * const { deleteMapping, isDeleting } = useDeleteTemplateFieldMapping('xxx');
+ * const { deleteMapping, isDeleting } = useDeleteTemplateFieldMapping();
  *
- * await deleteMapping();
+ * await deleteMapping('xxx');
  * ```
  */
-export function useDeleteTemplateFieldMapping(
-  id: string
-): UseDeleteTemplateFieldMappingResult {
+export function useDeleteTemplateFieldMapping(): UseDeleteTemplateFieldMappingResult {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: () => deleteMapping(id),
-    onSuccess: () => {
+    mutationFn: (id: string) => deleteMapping(id),
+    onSuccess: (_data, id) => {
       // 清除詳情快取
       queryClient.removeQueries({
         queryKey: templateFieldMappingQueryKeys.detail(id),
@@ -535,7 +537,7 @@ export function useDeleteTemplateFieldMapping(
   });
 
   return {
-    deleteMapping: () => mutation.mutateAsync(),
+    deleteMapping: (id: string) => mutation.mutateAsync(id),
     isDeleting: mutation.isPending,
     error: mutation.error as Error | null,
   };
