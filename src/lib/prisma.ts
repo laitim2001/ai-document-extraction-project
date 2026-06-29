@@ -51,9 +51,15 @@ function createPrismaClient(): PrismaClient {
 
   return new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV === 'development'
-      ? ['query', 'error', 'warn']
-      : ['error'],
+    // FIX-100: dev 預設不記錄 query log。處理 pipeline 會跑數十個查詢，每個 'query' log 都是
+    // 一次同步 console.log（stdout 被導向檔案時更會累積阻塞主 event loop），拖慢上傳後的
+    // documents 載入。需逐查詢除錯時設 PRISMA_QUERY_LOG=true 開回。生產不受影響（本就只 error）。
+    log:
+      process.env.NODE_ENV === 'development'
+        ? process.env.PRISMA_QUERY_LOG === 'true'
+          ? ['query', 'error', 'warn']
+          : ['error', 'warn']
+        : ['error'],
   })
 }
 
