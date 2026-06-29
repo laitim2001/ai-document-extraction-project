@@ -4,7 +4,7 @@
 > **發現方式**: 用戶回報（本地與 Azure 處理相同文件，信心度差異巨大）
 > **影響頁面/功能**: V3.1 三階段提取的信心度計算與路由決策（影響所有文件）
 > **優先級**: 高
-> **狀態**: 🚧 本地已修復並通過 live 回歸驗證（A1 + A2 + B 完成；type-check / lint / 重新處理皆通過）｜Azure DB (A3) 待部署
+> **狀態**: ✅ 已修復（本地 + Azure 全鏈完成）— A1+A2+B 程式碼 + A3 DB prompt 更新皆完成；本地與 Azure UI 端到端驗證信心度 ≥90% AUTO_APPROVE（2026-06-29）
 
 ---
 
@@ -149,6 +149,7 @@
 - [x] `npm run type-check` 通過（2026-06-28）
 - [x] `npm run lint` 通過（2026-06-28，無 error）
 - [ ] （方案 A）多份不同格式文件回歸，確認提取與信心度皆穩定 — 本次 live 驗 1 份 fields 格式；多份／invoiceData 格式可後續補
+- [x] **Azure DEV 端到端驗證**：部署後處理文件信心度 ≥90% AUTO_APPROVE（2026-06-29，用戶 UI 實測）— 原 75.8% Quick Review 症狀解決
 
 ### Live 回歸結果（2026-06-28，本地，新 code + 新 prompt）
 
@@ -161,9 +162,23 @@
 | `fields` key 數 | — | 23（8 標準 + 15 費用並存）|
 | mapped_fields | 4 | 12 |
 
-> 結論：A1（讓 GPT 在 fields 格式下提取標準欄位）為治本主力，FIELD_COMPLETENESS 不再因格式崩盤；line item 與 CHANGE-094 費用回填零變化。**本地驗證通過**；Azure 仍待 A3 部署。
+> 結論：A1（讓 GPT 在 fields 格式下提取標準欄位）為治本主力，FIELD_COMPLETENESS 不再因格式崩盤；line item 與 CHANGE-094 費用回填零變化。**本地驗證通過**。
+
+### Azure DEV 部署 + 驗證（2026-06-29）
+
+A3 機制實作為 `prisma/update-stage3-prompt.js` + entrypoint gated `RUN_STAGE3_PROMPT_FIX`（PR #84），按 runbook §A 標準流程部署：
+
+| 步驟 | 結果 |
+|------|------|
+| 映像 | `dev-fix095prompt-20260629112650`（含 FIX-095/096/097 全部碼 + A3 gated 腳本）|
+| A3 prompt 更新 | 容器 log `[stage3-prompt] done — 2 GLOBAL prompt(s) updated to FIX-095 template`（2 筆 GLOBAL：`STAGE_3_FIELD_EXTRACTION` + `FIELD_EXTRACTION`）|
+| 啟動 | health 200、database connected、無 exit 127 / re2.wasm ENOENT |
+| 一次性旗標 | `RUN_STAGE3_PROMPT_FIX` 部署後設回 false（runbook §A.5）|
+| **UI 端到端驗證** | 用戶實測 Azure 處理文件信心度 **≥90% AUTO_APPROVE**，原 75.8% Quick Review 症狀解決 |
+
+> 結論：FIX-095 本地 + Azure 全鏈完成。原始跨環境信心度差異（本地 92% vs Azure 75.8%）已消除，兩環境一致落在 AUTO_APPROVE 區間。
 
 ---
 
 *文件建立日期: 2026-06-28*
-*最後更新: 2026-06-28*
+*最後更新: 2026-06-29*
