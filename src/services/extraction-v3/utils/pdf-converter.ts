@@ -176,6 +176,11 @@ export class PdfConverter {
         const mimeType =
           mergedConfig.format === 'jpeg' ? 'image/jpeg' : 'image/png';
         images.push(`data:${mimeType};base64,${base64}`);
+
+        // FIX-100: 每頁處理後讓出 event loop。pdf-to-img（pdfjs）逐頁 rasterize 是同步 CPU，
+        // 連續多頁會長時間阻塞單線程主 event loop，使前景請求（如上傳後的 documents 列表）
+        // 被餓死。在頁與頁之間 yield，讓 pending 的前景請求能在間隙被處理（不改變輸出）。
+        await new Promise<void>((resolve) => setImmediate(resolve));
       }
 
       return {
