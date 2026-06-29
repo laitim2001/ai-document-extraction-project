@@ -72,9 +72,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const sourceType = searchParams.get('sourceType') || undefined
 
     // 驗證城市權限
-    const user = session.user as { cityAccess?: string[]; role?: string }
-    const userCities = user.cityAccess || []
-    const isGlobalAdmin = user.role === 'GLOBAL_ADMIN'
+    // FIX-097: 用正確的 session 欄位（cityCodes / isGlobalAdmin），
+    //   原本誤用不存在的 user.cityAccess / user.role 導致城市過濾失效。
+    const userCities = session.user.cityCodes ?? []
+    const isGlobalAdmin = session.user.isGlobalAdmin === true
 
     if (cityCode && !isGlobalAdmin && !userCities.includes(cityCode) && !userCities.includes('*')) {
       return NextResponse.json(
